@@ -1,0 +1,37 @@
+@page {
+	size: A4 portrait;
+	margin: 1cm 1cm;
+}
+
+body {
+	font-family: "Liberation Sans", Arial, sans-serif;
+	font-size: 12px;
+}
+
+footer {
+	position: fixed;
+	bottom: 0px;
+	left: 0px;
+	right: 0px;
+	height: 0.75cm;
+	border-top: 2px solid #2B649D;
+	border-bottom: 2px solid #2B649D;
+	/*border-color: #234E79;*/
+	/*background: black;*/
+}
+
+.footer {
+	display: flex;
+	justify-content: space-between;
+    align-items: center;
+}
+
+.footer__name {
+}
+
+.footer__calcs {
+	
+}
+
+.footer__page {
+}

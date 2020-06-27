@@ -1,0 +1,131 @@
+[0.9.9 (27/06/2020)]
+- csubmit will now generate 3D coordinates using openbabel for appropriate 2D formats
+- csubmit's return value is the number of calculations successfully submitted (or negative on error).
+- all other program's return values are now 0 on success or negative on error.
+- support for calling obabel directly has been added as a fallback for when openbabel python bindings aren't available.
+- csubmit will now only emit a warning instead of stopping if the scratch dir already exists
+- Added openbabel and pybel to references
+[0.9.8 (26/06/2020)]
+- Fixed a bug where calculation end date/time weren't printed in csubmit
+
+[0.9.7 (26/06/2020)]
+- Tweaked summary page layout for reports.
+- Vibrations summary now correctly prints frequencies
+- Changed 'Magnitude' to 'Total' for dipole moments in reports.
+- Fixed a bug that caused silico options to be applied to calculation targets they weren't set against.
+- csubmit will now gracefully shutdown on receiving most signals (including those sent by SLURM), trying to rescue any scratch data before exiting.
+
+[0.9.6 (25/06/2020)]
+- Fixed a bug that produced a warning whenever creating a report which had no excited states
+- Fixed a bug when automatically producing the atom mini-report from csubmit
+- Summary page in reports now flows properly across multiple pages
+- Fixed a crash when creating a report that contained an excited state with energy == 0
+
+[0.9.5 (25/06/2020)]
+- Excited states and TDMs are now correctly handled for Opt + TDA/TD-DFT results
+- Added support for adiabatic emission energy
+- Added support for vertical emission energy
+- Added calculation groups for csubmit
+- Added calculation series for csubmit
+- Added minor highlighting (bold, colour etc) to the csubmit calc list
+
+[0.9.4 (23/06/2020)]
+- csubmit list menu now only showes a limited number of possible calculations on the first invocation; increasing to all on the second
+- calculation targets can now be grouped in the csubmit menu
+- Fixed a bug that prevented automatic report writing via csubmit
+
+[0.9.3 (23/06/2020)]
+- Minor formatting tweaks to reports to try and maintain consistency (different line heights across versions).
+- Reports now how the Liberation Sans font built in through @font-face
+ 
+[0.9.2 (22/06/2020)]
+- Reduced precision to 2dp for dipole moments in reports
+- Config files are now loaded alphabetically by file-name
+- Reduced the default number of MOs printed in the orbital table for reports
+- Added spin density to reports
+- Isosurface isovalue can now be set in configs for orbital and spin rendering
+- Improved csubmit calculations list.
+- Creport can now create a mini-report containing just atoms
+- Csubmit now prints immediately before and after running a calculation program.
+- Added the -S command-line arg to all programs which allows config options to be temporarily overwritten on the fly.
+- Switched from PNG to JPEG format for report images, greatly reducing overall file size (PNGs are still rendered but not included into PDF).
+
+[0.9.1 (16/06/2020)]
+- Added SLURM info to csubmit showing number of free nodes/CPUs per partition.
+- Improved usage messages for cresult
+- Fixed a bug with multiple name columns in cresult
+
+[0.9.0 (16/06/2020)]
+- Completely rewrote cresult
+- cresult now supports much more powerful section options; especially for the CSV/table formats which are now variable width (eg, can include certain excited states)
+- Initial version of csubmit; supporting SLURM and g09
+
+[0.8.3 (31/05/2020)]
+- Fixed a bug that caused the coords of dipole moments to be reported in their original orientation and not the orientation of the chosen alignment method.
+- Fixed the same bug above which similarly affected atom coords in reports (but not in results).
+
+[0.8.2 (27/05/2020)]
+- Blank pages should no longer be inserted after tables that take up exactly one page (maybe...)
+- Minor formatting fixes to reports
+- Tweaks to rendering styles: renamed 'silico' to 'sharp', added 'pastel', 'light-pastel' and 'dark-pastel'
+- Tweaks to excited states, orbitals, absorption and frequency graphs.
+- Improved layout of excited states diagrams, reducing overlapping text
+- Switched from ColorPy (which does not appear to be maintained) to Colour-Science.
+
+[0.8.1 (19/05/2020)]
+- The quality of rendered molecule images can now be controlled by a config option.
+- The quality/size of Gaussian cube files can now be controlled by a config option.
+- Additional config files can now be specified on the command line.
+- Added a new alignment method: Adjusted Average Angle
+- Fixed a bug that caused molecule images to be rotated incorrectly
+
+[0.8.0 (11/05/2020)]
+- Fixed a bug in all alignment methods where rotations were recorded incorrectly, leading to incorrect dipole angles.
+- Fixed a bug in VMD rendering where rotations were not properly implemented, leading to the molecule sometimes being 90 deg to the expected alignment.
+- Added individual captions for each image in a group of images (eg, X/Y plane etc.)
+- The units for angles can now be selected from degrees or radians.
+- Report images are now stored in their own subdirectory (report/image).
+- TDM now appears on the summary page.
+- Reports can now now convert Gaussian .chk files to .fchk files in order to generate images.
+- Development versions now use a modified version sting compared to releases (with an added '-dev' string).
+- Renamed the 'Vanilla' alignment method to 'Minimal'.
+- Added date to metadata (although this currently is the date of reading/loading, not when the calculation actually happened).
+- Various bugfixes and improvements to excited state diagrams.
+- Various improvements to matplotlib graphs, including migrating from pyplot -> OO style.
+- Most matplotlib diagrams now scale depending on how much data there is to display (eg, MO diagrams will now be much taller if there is a big HOMO/LUMO gap.)
+- Molecular structures in dipole moment images are now partially transparent to show the dipole more clearly.
+- Restructured the internals that manage report images.
+- Altered the signature of creport so it can now automatically determine the type of calculation result file given to it.
+- Added the About section to the end of reports and improved the bibliography so it's now clearer which references to cite.
+- Images are now created in their own individual sub-folders (ie: report/image/Dipole Moment).
+- 3D molecule/orbital images can now optionally be rendered in a style mimicking that of GaussView.
+- Added a second version of the MO energy diagram that shows only the HOMO/LUMO. 
+- Greatly expanded the config file with a number of options for fine tuning report generation.
+
+[0.7]
+- Fixed a unit conversion bug in transition dipole moments that caused all TDM to be too small.
+- Fixed a bug in Kebab+ that caused it to rotate all structures by exactly 90 deg and nothing else. Kebab+ now functions as intended.
+- Added config files
+- Improved error reporting, different levels of exception detail are now printed depending on log level.
+- The default alignment method has been set to vanilla, as this was the (unintended) default prior to Kebab+ being fixed (and tends to give better results anyway).
+
+[0.6.4]
+- Implemented a new material style for orbitals when rendering with VMD, inspired by https://www.sciencedirect.com/science/article/pii/S1566119919304185?
+- creport can now create orbital energy diagrams.
+- creport tables now take up the whole page width.
+- creport excited state diagrams are now to scale (behind the scenes the rendering method has completely changed from pure HTML/CSS to matplotlib).
+
+[0.6.3]
+- Fixed some missing data in the 'summary' and 'csv' formats of cresult.
+- Changed the colour of carbon atoms when rendering with VMD from cyan to grey/black.
+- Changed the scale on absorption graphs so peaks near the extremes of the scale aren't obviously cut in half. 
+
+[0.6.2]
+- Fixed a crash caused by geometry data not being handed to the transition dipole moment constructor
+
+[0.6.1]
+- Fixed a bug with the tachyon render not supporting whitespace in filenames
+
+[0.6]
+- First version under the 'silico' name.
+- Various improvements over previous alpha versions.

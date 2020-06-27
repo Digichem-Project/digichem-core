@@ -1,0 +1,70 @@
+# ---
+# CONFIG_TYPE: submit_methods
+# 
+# # Config for a local submission
+# CONFIG_NAME: Local
+# CONFIG_ALIAS: [local]
+# 
+# class_handle: local
+# 
+# # Whether to daemonise (run in the background) or not.
+# daemon: False
+# 
+# ---
+# CONFIG_TYPE: submit_methods
+# 
+# # Config for a local submission
+# CONFIG_NAME: Local (No Wait)
+# CONFIG_ALIAS: [local_nw]
+# 
+# class_handle: local
+# 
+# # Whether to daemonise (run in the background) or not.
+# daemon: True
+
+---
+CONFIG_TYPE: submit_methods
+
+# Config for a SLURM submission.
+CONFIG_NAME: Normal SLURM
+CONFIG_ALIAS: [slurm]
+
+class_handle: SLURM
+partition: singlenode
+
+# The command used to run sbatch (incase this has been renamed or wrapped in some way).
+sbatch_command: sbatch
+
+# Resource allocation: 
+# The number of tasks to allocate for (this can often be thought of as the number of parallel processes being launched; if srun is being called multiple times (or launches multiple parallel processes), this should match the number of processes. Note that tasks can be distributed over different nodes (computers).
+num_tasks: 1
+# The number of CPUs to allocate per task (parallel job). If num_tasks is 1, then this is the number of CPUs to allocate (eg, for a multithreaded program). Unlike tasks, CPUs cannot be distributed over different nodes (computers).
+# The default is to use the same number of CPUs as the calculation uses.
+CPUs_per_task: auto
+#CPUs_per_task: 10
+
+# The amount of memory to allocate per CPU.
+# The default is to use the same amount of memory as the calculation uses.
+mem_per_CPU: auto
+#mem_per_CPU: 2100MB
+
+# Whether or not the worker nodes have access to the same directory structure as the main, control node.
+# This should be the case for most standard SLURM set-ups, and common_directory = False is currently not supported (because we would need a way to move our calculation file to the worker node(s).
+#common_directory: True
+
+---
+CONFIG_TYPE: submit_methods
+CONFIG_NAME: BigMem SLURM
+CONFIG_PARENT: [slurm]
+CONFIG_ALIAS: [slurm_big_mem]
+class_handle: SLURM
+partition: bigmem
+
+---
+CONFIG_TYPE: submit_methods
+CONFIG_NAME: Multi Node SLURM
+CONFIG_PARENT: [slurm]
+CONFIG_ALIAS: [slurm_multi]
+class_handle: SLURM
+partition: parallel
+warning: You have selected the high-performance parallel partition intended for highly demanding calculations only

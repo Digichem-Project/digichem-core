@@ -1,0 +1,26 @@
+.image__aligner--excitedStatesDiagram {
+	height: auto;
+	width: auto;
+	
+	/*outline: 2px solid blue;*/
+	text-align:right;
+	
+	
+}
+
+.image__img--excitedStatesDiagram {
+	position: static;
+	transform: none;
+	
+	/* Max width/height is broken for images in weasyprint, we'll have to do it by hand. */
+	max-height: 450px;
+	max-width: 420px;
+	
+	/*max-width:none;
+	max-height: none;*/
+	
+}
+
+.reportHeader--excitedStates {
+	max-width: 338px;
+}

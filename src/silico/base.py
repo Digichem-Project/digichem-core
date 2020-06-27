@@ -1,0 +1,37 @@
+from logging import getLogger
+import logging
+import sys
+import os
+from pathlib import Path
+
+import silico.logging
+
+def init_logger(logger_name):
+	"""
+	Init the program wide logger.
+	"""
+	logger = getLogger(logger_name)
+	
+	# The console handler, where we'll print most messages.
+	consoleHandler = logging.StreamHandler(sys.stderr)
+	# Handle everything.
+	consoleHandler.setLevel(logging.DEBUG)
+	# Set its formatter.
+	consoleHandler.setFormatter(silico.logging.Variable_formatter(logger))
+	# Add the handler.
+	logger.addHandler(consoleHandler)
+	
+def init_obabel():
+	"""
+	Set-up openbabel.
+	
+	When frozen with pyinstaller we take a version of the openbabel C library with us (along with the relevant python bindings of course).
+	This library is split into several .so files corresponding to the various formats obabel supports, and while the main libopenbabel.so file is found automatically, these supplementary library files are not.
+	So, when we are frozen, we manually set the location of these library files so openbabel will work.
+	If we are not frozen we do not do this as we expect openbabel to be correctly configured.
+	"""
+	# The sys attribute 'frozen' is our flag, '_MEIPASS' is the dir location.
+	# https://pyinstaller.readthedocs.io/en/stable/runtime-information.html#run-time-information
+	if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
+		# We are frozen.
+		os.environ['BABEL_LIBDIR'] = str(Path(sys._MEIPASS, "openbabel", "3.1.1"))

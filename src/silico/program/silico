@@ -1,0 +1,6 @@
+#!/bin/bash
+
+# This is a temporary stand in for the real silico executable (which hasn't been written yet).
+# We simply call csubmit with the -i (interactive) flag.
+
+csubmit -i "$@"

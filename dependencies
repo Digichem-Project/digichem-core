@@ -1,0 +1,7 @@
+#!/bin/bash
+
+# Simple script for installing the python dependencies that we need.
+pip3 install --user mako weasyprint matplotlib periodictable cclib pillow scipy tabulate bibtexparser colour-science pyyaml
+
+# You will also need VMD (make sure to use the sh version, not csh).
+# And add tachyon to your path (you can find it in your vmd lib installation folder, probably /usr/local/lib/vmd)

@@ -1,0 +1,129 @@
+# This is the parent config for most other Gaussian DFT  calculation definitions, it is not actually available as a calculation by itself.
+# To inherit from this config, set 'CONFIG_PARENT: [g09_default]' in your config.
+
+---
+CONFIG_TYPE: submit_calculations
+
+# Calculations without a name are  hidden and won't appear as an option, but they can still be used as templates for other, concrete calculations.
+CONFIG_ALIAS: [g09_default]
+
+# Config for a gaussian calculation.
+class_handle: Gaussian-DFT
+
+# The programs that this calculation is compatible with.
+programs: [g09, g16]
+
+# Gaussian calculation options.
+# The number of processors to use. More processors will generally shorten the overall calculation time, but this relationship may not be linear.
+# If you wish to specify the exact processors to utilise (not sure why you would, but apparently this is preferred by Gaussian), use the 'CPU' option instead.
+#CPU_list: [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31]
+# On Kennedy, the default is normally 32 CPUs (an entire node).
+# This is probably extremely wasteful
+# On dragon, we normally use 10
+num_CPUs: 10
+
+# The amount of 'dynamic memory' to use for the calculation (https://gaussian.com/link0/).
+# Note that the amount of memory actually used by Gaussian can far exceed the value set here (at least in G09, not sure why).
+memory: 8GB
+
+# Basis set.
+basis_set: 6-31G(d,p)
+
+# If True, a formated checkpoint file (.fchk) will be created automatically after the calculation has finished.
+convert_chk: True
+
+# If False, the .chk file will be deleted automatically.
+# False is mostly safe here as the .chk/.fchk conversion is mostly reversible, however know that there is some data that is lost converting from .chk to .fchk (data needed to calculate NTOs, for example).
+keep_chk: False
+
+# Whether to write silico result files once the calculation has complete.
+# The files writen are the same as can be aquired by using cresult later, they are small text files so there is generally little reason to set this to False.
+# This option only controls writing of additional silico result files; even if write_results is False, the output files produced by the calculation (.log, .out etc) will still be saved. 
+write_summary: True
+
+# Whether to generate a PDF report once the calculation has complete.
+# The report written is the same as can be aquired by using creport later.
+# Silico reports can be large (10s to 100s of MB) and take several minutes to render (depending on the calculation and available computing power of course). This option can be disabled to save on space/time.
+write_report: True
+
+# Options that control use of the scratch directory.
+# Set scratch_structure: None to disable scatch.
+scratch_options: 
+    # Path to the directory to use for scratch. For each calculation, a unique subdirectory will be created under this root directory.
+    path: /scratch/tmp
+    
+    # If True, directories created in the scratch directory will be contained in a subdirectory for each user (so the path would become eg, /scratch/<USERNAME>/<CALC_ID>).
+    include_username: True
+    
+    # Whether to copy everything from scratch to output (on success or failures). Normally False is safe here as important output will already have been moved, but if there is a particular temp file that you need, set this to True.
+    keep: False
+    
+    # Whether to copy everything from scratch to output on failure. True is safer as there is not risk of an important file being lost, but can involve copying huge files that aren't needed.
+    rescue: True
+    
+    # If True, the scratch directory is always deleted after the calculation has completed, even if the calculation failed or if the results could not be copied back to the output directory.
+    # This is normally unsafe, but on Kennedy we can't easily get access to the scratch anyway, so we might as well cleanup after ourselves.
+    force_delete: True
+    
+    # If True, all calculation output will be written to the scratch directory. If False, only intermediate files will be written to scratch (.log will be written directly to output directory for example).
+    #all_output: False
+
+# These options are added to the Gaussian route section with only minor modification:
+#       Options of the form 'Foo: Bar' will become 'Foo=Bar'
+#       Options of the form 'Foo: ""'  will become 'Foo'
+#   Options of the form 'Foo: null' will be deleted (useful for unsetting something from a default).
+# You can add any option here that you like (though if the option is not recognised by Gaussian then the calculation will not complete successfully.
+options:
+    # The integration grid size to use. Choice of grid size is a reasonably advanced topic that is not discussed here, but know that larger grid size increases both computational accuracy and cost (and not necessarily in a linear fashion).
+    # Gaussian recommends at least the ultrafine grid, see the manual for other options.
+    
+    # This is currently disabled for a few reasons; most importantly, there appears to a bug in Gaussian where this grid (and maybe others) results in hugely over estimated dipole moments.
+    #Integral: UltraFine
+
+    # Optional empirical dispersion, possible options include:
+    # GD2: D2 version of Grimme’s dispersion.
+    # GD3: D3 version of Grimme’s dispersion.
+    # GD3BJ: D3 version of Grimme’s dispersion with Becke-Johnson damping.
+    # See the Gaussian manual for other options.
+    # Also, note that certain functionals contain dispersion by nature/default (eg, B2PLYPD3) 
+    EmpiricalDispersion: GD3BJ
+
+    # Controls how symmetry is used in the calculation. There are many options here (again, see the Gaussian manual), but generally either 'Tight' or 'Loose' is sufficient for most cases. Tight is the default; loose is "designed for use with suboptimal input geometrie" (https://gaussian.com/symmetry/).
+    Symmetry: Tight
+
+    # Among other things, the Population option controls how much information is printed in the calculation log file (but does not affect the .chk file?). Regular or Full are the most likely options.
+    Population: Regular
+
+    # This option controls which density to use with the Population option. 'Current' is generally what you want, but alternatives may be required for eg MP2.
+    #Density: Current
+    Density: ""
+
+    # Specifies that atom connectivity is found in the input file (which is the case for GaussView).
+#    Geometry: Connectivity
+
+
+# Parent calculation for organometallic stuff (or anything using the 6-31+G(d,p)/SBKJC-VDZ-ECP basis set combo).
+---
+CONFIG_TYPE: submit_calculations
+
+# Calculations without a name are  hidden and won't appear as an option, but they can still be used as templates for other, concrete calculations.
+CONFIG_ALIAS: [g09_organomet_default]
+CONFIG_PARENT: [g09_default]
+
+# We'll be using Gaussian's 'GENeral basis set' (gen) functionality with Effective Core Potentials (ECP).
+basis_set: genECP
+
+# This is a list of conig names (containing basis sets) that we'll include into our file. This is where we really set which basis sets to use.
+# The order is important here as Gaussian seems to panic if atoms aren't listed in increasing proton number (so we set H-Ar first).
+extended_basis_sets:
+    # First 6-31_G(d,p) (for light atoms).
+    - 6_31_plus_starstar_H_Ar
+    # Then SBKJC-VDZ (for heavy atoms).
+    - SBKJC_VDZ_K_Rn
+
+# We also set out ECP separately (because conceivable you might want to turn this off).
+extended_ECPs:
+    # We specify the same config as for the basis set (because it contains both basis set and ECPs).
+    - SBKJC_VDZ_K_Rn
+
+

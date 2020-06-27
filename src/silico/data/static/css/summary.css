@@ -1,0 +1,31 @@
+
+.section__body--summary {
+	justify-content: space-between;	
+	page-break-after: always;
+	align-items: flex-start;
+	/* Turn off flex because there's a good chance we'll overflow one page which breaks weasyprint flex.*/
+	display: block;
+	/*justify-content: flex-start;*/
+}
+
+/* Fiddle with the size of result containers on the summary page so they layout nicely. */
+.section__body--summary .resultsContainer {
+	width: 219px;
+	/*float: left;*/
+	display: inline-block;
+	margin: 8px 8px;
+	vertical-align: top;
+}
+
+.section__body--summary .resultsContainer--excitedStates {
+	width: 438px;
+	width: 338px;
+}
+
+.section__body--summary .results__name {
+	max-width: 100px;
+}
+
+.section__body--summary .resultsContainer--excitedStates .results__name {
+	max-width: none;
+}

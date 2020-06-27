@@ -1,0 +1,37 @@
+@page {
+	size: A4 portrait;
+	margin: 1cm 1cm;
+}
+
+body {
+	font-family: "Liberation Sans", Arial, sans-serif;
+	font-size: 15px;
+}
+
+header {
+	position: fixed;
+	top: 0px;
+	left: 0px;
+	right: 0px;
+	height: 1cm;
+	background: #234E79;
+	background: #2B649D;
+}
+
+.header {
+	display: flex;
+	justify-content: center;
+    align-items: center;
+}
+
+.header__title {
+	color: white;
+	font-style: italic;
+	font-size: 18px;
+	font-weight: bold;
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	padding-left: 15px;
+	padding-right: 15px;
+}
