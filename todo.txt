@@ -1,2 +1,1 @@
-- Dipole angle is reported as 90 deg when there is no dipole
 - Add counter to cresult when loading files (eg, Loading file 1/100... Loading file 2/100...).
