@@ -8,7 +8,8 @@ datas = [('../../silico/data', 'silico/data')]
 # Now add extra binary libraries that we need.
 binaries = [
 	("/usr/local/lib/openbabel","openbabel"),
-    ("/usr/local/lib/libinchi.so.0", ".")
+	("/usr/local/lib/libinchi.so.0", "."),
+	("/lib64/libz.so.1", ".")
 ]
 
 a = Analysis(['../../silico/program/cresult.py'],
