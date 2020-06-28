@@ -1,9 +1,7 @@
 [0.9.10 (28/06/2020)]
-
-[0.9.10 (28/06/2020)]
-
-[0.9.10 (28/06/2020)]
 - Fixes for compiling on CentOS 6.10
+- Fix for reading .cdx files with obabel when frozen.
+
 [0.9.9 (28/06/2020)]
 - csubmit will now generate 3D coordinates using openbabel for appropriate 2D formats
 - csubmit's return value is the number of calculations successfully submitted (or negative on error).
@@ -11,7 +9,6 @@
 - support for calling obabel directly has been added as a fallback for when openbabel python bindings aren't available.
 - csubmit will now only emit a warning instead of stopping if the scratch dir already exists
 - Added openbabel and pybel to references
-
 
 [0.9.8 (26/06/2020)]
 - Fixed a bug where calculation end date/time weren't printed in csubmit
