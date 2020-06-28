@@ -10,12 +10,17 @@ warnings.filterwarnings("ignore", "(?s).*Source ID .* was not found when attempt
 # This one is caused by the way tight_layout works. It's fine to ignore here, but not so good if we want to plot interactively.
 warnings.filterwarnings("ignore", "(?s).*tight_layout: falling back to Agg renderer*", category = UserWarning)
 
+import sys
+# These	two suppress weasyprint warnings about incompatible libraries (which we ignore when freezing).
+if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
+	warnings.filterwarnings("ignore", "(?s).*@font-face support needs Pango >= 1.38*", category = UserWarning)
+	warnings.filterwarnings("ignore", "(?s).*There are known rendering problems and missing features with cairo < 1.15.4*", category = UserWarning)
+
 # Init openbabel.
 import silico
 silico.init_obabel()
 
 # General imports.
-import sys
 import argparse
 from pathlib import Path
 import readline
