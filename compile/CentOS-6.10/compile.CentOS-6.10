@@ -1,0 +1,6 @@
+#!/bin/bash
+
+pyinstaller creport.CentOS-6.10.spec --noconfirm
+pyinstaller cresult.CentOS-6.10.spec --noconfirm
+pyinstaller csubmit.CentOS-6.10.spec --noconfirm
+pyinstaller _silico_resume.CentOS-6.10.spec --noconfirm
