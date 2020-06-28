@@ -1,3 +1,5 @@
+[0.9.10 (28/06/2020)]
+- Fixes for compiling on CentOS 6.10
 [0.9.9 (28/06/2020)]
 - csubmit will now generate 3D coordinates using openbabel for appropriate 2D formats
 - csubmit's return value is the number of calculations successfully submitted (or negative on error).
