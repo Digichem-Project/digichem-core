@@ -26,7 +26,8 @@ binaries = [
 a = Analysis(['../../silico/program/_silico_resume.py'],
              binaries=binaries,
              datas=datas,
-             hiddenimports=['cssselect2', 'tinycss2'],
+             # 'pkg_resources.py2_warn' see https://github.com/pypa/setuptools/issues/1963
+             hiddenimports=['cssselect2', 'tinycss2', 'pkg_resources.py2_warn'],
              hookspath=[],
              runtime_hooks=[],
              excludes=[],
