@@ -32,5 +32,13 @@ logger_name = "silico"
 # Init the logger.
 silico.base.init_logger(logger_name)
 
+# Decide on whether we are frozen or not.
+# The sys attribute 'frozen' is our flag, '_MEIPASS' is the dir location.
+# https://pyinstaller.readthedocs.io/en/stable/runtime-information.html#run-time-information
+if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
+	frozen = True
+else:
+	frozen = False
+
 def default_template_directory():
 	return Path(pkg_resources.resource_filename('silico', 'data/templates'))

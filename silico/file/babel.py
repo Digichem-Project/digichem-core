@@ -4,6 +4,9 @@ from silico.exception.base import Silico_exception
 from logging import getLogger
 import silico
 import re
+from mako.lookup import TemplateLookup
+import os
+import copy
 
 # Try and load openbabel bindings.
 HAVE_BINDINGS = False
@@ -197,11 +200,38 @@ class Obabel_converter(Openbabel_converter):
  		 		
  		:return: The converted file.
  		"""
+# 		obabel_wrapper_body = TemplateLookup(directories = str(silico.default_template_directory())).get_template("/submit/obabel_wrapper.mako").render_unicode(executable = self.obabel_execuable, input_file = str(self.input_file_path), output_format = self.output_file_type, gen3D = self.gen3D)
+# 		
+# 		if self.gen3D:
+# 			getLogger(silico.logger_name).warning("Generating 3D coordinates from file '{}'; this will scramble atom coordinates".format(self.input_file_path))
+# 		
+# 		done_process = subprocess.run(
+# 			['bash'],
+# 			input = obabel_wrapper_body,
+# 			universal_newlines = True,
+# 			check = True,
+# 			# Capture output.
+# 			stdout = subprocess.PIPE,
+# 			stderr = subprocess.PIPE
+# 			)
+		
 		sig = [
  			self.obabel_execuable,
  			str(self.input_file_path),
  			"-o", self.output_file_type
  		]
+		
+		# There are several openbabel bugs re. the chem draw format; one of them occurs when we are frozen and have set the BABEL_LIBDIR env variable.
+		# The workaround is to temp unset BABEL_LIBDIR.
+		# Get our current environment.
+		env = copy.copy(os.environ)
+		# Now delete BABEL_LIBDIR if we are frozen.
+		if silico.frozen:
+			try:
+				del env['BABEL_LIBDIR']
+			except KeyError:
+				# The BABEL_LIBDIR isn't set.
+				pass
 		
 		if self.gen3D:
 			getLogger(silico.logger_name).warning("Generating 3D coordinates from file '{}'; this will scramble atom coordinates".format(self.input_file_path))
@@ -212,7 +242,8 @@ class Obabel_converter(Openbabel_converter):
  			stdout = subprocess.PIPE,
  			stderr = subprocess.PIPE,
  			universal_newlines = True,
- 			check = True
+ 			check = True,
+ 			env = env
  		)
 		
 		# Sadly, openbabel doesn't appear to make use of return codes all the time.
