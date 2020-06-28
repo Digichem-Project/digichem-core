@@ -10,8 +10,11 @@ import shutil
 import os
 from datetime import datetime
 
+# The name of the archive.
+archive_name = silico.name + "-" + silico.version_number + "-source"
+
 # Where we're going to write to
-dest = Path("../", silico.name + "-" + silico.version_number + "-source")
+dest = Path("../archives", archive_name)
 
 # Check we're not overwriting an old archive.
 if Path(str(dest) + ".tar.gz").exists():
@@ -45,11 +48,11 @@ with open("changelog", "wt")  as changelog_file:
 os.remove("updates")
 
 # First copy our source to an appropriate folder name
-distutils.dir_util.copy_tree("../silico", str(dest))
+distutils.dir_util.copy_tree("./", str(dest))
 
 # Modify our version info to remove the development label.
 version_file_contents = ""
-version_file_path = Path(dest, "src/silico/__init__.py")
+version_file_path = Path(dest, "silico/__init__.py")
 with open(version_file_path, "r") as version_file:
 	# Read everything.
 	version_file_contents = version_file.readlines()
@@ -75,8 +78,12 @@ with open(version_file_path, "w") as version_file:
 	version_file.writelines(version_file_contents)
 
 # Use the tar program.
+#subprocess.run(
+#	["tar", "-czf", str(dest) + ".tar.gz", str(dest)]
+#)
 subprocess.run(
-	["tar", "-czf", str(dest) + ".tar.gz", str(dest)]
+    ["tar", "-czf", archive_name + ".tar.gz", archive_name],
+    cwd = str(dest.parent)
 )
 
 
