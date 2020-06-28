@@ -4,6 +4,9 @@ from silico.exception.base import Silico_exception
 from logging import getLogger
 import silico
 import re
+from mako.lookup import TemplateLookup
+import os
+import copy
 
 # Try and load openbabel bindings.
 HAVE_BINDINGS = False
@@ -196,7 +199,7 @@ class Obabel_converter(Openbabel_converter):
  		Run obabel, converting the input file wrapped by this class to the designated output_file_type.
  		 		
  		:return: The converted file.
- 		"""
+ 		"""	
 		sig = [
  			self.obabel_execuable,
  			str(self.input_file_path),
@@ -207,12 +210,25 @@ class Obabel_converter(Openbabel_converter):
 			getLogger(silico.logger_name).warning("Generating 3D coordinates from file '{}'; this will scramble atom coordinates".format(self.input_file_path))
 			sig.append("--gen3D")
 		
+		# There are several openbabel bugs re. the chem draw format; one of them occurs when we are frozen and have set the BABEL_LIBDIR env variable.
+		# The workaround is to temp unset BABEL_LIBDIR.
+		# Get our current environment.
+		env = copy.copy(os.environ)
+		# Now delete BABEL_LIBDIR if we are frozen.
+		if silico.frozen:
+			try:
+				del env['BABEL_LIBDIR']
+			except KeyError:
+				# The BABEL_LIBDIR isn't set.
+				pass
+		
 		done_process = subprocess.run(
  			sig,
  			stdout = subprocess.PIPE,
  			stderr = subprocess.PIPE,
  			universal_newlines = True,
- 			check = True
+ 			check = True,
+ 			env = env
  		)
 		
 		# Sadly, openbabel doesn't appear to make use of return codes all the time.
