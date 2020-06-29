@@ -28,6 +28,7 @@ from multiprocessing import Pool
 from itertools import filterfalse
 from functools import partial
 import logging
+import signal
 
 # Silico imports.
 import silico.program
@@ -183,6 +184,14 @@ def main():
 		inner_func = _main
 	)
 
+def _subprocess_init(*args, **kwargs):
+	"""
+	Init function for subprocess workers.
+	"""
+	# We unset the silico signal handler for SIGTERM because subprocess.pool appears to use this for communication.
+	# Perhaps we should unset all silico signal handlers in children?
+	signal.signal(signal.SIGTERM, signal.SIG_DFL)
+
 def _main(args, config, logger):
 	"""
 	Inner portion of main (wrapped by a try-catch-log hacky boi).
@@ -244,7 +253,7 @@ def _main(args, config, logger):
 		
 	# Get our list of results. Do this in parallel.
 	try:
-		with Pool() as pool:
+		with Pool(initializer = _subprocess_init) as pool:
 			results = list(
 				filterfalse(lambda x: x is None,
 					pool.map(
