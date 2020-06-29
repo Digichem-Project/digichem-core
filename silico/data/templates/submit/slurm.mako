@@ -19,7 +19,7 @@
 %endif
 ##
 %if SLURM_target.mem_per_CPU is not None:
-#SBATCH --mem_per_CPU=${SLURM_target.mem_per_CPU}
+#SBATCH --mem-per-cpu=${SLURM_target.mem_per_CPU}
 %endif
 ##
 %if SLURM_target.time is not None:
