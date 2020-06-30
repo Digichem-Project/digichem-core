@@ -121,7 +121,9 @@ class Config(dict):
 		# First get the parent option from our config.
 		parent_names = config.get('CONFIG_PARENT', [])
 		
-		# Loop through each parent.
+		# Each parent specified will overwrite the options set by the previous parent, and the config itself will overwrite the last parent.
+		# Loop through each parent first
+		merged_parents = Configurable()
 		for parent_name in parent_names:
 			# If we got this far then we have some work to do.
 			# First get the references config.
@@ -136,17 +138,20 @@ class Config(dict):
 			# Also resolve this parent config.
 			parent = self.resolve_config_inheritance(parent, configs)
 			
-			# Now combine.
-			config = deepcopy(config)
+# 			# Now combine.
+# 			config = deepcopy(config)
 			
 			# Remove the parent's name and alias (because we don't want to inherit these).
-			parent['CONFIG_NAME'] = None
-			parent['CONFIG_ALIAS'] = []
-			parent['CONFIG_PARENT'] = []
-			config = self.merge_configs(config, parent, none_to_old = False)
+			parent.pop('CONFIG_NAME', None)
+			parent.pop('CONFIG_ALIAS', None)
+			parent.pop('CONFIG_PARENT', None)
+			merged_parents = self.merge_configs(parent, merged_parents, none_to_old = False)
 		
-		# Give it back.
-		return config
+		# Finally, we merge our combined parent with our real config.
+		return self.merge_configs(config, merged_parents, none_to_old = False) 
+		
+		## Give it back.
+		#return config
 			
 		
 	@classmethod
