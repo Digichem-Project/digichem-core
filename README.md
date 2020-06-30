@@ -24,3 +24,5 @@ Silico currently supports the following:
  
 #### Operating Systems
  - Linux
+ - CentOS 7.7 (frozen packages available)
+ - CentOS 6.10 (frozen packages available, no report generation)
