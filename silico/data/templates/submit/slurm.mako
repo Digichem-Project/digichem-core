@@ -11,11 +11,11 @@
 %endif
 ##
 %if SLURM_target.num_tasks is not None:
-#SBATCH -n ${SLURM_target.num_tasks}
+#SBATCH --ntasks=${SLURM_target.num_tasks}
 %endif
 ##
 %if SLURM_target.CPUs_per_task is not None:
-#SBATCH -c ${SLURM_target.CPUs_per_task}
+#SBATCH --cpus-per-task=${SLURM_target.CPUs_per_task}
 %endif
 ##
 %if SLURM_target.mem_per_CPU is not None:
