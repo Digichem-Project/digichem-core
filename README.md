@@ -8,7 +8,7 @@ A software package for managing and automating various aspects of computational 
  - Automatic and manual analysis of computation results, including tabulation to csv format of multiple results, via integration with [cclib](https://github.com/cclib/cclib/)
  - Automatic and manual generation of pdf reports from computation results, including rendered 3D structures, orbital images and graphs, via integration with [Weasyprint](https://weasyprint.org/), [VMD](https://www.ks.uiuc.edu/Research/vmd/) and [Matplotlib](https://matplotlib.org/)
  
-### Support
+## Support
 Silico currently supports the following:
 
 #### Job Scheduling
