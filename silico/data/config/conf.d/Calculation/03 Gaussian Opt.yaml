@@ -13,6 +13,9 @@ calculation_keywords:
     - Opt
     - Freq
 
+# Freq requires more mem than usual.
+memory: 16GB
+
 ##############################################################
 ---
 CONFIG_TYPE: submit_calculations
