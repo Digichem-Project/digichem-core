@@ -150,6 +150,8 @@ class Metadata_summary_extractor(Summary_extractor):
 			'Name': result.safe_get('metadata', 'name'),
 			'Date': misc.date_to_string(result.safe_get('metadata', 'date')) if result.safe_get('metadata', 'date') is not None else None,
 			'Duration': misc.timedelta_to_string(result.safe_get('metadata', 'duration')) if result.safe_get('metadata', 'duration') is not None else None,
+			'Package': result.safe_get('metadata', 'package'),
+			'Package version': result.safe_get('metadata', 'package_version'),
 			'Calculations': result.safe_get('metadata', 'calculations_string'),
 			'Method': result.safe_get('metadata', 'calc_methods_string'),
 			'Functional': result.safe_get('metadata', 'calc_functional'),

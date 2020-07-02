@@ -43,6 +43,12 @@
 			%endif
 		</tr>
 		%endif
+		%if result.metadata.package_string != "":
+		<tr>
+			<td class="results__name">Computational package:</td>
+			<td class="results__value">${result.metadata.package_string}</td>
+		</tr>
+		%endif
 		%if len(metadata.calc_methods) > 0:
 		<tr>
 			<td class="results__name">Methods:</td>
