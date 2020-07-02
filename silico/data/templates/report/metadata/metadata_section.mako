@@ -40,6 +40,11 @@
 					<td class="results__value results__value--bad">False</td>
 					%endif
 				</tr>
+				%if result.metadata.package_string != "":
+				<tr>
+					<td class="results__name">Computational package:</td>
+					<td class="results__value">${result.metadata.package_string}</td>
+				</tr>
 				%endif
 				%if len(result.metadata.calc_methods) > 0:
 				<tr>

@@ -25,6 +25,7 @@ Date: ${misc.date_to_string(metadata.date)}
 %if metadata.duration is not None:
 Duration: ${misc.timedelta_to_string(metadata.duration)}
 %endif
+Computational package: ${metadata.package_string}
 Calculations: ${metadata.calculations_string}
 Methods: ${metadata.calc_methods_string}
 Functional: ${metadata.calc_functional}
