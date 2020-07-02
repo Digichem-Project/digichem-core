@@ -35,7 +35,9 @@ class Metadata(Result_object):
 			self,
 			name = None,
 			date = None,
-			duration = None, 
+			duration = None,
+			package = None,
+			package_version = None,
 			calculations = None,
 			calc_success = None,
 			calc_methods = None,
@@ -53,6 +55,8 @@ class Metadata(Result_object):
 		:param name: Optional name of this calculation result.
 		:param date: Optional date (datetime object) of this calculation result.
 		:param duration: Optional duration (timedelta object) of this calculation.
+		:param package: Optional string identifying the computational chem program that performed the calculation.
+		:param package: Optional string identifying the version of the computational chem program that performed the calculation.
 		:param calculations: A list of strings of the different calculations carried out (Opt, Freq, TD, TDA, SP etc).
 		:param calc_success: Whether the calculation completed successfully or not.
 		:param calc_methods: List of methods (DFT, HF, MPn etc) used in the calculation.
@@ -68,6 +72,8 @@ class Metadata(Result_object):
 		self.name = name
 		self.date = date
 		self.duration = duration
+		self.package = package
+		self.package_version = package_version
 		self.calculations = calculations if calculations is not None else []
 		self.calc_success = calc_success
 		self.calc_methods = calc_methods if calc_methods is not None else []
@@ -79,6 +85,20 @@ class Metadata(Result_object):
 		self.calc_temperature = calc_temperature
 		self.calc_pressure = calc_pressure
 		self.orbital_spin_type = orbital_spin_type
+		
+	@property
+	def package_string(self):
+		"""
+		The comp chem package and version combined into one string.
+		"""
+		package_string = self.package if self.package is not None else ""
+		
+		# Add version string if we have it.
+		package_string += " " if package_string != "" else ""
+		package_string += "({})".format(self.package_version)
+		
+		# Done.
+		return package_string 
 		
 	@property
 	def calculations_string(self):
@@ -158,6 +178,8 @@ class Metadata(Result_object):
 		try:
 			return self(
 				*args,
+				package = ccdata.metadata.get('package', None),
+				package_version = ccdata.metadata.get('package_version', None),
 				calculations = self.get_calculation_types_from_cclib(ccdata),
 				calc_success = ccdata.metadata.get('success', None),
 				calc_methods = self.get_methods_from_cclib(ccdata),
