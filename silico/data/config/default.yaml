@@ -120,13 +120,11 @@ absorption_graph:
    # Set to 0 for no cutoff (all peaks shown), which may results in the graph being extended well beyond the drawn peaks (because many peaks are too small to see.
    # This option has no effect when using manual x limits.
    peak_cutoff: 0.01
-   # The amount to extend the x axis in either direction beyond the lowest/highest energy peak.
-   # This option has no effect when using manual x limits.
-   x_padding: 60
+   # The amount (in nm) to extend the x axis past the highest/lowest energy peak.
+   x_padding: 30
    # The full-width at half-maximum; changes how wide the drawn peaks are. Note that the choice of peak width is essentially arbitrary; only the peak height is given by calculation.
-   # Units are nm.
-   fwhm: 40
-   #fwhm: 0.4
+   # Units are eV.
+   fwhm: 0.3
    
 # Options for controlling the appearance of IR like vibrational frequency graphs.
 frequency_graph:

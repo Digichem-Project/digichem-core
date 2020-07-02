@@ -436,7 +436,7 @@ class Excited_state(Energy_state):
 	
 	
 	@classmethod
-	def emission_wavelength_to_energy(self, emission_wavelength):
+	def wavelength_to_energy(self, emission_wavelength):
 		"""
 		Convert an emission wavelength (in nm) to energy (in eV).
 		"""
@@ -444,6 +444,7 @@ class Excited_state(Energy_state):
 		# e = (c * h) / λ
 		return ((self.speed_of_light * self.plancks_constant) / (emission_wavelength / 1000000000)) / self.electron_volt
 	
+	@classmethod
 	def energy_to_wavelength(self, energy):
 		"""
 		Convert an energy (in eV) to wavelength (in nm).
@@ -456,7 +457,7 @@ class Excited_state(Energy_state):
 		"""
 		Convert wavenumbers (in cm-1) to energy (in eV).
 		"""
-		return self.emission_wavelength_to_energy((1 / wavenumbers) * 10000000)
+		return self.wavelength_to_energy((1 / wavenumbers) * 10000000)
 	
 	@classmethod
 	def from_cclib(self, level, multiplicity_level, symmetry, energy, oscillator_strength, etsecs, mo_list, beta_mo_list = None, transition_dipole_moment = None):
