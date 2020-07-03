@@ -63,15 +63,23 @@ class Relaxed_excited_state(Excited_state):
 			if len(excited_state_result.excited_states) > 0 and transition_type == "vertical":
 				ground_state_result = excited_state_result
 			elif transition_type == "adiabatic":
-				# No TD excited states, so we'll use the main result object.
-				ground_state_result = main_result
+				# Check we are an Opt, and complain if not.
+				if 'Optimisation' in main_result.metadata.calculations:
+					# No TD excited states, so we'll use the main result object.
+					ground_state_result = main_result
+				else:
+					# No explicit ground given and out main result is not an Opt, so it probably isn't suitable.			
+					raise Silico_exception("Unable to determine ground state in adiabatic emission; no explicit ground state given and this calculation is not an optimisation")
 			else:
-				# Vertical transition via the unrestricted triplet method; we could (in theory) be the ground state, but might also be optimised ground (which would give adiabatic, not vertical).
-				# Sadly, there's no real way of knowing for sure (even if we are a single point, it could be a single point at the optimised geom).
-				# The best we do is guess; if we are a singlepoint, then we are OK as the ground.
-				# If we are not; then we'll stop here. The user can always explicitly set this object as the ground if it is correct.
-				# TODO: Maybe just convert to a warning?
-				raise Silico_exception("Unable to determine ground state in vertical emission; no explicit ground state given and this calculation is not a single point ")
+				if 'Single Point' in main_result.metadata.calculations:
+					ground_state_result = main_result
+				else:
+					# Vertical transition via the unrestricted triplet method; we could (in theory) be the ground state, but might also be optimised ground (which would give adiabatic, not vertical).
+					# Sadly, there's no real way of knowing for sure (even if we are a single point, it could be a single point at the optimised geom).
+					# The best we do is guess; if we are a singlepoint, then we are OK as the ground.
+					# If we are not; then we'll stop here. The user can always explicitly set this object as the ground if it is correct.
+					# TODO: Maybe just convert to a warning?
+					raise Silico_exception("Unable to determine ground state in vertical emission; no explicit ground state given and this calculation is not a single point")
 			
 		# Now decide which excited state to use.
 		excited_state = excited_state if excited_state is None or isinstance(excited_state, Excited_state) else excited_state_result.excited_states.get_state(excited_state)

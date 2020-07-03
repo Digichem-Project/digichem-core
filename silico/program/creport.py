@@ -51,11 +51,9 @@ def main():
 	
 	emission_group = parser.add_argument_group("emission energy", "options for specifying additional input files that allow for the calculation of relaxed emission energy")
 	emission_group.add_argument("--adiabatic_ground", help = "path to a secondary result file that contains results for the ground state to be used to calculate the adiabatic emission energy", default = None)
-	emission_group.add_argument("--adiabatic_excited", help = "path to a secondary result file that contains results for the excited state to be used to calculate the adiabatic emission energy", default = None)
-	emission_group.add_argument("--adiabatic_state", help = "the excited state in 'adiabatic_excited' to use, either a number indicating the state (eg, '1' for lowest state) or the state label (eg, 'S(1)', 'T(1)'). If not given and 'adiabatic_excited' contains excited states, the lowest will be used, otherwise the total energy of 'adiabatic_excited' will be used", default = None)
 	emission_group.add_argument("--vertical_ground", help = "same as --adiabatic_ground, but for vertical emission", default = None)
-	emission_group.add_argument("--vertical_excited", help = "same as --adiabatic_excited, but for vertical emission", default = None)
-	emission_group.add_argument("--vertical_state", help = "same as --adiabatic_state, but for vertical emission", default = None)
+	emission_group.add_argument("--emission", help = "path to a secondary result file that contains results for the excited state to be used to calculate adiabatic and/or vertical emission energy", default = None)
+	emission_group.add_argument("--emission_state", help = "the excited state in 'emission' to use, either a number indicating the state (eg, '1' for lowest state) or the state label (eg, 'S(1)', 'T(1)').", default = None)
 							
 	output_group = parser.add_mutually_exclusive_group()
 	output_group.add_argument("--pdf_file", help = "a filename/path to a pdf file to write to (this is an alternative to the 'output' option). Other output files will placed in the same directory as the 'pdf_file'", nargs = "?", default = None)
@@ -111,11 +109,9 @@ def _main(args, config, logger):
 			fchk_file_path = args.fchk_file,
 			prog_version = silico.version,
 			adiabatic_emission_ground_result = args.adiabatic_ground,
-			adiabatic_emission_excited_result = args.adiabatic_excited,
-			adiabatic_emission_excited_state = args.adiabatic_state,
 			vertical_emission_ground_result = args.vertical_ground,
-			vertical_emission_excited_result = args.vertical_excited,
-			vertical_emission_excited_state = args.vertical_state,
+			emission_excited_result = args.emission,
+			emission_excited_state = args.emission_state,
 			options = config
 		)
 	except Exception as e:
