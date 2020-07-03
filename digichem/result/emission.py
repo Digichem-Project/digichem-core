@@ -4,8 +4,6 @@ from pathlib import Path
 from silico.image.spectroscopy import Absorption_graph_maker
 from silico.result import Result_object
 from silico.exception.base import Silico_exception
-from logging import getLogger
-import silico
 
 
 class Relaxed_excited_state(Excited_state):
@@ -169,15 +167,11 @@ class Relaxed_excited_state(Excited_state):
 		)
 		
 		# Now emission spectrum.
-		try:
-			self._files['simulated_emission_graph'] = Absorption_graph_maker.from_image_options(
-				Path(output_dir, output_name + ".simulated_{}_emission_spectrum.png".format(self.transition_type)),
-				excited_states = Excited_state_list([self]),
-				**kwargs
-				)
-		except Exception:
-			getLogger(silico.logger_name).warning("Could not create emission spectrum", exc_info = True)
-			self._files['simulated_emission_graph'] = None
+		self._files['simulated_emission_graph'] = Absorption_graph_maker.from_image_options(
+			Path(output_dir, output_name + ".simulated_{}_emission_spectrum.png".format(self.transition_type)),
+			excited_states = Excited_state_list([self]),
+			**kwargs
+			)
 
 	@property
 	def excited_states_diagram(self):

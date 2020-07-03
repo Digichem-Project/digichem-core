@@ -5,7 +5,7 @@ from silico.exception.base import File_maker_exception
 from silico.result.spectroscopy import Spectroscopy_graph,\
 	Absorption_emission_graph
 
-class Spectroscopy_graph_maker(Graph_image_maker, Spectroscopy_graph):
+class Spectroscopy_graph_maker(Graph_image_maker):
 	"""
 	A graph type for displaying spectroscopy data (UV-vis, IR etc.).
 	"""
@@ -16,9 +16,9 @@ class Spectroscopy_graph_maker(Graph_image_maker, Spectroscopy_graph):
 		*,
 		# Keyword only arguments from here:
 		# Gaussian options.
-		fwhm = 40,
-		gaussian_cutoff: 0.01,
-		gaussian_resolution: 0.001,
+		fwhm = 0.6,
+		gaussian_cutoff = 0.001,
+		gaussian_resolution = 0.01,
 		
 		# Options that control what to show in the graph.
 		plot_bars = True,
@@ -26,10 +26,10 @@ class Spectroscopy_graph_maker(Graph_image_maker, Spectroscopy_graph):
 		plot_cumulative_peak = True,
 		
 		# Options controlling the axes limits.
-		x_padding = 40,
+		x_padding = 50,
 		peak_cutoff = 0.01,
-		x_limits_method = 'standard',
-		y_limits_method = 'standard',
+		x_limits = 'auto',
+		y_limits = 'auto',
 		**kwargs		
 	):
 		"""
@@ -55,11 +55,6 @@ class Spectroscopy_graph_maker(Graph_image_maker, Spectroscopy_graph):
 		# Save our graph object (holds coordinates to plot).
 		self.graph = graph
 		
-		# Make sure we actually have something to plot.
-		if len(self.graph.coordinates) == 0:
-			# We have nothing to plot; we could plot an empty graph (and maybe should?), but for now we'll stop.
-			raise File_maker_exception(self, "cannot plot spectrum; there are no values with intensity above 0")
-		
 		# Controls for plotting Gaussian's.
 		self.fwhm = fwhm
 		self.gaussian_cutoff = gaussian_cutoff
@@ -76,9 +71,8 @@ class Spectroscopy_graph_maker(Graph_image_maker, Spectroscopy_graph):
 		# Axis scaling.
 		self.x_padding = x_padding
 		self.peak_cutoff = peak_cutoff
-		self.x_limits_method = x_limits_method
-		self.y_limits_method = y_limits_method
-		
+		self.x_limits_method = x_limits
+		self.y_limits_method = y_limits
 		
 	@classmethod
 	def transpose(self, coordinates):
@@ -91,6 +85,11 @@ class Spectroscopy_graph_maker(Graph_image_maker, Spectroscopy_graph):
 		"""
 		Plot the contents of our graph.
 		"""
+		# Make sure we actually have something to plot.
+		if len(self.graph.coordinates) == 0:
+			# We have nothing to plot; we could plot an empty graph (and maybe should?), but for now we'll stop.
+			raise File_maker_exception(self, "cannot plot spectrum; there are no values with intensity above 0")
+		
 		# What we do next depends on what options we've been given.
 		if self.should_plot_bars:
 			self.plot_columns()
@@ -99,10 +98,10 @@ class Spectroscopy_graph_maker(Graph_image_maker, Spectroscopy_graph):
 				self.plot_hidden_points()
 				
 		if self.should_plot_peaks:
-			self.plot_peaks()
+			self.plot_lines()
 			
 		if self.should_plot_cumulative_peak:
-			self.plot_cumulative_peak()
+			self.plot_cumulative_line()
 						
 	def plot_columns(self):
 		"""
@@ -142,7 +141,7 @@ class Spectroscopy_graph_maker(Graph_image_maker, Spectroscopy_graph):
 		highest_point = max(self.transpose(self.graph.coordinates)[1])
 		
 		# Now filter by a fraction of that amount.
-		visible_x_values = [x for x, y in self.plot_cumulative_gaussian() if y >= (highest_point * self.peak_cutoff)]
+		visible_x_values = [x for x, y in self.graph.plot_cumulative_gaussian(self.fwhm, self.gaussian_resolution, self.gaussian_cutoff) if y >= (highest_point * self.peak_cutoff)]
 		
 		# Now we can just get our min-max, remembering to include our x-padding, and never extending beyond 0 (because negative energy has no meaning in this context(?)).
 		self.axes.set_xlim(max(min(visible_x_values) - self.x_padding, 0), max(visible_x_values) + self.x_padding)
@@ -185,12 +184,15 @@ class Spectroscopy_graph_maker(Graph_image_maker, Spectroscopy_graph):
 		self.constant_scale(0, self.inch_per_x)
 		
 
-class Absorption_graph_maker(Spectroscopy_graph_maker):
+class Absorption_emission_graph_maker(Spectroscopy_graph_maker):
 	"""
 	A graph for displaying simulated absorptions.
 	"""
 	
-	def __init__(self, output, excited_states, max_width = None, *args, **kwargs):
+	# The key/name of where our options are stored in the main config.
+	options_name = None
+	
+	def __init__(self, output, excited_states, *args, use_jacobian = True, **kwargs):
 		"""
 		Constructor for UV-Vis type absorption graphs.
 		
@@ -200,12 +202,10 @@ class Absorption_graph_maker(Spectroscopy_graph_maker):
 		:param max_width: The maximum width in pixels of the graph.
 		"""		
 		# Call our parent.
-		super().__init__(output, Absorption_emission_graph.from_excited_states(excited_states), *args, **kwargs)
+		super().__init__(output, Absorption_emission_graph.from_excited_states(excited_states, use_jacobian = use_jacobian), *args, **kwargs)
 		
 		# The amount of space (in matplotlib inches) to allocate per unit of the x axis.
 		self.inch_per_x = 0.0192
-		# Our max image width in pixels.
-		self.max_width = max_width
 		
 		# The DPI to save our image with.
 		self.output_dpi = 100
@@ -222,20 +222,13 @@ class Absorption_graph_maker(Spectroscopy_graph_maker):
 		return self(
 			output,
 			excited_states = excited_states,
-			max_width = options['absorption_graph']['max_width'],
-			
-			fwhm = options['absorption_graph']['fwhm'],
-			gaussian_cutoff = ['absorption_graph']['gaussian_cutoff'],
-			gaussian_resolution = ['absorption_graph']['gaussian_resolution'],
-			
-			x_padding = options['absorption_graph']['x_padding'],
-			peak_cutoff = options['absorption_graph']['peak_cutoff'],
-			x_limits_method = options['absorption_graph']['x_limits'],
-			y_limits_method = options['absorption_graph']['y_limits'],
-			
 			output_base = output_base,
-			dont_modify = options['image']['dont_create_new'],
-			use_existing = options['image']['use_existing']
+			
+			# Add absorption graph options.
+			**options[self.options_name],
+			
+			# And general image options.
+			**options['image']
 		)
 	
 	def adjust_axes(self):
@@ -252,13 +245,8 @@ class Absorption_graph_maker(Spectroscopy_graph_maker):
 		super().adjust_axes()
 		
 		# Check to see if we've exceeded our max width.
-		fig_size = self.figure.get_size_inches()
-		if (fig_size[0] * self.output_dpi) > self.max_width:
-			# We're too big, reduce to max_width.
-			fig_size[0] = self.max_width / self.output_dpi
-			self.figure.set_size_inches(fig_size)
-			
-			# Also adjust our tick labels.
+		if (self.figure.get_size_inches()[0] * self.output_dpi) > self.max_width:
+			# Adjust our tick labels.
 			x_difference = abs(self.axes.get_xlim()[0] - self.axes.get_xlim()[1])
 			if x_difference < 1200:
 				self.axes.xaxis.set_major_locator(ticker.MultipleLocator(100))
@@ -267,27 +255,37 @@ class Absorption_graph_maker(Spectroscopy_graph_maker):
 				self.axes.xaxis.set_major_locator(ticker.MultipleLocator(200))
 				self.axes.xaxis.set_minor_locator(ticker.MultipleLocator(100))
 			
-			# Update layout. Calling this twice is necessary for some reason loool
-			self.figure.tight_layout()
+			# Update our layout.
 			self.figure.tight_layout()
 			
+class Absorption_graph_maker(Absorption_emission_graph_maker):
+	"""
+	Class for creating absorption (UV-Vis) spectra.
+	"""
+	options_name = "absorption_spectrum"
+	
+class Emission_graph_maker(Absorption_emission_graph_maker):
+	"""
+	Class for creating emission spectra.
+	"""
+	options_name = "emission_spectrum"
 
 class Frequency_graph_maker(Spectroscopy_graph_maker):
 	"""
 	A graph for displaying vibrational frequencies.
 	"""
 			
-	def __init__(self, output, vibrations, *args, **kwargs):
+	def __init__(self, output, vibrations, *args, fwhm = 80, gaussian_resolution = 1, **kwargs):
 		"""
 		Constructor for frequency graphs.
 		
 		:param vibrations: List of vibrations that we're going to plot.
 		:param output: A path to an output file to write to. The extension of this path is used to determine the format of the file (eg, png, jpeg).
-		:param x_limits_method: String controlling how the x axis limits are set. Options are 'standard' for standard scaling, showing all plotted peaks. Alternatively, a tuple of (x_min, x_max) which will be used directly as axis limits.
-		:param y_limits_method: String controlling how the y axis limits are set. Options are 'standard' for automatic scaling. Alternatively, a tuple of (y_min, y_max) which will be used directly as axis limits.
+		:param x_limits_method: String controlling how the x axis limits are set. Options are 'auto' for standard auto scaling, showing all plotted peaks. Alternatively, a tuple of (x_min, x_max) which will be used directly as axis limits.
+		:param y_limits_method: String controlling how the y axis limits are set. Options are 'auto' for standard auto scaling. Alternatively, a tuple of (y_min, y_max) which will be used directly as axis limits.
 		"""
 		# Call our parent.
-		super().__init__(output, Spectroscopy_graph.from_vibrations(vibrations), *args, **kwargs)
+		super().__init__(output, Spectroscopy_graph.from_vibrations(vibrations), *args, fwhm = fwhm, gaussian_resolution = gaussian_resolution, **kwargs)
 		
 		# Axes labels.
 		self.x_label = "Frequency /cm-1"
@@ -305,14 +303,13 @@ class Frequency_graph_maker(Spectroscopy_graph_maker):
 		return self(
 			output,
 			vibrations = vibrations,
-			x_limits_method = options['frequency_graph']['x_limits'],
-			y_limits_method = options['frequency_graph']['y_limits'],
-			fwhm = options['frequency_graph']['fwhm'],
 			output_base = output_base,
-			dont_modify = options['image']['dont_create_new'],
-			use_existing = options['image']['use_existing']
 			
+			# Add frequency graph options.
+			**options['IR_spectrum'],
 			
+			# And general image options.
+			**options['image']
 		)
 
 	def auto_x_limits(self):

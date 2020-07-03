@@ -28,7 +28,7 @@ class Cube_maker(File_converter):
 	# Text description of our output file type, used for error messages etc.
 	output_file_type = file_types.gaussian_cube_file
 	
-	def __init__(self, *args, fchk_file = None, cubegen_type = "MO", orbital = "HOMO", npts = 0, cube_file = None, **kwargs):
+	def __init__(self, *args, fchk_file = None, cubegen_type = "MO", orbital = "HOMO", npts = 0, cube_file = None, use_existing = True, **kwargs):
 		"""
 		Constructor for Cube_maker objects.
 		
@@ -41,7 +41,7 @@ class Cube_maker(File_converter):
 		:param npts: The 'npts' option of cubegen, controls how detailed the resulting file is. Common options are 0 (default), -2 ('low' quality), -3 (medium quality), -4 (very high quality).
 		:param cube_file: An optional file path to an existing cube file to use. If this is given (and points to an actual file), then a new cube will not be made and this file will be used instead.
 		"""
-		super().__init__(*args, input_file = fchk_file, existing_file = cube_file, **kwargs)
+		super().__init__(*args, input_file = fchk_file, existing_file = cube_file, use_existing = use_existing, **kwargs)
 		self.cubegen_type = cubegen_type
 		self.orbital = orbital
 		self.npts = npts
@@ -57,10 +57,9 @@ class Cube_maker(File_converter):
 			fchk_file = fchk_file,
 			cubegen_type = cubegen_type,
 			orbital = orbital,
-			npts = options['molecule_image']['cube_grid_size'],
+			npts = options['molecule_image']['orbital']['cube_grid_size'],
 			cube_file = cube_file,
-			dont_modify = options['image']['dont_create_new'],
-			use_existing = options['image']['use_existing']
+			**options['image']
 		)
 			
 	def make_files(self):
@@ -132,9 +131,8 @@ class Spin_cube_maker(Cube_maker):
 			output_base = output_base,
 			fchk_file = fchk_file,
 			spin_density = spin_density,
-			npts = options['molecule_image']['spin_cube_grid_size'],
+			npts = options['molecule_image']['spin']['cube_grid_size'],
 			cube_file = cube_file,
-			dont_modify = options['image']['dont_create_new'],
-			use_existing = options['image']['use_existing']
+			**options['image']
 		)
 		

@@ -4,6 +4,7 @@ import itertools
 import statistics
 import silico.result.excited_states
 import scipy.constants
+from silico.exception.base import Silico_exception
 
 class Spectroscopy_graph():
 	"""
@@ -27,7 +28,7 @@ class Spectroscopy_graph():
 		"""
 		Alternative constructor from a Vibration_list object.
 		"""
-		return self([(vibration.fequency, vibration.intensity) for vibration in vibrations])
+		return self([(vibration.frequency, vibration.intensity) for vibration in vibrations if vibration.intensity != 0])
 	
 	@property
 	def coordinates(self):
@@ -98,7 +99,8 @@ class Spectroscopy_graph():
 		limits = (limits[0], limits[0] + num_points * resolution)
 		
 		# And now shift our limits so they are still centred.
-		centre = statistics.mean([x for x, y in self.base_coordinates])
+		xs = [x for x, y in self.base_coordinates]
+		centre = (max(xs) - min(xs)) /2 + min(xs)
 		limits = (centre - ((limits[1] - limits[0]) / 2) , centre + ((limits[1] - limits[0]) / 2))
 
 		return (limits[0], limits[1], num_points +1)
@@ -129,7 +131,12 @@ class Spectroscopy_graph():
 		"""
 		# We have two solutions of the form x = ± d + b
 		# Calculate d first.
-		d = math.sqrt( -math.log( y/a ) * 2 * c **2  )
+		try:
+			d = math.sqrt( -math.log( y/a ) * 2 * c **2  )
+		except ZeroDivisionError:
+			# a (max height) is zero; the intensity is zero.
+			# We could instead return b?
+			raise Silico_exception("Cannot calculate Gaussian function limits; a (intensity) is zero")
 		
 		# Now return our two solutions.
 		return (-d + b, d + b)
@@ -186,10 +193,10 @@ class Absorption_emission_graph(Spectroscopy_graph):
 		"""
 		Get the list of coordinates of this graph scaled to nm.
 		"""
-		return [self.energy_to_wavelength(coord) for coord in self.base_coordinates]
+		return [self.energy_to_wavelength(coord, self.use_jacobian) for coord in self.base_coordinates]
 	
 	@classmethod
-	def energy_to_wavelength(self, coord):
+	def energy_to_wavelength(self, coord, use_jacobian):
 		"""
 		Convert a pair of x,y coordinates in ev to nm.
 		
@@ -197,7 +204,7 @@ class Absorption_emission_graph(Spectroscopy_graph):
 		:return: A tuple of (nm, i), where i is intensity.
 		"""
 		x, y = coord
-		return (silico.result.excited_states.Excited_state.energy_to_wavelength(x), self.jacobian(x, y) if self.use_jacobian else y)
+		return (silico.result.excited_states.Excited_state.energy_to_wavelength(x), self.jacobian(x, y) if use_jacobian else y)
 		
 	@classmethod
 	def jacobian(self, E, f_E):
@@ -222,7 +229,7 @@ class Absorption_emission_graph(Spectroscopy_graph):
 		"""
 		# All we need to do over our parent is convert x values from e to wavelength.
 		# And scale y values using the jacobian transform.
-		return [[(self.energy_to_wavelength(x, y)) for x, y in plot] for plot in super().plot_gaussian(*args, **kwargs)]
+		return [[self.energy_to_wavelength(coord, self.use_jacobian) for coord in plot] for plot in super().plot_gaussian(*args, **kwargs)]
 	
 	
 	
