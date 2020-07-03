@@ -1,7 +1,7 @@
 from silico.result.excited_states import Excited_state, Excited_state_list
 from silico.image.excited_states import Excited_states_diagram_maker
 from pathlib import Path
-from silico.image.spectroscopy import Absorption_graph_maker
+from silico.image.spectroscopy import Emission_graph_maker
 from silico.result import Result_object
 from silico.exception.base import Silico_exception
 
@@ -175,7 +175,7 @@ class Relaxed_excited_state(Excited_state):
 		)
 		
 		# Now emission spectrum.
-		self._files['simulated_emission_graph'] = Absorption_graph_maker.from_image_options(
+		self._files['simulated_emission_graph'] = Emission_graph_maker.from_image_options(
 			Path(output_dir, output_name + ".simulated_{}_emission_spectrum.png".format(self.transition_type)),
 			excited_states = Excited_state_list([self]),
 			**kwargs
