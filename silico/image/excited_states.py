@@ -139,7 +139,7 @@ class Excited_states_diagram_maker(OneD_graph_image_maker):
 						
 		# Add oscillator strength (if we have it).
 		if state.oscillator_strength is not None:
-			label_string +=	"\n" + "f: {:0.4f}".format(state.oscillator_strength)
+			label_string +=	"\n" + "f: {:0.2f}".format(state.oscillator_strength)
 		
 		# Now plot our text.
 		self.axes.annotate(

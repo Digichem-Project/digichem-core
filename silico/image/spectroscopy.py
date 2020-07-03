@@ -16,7 +16,7 @@ class Spectroscopy_graph_maker(Graph_image_maker):
 		*,
 		# Keyword only arguments from here:
 		# Gaussian options.
-		fwhm = 0.6,
+		fwhm = 0.4,
 		gaussian_cutoff = 0.001,
 		gaussian_resolution = 0.01,
 		
@@ -245,7 +245,7 @@ class Absorption_emission_graph_maker(Spectroscopy_graph_maker):
 		super().adjust_axes()
 		
 		# Check to see if we've exceeded our max width.
-		if (self.figure.get_size_inches()[0] * self.output_dpi) > self.max_width:
+		if self.max_width is not None and (self.figure.get_size_inches()[0] * self.output_dpi) > self.max_width:
 			# Adjust our tick labels.
 			x_difference = abs(self.axes.get_xlim()[0] - self.axes.get_xlim()[1])
 			if x_difference < 1200:
