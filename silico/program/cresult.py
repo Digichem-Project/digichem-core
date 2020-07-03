@@ -171,17 +171,10 @@ def main():
 	output_formats.add_argument("-a", dest = "outputs", metavar = ("%FORMAT", "file.tbl"), help = "tabulated text format; the same as -c but formatted with an ASCII table, recommended that output piped to 'less -S'", nargs = "*", action = List_grouper)
 	output_formats.add_argument("-b", dest = "outputs", metavar = ("%FORMAT", "file.tbl"), help = "tabulated summary text format; the same as -d but formatted with an ASCII table", nargs = "*", action = List_grouper)
 	
-	# Use our generic init function.
-	args, config, logger = silico.program.init_program(
-		arg_parser = parser,
-		arg_to_config = None)
-	
 	# ----- Program begin -----
 	return silico.program.main_wrapper(
-		args = args,
-		config = config,
-		logger = logger,
-		inner_func = _main
+		_main,
+		arg_parser = parser
 	)
 
 def _subprocess_init(*args, **kwargs):

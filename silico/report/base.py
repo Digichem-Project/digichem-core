@@ -46,7 +46,7 @@ class Report(Result_set):
 			beta_distances = options['report']['orbital_image']['beta_distances'],
 			orbital_levels = options['report']['orbital_image']['orbital_levels'],
 			beta_levels = options['report']['orbital_image']['beta_levels'],
-			excited_state_transition_threshold = options['report']['orbital_image']['excited_state_transition_threshold']
+			excited_state_transition_threshold = options['report']['orbital_image']['et_transition_threshold']
 		)
 		
 		

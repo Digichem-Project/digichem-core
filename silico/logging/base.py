@@ -51,7 +51,7 @@ class Variable_formatter(logging.Formatter):
 		
 		:return: A string representation of exception and any prior exceptions.
 		"""
-		excstr = "	{}: {}".format(type(exception).__name__, exception)
+		excstr = textwrap.indent("{}: {}".format(type(exception).__name__, exception), "\t")
 		
 		# If the exception is a CalledProcessError, we'll also append the stdout/stderr.
 		if isinstance(exception, CalledProcessError):

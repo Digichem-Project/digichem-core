@@ -81,35 +81,28 @@ def main():
 		config.add_config({
 			'molecule_image': {
 				'rendering_style': args.render_style,
-				'auto_crop': args.dont_auto_crop
+				'auto_crop': args.dont_auto_crop,
+				'use_existing': not args.overwrite_existing_images if args.overwrite_existing_images is not None else None
 			},
 			'image': {
-				'dont_create_new': args.dont_create_new_images,
-				'use_existing': not args.overwrite_existing_images if args.overwrite_existing_images is not None else None
+				'dont_modify': args.dont_create_new_images
 			}
 		})
 	
-	# Use our generic init function.
-	args, config, logger = silico.program.init_program(
-		arg_parser = parser,
-		arg_to_config = arg_to_config)
-	
-	if args.alignment is not None and not args.overwrite_existing_images:
-		logger.warning("Alignment method has been changed but not overwriting existing images; use '-OK method' to ensure molecule images are re-rendered to reflect this change")
-	
-	
 	# ----- Program begin -----
 	return silico.program.main_wrapper(
-		args = args,
-		config = config,
-		logger = logger,
-		inner_func = _main
+		_main,
+		arg_parser = parser,
+		arg_to_config = arg_to_config
 	)
 
 def _main(args, config, logger):
 	"""
 	Inner portion of main (wrapped by a try-catch-log hacky boi).
 	"""
+	if args.alignment is not None and not args.overwrite_existing_images:
+		logger.warning("Alignment method has been changed but not overwriting existing images; use '-OK method' to ensure molecule images are re-rendered to reflect this change")
+	
 	try:
 		report = PDF_report.from_calculation_files(
 			*args.calculation_files,

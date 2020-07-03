@@ -92,17 +92,12 @@ class Excited_state_list(Result_container):
 			**kwargs
 		)
 		
-		self._files['simulated_emission_graph'] = None
-		if len(self) > 0:
-			try:
-				# Then our simulated absorption graph.
-				self._files['simulated_absorption_graph'] = Absorption_graph_maker.from_image_options(
-					Path(output_dir, output_name + ".simulated_absorption_spectrum.png"),
-					excited_states = self,
-					**kwargs
-				)
-			except Exception:
-				getLogger(silico.logger_name).warning("Could not create emission spectrum", exc_info = True)
+		# Then our simulated absorption graph.
+		self._files['simulated_absorption_graph'] = Absorption_graph_maker.from_image_options(
+			Path(output_dir, output_name + ".simulated_absorption_spectrum.png"),
+			excited_states = self,
+			**kwargs
+		)
 		
 		# Then set our excited states.
 		for state in self:

@@ -11,7 +11,7 @@ class Excited_states_diagram_maker(OneD_graph_image_maker):
 	Class for making orbital energy diagrams.
 	"""
 	
-	def __init__(self, output, excited_states, ground_state, limits_method = "standard", show_dest = True, **kwargs):
+	def __init__(self, output, excited_states, ground_state, y_limits = "auto", show_dest = True, **kwargs):
 		super().__init__(output, **kwargs)
 		self.excited_states = excited_states
 		self.ground_state = ground_state
@@ -50,7 +50,7 @@ class Excited_states_diagram_maker(OneD_graph_image_maker):
 		}
 		
 		# Save our scaling method.
-		self.limits_method = limits_method
+		self.limits_method = y_limits
 		
 	@classmethod
 	def from_image_options(self, output, *, excited_states, ground_state, output_base = None, options, **kwargs):
@@ -62,10 +62,8 @@ class Excited_states_diagram_maker(OneD_graph_image_maker):
 			excited_states = excited_states,
 			ground_state = ground_state,
 			output_base = output_base,
-			limits_method = options['excited_states_diagram']['y_limits'],
-			show_dest = options['excited_states_diagram']['show_dest'],
-			dont_modify = options['image']['dont_create_new'],
-			use_existing = options['image']['use_existing']
+			**options['excited_states_diagram'],
+			**options['image']
 		)
 		
 	def plot_lines(self):
@@ -261,7 +259,7 @@ class Excited_states_diagram_maker(OneD_graph_image_maker):
 		# Adjusty hack.
 		self._adjust_limits_for_zero()
 		
-	def standard_limits(self):
+	def auto_limits(self):
 		"""
 		Limit the Y axis so S1, T1 ... N1 etc are all visible.
 		"""
@@ -276,7 +274,7 @@ class Excited_states_diagram_maker(OneD_graph_image_maker):
 		
 	def _adjust_limits_for_zero(self):
 		"""
-		This method is a hack wish lowers the y axis limit in cases where S1/T1 is very close to S0
+		This method is a hack which lowers the y axis limit in cases where S1/T1 is very close to S0
 		
 		This is necessary because otherwise the state annotations will overflow the bottom of the diagram.
 		"""
@@ -315,8 +313,8 @@ class Excited_states_diagram_maker(OneD_graph_image_maker):
 		# Now decide how big our y axis will be.
 		if self.limits_method == "all":
 			self.all_limits()
-		elif self.limits_method == "standard":
-			self.standard_limits()
+		elif self.limits_method == "auto":
+			self.auto_limits()
 		elif isinstance(self.limits_method, tuple) or isinstance(self.limits_method, list):
 			self.simple_limits(self.limits_method[0], self.limits_method[1])
 		else:
