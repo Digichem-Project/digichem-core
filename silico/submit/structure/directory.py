@@ -131,6 +131,55 @@ class Calculation_directory(Silico_Directory):
 		return Path(str(self) + "/Scratch")
 	
 	@property
+	def flag_directory(self):
+		"""
+		Full path to the flags directory.
+		
+		Flags are empty text files where the name of the file conveys information about the state of the calculation (STARTED, SUCCESS, ERROR etc)
+		"""
+		return Path(str(self) + "/Flags")
+		
+		
+	def set_flag(self, flag):
+		"""
+		Set a flag file.
+		
+		Possible flags can be found in silico.submit.structure.flag.
+		
+		:param flag: The flag to set (a Flag enum member). If the flag is already set; this is a noop.
+		"""
+		try:
+			Path(self.flag_directory, flag.name).touch()
+		except Exception:
+			# This is ok.
+			pass
+		
+	def get_flag(self, flag):
+		"""
+		Determine whether a flag file has been set or not.
+		
+		Possible flags can be found in silico.submit.structure.flag.
+		
+		:param flag: The flag to check (a Flag enum member).
+		:return: True if the flag has been set, False otherwise.
+		"""
+		return Path(self.flag_directory, flag.name).exists()
+	
+	def del_flag(self, flag):
+		"""
+		Unset a flag file. Possible flags can be found in silico.submit.structure.flag.
+		
+		Possible flags can be found in silico.submit.structure.flag.
+		
+		:param flag: The flag to unset (a Flag enum member). If the flag is not already set; this is a noop.
+		"""
+		try:
+			Path(self.flag_directory, flag.name).unlink()
+		except FileNotFoundError:
+			# This is ok.
+			pass
+	
+	@property
 	def report_directory(self):
 		"""
 		Full path to the calculation report directory.
@@ -160,7 +209,7 @@ class Calculation_directory(Silico_Directory):
 					raise
 		
 		
-		for sub_dir in [self.input_directory, self.output_directory]:
+		for sub_dir in [self.input_directory, self.output_directory, self.flag_directory]:
 			try:
 				sub_dir.mkdir(parents = True)
 			except FileExistsError:

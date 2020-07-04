@@ -11,6 +11,7 @@ from silico.submit.method.resume import Resumable_method
 from silico.exception.uncatchable import Submission_paused
 import subprocess
 from subprocess import CalledProcessError
+from silico.submit.structure.flag import Flag
 
 class SLURM(Method_target, Resumable_method):
 	"""
@@ -223,7 +224,10 @@ class SLURM(Method_target, Resumable_method):
 		"""
 		Method called at the start of submission.
 		
-		SLURM is a resumable method; this method will get called twice (automatically) during the submission process. This method can raise Submission_paused exceptions as part of this proces, you should not go out of you way to catch these exceptions unless you know what you are doing (and you should almost certainly be re-raising once you are done).
+		SLURM is a resumable method; this method will get called twice (automatically) during the submission process.
+		This method can raise Submission_paused exceptions as part of this process,
+		you should not go out of you way to catch these exceptions unless you know what you are doing
+		(and you should almost certainly be re-raising once you are done).
 		"""
 		# First, call our parent (currently does nothing).
 		super()._submit_pre()
@@ -243,7 +247,12 @@ class SLURM(Method_target, Resumable_method):
 		try:
 			Resumable_method._submit_pre(self)
 		except Submission_paused as paused:
-			# We are before the resume, call sbatch.
+			# We are before the resume
+			
+			# Set our pending flag (we will be going into a queue).
+			self.calc_dir.set_flag(Flag.PENDING)
+			
+			# Call sbatch.
 			try:
 				subprocess.run(
 					[self.sbatch_command, self.sbatch_script_path],
@@ -266,15 +275,19 @@ class SLURM(Method_target, Resumable_method):
 			# Continue exiting.
 			raise paused
 		
+		# DEBUGGING ONLY
+		#print("DEBUGGING BREAKPOINT HANDLE")
+		os.chdir("/home/oliver/ownCloud/Chemistry/St. Andrews PhD/Test Molecules/")
+		
 		# If we get this far, then we have resumed and can continue as normal.
+		# Delete the pending flag.
+		self.calc_dir.del_flag(Flag.PENDING)
 		
 		# This is not actually true; slurm does not change working dir.
 		# When we resume, our working directory will have changed (to inside the input directory in fact). This means our paths are no longer correct.
 		# Update our directory object.
 		
-		# DEBUGGING ONLY
-		#print("DEBUGGING BREAKPOINT HANDLE")
-		#os.chdir("/home/oliver/ownCloud/Chemistry/St. Andrews PhD/Test Molecules/Benzene/Opt Freq PBE0_6-31G(d,p) UltraFine/Input")
+		
 
 		
 		#self.calc_dir.molecule_directory.path = "../../"

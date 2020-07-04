@@ -8,6 +8,7 @@ from logging import getLogger
 import shutil
 from silico.file.fchk import Fchk_maker
 from silico.exception.uncatchable import Signal_caught
+from silico.submit.structure.flag import Flag
 
 class Gaussian(Program_target):
 	"""
@@ -177,6 +178,9 @@ class Gaussian(Program_target):
 		
 		:param success: True if the calculation finished normally, false otherwise.
 		"""
+		# Set our cleanup flag.
+		self.method.calc_dir.set_flag(Flag.CLEANUP)
+		
 		# Check to see if our main output files are in their proper (default) locations or not. Move them if necessary.
 		try:
 			for out_file, default_location in [
@@ -215,6 +219,9 @@ class Gaussian(Program_target):
 				except FileNotFoundError:
 					# This is ok, means the scratch has already been deleted (or moved).
 					pass
+				
+			# Done cleanup.
+			self.method.calc_dir.del_flag(Flag.CLEANUP)
 		
 	def _submit_post(self):
 		"""
