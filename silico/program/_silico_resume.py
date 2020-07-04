@@ -77,10 +77,15 @@ def main():
 		method = method,
 		logger = getLogger(silico.logger_name),
 		inner_func = _main
+	)	
+	# ----- Program begin -----
+	return silico.program.main_wrapper(
+		_main,
+		arg_parser = parser,
 	)
 
 
-def _main(method, logger):
+def _main(args, config, logger, method):
 	"""
 	Main entry point for the resume program.
 	"""

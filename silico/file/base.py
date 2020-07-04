@@ -11,7 +11,7 @@ class File_maker():
 	# Text description of our output file type, used for error messages etc. This can be changed by inheriting classes.
 	output_file_type = "output"
 	
-	def __init__(self, output, output_base = None, existing_file = None, dont_modify = False, use_existing = True):
+	def __init__(self, output, output_base = None, existing_file = None, dont_modify = False, use_existing = False):
 		"""
 		Constructor for File_converter objects.
 		

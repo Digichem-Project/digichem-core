@@ -81,15 +81,12 @@ class Config(dict):
 		# Give our self back.
 		return self
 	
-	def set_log_level(self, logger_name):
+	def set_log_level(self, logger):
 		"""
 		Set the logging level of a logger based on the config options in the object.
 		
-		:param logger_name: The name of a logger to set (this name will be passed to logging.getLogger().
-		"""
-		# Get our logger.
-		logger = logging.getLogger(logger_name)
-		
+		:param logger: The logger to set (from logging.getLogger()).
+		"""		
 		# Set from log_level first.
 		if self['logging']['log_level'] == "OFF":
 			logger.setLevel(60)

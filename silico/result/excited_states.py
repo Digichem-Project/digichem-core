@@ -92,17 +92,12 @@ class Excited_state_list(Result_container):
 			**kwargs
 		)
 		
-		self._files['simulated_emission_graph'] = None
-		if len(self) > 0:
-			try:
-				# Then our simulated absorption graph.
-				self._files['simulated_absorption_graph'] = Absorption_graph_maker.from_image_options(
-					Path(output_dir, output_name + ".simulated_absorption_spectrum.png"),
-					excited_states = self,
-					**kwargs
-				)
-			except Exception:
-				getLogger(silico.logger_name).warning("Could not create emission spectrum", exc_info = True)
+		# Then our simulated absorption graph.
+		self._files['simulated_absorption_graph'] = Absorption_graph_maker.from_image_options(
+			Path(output_dir, output_name + ".simulated_absorption_spectrum.png"),
+			excited_states = self,
+			**kwargs
+		)
 		
 		# Then set our excited states.
 		for state in self:
@@ -436,7 +431,7 @@ class Excited_state(Energy_state):
 	
 	
 	@classmethod
-	def emission_wavelength_to_energy(self, emission_wavelength):
+	def wavelength_to_energy(self, emission_wavelength):
 		"""
 		Convert an emission wavelength (in nm) to energy (in eV).
 		"""
@@ -444,6 +439,7 @@ class Excited_state(Energy_state):
 		# e = (c * h) / λ
 		return ((self.speed_of_light * self.plancks_constant) / (emission_wavelength / 1000000000)) / self.electron_volt
 	
+	@classmethod
 	def energy_to_wavelength(self, energy):
 		"""
 		Convert an energy (in eV) to wavelength (in nm).
@@ -456,7 +452,7 @@ class Excited_state(Energy_state):
 		"""
 		Convert wavenumbers (in cm-1) to energy (in eV).
 		"""
-		return self.emission_wavelength_to_energy((1 / wavenumbers) * 10000000)
+		return self.wavelength_to_energy((1 / wavenumbers) * 10000000)
 	
 	@classmethod
 	def from_cclib(self, level, multiplicity_level, symmetry, energy, oscillator_strength, etsecs, mo_list, beta_mo_list = None, transition_dipole_moment = None):

@@ -15,7 +15,7 @@
 	if dipole_moment.dipole_type == "permanent":
 		title = "Permanent Dipole Moment"
 	else:
-		title = "{} Dipole Moment".format(dipole_moment.excited_state.state_symbol)
+		title = "{} Transition Dipole Moment".format(dipole_moment.excited_state.state_symbol)
 %>\
 ##
 ##

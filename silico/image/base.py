@@ -26,7 +26,7 @@ class Image_maker(File_maker):
 		"""
 		Get the path to one of the images that this class represents, rendering the image to file first if necessary.
 		
-		The functioning of this method is controlled by the dont_create_new_images & use_existing_images flags.
+		The functioning of this method is controlled by the dont_modify & use_existing flags.
 		
 		You can also use the normal python attribute mechanism (either through getattr() or dot notation) to get these paths.
 		

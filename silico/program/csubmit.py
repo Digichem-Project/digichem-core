@@ -180,17 +180,10 @@ def main():
 #	parser.add_argument("--convert", help = "Attempt to convert each given calculation file to the appropriate format using obabel", action = "store_true")
 #	parser.add_argument("--gen3D", help = "If --convert is given, use the --gen3D flag of obabel to generate 3D coordinates from a 2D file format (eg, .cdx)", action = "store_true")
 		
-	# Use our generic init function.
-	args, config, logger = silico.program.init_program(
-		arg_parser = parser,
-		arg_to_config = None)
-	
 	# ----- Program begin -----
 	return silico.program.main_wrapper(
-		args = args,
-		config = config,
-		logger = logger,
-		inner_func = _main
+		_main,
+		arg_parser = parser
 	)
 
 def _main(args, config, logger):

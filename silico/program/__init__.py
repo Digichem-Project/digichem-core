@@ -12,22 +12,37 @@ import silico.references
 from silico.exception.uncatchable import Signal_caught
 import signal
 
-def main_wrapper(logger, inner_func, **kwargs):
+#def main_wrapper(logger, inner_func, **kwargs):
+def main_wrapper(inner_func, *, arg_parser, arg_to_config = None, logger_name = None, **kwargs):
 	"""
 	Wrapper function for program's main function.
 	
 	This function calls inner_func (passing args, config and logger), watching for errors and logging appropriately to logger.
 	
-
-	:returns: 0 on success, 1 on catching KeyboardInterrupt, 2 on other error.
+	:returns: 0 on success, -1 on catching KeyboardInterrupt, -2 on other error.
 	"""
+	logger_name = logger_name if logger_name is not None else silico.logger_name
+	# First, sort out our logger.
+	logger = logging.getLogger(silico.logger_name)
+	
+	# Use our generic init function.
 	try:
-		retval = inner_func(logger = logger, **kwargs)
+		args, config, logger = init_program(
+			arg_parser = arg_parser,
+			arg_to_config = arg_to_config,
+			logger = logger)
+	except Exception:
+		# Couldn't start.
+		logger.error("failed to start program", exc_info = True)
+		return -2
+		
+	try:
+		retval = inner_func(args, config, logger, **kwargs)
 		
 		# Success.
 		return retval if retval is not None else 0
 	except KeyboardInterrupt:
-		logger.error("interrupted by user (^c)")
+		logger.error("interrupted by user (^c)", exc_info = True)
 		return -1
 	except Signal_caught:
 		logger.error("stopped by signal", exc_info = True)
@@ -37,20 +52,16 @@ def main_wrapper(logger, inner_func, **kwargs):
 		logger.error("stopped with error", exc_info = True)
 		return -2
 
-def init_program(*, arg_parser, arg_to_config = "command_line_args", logger_name = None):
+def init_program(*, arg_parser, arg_to_config = None, logger):
 	"""
 	Common initialisation routines for all programs in the silico package.
 	
 	:param arg_parser: An argparse.ArgumentParser object that has already the desired program arguments set up. General, silico-wide options will be added by this function.
-	:param logger_name: The name of the logger to innit. This logger will print to STDERR and will automatically have its log-level set based on the command-line arguments and config file.
+	:param logger: The logger to innit. This logger will print to STDERR and will automatically have its log-level set based on the command-line arguments and config file.
 	:param arg_to_config: An optional function (or something like a function) that will be called: arg_to_config(args, config) where 'args' will be the argparse namespace object and 'config' will be the silico config object. The intention is this function should set relevant values in the config object from the argparse arguments, if so desired. Optionally, a string can be given, in which case all command-line arguments will be added (without additional modification) to the config object under the key name given by the string. If arg_to_config is None, nothing will be done.
 	:return: A tuple of the argparse namespace object, silico config object and logging logger object as (args, config, logger). The logger object can of course also be obtained via logging.getLogger(logger_name).
 	"""
-	logger_name = logger_name if logger_name is not None else silico.logger_name
-	# First, sort out our logger.
-	#logger = init_logger(logger_name)
-	logger = logging.getLogger(silico.logger_name)
-	
+	arg_to_config = arg_to_config if arg_to_config is not None else "command_line_args"
 	
 	# Deal with command line arguments and configuration options.
 	# First, add the general silico command line arguments, which are common to all programs (things like verbosity etc) to our command line parser object.
@@ -73,7 +84,7 @@ def init_program(*, arg_parser, arg_to_config = "command_line_args", logger_name
 		arg_to_config(args, config)	
 	
 	# Set what settings we can.
-	init_from_config(logger_name, config)
+	init_from_config(logger, config)
 	
 	# Set numpy errors (not sure why this isn't the default...)
 	numpy.seterr(invalid = 'raise', divide = 'raise')
@@ -116,7 +127,7 @@ def init_signals(logger):
 # 	
 # 	return logger
 
-def init_from_config(logger_name, config):
+def init_from_config(logger, config):
 	"""
 	Init program wide stuff from a loaded config object.
 	
@@ -130,7 +141,7 @@ def init_from_config(logger_name, config):
 	"""
 	# Set what settings we can.
 	# Set our log level.
-	config.set_log_level(logger_name)
+	config.set_log_level(logger)
 	
 	# Set external programs.
 	silico.image.vmd.VMD_image_maker.vmd_execuable = config['external']['vmd']

@@ -354,11 +354,9 @@ class Result_set(Result_object):
 			duration = None,
 			alignment_class_name = None,
 			vertical_emission_ground_result = None,
-			vertical_emission_excited_result = None,
-			vertical_emission_excited_state = None,
 			adiabatic_emission_ground_result = None,
-			adiabatic_emission_excited_result = None,
-			adiabatic_emission_excited_state = None,
+			emission_excited_result = None,
+			emission_excited_state = None,
 			**kwargs):
 		"""
 		Construct a Result_set object from the data provided by cclib.
@@ -370,60 +368,68 @@ class Result_set(Result_object):
 		:param date: Optional date (datetime object) of this calculation result.
 		:param duration: Optional duration (timedelta object) of this calculation.
 		:param alignment_class_name: The name/handle of an alignment class to use for molecule alignment. Defaults to Kebab+ (the average angle method).
-		:param vertical_emission_ground_result: An optional additional Result_set object which will be used as the ground state for calculation of vertical emission energy. If emission_ground_result is None but emission_excited_result is not, then the newly created Result_set will be used as its own ground state.
-		:param vertical_emission_excited_result: An optional additional Result_set object which will be used as the excited state for calculation of vertical emission energy. If emission_ground_result is give, then emission_excited_result is not optional.
-		:param vertical_emission_excited_state: Optionally either an Excited_state object or a string describing one ('S(1)' etc) for use in calculating vertical emission energy.
+		:param vertical_emission_ground_result: An optional additional Result_set object which will be used as the ground state for calculation of vertical emission energy.
+		:param adiabatic_emission_ground_result: An optional additional Result_set object which will be used as the ground state for calculation of adiabatic emision energy.
+		:param emission_excited_result: An optional additional Result_set object which will be used as the excited state for calculation of vertical and/or adiabatic emission energy. If emission_ground_result is give, then emission_excited_result is not optional.
+		:param emission_excited_state: Optionally either an Excited_state object or a string describing one ('S(1)' etc) for use in calculating vertical and/or adiabatic emission energy.
 		:return: A populated Result_set object.
 		"""
 		alignment_class_name = "MIN" if alignment_class_name is None else alignment_class_name
 		
-		try:
-			# First get our list of MOs (because we need them for excited states too.
-			molecular_orbitals = Molecular_orbital_list.from_cclib(ccdata)
-			beta_orbitals = Molecular_orbital_list.from_cclib(ccdata, cls = Beta_orbital)
-			
-			# Metadata.
-			metadata = Metadata.from_cclib(ccdata, name = name, date = date, duration = duration)
-			
-			# Our alignment orientation data.
-			alignment =	Alignment.from_class_handle(alignment_class_name).from_cclib(ccdata, charge = metadata.system_charge)
-			atoms = Atom_list.from_cclib(ccdata, charge = metadata.system_charge)
-			
-			# Get transition dipoles.
-			if gaussian_log_file is not None:
-				transition_dipole_moments = Transition_dipole_moment.list_from_log(gaussian_log_file, atoms = alignment)
-			else:
-				transition_dipole_moments = []
-			
-			
-			# Get our object.
-			result = self(
-				*args,
-				gaussian_log_file = gaussian_log_file,
-				metadata = 		metadata,
-				ccenergies = 	CC_energy_list.from_cclib(ccdata),
-				mpenergies = 	MP_energy_list.from_cclib(ccdata),
-				scfenergies = 	SCF_energy_list.from_cclib(ccdata),
-				atoms = 		atoms,
-				alignment = 	alignment,
-				dipole_moment = Dipole_moment.from_cclib(ccdata, atoms = alignment),
-				molecular_orbitals = 	molecular_orbitals,
-				beta_orbitals = 		beta_orbitals,
-				excited_states = 		Excited_state_list.from_cclib(ccdata, molecular_orbitals, beta_orbitals, transition_dipole_moments),
-				vibrations = 	Vibration_list.from_cclib(ccdata),
-				**kwargs
-				)
-			
-			# Set emission energy if we have it.
+		#try:
+		# First get our list of MOs (because we need them for excited states too.
+		molecular_orbitals = Molecular_orbital_list.from_cclib(ccdata)
+		beta_orbitals = Molecular_orbital_list.from_cclib(ccdata, cls = Beta_orbital)
 		
-			# Set our emission energies.
-			self._set_emission(result, 'vertical', vertical_emission_ground_result, vertical_emission_excited_result, vertical_emission_excited_state)
-			self._set_emission(result, 'adiabatic', adiabatic_emission_ground_result, adiabatic_emission_excited_result, adiabatic_emission_excited_state)
-
-			# All done.
-			return result
+		# Metadata.
+		metadata = Metadata.from_cclib(ccdata, name = name, date = date, duration = duration)
+		
+		# Our alignment orientation data.
+		alignment =	Alignment.from_class_handle(alignment_class_name).from_cclib(ccdata, charge = metadata.system_charge)
+		atoms = Atom_list.from_cclib(ccdata, charge = metadata.system_charge)
+		
+		# Get transition dipoles.
+		if gaussian_log_file is not None:
+			transition_dipole_moments = Transition_dipole_moment.list_from_log(gaussian_log_file, atoms = alignment)
+		else:
+			transition_dipole_moments = []
+		
+		
+		# Get our object.
+		result = self(
+			*args,
+			gaussian_log_file = gaussian_log_file,
+			metadata = 		metadata,
+			ccenergies = 	CC_energy_list.from_cclib(ccdata),
+			mpenergies = 	MP_energy_list.from_cclib(ccdata),
+			scfenergies = 	SCF_energy_list.from_cclib(ccdata),
+			atoms = 		atoms,
+			alignment = 	alignment,
+			dipole_moment = Dipole_moment.from_cclib(ccdata, atoms = alignment),
+			molecular_orbitals = 	molecular_orbitals,
+			beta_orbitals = 		beta_orbitals,
+			excited_states = 		Excited_state_list.from_cclib(ccdata, molecular_orbitals, beta_orbitals, transition_dipole_moments),
+			vibrations = 	Vibration_list.from_cclib(ccdata),
+			**kwargs
+			)
+		
+		# Set emission energy if we have it.
+	
+		# Set our emission energies.
+		# For vertical, we can also use the adiabatic excited energy
+		try:
+			self._set_emission(result, 'vertical', vertical_emission_ground_result, emission_excited_result, emission_excited_state)
 		except Exception:
-			raise Silico_exception("Unable to parse calculation '{}'".format(name))
+			getLogger(silico.logger_name).warning("Could not load vertical emission energy", exc_info = True)
+		try:
+			self._set_emission(result, 'adiabatic', adiabatic_emission_ground_result, emission_excited_result, emission_excited_state)
+		except Exception:
+			getLogger(silico.logger_name).warning("Could not load adiabatic emission energy", exc_info = True)
+
+		# All done.
+		return result
+		#except Exception:
+		#	raise Silico_exception("Unable to parse calculation '{}'".format(name))
 		
 	@classmethod
 	def _set_emission(self, result, transition_type, emission_ground_result = None, emission_excited_result = None, emission_excited_state = None):
@@ -441,7 +447,7 @@ class Result_set(Result_object):
 				transition_type = transition_type,
 				excited_state = emission_excited_state))
 		elif emission_ground_result is not None:
-			raise Silico_exception("Cannot calculate emission energy; no excited state given for ground state '{}'".format(emission_ground_result.name))
+			raise Silico_exception("Cannot calculate emission energy; no excited state given for ground state '{}'".format(emission_ground_result.metadata.name))
 		
 	@classmethod
 	def from_calculation_file(self,
@@ -457,7 +463,7 @@ class Result_set(Result_object):
 		:param calc_file_path: Path to a calculation file to load.
 		"""
 		# Load emission results.
-		for emission in ['vertical_emission_ground_result', 'vertical_emission_excited_result', 'adiabatic_emission_ground_result', 'adiabatic_emission_excited_result']:
+		for emission in ['vertical_emission_ground_result', 'adiabatic_emission_ground_result', 'emission_excited_result']:
 			if kwargs.get(emission, None) is not None and not isinstance(kwargs.get(emission, None), self):
 				# This emission 'result' is not a result (assume it is a path); try and load it.
 				try:

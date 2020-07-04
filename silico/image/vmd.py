@@ -12,6 +12,7 @@ import os
 from silico.file import File_converter
 import silico
 from math import fabs
+import copy
 
 class VMD_image_maker(File_converter):
 	"""
@@ -35,9 +36,6 @@ class VMD_image_maker(File_converter):
 	input_file_type = "cube"
 	# Text description of our output file type, used for error messages etc. This can be changed by inheriting classes.
 	output_file_type = "image"
-	
-	# The name of the key in options to use to get our isovalue (changed by some inheriting classes).
-	isovalue_option_name = 'isovalue'
 	
 	def __init__(self, *args, cube_file = None, translations = None, rotations = None, auto_crop = True, rendering_style = "pastel", resolution = 1024, also_make_png = True, isovalue = 0.2, **kwargs):
 		"""
@@ -104,19 +102,41 @@ class VMD_image_maker(File_converter):
 			cube_file = cube_file,
 			translations = translations,
 			rotations = rotations,
-			auto_crop = options['molecule_image']['auto_crop'],
-			rendering_style = options['molecule_image']['rendering_style'],
-			dont_modify = options['image']['dont_create_new'],
-			use_existing = options['image']['use_existing'],
-			resolution = options['molecule_image']['resolution'],
-			isovalue = options['molecule_image'][self.isovalue_option_name]
+			**self._get_config(options['molecule_image']),
+			**options['image']
 		)
+		
+	@classmethod
+	def _get_config(self, options):
+		"""
+		Called as part of from_image_options().
+		
+		This method is temporary and will disappear once from_image_options() is refactored away.
+		"""
+		# Get our config options.
+		config = copy.deepcopy(options)
+		
+		# We need one of two possible sub-options depending on whether we're rendering spin images or nah.
+		if isinstance(self, Spin_density_image_maker):
+			sub_config = config['spin']
+		else:
+			sub_config = config['orbital']
+			
+		# Delete both sub-options.
+		del config['spin']
+		del config['orbital']
+		
+		# Delete cube grid size too.
+		del sub_config['cube_grid_size']
+		
+		config.update(sub_config)
+		return config
 		
 	def get_image(self, name = 'file'):
 		"""
 		Get the path to one of the images that this class represents, rendering the image to file first if necessary.
 		
-		The functioning of this method is controlled by the dont_create_new_images & use_existing_images flags.
+		The functioning of this method is controlled by the dont_modify & use_existing flags.
 		
 		You can also use the normal python attribute mechanism (either through getattr() or dot notation) to get these paths.
 		
@@ -411,7 +431,6 @@ class Spin_density_image_maker(Orbital_image_maker):
 	"""
 		
 	vmd_script ="generate_spin_images.tcl"
-	isovalue_option_name = 'spin_density_isovalue'
 	
 	def __init__(self, *args, spin = "both", **kwargs):
 		"""
@@ -435,12 +454,8 @@ class Spin_density_image_maker(Orbital_image_maker):
 			translations = translations,
 			rotations = rotations,
 			spin = spin,
-			auto_crop = options['molecule_image']['auto_crop'],
-			rendering_style = options['molecule_image']['rendering_style'],
-			dont_modify = options['image']['dont_create_new'],
-			use_existing = options['image']['use_existing'],
-			resolution = options['molecule_image']['resolution'],
-			isovalue = options['molecule_image'][self.isovalue_option_name]
+			**self._get_config(options['molecule_image']),
+			**options['image']
 		)
 		
 	@property
@@ -508,11 +523,8 @@ class Combined_orbital_image_maker(VMD_image_maker):
 			HOMO_cube_file = HOMO_cube_file,
 			LUMO_cube_file = LUMO_cube_file,
 			rotations = rotations,
-			auto_crop = options['molecule_image']['auto_crop'],
-			rendering_style = options['molecule_image']['rendering_style'],
-			dont_modify = options['image']['dont_create_new'],
-			use_existing = options['image']['use_existing'],
-			isovalue = options['molecule_image'][self.isovalue_option_name]
+			**self._get_config(options['molecule_image']),
+			**options['image']
 		)
 	
 	def check_can_make(self):
@@ -584,10 +596,8 @@ class Dipole_image_maker(Structure_image_maker):
 			dipole_moment = dipole_moment,
 			existing_file = existing_file,
 			rotations = rotations,
-			auto_crop = options['molecule_image']['auto_crop'],
-			rendering_style = options['molecule_image']['rendering_style'],
-			dont_modify = options['image']['dont_create_new'],
-			use_existing = options['image']['use_existing']
+			**self._get_config(options['molecule_image']),
+			**options['image']
 		)
 		
 	def check_can_make(self):

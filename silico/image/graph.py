@@ -11,7 +11,13 @@ class Graph_image_maker(Image_maker):
 	Most of the heavy lifting here is achieved by the matplotlib library.
 	"""
 	
-	def __init__(self, *args, **kwargs):
+	def __init__(self, *args, max_width = None, max_height = None, **kwargs):
+		"""
+		Constructor for Graph_image_maker objects.
+		
+		:param max_width: The maximum image width in pixels, None for no limit.
+		:param max_height: The maximum image height in pixels, None for no limit.
+		"""
 		super().__init__(*args, **kwargs)
 		
 		# Set our output dpi (higher values = bigger image/quality).
@@ -30,6 +36,10 @@ class Graph_image_maker(Image_maker):
 		
 		# The plotting area within our figure.
 		self.axes = None
+		
+		# Image clamping.
+		self.max_width = max_width
+		self.max_height = max_height
 		
 	def make_files(self):
 		"""
@@ -71,6 +81,12 @@ class Graph_image_maker(Image_maker):
 		# Call adjust_axes(), which does what it suggests (also adds axis labels etc.)
 		self.adjust_axes()
 		
+		# Finally, clamp our image size if we're going to be too big.
+		if self.max_width is not None:
+			self.clamp_dimension(0, self.max_width)
+		if self.max_height is not None:
+			self.clamp_dimension(1, self.max_height)
+		
 		# Return a reference to the figure (for convenience).
 		return self.figure
 		
@@ -93,14 +109,30 @@ class Graph_image_maker(Image_maker):
 			self.axes.set_xlabel(self.x_label, labelpad = 8, fontsize = 16, weight = 'bold')
 		if not self.y_label == "":
 			self.axes.set_ylabel(self.y_label, labelpad = 8, fontsize = 16, weight = 'bold')
-			
 	
+	def clamp_dimension(self, dim, maximum):
+		"""
+		Ensure the image does not exceed a certain number of pixels in a given dimension.
+		
+		:param dim: The dimension to clamp; 0 for x, 1 for y.
+		:param maximum: The maximum allowed pixels.
+		"""
+		# Check to see if we've exceeded our max size.
+		fig_size = self.figure.get_size_inches()
+		if (fig_size[dim] * self.output_dpi) > maximum:
+			# We're too big, reduce to max.
+			fig_size[dim] = maximum / self.output_dpi
+			self.figure.set_size_inches(fig_size)
+						
+			# Update layout. Calling this twice is necessary for some reason loool
+			self.figure.tight_layout()
+			self.figure.tight_layout()
 	
 	def constant_scale(self, axis, inch_per_axis):
 		"""
 		Adjust the size of our figure so a given axis has a constant scale.
 		
-		You should adjust the corresponding axis's limits before calling this method.
+		You should adjust the corresponding axis' limits before calling this method.
 		
 		:param axis: The axis to adjust, 0 for the x axis, 1 for the y axis.
 		:param inch_per_axis: The number of inches per unit of the given axis to adjust to. 
@@ -208,7 +240,12 @@ class Convergence_graph_maker(Graph_image_maker):
 		"""
 		An alternative constructor that discards any additional keyword arguments.
 		"""
-		return self(output, energies = energies, output_base = output_base, dont_modify = options['image']['dont_create_new'], use_existing = options['image']['use_existing'])
+		return self(
+			output,
+			energies = energies,
+			output_base = output_base,
+			**options['image']
+		)
 	
 	def plot(self):
 		"""
@@ -232,15 +269,12 @@ class Convergence_graph_maker(Graph_image_maker):
 		# Also the x.
 		x_diff = len(self.energies) - 1
 		x_fudge = x_diff * 0.05
-		#pyplot.axis([1 - x_fudge, len(self.energies) + x_fudge, min(self.energies) - y_fudge, max(self.energies) + y_fudge])
+		
 		self.axes.set_xlim(1 - x_fudge, len(self.energies) + x_fudge)
 		self.axes.set_ylim(min(self.energies) - y_fudge, max(self.energies) + y_fudge)
 		
-		# Change spacing. We use IndexLocators because these don't show at 0 (this is probably not what these are designed for...
-		#self.axes.xaxis.set_major_locator(ticker.IndexLocator(5, 0))
-		#self.axes.xaxis.set_minor_locator(ticker.IndexLocator(1, 0))
+		# Change spacing.
 		self.axes.xaxis.set_major_locator(ticker.MaxNLocator(nbins = '12', steps = [1, 2, 2.5, 5, 10], integer = True))
-		#self.axes.xaxis.set_minor_locator(ticker.MaxNLocator(nbins = '24', steps = [1, 2, 2.5, 5, 10]))
 		
 		# Use matplotlib to automatically layout our graph.
 		self.figure.tight_layout()

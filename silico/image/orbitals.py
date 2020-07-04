@@ -9,14 +9,14 @@ class Orbital_diagram_maker(OneD_graph_image_maker):
 	Class for making orbital energy diagrams.
 	"""
 		
-	def __init__(self, output, molecular_orbitals, full_axis_lines = False, limits_method = "standard", limits_fallback = True, **kwargs):
+	def __init__(self, output, molecular_orbitals, full_axis_lines = False, y_limits = "auto", limits_fallback = True, **kwargs):
 		"""
 		Constructor for graph makers.
 		
 		:param output: A path to an output file to write to. The extension of this path is used to determine the format of the file (eg: png, jpeg).
 		:param molecular_orbitals: A list of orbitals to plot.
 		:param full_axis_lines: If False, a boundary line is drawn for the x axis but nowhere else. If True, boundary lines are drawn on all 4 sides of the plotting area.
-		:param limits_method: String controlling how the y axis limits are set. Options are 'all' for showing all orbitals, 'standard' for standard scaling showing the HOMO, LUMO and 0 point, or 'center' for placing the HOMO/LUMO gap in the center of the y axis. Alternatively, limits_method can be a tuple of (y_min, y_max) which will be used directly as axis limits.
+		:param y_limits: String controlling how the y axis limits are set. Options are 'all' for showing all orbitals, 'auto' for standard auto scaling showing the HOMO, LUMO and 0 point, or 'center' for placing the HOMO/LUMO gap in the center of the y axis. Alternatively, limits_method can be a tuple of (y_min, y_max) which will be used directly as axis limits.
 		:param limits_fallback: If True, use simple_limits() if the chosen limits_method fails. If false, an exception is raised.
 		"""
 		super().__init__(output, **kwargs)
@@ -37,7 +37,7 @@ class Orbital_diagram_maker(OneD_graph_image_maker):
 		
 		# Save options.
 		self.full_axis_lines = full_axis_lines
-		self.limits_method = limits_method
+		self.limits_method = y_limits
 		self.limits_fallback = limits_fallback
 		
 	@classmethod
@@ -49,10 +49,8 @@ class Orbital_diagram_maker(OneD_graph_image_maker):
 			output,
 			output_base = output_base,
 			molecular_orbitals = molecular_orbitals,
-			full_axis_lines = options['orbital_diagram']['full_axis_lines'],
-			limits_method = options['orbital_diagram']['y_limits'],
-			dont_modify = options['image']['dont_create_new'],
-			use_existing = options['image']['use_existing']
+			**options['orbital_diagram'],
+			**options['image']
 		)
 		
 	def plot_lines(self):
@@ -213,7 +211,7 @@ class Orbital_diagram_maker(OneD_graph_image_maker):
 				self.all_limits()
 			elif self.limits_method == "center":
 				self.center_limits()
-			elif self.limits_method == "standard":
+			elif self.limits_method == "auto":
 				self.standard_limits()
 			elif isinstance(self.limits_method, tuple) or isinstance(self.limits_method, list):
 				self.simple_limits(self.limits_method[0], self.limits_method[1])
