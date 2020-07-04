@@ -12,7 +12,7 @@ name = "silico"
 # Brief description.
 description = "Silico Computational Chemistry Package"
 # Whether this is a development version.
-development = True
+development = False
 # Version information.
 major_version = 0
 minor_version = 11
@@ -23,7 +23,7 @@ version = "{}{}".format(version_number, "-dev" if development else "")
 # The bloke who wrote this.
 author = "Oliver Lee"
 # Program date (when we were last updated).
-_last_updated_string = "27/06/2020"
+_last_updated_string = "04/07/2020"
 last_updated = datetime.strptime(_last_updated_string, "%d/%m/%Y")
 
 # The name of the logger that will be used by silico.
