@@ -12,6 +12,7 @@ from logging import getLogger
 from timeit import default_timer as timer
 import datetime
 from silico import misc
+from silico.submit.structure.flag import Flag
 
 class Program_target(Configurable_target):
 	"""
@@ -138,9 +139,15 @@ class Program_target(Configurable_target):
 		"""
 		Implementing classes should call this function immediately before running the computational chemistry software.
 		"""
+		# Set the start and running flags.
+		self.method.calc_dir.set_flag(Flag.STARTED)
+		self.method.calc_dir.set_flag(Flag.RUNNING)
+		
+		# Save our start time.
 		self.start_timer = timer()
 		self.start_date = datetime.datetime.now()
 		
+		# Log.
 		getLogger(silico.logger_name).info("Calculation start on {} ".format(misc.date_to_string(self.start_date)))
 		
 	def calc_end(self, success = True):
@@ -149,6 +156,12 @@ class Program_target(Configurable_target):
 		
 		:param success: Should be False if the program finished with error.
 		"""
+		# Unset our running flag.
+		self.method.calc_dir.del_flag(Flag.RUNNING)
+		# Set our error flag if something went wrong
+		if not success:
+			self.method.calc_dir.set_flag(Flag.ERROR)
+		
 		self.end_timer = timer()
 		self.end_date = datetime.datetime.now()
 		
@@ -163,9 +176,6 @@ class Program_target(Configurable_target):
 			
 		# Work out how much time has passed.
 		self.duration = datetime.timedelta(seconds = self.end_timer - self.start_timer)
-# 		hours = math.floor(self.duration.seconds / 3600)
-# 		minutes = math.floor((self.duration.seconds - hours * 3600) / 60)
-# 		getLogger(silico.logger_name).info("Calculation duration: {} days, {} hours, {} minutes  ({} total seconds)".format(self.duration.days, hours, minutes, self.duration.total_seconds()))
 		getLogger(silico.logger_name).info("Calculation duration: {} ({} total seconds)".format(misc.timedelta_to_string(self.duration), self.duration.total_seconds()))
 	
 	def submit_proper(self):
@@ -200,7 +210,14 @@ class Program_target(Configurable_target):
 		Note the order of submission; which is method -> program -> calculation.
 		"""
 		self.method.submit_post()
-		self._submit_post()
+		
+		# Set post flag
+		self.method.calc_dir.set_flag(Flag.POST)
+		try:
+			self._submit_post()
+		finally:
+			# Done post.
+			self.method.calc_dir.del_flag(Flag.POST)
 		
 	def _submit_post(self):
 		"""
@@ -209,13 +226,33 @@ class Program_target(Configurable_target):
 		# First, (try) and load our results.
 		# We'll actually load a report object because it is the same as a Result_set but with some extra methods which we might need to write a report. Saves us loading results twice.
 		# We need to know whether the calculation was successful or not, so we make no effort to catch exceptions here.
-		self.result = PDF_report.from_calculation_files(
-			date = self.end_date,
-			duration = self.duration,
-			gaussian_log_file = self.calc_output_file_path,
-			prog_version = silico.version,
-			options = self.silico_options
-			)
+		try:
+			self.result = PDF_report.from_calculation_files(
+				date = self.end_date,
+				duration = self.duration,
+				gaussian_log_file = self.calc_output_file_path,
+				prog_version = silico.version,
+				options = self.silico_options
+				)
+		except Exception:
+			# No good.
+			self.method.calc_dir.set_flag(Flag.ERROR)
+			raise
+		else:
+			# See if our calculation was successful or not.
+			if self.result.metadata.calc_success:
+				self.method.calc_dir.set_flag(Flag.SUCCESS)
+			else:
+				# No good.
+				self.method.calc_dir.set_flag(Flag.ERROR)
+				
+			# Also check optimisation convergence.
+			if self.result.metadata.optimisation_converged is not None and "Optimisation" in self.result.metadata.calculations:
+				if self.result.metadata.optimisation_converged:
+					# Converged.
+					self.method.calc_dir.set_flag(Flag.CONVERGED)
+				else:
+					self.method.calc_dir.set_flag(Flag.NOT_CONVERGED)
 		
 		# If we've been asked to write result files, do so.
 		try:

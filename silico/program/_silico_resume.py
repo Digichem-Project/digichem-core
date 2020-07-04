@@ -2,6 +2,7 @@
 
 # This should suppress a matplotlib warning when we compile with pyinstaller.
 import warnings
+from silico.submit.structure.flag import Flag
 warnings.filterwarnings("ignore", "(?s).*MATPLOTLIBDATA.*", category = UserWarning)
 # This one is caused by some minor bug when plotting graphs.
 warnings.filterwarnings("ignore", "(?s).*Source ID .* was not found when attempting to remove it.*")
@@ -66,7 +67,7 @@ def main():
 		
 	# Set program stuff.
 	#silico.program.init_logger(silico.logger_name)
-	silico.program.init_from_config(silico.logger_name, method.program.calculation.silico_options)
+	silico.program.init_from_config(getLogger(silico.logger_name), method.program.calculation.silico_options)
 	silico.program.init_signals(getLogger(silico.logger_name))
 	
 	# Set numpy errors (not sure why this isn't the default...)
@@ -74,13 +75,8 @@ def main():
 	
 	# ----- Program begin -----
 	return silico.program.main_wrapper(
-		method = method,
-		logger = getLogger(silico.logger_name),
-		inner_func = _main
-	)	
-	# ----- Program begin -----
-	return silico.program.main_wrapper(
 		_main,
+		method = method,
 		arg_parser = parser,
 	)
 
@@ -97,6 +93,8 @@ def _main(args, config, logger, method):
 		pass
 	except Exception:
 		raise Silico_exception("Error during submission")
+	finally:
+		method.calc_dir.set_flag(Flag.DONE)
 
 
 # If we've been invoked as a program, call main().	

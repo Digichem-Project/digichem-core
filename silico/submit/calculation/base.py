@@ -7,6 +7,7 @@ from silico.file.babel import Openbabel_converter
 from logging import getLogger
 import silico
 import copy
+from silico.submit.structure.flag import Flag
 
 class Calculation_target(Configurable_target):
 	"""
@@ -312,8 +313,11 @@ class Calculation_target(Configurable_target):
 		
 		The calculation will occur during this method and will have completed before this method returns (for blocking Method_targets).
 		"""
-		self.program.submit_proper()
-		self._submit_proper()
+		try:
+			self.program.submit_proper()
+			self._submit_proper()
+		except Exception:
+			self.program.method.calc_dir.set_flag(Flag.DONE)
 		
 	def _submit_proper(self):
 		"""
@@ -333,7 +337,10 @@ class Calculation_target(Configurable_target):
 		
 		Note the order of submission; which is method -> program -> calculation.
 		"""
-		self.program.submit_post()
+		try:
+			self.program.submit_post()
+		finally:
+			self.program.method.calc_dir.set_flag(Flag.DONE)
 		self._submit_post()
 		
 	def _submit_post(self):
