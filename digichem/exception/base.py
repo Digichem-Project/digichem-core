@@ -1,8 +1,4 @@
 # Exceptions and other errors.
-import inspect
-import silico
-#import silico.submit.method
-#import silico.submit.program
 
 class Silico_exception(Exception):
 	"""
@@ -81,51 +77,7 @@ class Unknown_file_type_exception(Silico_exception):
 		if self.expected is not None:
 			err_str = "{}; expected file of type '{}'".format(err_str, self.expected)
 		return err_str
-	
-class Config_loader_exception(Silico_exception):
-	"""
-	Exceptions that occur during reading of a config file.
-	"""
-	
-	def __init__(self, config, reason):
-		self.config = config
-		self.reason = reason
-		
-	def __str__(self, *args, **kwargs):
-		"""
-		Stringify this error.
-		"""
-		return "Unable to load config file '{}'; {}".format(self.config, self.reason)
-		
-class Bad_config_exception(Silico_exception):
-	"""
-	Exceptions for when a config file can be read/parsed, but there is some higher level error that prevents it from being used.
-	"""
-	
-	def __init__(self, reason):
-		self.reason = reason
-		
-	def __str__(self, *args, **kwargs):
-		"""
-		Stringify this error.
-		"""
-		return "Bad config; {}".format(self.reason)
-	
-class Configurable_target_exception(Silico_exception):
-	"""
-	Exceptions for missing/wrong/conflicting arguments being supplied to Configurable_target objects.
-	"""
-		
-	def __init__(self, object_or_class, reason):
-		self.config_type = object_or_class.__name__ if inspect.isclass(object_or_class) else "{}/{}".format(object_or_class.CONFIG_TYPE, object_or_class.CONFIG_NAME)
-		self.reason = reason
-		
-	def __str__(self, *args, **kwargs):
-		"""
-		Stringify this error.
-		"""
-		return "Error in  '{}'; {}".format(self.config_type, self.reason)
-	
+				
 class Submission_error(Silico_exception):
 	"""
 	Exceptions for when an error occurs during calculation submission.
@@ -139,10 +91,10 @@ class Submission_error(Silico_exception):
 		:param reason: String describing why the error occured.
 		"""		
 		# Do some quick type checking.
-		if calculation.CONFIG_TYPE == "submit_methods":
+		if calculation.TYPE == "method":
 			# 'Calculation' is actually a Method_target.
 			calculation = calculation.program.calculation
-		elif calculation.CONFIG_TYPE == "submit_programs":
+		elif calculation.TYPE == "program":
 			# 'Calculation' is actually a Program_target.
 			calculation = calculation.calculation
 		
@@ -158,7 +110,7 @@ class Submission_error(Silico_exception):
 		"""
 		Stringify this error.
 		"""
-		return "Error submitting file '{}' to '{}/{}/{}'; {}".format(self.file_name, self.calculation.program.method._CONFIG_NAME, self.calculation.program._CONFIG_NAME, self.calculation._CONFIG_NAME, self.reason)
+		return "Error submitting file '{}' to '{}/{}/{}'; {}".format(self.file_name, self.calculation.program.method._NAME, self.calculation.program._NAME, self.calculation._NAME, self.reason)
 	
 class Extractor_error(Silico_exception):
 	"""
