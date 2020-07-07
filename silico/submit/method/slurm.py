@@ -1,5 +1,5 @@
 from silico.submit.method import Method_target
-from silico.exception.base import Configurable_target_exception,\
+from silico.exception import Configurable_exception,\
 	Submission_error, Silico_exception
 from mako.lookup import TemplateLookup
 from pathlib import Path
@@ -47,7 +47,7 @@ class SLURM(Method_target, Resumable_method):
 		self.mem_per_CPU = mem_per_CPU if mem_per_CPU is not None else "auto"
 		self.options = options if options is not None else {}
 		if common_directory is False:
-			raise Configurable_target_exception(self, "common_directory = False is currently not supported")
+			raise Configurable_exception(self, "common_directory = False is currently not supported")
 		self.common_directory = common_directory if common_directory is not None else True
 		self.sbatch_command = sbatch_command if sbatch_command is not None else "sbatch"
 		self.sinfo_command = sinfo_command if sinfo_command is not None else "sinfo"

@@ -1,4 +1,4 @@
-from silico.exception import Configurable_target_exception
+from silico.exception import Configurable_exception
 from mako.lookup import TemplateLookup
 import silico
 from silico.exception.base import Submission_error, Silico_exception
@@ -137,7 +137,7 @@ class Gaussian_DFT(Calculation_target):
 		Set the list of integers indices identifying specific CPUs to use for the calculation.
 		"""
 		if len(value) != 0 and self._num_CPUs is not None:
-			raise Configurable_target_exception(self, "'CPU_list' and 'num_CPUs' cannot be specified simultaneously")
+			raise Configurable_exception(self, "'CPU_list' and 'num_CPUs' cannot be specified simultaneously")
 
 		# Set.
 		self._CPU_list = value
@@ -158,7 +158,7 @@ class Gaussian_DFT(Calculation_target):
 		Set the number of CPUs to use for the calculation. In addition to an exact integer amount, the string "auto" can also be supplied, in which case all available CPUs will be used.
 		"""
 		if value is not None and len(self.CPU_list) != 0:
-			raise Configurable_target_exception(self, "'CPU_list' and 'num_CPUs' cannot be specified simultaneously")
+			raise Configurable_exception(self, "'CPU_list' and 'num_CPUs' cannot be specified simultaneously")
 
 		# Set.
 		super(Gaussian_DFT, self.__class__).num_CPUs.fset(self, value)

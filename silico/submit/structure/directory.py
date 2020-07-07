@@ -90,7 +90,7 @@ class Calculation_directory(Silico_Directory):
 		"""
 		Create a Calculation_directory object from a Calculation_target object.
 		"""
-		return self(Molecule_directory.from_calculation(calculation), self.safe_name(calculation._CONFIG_NAME), create = create)		
+		return self(Molecule_directory.from_calculation(calculation), self.safe_name(calculation._NAME), create = create)		
 	
 	@property
 	def path(self):

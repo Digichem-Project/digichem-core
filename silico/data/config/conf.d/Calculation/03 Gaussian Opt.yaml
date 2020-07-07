@@ -2,11 +2,11 @@
 # Opt + Freq.
 ##############################################################
 ---
-CONFIG_TYPE: submit_calculations
+TYPE: calculation
 
-CONFIG_ALIAS: [opt_freq_default]
+ALIAS: [opt_freq_default]
 
-group: Opt Freq
+GROUP: Opt Freq
 
 # The type of calculation to perform.
 calculation_keywords:
@@ -14,48 +14,48 @@ calculation_keywords:
     - Freq
 
 # Freq requires more mem than usual.
-memory: 16GB
+memory: 20GB
 
 ##############################################################
 ---
-CONFIG_TYPE: submit_calculations
+TYPE: calculation
 
-CONFIG_PARENT: [g09_default, opt_freq_default]
-CONFIG_ALIAS: [opt_freq_PBE0]
+PARENT: [g09_default, opt_freq_default]
+ALIAS: [opt_freq_PBE0]
 
-group_sub_name: PBE0/6-31G(d,p)
+GROUP_NAME: PBE0/6-31G(d,p)
 functional: PBE1PBE
 
 ##############################################################
 ---
-CONFIG_TYPE: submit_calculations
+TYPE: calculation
 
-CONFIG_PARENT: [g09_default, opt_freq_default]
-CONFIG_ALIAS: [opt_freq_B3LYP]
+PARENT: [g09_default, opt_freq_default]
+ALIAS: [opt_freq_B3LYP]
 
-group_sub_name: B3LYP/6-31G(d,p)
-
-functional: B3LYP
-
-##############################################################
----
-CONFIG_TYPE: submit_calculations
-
-CONFIG_PARENT: [g09_organomet_default, opt_freq_default]
-CONFIG_ALIAS: [opt_freq_SBKJC_VDZ_ECP]
-
-group_sub_name: B3LYP/6-31G+(d,p) [H-Ar]/SBKJC-VDZ-ECP [K-Rn]
+GROUP_NAME: B3LYP/6-31G(d,p)
 
 functional: B3LYP
 
 ##############################################################
 ---
-CONFIG_TYPE: submit_calculations
+TYPE: calculation
 
-CONFIG_PARENT: [g09_default, opt_freq_default]
-CONFIG_ALIAS: [opt_freq_M062X]
+PARENT: [g09_organomet_default, opt_freq_default]
+ALIAS: [opt_freq_SBKJC_VDZ_ECP]
 
-group_sub_name: M062X/6-31G(d,p)
+GROUP_NAME: B3LYP/6-31G+(d,p) [H-Ar]/SBKJC-VDZ-ECP [K-Rn]
+
+functional: B3LYP
+
+##############################################################
+---
+TYPE: calculation
+
+PARENT: [g09_default, opt_freq_default]
+ALIAS: [opt_freq_M062X]
+
+GROUP_NAME: M062X/6-31G(d,p)
 
 functional: M062X
 
@@ -65,11 +65,11 @@ functional: M062X
 # Opt + Freq Unrestricted triplet
 ##############################################################
 ---
-CONFIG_TYPE: submit_calculations
+TYPE: calculation
 
-CONFIG_ALIAS: [opt_freq_triplet_default]
+ALIAS: [opt_freq_triplet_default]
 
-group: Opt Freq Unrestricted Triplet
+GROUP: Opt Freq Unrestricted Triplet
 
 # The type of calculation to perform.
 calculation_keywords:
@@ -80,44 +80,44 @@ multiplicity: 3
 
 ##############################################################
 ---
-CONFIG_TYPE: submit_calculations
+TYPE: calculation
 
-CONFIG_PARENT: [g09_default, opt_freq_triplet_default]
-CONFIG_ALIAS: [opt_freq_triplet_PBE0]
+PARENT: [g09_default, opt_freq_triplet_default]
+ALIAS: [opt_freq_triplet_PBE0]
 
-group_sub_name: uPBE0/6-31G(d,p)
+GROUP_NAME: uPBE0/6-31G(d,p)
     
 functional: upbe1pbe
 
 ##############################################################
 ---
-CONFIG_TYPE: submit_calculations
+TYPE: calculation
 
-CONFIG_PARENT: [g09_default, opt_freq_triplet_default]
-CONFIG_ALIAS: [opt_freq_triplet_B3LYP]
+PARENT: [g09_default, opt_freq_triplet_default]
+ALIAS: [opt_freq_triplet_B3LYP]
 
-group_sub_name: uB3LYP/6-31G(d,p)
-
-functional: uB3LYP
-
-##############################################################
----
-CONFIG_TYPE: submit_calculations
-
-CONFIG_PARENT: [g09_organomet_default, opt_freq_triplet_default]
-CONFIG_ALIAS: [opt_freq_triplet_SBKJC_VDZ_ECP]
-
-group_sub_name: uB3LYP/6-31G+(d,p) [H-Ar]/SBKJC-VDZ-ECP [K-Rn]
+GROUP_NAME: uB3LYP/6-31G(d,p)
 
 functional: uB3LYP
 
 ##############################################################
 ---
-CONFIG_TYPE: submit_calculations
+TYPE: calculation
 
-CONFIG_PARENT: [g09_default, opt_freq_triplet_default]
-CONFIG_ALIAS: [opt_freq_triplet_M062X]
+PARENT: [g09_organomet_default, opt_freq_triplet_default]
+ALIAS: [opt_freq_triplet_SBKJC_VDZ_ECP]
 
-group_sub_name: uM062X/6-31G(d,p)
+GROUP_NAME: uB3LYP/6-31G+(d,p) [H-Ar]/SBKJC-VDZ-ECP [K-Rn]
+
+functional: uB3LYP
+
+##############################################################
+---
+TYPE: calculation
+
+PARENT: [g09_default, opt_freq_triplet_default]
+ALIAS: [opt_freq_triplet_M062X]
+
+GROUP_NAME: uM062X/6-31G(d,p)
 
 functional: uM062X

@@ -66,7 +66,6 @@ def main():
 		getLogger(silico.logger_name).error("Failed to delete pickle file", exc_info = True)
 		
 	# Set program stuff.
-	#silico.program.init_logger(silico.logger_name)
 	silico.program.init_from_config(getLogger(silico.logger_name), method.program.calculation.silico_options)
 	silico.program.init_signals(getLogger(silico.logger_name))
 	

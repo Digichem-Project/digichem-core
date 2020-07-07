@@ -1,68 +1,71 @@
 from silico.misc import Dynamic_parent
-from silico.config import Config
+from silico.config.configurable import Configurable
 import os
 import numpy
 from itertools import filterfalse, chain
-from silico.exception.base import Configurable_target_exception
+from silico.exception.configurable import Configurable_class_exception,\
+	Configurable_exception
 
 class Configurable_target(Dynamic_parent):
 	"""
 	Top level class for user-configurable submit targets (Calculation types, program types, method types etc.)
 	"""
 	
-	def __init__(self, *, CONFIG_NAME = None, CONFIG_ALIAS = None, CONFIG_TYPE = None, CONFIG_PARENT = None, class_handle, configs):
+	def __init__(self, *, NAME = None, ALIAS = None, TYPE = None, PARENT = None, GROUP = None, GROUP_NAME = None, class_handle, configs):
 		"""
 		Constructor for submit target objects.
 		
-		:param CONFIG_NAME: The name of this target. The name should be unique (within the same type_name) as it can be used to refer back to this target, and should succinctly describe this target (eg, SLURM, Gaussian, Orca-DFT, Turbomole-CC, PBE0, etc.) If no name is given then this target is 'hidden'; it cannot be selected by the user but can be referenced (via alias) by other, concrete targets.
-		:param CONFIG_ALIAS: A list of alternative names that the target is known by. The target can also be referenced by any of these aliases. A target having no name or alias is allowed but will be unusable.
+		:param NAME: The name of this target. The name should be unique (within the same type_name) as it can be used to refer back to this target, and should succinctly describe this target (eg, SLURM, Gaussian, Orca-DFT, Turbomole-CC, PBE0, etc.) If no name is given then this target is 'hidden'; it cannot be selected by the user but can be referenced (via alias) by other, concrete targets.
+		:param ALIAS: A list of alternative names that the target is known by. The target can also be referenced by any of these aliases. A target having no name or alias is allowed but will be unusable.
 		:param class: The specific type of this target; this should match (one of) the CLASS_HANDLE(s) of a class in calculation, method or program.
 		:param configs: The list of configs from which this Configurable_target is being constructed (used by some constructors).
 		"""
 		# Save our args.
-		self.CONFIG_NAME = CONFIG_NAME
-		self.CONFIG_ALIAS = CONFIG_ALIAS if CONFIG_ALIAS is not None else []
-		self.CONFIG_TYPE = CONFIG_TYPE
-		self.CONFIG_PARENT = CONFIG_PARENT
+		self.NAME = NAME
+		self.ALIAS = ALIAS if ALIAS is not None else []
+		self.TYPE = TYPE
+		self.PARENT = PARENT
+		self.GROUP = GROUP
+		self.GROUP_NAME = GROUP_NAME
 		self.class_handle = class_handle
 	
 	@property
-	def CONFIG_NAME(self):
+	def NAME(self):
 		"""
-		Get the unique name by which this config target is known (automatically converted to lower case to aid comparison; use _CONFIG_NAME for case insensitive version).
+		Get the unique name by which this config target is known (automatically converted to lower case to aid comparison; use _NAME for case insensitive version).
 		"""
-		return self._CONFIG_NAME.lower() if self._CONFIG_NAME is not None else None
+		return self._NAME.lower() if self._NAME is not None else None
 	
-	@CONFIG_NAME.setter
-	def CONFIG_NAME(self, value):
+	@NAME.setter
+	def NAME(self, value):
 		"""
 		Set the unique name of this config target.
 		"""
-		self._CONFIG_NAME = value
+		self._NAME = value
 		
 	@property
-	def CONFIG_ALIAS(self):
+	def ALIAS(self):
 		"""
-		Get a list of the unique aliases by which this config target is known (all automatically converted to lower case to aid comparison; use _CONFIG_ALIAS for case insensitive version)
+		Get a list of the unique aliases by which this config target is known (all automatically converted to lower case to aid comparison; use _ALIAS for case insensitive version)
 		"""
-		return [alias.lower() for alias in self._CONFIG_ALIAS]
+		return [alias.lower() for alias in self._ALIAS]
 	
-	@CONFIG_ALIAS.setter
-	def CONFIG_ALIAS(self, value):
+	@ALIAS.setter
+	def ALIAS(self, value):
 		"""
 		Set the unique aliases of this this config target.
 		"""
-		self._CONFIG_ALIAS = value
+		self._ALIAS = value
 		
 	@property
 	def names(self):
 		"""
-		Get a list of all the names that this object can be references by (both CONFIG_NAME and CONFIG_ALIAS combined, all automatically converted to lower case to aid comparison).
+		Get a list of all the names that this object can be references by (both NAME and ALIAS combined, all automatically converted to lower case to aid comparison).
 		"""
-		#name_list = [self.CONFIG_NAME] if self.CONFIG_NAME is not None else []
-		#name_list.extend(self.CONFIG_ALIAS)
+		#name_list = [self.NAME] if self.NAME is not None else []
+		#name_list.extend(self.ALIAS)
 		#return [name.lower() for name in name_list]
-		return list(chain([self.CONFIG_NAME], self.CONFIG_ALIAS))
+		return list(chain([self.NAME], self.ALIAS))
 	
 	def get_children(self, target_list):
 		"""
@@ -75,9 +78,9 @@ class Configurable_target(Dynamic_parent):
 		"""
 		Remove hidden targets from a list.
 		
-		Hidden targets have no CONFIG_NAME set and so are not selectable by the user. They can however be inherited by other, concrete configs creating a basic inheritance chain.
+		Hidden targets have no NAME set and so are not selectable by the user. They can however be inherited by other, concrete configs creating a basic inheritance chain.
 		"""
-		return [target for target in target_list if target.CONFIG_NAME != None]
+		return [target for target in target_list if target.NAME != None]
 	
 	@property
 	def all_possible_submit_parents(self):
@@ -86,7 +89,7 @@ class Configurable_target(Dynamic_parent):
 		
 		This default implementation raises a Configurable_target_exception. Classes for which this is a valid call should write their own implementation.
 		"""
-		raise Configurable_target_exception(self, "'all' is not valid for programs/methods for this target")
+		raise Configurable_exception(self, "'all' is not valid for programs/methods for this target")
 	
 	@property
 	def submit_parents(self):
@@ -112,7 +115,7 @@ class Configurable_target(Dynamic_parent):
 		"""
 		# We check to make sure the given parent is actually allowed to be our parent.
 		if parent is not None and len(set(parent.names).intersection(self.submit_parents)) == 0:
-			raise Configurable_target_exception(self, "{} '{}' is not compatible with {} '{}'".format(parent.CONFIG_TYPE, parent.CONFIG_NAME, self.CONFIG_TYPE, self.CONFIG_NAME))
+			raise Configurable_exception(self, "{} '{}' is not compatible with {} '{}'".format(parent.TYPE, parent.NAME, self.TYPE, self.NAME))
 		# All fine, set.
 		#self._program = value
 		setattr(self, parent_type, parent)
@@ -150,25 +153,22 @@ class Configurable_target(Dynamic_parent):
 		try:
 			cls = self.from_class_handle(config['class_handle'])
 		except KeyError:
-			raise Configurable_target_exception(self, "Config with name '{}' is missing 'class_handle'".format(config.get('CONFIG_NAME')))
+			raise Configurable_class_exception(self, "Config with name '{}' is missing 'class_handle'".format(config.get('NAME')))
 		
 		# Now init and return.
 		try:
 			return cls(configs = configs, **config, **kwargs)
 		except TypeError:
-			raise Configurable_target_exception(self, "Unrecognised or missing key in config '{}'".format(config.get('CONFIG_NAME')))
+			raise Configurable_class_exception(self, "Unrecognised or missing key in config '{}'".format(config.get('NAME')))
 	
 	@classmethod
 	def list_from_configs(self, configs, **kwargs):
 		"""
 		Get a list of Configurable_target objects from a list of config objects.
 		"""
-		# First, resolve config inheritance.
-		#resolved = [Config.resolve_config_inheritance(config, configs) for config in configs]
-		resolved = configs
 		
 		# Now remove those without a name.
-		return [self.from_config(config, configs = resolved, **kwargs) for config in resolved if config.get("CONFIG_NAME", None) != None]
+		return [self.from_config(config, configs = configs, **kwargs) for config in configs if not config.hidden]
 	
 	@classmethod
 	def search_list(self, identifier, target_list):
@@ -177,19 +177,19 @@ class Configurable_target(Dynamic_parent):
 		"""
 		# TODO: This code is duplicated in Config.search_configs...
 		if identifier is None:
-			raise Configurable_target_exception(self, "Cannot find '{}' identifier is None".format(self.__name__))
+			raise Configurable_class_exception(self, "Cannot find '{}' identifier is None".format(self.__name__))
 		
 		# Find which objects match out ID.
 		matching_targets = list(filterfalse(lambda target: identifier.lower() not in target.names, target_list))
 		
 		# If there's more than one match, the same name/alias has been used more than once.
 		if len(matching_targets) > 1:
-			raise Configurable_target_exception(self, "The name/alias '{}' has been used by more than one config, name/alias must be unique".format(identifier))
+			raise Configurable_class_exception(self, "The name/alias '{}' has been used by more than one config, name/alias must be unique".format(identifier))
 		elif len(matching_targets) == 1:
 			return matching_targets[0]
 		else:
 			# No match.
-			raise Configurable_target_exception(self, "Unable to locate object with name/alias '{}'".format(identifier))
+			raise Configurable_class_exception(self, "Unable to locate object with name/alias '{}'".format(identifier))
 	
 	@classmethod
 	def from_name_in_list(self, identifier, target_list):
@@ -205,7 +205,7 @@ class Configurable_target(Dynamic_parent):
 				
 				return target_list[identifier]
 			except IndexError:
-				raise Configurable_target_exception(self, "Unknown ID '{}'".format(identifier +1))
+				raise Configurable_class_exception(self, "Unknown ID '{}'".format(identifier +1))
 		else:
 			return self.search_list(identifier, target_list)
 	
@@ -214,16 +214,15 @@ class Configurable_target(Dynamic_parent):
 		"""
 		Get a fully configured, ready to go, Configurable_target object from a given name by creating a list of targets from a config.
 		
-		:param identifier: The name of the target to get. This can match either CONFIG_NAME or one of CONFIG_ALIAS. Alternatively, if identifier is int-like, identifier can be the index of a target to get (indices start at 1).
-		:param configs: A list of config dicts to get from. These configs should all be of the same type (ie, have the same CONFIG_TYPE) else strange things might occur.
+		:param identifier: The name of the target to get. This can match either NAME or one of ALIAS. Alternatively, if identifier is int-like, identifier can be the index of a target to get (indices start at 1).
+		:param configs: A list of config dicts to get from. These configs should all be of the same type (ie, have the same TYPE) else strange things might occur.
 		:param **init_args: Optional key-word arguments which will be passed to the constructor of the new object.
 		"""
 		# Get all known targets.
 		#targets = self.list_from_configs(configs, **kwargs)
 		
 		# Now find the one we want.
-		#return self.from_name_in_list(identifier, targets)
-		return self.from_config(Config.search_configs(identifier, configs), configs = configs, **kwargs)
+		return self.from_config(configs.get_config(identifier), configs = configs, **kwargs)
 		
 		
 	

@@ -1,8 +1,8 @@
 ---
-CONFIG_TYPE: submit_calculations
+TYPE: calculation
 
-group: Auto Characterisation (Organic Emitter)
-group_sub_name: Opt+Freq → TDA (PBE0/6-31G(d,p))
+GROUP: Auto Characterisation (Organic Emitter)
+GROUP_NAME: Opt+Freq → TDA (PBE0/6-31G(d,p))
 
 class_handle: Series
 
@@ -16,10 +16,10 @@ calculations:
 
 ##############################################################
 ---
-CONFIG_TYPE: submit_calculations
+TYPE: calculation
 
-group: Auto Characterisation (Organic Emitter)
-group_sub_name: Opt+Freq → TD-DFT → Opt Triplet → SP Singlet (PBE0/6-31G(d,p))
+GROUP: Auto Characterisation (Organic Emitter)
+GROUP_NAME: Opt+Freq → TD-DFT → Opt Triplet → SP Singlet (PBE0/6-31G(d,p))
 
 class_handle: Series
 
@@ -37,10 +37,10 @@ calculations:
 
 ##############################################################
 ---
-CONFIG_TYPE: submit_calculations
+TYPE: calculation
 
-group: Auto Characterisation (Organometallic Emitter)
-group_sub_name: Opt+Freq → TDA (B3LYP/6-31G+(d,p)/SBKJC-VDZ-ECP)
+GROUP: Auto Characterisation (Organometallic Emitter)
+GROUP_NAME: Opt+Freq → TDA (B3LYP/6-31G+(d,p)/SBKJC-VDZ-ECP)
 
 class_handle: Series
 
@@ -54,10 +54,10 @@ calculations:
 
 ##############################################################
 ---
-CONFIG_TYPE: submit_calculations
+TYPE: calculation
 
-group: Auto Characterisation (Organometallic Emitter)
-group_sub_name: Opt+Freq → TD-DFT → Opt Triplet → SP Singlet (B3LYP/6-31G+(d,p)/SBKJC-VDZ-ECP)
+GROUP: Auto Characterisation (Organometallic Emitter)
+GROUP_NAME: Opt+Freq → TD-DFT → Opt Triplet → SP Singlet (B3LYP/6-31G+(d,p)/SBKJC-VDZ-ECP)
 
 class_handle: Series
 

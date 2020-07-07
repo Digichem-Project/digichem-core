@@ -4,7 +4,7 @@ from pathlib import Path
 
 class Resumable_method():
 	"""
-	Mixin class for submit_methods that are resumable.
+	Mixin class for method that are resumable.
 	
 	Resumable here means that program execution stops during the submission process. Submission is then 'resumed' in a new process immediately before the calculation proper begins.
 	This mechanism is required by several methods, for example SLURM (calculation has to occur from the SLURM node) and SSH (calculation occurs on a different machine entirely).

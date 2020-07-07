@@ -267,7 +267,3 @@ report:
         # The maximum number of frequencies to show in the table.
         max_num: null
       
-submit_methods: []
-submit_programs: []
-submit_calculations: []
-submit_basis_sets: []

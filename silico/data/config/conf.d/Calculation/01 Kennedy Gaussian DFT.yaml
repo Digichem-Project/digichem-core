@@ -1,11 +1,11 @@
 # This is the parent config for most other Gaussian DFT  calculation definitions, it is not actually available as a calculation by itself.
-# To inherit from this config, set 'CONFIG_PARENT: [g09_default]' in your config.
+# To inherit from this config, set 'PARENT: [g09_default]' in your config.
 
 ---
-CONFIG_TYPE: submit_calculations
+TYPE: calculation
 
 # Calculations without a name are  hidden and won't appear as an option, but they can still be used as templates for other, concrete calculations.
-CONFIG_ALIAS: [g09_default]
+ALIAS: [g09_default]
 
 # Config for a gaussian calculation.
 class_handle: Gaussian-DFT
@@ -103,11 +103,11 @@ options:
 
 # Parent calculation for organometallic stuff (or anything using the 6-31+G(d,p)/SBKJC-VDZ-ECP basis set combo).
 ---
-CONFIG_TYPE: submit_calculations
+TYPE: calculation
 
 # Calculations without a name are  hidden and won't appear as an option, but they can still be used as templates for other, concrete calculations.
-CONFIG_ALIAS: [g09_organomet_default]
-CONFIG_PARENT: [g09_default]
+ALIAS: [g09_organomet_default]
+PARENT: [g09_default]
 
 # We'll be using Gaussian's 'GENeral basis set' (gen) functionality with Effective Core Potentials (ECP).
 basis_set: genECP

@@ -1,9 +1,9 @@
 # ---
-# CONFIG_TYPE: submit_methods
+# TYPE: method
 # 
 # # Config for a local submission
-# CONFIG_NAME: Local
-# CONFIG_ALIAS: [local]
+# NAME: Local
+# ALIAS: [local]
 # 
 # class_handle: local
 # 
@@ -11,11 +11,11 @@
 # daemon: False
 # 
 # ---
-# CONFIG_TYPE: submit_methods
+# TYPE: method
 # 
 # # Config for a local submission
-# CONFIG_NAME: Local (No Wait)
-# CONFIG_ALIAS: [local_nw]
+# NAME: Local (No Wait)
+# ALIAS: [local_nw]
 # 
 # class_handle: local
 # 
@@ -23,11 +23,11 @@
 # daemon: True
 
 ---
-CONFIG_TYPE: submit_methods
+TYPE: method
 
 # Config for a SLURM submission.
-CONFIG_NAME: Normal SLURM
-CONFIG_ALIAS: [slurm]
+NAME: Normal SLURM
+ALIAS: [slurm]
 
 class_handle: SLURM
 partition: singlenode
@@ -53,18 +53,18 @@ mem_per_CPU: auto
 #common_directory: True
 
 ---
-CONFIG_TYPE: submit_methods
-CONFIG_NAME: BigMem SLURM
-CONFIG_PARENT: [slurm]
-CONFIG_ALIAS: [slurm_big_mem]
+TYPE: method
+NAME: BigMem SLURM
+PARENT: [slurm]
+ALIAS: [slurm_big_mem]
 class_handle: SLURM
 partition: bigmem
 
 ---
-CONFIG_TYPE: submit_methods
-CONFIG_NAME: Multi Node SLURM
-CONFIG_PARENT: [slurm]
-CONFIG_ALIAS: [slurm_multi]
+TYPE: method
+NAME: Multi Node SLURM
+PARENT: [slurm]
+ALIAS: [slurm_multi]
 class_handle: SLURM
 partition: parallel
 warning: You have selected the high-performance parallel partition intended for highly demanding calculations only

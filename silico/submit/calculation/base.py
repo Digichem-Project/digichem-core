@@ -1,13 +1,13 @@
 from silico.submit import Configurable_target, Memory
 import getpass
 from pathlib import Path
-from silico.config import Config
 from silico.exception.base import Submission_error
 from silico.file.babel import Openbabel_converter
 from logging import getLogger
 import silico
 import copy
 from silico.submit.structure.flag import Flag
+from silico.config.configurable import Configurable
 
 class Calculation_target(Configurable_target):
 	"""
@@ -29,9 +29,8 @@ class Calculation_target(Configurable_target):
 			write_report = None,
 			silico_options,
 			available_basis_sets,
-			group = None,
-			group_sub_name = None,
-			**kwargs):
+			**kwargs
+		):
 		super().__init__(*args, **kwargs)
 		self.programs = programs
 		self.program = program
@@ -45,7 +44,7 @@ class Calculation_target(Configurable_target):
 			'rescue': True,
 			'force_delete': False
 		}
-		self.scratch_options = Config.merge_configs(scratch_options, default_scratch_options) if scratch_options is not None else None
+		self.scratch_options = Configurable.merge_dict(scratch_options, default_scratch_options) if scratch_options is not None else None
 		self.write_summary = write_summary if write_summary is not None else True
 		self.write_report = write_report if write_report is not None else True
 		self.silico_options = silico_options
@@ -53,9 +52,6 @@ class Calculation_target(Configurable_target):
 		# Next is a linked list of Calculation_targets. We will call submit() on next once this object has been submitted.
 		self.next = None
 		self.name = None
-		
-		self.group = group
-		self.group_sub_name = group_sub_name
 		
 	@classmethod	
 	def prepare_list(self, calculation_list):
@@ -154,7 +150,7 @@ class Calculation_target(Configurable_target):
 		
 		# Merge silico_options if given in the specific calc config.
 		if config.get('silico_options') is not None:
-			silico_options = Config.merge_configs( config.get('silico_options'), silico_options)
+			silico_options = Configurable.merge_dict( config.get('silico_options'), silico_options)
 			
 		# Clone our config so we don't permanently overwrite something.
 		config['silico_options'] = silico_options
@@ -197,7 +193,7 @@ class Calculation_target(Configurable_target):
 		"""
 		Get a name that describes the calculation and file together.
 		"""
-		return "{} {}".format(self.name, self._CONFIG_NAME)
+		return "{} {}".format(self.name, self._NAME)
 	
 	def submit_from_file(self, output, input_file_path, *, convert = "auto", gen3D = None):
 		"""

@@ -1,51 +1,51 @@
 # TD CALCS
 ##############################################################
 ---
-CONFIG_TYPE: submit_calculations
-CONFIG_ALIAS: [td_default]
+TYPE: calculation
+ALIAS: [td_default]
 
-group: TD-DFT 10 Singlets 10 Triplets
+GROUP: TD-DFT 10 Singlets 10 Triplets
 
 calculation_keywords:
     - TD=(NStates=10,50-50)
 
 ##############################################################
 ---
-CONFIG_TYPE: submit_calculations
+TYPE: calculation
 
-CONFIG_PARENT: [g09_default, td_default]
-CONFIG_ALIAS: [td_5050_PBE0]
+PARENT: [g09_default, td_default]
+ALIAS: [td_5050_PBE0]
 
-group_sub_name: PBE0/6-31G(d,p)
+GROUP_NAME: PBE0/6-31G(d,p)
 functional: PBE1PBE
 
 ##############################################################
 ---
-CONFIG_TYPE: submit_calculations
+TYPE: calculation
 
-CONFIG_PARENT: [g09_default, td_default]
-CONFIG_ALIAS: [td_5050_B3LYP]
+PARENT: [g09_default, td_default]
+ALIAS: [td_5050_B3LYP]
 
-group_sub_name: B3LYP/6-31G(d,p)
+GROUP_NAME: B3LYP/6-31G(d,p)
 functional: B3LYP
 
 ##############################################################
 ---
-CONFIG_TYPE: submit_calculations
+TYPE: calculation
 
-CONFIG_PARENT: [g09_organomet_default, td_default]
-CONFIG_ALIAS: [td_5050_SBKJC_VDZ_ECP]
+PARENT: [g09_organomet_default, td_default]
+ALIAS: [td_5050_SBKJC_VDZ_ECP]
 
-group_sub_name: B3LYP/6-31G+(d,p) [H-Ar]/SBKJC-VDZ-ECP [K-Rn]
+GROUP_NAME: B3LYP/6-31G+(d,p) [H-Ar]/SBKJC-VDZ-ECP [K-Rn]
 functional: B3LYP
 
 ##############################################################
 ---
-CONFIG_TYPE: submit_calculations
+TYPE: calculation
 
-CONFIG_PARENT: [g09_default, td_default]
+PARENT: [g09_default, td_default]
 
-group_sub_name: M062X/6-31G(d,p)
+GROUP_NAME: M062X/6-31G(d,p)
 functional: M062X
 
 
@@ -54,10 +54,10 @@ functional: M062X
 # BIG TD CALCS
 ##############################################################
 ---
-CONFIG_TYPE: submit_calculations
+TYPE: calculation
 
-CONFIG_ALIAS: [td_abs_default]
-group: TD-DFT 100 Singlets
+ALIAS: [td_abs_default]
+GROUP: TD-DFT 100 Singlets
 
 calculation_keywords:
     - TD=(NStates=100,Singlets)
@@ -68,42 +68,42 @@ silico_options:
 
 ##############################################################
 ---
-CONFIG_TYPE: submit_calculations
+TYPE: calculation
 
-CONFIG_PARENT: [g09_default, td_abs_default]
-CONFIG_ALIAS: [td_abs_PBE0]
+PARENT: [g09_default, td_abs_default]
+ALIAS: [td_abs_PBE0]
 
-group_sub_name: PBE0/6-31G(d,p)
+GROUP_NAME: PBE0/6-31G(d,p)
 functional: PBE1PBE
 
 ##############################################################
 ---
-CONFIG_TYPE: submit_calculations
+TYPE: calculation
 
-CONFIG_PARENT: [g09_default, td_abs_default]
-CONFIG_ALIAS: [td_abs_B3LYP]
+PARENT: [g09_default, td_abs_default]
+ALIAS: [td_abs_B3LYP]
 
-group_sub_name: B3LYP/6-31G(d,p)
+GROUP_NAME: B3LYP/6-31G(d,p)
 functional: B3LYP
 
 ##############################################################
 ---
-CONFIG_TYPE: submit_calculations
+TYPE: calculation
 
-CONFIG_PARENT: [g09_organomet_default, td_abs_default]
-CONFIG_ALIAS: [td_abs_SBKJC_VDZ_ECP]
+PARENT: [g09_organomet_default, td_abs_default]
+ALIAS: [td_abs_SBKJC_VDZ_ECP]
 
-group_sub_name: B3LYP/6-31G+(d,p) [H-Ar]/SBKJC-VDZ-ECP [K-Rn]
+GROUP_NAME: B3LYP/6-31G+(d,p) [H-Ar]/SBKJC-VDZ-ECP [K-Rn]
 functional: B3LYP
 
 ##############################################################
 ---
-CONFIG_TYPE: submit_calculations
+TYPE: calculation
 
-CONFIG_PARENT: [g09_default, td_abs_default]
-CONFIG_ALIAS: [td_abs_M062X]
+PARENT: [g09_default, td_abs_default]
+ALIAS: [td_abs_M062X]
 
-group_sub_name: M062X/6-31G(d,p)
+GROUP_NAME: M062X/6-31G(d,p)
 functional: M062X
 
 
@@ -112,10 +112,10 @@ functional: M062X
 # Opt TD CALCS
 ##############################################################
 ---
-CONFIG_TYPE: submit_calculations
-CONFIG_ALIAS: [opt_td_s1_default]
+TYPE: calculation
+ALIAS: [opt_td_s1_default]
 
-group: TD-DFT Optimised S(1)
+GROUP: TD-DFT Optimised S(1)
 
 calculation_keywords:
     - Opt
@@ -124,46 +124,46 @@ calculation_keywords:
 
 ##############################################################
 ---
-CONFIG_TYPE: submit_calculations
+TYPE: calculation
 
-CONFIG_PARENT: [g09_default, opt_td_s1_default]
-CONFIG_ALIAS: [opt_td_s1_PBE0]
+PARENT: [g09_default, opt_td_s1_default]
+ALIAS: [opt_td_s1_PBE0]
 
-group_sub_name: PBE0/6-31G(d,p)
+GROUP_NAME: PBE0/6-31G(d,p)
 
 functional: PBE1PBE
 
 
 ##############################################################
 ---
-CONFIG_TYPE: submit_calculations
+TYPE: calculation
 
-CONFIG_PARENT: [g09_default, opt_td_s1_default]
-CONFIG_ALIAS: [opt_td_s1_B3LYP]
+PARENT: [g09_default, opt_td_s1_default]
+ALIAS: [opt_td_s1_B3LYP]
 
-group_sub_name: B3LYP/6-31G(d,p)
-
-functional: B3LYP
-
-##############################################################
----
-CONFIG_TYPE: submit_calculations
-
-CONFIG_PARENT: [g09_organomet_default, opt_td_s1_default]
-CONFIG_ALIAS: [opt_td_s1_SBKJC_VDZ_ECP]
-
-group_sub_name: B3LYP/6-31G+(d,p) [H-Ar]/SBKJC-VDZ-ECP [K-Rn]
+GROUP_NAME: B3LYP/6-31G(d,p)
 
 functional: B3LYP
 
 ##############################################################
 ---
-CONFIG_TYPE: submit_calculations
+TYPE: calculation
 
-CONFIG_PARENT: [g09_default, opt_td_s1_default]
-CONFIG_ALIAS: [opt_td_s1_M062X]
+PARENT: [g09_organomet_default, opt_td_s1_default]
+ALIAS: [opt_td_s1_SBKJC_VDZ_ECP]
 
-group_sub_name: M062X/6-31G(d,p)
+GROUP_NAME: B3LYP/6-31G+(d,p) [H-Ar]/SBKJC-VDZ-ECP [K-Rn]
+
+functional: B3LYP
+
+##############################################################
+---
+TYPE: calculation
+
+PARENT: [g09_default, opt_td_s1_default]
+ALIAS: [opt_td_s1_M062X]
+
+GROUP_NAME: M062X/6-31G(d,p)
 
 functional: M062X
 
@@ -174,11 +174,11 @@ functional: M062X
 
 ##############################################################
 ---
-CONFIG_TYPE: submit_calculations
+TYPE: calculation
 
-CONFIG_ALIAS: [opt_td_t1_default]
+ALIAS: [opt_td_t1_default]
 
-group: TD-DFT Optimised T(1)
+GROUP: TD-DFT Optimised T(1)
 
 calculation_keywords:
     - Opt
@@ -186,45 +186,45 @@ calculation_keywords:
 
 ##############################################################
 ---
-CONFIG_TYPE: submit_calculations
+TYPE: calculation
 
-CONFIG_PARENT: [g09_default, opt_td_t1_default]
-CONFIG_ALIAS: [opt_td_t1_PBE0]
+PARENT: [g09_default, opt_td_t1_default]
+ALIAS: [opt_td_t1_PBE0]
 
-group_sub_name: PBE0/6-31G(d,p)
+GROUP_NAME: PBE0/6-31G(d,p)
 
 functional: PBE1PBE
 
 ##############################################################
 ---
-CONFIG_TYPE: submit_calculations
+TYPE: calculation
 
-CONFIG_PARENT: [g09_default, opt_td_t1_default]
-CONFIG_ALIAS: [opt_td_t1_B3LYP]
+PARENT: [g09_default, opt_td_t1_default]
+ALIAS: [opt_td_t1_B3LYP]
 
-group_sub_name: B3LYP/6-31G(d,p)
-
-functional: B3LYP
-
-##############################################################
----
-CONFIG_TYPE: submit_calculations
-
-CONFIG_PARENT: [g09_organomet_default, opt_td_t1_default]
-CONFIG_ALIAS: [opt_td_t1_SBKJC_VDZ_ECP]
-
-group_sub_name: B3LYP/6-31G+(d,p) [H-Ar]/SBKJC-VDZ-ECP [K-Rn]
+GROUP_NAME: B3LYP/6-31G(d,p)
 
 functional: B3LYP
 
 ##############################################################
 ---
-CONFIG_TYPE: submit_calculations
+TYPE: calculation
 
-CONFIG_PARENT: [g09_default, opt_td_t1_default]
-CONFIG_ALIAS: [opt_td_t1_M062X]
+PARENT: [g09_organomet_default, opt_td_t1_default]
+ALIAS: [opt_td_t1_SBKJC_VDZ_ECP]
 
-group_sub_name: m062x/6-31G(d,p)
+GROUP_NAME: B3LYP/6-31G+(d,p) [H-Ar]/SBKJC-VDZ-ECP [K-Rn]
+
+functional: B3LYP
+
+##############################################################
+---
+TYPE: calculation
+
+PARENT: [g09_default, opt_td_t1_default]
+ALIAS: [opt_td_t1_M062X]
+
+GROUP_NAME: m062x/6-31G(d,p)
 
 functional: M062X
 

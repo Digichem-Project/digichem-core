@@ -1,9 +1,9 @@
 ---
-CONFIG_TYPE: submit_methods
+TYPE: method
 
 # Config for a SLURM submission.
-CONFIG_NAME: Normal SLURM
-CONFIG_ALIAS: [slurm]
+NAME: Normal SLURM
+ALIAS: [slurm]
 
 class_handle: SLURM
 partition: batch
@@ -24,10 +24,10 @@ CPUs_per_task: auto
 mem_per_CPU: auto
 
 ---
-CONFIG_TYPE: submit_methods
-CONFIG_NAME: Long SLURM
-CONFIG_PARENT: [slurm]
-CONFIG_ALIAS: [slurm_long]
+TYPE: method
+NAME: Long SLURM
+PARENT: [slurm]
+ALIAS: [slurm_long]
 class_handle: SLURM
 partition: Long
 time: 41-00:00:00
