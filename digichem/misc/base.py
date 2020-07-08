@@ -26,8 +26,8 @@ class Dynamic_parent():
 	A mixin class for classes that can recursively get all known children.
 	"""
 	
-	# A string that can be used to identify this class, or an iterable of strings that identify this class.
-	CLASS_HANDLE = ""
+	# An iterable of strings that identify this class.
+	CLASS_HANDLE = []
 	
 	@classmethod
 	def from_class_handle(self, handle, case_insensitive = True):
@@ -49,14 +49,11 @@ class Dynamic_parent():
 		# Get the class we've been asked for.
 		for known_class in known_classes:
 			# Get the current classes list of handles:
-			class_handles = getattr(known_class, "CLASS_HANDLE", None)
+			class_handles = getattr(known_class, "CLASS_HANDLE", [])
 			
-			# If the handle is None (or somehow missing completely), then this is not the class we're after.
-			if class_handles is None:
-				class_handles = []
-			# If the handle is a single string, wrap it in a list.
-			elif isinstance(class_handles, str):
-				class_handles = [class_handles]
+			# If the handle is a single string, panic.
+			if isinstance(class_handles, str):
+				raise TypeError("CLASS_HANDLE of class '{}' is a single string; CLASS_HANDLE should be an iterable of strings".format(known_class.__name__))
 			
 			# Convert to lower case if we're doing a case insensitive search.
 			if case_insensitive:

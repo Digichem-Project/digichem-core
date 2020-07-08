@@ -3,12 +3,20 @@ from copy import deepcopy, copy
 from silico.config.base import Config
 from silico.exception import Configurable_exception, Missing_option_exception
 from silico.exception.configurable import Configurable_class_exception
+import itertools
+from silico.exception.base import Silico_exception
 
 class Configurable_list(list):
 	"""
 	An augmented list the that contains methods for manipulating Configurable objects.
 	"""
 	
+	def filter_hidden(self):
+		"""
+		Filter out configurables that are hidden, returning a new Configurable_list of concrete configurables only.
+		"""
+		return type(self)([conf for conf in self if not conf.ABSTRACT])
+		
 	
 	def search(self, *identifiers, max_index = None):
 		"""
@@ -46,14 +54,14 @@ class Configurable_list(list):
 				
 				return self[identifier]
 			except IndexError:
-				raise Configurable_class_exception(self, "could not find Configurable with index '{}'".format(identifier +1))
+				raise Silico_exception("could not find Configurable with index '{}'".format(identifier +1))
 		
 		# Get matches
 		match = self.search(identifier)		
 		
 		# Get upset if we got nothing.
 		if len(match) == 0:
-			raise Configurable_class_exception(self, "could not find Configurable with NAME/ALIAS '{}'".format(identifier))
+			raise Silico_exception("could not find Configurable with NAME/ALIAS '{}'".format(identifier))
 		
 		# Return the match.
 		return match[0]
@@ -63,9 +71,9 @@ class Configurable_list(list):
 		Resolve this list of Configurables.
 		
 		Resolving involves merging those Configurables that inherit from each other.
-		Note that resolve() modifies the list IN PLACE; deepcopy your list first if you do not want this behaviour.
+		Note that resolve() partially modifies the list IN PLACE (deepcopy your list first if you want to preserve it), but the final returned list is a new object.
 
-		:return: The modified Configurable_list, for convenience.
+		:return: A modified Configurable_list.
 		"""
 		# First, resolve duplicates.
 		self.resolve_duplicates()
@@ -74,8 +82,15 @@ class Configurable_list(list):
 		for index, config in enumerate(self):
 			self[index] = config.resolve_parents(self)
 			
-		# Return the list for convenience.
-		return self
+		# Resolve splits and return (but only those that are not abstract).
+		resolved = type(self)([resolved for config in self for resolved in config.resolve_split() if not resolved.ABSTRACT])
+		
+		# Set ID's on our children.
+		for index, config in enumerate(resolved):
+			config.post_init(ID = index +1)
+			
+		# All done.
+		return resolved
 	
 	def resolve_duplicates(self):
 		"""
@@ -124,6 +139,30 @@ class Configurable(Config):
 	
 	Configurables are a specific type of Config objects that are used to instantiate a class. Like Config objects, they are enhanced dicts.
 	"""
+		
+	def post_init(self, *, ID):
+		"""
+		Second init function, this method should be called once all Configurables have been initiated.
+		
+		:param ID: The unique ID number of this Configurable.
+		"""
+		self.ID = ID
+	
+	def resolve_names(self):
+		"""
+		Resolve names (which can contain formatting characters).
+		
+		Currently, only NAME and GROUP_NAME are resolved, and resolution only occurs for SPLIT configs.
+		This is because SPLIT occurs last (after resolving PARENT, for example), so can't be used for inheritance (and hence resolving ALIAS would be pointless). 
+		"""
+		if self.get('NAME') is not None:
+			self['NAME'] = self['NAME'].format(**self)
+		self['GROUP'] = [group.format(**self) for group in self.GROUP]
+		if self.get('GROUP_NAME') is not None:
+			self['GROUP_NAME'] = self['GROUP_NAME'].format(**self)
+		#self['ALIAS'] = [alias.format(**self) for alias in self.ALIAS]
+		#self.pop('ALIAS')
+			
 	
 	def match(self, identifier):
 		"""
@@ -150,7 +189,7 @@ class Configurable(Config):
 			try:
 				#parent = self.from_ID(parent_name, configs)
 				parent = configs.get_config(parent_name)
-			except Configurable_class_exception as e:
+			except Silico_exception as e:
 				# Couldn't find parent.
 				raise Configurable_exception(self, "could not find parent") from e		
 			
@@ -164,6 +203,7 @@ class Configurable(Config):
 			parent.pop('NAME', None)
 			parent.pop('ALIAS', None)
 			parent.pop('PARENT', None)
+			parent.pop('ABSTRACT', None)
 			merged_parents = merged_parents.merge(parent)
 		
 		# Now we merge our combined parent with our real config.
@@ -175,15 +215,89 @@ class Configurable(Config):
 		# All done.
 		return merged_parents
 
+
+	def resolve_split(self):
+		"""
+		Recursively resolve any SPLITs of this configurable.
+		
+		SPLIT is used to quickly define children of a Configurable; it is a type of automatic inheritance that can work in conjunction with PARENT.
+		SPLIT is a list of dicts; each key in each dict is also a list. The key in each dict specifies fields to split on, the list members are the split values.
+		
+		:return: A list of Configurables.
+		"""
+		# If we don't have any splits then we can simply return ourself.
+		if len(self.SPLIT) == 0:
+			return [self]
+		
+		
+		resolved_splits = Configurable_list()
+		
+		# Iterate through each SPLIT.
+		for split in self.SPLIT:
+			# Certain fields we don't split on (because it would either be too complicated or nonsensical.
+			# Remove these protected fields.
+			protected = {
+				'NAME': split.pop('NAME', None),
+				'GROUP': split.pop('GROUP', None),
+				'GROUP_NAME': split.pop('GROUP_NAME', None),
+				'SPLIT': split.pop('SPLIT', None)
+			}
+			
+			# Next, expand each key (the value of each key is a list, we need a list of one membered dicts instead).
+			expanded = ([{key: value} for value in lst] for key, lst in split.items())
+			
+			# Now we need every combination, thanks itertools!
+			# Combinations is list of tuples where each value is a key: value pair that we've been asked to split on.
+			combinations = itertools.product(*expanded)
+			
+			# Now rebuild back into a list of dicts.
+#			resolved_splits.extend([self.merge_dict(protected, {key: value for pair in combination for key, value in pair.items()}) for combination in combinations])
+			resolved_splits.extend([self.merge_dict(protected, {key: value for pair in combination for key, value in pair.items()}) for combination in combinations])
+			
+		# Now we have (possibly very big) list of Configurables, but they only contain those values we were asked to split on.
+		# Next we need to merge with ourself to fill out other values.
+		#merged = [deepcopy(self).merge(raw) for raw in resolved_splits]
+		merged_list = []
+		for raw in resolved_splits:
+			# First, copy.
+			merged = deepcopy(self)
+			
+			# Delete any alias.
+			merged.pop('ALIAS')
+			
+			# We append to GROUP rather than overwriting.
+			group = list(self.GROUP)
+			group.extend(raw['GROUP'] if raw['GROUP'] is not None else [])
+			raw['GROUP'] = group
+			
+			# Merge
+			merged.merge(raw)
+			
+			# Finally, resolve NAME and GROUP_NAME.
+			merged.resolve_names()
+			
+			# Add to list.
+			merged_list.append(merged)
+			
+		# All done, return the list.
+		return merged_list
+			
+		
+	@property
+	def SPLIT(self):
+		"""
+		This list of split fields of this configurable.
+		"""
+		return self.get('SPLIT', [])
 	
 	@property
-	def hidden(self):
+	def ABSTRACT(self):
 		"""
 		Whether or not this Configurable is 'hidden'.
 		
 		Hidden configurables cannot be selected directly, but they can be referenced by other configurables (vaguely analogous to abstract classes).
 		"""
-		return self.NAME is None
+		return self['ABSTRACT'] if 'ABSTRACT' in self else self.NAME is None
 		
 	@property
 	def NAME(self):
@@ -197,9 +311,9 @@ class Configurable(Config):
 		# If we have a real NAME set, we use that.
 		if self.get("NAME", None) is not None:
 			return self['NAME']
-		elif self.get('GROUP', None) is not None and self.get('GROUP_NAME', None) is not None:
-			# If we are part of a group, then we might be able to make a name.
-			return self['GROUP'] + " " + self['GROUP_NAME']
+		elif len(self.GROUP) > 0 and self.GROUP_NAME is not None:
+		# If we are part of a group, then we might be able to make a name.
+			return (" ".join(self.GROUP)) + " " + self.GROUP_NAME
 		else:
 			# No names we can use.
 			return None
@@ -237,7 +351,7 @@ class Configurable(Config):
 		A string that describes this Configurable object.
 		"""
 		# Start with the name.
-		desc = self.NAME if not self.hidden else "HIDDEN"
+		desc = self.NAME if not self.ABSTRACT else "ABSTRACT"
 		
 		# Add alias if present.
 		if len(self.ALIAS) > 0:
@@ -273,8 +387,11 @@ class Configurable(Config):
 		
 		:return: The class handle (a string).
 		"""
-		return self.get()
-	
+		try:
+			return self.get('CLASS')
+		except KeyError:
+			raise Missing_option_exception(self, "CLASS")
+		
 	@property
 	def GROUP(self):
 		"""
@@ -282,9 +399,9 @@ class Configurable(Config):
 		
 		Groups exist mostly for layout purposes.
 		
-		:return: The group (a string) or None if not group is set.
+		:return: The group (a list of strings) or an empty list.
 		"""
-		return self.get('GROUP', None)
+		return self.get('GROUP', [])
 	
 	@property
 	def GROUP_NAME(self):
@@ -296,3 +413,30 @@ class Configurable(Config):
 		"""
 		return self.get('GROUP_NAME', None)
 					
+	def grouped(self, grouped_dict, *, names = None, number):
+		names = self.GROUP if names is None else names
+		
+		# This is the name we will be adding to in grouped_dict.
+		# If it is None, we will be adding to a list (we have no more names to go through).
+		curname = names[0] if len(names) > 0 else None
+			
+		if curname is None:
+			# Create a new list if one doesn't exist.
+			if curname not in grouped_dict:
+				grouped_dict[curname] = []
+			
+			# Add to list
+			grouped_dict[curname].append((number, self))
+		else:
+			# We have more names to work through.
+			# Create an empty dict under the name if not existing.
+			if curname not in grouped_dict:
+				grouped_dict[curname] = {}
+				
+			# Recurse.
+			self.group(grouped_dict[curname], names[1:])
+			
+		return grouped_dict
+			
+		
+		
