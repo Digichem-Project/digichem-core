@@ -5,7 +5,7 @@
 # NAME: Local
 # ALIAS: [local]
 # 
-# class_handle: local
+# CLASS: local
 # 
 # # Whether to daemonise (run in the background) or not.
 # daemon: False
@@ -17,7 +17,7 @@
 # NAME: Local (No Wait)
 # ALIAS: [local_nw]
 # 
-# class_handle: local
+# CLASS: local
 # 
 # # Whether to daemonise (run in the background) or not.
 # daemon: True
@@ -29,7 +29,7 @@ TYPE: method
 NAME: Normal SLURM
 ALIAS: [slurm]
 
-class_handle: SLURM
+CLASS: SLURM
 partition: singlenode
 
 # The command used to run sbatch (incase this has been renamed or wrapped in some way).
@@ -57,7 +57,7 @@ TYPE: method
 NAME: BigMem SLURM
 PARENT: [slurm]
 ALIAS: [slurm_big_mem]
-class_handle: SLURM
+CLASS: SLURM
 partition: bigmem
 
 ---
@@ -65,6 +65,6 @@ TYPE: method
 NAME: Multi Node SLURM
 PARENT: [slurm]
 ALIAS: [slurm_multi]
-class_handle: SLURM
+CLASS: SLURM
 partition: parallel
 warning: You have selected the high-performance parallel partition intended for highly demanding calculations only

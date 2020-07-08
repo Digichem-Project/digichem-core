@@ -8,7 +8,7 @@ TYPE: calculation
 ALIAS: [g09_default]
 
 # Config for a gaussian calculation.
-class_handle: Gaussian-DFT
+CLASS: Gaussian-DFT
 
 # The programs that this calculation is compatible with.
 programs: [g09, g16]

@@ -36,7 +36,7 @@ from silico.submit.calculation import *
 from silico.submit.basis import *
 from silico.exception import Silico_exception, Configurable_exception
 from silico.exception.uncatchable import Submission_paused
-from silico.misc.node_printer import Node_printer
+from silico.misc.node_printer import Node_printer, Node
 
 
 # Printable name of this program.
@@ -48,61 +48,71 @@ USAGE = """%(prog)s [options] -i
    or: %(prog)s [options] file.com [file2.com ...] -c method/program/calc [method2/program2/calc2 ...]"""
 
 
-
-
-def _assemble_targets(number, target, possible_children = []):
-	"""
-	
-	:param number: Unique number/index
-	:param possible_children: A tuple of lists of Programs, Calculations.
-	"""
-	# Get our descriptive string.
-	target_string = "{} ".format(target._NAME if getattr(target, 'GROUP_NAME', None) is None else target.GROUP_NAME)# + ("({})".format(", ".join(target.ALIAS)) if len(target.ALIAS) > 0 else "")
-	
-	# For methods, try and append info.
-	if isinstance(target, Method_target):
-		try:			
-			target_string += " ({})".format(target.status)
-		except Exception:
-			getLogger(silico.logger_name).debug("Failed to retrieve status for method '{}'".format(target._NAME), exc_info = True)
-	
-	if len(possible_children) > 0:
-		# Get children (filters out ones that aren't actually children).
-		#children = [_assemble_targets(child_number+1, child, possible_children[1:]) for child_number, child in target.get_children(possible_children[0])]
-		children = []
-		
-		# First, group our children.
-		#grouped = {getattr(child, 'group', None): (child_number, child) for child_number, child in target.get_children(possible_children[0])}
-		grouped = {}
-		for child_number, child in target.get_children(possible_children[0]):
-			try:
-				grouped[getattr(child, 'GROUP', None)].append((child_number+1, child))
-			except KeyError:
-				grouped[getattr(child, 'GROUP', None)] = [(child_number+1, child)]
-			
-		# Now iterate through and append.
-		for group, grouped_children in grouped.items():
-			# If there is no group, just add straight to our list.
-			if group is None:
-				children.extend([_assemble_targets(child_number, child, possible_children[1:]) for (child_number, child) in grouped_children])
-			else:
-				# Add together.
-				children.append(
-					(None, group, [_assemble_targets(child_number, child, possible_children[1:]) for (child_number, child) in grouped_children])
-					)
-	else:
-		children = []
-	
-	# Done.
-	return (number, target_string, children)
+# def _group_to_list(grouped, config):
+# 	"""
+# 	"""
+# 	groups = config.GROUP if len(config.GROUP) != 0 else None
+# 
+# def _assemble_targets(number, target, possible_children = []):
+# 	"""
+# 	
+# 	:param number: Unique number/index
+# 	:param possible_children: A tuple of lists of Programs, Calculations.
+# 	"""
+# 	# Get our descriptive string.
+# 	target_string = "{} ".format(target.NAME if target.GROUP_NAME is None else target.GROUP_NAME)
+# 	
+# 	# For methods, try and append info.
+# 	if isinstance(target, Method_target):
+# 		try:			
+# 			target_string += " ({})".format(target.status)
+# 		except Exception:
+# 			getLogger(silico.logger_name).debug("Failed to retrieve status for method '{}'".format(target.NAME), exc_info = True)
+# 	
+# 	if len(possible_children) > 0:
+# 		# Get children (filter out ones that aren't actually children).
+# 		children = []
+# 		
+# 		# First, group our children.
+# 		grouped = {}
+# 		for child_number, child in target.get_children(possible_children[0]):
+# 			#child.grouped(grouped, number = child_number+1)
+# 			
+# 			group = tuple(child.GROUP) if len(child.GROUP) > 0 else None
+# 			try:
+# 				grouped[" ".join(child.GROUP)].append((child_number+1, child))
+# 			except KeyError:
+# 				grouped[" ".join(child.GROUP)] = [(child_number+1, child)]
+# 			
+# 		# Now iterate through and append.
+# 		for group, grouped_children in grouped.items():
+# 			# If there is no group, just add straight to our list.
+# 			if group is None:
+# 				children.extend([_assemble_targets(child_number, child, possible_children[1:]) for (child_number, child) in grouped_children])
+# 			else:
+# 				# Add together.
+# 				children.append(
+# 					(None, group, [_assemble_targets(child_number, child, possible_children[1:]) for (child_number, child) in grouped_children])
+# 					)
+# 	else:
+# 		children = []
+# 	
+# 	# Done.
+# 	return (number, target_string, children)
 
 def _list(methods, programs, calculations, all = False):
 	"""
 	Helper function that list all known calculations.
 	"""
+	# Get our nodes.
+	top_node = Node.from_list((methods, programs, calculations))
+	
 	print('\033[1m' + "-" * 80 + '\033[0m')
 	print('\033[1m' + " " * 27 +"Available Calculations:" + '\033[0m')
 	print('\033[1m' + "-" * 80 + '\033[0m')
+	
+	
+	
 	print(Node_printer([_assemble_targets(index+1, method, [programs, calculations]) for index, method in enumerate(methods)]).get(all = all))
 	print("-" * 80)
 	print("Calculations are selected by specifying the 3 relevant numbers separated by a slash (eg, 1/1/1)")

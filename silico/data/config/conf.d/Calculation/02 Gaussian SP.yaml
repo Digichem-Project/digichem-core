@@ -4,50 +4,50 @@
 ---
 TYPE: calculation
 ALIAS: [sp_default]
-
-GROUP: Single Point Singlet
+PARENT: [g09_default]
+GROUP: [Single Point Singlet]
 
 calculation_keywords:
     - SP
     
 multiplicity: 1
 
-##############################################################
----
-TYPE: calculation
-
-PARENT: [g09_default, sp_default]
-ALIAS: [sp_PBE0]
-
-GROUP_NAME: PBE0/6-31G(d,p)
-functional: PBE1PBE
-
-##############################################################
----
-TYPE: calculation
-
-PARENT: [g09_default, sp_default]
-ALIAS: [sp_B3LYP]
-
-GROUP_NAME: B3LYP/6-31G(d,p)
-functional: B3LYP
-
-##############################################################
----
-TYPE: calculation
-
-PARENT: [g09_organomet_default, sp_default]
-ALIAS: [sp_SBKJC_VDZ_ECP]
-
-GROUP_NAME: B3LYP/6-31G+(d,p) [H-Ar]/SBKJC-VDZ-ECP [K-Rn]
-functional: B3LYP
-
-##############################################################
----
-TYPE: calculation
-
-PARENT: [g09_default, sp_default]
-ALIAS: [sp_M062X]
-
-GROUP_NAME: M062X/6-31G(d,p)
-functional: M062X
+# ##############################################################
+# ---
+# TYPE: calculation
+# 
+# PARENT: [g09_default, sp_default]
+# ALIAS: [sp_PBE0]
+# 
+# GROUP_NAME: PBE0/6-31G(d,p)
+# functional: PBE1PBE
+# 
+# ##############################################################
+# ---
+# TYPE: calculation
+# 
+# PARENT: [g09_default, sp_default]
+# ALIAS: [sp_B3LYP]
+# 
+# GROUP_NAME: B3LYP/6-31G(d,p)
+# functional: B3LYP
+# 
+# ##############################################################
+# ---
+# TYPE: calculation
+# 
+# PARENT: [g09_organomet_default, sp_default]
+# ALIAS: [sp_SBKJC_VDZ_ECP]
+# 
+# GROUP_NAME: B3LYP/6-31G+(d,p) [H-Ar]/SBKJC-VDZ-ECP [K-Rn]
+# functional: B3LYP
+# 
+# ##############################################################
+# ---
+# TYPE: calculation
+# 
+# PARENT: [g09_default, sp_default]
+# ALIAS: [sp_M062X]
+# 
+# GROUP_NAME: M062X/6-31G(d,p)
+# functional: M062X

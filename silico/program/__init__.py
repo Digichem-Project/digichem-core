@@ -41,6 +41,7 @@ def main_wrapper(inner_func, *, arg_parser, arg_to_config = None, logger_name = 
 		return -2
 		
 	try:
+		logger.debug("Startup completed")
 		retval = inner_func(args, config, logger, **kwargs)
 		
 		# Success.

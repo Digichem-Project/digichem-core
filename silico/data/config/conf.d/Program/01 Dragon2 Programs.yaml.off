@@ -7,7 +7,7 @@
 # ALIAS: [g09]
 # 
 # # The name of the program this config is for. These are pre-built into silico.
-# class_handle: gaussian
+# CLASS: gaussian
 # 
 # # These are the methods that this program is compatible with.
 # methods:
@@ -35,7 +35,7 @@ NAME: Gaussian 16
 ALIAS: [g16]
 
 # The name of the program this config is for. These are pre-built into silico.
-class_handle: gaussian
+CLASS: gaussian
 
 # These are the methods that this program is compatible with.
 methods:

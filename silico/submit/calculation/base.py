@@ -210,7 +210,7 @@ class Calculation_target(Configurable_target):
 		# If we're auto converting, decide whether we should or not.
 		if convert == "auto":
 			if input_format is "":
-				getLogger(silico.logger_name).warning("Cannot convert input file '{}' because file has no suffix (cannot determine format); the file will be submitted as-is".format(input_file_path))
+				getLogger(silico.logger_name).warning("Cannot convert input file '{}' because file has no suffix (cannot determine format); the file will be submitted without conversion".format(input_file_path))
 				convert = False
 			else:
 				convert = input_format.lower() not in self.INPUT_FILE_TYPES

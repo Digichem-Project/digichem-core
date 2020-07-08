@@ -28,10 +28,10 @@ class Silico_options(Config):
 		"""
 		Resolve all Configurables which we contain.
 		"""
-		self.methods.resolve()
-		self.programs.resolve()
-		self.calculations.resolve()
-		self.basis_sets.resolve()
+		self.methods = self.methods.resolve()
+		self.programs = self.programs.resolve()
+		self.calculations = self.calculations.resolve()
+		self.basis_sets = self.basis_sets.resolve()
 
 	def add_config(self, config):
 		"""

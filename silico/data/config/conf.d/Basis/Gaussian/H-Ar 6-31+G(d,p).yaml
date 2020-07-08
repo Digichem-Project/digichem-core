@@ -6,7 +6,7 @@ NAME: 6-31+G(d,p) for H to Ar
 ALIAS: [6_31_plus_starstar_H_Ar]
 
 # Basis set for gaussian calculation.
-class_handle: Gaussian
+CLASS: Gaussian
 
 basis_set: |
     !----------------------------------------------------------------------

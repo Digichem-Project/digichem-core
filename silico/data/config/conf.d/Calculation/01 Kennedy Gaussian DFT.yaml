@@ -3,12 +3,39 @@
 
 ---
 TYPE: calculation
+ABSTRACT: True
 
 # Calculations without a name are  hidden and won't appear as an option, but they can still be used as templates for other, concrete calculations.
 ALIAS: [g09_default]
 
+# SPLIT automatically creates configs for us, we use it to create options for various functionals and basis sets.
+SPLIT:
+    # 'Normal' basis set
+    - GROUP: ["{functional}"]
+      GROUP_NAME: "{basis_set}"
+      functional: 
+        - PBE1PBE
+        - B3LYP
+        - M062X
+      basis_set:
+        - 6-31G(d,p)
+        - 6-311G(d,p)
+        - cc-pVDZ
+        - cc-pVTZ
+        - cc-pVQZ
+        - cc-pV5Z
+        - cc-pV6Z
+    # Extended basis set (only for B3LYP)
+    - functional:
+        - B3LYP
+      basis_set:
+        - genECP
+      extended_basis_sets:
+        - - 6_31_plus_starstar_H_Ar
+          - SBKJC_VDZ_K_Rn
+    
 # Config for a gaussian calculation.
-class_handle: Gaussian-DFT
+CLASS: Gaussian-DFT
 
 # The programs that this calculation is compatible with.
 programs: [g09]
@@ -76,9 +103,6 @@ options:
     # The integration grid size to use. Choice of grid size is a reasonably advanced topic that is not discussed here, but know that larger grid size increases both computational accuracy and cost (and not necessarily in a linear fashion).
     # Gaussian recommends at least the ultrafine grid, see the manual for other options.
     
-    # This is currently disabled for a few reasons; most importantly, there appears to a bug in Gaussian where this grid (and maybe others) results in hugely over estimated dipole moments.
-    #Integral: UltraFine
-
     # Optional empirical dispersion, possible options include:
     # GD2: D2 version of Grimme’s dispersion.
     # GD3: D3 version of Grimme’s dispersion.
@@ -101,28 +125,28 @@ options:
 #    Geometry: Connectivity
 
 
-# Parent calculation for organometallic stuff (or anything using the 6-31+G(d,p)/SBKJC-VDZ-ECP basis set combo).
----
-TYPE: calculation
-
-# Calculations without a name are  hidden and won't appear as an option, but they can still be used as templates for other, concrete calculations.
-ALIAS: [g09_organomet_default]
-PARENT: [g09_default]
-
-# We'll be using Gaussian's 'GENeral basis set' (gen) functionality with Effective Core Potentials (ECP).
-basis_set: genECP
-
-# This is a list of conig names (containing basis sets) that we'll include into our file. This is where we really set which basis sets to use.
-# The order is important here as Gaussian seems to panic if atoms aren't listed in increasing proton number (so we set H-Ar first).
-extended_basis_sets:
-    # First 6-31_G(d,p) (for light atoms).
-    - 6_31_plus_starstar_H_Ar
-    # Then SBKJC-VDZ (for heavy atoms).
-    - SBKJC_VDZ_K_Rn
-
-# We also set out ECP separately (because conceivable you might want to turn this off).
-extended_ECPs:
-    # We specify the same config as for the basis set (because it contains both basis set and ECPs).
-    - SBKJC_VDZ_K_Rn
+# # Parent calculation for organometallic stuff (or anything using the 6-31+G(d,p)/SBKJC-VDZ-ECP basis set combo).
+# ---
+# TYPE: calculation
+# 
+# # Calculations without a name are  hidden and won't appear as an option, but they can still be used as templates for other, concrete calculations.
+# ALIAS: [g09_organomet_default]
+# PARENT: [g09_default]
+# 
+# # We'll be using Gaussian's 'GENeral basis set' (gen) functionality with Effective Core Potentials (ECP).
+# basis_set: genECP
+# 
+# # This is a list of conig names (containing basis sets) that we'll include into our file. This is where we really set which basis sets to use.
+# # The order is important here as Gaussian seems to panic if atoms aren't listed in increasing proton number (so we set H-Ar first).
+# extended_basis_sets:
+#     # First 6-31_G(d,p) (for light atoms).
+#     - 6_31_plus_starstar_H_Ar
+#     # Then SBKJC-VDZ (for heavy atoms).
+#     - SBKJC_VDZ_K_Rn
+# 
+# # We also set out ECP separately (because conceivable you might want to turn this off).
+# extended_ECPs:
+#     # We specify the same config as for the basis set (because it contains both basis set and ECPs).
+#     - SBKJC_VDZ_K_Rn
 
 

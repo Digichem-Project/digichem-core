@@ -31,7 +31,6 @@ class SLURM(Method_target, Resumable_method):
 			num_tasks = None,
 			CPUs_per_task = None,
 			mem_per_CPU = None,
-			common_directory = None,
 			sbatch_command = None,
 			sinfo_command = None,
 			options = None,
@@ -46,9 +45,6 @@ class SLURM(Method_target, Resumable_method):
 		self.CPUs_per_task = CPUs_per_task if CPUs_per_task is not None else "auto"
 		self.mem_per_CPU = mem_per_CPU if mem_per_CPU is not None else "auto"
 		self.options = options if options is not None else {}
-		if common_directory is False:
-			raise Configurable_exception(self, "common_directory = False is currently not supported")
-		self.common_directory = common_directory if common_directory is not None else True
 		self.sbatch_command = sbatch_command if sbatch_command is not None else "sbatch"
 		self.sinfo_command = sinfo_command if sinfo_command is not None else "sinfo"
 		

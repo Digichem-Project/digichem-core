@@ -6,7 +6,7 @@ NAME: SBKJC-VDZ for K to Rn
 ALIAS: [SBKJC_VDZ_K_Rn]
 
 # Basis set for gaussian calculation.
-class_handle: Gaussian
+CLASS: Gaussian
 
 basis_set: |
     !----------------------------------------------------------------------
