@@ -1,6 +1,59 @@
 import textwrap
 from itertools import chain
 
+class Node():
+	"""
+	Object containing data that can be printed with Node_printer.
+	"""
+	
+	def __init__(self, ID, name, children = None):
+		"""
+		Constructor for Node objects.
+		
+		:param ID: The unique ID of the Node, None is used to indicate an unselectable Node (for grouping purposes).
+		:param name: The name of the Node.
+		:param children: Optional list of children.
+		"""
+		self.ID = ID
+		self.name = name
+		self.children = children if children is not None else []
+	
+	@classmethod
+	def from_list(self, configurable_lists, top_name = "Calculations"):
+		"""
+		"""
+		# First, get a top-level node.
+		base_node = self(None, top_name)
+		
+		# Add.
+		for config in configurable_lists[0]:
+			self.from_configurable(base_node, config, configurable_lists)
+	
+	@classmethod
+	def from_configurable(self, base_node, config, configs):
+		"""
+		"""
+		# First, turn our config into a Node.
+		for group_name in config.GROUP:
+			if len(base_node.children) == 0 or base_node.children[-1].name != group_name:
+				# Either the base node has no children, or the last child is not our group.
+				# Add a new group.
+				base_node.children.append(self(None, group_name))
+				
+			# Set this new node as our base.
+			base_node = base_node.children[-1]
+			
+		# Now add the config to the (current) base node.
+		node = self(config.ID, config.NAME if config.GROUP_NAME is not None else config.GROUP_NAME)
+		
+		# Add our children, using the new node as base.
+		if len(configs) > 0:
+			for child in config.get_children(configs[1]):
+				self.from_configurable(node, child, configs[1:])
+			
+		# Done, return Node of convenience (although it probably isn't very useful).
+		return node
+		
 
 class Node_printer():
 	"""
