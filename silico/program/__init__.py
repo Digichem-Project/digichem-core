@@ -72,10 +72,9 @@ def init_program(*, arg_parser, arg_to_config = None, logger):
 	
 	:param arg_parser: An argparse.ArgumentParser object that has already the desired program arguments set up. General, silico-wide options will be added by this function.
 	:param logger: The logger to innit. This logger will print to STDERR and will automatically have its log-level set based on the command-line arguments and config file.
-	:param arg_to_config: An optional function (or something like a function) that will be called: arg_to_config(args, config) where 'args' will be the argparse namespace object and 'config' will be the silico config object. The intention is this function should set relevant values in the config object from the argparse arguments, if so desired. Optionally, a string can be given, in which case all command-line arguments will be added (without additional modification) to the config object under the key name given by the string. If arg_to_config is None, nothing will be done.
+	:param arg_to_config: An optional function (or something like a function) that will be called: arg_to_config(args, config) where 'args' will be the argparse namespace object and 'config' will be the silico config object. The intention is this function should set relevant values in the config object from the argparse arguments, if so desired.
 	:return: A tuple of the argparse namespace object, silico config object and logging logger object as (args, config, logger). The logger object can of course also be obtained via logging.getLogger(logger_name).
 	"""
-	arg_to_config = arg_to_config if arg_to_config is not None else "command_line_args"
 	
 	# Deal with command line arguments and configuration options.
 	# First, add the general silico command line arguments, which are common to all programs (things like verbosity etc) to our command line parser object.
@@ -91,10 +90,7 @@ def init_program(*, arg_parser, arg_to_config = None, logger):
 	add_standard_args(config, args)
 	
 	# If we were given an arg_to_config function call it now so any other command line arguments can be added to the config object.
-	if isinstance(arg_to_config, str):
-		# Just add all our command line arguments *as-is* to the config object under a new key.
-		config.add_config({arg_to_config: vars(args)})
-	elif arg_to_config is not None:
+	if arg_to_config is not None:
 		arg_to_config(args, config)
 		
 	# Now we have loaded absolutely everything, resolve any Configurables.

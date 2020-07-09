@@ -19,7 +19,7 @@ class Result_extractor(_Result_extractor):
 	FORCE_CRITERIA = False
 	ALLOW_CRITERIA = False
 	
-	def __init__(self, *criteria, ignore = False):
+	def __init__(self, *criteria, ignore = False, config):
 		"""
 		Constructor for Result_extractor objects.
 		
@@ -35,6 +35,8 @@ class Result_extractor(_Result_extractor):
 		# Get upset if we weren't given any criteria and we need some.
 		if len(self.criteria) == 0 and self.FORCE_CRITERIA:
 			raise Extractor_error(self, "criteria is required for this format")
+		
+		self.config = config
 		
 	@property
 	def criteria(self):
@@ -70,7 +72,7 @@ class Result_extractor(_Result_extractor):
 				try:
 					data = self._extract_with_criteria(*self.criteria, result = result, **kwargs)
 				except TypeError:
-					# This might be because we passed to many args to _extract, we can check by comparing how many args the function expects to how many we passed.
+					# This might be because we passed too many args to _extract, we can check by comparing how many args the function expects to how many we passed.
 					if len(self.criteria) > len([param for param in inspect.signature(self._extract_with_criteria).parameters.values() if param.kind == param.POSITIONAL_OR_KEYWORD]):
 						raise Extractor_error(self, "too many criteria")
 						#raise TypeError("too many criteria given to {}".format(self.CLASS_HANDLE[0]))

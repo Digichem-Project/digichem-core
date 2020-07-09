@@ -1,9 +1,9 @@
 import math
 import numpy
 import itertools
-import statistics
-import silico.result.excited_states
 import scipy.constants
+
+import silico.result.excited_states
 from silico.exception.base import Silico_exception
 
 class Spectroscopy_graph():
@@ -88,7 +88,14 @@ class Spectroscopy_graph():
 		"""
 		# Calculate limits for each set of coordinates given to us.
 		all_limits = [self.gaussian_x(y, x, c, cutoff * y) for x, y in self.base_coordinates]
-		limits = (min(itertools.chain.from_iterable(all_limits)), max(itertools.chain.from_iterable(all_limits)))
+		try:
+			limits = (min(itertools.chain.from_iterable(all_limits)), max(itertools.chain.from_iterable(all_limits)))
+		except ValueError:
+			if len(list(itertools.chain.from_iterable(all_limits))) == 0:
+				# Nothing to plot.
+				raise Silico_exception("'{}' cannot plot spectrum; there are no values".format(type(self).__name__))
+			else:
+				raise
 		
 		# Now we need to generate the x values which we'll plot for.
 		# This is a little more complicated than it needs to be because there's no simple range() for floats.
@@ -136,7 +143,7 @@ class Spectroscopy_graph():
 		except ZeroDivisionError:
 			# a (max height) is zero; the intensity is zero.
 			# We could instead return b?
-			raise Silico_exception("Cannot calculate Gaussian function limits; a (intensity) is zero")
+			raise Silico_exception("'{}' cannot calculate Gaussian function limits; a (intensity) is zero".format(self.__name__))
 		
 		# Now return our two solutions.
 		return (-d + b, d + b)
@@ -165,7 +172,6 @@ class Absorption_emission_graph(Spectroscopy_graph):
 		:param use_jacobian: Whether to use the jacobian transform to scale the y axis.
 		"""
 		# Get our x,y values from our excited states.
-		#super().__init__([(excited_state.energy, excited_state.oscillator_strength if excited_state.oscillator_strength is not None else 0) for excited_state in excited_states])
 		super().__init__(coordinates)
 		self.use_jacobian = use_jacobian
 		

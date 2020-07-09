@@ -28,6 +28,10 @@ from pathlib import Path
 import silico.program
 from silico.report.pdf import PDF_report
 from silico.exception.base import Silico_exception
+from silico.submit.method import *
+from silico.submit.program import *
+from silico.submit.calculation import *
+from silico.submit.basis import *
 
 
 # Printable name of this program.

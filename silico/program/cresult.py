@@ -32,6 +32,10 @@ import signal
 
 # Silico imports.
 import silico.program
+from silico.submit.method import *
+from silico.submit.program import *
+from silico.submit.calculation import *
+from silico.submit.basis import *
 from silico.misc.base import List_grouper
 from silico.result.result import Result_set
 from silico.misc.file_wrapper import Multi_file_wrapper
@@ -149,13 +153,13 @@ def main():
 	)
 	parser.add_argument("calculation_files", help = "calculation result files (.log etc) to extract results from", nargs = "*", default = [])
 	
-	emission_group = parser.add_argument_group("emission energy", "options for specifying additional input files that allow for the calculation of relaxed emission energy")
-	emission_group.add_argument("--adiabatic_ground", help = "path to a secondary result file that contains results for the ground state to be used to calculate the adiabatic emission energy", default = None)
-	emission_group.add_argument("--adiabatic_excited", help = "path to a secondary result file that contains results for the excited state to be used to calculate the adiabatic emission energy", default = None)
-	emission_group.add_argument("--adiabatic_state", help = "the excited state in 'adiabatic_excited' to use, either a number indicating the state (eg, '1' for lowest state) or the state label (eg, 'S(1)', 'T(1)'). If not given and 'adiabatic_excited' contains excited states, the lowest will be used, otherwise the total energy of 'adiabatic_excited' will be used", default = None)
-	emission_group.add_argument("--vertical_ground", help = "same as --adiabatic_ground, but for vertical emission", default = None)
-	emission_group.add_argument("--vertical_excited", help = "same as --adiabatic_excited, but for vertical emission", default = None)
-	emission_group.add_argument("--vertical_state", help = "same as --adiabatic_state, but for vertical emission", default = None)
+# 	emission_group = parser.add_argument_group("emission energy", "options for specifying additional input files that allow for the calculation of relaxed emission energy")
+# 	emission_group.add_argument("--adiabatic_ground", help = "path to a secondary result file that contains results for the ground state to be used to calculate the adiabatic emission energy", default = None)
+# 	emission_group.add_argument("--adiabatic_excited", help = "path to a secondary result file that contains results for the excited state to be used to calculate the adiabatic emission energy", default = None)
+# 	emission_group.add_argument("--adiabatic_state", help = "the excited state in 'adiabatic_excited' to use, either a number indicating the state (eg, '1' for lowest state) or the state label (eg, 'S(1)', 'T(1)'). If not given and 'adiabatic_excited' contains excited states, the lowest will be used, otherwise the total energy of 'adiabatic_excited' will be used", default = None)
+# 	emission_group.add_argument("--vertical_ground", help = "same as --adiabatic_ground, but for vertical emission", default = None)
+# 	emission_group.add_argument("--vertical_excited", help = "same as --adiabatic_excited, but for vertical emission", default = None)
+# 	emission_group.add_argument("--vertical_state", help = "same as --adiabatic_state, but for vertical emission", default = None)
 	
 	parser.add_argument("-i", "--ignore", help = "ignore missing sections rather than stopping with an error", action = "store_true")
 	parser.add_argument("-v", "--version", action = "version", version = str(silico.version))
@@ -221,10 +225,10 @@ def _main(args, config, logger):
 			extractor_group['output_file_paths'] = output_file_paths
 		
 			# Now get a list of extractor classes that the user has asked for.
-			extractors = [extractor_group_cls.from_class_handle(output_section['name'])(*output_section['sub_criteria'], ignore = args.ignore if args.ignore is True else None) for output_section in output_sections]
+			extractors = [extractor_group_cls.from_class_handle(output_section['name'])(*output_section['sub_criteria'], ignore = args.ignore if args.ignore is True else None, config = config) for output_section in output_sections]
 			
 			# Now get our main extractor, which takes out list of sub extractors as an argument to its constructor, and save it for later.
-			extractor_group['extractor'] = extractor_group_cls(*extractors, ignore = args.ignore if args.ignore is True else None)
+			extractor_group['extractor'] = extractor_group_cls(*extractors, ignore = args.ignore if args.ignore is True else None, config = config)
 			
 			# Add to our list.
 			extractor_groups.append(extractor_group)
@@ -253,12 +257,12 @@ def _main(args, config, logger):
 						partial(
 							_get_result_set,
 							alignment_class_name = config['alignment'],
-							adiabatic_emission_ground_result = args.adiabatic_ground,
-							adiabatic_emission_excited_result = args.adiabatic_excited,
-							adiabatic_emission_excited_state = args.adiabatic_state,
-							vertical_emission_ground_result = args.vertical_ground,
-							vertical_emission_excited_result = args.vertical_excited,
-							vertical_emission_excited_state = args.vertical_state,
+# 							adiabatic_emission_ground_result = args.adiabatic_ground,
+# 							adiabatic_emission_excited_result = args.adiabatic_excited,
+# 							adiabatic_emission_excited_state = args.adiabatic_state,
+# 							vertical_emission_ground_result = args.vertical_ground,
+# 							vertical_emission_excited_result = args.vertical_excited,
+# 							vertical_emission_excited_state = args.vertical_state,
 						),
 						args.calculation_files
 					)
