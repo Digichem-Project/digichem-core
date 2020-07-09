@@ -6,6 +6,6 @@ class Extended_basis_set(Configurable_target):
 	Top-level class for basis set targets.
 	"""
 	
-	def __init__(self, *, basis_set, **kwargs):
-		super().__init__(**kwargs)
+	def _post_init(self, *, basis_set, **kwargs):
+		super()._post_init(**kwargs)
 		self.basis_set = basis_set.strip()

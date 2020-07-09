@@ -15,10 +15,19 @@ class Gaussian(Program_target):
 	Top level class for submitting calculations to Gaussian.
 	"""
 	
-	CLASS_HANDLE = "gaussian"
+	CLASS_HANDLE = ("gaussian",)
 	
-	def __init__(self, *, executable, root_environ_name, gaussian_root, gaussian_init_file, **kwargs):
-		super().__init__(**kwargs)
+# 	def __init__(self, *, executable, root_environ_name, gaussian_root, gaussian_init_file, **kwargs):
+# 		super().__init__(**kwargs)
+# 		self.executable = executable
+# 		self.root_environ_name = root_environ_name
+# 		self.gaussian_root = gaussian_root
+# 		self.gaussian_init_file = gaussian_init_file
+# 		self.log_file_path = None
+# 		self.chk_file_path = None
+
+	def _post_init(self, *, executable, root_environ_name, gaussian_root, gaussian_init_file, **kwargs):
+		super()._post_init(**kwargs)
 		self.executable = executable
 		self.root_environ_name = root_environ_name
 		self.gaussian_root = gaussian_root

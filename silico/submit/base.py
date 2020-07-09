@@ -1,27 +1,20 @@
 import os
 import numpy
 
-from silico.misc import Dynamic_parent
 from silico.config.configurable import Configurable
 from silico.exception.configurable import Configurable_class_exception,\
 	Configurable_exception
 
-class Configurable_target(Configurable, Dynamic_parent):
+class Configurable_target(Configurable):
 	"""
 	Top level class for user-configurable submit targets (Calculation types, program types, method types etc.)
 	"""
 	
-	def post_init(self, **kwargs):
-		"""
-		Second init function, called after __init__() has been called on all configurables.
-		"""
-		self._post_init(**self, **kwargs)
-			
 	def get_children(self, target_list):
 		"""
 		Get all the configurable target objects from a list that contain this object as a parent.
 		"""
-		return [(index, child) for index, child in enumerate(target_list) if len(set(self.NAMES).intersection(child.submit_parents)) > 0]
+		return [child for child in target_list if len(set(self.NAMES).intersection(child.submit_parents)) > 0]
 			
 	@property
 	def submit_parents(self):
@@ -63,46 +56,7 @@ class Configurable_target(Configurable, Dynamic_parent):
 			return len(os.sched_getaffinity(0))
 			# The python docs mention that sched_getaffinity() is not available on all systems, but it is not clear what exception will be raised in such a case. These two seem most likely.
 		except (AttributeError, NotImplementedError):
-			return os.cpu_count()
-		
-	
-	@classmethod
-	def from_config(self, config, configs, **kwargs):
-		"""
-		Get a Configurable_target object from a config dict.
-		
-		This function automatically searches all known children of this class to find one that matches the class_handle of config.
-		
-		:param config: The config dict to load from.
-		:param configs: A list of all configs of this type; used by some Configurable_target constructors.
-		:param **kwargs: Additional keyword arguments that will be passed as-is to the new object's constructor.
- 		"""
-		# Doesn't make sense to call from Configurable_target itself, only its children.
-		if self == Configurable_target:
-			raise NotImplementedError("from_config() cannot be called from Configurable_target directly; it must be called from a child class")
-		
-		# First get the class that the config asks for.
-		try:
-			cls = self.from_class_handle(config.CLASS)
-		except KeyError:
-			raise Configurable_class_exception(self, "Config with name '{}' is missing 'CLASS'".format(config.NAME))
-		
-		# Now init and return.
-		try:
-			return cls(configs = configs, **config, **kwargs)
-		except TypeError:
-			raise Configurable_class_exception(self, "Unrecognised or missing key in config '{}'".format(config.NAME))
-	
-	@classmethod
-	def list_from_configs(self, configs, **kwargs):
-		"""
-		Get a list of Configurable_target objects from a list of config objects.
-		"""
-		
-		# Now remove those without a name.
-		return [self.from_config(config, configs = configs, **kwargs) for config in configs if not config.ABSTRACT]
-			
-	
+			return os.cpu_count()	
 	
 class Memory():
 	"""

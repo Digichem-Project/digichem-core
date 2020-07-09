@@ -1,9 +1,9 @@
 from copy import deepcopy, copy
+import itertools
 
 from silico.config.base import Config
 from silico.exception import Configurable_exception, Missing_option_exception
-from silico.exception.configurable import Configurable_class_exception
-import itertools
+from silico.misc import Dynamic_parent
 from silico.exception.base import Silico_exception
 
 class Configurable_list(list):
@@ -49,7 +49,7 @@ class Configurable_list(list):
 			identifier = int(identifier) -1
 			try:
 				# Don't allow negative indices.
-				if identifier <= 0:
+				if identifier < 0:
 					raise IndexError("ID out of range (must be 1 or greater)")
 				
 				return self[identifier]
@@ -83,14 +83,50 @@ class Configurable_list(list):
 			self[index] = config.resolve_parents(self)
 			
 		# Resolve splits and return (but only those that are not abstract).
-		resolved = type(self)([resolved for config in self for resolved in config.resolve_split() if not resolved.ABSTRACT])
+		#resolved = type(self)([resolved for config in self for resolved in config.resolve_split() if not resolved.ABSTRACT])
+		resolved = type(self)(resolved for resolved in self.resolve_splits() if not resolved.ABSTRACT)
 		
-		# Set ID's on our children.
-		for index, config in enumerate(resolved):
-			config.post_init(ID = index +1)
-			
+		# Finally, sort out names.
+		for config in resolved:
+			config.resolve_names()
+		
 		# All done.
 		return resolved
+	
+	def resolve_splits(self):
+		"""
+		"""
+		return type(self)([resolved for config in self for resolved in config.resolve_split()])
+		
+	
+	def post_init(self, **kwargs):
+		"""
+		Call the second init function on all Configurables contained within this list.
+		
+		:param **kwargs: Key-word arguments that will be passed to post_init() to each config in this list.
+		"""
+		# Set ID's on our children.
+		index = 0
+		while index < len(self):
+			config = self[index]
+			# First get the class that the config asks for.
+			try:
+				cls = config.from_class_handle(config.CLASS)
+			except KeyError:
+				raise Missing_option_exception(config, 'CLASS')
+			
+			# Now init (sets key:values).
+			config = cls(config, FILE_NAME = config.FILE_NAME)
+			
+			# Init properly.
+			try:
+				config.post_init(ID = index +1, CONFIGS = self, **kwargs)
+			except TypeError:
+				raise Configurable_exception(config, "Unrecognised or missing key")
+			
+			# Update the list.
+			self[index] = config
+			index +=1
 	
 	def resolve_duplicates(self):
 		"""
@@ -114,6 +150,7 @@ class Configurable_list(list):
 				raise Configurable_exception(config, "cannot overwrite multiple duplicates '{}'".format(", ".join([duplicate.description for duplicate in duplicates])))
 			elif len(duplicates) == 1:
 				# We have a duplicate.
+				duplicate = duplicates[0]
 				# Merge the lists of PARENT and ALIAS (because lists are not normally merged). This might be unexpected?
 				config.PARENT.extend([parent for parent in duplicate.PARENT if parent not in config.PARENT])
 				config.ALIAS.extend([alias for alias in duplicate.ALIAS if alias not in config.ALIAS])
@@ -133,16 +170,25 @@ class Configurable_list(list):
 		# All done.
 		return self
 
-class Configurable(Config):
+class Configurable(Config, Dynamic_parent):
 	"""
 	Class that represents a Configurable.
 	
 	Configurables are a specific type of Config objects that are used to instantiate a class. Like Config objects, they are enhanced dicts.
 	"""
 		
-	def post_init(self, *, ID):
+	def post_init(self, **kwargs):
+		"""
+		Second init function, called after __init__() has been called on all configurables.
+		"""
+		self._post_init(**self, **kwargs)
+		
+	def _post_init(self, *, ID, NAME = None, ALIAS = None, GROUP = None, GROUP_NAME = None, SPLIT = None, PARENT = None, ABSTRACT = None, TYPE = None, CLASS = None, CONFIGS = None):
 		"""
 		Second init function, this method should be called once all Configurables have been initiated.
+		
+		_post_init is called with this configurable's key: value pairs as keyword arguments.
+		We discard many of these, because they are accessed via properties.
 		
 		:param ID: The unique ID number of this Configurable.
 		"""
@@ -182,7 +228,7 @@ class Configurable(Config):
 		"""		
 		# Each parent specified will overwrite the options set by the previous parent, and the config itself will overwrite the last parent.
 		# Loop through each parent first
-		merged_parents = Configurable()
+		merged_parents = Configurable(FILE_NAME = self.FILE_NAME)
 		for parent_name in copy(self.PARENT):
 			# If we got this far then we have some work to do.
 			# Fetch the Configurable that is referenced.
@@ -235,13 +281,14 @@ class Configurable(Config):
 		# Iterate through each SPLIT.
 		for split in self.SPLIT:
 			# Certain fields we don't split on (because it would either be too complicated or nonsensical.
+			split = copy(split)
 			# Remove these protected fields.
 			protected = {
-				'NAME': split.pop('NAME', None),
-				'GROUP': split.pop('GROUP', None),
-				'GROUP_NAME': split.pop('GROUP_NAME', None),
-				'SPLIT': split.pop('SPLIT', None)
+				'SPLIT': split.pop('SPLIT', [])
 			}
+			for protected_key in ('NAME', 'GROUP', 'GROUP_NAME'):
+				if protected_key in split:
+					protected[protected_key] = split.pop(protected_key)
 			
 			# Next, expand each key (the value of each key is a list, we need a list of one membered dicts instead).
 			expanded = ([{key: value} for value in lst] for key, lst in split.items())
@@ -251,36 +298,34 @@ class Configurable(Config):
 			combinations = itertools.product(*expanded)
 			
 			# Now rebuild back into a list of dicts.
-#			resolved_splits.extend([self.merge_dict(protected, {key: value for pair in combination for key, value in pair.items()}) for combination in combinations])
 			resolved_splits.extend([self.merge_dict(protected, {key: value for pair in combination for key, value in pair.items()}) for combination in combinations])
 			
 		# Now we have (possibly very big) list of Configurables, but they only contain those values we were asked to split on.
 		# Next we need to merge with ourself to fill out other values.
-		#merged = [deepcopy(self).merge(raw) for raw in resolved_splits]
-		merged_list = []
+		merged_list = Configurable_list()
 		for raw in resolved_splits:
 			# First, copy.
 			merged = deepcopy(self)
 			
 			# Delete any alias.
-			merged.pop('ALIAS')
+			merged.pop('ALIAS', None)
 			
 			# We append to GROUP rather than overwriting.
 			group = list(self.GROUP)
-			group.extend(raw['GROUP'] if raw['GROUP'] is not None else [])
+			group.extend(raw['GROUP'] if 'GROUP' in raw else [])
 			raw['GROUP'] = group
-			
+						
 			# Merge
 			merged.merge(raw)
 			
 			# Finally, resolve NAME and GROUP_NAME.
-			merged.resolve_names()
+			#merged.resolve_names()
 			
 			# Add to list.
 			merged_list.append(merged)
-			
+						
 		# All done, return the list.
-		return merged_list
+		return merged_list.resolve_splits()
 			
 		
 	@property

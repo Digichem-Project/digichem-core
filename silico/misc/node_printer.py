@@ -1,5 +1,7 @@
 import textwrap
 from itertools import chain
+from logging import getLogger
+import silico
 
 class Node():
 	"""
@@ -19,7 +21,7 @@ class Node():
 		self.children = children if children is not None else []
 	
 	@classmethod
-	def from_list(self, configurable_lists, top_name = "Calculations"):
+	def from_list(self, configurable_lists, top_name = "Available"):
 		"""
 		"""
 		# First, get a top-level node.
@@ -28,6 +30,9 @@ class Node():
 		# Add.
 		for config in configurable_lists[0]:
 			self.from_configurable(base_node, config, configurable_lists)
+			
+		# Return
+		return base_node
 	
 	@classmethod
 	def from_configurable(self, base_node, config, configs):
@@ -44,10 +49,20 @@ class Node():
 			base_node = base_node.children[-1]
 			
 		# Now add the config to the (current) base node.
-		node = self(config.ID, config.NAME if config.GROUP_NAME is not None else config.GROUP_NAME)
+		node = self(config.ID, config.NAME if config.GROUP_NAME is None else config.GROUP_NAME)
+		
+		try:			
+			node.name += " ({})".format(config.status)
+		except AttributeError:
+			pass
+			#getLogger(silico.logger_name).debug("No status property for '{}'".format(config.NAME), exc_info = False)
+		except Exception:
+			getLogger(silico.logger_name).debug("Failed to retrieve status for '{}'".format(config.NAME), exc_info = True)
+		
+		base_node.children.append(node)
 		
 		# Add our children, using the new node as base.
-		if len(configs) > 0:
+		if len(configs) > 1:
 			for child in config.get_children(configs[1]):
 				self.from_configurable(node, child, configs[1:])
 			
@@ -60,17 +75,17 @@ class Node_printer():
 	Class for pretty printing a nested list of options (as used by csubmit -l).
 	"""
 	
-	def __init__(self, options, *, indent = 5, width = 80, space = False):
+	def __init__(self, nodes, *, indent = 4, width = 80, space = False):
 		"""
 		Constructor for Node_printer objects.
 		
-		:param options: A list of 3-membered tuples of the form (index, string, children).
+		:param nodes: A list of Node objects to print.
 		:param indent: The amount to indent each level (2 is the min).
 		:param width: The maximum line width (set to math.inf for no limit).
 		:param space: If True, an extra newline is inserted after each option to space them out more.
 		"""
 		
-		self.options = options
+		self.nodes = nodes
 		self.indent = max(indent, 2)
 		self.width = width
 		self.space = space
@@ -80,24 +95,25 @@ class Node_printer():
 		
 		:param all: Whether to get or not.
 		"""
-		return "\n".join(self.get_lines(self.options, all = all))
+		return "\n".join(self.get_lines(self.nodes, all = all))
 	
-	def get_lines(self, options, *, level = 0, all = False, bold = True):
+	def get_lines(self, nodes, *, level = 0, all = False, bold = True):
 		"""
 		
 		:param all: Whether to get or not.
 		"""
 		lines = []
-		for index, (option_number, option_body, children) in enumerate(options):
+		for index, node in enumerate(nodes):
 			# First decide if this is the last option at this level or not.
-			last_option = (index +1) == len(options)
+			last_option = (index +1) == len(nodes)
 			
 			# Build our string for this option.
 			# We start with the option index in square brackets.
-			index_string = "[{}] ".format(option_number if option_number is not None else "┐")
+			index_string = "[{}] ".format(node.ID if node.ID is not None else "┐")
+
 			
 			# Then we add a space and the option body.
-			full_string = "{}{}".format(index_string, option_body)
+			full_string = "{}{}".format(index_string, node.name)
 			
 			# Next, we need to wrap if our line is too long.
 			# The amount of space available decreases with each indented level.
@@ -113,7 +129,7 @@ class Node_printer():
 			# Wrap again.
 			wrapped_lines = list(chain(wrapped_lines[:1], textwrap.wrap(subsequent_lines, available_space - len(index_string))))
 			
-			if option_number is None and bold:
+			if node.ID is None and bold:
 				# Make bold.
 				# Add control chars.
 				if len(wrapped_lines) > 0:
@@ -132,7 +148,7 @@ class Node_printer():
 				if line_number == 0:
 					# If we are the top-most level, then we don't do any padding.
 					if level != 0:
-						# The first line, add our node 'graphics', which change depending on whether there are options after us.
+						# The first line, add our node 'graphics', which change depending on whether there are nodes after us.
 						indent_string = " ├"  if not last_option else " └"
 						# Then pad out to fill width.
 						indent_string += "─" * (self.indent -2)
@@ -140,7 +156,7 @@ class Node_printer():
 						indent_string = ""
 				else:
 					if level != 0:
-						# Additional lines; only need to add a continuing down line if there are options after us.
+						# Additional lines; only need to add a continuing down line if there are nodes after us.
 						indent_string = " │"  if not last_option else "  "
 						# Then pad out to fill width.
 						indent_string += " " * (self.indent -2)
@@ -148,7 +164,7 @@ class Node_printer():
 						indent_string = ""
 						
 					# If we have children, add another continuation.
-					indent_string += " │"  if len(children) > 0 else "  "
+					indent_string += " │"  if len(node.children) > 0 else "  "
 					# Add finish padding.
 					indent_string += " " * (len(index_string) -2)
 					
@@ -157,12 +173,13 @@ class Node_printer():
 
 				
 			# If we have children, get them now.
-			if len(children) > 0:
+			if len(node.children) > 0:
 				if index == 0 or all or level >= 2:
-					child_lines = self.get_lines(children, level = level+1, all = all)
+					child_lines = self.get_lines(node.children, level = level+1, all = all)
 				else:
 					# If the all option has not been given, we only print for this first node.
-					child_lines = self.get_lines([(None, "(More...)", [])], level = level+1, all = all)
+					#child_lines = self.get_lines([(None, "(More...)", [])], level = level+1, all = all)
+					child_lines = self.get_lines((Node(None, "(More...)"),), level = level+1, all = all)
 					
 				# Pad each appropriately.
 				padded_child_lines = []

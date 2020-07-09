@@ -39,10 +39,19 @@ def main_wrapper(inner_func, *, arg_parser, arg_to_config = None, logger_name = 
 		# Couldn't start.
 		logger.error("failed to start program", exc_info = True)
 		return -2
-		
+	
+	return run(inner_func, args = args, config = config, logger = logger, **kwargs)
+	
+def run(inner_func, **kwargs):
+	"""
+	Wrapper function for program's main function.
+	
+	This function calls and return the return value of inner_func, **kwargs is passed directly to inner_func.
+	"""
+	logger = logging.getLogger(silico.logger_name)
 	try:
 		logger.debug("Startup completed")
-		retval = inner_func(args, config, logger, **kwargs)
+		retval = inner_func(**kwargs)
 		
 		# Success.
 		return retval if retval is not None else 0

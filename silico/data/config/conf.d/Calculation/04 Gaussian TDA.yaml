@@ -4,51 +4,19 @@
 TYPE: calculation
 ALIAS: [tda_default]
 PARENT: [g09_default]
-GROUP: [TDA 10 Singlets 10 Triplets]
+GROUP: [TDA, 10 Singlets 10 Triplets]
 
 calculation_keywords:
     - TDA=(NStates=10,50-50)
+    
+##############################################################
+---
+TYPE: calculation
+PARENT: [g09_default]
+GROUP: [TDA, 5 Triplets]
 
-# ##############################################################
-# ---
-# TYPE: calculation
-# 
-# PARENT: [g09_default, tda_default]
-# ALIAS: [tda_5050_PBE0]
-# 
-# GROUP_NAME: PBE0/6-31G(d,p)
-# functional: PBE1PBE
-# 
-# ##############################################################
-# ---
-# TYPE: calculation
-# 
-# PARENT: [g09_default, tda_default]
-# ALIAS: [tda_5050_B3LYP]
-# 
-# GROUP_NAME: B3LYP/6-31G(d,p)
-# functional: B3LYP
-# 
-# ##############################################################
-# ---
-# TYPE: calculation
-# 
-# PARENT: [g09_organomet_default, tda_default]
-# ALIAS: [tda_5050_SBKJC_VDZ_ECP]
-# 
-# GROUP_NAME: B3LYP/6-31G+(d,p) [H-Ar]/SBKJC-VDZ-ECP [K-Rn]
-# functional: B3LYP
-# 
-# ##############################################################
-# ---
-# TYPE: calculation
-# 
-# PARENT: [g09_default, tda_default]
-# 
-# GROUP_NAME: M062X/6-31G(d,p)
-# functional: M062X
-
-
+calculation_keywords:
+    - TDA=(NStates=5,Triplets)
 
 ##############################################################
 # BIG TDA CALCS
@@ -57,7 +25,7 @@ calculation_keywords:
 TYPE: calculation
 PARENT: [g09_default]
 ALIAS: [tda_abs_default]
-GROUP: [TDA 100 Singlets]
+GROUP: [TDA, 100 Singlets]
 
 calculation_keywords:
     - TDA=(NStates=100,Singlets)
@@ -65,47 +33,6 @@ calculation_keywords:
 silico_options:
     excited_states_diagram:
         y_limits: standard
-
-# ##############################################################
-# ---
-# TYPE: calculation
-# 
-# PARENT: [g09_default, tda_abs_default]
-# ALIAS: [tda_abs_PBE0]
-# 
-# GROUP_NAME: PBE0/6-31G(d,p)
-# functional: PBE1PBE
-# 
-# ##############################################################
-# ---
-# TYPE: calculation
-# 
-# PARENT: [g09_default, tda_abs_default]
-# ALIAS: [tda_abs_B3LYP]
-# 
-# GROUP_NAME: B3LYP/6-31G(d,p)
-# functional: B3LYP
-# 
-# ##############################################################
-# ---
-# TYPE: calculation
-# 
-# PARENT: [g09_organomet_default, tda_abs_default]
-# ALIAS: [tda_abs_SBKJC_VDZ_ECP]
-# 
-# GROUP_NAME: B3LYP/6-31G+(d,p) [H-Ar]/SBKJC-VDZ-ECP [K-Rn]
-# functional: B3LYP
-# 
-# ##############################################################
-# ---
-# TYPE: calculation
-# 
-# PARENT: [g09_default, tda_abs_default]
-# ALIAS: [tda_abs_M062X]
-# 
-# GROUP_NAME: M062X/6-31G(d,p)
-# functional: M062X
-
 
 
 ##############################################################
@@ -115,61 +42,11 @@ silico_options:
 TYPE: calculation
 PARENT: [g09_default]
 ALIAS: [opt_tda_s1_default]
-GROUP: [TDA Optimised S(1)]
+GROUP: [TDA, Optimised S(1)]
 
 calculation_keywords:
     - Opt
     - TDA=(NStates=10,Singlets)
-
-
-# ##############################################################
-# ---
-# TYPE: calculation
-# 
-# PARENT: [g09_default, opt_tda_s1_default]
-# ALIAS: [opt_tda_s1_PBE0]
-# 
-# GROUP_NAME: PBE0/6-31G(d,p)
-# 
-# functional: PBE1PBE
-# 
-# 
-# ##############################################################
-# ---
-# TYPE: calculation
-# 
-# PARENT: [g09_default, opt_tda_s1_default]
-# ALIAS: [opt_tda_s1_B3LYP]
-# 
-# GROUP_NAME: B3LYP/6-31G(d,p)
-# 
-# functional: B3LYP
-# 
-# ##############################################################
-# ---
-# TYPE: calculation
-# 
-# PARENT: [g09_organomet_default, opt_tda_s1_default]
-# ALIAS: [opt_tda_s1_SBKJC_VDZ_ECP]
-# 
-# GROUP_NAME: B3LYP/6-31G+(d,p) [H-Ar]/SBKJC-VDZ-ECP [K-Rn]
-# 
-# functional: B3LYP
-# 
-# ##############################################################
-# ---
-# TYPE: calculation
-# 
-# PARENT: [g09_default, opt_tda_s1_default]
-# ALIAS: [opt_tda_s1_M062X]
-# 
-# GROUP_NAME: M062X/6-31G(d,p)
-# 
-# functional: M062X
-
-
-
-
 
 
 ##############################################################
@@ -177,53 +54,9 @@ calculation_keywords:
 TYPE: calculation
 PARENT: [g09_default]
 ALIAS: [opt_tda_t1_default]
-GROUP: [TDA Optimised T(1)]
+GROUP: [TDA, Optimised T(1)]
 
 calculation_keywords:
     - Opt
     - TDA=(NStates=10,Triplets)
-
-# ##############################################################
-# ---
-# TYPE: calculation
-# 
-# PARENT: [g09_default, opt_tda_t1_default]
-# ALIAS: [opt_tda_t1_PBE0]
-# 
-# GROUP_NAME: PBE0/6-31G(d,p)
-# 
-# functional: PBE1PBE
-# 
-# ##############################################################
-# ---
-# TYPE: calculation
-# 
-# PARENT: [g09_default, opt_tda_t1_default]
-# ALIAS: [opt_tda_t1_B3LYP]
-# 
-# GROUP_NAME: B3LYP/6-31G(d,p)
-# 
-# functional: B3LYP
-# 
-# ##############################################################
-# ---
-# TYPE: calculation
-# 
-# PARENT: [g09_organomet_default, opt_tda_t1_default]
-# ALIAS: [opt_tda_t1_SBKJC_VDZ_ECP]
-# 
-# GROUP_NAME: B3LYP/6-31G+(d,p) [H-Ar]/SBKJC-VDZ-ECP [K-Rn]
-# 
-# functional: B3LYP
-# 
-# ##############################################################
-# ---
-# TYPE: calculation
-# 
-# PARENT: [g09_default, opt_tda_t1_default]
-# ALIAS: [opt_tda_t1_M062X]
-# 
-# GROUP_NAME: m062x/6-31G(d,p)
-# 
-# functional: M062X
 

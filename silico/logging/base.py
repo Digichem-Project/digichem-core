@@ -25,7 +25,7 @@ class Variable_formatter(logging.Formatter):
 		
 		:return: The formatted exception.
 		"""
-		if False and self.logger.getEffectiveLevel() > logging.DEBUG:
+		if self.logger.getEffectiveLevel() > logging.DEBUG:
 			return self.exception_to_str(exc_info[1])
 		else:
 			return textwrap.indent(super().formatException(exc_info), "  ")

@@ -26,7 +26,7 @@
 TYPE: method
 
 # Config for a SLURM submission.
-NAME: Normal SLURM
+NAME: Singlenode SLURM
 ALIAS: [slurm]
 
 CLASS: SLURM
@@ -67,4 +67,4 @@ PARENT: [slurm]
 ALIAS: [slurm_multi]
 CLASS: SLURM
 partition: parallel
-warning: You have selected the high-performance parallel partition intended for highly demanding calculations only
+warning: You have selected the high-performance parallel partition not normally used for DFT; please make sure you know what you are doing

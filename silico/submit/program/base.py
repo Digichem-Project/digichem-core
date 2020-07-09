@@ -19,10 +19,10 @@ class Program_target(Configurable_target):
 	Top-level class for classes that implement submission to a calculation program.
 	"""
 	
-	def __init__(self, method = None , *args, methods, **kwargs):
-		super().__init__(*args, **kwargs)
+	def _post_init(self, *, methods, **kwargs):
+		super()._post_init(**kwargs)
 		self.methods = methods
-		self.method = method
+		self.method = None
 		
 	@property
 	def method(self):

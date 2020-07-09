@@ -1,76 +1,64 @@
-# ---
-# TYPE: calculation
-# 
-# GROUP: Auto Characterisation (Organic Emitter)
-# GROUP_NAME: Opt+Freq → TDA (PBE0/6-31G(d,p))
-# 
-# CLASS: Series
-# 
-# programs: [g09, g16]
-# 
-# calculations:
-#     # First, Opt + Freq
-#     - opt_freq_PBE0
-#     # Then TDA.
-#     - tda_5050_PBE0
-# 
-# ##############################################################
-# ---
-# TYPE: calculation
-# 
-# GROUP: Auto Characterisation (Organic Emitter)
-# GROUP_NAME: Opt+Freq → TD-DFT → Opt Triplet → SP Singlet (PBE0/6-31G(d,p))
-# 
-# CLASS: Series
-# 
-# programs: [g09, g16]
-# 
-# calculations:
-#     # First, Opt + Freq
-#     - opt_freq_PBE0
-#     # Then TD.
-#     - td_5050_PBE0
-#     # Next an optimised triplet.
-#     - opt_freq_triplet_PBE0
-#     # Finally, a singlet single point at the same geometry.
-#     - sp_PBE0
-# 
-# ##############################################################
-# ---
-# TYPE: calculation
-# 
-# GROUP: Auto Characterisation (Organometallic Emitter)
-# GROUP_NAME: Opt+Freq → TDA (B3LYP/6-31G+(d,p)/SBKJC-VDZ-ECP)
-# 
-# CLASS: Series
-# 
-# programs: [g09, g16]
-# 
-# calculations:
-#     # First, Opt + Freq
-#     - opt_freq_SBKJC_VDZ_ECP
-#     # Then TDA.
-#     - tda_5050_SBKJC_VDZ_ECP
-# 
-# ##############################################################
-# ---
-# TYPE: calculation
-# 
-# GROUP: Auto Characterisation (Organometallic Emitter)
-# GROUP_NAME: Opt+Freq → TD-DFT → Opt Triplet → SP Singlet (B3LYP/6-31G+(d,p)/SBKJC-VDZ-ECP)
-# 
-# CLASS: Series
-# 
-# programs: [g09, g16]
-# 
-# calculations:
-#     # First, Opt + Freq
-#     - opt_freq_SBKJC_VDZ_ECP
-#     # Then TD.
-#     - td_5050_SBKJC_VDZ_ECP
-#     # Next an optimised triplet.
-#     - opt_freq_triplet_SBKJC_VDZ_ECP
-#     # Finally, a singlet single point at the same geometry.
-#     - sp_SBKJC_VDZ_ECP
+---
+TYPE: calculation
+
+GROUP: [Auto Characterisation, Organic Emitter]
+GROUP_NAME: Opt+Freq → TDA (PBE0/6-31G(d,p))
+
+CLASS: Series
+
+programs: [g09, g16]
+
+calculations:
+    - Opt Freq PBE1PBE 6-31G(d,p)
+    - TDA 10 Singlets 10 Triplets PBE1PBE 6-31G(d,p)
+
+##############################################################
+---
+TYPE: calculation
+
+GROUP: [Auto Characterisation, Organic Emitter]
+GROUP_NAME: Opt+Freq → TD-DFT → Opt Triplet → SP Singlet (PBE0/6-31G(d,p))
+
+CLASS: Series
+
+programs: [g09, g16]
+
+calculations:
+    - Opt Freq PBE1PBE 6-31G(d,p)
+    - TD-DFT 10 Singlets 10 Triplets PBE1PBE 6-31G(d,p)
+    - Opt Freq Unrestricted Triplet uPBE1PBE 6-31G(d,p)
+    - Single Point Singlet PBE1PBE 6-31G(d,p)
+
+##############################################################
+---
+TYPE: calculation
+
+GROUP: [Auto Characterisation, Organometallic Emitter (in Acetonitrile)]
+GROUP_NAME: Opt+Freq → TDA (B3LYP/6-31G+(d,p)/SBKJC-VDZ-ECP)
+
+CLASS: Series
+
+programs: [g09, g16]
+
+calculations:
+    - "Opt Freq Solvents Acetonitrile B3LYP 6-31+G(d,p)/SBKJC-VDZ (ECP)"
+    - "TDA 10 Singlets 10 Triplets Solvents Acetonitrile B3LYP 6-31+G(d,p)/SBKJC-VDZ (ECP)"
+
+##############################################################
+---
+TYPE: calculation
+
+GROUP: [Auto Characterisation, Organometallic Emitter (in Acetonitrile)]
+GROUP_NAME: Opt+Freq → TD-DFT → Opt Triplet → SP Singlet (B3LYP/6-31G+(d,p)/SBKJC-VDZ-ECP)
+
+CLASS: Series
+
+programs: [g09, g16]
+
+calculations:
+    - "Opt Freq Solvents Acetonitrile B3LYP 6-31+G(d,p)/SBKJC-VDZ (ECP)"
+    - "TD-DFT 10 Singlets 10 Triplets Solvents Acetonitrile B3LYP 6-31+G(d,p)/SBKJC-VDZ (ECP)"
+    - "Opt Freq Unrestricted Triplet Solvents Acetonitrile uB3LYP 6-31+G(d,p)/SBKJC-VDZ (ECP)"
+    - "Single Point Singlet Solvents Acetonitrile B3LYP 6-31+G(d,p)/SBKJC-VDZ (ECP)"
 
 

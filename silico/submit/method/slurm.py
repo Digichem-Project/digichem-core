@@ -1,6 +1,5 @@
 from silico.submit.method import Method_target
-from silico.exception import Configurable_exception,\
-	Submission_error, Silico_exception
+from silico.exception import Submission_error, Silico_exception
 from mako.lookup import TemplateLookup
 from pathlib import Path
 import silico
@@ -18,14 +17,39 @@ class SLURM(Method_target, Resumable_method):
 	Implementation to allow submission to SLURM, a popular scheduling system.
 	"""
 	
-	CLASS_HANDLE = "SLURM"
+	CLASS_HANDLE = ("SLURM",)
 	
 	# The name of the script which we pass to sbatch.
 	SBATCH_SCRIPT_NAME = "sbatch.submit"
 	
-	def __init__(
+# 	def __init__(
+# 			self,
+# 			*args,
+# 			partition = None,
+# 			time = None,
+# 			num_tasks = None,
+# 			CPUs_per_task = None,
+# 			mem_per_CPU = None,
+# 			sbatch_command = None,
+# 			sinfo_command = None,
+# 			options = None,
+# 			**kwargs
+# 		):
+# 		super().__init__(*args, **kwargs)
+# 		Resumable_method.__init__(self)
+# 		
+# 		self.partition = partition
+# 		self.time = time
+# 		self.num_tasks = num_tasks if num_tasks is not None else 1
+# 		self.CPUs_per_task = CPUs_per_task if CPUs_per_task is not None else "auto"
+# 		self.mem_per_CPU = mem_per_CPU if mem_per_CPU is not None else "auto"
+# 		self.options = options if options is not None else {}
+# 		self.sbatch_command = sbatch_command if sbatch_command is not None else "sbatch"
+# 		self.sinfo_command = sinfo_command if sinfo_command is not None else "sinfo"
+
+	def _post_init(
 			self,
-			*args,
+			*,
 			partition = None,
 			time = None,
 			num_tasks = None,
@@ -36,7 +60,7 @@ class SLURM(Method_target, Resumable_method):
 			options = None,
 			**kwargs
 		):
-		super().__init__(*args, **kwargs)
+		super()._post_init(**kwargs)
 		Resumable_method.__init__(self)
 		
 		self.partition = partition

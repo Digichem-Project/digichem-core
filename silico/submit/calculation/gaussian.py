@@ -1,8 +1,8 @@
-from silico.exception import Configurable_exception
 from mako.lookup import TemplateLookup
+
 import silico
+from silico.exception import Configurable_exception
 from silico.exception.base import Submission_error, Silico_exception
-from silico.submit.basis.base import Extended_basis_set
 from silico.submit.calculation import Calculation_target
 
 class Gaussian_DFT(Calculation_target):
@@ -10,12 +10,12 @@ class Gaussian_DFT(Calculation_target):
 	DFT (density functional theory) calculations with Gaussian.
 	"""
 	# Identifying handle.
-	CLASS_HANDLE = "Gaussian-DFT"
+	CLASS_HANDLE = ("Gaussian-DFT",)
 	
 	# A list of strings describing the expected input file types (file extensions) for calculation's of this class. The first item of this list will be passed to obabel via the -o flag. 
 	INPUT_FILE_TYPES = ["gau", "com", "gjf", "gjc"]
-	
-	def __init__(self,
+		
+	def _post_init(self,
 		*args,
 		use_chk = None,
 		CPU_list = None,
@@ -33,13 +33,9 @@ class Gaussian_DFT(Calculation_target):
 		**kwargs
 	):
 		"""
-		Constructor for Gaussian DFT calculations.
-		
-		:param CPU_list: A list of integers identifying specific CPUs to use for the calculation.
-		:param num_CPUs: The number of CPUs to use for the calculation. CPU_list and num_CPUs are mutually exclusive.
-		:param 
+		Constructor for Gaussian DFT calculations.	
 		"""
-		super().__init__(*args, **kwargs)
+		super()._post_init(*args, **kwargs)
 		
 		self.use_chk = use_chk if use_chk is not None else True
 		
@@ -59,9 +55,9 @@ class Gaussian_DFT(Calculation_target):
 		self.charge = charge if charge is not None else "auto"
 		
 		# Save our basis set.
-		self.extended_basis_sets = [Extended_basis_set.search_list(extended_basis_set, self.available_basis_sets) for extended_basis_set in extended_basis_sets] if extended_basis_sets is not None else []
-		self.extended_ECPs = [Extended_basis_set.search_list(extended_ECP, self.available_basis_sets) for extended_ECP in extended_ECPs] if extended_ECPs is not None else []
-		
+		self.extended_basis_sets = [self.available_basis_sets.get_config(extended_basis_set) for extended_basis_set in extended_basis_sets] if extended_basis_sets is not None else []
+		self.extended_ECPs = [self.available_basis_sets.get_config(extended_ECP) for extended_ECP in extended_ECPs] if extended_ECPs is not None else []
+	
 	@property
 	def real_charge(self):
 		"""

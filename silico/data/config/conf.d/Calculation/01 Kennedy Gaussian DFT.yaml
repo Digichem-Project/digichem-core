@@ -12,27 +12,64 @@ ALIAS: [g09_default]
 SPLIT:
     # 'Normal' basis set
     - GROUP: ["{functional}"]
-      GROUP_NAME: "{basis_set}"
       functional: 
         - PBE1PBE
         - B3LYP
         - M062X
-      basis_set:
-        - 6-31G(d,p)
-        - 6-311G(d,p)
-        - cc-pVDZ
-        - cc-pVTZ
-        - cc-pVQZ
-        - cc-pV5Z
-        - cc-pV6Z
-    # Extended basis set (only for B3LYP)
-    - functional:
-        - B3LYP
-      basis_set:
-        - genECP
-      extended_basis_sets:
-        - - 6_31_plus_starstar_H_Ar
-          - SBKJC_VDZ_K_Rn
+      SPLIT:
+        - GROUP_NAME: "{basis_set}"
+          basis_set:
+            - 6-31G(d,p)
+            - 6-31G+(d,p)
+            - 6-31G++(d,p)
+            - 6-311G(d,p)
+            - 6-311G+(d,p)
+            - 6-311G+(d,p)
+            - cc-pVDZ
+            - cc-pVTZ
+            - cc-pVQZ
+            - cc-pV5Z
+            - cc-pV6Z
+        - GROUP_NAME: "6-31+G(d,p)/SBKJC-VDZ (ECP)"
+          basis_set:
+            - genECP
+          extended_basis_sets:
+            - - 6_31_plus_starstar_H_Ar
+              - SBKJC_VDZ_K_Rn
+    # Solvents.
+    - GROUP: ['Solvents', '{options[SCRF]}']
+      options: 
+        - {SCRF: Acetonitrile}
+        - {SCRF: Dichloromethane}
+        - {SCRF: Hexane}
+        - {SCRF: Toluene}
+      SPLIT:    
+        - GROUP: ["{functional}"]
+          functional: 
+            - PBE1PBE
+            - B3LYP
+            - M062X
+          SPLIT:
+            - GROUP_NAME: "{basis_set}"
+              basis_set:
+                - 6-31G(d,p)
+                - 6-31G+(d,p)
+                - 6-31G++(d,p)
+                - 6-311G(d,p)
+                - 6-311G+(d,p)
+                - 6-311G+(d,p)
+                - cc-pVDZ
+                - cc-pVTZ
+                - cc-pVQZ
+                - cc-pV5Z
+                - cc-pV6Z
+            - GROUP_NAME: "6-31+G(d,p)/SBKJC-VDZ (ECP)"
+              basis_set:
+                - genECP
+              extended_basis_sets:
+                - - 6_31_plus_starstar_H_Ar
+                  - SBKJC_VDZ_K_Rn
+
     
 # Config for a gaussian calculation.
 CLASS: Gaussian-DFT
@@ -53,7 +90,7 @@ num_CPUs: 32
 memory: 8GB
 
 # Basis set.
-basis_set: 6-31G(d,p)
+#basis_set: 6-31G(d,p)
 
 # If True, a formated checkpoint file (.fchk) will be created automatically after the calculation has finished.
 convert_chk: True
@@ -119,7 +156,7 @@ options:
 
     # This option controls which density to use with the Population option. 'Current' is generally what you want, but alternatives may be required for eg MP2.
     #Density: Current
-    Density: ""
+    Density: Current
 
     # Specifies that atom connectivity is found in the input file (which is the case for GaussView).
 #    Geometry: Connectivity

@@ -1,13 +1,14 @@
-from silico.submit import Configurable_target, Memory
 import getpass
 from pathlib import Path
-from silico.exception.base import Submission_error
-from silico.file.babel import Openbabel_converter
 from logging import getLogger
-import silico
 import copy
+import silico
+
 from silico.submit.structure.flag import Flag
 from silico.config.configurable import Configurable
+from silico.exception.base import Submission_error
+from silico.file.babel import Openbabel_converter
+from silico.submit import Configurable_target, Memory
 
 class Calculation_target(Configurable_target):
 	"""
@@ -17,10 +18,27 @@ class Calculation_target(Configurable_target):
 	# A list of strings describing the expected input file types (file extensions) for calculations of this class. The first item of this list will be passed to obabel via the -o flag. 
 	INPUT_FILE_TYPES = []
 	
-	def __init__(
+	def __init__(self, *args, **kwargs):
+		super().__init__(*args, **kwargs)
+		# Next is a linked list of Calculation_targets. We will call submit() on next once this object has been submitted.
+		self.next = None
+		self.name = None
+	
+	def post_init(self, silico_options, **kwargs):
+		# Deep copy silico_options (because we're going to merge it).
+		silico_options = copy.deepcopy(silico_options)
+		
+		# If specific silico options were given in our config, merge them with the global options.
+		if 'silico_options' in self:
+			silico_options = self.merge_dict(self['silico_options'], silico_options)
+					
+		self['silico_options'] = silico_options
+		
+		super().post_init(**kwargs)
+
+	def _post_init(
 			self,
-			program = None,
-			*args,
+			*,
 			programs,
 			num_CPUs = None,
 			memory = None,
@@ -31,9 +49,8 @@ class Calculation_target(Configurable_target):
 			available_basis_sets,
 			**kwargs
 		):
-		super().__init__(*args, **kwargs)
+		super()._post_init(**kwargs)
 		self.programs = programs
-		self.program = program
 		self.memory = Memory(memory) if memory is not None else None
 		self.num_CPUs = num_CPUs
 		default_scratch_options = {
@@ -49,9 +66,7 @@ class Calculation_target(Configurable_target):
 		self.write_report = write_report if write_report is not None else True
 		self.silico_options = silico_options
 		self.available_basis_sets = available_basis_sets
-		# Next is a linked list of Calculation_targets. We will call submit() on next once this object has been submitted.
-		self.next = None
-		self.name = None
+		
 		
 	@classmethod	
 	def prepare_list(self, calculation_list):
@@ -129,34 +144,33 @@ class Calculation_target(Configurable_target):
 		"""
 		# Set.
 		self._num_CPUs = value
-				
-		
-	@classmethod
-	def from_config(self, config, *, silico_options, available_basis_sets, **kwargs):
-		"""
-		Get a Configurable_target object from a config dict.
-		
-		Unlike other configurable targets, the from_config() method of Calculation_targets takes an addition, keyword argument.
-		This argument is a config dictionary of all silico options. It will be merged with the 'silico_options' key in config, so each calculation can overwrite certain options if desired.
-		This is useful, for example, for specifying an alternative alignment method for analysis for some calculations but not others.
-		
-		:param config: The config dict to load from.
-		:param silico_options: A config dict containing all config options for configuring silico.
-		:param available_basis_sets: A list of configured Basis_set targets.
- 		"""
-		# Deep copy both config and silico_options (because we're going to merge them).
-		config = copy.deepcopy(config)
-		silico_options = copy.deepcopy(silico_options)
-		
-		# Merge silico_options if given in the specific calc config.
-		if config.get('silico_options') is not None:
-			silico_options = Configurable.merge_dict( config.get('silico_options'), silico_options)
-			
-		# Clone our config so we don't permanently overwrite something.
-		config['silico_options'] = silico_options
-		
-		# Continue as normal.
-		return super().from_config(config, available_basis_sets = available_basis_sets, **kwargs) 
+	
+# 	@classmethod
+# 	def from_config(self, config, *, silico_options, available_basis_sets, **kwargs):
+# 		"""
+# 		Get a Configurable_target object from a config dict.
+# 		
+# 		Unlike other configurable targets, the from_config() method of Calculation_targets takes an addition, keyword argument.
+# 		This argument is a config dictionary of all silico options. It will be merged with the 'silico_options' key in config, so each calculation can overwrite certain options if desired.
+# 		This is useful, for example, for specifying an alternative alignment method for analysis for some calculations but not others.
+# 		
+# 		:param config: The config dict to load from.
+# 		:param silico_options: A config dict containing all config options for configuring silico.
+# 		:param available_basis_sets: A list of configured Basis_set targets.
+#  		"""
+# 		# Deep copy both config and silico_options (because we're going to merge them).
+# 		config = copy.deepcopy(config)
+# 		silico_options = copy.deepcopy(silico_options)
+# 		
+# 		# Merge silico_options if given in the specific calc config.
+# 		if config.get('silico_options') is not None:
+# 			silico_options = Configurable.merge_dict( config.get('silico_options'), silico_options)
+# 			
+# 		# Clone our config so we don't permanently overwrite something.
+# 		config['silico_options'] = silico_options
+# 		
+# 		# Continue as normal.
+# 		return super().from_config(config, available_basis_sets = available_basis_sets, **kwargs) 
 		
 	@property
 	def program(self):
@@ -193,7 +207,7 @@ class Calculation_target(Configurable_target):
 		"""
 		Get a name that describes the calculation and file together.
 		"""
-		return "{} {}".format(self.name, self._NAME)
+		return "{} {}".format(self.name, self.NAME)
 	
 	def submit_from_file(self, output, input_file_path, *, convert = "auto", gen3D = None):
 		"""

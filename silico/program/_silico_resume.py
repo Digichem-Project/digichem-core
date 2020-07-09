@@ -73,14 +73,15 @@ def main():
 	numpy.seterr(invalid = 'raise', divide = 'raise')
 	
 	# ----- Program begin -----
-	return silico.program.main_wrapper(
-		_main,
-		method = method,
-		arg_parser = parser,
-	)
+# 	return silico.program.main_wrapper(
+# 		_main,
+# 		method = method,
+# 		arg_parser = parser,
+# 	)
+	return silico.program.run(_main, method = method)
 
 
-def _main(args, config, logger, method):
+def _main(method):
 	"""
 	Main entry point for the resume program.
 	"""

@@ -25,7 +25,6 @@ import argparse
 from pathlib import Path
 import readline
 import shlex
-from logging import getLogger
 import textwrap
 
 # Silico imports.
@@ -37,6 +36,7 @@ from silico.submit.basis import *
 from silico.exception import Silico_exception, Configurable_exception
 from silico.exception.uncatchable import Submission_paused
 from silico.misc.node_printer import Node_printer, Node
+import silico.misc.tree
 
 
 # Printable name of this program.
@@ -48,58 +48,6 @@ USAGE = """%(prog)s [options] -i
    or: %(prog)s [options] file.com [file2.com ...] -c method/program/calc [method2/program2/calc2 ...]"""
 
 
-# def _group_to_list(grouped, config):
-# 	"""
-# 	"""
-# 	groups = config.GROUP if len(config.GROUP) != 0 else None
-# 
-# def _assemble_targets(number, target, possible_children = []):
-# 	"""
-# 	
-# 	:param number: Unique number/index
-# 	:param possible_children: A tuple of lists of Programs, Calculations.
-# 	"""
-# 	# Get our descriptive string.
-# 	target_string = "{} ".format(target.NAME if target.GROUP_NAME is None else target.GROUP_NAME)
-# 	
-# 	# For methods, try and append info.
-# 	if isinstance(target, Method_target):
-# 		try:			
-# 			target_string += " ({})".format(target.status)
-# 		except Exception:
-# 			getLogger(silico.logger_name).debug("Failed to retrieve status for method '{}'".format(target.NAME), exc_info = True)
-# 	
-# 	if len(possible_children) > 0:
-# 		# Get children (filter out ones that aren't actually children).
-# 		children = []
-# 		
-# 		# First, group our children.
-# 		grouped = {}
-# 		for child_number, child in target.get_children(possible_children[0]):
-# 			#child.grouped(grouped, number = child_number+1)
-# 			
-# 			group = tuple(child.GROUP) if len(child.GROUP) > 0 else None
-# 			try:
-# 				grouped[" ".join(child.GROUP)].append((child_number+1, child))
-# 			except KeyError:
-# 				grouped[" ".join(child.GROUP)] = [(child_number+1, child)]
-# 			
-# 		# Now iterate through and append.
-# 		for group, grouped_children in grouped.items():
-# 			# If there is no group, just add straight to our list.
-# 			if group is None:
-# 				children.extend([_assemble_targets(child_number, child, possible_children[1:]) for (child_number, child) in grouped_children])
-# 			else:
-# 				# Add together.
-# 				children.append(
-# 					(None, group, [_assemble_targets(child_number, child, possible_children[1:]) for (child_number, child) in grouped_children])
-# 					)
-# 	else:
-# 		children = []
-# 	
-# 	# Done.
-# 	return (number, target_string, children)
-
 def _list(methods, programs, calculations, all = False):
 	"""
 	Helper function that list all known calculations.
@@ -110,10 +58,7 @@ def _list(methods, programs, calculations, all = False):
 	print('\033[1m' + "-" * 80 + '\033[0m')
 	print('\033[1m' + " " * 27 +"Available Calculations:" + '\033[0m')
 	print('\033[1m' + "-" * 80 + '\033[0m')
-	
-	
-	
-	print(Node_printer([_assemble_targets(index+1, method, [programs, calculations]) for index, method in enumerate(methods)]).get(all = all))
+	print(Node_printer((top_node,)).get(all = all))
 	print("-" * 80)
 	print("Calculations are selected by specifying the 3 relevant numbers separated by a slash (eg, 1/1/1)")
 	print("The first two numbers default to '1' if not given, so '3' and '1/3' are equivalent to '1/1/3'")
@@ -138,23 +83,28 @@ def _parse_calc_string(calc_string, methods, programs, calculations):
 	# We parse backwards.
 	# The final part is the calculation.
 	if len(split_string) > 0:
-		calculation = Calculation_target.from_name_in_list(split_string[-1], calculations)
+		#calculation = Calculation_target.from_name_in_list(split_string[-1], calculations)
+		calculation = calculations.get_config(split_string[-1])
 	else:
 		raise Silico_exception("'{}' is not a valid calculation identifier".format(calc_string))
 	
 	if len(split_string) > 1:
-		program = Program_target.from_name_in_list(split_string[-2], programs)
+		#program = Program_target.from_name_in_list(split_string[-2], programs)
+		program = programs.get_config(split_string[-2])
 	else:
 		try:
-			program = Program_target.from_name_in_list(calculation.programs[0], programs)
+			#program = Program_target.from_name_in_list(calculation.programs[0], programs)
+			program = programs.get_config(calculation.programs[0])
 		except IndexError:
 			raise Configurable_exception(calculation, "calculation has no programs set")
 		
 	if len(split_string) > 2:
-		method = Method_target.from_name_in_list(split_string[-3], methods)
+		#method = Method_target.from_name_in_list(split_string[-3], methods)
+		method = methods.get_config(split_string[-3])
 	else:
 		try:
-			method = Method_target.from_name_in_list(program.methods[0], methods)
+			#method = Method_target.from_name_in_list(program.methods[0], methods)
+			method = methods.get_config(program.methods[0])
 		except IndexError:
 			raise Configurable_exception(program, "program has no methods set")
 		
@@ -202,10 +152,9 @@ def _main(args, config, logger):
 	
 	# Load our calculation definitions.
 	try:
-		known_methods = Method_target.list_from_configs(config.methods)
-		known_programs = Program_target.list_from_configs(config.programs)
-		known_basis_sets = Extended_basis_set.list_from_configs(config.basis_sets)
-		known_calculations = Calculation_target.list_from_configs(config.calculations, silico_options = config, available_basis_sets = known_basis_sets)
+		known_methods = config.methods
+		known_programs = config.programs
+		known_calculations = config.calculations
 	except Exception:
 		raise Silico_exception("Failed to load calculations")
 		#logger.error("Failed to load calculations", exc_info = True)
@@ -257,9 +206,10 @@ def _main(args, config, logger):
 		
 		# Ask the user for calcs.
 		# List known calculations.
-		_list(known_methods, known_programs, known_calculations, all = full_list)
+		#_list(known_methods, known_programs, known_calculations, all = full_list)
 		# And get.
-		args.calculations = shlex.split(_get_input("Calculations{}: ".format(" (hit ENTER for more)" if not full_list else " ")))
+		#args.calculations = shlex.split(_get_input("Calculations{}: ".format(" (hit ENTER for more)" if not full_list else " ")))
+		args.calculations = shlex.split(silico.misc.tree.run(Node.from_list((known_methods, known_programs, known_calculations))))
 		
 		# If we go around again, we'll print the full list.
 		full_list = not full_list
