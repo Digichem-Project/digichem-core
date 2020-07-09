@@ -125,6 +125,7 @@ class Silico_options(Config):
 		self.__deepcopy__ = None
 		
 		new = deepcopy(self, memo)
+
 		
 		# Restore.
 		self.methods = methods
