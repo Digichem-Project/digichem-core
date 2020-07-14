@@ -63,6 +63,7 @@ def main():
 	output_group.add_argument("--pdf_file", help = "a filename/path to a pdf file to write to (this is an alternative to the 'output' option). Other output files will placed in the same directory as the 'pdf_file'", nargs = "?", default = None)
 	output_group.add_argument("-o", "--output", help = "a filename/path to write to. If this filename ends in a .pdf extension, this is taken as the filename of the pdf file to write to. Otherwise, output is assumed to be the name of a directory and the pdf file is written inside this directory", nargs = "?", type = Path, default = None)
 	
+	parser.add_argument("--name", help = "name of the molecule/system to use in the report", default = None)
 	parser.add_argument("--type", help = "the type of report to make", choices = ["full", "atoms"], default = "full")
 	parser.add_argument("-v", "--version", action = "version", version = str(silico.version))
 	
@@ -108,6 +109,7 @@ def _main(args, config, logger):
 	try:
 		report = PDF_report.from_calculation_files(
 			*args.calculation_files,
+			name = args.name,
 			gaussian_log_file = args.log_file,
 			chk_file_path = args.chk_file,
 			fchk_file_path = args.fchk_file,
