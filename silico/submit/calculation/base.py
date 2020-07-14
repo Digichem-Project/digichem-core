@@ -328,6 +328,7 @@ class Calculation_target(Configurable_target):
 			self._submit_proper()
 		except Exception:
 			self.program.method.calc_dir.set_flag(Flag.DONE)
+			raise
 		
 	def _submit_proper(self):
 		"""
