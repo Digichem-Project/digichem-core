@@ -56,7 +56,7 @@ class Resumable_method():
 		
 	def resume(self):
 		"""
-		The second part of the 'resume' mechanism, resume() is called after the pick file has been re-loaded. Execution should continue from here.
+		The second part of the 'resume' mechanism, resume() is called after the pickle file has been re-loaded. Execution should continue from here.
 		"""
 		self._resumed = True
 		
