@@ -99,6 +99,7 @@ class Report(Result_set):
 	def from_calculation_files(
 			self,
 			*input_files,
+			name = None,
 			gaussian_log_file = None,
 			chk_file_path = None,
 			fchk_file_path = None,
@@ -174,7 +175,7 @@ class Report(Result_set):
 		return super().from_calculation_file(
 			files[file_types.gaussian_log_file],
 			gaussian_log_file = files[file_types.gaussian_log_file],
-			name = files[file_types.gaussian_log_file],
+			name = files[file_types.gaussian_log_file] if name is None else name,
 			chk_file_path = files[file_types.gaussian_chk_file],
 			fchk_file_path = files[file_types.gaussian_fchk_file],
 			alignment_class_name = options['alignment'] if alignment_class_name is None else alignment_class_name,

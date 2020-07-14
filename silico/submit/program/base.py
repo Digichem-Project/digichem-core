@@ -7,7 +7,9 @@ from silico.extract.csv import Long_CSV_group_extractor
 from silico.extract.long import Atoms_long_extractor, Orbitals_long_extractor,\
 	Beta_long_extractor, SCF_long_extractor, MP_long_extractor, CC_long_extractor,\
 	Excited_state_long_extractor, Excited_state_transitions_long_extractor,\
-	TDM_long_extractor, Vibrations_long_extractor
+	TDM_long_extractor, Vibrations_long_extractor,\
+	Absorption_spectrum_long_extractor, Absorption_energy_spectrum_long_extractor,\
+	IR_spectrum_long_extractor
 from logging import getLogger
 from timeit import default_timer as timer
 import datetime
@@ -19,10 +21,10 @@ class Program_target(Configurable_target):
 	Top-level class for classes that implement submission to a calculation program.
 	"""
 	
-	def __init__(self, method = None , *args, methods, **kwargs):
-		super().__init__(*args, **kwargs)
+	def _post_init(self, *, methods, **kwargs):
+		super()._post_init(**kwargs)
 		self.methods = methods
-		self.method = method
+		self.method = None
 		
 	@property
 	def method(self):
@@ -279,28 +281,31 @@ class Program_target(Configurable_target):
 			pass
 		
 		# First, write a text summary.
-		Text_summary_group_extractor(ignore = True).write_single(self.result, Path(self.method.calc_dir.result_directory, self.calculation.name +".summary"))
+		Text_summary_group_extractor(ignore = True, config = self.calculation.silico_options).write_single(self.result, Path(self.method.calc_dir.result_directory, self.calculation.name +".summary"))
 		
 		# Atoms.
-		Long_CSV_group_extractor(Atoms_long_extractor(ignore = True)).write_single(self.result, Path(self.method.calc_dir.result_directory, self.calculation.name + ".atoms.csv"))
+		Long_CSV_group_extractor(Atoms_long_extractor(ignore = True, config = self.calculation.silico_options)).write_single(self.result, Path(self.method.calc_dir.result_directory, self.calculation.name + ".atoms.csv"))
 		
 		# Alpha. We'll use a different file name depending on whether we are restricted or unrestricted.
-		Long_CSV_group_extractor(Orbitals_long_extractor(ignore = True)).write_single(self.result, Path(self.method.calc_dir.result_directory, self.calculation.name + ".{}.csv".format("orbitals" if self.result.metadata.orbital_spin_type == "restricted" else "alpha")))
+		Long_CSV_group_extractor(Orbitals_long_extractor(ignore = True, config = self.calculation.silico_options)).write_single(self.result, Path(self.method.calc_dir.result_directory, self.calculation.name + ".{}.csv".format("orbitals" if self.result.metadata.orbital_spin_type == "restricted" else "alpha")))
 		# And beta (which can only be for unrestricted.
-		Long_CSV_group_extractor(Beta_long_extractor(ignore = True)).write_single(self.result, Path(self.method.calc_dir.result_directory, self.calculation.name + ".beta.csv"))
+		Long_CSV_group_extractor(Beta_long_extractor(ignore = True, config = self.calculation.silico_options)).write_single(self.result, Path(self.method.calc_dir.result_directory, self.calculation.name + ".beta.csv"))
 		
 		# Energies.
-		Long_CSV_group_extractor(SCF_long_extractor(ignore = True)).write_single(self.result, Path(self.method.calc_dir.result_directory, self.calculation.name + ".SCF.csv"))
-		Long_CSV_group_extractor(MP_long_extractor(ignore = True)).write_single(self.result, Path(self.method.calc_dir.result_directory, self.calculation.name + ".MP.csv"))
-		Long_CSV_group_extractor(CC_long_extractor(ignore = True)).write_single(self.result, Path(self.method.calc_dir.result_directory, self.calculation.name + ".CC.csv"))
+		Long_CSV_group_extractor(SCF_long_extractor(ignore = True, config = self.calculation.silico_options)).write_single(self.result, Path(self.method.calc_dir.result_directory, self.calculation.name + ".SCF.csv"))
+		Long_CSV_group_extractor(MP_long_extractor(ignore = True, config = self.calculation.silico_options)).write_single(self.result, Path(self.method.calc_dir.result_directory, self.calculation.name + ".MP.csv"))
+		Long_CSV_group_extractor(CC_long_extractor(ignore = True, config = self.calculation.silico_options)).write_single(self.result, Path(self.method.calc_dir.result_directory, self.calculation.name + ".CC.csv"))
 		
 		# Excited states.
-		Long_CSV_group_extractor(Excited_state_long_extractor(ignore = True)).write_single(self.result, Path(self.method.calc_dir.result_directory, self.calculation.name + ".ES.csv"))
-		Long_CSV_group_extractor(Excited_state_transitions_long_extractor(ignore = True)).write_single(self.result, Path(self.method.calc_dir.result_directory, self.calculation.name + ".transitions.csv"))
-		Long_CSV_group_extractor(TDM_long_extractor(ignore = True)).write_single(self.result, Path(self.method.calc_dir.result_directory, self.calculation.name + ".TDM.csv"))
+		Long_CSV_group_extractor(Excited_state_long_extractor(ignore = True, config = self.calculation.silico_options)).write_single(self.result, Path(self.method.calc_dir.result_directory, self.calculation.name + ".ES.csv"))
+		Long_CSV_group_extractor(Excited_state_transitions_long_extractor(ignore = True, config = self.calculation.silico_options)).write_single(self.result, Path(self.method.calc_dir.result_directory, self.calculation.name + ".transitions.csv"))
+		Long_CSV_group_extractor(TDM_long_extractor(ignore = True, config = self.calculation.silico_options)).write_single(self.result, Path(self.method.calc_dir.result_directory, self.calculation.name + ".TDM.csv"))
+		Long_CSV_group_extractor(Absorption_spectrum_long_extractor(ignore = True, config = self.calculation.silico_options)).write_single(self.result, Path(self.method.calc_dir.result_directory, self.calculation.name + ".UV-Vis.csv"))
+		Long_CSV_group_extractor(Absorption_energy_spectrum_long_extractor(ignore = True, config = self.calculation.silico_options)).write_single(self.result, Path(self.method.calc_dir.result_directory, self.calculation.name + ".absorptions.csv"))
 		
 		# And vibrations.
-		Long_CSV_group_extractor(Vibrations_long_extractor(ignore = True)).write_single(self.result, Path(self.method.calc_dir.result_directory, self.calculation.name + ".vibrations.csv"))
+		Long_CSV_group_extractor(Vibrations_long_extractor(ignore = True, config = self.calculation.silico_options)).write_single(self.result, Path(self.method.calc_dir.result_directory, self.calculation.name + ".vibrations.csv"))
+		Long_CSV_group_extractor(IR_spectrum_long_extractor(ignore = True, config = self.calculation.silico_options)).write_single(self.result, Path(self.method.calc_dir.result_directory, self.calculation.name + ".IR.csv"))
 		
 	def write_report_files(self):
 		"""

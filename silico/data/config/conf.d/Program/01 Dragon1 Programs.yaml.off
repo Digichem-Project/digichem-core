@@ -1,12 +1,12 @@
 ---
-CONFIG_TYPE: submit_programs
+TYPE: program
 
 # Config for a Gaussian submission
-CONFIG_NAME: Gaussian 09
-CONFIG_ALIAS: [g09]
+NAME: Gaussian 09
+ALIAS: [g09]
 
 # The name of the program this config is for. These are pre-built into silico.
-class_handle: gaussian
+CLASS: gaussian
 
 # These are the methods that this program is compatible with.
 methods:
@@ -26,14 +26,14 @@ gaussian_root: /usr/local/gaussian/G09_D01
 gaussian_init_file: /usr/local/gaussian/G09_D01/g09/bsd/g09.profile
 
 ---
-CONFIG_TYPE: submit_programs
+TYPE: program
 
 # Config for a Gaussian submission
-CONFIG_NAME: Gaussian 16
-CONFIG_ALIAS: [g16]
+NAME: Gaussian 16
+ALIAS: [g16]
 
 # The name of the program this config is for. These are pre-built into silico.
-class_handle: gaussian
+CLASS: gaussian
 
 # These are the methods that this program is compatible with.
 methods:

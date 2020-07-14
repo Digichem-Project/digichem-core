@@ -1,13 +1,13 @@
 # Dragon 2 won't let us load both G09 and G16 simultaneously.
 # ---
-# CONFIG_TYPE: submit_programs
+# TYPE: program
 # 
 # # Config for a Gaussian submission
-# CONFIG_NAME: Gaussian 09
-# CONFIG_ALIAS: [g09]
+# NAME: Gaussian 09
+# ALIAS: [g09]
 # 
 # # The name of the program this config is for. These are pre-built into silico.
-# class_handle: gaussian
+# CLASS: gaussian
 # 
 # # These are the methods that this program is compatible with.
 # methods:
@@ -28,14 +28,14 @@
 
 
 ---
-CONFIG_TYPE: submit_programs
+TYPE: program
 
 # Config for a Gaussian submission
-CONFIG_NAME: Gaussian 16
-CONFIG_ALIAS: [g16]
+NAME: Gaussian 16
+ALIAS: [g16]
 
 # The name of the program this config is for. These are pre-built into silico.
-class_handle: gaussian
+CLASS: gaussian
 
 # These are the methods that this program is compatible with.
 methods:

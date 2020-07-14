@@ -1,12 +1,12 @@
 
 ---
-CONFIG_TYPE: submit_basis_sets
+TYPE: basis_set
 
-CONFIG_NAME: SBKJC-VDZ for K to Rn
-CONFIG_ALIAS: [SBKJC_VDZ_K_Rn]
+NAME: SBKJC-VDZ for K to Rn
+ALIAS: [SBKJC_VDZ_K_Rn]
 
 # Basis set for gaussian calculation.
-class_handle: Gaussian
+CLASS: gaussian_basis
 
 basis_set: |
     !----------------------------------------------------------------------

@@ -1,12 +1,12 @@
 
 ---
-CONFIG_TYPE: submit_basis_sets
+TYPE: basis_set
 
-CONFIG_NAME: 6-31+G(d,p) for H to Ar
-CONFIG_ALIAS: [6_31_plus_starstar_H_Ar]
+NAME: 6-31+G(d,p) for H to Ar
+ALIAS: [6_31_plus_starstar_H_Ar]
 
 # Basis set for gaussian calculation.
-class_handle: Gaussian
+CLASS: gaussian_basis
 
 basis_set: |
     !----------------------------------------------------------------------

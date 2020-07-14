@@ -1,7 +1,9 @@
-<%page args="atoms"/>
+<%page args="atoms, title = True"/>
 
 <div class="section section--fullPage">
+	%if title:
 	<h2 class="section__header">Table of Atoms</h2>
+	%endif
 	<div class="section__body section__body--table">
 		<div class="tableBorder">
 			<table class="table">

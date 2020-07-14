@@ -96,7 +96,13 @@ class PDF_report(HTML_report):
 			# Get our header and footer.
 			header_body = self._compute_overlay_element('/page/page_header.mako')
 			footer_body = self._compute_overlay_element('/page/page_footer.mako', prog_version = self.prog_version, page_number = page_number +1, pages = len(main_doc.pages))
-
+			
+			# Disable header and footer fot atoms mini-reports (for now).
+			
+			if self.report_type == "atoms":
+				header_body = None
+				footer_body = None
+				
 			if header_body is not None:
 				page_body.children += header_body.all_children()
 			if footer_body is not None:

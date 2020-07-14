@@ -6,9 +6,11 @@ from collections import OrderedDict
 from silico.extract import Result_extractor_group
 import silico.extract
 from silico.misc import Layered_dict
-from silico.exception.base import Result_unavailable_error
+from silico.exception.base import Result_unavailable_error, Silico_exception
 from silico.result.angle import Angle
-from silico.image.spectroscopy import Absorption_graph_maker
+from silico.result.spectroscopy import Absorption_emission_graph,\
+	Spectroscopy_graph
+
 
 class Long_tabular_group_extractor(Result_extractor_group):
 	"""
@@ -339,21 +341,82 @@ class Excited_state_transitions_long_extractor(Long_table_extractor):
 			"Probability": transition.probability
 		})
 		
-# class Absorption_graph_long_extractor():
-# 	"""
-# 	Extractor for simulated absorption graphs
-# 	"""
-# 	CLASS_HANDLE = ["ABS", "absorption", "absorption_graph"]
-# 	
-# 	def _extract(self, result):
-# 		"""
-# 		Extract a result set.
-# 		
-# 		"""
-# 		# First, lets get our spectrum!
-# 		Absorption_graph_maker(output, excited_states, peak_cutoff, max_width)
+class Absorption_spectrum_long_extractor(Long_table_extractor):
+	"""
+	Extractor for simulated absorption graphs
+	"""
+	CLASS_HANDLE = ["ABS", "absorption", "absorption_graph"]
+	LIST_NAME = "absorptions"
+	
+	def _get_list(self, result):
+		"""
+		Method called to get the list over which this object will extract.
+		"""
+		try:
+			# First, lets get our spectrum!
+			spectrum = Absorption_emission_graph.from_excited_states(result.excited_states, use_jacobian = self.config['absorption_spectrum']['use_jacobian'])
+			
+			return [(energy, intensity) for energy, intensity in spectrum.plot_cumulative_gaussian(self.config['absorption_spectrum']['fwhm'], self.config['absorption_spectrum']['gaussian_resolution'], self.config['absorption_spectrum']['gaussian_cutoff'])]
+		except Silico_exception:
+			# No values to plot.
+			return []
+	
+	def _extract_item(self, index, coord):
+		"""
+		Convert a coordinate to an OrderedDict.
+		"""
+		return OrderedDict({'Wavelength /nm': coord[0], 'Intensity': coord[1]})
+	
+class Absorption_energy_spectrum_long_extractor(Long_table_extractor):
+	"""
+	Extractor for simulated absorption graphs
+	"""
+	CLASS_HANDLE = ["ABSE", "absorption_energy", "absorption_energy_graph"]
+	LIST_NAME = "absorptions"
+	
+	def _get_list(self, result):
+		"""
+		Method called to get the list over which this object will extract.
+		"""
+		try:
+			# First, lets get our spectrum!
+			spectrum = Spectroscopy_graph([(excited_state.energy, excited_state.oscillator_strength) for excited_state in result.excited_states])
+			
+			return [(energy, intensity) for energy, intensity in spectrum.plot_cumulative_gaussian(self.config['absorption_spectrum']['fwhm'], self.config['absorption_spectrum']['gaussian_resolution'], self.config['absorption_spectrum']['gaussian_cutoff'])]
+		except Silico_exception:
+			# No values to plot.
+			return []
+	
+	def _extract_item(self, index, coord):
+		"""
+		Convert a coordinate to an OrderedDict.
+		"""
+		return OrderedDict({'Energy /eV': coord[0], 'Oscillator Strength': coord[1]})
+
 		
-		
-		
-		
+class IR_spectrum_long_extractor(Long_table_extractor):
+	"""
+	Extractor for simulated IR spectra
+	"""
+	CLASS_HANDLE = ["IR", "infrared"]
+	LIST_NAME = "vibrations"
+	
+	def _get_list(self, result):
+		"""
+		Method called to get the list over which this object will extract.
+		"""
+		try:
+			# First, lets get our spectrum!
+			spectrum = Spectroscopy_graph.from_vibrations(result.vibrations)
+			
+			return [(energy, intensity) for energy, intensity in spectrum.plot_cumulative_gaussian(self.config['IR_spectrum']['fwhm'], self.config['IR_spectrum']['gaussian_resolution'], self.config['IR_spectrum']['gaussian_cutoff'])]
+		except Silico_exception:
+			# No values to plot.
+			return []
+	
+	def _extract_item(self, index, coord):
+		"""
+		Convert a coordinate to an OrderedDict.
+		"""
+		return OrderedDict({'Frequency /cm-1': coord[0], 'Intensity /km mol-1': coord[1]})
 	

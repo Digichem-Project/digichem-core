@@ -7,12 +7,10 @@ class Calculation_series(Calculation_target):
 	
 	CLASS_HANDLE = ["Series"]
 	
-	def __init__(self, 
-		*args,
+	def _post_init(self, 
+		*,
 		calculations,
-		configs,
-		silico_options,
-		available_basis_sets,
+		CONFIGS,
 		**kwargs
 	):
 		"""
@@ -22,8 +20,9 @@ class Calculation_series(Calculation_target):
 		
 		:param calculations: A list of config IDs which are the calculations this series represents.
 		"""
-		super().__init__(*args, configs = configs, silico_options = silico_options, available_basis_sets = available_basis_sets, **kwargs)
-		self.calculations = [Calculation_target.from_name_in_configs(calculation_name, configs, silico_options = silico_options, available_basis_sets = available_basis_sets) for calculation_name in calculations]
+		super()._post_init(CONFIGS = CONFIGS, **kwargs)
+		self.calculation_IDs = calculations
+		self.calculations = CONFIGS
 		
 		
 	def prepare(self):
@@ -34,4 +33,5 @@ class Calculation_series(Calculation_target):
 		
 		:return: A list of ready-to-go calculation targets.
 		"""
-		return self.calculations
+		#self.calculations = [Calculation_target.from_name_in_configs(calculation_name, configs, silico_options = silico_options, available_basis_sets = available_basis_sets) for calculation_name in calculations]
+		return [self.calculations.get_config(ID) for ID in self.calculation_IDs]

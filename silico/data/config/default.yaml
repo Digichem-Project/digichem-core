@@ -202,6 +202,10 @@ IR_spectrum:
     # IR spectra will grow/shrink their width to fit available data, keeping a constant scale (constant pixels to nm ratio) but only up to this maximum.
     # To disable the maximum width, set to null.
     max_width: 1500
+    # The minimum y value to plot using the Gaussian function (controls how close to the x axis we draw the gaussian) as a fraction of the max peak height.
+    gaussian_cutoff: 0.001
+    # The spacing between x values to plot using the Gaussian function, in eV. Values that are too large will result in 'curves' made up of a series of straight edges.
+    gaussian_resolution: 1
 
 # Options for controlling the generation of calculation reports.
 report:
@@ -267,7 +271,3 @@ report:
         # The maximum number of frequencies to show in the table.
         max_num: null
       
-submit_methods: []
-submit_programs: []
-submit_calculations: []
-submit_basis_sets: []

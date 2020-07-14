@@ -31,6 +31,7 @@ import silico.program
 from silico.submit.method import *
 from silico.submit.program import *
 from silico.submit.calculation import *
+from silico.submit.basis import *
 from silico.exception.uncatchable import Submission_paused
 from silico.exception.base import Silico_exception
 
@@ -66,7 +67,6 @@ def main():
 		getLogger(silico.logger_name).error("Failed to delete pickle file", exc_info = True)
 		
 	# Set program stuff.
-	#silico.program.init_logger(silico.logger_name)
 	silico.program.init_from_config(getLogger(silico.logger_name), method.program.calculation.silico_options)
 	silico.program.init_signals(getLogger(silico.logger_name))
 	
@@ -74,14 +74,15 @@ def main():
 	numpy.seterr(invalid = 'raise', divide = 'raise')
 	
 	# ----- Program begin -----
-	return silico.program.main_wrapper(
-		_main,
-		method = method,
-		arg_parser = parser,
-	)
+# 	return silico.program.main_wrapper(
+# 		_main,
+# 		method = method,
+# 		arg_parser = parser,
+# 	)
+	return silico.program.run(_main, method = method)
 
 
-def _main(args, config, logger, method):
+def _main(method):
 	"""
 	Main entry point for the resume program.
 	"""
