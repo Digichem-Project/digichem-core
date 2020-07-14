@@ -24,6 +24,7 @@ class HTML_report(Report):
 		self.template_dir = self.default_template_directory
 		self.src_static_dir = self.default_src_static_directory
 		self.report_html_file = None
+		self.report_type = None
 	
 	@property
 	def default_template_directory(self):
@@ -48,13 +49,13 @@ class HTML_report(Report):
 		self.static_dir = Path(self.report_html_file.parents[0], "static")
 		
 		# The type of report.
-		report_type = report_type if report_type is not None else "full"
-		if report_type == "full":
+		self.report_type = report_type if report_type is not None else "full"
+		if self.report_type == "full":
 			report_template = self.FULL_REPORT_NAME
-		elif report_type == "atoms":
+		elif self.report_type == "atoms":
 			report_template = self.ATOMS_REPORT_NAME
 		else:
-			raise TypeError("Unknown report type '{}'".format(report_type))
+			raise TypeError("Unknown report type '{}'".format(self.report_type))
 		
 		# Now get and load our template.
 		template_body = TemplateLookup(directories = str(self.template_dir)).get_template("/report/{}".format(report_template)).render_unicode(result = self)
