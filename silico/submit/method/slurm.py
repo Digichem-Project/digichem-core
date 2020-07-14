@@ -22,31 +22,6 @@ class SLURM(Method_target, Resumable_method):
 	# The name of the script which we pass to sbatch.
 	SBATCH_SCRIPT_NAME = "sbatch.submit"
 	
-# 	def __init__(
-# 			self,
-# 			*args,
-# 			partition = None,
-# 			time = None,
-# 			num_tasks = None,
-# 			CPUs_per_task = None,
-# 			mem_per_CPU = None,
-# 			sbatch_command = None,
-# 			sinfo_command = None,
-# 			options = None,
-# 			**kwargs
-# 		):
-# 		super().__init__(*args, **kwargs)
-# 		Resumable_method.__init__(self)
-# 		
-# 		self.partition = partition
-# 		self.time = time
-# 		self.num_tasks = num_tasks if num_tasks is not None else 1
-# 		self.CPUs_per_task = CPUs_per_task if CPUs_per_task is not None else "auto"
-# 		self.mem_per_CPU = mem_per_CPU if mem_per_CPU is not None else "auto"
-# 		self.options = options if options is not None else {}
-# 		self.sbatch_command = sbatch_command if sbatch_command is not None else "sbatch"
-# 		self.sinfo_command = sinfo_command if sinfo_command is not None else "sinfo"
-
 	def _post_init(
 			self,
 			*,
@@ -297,20 +272,12 @@ class SLURM(Method_target, Resumable_method):
 		
 		# DEBUGGING ONLY
 		#print("DEBUGGING BREAKPOINT HANDLE")
-		os.chdir("/home/oliver/ownCloud/Chemistry/St. Andrews PhD/Test Molecules/")
+		#os.chdir("/home/oliver/ownCloud/Chemistry/St. Andrews PhD/Test Molecules/")
 		
 		# If we get this far, then we have resumed and can continue as normal.
 		# Delete the pending flag.
 		self.calc_dir.del_flag(Flag.PENDING)
 		
-		# This is not actually true; slurm does not change working dir.
-		# When we resume, our working directory will have changed (to inside the input directory in fact). This means our paths are no longer correct.
-		# Update our directory object.
-		
-		
-
-		
-		#self.calc_dir.molecule_directory.path = "../../"
 		
 		
 		
