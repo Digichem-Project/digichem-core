@@ -31,6 +31,7 @@ import silico.program
 from silico.submit.method import *
 from silico.submit.program import *
 from silico.submit.calculation import *
+from silico.submit.basis import *
 from silico.exception.uncatchable import Submission_paused
 from silico.exception.base import Silico_exception
 
