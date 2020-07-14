@@ -65,8 +65,9 @@ with open(version_file_path, "r") as version_file:
 		if "_last_updated_string = " in line:
 			new_line = '_last_updated_string = "{}"\n'.format(edited_date.strftime("%d/%m/%Y"))
 		else:
+			pass
 			# And our dev label.
-			new_line = line.replace("development = True", "development = False")
+			#new_line = line.replace("development = True", "development = False")
 		
 		# Replace our line.
 		version_file_contents[line_num] = new_line
