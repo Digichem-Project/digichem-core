@@ -140,30 +140,42 @@ class Calculation_directory(Silico_Directory):
 		return Path(str(self) + "/Flags")
 		
 		
-	def set_flag(self, flag):
+	def set_flag(self, flag, safe = True):
 		"""
 		Set a flag file.
 		
 		Possible flags can be found in silico.submit.structure.flag.
 		
 		:param flag: The flag to set (a Flag enum member). If the flag is already set; this is a noop.
+		:param safe: If True, this method will not raise exceptions.
 		"""
 		try:
 			Path(self.flag_directory, flag.name).touch()
 		except Exception:
-			# This is ok.
-			pass
+			if safe:
+				# This is ok.
+				pass
+			else:
+				raise
 		
-	def get_flag(self, flag):
+	def get_flag(self, flag, safe = True):
 		"""
 		Determine whether a flag file has been set or not.
 		
 		Possible flags can be found in silico.submit.structure.flag.
 		
 		:param flag: The flag to check (a Flag enum member).
+		:param safe: If True, this method will not raise exceptions.
 		:return: True if the flag has been set, False otherwise.
 		"""
-		return Path(self.flag_directory, flag.name).exists()
+		try:
+			return Path(self.flag_directory, flag.name).exists()
+		except Exception:
+			if safe:
+				# This is ok.
+				pass
+			else:
+				raise
 	
 	def del_flag(self, flag):
 		"""

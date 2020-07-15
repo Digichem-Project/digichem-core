@@ -4,6 +4,7 @@ import silico
 from silico.exception import Configurable_exception
 from silico.exception.base import Submission_error, Silico_exception
 from silico.submit.calculation import Calculation_target
+import copy
 
 class Gaussian_DFT(Calculation_target):
 	"""
@@ -101,7 +102,7 @@ class Gaussian_DFT(Calculation_target):
 		"""
 		# Assemble our route line.
 		# Add calc keywords.
-		route_parts = self.calculation_keywords
+		route_parts = copy.copy(self.calculation_keywords)
 		
 		# Model chemistry
 		route_parts.append(self.model_chemistry)

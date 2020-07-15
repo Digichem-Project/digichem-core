@@ -1,60 +1,52 @@
 # -*- mode: python ; coding: utf-8 -*-
 
-from PyInstaller.utils.hooks import collect_data_files
+import sys
+from pathlib import Path
+sys.path.insert(0,str(Path("./").resolve()))
 
-block_cipher = None
+from base import binaries, datas
 
-# Weasprint data needs to go in the root for some reason. Thanks to https://stackoverflow.com/questions/29026827/pyinstaller-does-not-include-dependency-file for the hint.
+script = "../../silico/program/_silico_resume.py"
+prog_name = "_silico_resume"
+package_name = "CentOS-6.10"
 
-weasyprint_datas = [(source, dest.split('weasyprint/')[1] if dest != "weasyprint" else ".") for source, dest in collect_data_files('weasyprint')]
+a = Analysis([script],
+			 binaries=binaries,
+			 datas=datas,
+			 # 'pkg_resources.py2_warn' see https://github.com/pypa/setuptools/issues/1963
+			 hiddenimports=['cssselect2', 'tinycss2', 'pkg_resources.py2_warn'],
+			 hookspath=[],
+			 runtime_hooks=[],
+			 excludes=[],
+			 win_no_prefer_redirects=False,
+			 win_private_assemblies=False,
+			 cipher=None,
+			 noarchive=False
+)
 
-datas = weasyprint_datas
-datas.extend(collect_data_files('tinycss2'))
-datas.extend(collect_data_files('cssselect2'))
-datas.extend(collect_data_files('cairocffi'))
-datas.extend(collect_data_files('pyphen'))
-
-# Add silico data files.
-datas.append(('../../silico/data', 'silico/data'))
-
-# Now add extra binary libraries that we need.
-binaries = [
-	("/usr/local/lib/openbabel","openbabel"),
-	("/usr/local/lib/libinchi.so.0", "."),
-	("/lib64/libz.so.1", ".")
-]
-
-a = Analysis(['../../silico/program/_silico_resume.py'],
-             binaries=binaries,
-             datas=datas,
-             # 'pkg_resources.py2_warn' see https://github.com/pypa/setuptools/issues/1963
-             hiddenimports=['cssselect2', 'tinycss2', 'pkg_resources.py2_warn'],
-             hookspath=[],
-             runtime_hooks=[],
-             excludes=[],
-             win_no_prefer_redirects=False,
-             win_private_assemblies=False,
-             cipher=block_cipher,
-             noarchive=False)
 pyz = PYZ(a.pure, a.zipped_data,
-             cipher=block_cipher)
+			 cipher=None
+)
+
 exe = EXE(pyz,
-          a.scripts,
-          [],
-          exclude_binaries=True,
-          name='_silico_resume',
-          debug=False,
-          bootloader_ignore_signals=False,
-          strip=False,
-          upx=True,
-          console=True )
+		a.scripts,
+		[],
+		exclude_binaries=True,
+		name=prog_name,
+		debug=False,
+		bootloader_ignore_signals=False,
+		strip=False,
+		upx=True,
+		console=True
+)
 
 import silico
 coll = COLLECT(exe,
-               a.binaries,
-               a.zipfiles,
-               a.datas,
-               strip=False,
-               upx=True,
-               upx_exclude=[],
-               name='_silico_resume.{}.CentOS-6.10'.format(silico.version) )
+				a.binaries,
+				a.zipfiles,
+				a.datas,
+				strip=False,
+				upx=True,
+				upx_exclude=[],
+				name="{}.{}.{}".format(prog_name, silico.version, package_name)
+)

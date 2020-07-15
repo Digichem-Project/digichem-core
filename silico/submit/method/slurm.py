@@ -259,6 +259,7 @@ class SLURM(Method_target, Resumable_method):
 			except CalledProcessError as e:
 				# Something went wrong.
 				e.__context__ = None
+				
 				raise Submission_error(self, "{} did not exit successfully:\n{}".format(self.sbatch_command, e.stdout)) from e
 			except FileNotFoundError as e:
 				# Couldn't find sbatch.
@@ -266,7 +267,7 @@ class SLURM(Method_target, Resumable_method):
 				raise Submission_error(self, "unable to locate sbatch executable '{}'".format(self.sbatch_command)) from e
 			except Exception as e:
 				raise e from None
-			
+
 			# Continue exiting.
 			raise paused
 		

@@ -2,8 +2,7 @@ import os
 import numpy
 
 from silico.config.configurable import Configurable
-from silico.exception.configurable import Configurable_class_exception,\
-	Configurable_exception
+from silico.exception.configurable import Configurable_exception
 
 class Configurable_target(Configurable):
 	"""

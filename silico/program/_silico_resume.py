@@ -94,8 +94,6 @@ def _main(method):
 		pass
 	except Exception:
 		raise Silico_exception("Error during submission")
-	finally:
-		method.calc_dir.set_flag(Flag.DONE)
 
 
 # If we've been invoked as a program, call main().	
