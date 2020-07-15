@@ -302,8 +302,13 @@ class Calculation_target(Configurable_target):
 		
 		Note the order of submission; which is method -> program -> calculation.
 		"""
-		self.program.submit_pre()
-		self._submit_pre()
+		try:
+			self.program.submit_pre()
+			self._submit_pre()
+		except Exception:
+			self.program.method.calc_dir.set_flag(Flag.ERROR)
+			self.program.method.calc_dir.set_flag(Flag.DONE)
+			raise
 		
 	def _submit_pre(self):
 		"""
@@ -327,6 +332,7 @@ class Calculation_target(Configurable_target):
 			self.program.submit_proper()
 			self._submit_proper()
 		except Exception:
+			self.program.method.calc_dir.set_flag(Flag.ERROR)
 			self.program.method.calc_dir.set_flag(Flag.DONE)
 			raise
 		
@@ -350,8 +356,13 @@ class Calculation_target(Configurable_target):
 		"""
 		try:
 			self.program.submit_post()
+		except Exception:
+			self.program.method.calc_dir.set_flag(Flag.ERROR)
+			raise
 		finally:
 			self.program.method.calc_dir.set_flag(Flag.DONE)
+			
+		# We don't wrap _submit_post() in flags because this method submits the next calculation; any errors that occur relate to the new submission, not this one which has just finished.
 		self._submit_post()
 		
 	def _submit_post(self):
