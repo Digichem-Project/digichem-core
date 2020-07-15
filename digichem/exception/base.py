@@ -110,7 +110,7 @@ class Submission_error(Silico_exception):
 		"""
 		Stringify this error.
 		"""
-		return "Error submitting file '{}' to '{}/{}/{}'; {}".format(self.file_name, self.calculation.program.method._NAME, self.calculation.program._NAME, self.calculation._NAME, self.reason)
+		return "Error submitting file '{}' to '{}/{}/{}'; {}".format(self.file_name, self.calculation.program.method.NAME, self.calculation.program.NAME, self.calculation.NAME, self.reason)
 	
 class Extractor_error(Silico_exception):
 	"""
