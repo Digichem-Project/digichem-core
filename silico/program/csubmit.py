@@ -4,6 +4,7 @@
 
 # This should suppress a matplotlib warning when we compile with pyinstaller.
 import warnings
+import copy
 warnings.filterwarnings("ignore", "(?s).*MATPLOTLIBDATA.*", category = UserWarning)
 # This one is caused by some minor bug when plotting graphs.
 warnings.filterwarnings("ignore", "(?s).*Source ID .* was not found when attempting to remove it.*")
@@ -107,8 +108,9 @@ def _parse_calc_string(calc_string, methods, programs, calculations):
 			method = methods.get_config(program.methods[0])
 		except IndexError:
 			raise Configurable_exception(program, "program has no methods set")
-		
-	return (method, program, calculation)
+	
+	# We need to deepcopy our configurables incase we re-use one of them.
+	return (copy.deepcopy(method), copy.deepcopy(program), copy.deepcopy(calculation))
 
 def _get_warning_confirmation(method):
 	"""
@@ -181,7 +183,6 @@ def _main(args, config, logger):
 	
 	
 	calculations = []
-	full_list = False
 	while True:
 		try:
 			# Parse our calculation strings, getting the actual calculation objects.
@@ -205,14 +206,8 @@ def _main(args, config, logger):
 			break
 		
 		# Ask the user for calcs.
-		# List known calculations.
-		#_list(known_methods, known_programs, known_calculations, all = full_list)
-		# And get.
-		#args.calculations = shlex.split(_get_input("Calculations{}: ".format(" (hit ENTER for more)" if not full_list else " ")))
 		args.calculations = shlex.split(silico.misc.tree.run(Node.from_list((known_methods, known_programs, known_calculations))))
-		
-		# If we go around again, we'll print the full list.
-		full_list = not full_list
+
 	
 	# Get upset again if we have no calculations.
 	if len(args.calculations) == 0:
