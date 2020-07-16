@@ -1,3 +1,5 @@
+[0.12.0 (10/07/2020)]
+
 [0.9.10 (28/06/2020)]
 - Fixes for compiling on CentOS 6.10
 - Fix for reading .cdx files with obabel when frozen.
