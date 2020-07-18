@@ -9,6 +9,7 @@ from urwidtrees.widgets import TreeBox
 from urwidtrees.decoration import ArrowTree  # for Decoration
 from urwidtrees.decoration import CollapsibleArrowTree
 import shlex
+from silico.interface.urwid.tree import Calculation_browser, Tree_node
 
 
 # define some colours
@@ -21,7 +22,7 @@ palette = [
 	('arrowtip', 'light blue', 'light gray', ''),
 	('connectors', 'light red', 'light gray', ''),
 	('calcs', 'light magenta, bold', 'light gray'),
-	('button', 'black', 'dark green')
+	('good_button', 'black', 'dark green')
 ]
 
 # We use selectable Text widgets for our example..
@@ -121,13 +122,6 @@ def node_list_to_tree(node):
 	children = [node_list_to_tree(child) for child in node.children]
 	return (FocusableText(node.name, ID = node.ID), children if len(children) > 0 else None)
 
-def construct_example_tree(node):
-	# define a list of tree structures to be passed on to SimpleTree
-	forrest = [node_list_to_tree(node)]
-
-	# stick out test tree into a SimpleTree and return
-	return SimpleTree(forrest)
-
 def stop(*args, **kwargs):
 	raise urwid.ExitMainLoop()
 	
@@ -167,8 +161,8 @@ def run(node):
 	#root = urwid.Pile([treebox, (4, urwid.LineBox(urwid.Filler(calcbox)))])
 	
 	
-	#rootwidget = urwid.AttrMap(treebox, 'body')
-	#add a text footer
+	root = Calculation_browser(Tree_node.from_node(node)[1], confirm_action = stop)
+
 	header = urwid.AttrMap(urwid.Text('Silico Calculation Browser', align = "center"), 'header')
 	footer = urwid.AttrMap(urwid.Text('ENTER: select   DELETE: delete   E: expand all   C: contract all   ctrl-c: quit', align = "center"), 'focus')
 	#enclose in a frame
@@ -182,7 +176,7 @@ def run(node):
 
 	).run()  # go
 
-	return calcbox.edit_text
+	return root.calcbox.edit_text
 	
 	
 	
