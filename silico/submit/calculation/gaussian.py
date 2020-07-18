@@ -56,8 +56,11 @@ class Gaussian_DFT(Calculation_target):
 		self.charge = charge if charge is not None else "auto"
 		
 		# Save our basis set.
-		self.extended_basis_sets = [self.available_basis_sets.get_config(extended_basis_set) for extended_basis_set in extended_basis_sets] if extended_basis_sets is not None else []
-		self.extended_ECPs = [self.available_basis_sets.get_config(extended_ECP) for extended_ECP in extended_ECPs] if extended_ECPs is not None else []
+		try:
+			self.extended_basis_sets = [self.available_basis_sets.get_config(extended_basis_set) for extended_basis_set in extended_basis_sets] if extended_basis_sets is not None else []
+			self.extended_ECPs = [self.available_basis_sets.get_config(extended_ECP) for extended_ECP in extended_ECPs] if extended_ECPs is not None else []
+		except Exception:
+			raise Configurable_exception(self, "could not load extended basis set")
 	
 	@property
 	def real_charge(self):
