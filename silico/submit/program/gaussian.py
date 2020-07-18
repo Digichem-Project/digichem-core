@@ -228,6 +228,10 @@ class Gaussian(Program_target):
 				except FileNotFoundError:
 					# This is ok, means the scratch has already been deleted (or moved).
 					pass
+				except Exception:
+					# Some other error occurred that prevented us from deleting the scratch.
+					# This is odd, annoying and possibly evidence of a bug, but shouldn't stop us from continuing.
+					getLogger(silico.logger_name).warning("Failed to delete scratch directory '{}'".format(self.calculation.scratch_directory), exc_info = True)
 				
 			# Done cleanup.
 			self.method.calc_dir.del_flag(Flag.CLEANUP)
