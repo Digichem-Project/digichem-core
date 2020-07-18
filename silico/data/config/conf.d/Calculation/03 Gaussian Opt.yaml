@@ -3,8 +3,8 @@
 ##############################################################
 ---
 TYPE: calculation
-ALIAS: [opt_freq_default]
-PARENT: [g09_default]
+ALIAS: [Opt-freq-defaults]
+PARENT: [Gaussian-defaults]
 GROUP: [Opt Freq]
 
 # The type of calculation to perform.
@@ -20,9 +20,9 @@ memory: 20GB
 ##############################################################
 ---
 TYPE: calculation
-ALIAS: [opt_freq_triplet_default]
+ALIAS: [Opt-freq-triplet-defaults]
 GROUP: [Opt Freq Unrestricted Triplet]
-PARENT: [g09_default]
+PARENT: [Gaussian-defaults]
 
 # The type of calculation to perform.
 calculation_keywords:
@@ -36,7 +36,7 @@ memory: 20GB
 
 SPLIT:
     # 'Normal' basis set
-    - GROUP: ["{functional}"]
+    - GROUP: ['Gas Phase', "{functional}"]
       functional: 
         - uPBE1PBE
         - uB3LYP
@@ -60,14 +60,21 @@ SPLIT:
             - genECP
           extended_basis_sets:
             - - 6_31_plus_starstar_H_Ar
-              - SBKJC_VDZ_K_Rn
+              - SBKJC_VDZ
+        - GROUP_NAME: "6-31+G(d,p)/LANL2DZ (ECP)"
+          basis_set:
+            - genECP
+          extended_basis_sets:
+            - - 6_31_plus_starstar_H_Ar
+              - LANL2DZ
     # Solvents.
-    - GROUP: ['Solvents', '{options[SCRF]}']
+    - GROUP: ['{options[SCRF]} (SCRF-PCM)']
       options: 
         - {SCRF: Acetonitrile}
         - {SCRF: Dichloromethane}
         - {SCRF: Hexane}
         - {SCRF: Toluene}
+        - {SCRF: Water}
       SPLIT:    
         - GROUP: ["{functional}"]
           functional: 
@@ -88,10 +95,15 @@ SPLIT:
                 - cc-pVQZ
                 - cc-pV5Z
                 - cc-pV6Z
-            - GROUP_NAME: "6-31+G(d,p)/SBKJC-VDZ (ECP)"
-              basis_set:
-                - genECP
-              extended_basis_sets:
-                - - 6_31_plus_starstar_H_Ar
-                  - SBKJC_VDZ_K_Rn
-
+        - GROUP_NAME: "6-31+G(d,p)/SBKJC-VDZ (ECP)"
+          basis_set:
+            - genECP
+          extended_basis_sets:
+            - - 6_31_plus_starstar_H_Ar
+              - SBKJC_VDZ
+        - GROUP_NAME: "6-31+G(d,p)/LANL2DZ (ECP)"
+          basis_set:
+            - genECP
+          extended_basis_sets:
+            - - 6_31_plus_starstar_H_Ar
+              - LANL2DZ

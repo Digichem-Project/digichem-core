@@ -2,7 +2,7 @@
 TYPE: calculation
 
 GROUP: [Auto Characterisation, Organic Emitter]
-GROUP_NAME: Opt+Freq → TDA (PBE0/6-31G(d,p))
+GROUP_NAME: Opt+Freq → TDA 50/50 (PBE0/6-31G(d,p))
 
 CLASS: Series
 
@@ -17,7 +17,7 @@ calculations:
 TYPE: calculation
 
 GROUP: [Auto Characterisation, Organic Emitter]
-GROUP_NAME: Opt+Freq → TD-DFT → Opt Triplet → SP Singlet (PBE0/6-31G(d,p))
+GROUP_NAME: Opt+Freq → TD-DFT 50/50 → Opt Triplet → SP Singlet (PBE0/6-31G(d,p))
 
 CLASS: Series
 
@@ -34,7 +34,7 @@ calculations:
 TYPE: calculation
 
 GROUP: [Auto Characterisation, Organometallic Emitter (in Acetonitrile)]
-GROUP_NAME: Opt+Freq → TDA (B3LYP/6-31G+(d,p)/SBKJC-VDZ-ECP)
+GROUP_NAME: Opt+Freq → TDA 50/50 (B3LYP/6-31G+(d,p)/SBKJC-VDZ-ECP)
 
 CLASS: Series
 
@@ -49,7 +49,7 @@ calculations:
 TYPE: calculation
 
 GROUP: [Auto Characterisation, Organometallic Emitter (in Acetonitrile)]
-GROUP_NAME: Opt+Freq → TD-DFT → Opt Triplet → SP Singlet (B3LYP/6-31G+(d,p)/SBKJC-VDZ-ECP)
+GROUP_NAME: Opt+Freq → TD-DFT 50/50 → Opt Triplet → SP Singlet (B3LYP/6-31G+(d,p)/SBKJC-VDZ-ECP)
 
 CLASS: Series
 

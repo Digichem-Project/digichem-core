@@ -2,8 +2,8 @@
 ##############################################################
 ---
 TYPE: calculation
-ALIAS: [td_default]
-PARENT: [g09_default]
+ALIAS: [TD-defaults]
+PARENT: [Gaussian-defaults]
 GROUP: [TD-DFT, 10 Singlets 10 Triplets]
 
 calculation_keywords:
@@ -12,7 +12,8 @@ calculation_keywords:
 ##############################################################
 ---
 TYPE: calculation
-PARENT: [g09_default]
+PARENT: [Gaussian-defaults]
+ALIAS: [TD-triplets-defaults]
 GROUP: [TD-DFT, 5 Triplets]
 
 calculation_keywords:
@@ -24,8 +25,8 @@ calculation_keywords:
 ##############################################################
 ---
 TYPE: calculation
-PARENT: [g09_default]
-ALIAS: [td_abs_default]
+PARENT: [Gaussian-defaults]
+ALIAS: [TD-singlets-defaults]
 GROUP: [TD-DFT, 100 Singlets]
 
 calculation_keywords:
@@ -41,8 +42,8 @@ silico_options:
 ##############################################################
 ---
 TYPE: calculation
-ALIAS: [opt_td_s1_default]
-PARENT: [g09_default]
+ALIAS: [Opt-TD-S1-defaults]
+PARENT: [Gaussian-defaults]
 GROUP: [TD-DFT, Optimised S(1)]
 
 calculation_keywords:
@@ -53,8 +54,8 @@ calculation_keywords:
 ##############################################################
 ---
 TYPE: calculation
-PARENT: [g09_default]
-ALIAS: [opt_td_t1_default]
+PARENT: [Gaussian-defaults]
+ALIAS: [Opt-TD-T1-defaults]
 GROUP: [TD-DFT, Optimised T(1)]
 
 calculation_keywords:
