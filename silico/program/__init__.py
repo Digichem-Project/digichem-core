@@ -94,7 +94,8 @@ def init_program(*, arg_parser, arg_to_config = None, logger):
 		arg_to_config(args, config)
 		
 	# Now we have loaded absolutely everything, resolve any Configurables.
-	config.resolve()
+	# TODO: Not calling resolve() here is a speedhack (it is only required for csubmit, not the other programs). Review and improve.
+	#config.resolve()
 	
 	# Set what settings we can.
 	init_from_config(logger, config)

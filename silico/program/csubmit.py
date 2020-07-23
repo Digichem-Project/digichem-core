@@ -154,13 +154,12 @@ def _main(args, config, logger):
 	
 	# Load our calculation definitions.
 	try:
+		config.resolve()
 		known_methods = config.methods
 		known_programs = config.programs
 		known_calculations = config.calculations
 	except Exception:
 		raise Silico_exception("Failed to load calculations")
-		#logger.error("Failed to load calculations", exc_info = True)
-		#return 1
 	
 	logger.debug("Loaded {} methods, {} programs and {} calculations".format(len(known_methods), len(known_programs), len(known_calculations)))
 	
