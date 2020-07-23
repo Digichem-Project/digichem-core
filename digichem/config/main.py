@@ -28,6 +28,8 @@ class Silico_options(Config):
 	def resolve(self):
 		"""
 		Resolve all Configurables which we contain.
+		
+		NOTE: This method can be (and is) quite expensive.
 		"""
 		# First, resolve each list.
 		self.methods = self.methods.resolve()
