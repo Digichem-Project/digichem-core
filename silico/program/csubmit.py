@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python3.6
 
 # The csubmit program (this is the successor to gsubmit).
 
@@ -207,7 +207,6 @@ def _main(args, config, logger):
 		
 		# Ask the user for calcs.
 		args.calculations = shlex.split(silico.misc.tree.run(Node.from_list((known_methods, known_programs, known_calculations))))
-
 	
 	# Get upset again if we have no calculations.
 	if len(args.calculations) == 0:

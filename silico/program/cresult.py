@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python3.6
 
 # The cresult (Result Extraction) program.
 # This program is designed to extract results from gaussian calculations and display/save them as more convenient formats.
