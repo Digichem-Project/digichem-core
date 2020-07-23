@@ -1,6 +1,18 @@
 import argparse
 import math
 
+def is_int(value):
+	"""
+	Determine whether a variable has a valid integer representation.
+	
+	:returns: True or False.
+	"""
+	try:
+		int(value)
+		return True
+	except ValueError:
+		return False
+
 def date_to_string(datetime_object):
 	"""
 	Convert a datetime object to a standard string representation.
