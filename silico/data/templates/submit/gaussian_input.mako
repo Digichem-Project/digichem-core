@@ -28,18 +28,18 @@
 ${calculation.safe_name(calculation.descriptive_name)}
 
 ## Charge and mult.
-${calculation.real_charge}, ${calculation.real_multiplicity}
+${calculation.charge}, ${calculation.multiplicity}
 ## Geometry
 ${calculation.input_file.geometry}
 
 ## Extended Basis.
-%for extended_basis_set in calculation.extended_basis_sets:
+%for extended_basis_set in calculation.external_basis_sets:
 ${extended_basis_set.basis_set}
 %endfor
 
 ##
 ## Extended ECP.
-%for extended_ECP in calculation.extended_ECPs:
+%for extended_ECP in calculation.external_ECPs:
 ${extended_ECP.ECP}
 %endfor
 ##

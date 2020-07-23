@@ -1,4 +1,5 @@
 from silico.submit.calculation.base import Calculation_target
+from silico.config.configurable.option import Option
 
 class Calculation_series(Calculation_target):
 	"""
@@ -7,23 +8,23 @@ class Calculation_series(Calculation_target):
 	
 	CLASS_HANDLE = ["Series"]
 	
-	def _post_init(self, 
-		*,
-		calculations,
-		CONFIGS,
-		**kwargs
-	):
+	# Configurable options.
+	calculation_IDs = Option(
+		"calculations",
+		help = "A list of calculations to perform in series",
+		choices = lambda option, configurable: [name for calc in configurable.calculations for name in calc.NAMES],
+		required = True,
+		type = tuple
+	)
+	# Hack; Calculation_series inherits from Calculation_target and so inherits a number of configurable options that it ignores. Memory is required for a real calc, but is safely ignored here.
+	memory = Option(help = "The amount of memory to use for the calculation",rawtype = str)
+	
+	def configure(self, CONFIGS, **kwargs):
 		"""
-		Constructor for Calculation_series objects.
-		
-		These Configurable_targets represent a number of calculations to run in series.
-		
-		:param calculations: A list of config IDs which are the calculations this series represents.
+		Configure this Series calculation.
 		"""
-		super()._post_init(CONFIGS = CONFIGS, **kwargs)
-		self.calculation_IDs = calculations
 		self.calculations = CONFIGS
-		
+		super().configure(CONFIGS = CONFIGS, **kwargs)
 		
 	def prepare(self):
 		"""

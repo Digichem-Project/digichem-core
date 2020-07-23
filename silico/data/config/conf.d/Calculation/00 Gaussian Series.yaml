@@ -9,8 +9,8 @@ CLASS: Series
 programs: [g09, g16]
 
 calculations:
-    - Opt Freq PBE1PBE 6-31G(d,p)
-    - TDA 10 Singlets 10 Triplets PBE1PBE 6-31G(d,p)
+    - Opt Freq Gas Phase PBE1PBE 6-31G(d,p)
+    - TDA 10 Singlets 10 Triplets Gas Phase PBE1PBE 6-31G(d,p)
 
 ##############################################################
 ---
@@ -24,10 +24,10 @@ CLASS: Series
 programs: [g09, g16]
 
 calculations:
-    - Opt Freq PBE1PBE 6-31G(d,p)
-    - TD-DFT 10 Singlets 10 Triplets PBE1PBE 6-31G(d,p)
-    - Opt Freq Unrestricted Triplet uPBE1PBE 6-31G(d,p)
-    - Single Point Singlet PBE1PBE 6-31G(d,p)
+    - Opt Freq Gas Phase PBE1PBE 6-31G(d,p)
+    - TD-DFT 10 Singlets 10 Triplets Gas Phase PBE1PBE 6-31G(d,p)
+    - Opt Freq Unrestricted Triplet Gas Phase uPBE1PBE 6-31G(d,p)
+    - Single Point Singlet Gas Phase PBE1PBE 6-31G(d,p)
 
 ##############################################################
 ---
@@ -41,8 +41,8 @@ CLASS: Series
 programs: [g09, g16]
 
 calculations:
-    - "Opt Freq Solvents Acetonitrile B3LYP 6-31+G(d,p)/SBKJC-VDZ (ECP)"
-    - "TDA 10 Singlets 10 Triplets Solvents Acetonitrile B3LYP 6-31+G(d,p)/SBKJC-VDZ (ECP)"
+    - "Opt Freq Acetonitrile (SCRF-PCM) B3LYP 6-31+G(d,p)/SBKJC-VDZ (ECP)"
+    - "TDA 10 Singlets 10 Triplets Acetonitrile (SCRF-PCM) B3LYP 6-31+G(d,p)/SBKJC-VDZ (ECP)"
 
 ##############################################################
 ---
@@ -56,9 +56,9 @@ CLASS: Series
 programs: [g09, g16]
 
 calculations:
-    - "Opt Freq Solvents Acetonitrile B3LYP 6-31+G(d,p)/SBKJC-VDZ (ECP)"
-    - "TD-DFT 10 Singlets 10 Triplets Solvents Acetonitrile B3LYP 6-31+G(d,p)/SBKJC-VDZ (ECP)"
-    - "Opt Freq Unrestricted Triplet Solvents Acetonitrile uB3LYP 6-31+G(d,p)/SBKJC-VDZ (ECP)"
-    - "Single Point Singlet Solvents Acetonitrile B3LYP 6-31+G(d,p)/SBKJC-VDZ (ECP)"
+    - "Opt Freq Acetonitrile (SCRF-PCM) B3LYP 6-31+G(d,p)/SBKJC-VDZ (ECP)"
+    - "TD-DFT 10 Singlets 10 Triplets Acetonitrile (SCRF-PCM) B3LYP 6-31+G(d,p)/SBKJC-VDZ (ECP)"
+    - "Opt Freq Unrestricted Triplet Acetonitrile (SCRF-PCM) uB3LYP 6-31+G(d,p)/SBKJC-VDZ (ECP)"
+    - "Single Point Singlet Acetonitrile (SCRF-PCM) B3LYP 6-31+G(d,p)/SBKJC-VDZ (ECP)"
 
 

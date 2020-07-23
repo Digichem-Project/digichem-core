@@ -11,6 +11,8 @@ from silico.exception.uncatchable import Submission_paused
 import subprocess
 from subprocess import CalledProcessError
 from silico.submit.structure.flag import Flag
+from silico.config.configurable.option import Option
+from silico.misc.base import is_int
 
 class SLURM(Method_target, Resumable_method):
 	"""
@@ -22,31 +24,22 @@ class SLURM(Method_target, Resumable_method):
 	# The name of the script which we pass to sbatch.
 	SBATCH_SCRIPT_NAME = "sbatch.submit"
 	
-	def _post_init(
-			self,
-			*,
-			partition = None,
-			time = None,
-			num_tasks = None,
-			CPUs_per_task = None,
-			mem_per_CPU = None,
-			sbatch_command = None,
-			sinfo_command = None,
-			options = None,
-			**kwargs
-		):
-		super()._post_init(**kwargs)
+	# Configurable options.
+	partition = Option(help = "SLURM partition name", type = str, required = True)
+	time = Option(help = "Max allowed job time (dd-hh:mm:ss)", default = None, type = str)
+	num_tasks = Option(help = "Number of tasks to allocate", default = 1, type = int)
+	_CPUs_per_task = Option("CPUs_per_task", help = "Number of CPUs (per task) to allocate. Use 'auto' to use the same number as required for the calculation", default = 'auto', validate = lambda option, configurable, value: value == "auto" or is_int(value))
+	_mem_per_CPU = Option("mem_per_CPU", help = "The amount of memory (per CPU) to allocate. Use 'auto' to use the same as required for the calculation", default = "auto", validate = lambda option, configurable, value: value == "auto" or is_int(value))
+	options = Option(help = "Additional SLURM options. Any option valid to SLURM can be included here", default = {}, type = dict)
+	sbatch_command = Option(help = "The name/path of the sbatch command", default = "sbatch", type = str)
+	sinfo_command = Option(help = "The name/path of the sinfo command", default = "sinfo", type = str)
+	
+	def __init__(self, *args, **kwargs):
+		"""
+		"""
+		super().__init__(*args, **kwargs)
 		Resumable_method.__init__(self)
-		
-		self.partition = partition
-		self.time = time
-		self.num_tasks = num_tasks if num_tasks is not None else 1
-		self.CPUs_per_task = CPUs_per_task if CPUs_per_task is not None else "auto"
-		self.mem_per_CPU = mem_per_CPU if mem_per_CPU is not None else "auto"
-		self.options = options if options is not None else {}
-		self.sbatch_command = sbatch_command if sbatch_command is not None else "sbatch"
-		self.sinfo_command = sinfo_command if sinfo_command is not None else "sinfo"
-		
+	
 	def get_num_free_nodes(self):
 		"""
 		Get the current number of free nodes for this partition.

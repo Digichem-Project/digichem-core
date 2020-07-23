@@ -9,6 +9,7 @@ import shutil
 from silico.file.fchk import Fchk_maker
 from silico.exception.uncatchable import Signal_caught
 from silico.submit.structure.flag import Flag
+from silico.config.configurable.option import Option
 
 class Gaussian(Program_target):
 	"""
@@ -17,24 +18,17 @@ class Gaussian(Program_target):
 	
 	CLASS_HANDLE = ("gaussian",)
 	
-# 	def __init__(self, *, executable, root_environ_name, gaussian_root, gaussian_init_file, **kwargs):
-# 		super().__init__(**kwargs)
-# 		self.executable = executable
-# 		self.root_environ_name = root_environ_name
-# 		self.gaussian_root = gaussian_root
-# 		self.gaussian_init_file = gaussian_init_file
-# 		self.log_file_path = None
-# 		self.chk_file_path = None
+	# Configurable options.
+	executable = Option(help = "Name/path of the main Gaussian executable", required = True, type = str)
+	root_environ_name = Option(help = "The name of the environmental variable Gaussian looks for to find 'gaussian_root'", required = True, type = str)
+	gaussian_root = Option(help = "Path to the directory one above where gaussian is installed", required = True, type = str)
+	gaussian_init_file = Option(help = "Path to the gaussian .profile script which is run to set-up gaussian", required = True, type = str)
 
-	def _post_init(self, *, executable, root_environ_name, gaussian_root, gaussian_init_file, **kwargs):
-		super()._post_init(**kwargs)
-		self.executable = executable
-		self.root_environ_name = root_environ_name
-		self.gaussian_root = gaussian_root
-		self.gaussian_init_file = gaussian_init_file
+	def __init__(self, *args, **kwargs):
+		super().__init__(*args, **kwargs)
 		self.log_file_path = None
 		self.chk_file_path = None
-				
+		
 	@property
 	def com_file_path(self):
 		"""
@@ -210,7 +204,7 @@ class Gaussian(Program_target):
 					# And update (reset) our attribute.
 					setattr(self, out_file, None)
 			# If we've been asked to, we'll also try and save what remains of the scratch directory (might contain something useful).
-			if self.calculation.scratch_options is not None and ((self.calculation.scratch_options['rescue'] and not success) or self.calculation.scratch_options['keep']):
+			if self.calculation.scratch_options['use_scratch'] and ((self.calculation.scratch_options['rescue'] and not success) or self.calculation.scratch_options['keep']):
 				# Check to see if there's anything in scratch.
 				scratch_content = -1
 				try:
@@ -222,7 +216,8 @@ class Gaussian(Program_target):
 				
 		finally:
 			# Remove the scratch directory, forcibly if need be.
-			if success or (self.calculation.scratch_options is not None and self.calculation.scratch_options['force_delete']):
+			if self.calculation.scratch_options['use_scratch'] and (success or self.calculation.scratch_options['force_delete']):
+			#if success or (self.calculation.scratch_options['use_scratch'] and self.calculation.scratch_options['force_delete']):
 				try:
 					shutil.rmtree(self.calculation.scratch_directory)
 				except FileNotFoundError:

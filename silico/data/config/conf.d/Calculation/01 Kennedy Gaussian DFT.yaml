@@ -24,7 +24,7 @@ SPLIT:
             - 6-31G++(d,p)
             - 6-311G(d,p)
             - 6-311G+(d,p)
-            - 6-311G+(d,p)
+            - 6-311G++(d,p)
             - cc-pVDZ
             - cc-pVTZ
             - cc-pVQZ
@@ -33,13 +33,13 @@ SPLIT:
         - GROUP_NAME: "6-31+G(d,p)/SBKJC-VDZ (ECP)"
           basis_set:
             - genECP
-          extended_basis_sets:
+          external_basis_sets:
             - - 6_31_plus_starstar_H_Ar
               - SBKJC_VDZ
         - GROUP_NAME: "6-31+G(d,p)/LANL2DZ (ECP)"
           basis_set:
             - genECP
-          extended_basis_sets:
+          external_basis_sets:
             - - 6_31_plus_starstar_H_Ar
               - LANL2DZ
     # Solvents.
@@ -64,7 +64,7 @@ SPLIT:
                 - 6-31G++(d,p)
                 - 6-311G(d,p)
                 - 6-311G+(d,p)
-                - 6-311G+(d,p)
+                - 6-311G++(d,p)
                 - cc-pVDZ
                 - cc-pVTZ
                 - cc-pVQZ
@@ -73,13 +73,13 @@ SPLIT:
             - GROUP_NAME: "6-31+G(d,p)/SBKJC-VDZ (ECP)"
               basis_set:
                 - genECP
-              extended_basis_sets:
+              external_basis_sets:
                 - - 6_31_plus_starstar_H_Ar
                   - SBKJC_VDZ
             - GROUP_NAME: "6-31+G(d,p)/LANL2DZ (ECP)"
               basis_set:
                 - genECP
-              extended_basis_sets:
+              external_basis_sets:
                 - - 6_31_plus_starstar_H_Ar
                   - LANL2DZ
 
@@ -121,12 +121,12 @@ write_report: True
 
 # Options that control use of the scratch directory.
 # Set scratch_structure: None to disable scatch.
-scratch_options: 
+scratch_options:
     # Path to the directory to use for scratch. For each calculation, a unique subdirectory will be created under this root directory.
     path: /scratch/tmp
     
     # If True, directories created in the scratch directory will be contained in a subdirectory for each user (so the path would become eg, /scratch/<USERNAME>/<CALC_ID>).
-    include_username: True
+    use_username: True
     
     # Whether to copy everything from scratch to output (on success or failures). Normally False is safe here as important output will already have been moved, but if there is a particular temp file that you need, set this to True.
     keep: False

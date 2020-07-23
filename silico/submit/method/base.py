@@ -1,6 +1,7 @@
 from silico.submit import Configurable_target
 from silico.submit.structure.directory import Calculation_directory
 from uuid import uuid4
+from silico.config.configurable.option import Option
 
 class Method_target(Configurable_target):
 	"""
@@ -10,23 +11,10 @@ class Method_target(Configurable_target):
 	Methods, for example, handle submission to a scheduling software (SLURM, TORQUE etc), running as a daemon, submission to a networked server etc.
 	"""
 	
-# 	def __init__(self, *args, warning = None, **kwargs):
-# 		"""
-# 		Constructor for Method targets.
-# 		
-# 		:param warning: Optional warning string that will be printed to the user when this method is selected.
-# 		"""
-# 		super().__init__(*args, **kwargs)
-# 		self.warning = warning
-
-	def _post_init(self, *, warning = None, **kwargs):
-		"""
-		Constructor for Method targets.
-		
-		:param warning: Optional warning string that will be printed to the user when this method is selected.
-		"""
-		super()._post_init(**kwargs)
-		self.warning = warning
+	CLASS_HANDLE = ("method",)
+	
+	# Configurable Options.
+	warning = Option(help = "A warning message to display when this method is chosen", default = None, type = str)
 	
 	@property
 	def unique_name(self):
