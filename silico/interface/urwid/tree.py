@@ -7,6 +7,19 @@ from urwidtrees.decoration import CollapsibleArrowTree
 from silico.interface.urwid.misc import Tab_pile
 from urwidtrees.tree import SimpleTree
 
+# Default palette for urwid.
+palette = [
+	('body', 'black', 'light gray'),
+	('boldnode', 'black, bold', 'light gray'),
+	('focus', 'light gray', 'dark blue', 'standout'),
+	('header', 'light gray,bold', 'dark blue', 'standout'),
+	('bars', 'dark blue', 'light gray', ''),
+	('arrowtip', 'light blue', 'light gray', ''),
+	('connectors', 'light red', 'light gray', ''),
+	('calcs', 'light magenta, bold', 'light gray'),
+	('good_button', 'black', 'dark green')
+]
+
 class Tree_node(urwid.WidgetWrap):
 	"""
 	Selectable text widget used for the individual nodes in the tree.
@@ -158,7 +171,36 @@ class Calculation_browser(Tab_pile):
 			(4, urwid.LineBox(urwid.AttrMap(urwid.Filler(self.calcbox), calcbox_inner_attr))),
 			(1, urwid.AttrMap(urwid.Filler(urwid.Padding(self.confirm, 'center', 11)), confirm_attr))
 		])
+	
+	@classmethod
+	def stop(self, *args, **kwargs):
+		"""
+		This method is called when the user clicks the confirm button.
+		"""
+		raise urwid.ExitMainLoop() 
 		
+	@classmethod
+	def run(self, node):
+		"""
+		Interactively run urwid, using a Calculation_browser as the top-most widget.
 		
-		
+		:param node: The top-most node used to populate the choices in the calculation browser.
+		:return: The selected calculations, as a string.
+		"""
+		browser = Calculation_browser(Tree_node.from_node(node)[1], confirm_action = self.stop)
+	
+		header = urwid.AttrMap(urwid.Text('Silico Calculation Browser', align = "center"), 'header')
+		footer = urwid.AttrMap(urwid.Text('ENTER: select   DELETE: delete   E: expand all   C: contract all   ctrl-c: quit', align = "center"), 'focus')
+		#enclose in a frame
+		urwid.MainLoop(
+			urwid.Frame(
+				urwid.AttrMap(browser, 'body'),
+				footer=footer,
+				header=header
+			),
+			palette,
+	
+		).run()  # go
+	
+		return browser.calcbox.edit_text
 	
