@@ -25,16 +25,6 @@ class Options(Option, dict, Options_mixin):
 		for argname in kwargs:
 			kwargs[argname].name = argname
 			self._OPTIONS[argname] = kwargs[argname]
-			#setattr(self, argname, kwargs[argname])
-			
-		#self.options = dict(**kwargs)
-		
-# 	def __getattribute__(self, name):
-# 		"""
-# 		Custom __getattribute__ implementation for  descriptors.
-# 		"""
-# 		if isinstance(super().__getattribute__(name), Option):
-# 			return super().__getattribute__(name).__get__(instance, owner)
 	
 	@property
 	def OPTIONS(self):

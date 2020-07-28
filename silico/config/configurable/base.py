@@ -199,18 +199,19 @@ class Configurable(Config, Dynamic_parent, Options_mixin):
 		self._configurable_options = {}
 		
 	# Configurable options.
-	_NAME = Option("NAME", help = "The unique name of this Configurable. If no NAME is set then this Configurable will not be selectable", type = str)
-	ALIAS = Option(help = "A list of alternative names for this Configurable. If no NAME is set but at least one ALIAS is, then this Configurable will not be selectable but can still be used as a parent", default = [], type = list)
+	_NAME = Option("NAME", help = "The unique name of this Configurable and the name of the folder under which this calculation will run. If left blank and a GROUP_NAME is set, a name will be generated automatically", type = str)
+	ALIAS = Option(help = "A list of alternative names for this Configurable", default = [], type = list, no_edit = True)
 	GROUP = Option(help = "An ordered list of group names, used for categorisation", default = [], type = list)
 	GROUP_NAME = Option(help = "An alternative to NAME; GROUP_NAME is used to set a shorter name that appears as part of a GROUP", default = None, type = str)
-	SPLIT = Option(help = "A list of configurable splits; an advanced feature for automatically creating Configurables...", default = [], type = list)
-	PARENT = Option(help = "An ordered list of parent Configurables from which this Configurable will inherit from", default = [], type = list)
-	_ABSTRACT = Option("ABSTRACT", help = "A flag to force a Configurable to be abstract. Abstract Configurables cannot be selected, but can be used as parents for other Configurables", default = None, type = bool)
-	TYPE = Option(help = "The type of this Configurable", choices = ('method', 'program', 'calculation', 'basis_set'), required = True, default = 'calculation', type = str)
+	SPLIT = Option(help = "A list of configurable splits; an advanced feature for automatically creating Configurables...", default = [], type = list, no_edit = True)
+	PARENT = Option(help = "An ordered list of parent Configurables from which this Configurable will inherit from", default = [], type = list, no_edit = True)
+	_ABSTRACT = Option("ABSTRACT", help = "A flag to force a Configurable to be abstract. Abstract Configurables cannot be selected, but can be used as parents for other Configurables", default = False, type = bool, no_edit = True)
+	TYPE = Option(help = "The type of this Configurable", choices = ('method', 'program', 'calculation', 'basis_set'), required = True, default = 'calculation', type = str, no_edit = True)
 	CLASS = Option(
 		help = "The specific sub-type of this Configurable",
 		choices = lambda option, configurable: [handle for cls in Configurable.from_class_handle(configurable.TYPE).recursive_subclasses() if hasattr(cls, 'CLASS_HANDLE') for handle in cls.CLASS_HANDLE],
-		required = True
+		required = True,
+		no_edit = True
 	)
 		
 	def configure(self, *, ID, CONFIGS = None):

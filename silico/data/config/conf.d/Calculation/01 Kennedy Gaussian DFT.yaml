@@ -88,7 +88,7 @@ SPLIT:
 CLASS: Gaussian-DFT
 
 # The programs that this calculation is compatible with.
-programs: [g09]
+programs: [g09, g16]
 
 # Gaussian calculation options.
 # The number of processors to use. More processors will generally shorten the overall calculation time, but this relationship may not be linear.
@@ -100,7 +100,7 @@ num_CPUs: 32
 
 # The amount of 'dynamic memory' to use for the calculation (https://gaussian.com/link0/).
 # Note that the amount of memory actually used by Gaussian can far exceed the value set here (at least in G09, not sure why).
-memory: 10GB
+memory: 20GB
 
 # If True, a formated checkpoint file (.fchk) will be created automatically after the calculation has finished.
 convert_chk: True

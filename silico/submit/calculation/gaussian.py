@@ -20,14 +20,14 @@ class Gaussian_DFT(Calculation_target):
 	INPUT_FILE_TYPES = ["gau", "com", "gjf", "gjc"]
 
 	# Configurable options.
-	CPU_list = Option(help = "A list of integers specifying specific CPUs to use for the calculation, starting at 0", exclude = ("num_CPUs",), default = (), type = tuple)
-	num_CPUs = Option(help = "An integer specifying the number of CPUs to use for this calculation", exclude = ("CPU_list",), default = 1, type = int)
+	CPU_list = Option(help = "A list of integers specifying specific CPUs to use for the calculation, starting at 0. CPU_list and num_CPUs are mutually exclusive", exclude = ("num_CPUs",), default = (), type = tuple)
+	num_CPUs = Option(help = "An integer specifying the number of CPUs to use for this calculation. CPU_list and num_CPUs are mutually exclusive", exclude = ("CPU_list",), default = 1, type = int)
 	calculation_keywords = Option(help = "A list of Gaussian keywords specifying the calculation(s) to perform. Options, where appropriate, can also be included (eg, TDA=(NStates=10) )", default = (), type = tuple)
 	functional = Option(help = "The DFT functional to use", type = str)
 	basis_set = Option(help = "The basis set to use. 'Gen' or 'GenECP' should be given here if an external basis set is to be used", type = str)
 	_external_basis_sets = Option(
 		"external_basis_sets",
-		help = "A list of external basis sets to use",
+		help = "A list of external basis sets to use. The order given here is the order the basis sets will be appended to the input file",
 		choices = lambda option, configurable: [name for basis_set in configurable.available_basis_sets for name in basis_set.NAMES],
 		type = tuple,
 		default = ()
@@ -41,7 +41,7 @@ class Gaussian_DFT(Calculation_target):
 	)
 	_multiplicity = Option("multiplicity", help = "Forcibly set the system multiplicity. Use 'auto' to use the multiplicity given in the input file", default = 'auto', validate = lambda option, configurable, value: value == "auto" or is_int(value))
 	_charge = Option("charge", help = "Forcibly set the system charge. Use 'auto' to use the charge given in the input file", default = 'auto', validate = lambda option, configurable, value: value == "auto" or is_int(value))
-	options = Option(help = "Additional Gaussian route options. These are written to the input file without modification, so any option valid to Gaussian can be given here", default = {'Population': 'Regular', 'Density': 'Current'}, type = dict)
+	options = Option(help = "Additional Gaussian route options. These are written to the input file with only minor modification ('name : value' becomes 'name=value'), so any option valid to Gaussian can be given here", default = {'Population': 'Regular', 'Density': 'Current'}, type = dict)
 	convert_chk = Option(help = "Whether to create an .fchk file at the end of the calculation", default = True, type = bool)
 	keep_chk = Option(help = "Whether to keep the .chk file at the end of the calculation. If False, the .chk file will be automatically deleted, but not before it is converted to an .fchk file (if convert_chk is True)", default = False, type = bool)
 	

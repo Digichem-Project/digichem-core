@@ -5,7 +5,7 @@
 # This should suppress a matplotlib warning when we compile with pyinstaller.
 import warnings
 import copy
-from silico.interface.urwid.tree import Calculation_browser
+from silico.interface.urwid.tree import Calculation_browser, Tree_node
 warnings.filterwarnings("ignore", "(?s).*MATPLOTLIBDATA.*", category = UserWarning)
 # This one is caused by some minor bug when plotting graphs.
 warnings.filterwarnings("ignore", "(?s).*Source ID .* was not found when attempting to remove it.*")
@@ -37,9 +37,6 @@ from silico.submit.calculation import *
 from silico.submit.basis import *
 from silico.exception import Silico_exception, Configurable_exception
 from silico.exception.uncatchable import Submission_paused
-from silico.misc.node_printer import Node_printer, Node
-import silico.misc.tree
-
 
 # Printable name of this program.
 NAME = "Silico Calculation Submitter"
@@ -49,24 +46,6 @@ USAGE = """%(prog)s [options] -i
    or: %(prog)s [options] file.com [file2.com ...] -i
    or: %(prog)s [options] file.com [file2.com ...] -c method/program/calc [method2/program2/calc2 ...]"""
 
-
-def _list(methods, programs, calculations, all = False):
-	"""
-	Helper function that list all known calculations.
-	"""
-	# Get our nodes.
-	top_node = Node.from_list((methods, programs, calculations))
-	
-	print('\033[1m' + "-" * 80 + '\033[0m')
-	print('\033[1m' + " " * 27 +"Available Calculations:" + '\033[0m')
-	print('\033[1m' + "-" * 80 + '\033[0m')
-	print(Node_printer((top_node,)).get(all = all))
-	print("-" * 80)
-	print("Calculations are selected by specifying the 3 relevant numbers separated by a slash (eg, 1/1/1)")
-	print("The first two numbers default to '1' if not given, so '3' and '1/3' are equivalent to '1/1/3'")
-	print("Multiple calculations are selected by separating each with a space (eg, 1/1/1 1/1/2 1/1/3...)")
-	print("-" * 80)
-				
 def _get_input(prompt):
 	"""
 	Helper function that gets input from the user.
@@ -137,7 +116,7 @@ def main():
 	parser.add_argument("calculation_files", help = "Gaussian input files to submit", nargs = "*", type = Path)
 	parser.add_argument("-o", "--output", help = "Base directory to perform calculations in. Defaults to the current directory", default = Path("./"))
 	parser.add_argument("-c", "--calculations", help = "Calculations to perform, identified either by name or by ID. To use a method and/or program other than the default, use the format M/P/C (eg, 2/1/1)", nargs = "*", default = [])
-	parser.add_argument("-l", "--list", help = "List all known calculations; give twice for more output", action = "count", default = 0)
+	#parser.add_argument("-l", "--list", help = "List all known calculations; give twice for more output", action = "count", default = 0)
 	parser.add_argument("-i", "--interactive", help = "Run in interactive mode, prompting for missing input", action = "store_true")
 		
 	# ----- Program begin -----
@@ -164,10 +143,10 @@ def _main(args, config, logger):
 	
 	logger.debug("Loaded {} methods, {} programs and {} calculations".format(len(known_methods), len(known_programs), len(known_calculations)))
 	
-	# Print our list if we've been asked to.
-	if args.list > 0:
-		_list(known_methods, known_programs, known_calculations, all = args.list > 1)
-		return 0
+# 	# Print our list if we've been asked to.
+# 	if args.list > 0:
+# 		_list(known_methods, known_programs, known_calculations, all = args.list > 1)
+# 		return 0
 	
 	# Check to see if we've got any files to submit (and prompt if we can).
 	while len(args.calculation_files) == 0 and args.interactive:
@@ -207,7 +186,7 @@ def _main(args, config, logger):
 		
 		# Ask the user for calcs.
 		#args.calculations = shlex.split(silico.misc.tree.run(Node.from_list((known_methods, known_programs, known_calculations))))
-		args.calculations = shlex.split(Calculation_browser.run(Node.from_list((known_methods, known_programs, known_calculations))))
+		args.calculations = shlex.split(Calculation_browser.run(Tree_node.from_configurable_lists((known_methods, known_programs, known_calculations))))
 	
 	# Get upset again if we have no calculations.
 	if len(args.calculations) == 0:

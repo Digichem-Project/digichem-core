@@ -13,7 +13,7 @@ calculation_keywords:
     - Freq
 
 # Freq requires more mem than usual.
-memory: 20GB
+memory: 30GB
 
 
 # Opt + Freq Unrestricted triplet
@@ -32,7 +32,7 @@ calculation_keywords:
 multiplicity: 3
 
 # Freq requires more mem than usual.
-memory: 20GB
+memory: 30GB
 
 SPLIT:
     # 'Normal' basis set

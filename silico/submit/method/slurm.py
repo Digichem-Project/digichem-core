@@ -29,7 +29,7 @@ class SLURM(Method_target, Resumable_method):
 	time = Option(help = "Max allowed job time (dd-hh:mm:ss)", default = None, type = str)
 	num_tasks = Option(help = "Number of tasks to allocate", default = 1, type = int)
 	_CPUs_per_task = Option("CPUs_per_task", help = "Number of CPUs (per task) to allocate. Use 'auto' to use the same number as required for the calculation", default = 'auto', validate = lambda option, configurable, value: value == "auto" or is_int(value))
-	_mem_per_CPU = Option("mem_per_CPU", help = "The amount of memory (per CPU) to allocate. Use 'auto' to use the same as required for the calculation", default = "auto", validate = lambda option, configurable, value: value == "auto" or is_int(value))
+	_mem_per_CPU = Option("mem_per_CPU", help = "The amount of memory (per CPU) to allocate. Use 'auto' to automatically decide how much memory to allocate based on that required for the calculation. Leave blank to use server defaults", default = "auto", validate = lambda option, configurable, value: value in ["auto", None] or is_int(value))
 	options = Option(help = "Additional SLURM options. Any option valid to SLURM can be included here", default = {}, type = dict)
 	sbatch_command = Option(help = "The name/path of the sbatch command", default = "sbatch", type = str)
 	sinfo_command = Option(help = "The name/path of the sinfo command", default = "sinfo", type = str)
@@ -148,8 +148,10 @@ class SLURM(Method_target, Resumable_method):
 		
 		This property will resolve 'auto' to an actual amount of memory, use _mem_per_CPU if you do not want this behaviour.
 		"""
-		if self._mem_per_CPU == "auto":
-			return SLURM_memory(round(float(self.program.calculation.memory)) / self.CPUs_per_task)
+		if self._mem_per_CPU is None:
+			return None
+		elif self._mem_per_CPU == "auto":
+			return SLURM_memory(round(float(float(self.program.calculation.memory) * 1.2)) / self.CPUs_per_task)
 		else:
 			return SLURM_memory(float(self._mem_per_CPU))
 	

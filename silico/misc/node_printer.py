@@ -21,7 +21,7 @@ class Node():
 		self.children = children if children is not None else []
 	
 	@classmethod
-	def from_list(self, configurable_lists, top_name = "Available"):
+	def from_list(self, configurable_lists, top_name = "Calculations"):
 		"""
 		"""
 		# First, get a top-level node.
@@ -66,7 +66,7 @@ class Node():
 			for child in config.get_children(configs[1]):
 				self.from_configurable(node, child, configs[1:])
 			
-		# Done, return Node of convenience (although it probably isn't very useful).
+		# Done, return Node for convenience (although it probably isn't very useful).
 		return node
 		
 
