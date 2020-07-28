@@ -7,7 +7,7 @@ class Option():
 	Options are descriptors that perform type checking and other functionality for Configurables; they expose the options that a certain configurable expects.
 	"""
 	
-	def __init__(self, name = None, *, default = None, help = None, choices = None, validate = None, type = None, rawtype = None, exclude = None, required = False, configure = None):
+	def __init__(self, name = None, *, default = None, help = None, choices = None, validate = None, type = None, rawtype = None, exclude = None, required = False, configure = None, no_edit = False):
 		"""
 		Constructor for Configurable Option objects.
 		
@@ -19,7 +19,8 @@ class Option():
 		:param type: A callable that is used to set the type of value.
 		:param exclude: A list of strings of the names of attributes that this option is mutually exclusive with.
 		:param required: Whether this option is required or not.
-		:param configure: Callable that will be called with with 3 arguments: this Option object, the owning Configurable object and the current value after type conversion and should return the configured value.
+		:param configure: Callable that will be called with 3 arguments: this Option object, the owning Configurable object and the current value after type conversion and should return the configured value.
+		:param no_edit: Flag to indicate that this option shouldn't be edited.
 		"""
 		self.name = name
 		self._default = default
@@ -31,6 +32,7 @@ class Option():
 		self.exclude = exclude if exclude is not None else []
 		self.required = required
 		self._configure = configure if configure is not None else self.default_configure
+		self.no_edit = no_edit
 		
 	@classmethod
 	def default_configure(self, option, configurable, value):
@@ -73,6 +75,12 @@ class Option():
 		"""
 		return not self.name in obj
 	
+# 	def set_default(self, obj):
+# 		"""
+# 		Reset this option to default.
+# 		"""
+# 		obj.pop(self.name)
+	
 	def getraw(self, obj, dictobj = None):
 		"""
 		Get the 'raw' value of this Option.
@@ -87,7 +95,16 @@ class Option():
 			try:
 				return dictobj[self.name]
 			except KeyError:
-				raise Configurable_exception(obj, "missing required option '{}'".format(self.name)) 
+				raise Configurable_exception(obj, "missing required option '{}'".format(self.name))
+			
+	def setraw(self, obj, value, dictobj = None):
+		"""
+		Set the 'raw' value of this Option.
+		"""
+		dictobj = dictobj if dictobj is not None else obj
+		
+		dictobj[self.name] = value
+		
 		
 	def __get__(self, obj, cls):
 		"""
@@ -102,6 +119,35 @@ class Option():
 			# We haven't been configured yet.
 			#return obj.get(self.name, self.default)
 			return self.getraw(obj)
+		
+	def __set__(self, obj, value):
+		"""
+		Set the value of this option.
+		
+		This method will update the underlying raw value (so changes can be preserved) and will also call configure(); validating the value given.
+		"""
+		old = self.getraw(obj)
+		old_def = self.is_default(obj)
+		
+		self.setraw(obj, value)
+		try:
+			self.configure(obj)
+		except Exception:
+			if old_def:
+				obj.pop(self.name)
+			else:
+				self.setraw(obj, old)
+			raise
+		
+	def __delete__(self, obj):
+		"""
+		Delete the explicit value of this option, resorting to the default (if one is given).
+		
+		If this option is required; attempting to delete it will raise a Configurable_exception().
+		"""
+		del(obj[self.name])
+		self.configure(obj)
+		
 			
 	def pre_configure(self, obj, dictobj = None):
 		"""
