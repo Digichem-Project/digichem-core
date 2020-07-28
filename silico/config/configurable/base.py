@@ -5,6 +5,7 @@ from silico.config.base import Config
 from silico.exception import Configurable_exception, Missing_option_exception
 from silico.misc import Dynamic_parent
 from silico.exception.base import Silico_exception
+from silico.config.configurable.option import Option
 
 class Configurable_list(list):
 	"""
@@ -83,7 +84,6 @@ class Configurable_list(list):
 			self[index] = config.resolve_parents(self)
 			
 		# Resolve splits and return (but only those that are not abstract).
-		#resolved = type(self)([resolved for config in self for resolved in config.resolve_split() if not resolved.ABSTRACT])
 		resolved = type(self)(resolved for resolved in self.resolve_splits() if not resolved.ABSTRACT)
 		
 		# Finally, sort out names.
@@ -99,11 +99,11 @@ class Configurable_list(list):
 		return type(self)([resolved for config in self for resolved in config.resolve_split()])
 		
 	
-	def post_init(self, **kwargs):
+	def configure(self, **kwargs):
 		"""
 		Call the second init function on all Configurables contained within this list.
 		
-		:param **kwargs: Key-word arguments that will be passed to post_init() to each config in this list.
+		:param **kwargs: Key-word arguments that will be passed to configure() of each config in this list.
 		"""
 		# Set ID's on our children.
 		index = 0
@@ -111,18 +111,23 @@ class Configurable_list(list):
 			config = self[index]
 			# First get the class that the config asks for.
 			try:
-				cls = config.from_class_handle(config.CLASS)
+				typecls = config.from_class_handle(config.TYPE)
+				cls = typecls.from_class_handle(config.CLASS)
 			except KeyError:
 				raise Missing_option_exception(config, 'CLASS')
+			except Exception:
+				raise Configurable_exception(config, "failed to load class")
 			
 			# Now init (sets key:values).
 			config = cls(config, FILE_NAME = config.FILE_NAME)
 			
 			# Init properly.
-			try:
-				config.post_init(ID = index +1, CONFIGS = self, **kwargs)
-			except TypeError:
-				raise Configurable_exception(config, "Unrecognised or missing key")
+			config.configure(ID = index +1, CONFIGS = self, **kwargs)
+# 			try:
+# 				#config.post_init(ID = index +1, CONFIGS = self, **kwargs)
+# 				config.configure(ID = index +1, CONFIGS = self, **kwargs)
+# 			except TypeError:
+# 				raise Configurable_exception(config, "unrecognised or missing key")
 			
 			# Update the list.
 			self[index] = config
@@ -170,29 +175,68 @@ class Configurable_list(list):
 		# All done.
 		return self
 
-class Configurable(Config, Dynamic_parent):
+class Options_mixin():
+	"""
+	Mixin class for those that contain configurable options.
+	"""
+	
+	@property
+	def OPTIONS(self):
+		"""
+		Get a list of all Configurable Options of this object.
+		"""
+		return {getattr(type(self), attr).name: getattr(type(self), attr) for attr in dir(type(self)) if isinstance(getattr(type(self), attr), Option)}
+
+class Configurable(Config, Dynamic_parent, Options_mixin):
 	"""
 	Class that represents a Configurable.
 	
 	Configurables are a specific type of Config objects that are used to instantiate a class. Like Config objects, they are enhanced dicts.
 	"""
+	
+	def __init__(self, *args, **kwargs):
+		super().__init__(*args, **kwargs)
+		self._configurable_options = {}
 		
-	def post_init(self, **kwargs):
-		"""
-		Second init function, called after __init__() has been called on all configurables.
-		"""
-		self._post_init(**self, **kwargs)
+	# Configurable options.
+	_NAME = Option("NAME", help = "The unique name of this Configurable and the name of the folder under which this calculation will run. If left blank and a GROUP_NAME is set, a name will be generated automatically", type = str)
+	ALIAS = Option(help = "A list of alternative names for this Configurable", default = [], type = list, no_edit = True)
+	GROUP = Option(help = "An ordered list of group names, used for categorisation", default = [], type = list)
+	GROUP_NAME = Option(help = "An alternative to NAME; GROUP_NAME is used to set a shorter name that appears as part of a GROUP", default = None, type = str)
+	SPLIT = Option(help = "A list of configurable splits; an advanced feature for automatically creating Configurables...", default = [], type = list, no_edit = True)
+	PARENT = Option(help = "An ordered list of parent Configurables from which this Configurable will inherit from", default = [], type = list, no_edit = True)
+	_ABSTRACT = Option("ABSTRACT", help = "A flag to force a Configurable to be abstract. Abstract Configurables cannot be selected, but can be used as parents for other Configurables", default = False, type = bool, no_edit = True)
+	TYPE = Option(help = "The type of this Configurable", choices = ('method', 'program', 'calculation', 'basis_set'), required = True, default = 'calculation', type = str, no_edit = True)
+	CLASS = Option(
+		help = "The specific sub-type of this Configurable",
+		choices = lambda option, configurable: [handle for cls in Configurable.from_class_handle(configurable.TYPE).recursive_subclasses() if hasattr(cls, 'CLASS_HANDLE') for handle in cls.CLASS_HANDLE],
+		required = True,
+		no_edit = True
+	)
 		
-	def _post_init(self, *, ID, NAME = None, ALIAS = None, GROUP = None, GROUP_NAME = None, SPLIT = None, PARENT = None, ABSTRACT = None, TYPE = None, CLASS = None, CONFIGS = None):
+	def configure(self, *, ID, CONFIGS = None):
 		"""
-		Second init function, this method should be called once all Configurables have been initiated.
+		Configure this configurable.
 		
-		_post_init is called with this configurable's key: value pairs as keyword arguments.
-		We discard many of these, because they are accessed via properties.
-		
-		:param ID: The unique ID number of this Configurable.
+		:param ID: The unique ID of this configurable.
+		:param CONFIGS: List of other Configurables (constructed but not necessarily configured).
 		"""
+		# Save our ID.
 		self.ID = ID
+		
+		# First, get a list of our configurable options.
+		options = self.OPTIONS
+		
+		# Now configure each.
+		for name,option in options.items():
+			option.configure(self)
+		
+		# Check exclusions.
+		for name,option in options.items():
+			for exclusion in option.exclude:
+				# TODO: This might need work...
+				if not options[exclusion].is_default(self) and not option.is_default(self):
+					raise Configurable_exception(self, "options '{}' and '{}' cannot be set at the same time (mutually exclusive)".format(option.name, exclusion))
 	
 	def resolve_names(self):
 		"""
@@ -327,14 +371,6 @@ class Configurable(Config, Dynamic_parent):
 		# All done, return the list.
 		return merged_list.resolve_splits()
 			
-		
-	@property
-	def SPLIT(self):
-		"""
-		This list of split fields of this configurable.
-		"""
-		return self.get('SPLIT', [])
-	
 	@property
 	def ABSTRACT(self):
 		"""
@@ -362,17 +398,7 @@ class Configurable(Config, Dynamic_parent):
 		else:
 			# No names we can use.
 			return None
-		
-	@property
-	def ALIAS(self):
-		"""
-		A list of unique names by which this config is known.
-		ALIAS works the same as NAME, except it allows multiple names to be specified and it can be used on both hidden and visible configurables.
-		
-		:return: A list of aliases (strings) or an empty list if none are set.
-		"""
-		return self.get('ALIAS', [])
-	
+			
 	@property
 	def NAMES(self):
 		"""
@@ -403,60 +429,6 @@ class Configurable(Config, Dynamic_parent):
 			desc += " ({})".format(" ,".join(self.ALIAS))
 			
 		return desc
-	
-	@property
-	def TYPE(self):
-		"""
-		The type of this configurable; determines the list of configurables to which this configurable is appended.
-		
-		:return: The config type.
-		"""
-		try:
-			return self['TYPE']
-		except KeyError:
-			raise Missing_option_exception(self, "TYPE")
-		
-	@property
-	def PARENT(self):
-		"""
-		The prents of this Configurable.
-		
-		:return: PARENT; a list of strings that this Configurable will inherit from.
-		"""
-		return self.get("PARENT", [])
-	
-	@property
-	def CLASS(self):
-		"""
-		The class handle of a class that can be instantiated with this configurable.
-		
-		:return: The class handle (a string).
-		"""
-		try:
-			return self.get('CLASS')
-		except KeyError:
-			raise Missing_option_exception(self, "CLASS")
-		
-	@property
-	def GROUP(self):
-		"""
-		The GROUP this configurable belongs to.
-		
-		Groups exist mostly for layout purposes.
-		
-		:return: The group (a list of strings) or an empty list.
-		"""
-		return self.get('GROUP', [])
-	
-	@property
-	def GROUP_NAME(self):
-		"""
-		An alternative to NAME that can be used in combination with GROUP.
-		
-		If NAME is not set and if both a GROUP and GROUP_NAME are set, then that configurable's name will be created automatically from a combination of the two.
-		:return: The group name (a string) or None if no group name is set.
-		"""
-		return self.get('GROUP_NAME', None)
 					
 	def grouped(self, grouped_dict, *, names = None, number):
 		names = self.GROUP if names is None else names

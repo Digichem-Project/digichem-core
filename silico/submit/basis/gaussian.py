@@ -1,4 +1,5 @@
 from silico.submit.basis import Extended_basis_set
+from silico.config.configurable.option import Option
 
 
 class Gaussian_basis_set(Extended_basis_set):
@@ -8,6 +9,8 @@ class Gaussian_basis_set(Extended_basis_set):
 	
 	CLASS_HANDLE = ("gaussian_basis",)
 	
-	def _post_init(self, *, ECP = None, **kwargs):
-		super()._post_init(**kwargs)
-		self.ECP = ECP.strip() if ECP is not None else None
+	_ECP = Option("ECP", help = "ECP (effective core potential) data", default = None, type = str)
+	
+	@property
+	def ECP(self):
+		return self._ECP.strip() if self._ECP is not None else None

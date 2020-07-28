@@ -5,7 +5,7 @@ import signal
 import itertools
 
 # Hidden import.
-import silico.references
+import silico.reference
 from silico.exception.uncatchable import Signal_caught
 from silico.exception import Silico_exception
 from silico.config.loader import Config_loader
@@ -56,7 +56,7 @@ def run(inner_func, **kwargs):
 		# Success.
 		return retval if retval is not None else 0
 	except KeyboardInterrupt:
-		logger.error("interrupted by user (^c)", exc_info = True)
+		logger.info("interrupted by user (ctrl-c)", exc_info = logger.level == logging.DEBUG)
 		return -1
 	except Signal_caught:
 		logger.error("stopped by signal", exc_info = True)
@@ -94,7 +94,8 @@ def init_program(*, arg_parser, arg_to_config = None, logger):
 		arg_to_config(args, config)
 		
 	# Now we have loaded absolutely everything, resolve any Configurables.
-	config.resolve()
+	# TODO: Not calling resolve() here is a speedhack (it is only required for csubmit, not the other programs). Review and improve.
+	#config.resolve()
 	
 	# Set what settings we can.
 	init_from_config(logger, config)

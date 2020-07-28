@@ -14,20 +14,29 @@ class Configurable_target(Configurable):
 		Get all the configurable target objects from a list that contain this object as a parent.
 		"""
 		return [child for child in target_list if len(set(self.NAMES).intersection(child.submit_parents)) > 0]
-			
+	
 	@property
 	def submit_parents(self):
 		"""
-		Get the list of 'Submit parents' (programs for calculations; methods for programs) that this target supports (all automatically converted to lower case to aid comparison).
+		Convenience property to get the 'submit parents' (programs for calculations; methods for programs) that this target supports.
+		
+		Inheriting classes should write their own implementation, this one raises NotImplementedError.
 		"""
-		return [parent.lower() for parent in self._submit_parents]
-	
-	@submit_parents.setter
-	def submit_parents(self, value):
-		"""
-		Set the list of 'Submit parents' (programs for calculations; methods for programs) that this target supports. 
-		"""
-		self._submit_parents = value
+		raise NotImplementedError
+		
+# 	@property
+# 	def submit_parents(self):
+# 		"""
+# 		Get the list of 'Submit parents' (programs for calculations; methods for programs) that this target supports (all automatically converted to lower case to aid comparison).
+# 		"""
+# 		return [parent.lower() for parent in self._submit_parents]
+# 	
+# 	@submit_parents.setter
+# 	def submit_parents(self, value):
+# 		"""
+# 		Set the list of 'Submit parents' (programs for calculations; methods for programs) that this target supports. 
+# 		"""
+# 		self._submit_parents = value
 	
 	def _set_submit_parent(self, parent_type, parent):
 		"""

@@ -1,6 +1,5 @@
 from silico.report import Report
 from mako.lookup import TemplateLookup
-import distutils.dir_util
 from pathlib import Path
 import pkg_resources
 import silico

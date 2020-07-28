@@ -5,6 +5,9 @@ from silico.exception import Configurable_exception
 from silico.exception.base import Submission_error, Silico_exception
 from silico.submit.calculation import Calculation_target
 import copy
+from silico.config.configurable.option import Option
+from silico.misc.base import is_int
+from itertools import chain
 
 class Gaussian_DFT(Calculation_target):
 	"""
@@ -15,67 +18,74 @@ class Gaussian_DFT(Calculation_target):
 	
 	# A list of strings describing the expected input file types (file extensions) for calculation's of this class. The first item of this list will be passed to obabel via the -o flag. 
 	INPUT_FILE_TYPES = ["gau", "com", "gjf", "gjc"]
-		
-	def _post_init(self,
-		*args,
-		use_chk = None,
-		CPU_list = None,
-		num_CPUs = None,
-		calculation_keywords = None,
-		functional = None,
-		basis_set = None,
-		extended_basis_sets = None,
-		extended_ECPs = None,
-		convert_chk = None,
-		keep_chk = None,
-		multiplicity = None,
-		charge = None,
-		options = None,
-		**kwargs
-	):
-		"""
-		Constructor for Gaussian DFT calculations.	
-		"""
-		super()._post_init(*args, **kwargs)
-		
-		self.use_chk = use_chk if use_chk is not None else True
-		
-		self.CPU_list = CPU_list if CPU_list is not None else []
-		# If both CPU_list and num_CPUs are empty, set to auto.
-		self.num_CPUs = "auto" if num_CPUs is None and len(self.CPU_list) == 0 else num_CPUs
-				
-		self.calculation_keywords = calculation_keywords if calculation_keywords is not None else []
-		self.functional = functional
-		self.basis_set = basis_set
-		self.options = options if options is not None else {}
-		self.keep_chk = keep_chk if keep_chk is not None else True
-		self.convert_chk = convert_chk if convert_chk is not None else True
-		
-		# Charge and multiplicity, auto means to take the value from the input file.
-		self.multiplicity = multiplicity if multiplicity is not None else "auto"
-		self.charge = charge if charge is not None else "auto"
-		
-		# Save our basis set.
-		self.extended_basis_sets = [self.available_basis_sets.get_config(extended_basis_set) for extended_basis_set in extended_basis_sets] if extended_basis_sets is not None else []
-		self.extended_ECPs = [self.available_basis_sets.get_config(extended_ECP) for extended_ECP in extended_ECPs] if extended_ECPs is not None else []
+
+	# Configurable options.
+	CPU_list = Option(help = "A list of integers specifying specific CPUs to use for the calculation, starting at 0. CPU_list and num_CPUs are mutually exclusive", exclude = ("num_CPUs",), default = (), type = tuple)
+	num_CPUs = Option(help = "An integer specifying the number of CPUs to use for this calculation. CPU_list and num_CPUs are mutually exclusive", exclude = ("CPU_list",), default = 1, type = int)
+	calculation_keywords = Option(help = "A list of Gaussian keywords specifying the calculation(s) to perform. Options, where appropriate, can also be included (eg, TDA=(NStates=10) )", default = (), type = tuple)
+	functional = Option(help = "The DFT functional to use", type = str)
+	basis_set = Option(help = "The basis set to use. 'Gen' or 'GenECP' should be given here if an external basis set is to be used", type = str)
+	_external_basis_sets = Option(
+		"external_basis_sets",
+		help = "A list of external basis sets to use. The order given here is the order the basis sets will be appended to the input file",
+		choices = lambda option, configurable: [name for basis_set in configurable.available_basis_sets for name in basis_set.NAMES],
+		type = tuple,
+		default = ()
+	)
+	_external_ECPs = Option(
+		"external_basis_sets",
+		help = "A list of external ECPs (effective core potentials) to use",
+		choices = lambda option, configurable: [name for basis_set in configurable.external_ECPs for name in basis_set.NAMES],
+		type = tuple,
+		default = ()
+	)
+	_multiplicity = Option("multiplicity", help = "Forcibly set the system multiplicity. Use 'auto' to use the multiplicity given in the input file", default = 'auto', validate = lambda option, configurable, value: value == "auto" or is_int(value))
+	_charge = Option("charge", help = "Forcibly set the system charge. Use 'auto' to use the charge given in the input file", default = 'auto', validate = lambda option, configurable, value: value == "auto" or is_int(value))
+	options = Option(help = "Additional Gaussian route options. These are written to the input file with only minor modification ('name : value' becomes 'name=value'), so any option valid to Gaussian can be given here", default = {'Population': 'Regular', 'Density': 'Current'}, type = dict)
+	convert_chk = Option(help = "Whether to create an .fchk file at the end of the calculation", default = True, type = bool)
+	keep_chk = Option(help = "Whether to keep the .chk file at the end of the calculation. If False, the .chk file will be automatically deleted, but not before it is converted to an .fchk file (if convert_chk is True)", default = False, type = bool)
 	
 	@property
-	def real_charge(self):
+	def charge(self):
 		"""
 		The molecule/system charge that we'll actually be using in the calculation.
 		
 		Unlike the charge attribute, this property will translate "auto" to the actual charge to be used.
 		"""
-		return self.charge if self.charge != "auto" else self.input_file.charge
+		return self._charge if self._charge != "auto" else self.input_file.charge
 	
 	@property
-	def real_multiplicity(self):
+	def multiplicity(self):
 		"""
 		The molecule/system multiplicity that we'll actually be using in the calculation.
 		
 		Unlike the multiplicity attribute, this property will translate "auto" to the actual multiplicity to be used.
 		"""
-		return self.multiplicity if self.multiplicity != "auto" else self.input_file.multiplicity
+		return self._multiplicity if self._multiplicity != "auto" else self.input_file.multiplicity
+	
+	@property
+	def external_basis_sets(self):
+		"""
+		The list of basis set Configurable objects we'll be using in the calculation.
+		
+		This property will translate the names of the basis sets, under self._extended_basis_sets, to the actual objects.
+		"""
+		try:
+			return [self.available_basis_sets.get_config(extended_ECP) for extended_ECP in self._external_ECPs]
+		except Exception:
+			raise Configurable_exception(self, "could not load extended ECP")
+		
+	@property
+	def external_ECPs(self):
+		"""
+		The list of basis set Configurable objects we'll be using in the calculation for effective core potentials.
+		
+		This property will translate the names of the basis sets, under self._extended_ECPs, to the actual objects.
+		"""
+		try:
+			return [self.available_basis_sets.get_config(extended_basis_set) for extended_basis_set in self._external_basis_sets]
+		except Exception:
+			raise Configurable_exception(self, "could not load extended basis set")
 		
 	@property
 	def model_chemistry(self):
@@ -102,7 +112,7 @@ class Gaussian_DFT(Calculation_target):
 		"""
 		# Assemble our route line.
 		# Add calc keywords.
-		route_parts = copy.copy(self.calculation_keywords)
+		route_parts = list(self.calculation_keywords)
 		
 		# Model chemistry
 		route_parts.append(self.model_chemistry)
@@ -121,45 +131,6 @@ class Gaussian_DFT(Calculation_target):
 		# Convert to string and return.
 		return " ".join(route_parts)
 		
-	@property
-	def CPU_list(self):
-		"""
-		A list of integer indices identifying specific CPUs to use for the calculation.
-		"""
-		return self._CPU_list
-	
-	@CPU_list.setter
-	def CPU_list(self, value):
-		"""
-		Set the list of integers indices identifying specific CPUs to use for the calculation.
-		"""
-		if len(value) != 0 and self._num_CPUs is not None:
-			raise Configurable_exception(self, "'CPU_list' and 'num_CPUs' cannot be specified simultaneously")
-
-		# Set.
-		self._CPU_list = value
-	
-	@property
-	def num_CPUs(self):
-		"""
-		The number of CPUs to use for the calculation.
-		"""
-		if len(self._CPU_list) == 0:
-			return super().num_CPUs
-		else:
-			return len(self._CPU_list)
-	
-	@num_CPUs.setter
-	def num_CPUs(self, value):
-		"""
-		Set the number of CPUs to use for the calculation. In addition to an exact integer amount, the string "auto" can also be supplied, in which case all available CPUs will be used.
-		"""
-		if value is not None and len(self.CPU_list) != 0:
-			raise Configurable_exception(self, "'CPU_list' and 'num_CPUs' cannot be specified simultaneously")
-
-		# Set.
-		super(Gaussian_DFT, self.__class__).num_CPUs.fset(self, value)
-	
 	@classmethod
 	def safe_name(self, file_name):
 		"""
@@ -199,7 +170,7 @@ class Gaussian_DFT(Calculation_target):
 		super()._submit_pre()
 		
 		# Decide on our file names.
-		self.chk_file_name = self.safe_name(self.name + ".chk") if self.use_chk else None
+		self.chk_file_name = self.safe_name(self.name + ".chk")
 		self.com_file_name = self.safe_name(self.name + ".com")
 		
 		# Get and load our com file template.

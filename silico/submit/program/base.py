@@ -15,16 +15,16 @@ from timeit import default_timer as timer
 import datetime
 from silico import misc
 from silico.submit.structure.flag import Flag
+from silico.config.configurable.option import Option
 
 class Program_target(Configurable_target):
 	"""
 	Top-level class for classes that implement submission to a calculation program.
 	"""
 	
-	def _post_init(self, *, methods, **kwargs):
-		super()._post_init(**kwargs)
-		self.methods = methods
-		self.method = None
+	CLASS_HANDLE = ("program",)
+	
+	methods = Option(help = "A list of methods that this program is compatible with", required = True, type = list)
 		
 	@property
 	def method(self):
@@ -43,18 +43,11 @@ class Program_target(Configurable_target):
 		self._set_submit_parent("_method", value)
 		
 	@property
-	def methods(self):
+	def submit_parents(self):
 		"""
-		Get a list of Method_target objects that are supported by this program.
+		Convenience property to get the 'submit parents' (programs for calculations; methods for programs) that this target supports.
 		"""
-		return self.submit_parents
-	
-	@methods.setter
-	def methods(self, value):
-		"""
-		Set the list of Method_target objects that are supported by this program.
-		"""
-		self.submit_parents = value
+		return self.methods
 		
 	@property
 	def silico_options(self):

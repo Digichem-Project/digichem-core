@@ -3,8 +3,8 @@
 ##############################################################
 ---
 TYPE: calculation
-ALIAS: [opt_freq_default]
-PARENT: [g09_default]
+ALIAS: [Opt-freq-defaults]
+PARENT: [Gaussian-defaults]
 GROUP: [Opt Freq]
 
 # The type of calculation to perform.
@@ -13,16 +13,16 @@ calculation_keywords:
     - Freq
 
 # Freq requires more mem than usual.
-memory: 20GB
+memory: 30GB
 
 
 # Opt + Freq Unrestricted triplet
 ##############################################################
 ---
 TYPE: calculation
-ALIAS: [opt_freq_triplet_default]
+ALIAS: [Opt-freq-triplet-defaults]
 GROUP: [Opt Freq Unrestricted Triplet]
-PARENT: [g09_default]
+PARENT: [Gaussian-defaults]
 
 # The type of calculation to perform.
 calculation_keywords:
@@ -32,11 +32,11 @@ calculation_keywords:
 multiplicity: 3
 
 # Freq requires more mem than usual.
-memory: 20GB
+memory: 30GB
 
 SPLIT:
     # 'Normal' basis set
-    - GROUP: ["{functional}"]
+    - GROUP: ['Gas Phase', "{functional}"]
       functional: 
         - uPBE1PBE
         - uB3LYP
@@ -49,7 +49,7 @@ SPLIT:
             - 6-31G++(d,p)
             - 6-311G(d,p)
             - 6-311G+(d,p)
-            - 6-311G+(d,p)
+            - 6-311G++(d,p)
             - cc-pVDZ
             - cc-pVTZ
             - cc-pVQZ
@@ -58,16 +58,23 @@ SPLIT:
         - GROUP_NAME: "6-31+G(d,p)/SBKJC-VDZ (ECP)"
           basis_set:
             - genECP
-          extended_basis_sets:
+          external_basis_sets:
             - - 6_31_plus_starstar_H_Ar
-              - SBKJC_VDZ_K_Rn
+              - SBKJC_VDZ
+        - GROUP_NAME: "6-31+G(d,p)/LANL2DZ (ECP)"
+          basis_set:
+            - genECP
+          external_basis_sets:
+            - - 6_31_plus_starstar_H_Ar
+              - LANL2DZ
     # Solvents.
-    - GROUP: ['Solvents', '{options[SCRF]}']
+    - GROUP: ['{options[SCRF]} (SCRF-PCM)']
       options: 
         - {SCRF: Acetonitrile}
         - {SCRF: Dichloromethane}
         - {SCRF: Hexane}
         - {SCRF: Toluene}
+        - {SCRF: Water}
       SPLIT:    
         - GROUP: ["{functional}"]
           functional: 
@@ -82,7 +89,7 @@ SPLIT:
                 - 6-31G++(d,p)
                 - 6-311G(d,p)
                 - 6-311G+(d,p)
-                - 6-311G+(d,p)
+                - 6-311G++(d,p)
                 - cc-pVDZ
                 - cc-pVTZ
                 - cc-pVQZ
@@ -91,7 +98,12 @@ SPLIT:
             - GROUP_NAME: "6-31+G(d,p)/SBKJC-VDZ (ECP)"
               basis_set:
                 - genECP
-              extended_basis_sets:
+              external_basis_sets:
                 - - 6_31_plus_starstar_H_Ar
-                  - SBKJC_VDZ_K_Rn
-
+                  - SBKJC_VDZ
+            - GROUP_NAME: "6-31+G(d,p)/LANL2DZ (ECP)"
+              basis_set:
+                - genECP
+              external_basis_sets:
+                - - 6_31_plus_starstar_H_Ar
+                  - LANL2DZ

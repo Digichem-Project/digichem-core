@@ -5,15 +5,31 @@ import copy
 import silico
 
 from silico.submit.structure.flag import Flag
-from silico.config.configurable import Configurable
 from silico.exception.base import Submission_error
 from silico.file.babel import Openbabel_converter
 from silico.submit import Configurable_target, Memory
+from silico.config.configurable.option import Option
+from silico.config.configurable.options import Options
+
+def _merge_silico_options(option, configurable, silico_options):
+		"""
+		Helper function, called to merge specific silico options with the global set.
+		"""
+		# Deep copy silico_options (because we're going to merge it).
+		combined_silico_options = copy.deepcopy(configurable.global_silico_options)
+		
+		# Merge silico_options with the global options.
+		combined_silico_options = configurable.merge_dict(silico_options, combined_silico_options)
+					
+		return combined_silico_options
 
 class Calculation_target(Configurable_target):
 	"""
 	Top-level class for classes that implement a particular calculation
 	"""
+	
+	# Top level Configurable for calculations.
+	CLASS_HANDLE = ("calculation",)
 	
 	# A list of strings describing the expected input file types (file extensions) for calculations of this class. The first item of this list will be passed to obabel via the -o flag. 
 	INPUT_FILE_TYPES = []
@@ -24,50 +40,59 @@ class Calculation_target(Configurable_target):
 		self.next = None
 		self.name = None
 	
-	def post_init(self, silico_options, **kwargs):
-		# Deep copy silico_options (because we're going to merge it).
-		silico_options = copy.deepcopy(silico_options)
-		
-		# If specific silico options were given in our config, merge them with the global options.
-		if 'silico_options' in self:
-			silico_options = self.merge_dict(self['silico_options'], silico_options)
-					
-		self['silico_options'] = silico_options
-		
-		super().post_init(**kwargs)
+	# Configurable options.
+	programs = Option(help = "A list of programs that this calculation is compatible with", required = True, type = list)
+	memory = Option(help = "The amount of memory to use for the calculation", required = True, type = Memory, rawtype = str)
+	num_CPUs = Option(help = "An integer specifying the number of CPUs to use for this calculation", default = 1, type = int)
+	scratch_options = Options(
+		help = "Options that control the use of the scratch directory",
+		use_scratch = Option(help = "Whether to use a scratch directory. False will disable the scratch directory, and is not recommended", default = True, type = bool),
+		path = Option(help = "Path to the top of the scratch directory. For each calculation, a sub-directory will be created under this path", default = "/scratch", type = str),
+		use_username = Option(help = "Whether to create a subdirectory for each user", default = True, type = bool),
+		keep = Option(help = "Whether to copy any leftover files from the scratch directory once the calculation has completed successfully", default = False, type = bool),
+		rescue = Option(help = "Whether to copy files from the scratch directory if the calculation fails or stops unexpectedly", default = True, type = bool),
+		force_delete = Option(help = "Whether to always delete the scratch directory at the end of the calculation, even if output files could not be safely copied", default = False, type = bool),
+		all_output = Option(help = "Whether to output all files to the scratch directory. If False, only intermediate files will be written to scratch (.log will be written directly to output directory for example)", default = True, type = bool)
+	)
+	write_summary = Option(help = "Whether to write Silico summary text files to the 'Results' folder at the end of the calculation", default = True, type = bool)
+	write_report = Option(help = "Whether to write a Silico PDF report to the 'Report' folder at the end of the calculation", default = True, type = bool)
+	custom_silico_options = Option(
+		"silico_options",
+		help = "Silico options to overwrite for this calculation",
+		default = {},
+		type = dict
+	)
 
-	def _post_init(
-			self,
-			*,
-			programs,
-			num_CPUs = None,
-			memory = None,
-			scratch_options = None,
-			write_summary = None,
-			write_report = None,
-			silico_options,
-			available_basis_sets,
-			**kwargs
-		):
-		super()._post_init(**kwargs)
-		self.programs = programs
-		self.memory = Memory(memory) if memory is not None else None
-		self.num_CPUs = num_CPUs
-		default_scratch_options = {
-			'path': '/scratch',
-			'include_username': True,
-			'all_output': True,
-			'keep': False,
-			'rescue': True,
-			'force_delete': False
-		}
-		self.scratch_options = Configurable.merge_dict(scratch_options, default_scratch_options) if scratch_options is not None else None
-		self.write_summary = write_summary if write_summary is not None else True
-		self.write_report = write_report if write_report is not None else True
-		self.silico_options = silico_options
+	@property
+	def silico_options(self):
+		"""
+		Get the specific silico options to this calculation.
+		
+		This property is a speed-hack; it combines global and specific silico_options the first time it is called and caches the results.
+		"""
+		try:
+			return self._silico_options
+		except AttributeError:
+			# First time.
+			# Deep copy silico_options (because we're going to merge it).
+			self._silico_options = copy.deepcopy(self.global_silico_options)
+			
+			# Merge silico_options with the global options.
+			self._silico_options = self.merge_dict(self.custom_silico_options, self._silico_options)
+						
+			return self._silico_options
+
+	def configure(self, available_basis_sets, silico_options, **kwargs):
+		"""
+		Configure this calculation.
+		
+		:param available_basis_sets: List (possibly empty) of known external basis sets.
+		:param silico_options: Global Silico options (note that this is not the per-calculation Option of the same name, but the actual global Silico options with which the former will be merged).
+		"""
 		self.available_basis_sets = available_basis_sets
-		
-		
+		self.global_silico_options = silico_options
+		super().configure(**kwargs)
+
 	@classmethod	
 	def prepare_list(self, calculation_list):
 		"""
@@ -115,11 +140,15 @@ class Calculation_target(Configurable_target):
 		"""
 		Path to the scratch directory to use for this calculation. This will return None if no scratch is to be used.
 		"""
+		# Return None if we're not using scratch.
+		if not self.scratch_options['use_scratch']:
+			return None
+		
 		# Start with the root path.
 		directory = self.scratch_options['path']
 		
 		# Add username if we've been asked to.
-		if self.scratch_options['include_username']:
+		if self.scratch_options['use_username']:
 			directory += "/" + getpass.getuser()
 		
 		# Make a path and return.
@@ -144,34 +173,7 @@ class Calculation_target(Configurable_target):
 		"""
 		# Set.
 		self._num_CPUs = value
-	
-# 	@classmethod
-# 	def from_config(self, config, *, silico_options, available_basis_sets, **kwargs):
-# 		"""
-# 		Get a Configurable_target object from a config dict.
-# 		
-# 		Unlike other configurable targets, the from_config() method of Calculation_targets takes an addition, keyword argument.
-# 		This argument is a config dictionary of all silico options. It will be merged with the 'silico_options' key in config, so each calculation can overwrite certain options if desired.
-# 		This is useful, for example, for specifying an alternative alignment method for analysis for some calculations but not others.
-# 		
-# 		:param config: The config dict to load from.
-# 		:param silico_options: A config dict containing all config options for configuring silico.
-# 		:param available_basis_sets: A list of configured Basis_set targets.
-#  		"""
-# 		# Deep copy both config and silico_options (because we're going to merge them).
-# 		config = copy.deepcopy(config)
-# 		silico_options = copy.deepcopy(silico_options)
-# 		
-# 		# Merge silico_options if given in the specific calc config.
-# 		if config.get('silico_options') is not None:
-# 			silico_options = Configurable.merge_dict( config.get('silico_options'), silico_options)
-# 			
-# 		# Clone our config so we don't permanently overwrite something.
-# 		config['silico_options'] = silico_options
-# 		
-# 		# Continue as normal.
-# 		return super().from_config(config, available_basis_sets = available_basis_sets, **kwargs) 
-		
+			
 	@property
 	def program(self):
 		"""
@@ -189,18 +191,11 @@ class Calculation_target(Configurable_target):
 		self._set_submit_parent("_program", value)
 		
 	@property
-	def programs(self):
+	def submit_parents(self):
 		"""
-		Get a list of Program_target objects that are supported by this calculation.
+		Convenience property to get the 'submit parents' (programs for calculations; methods for programs) that this target supports.
 		"""
-		return self.submit_parents
-	
-	@programs.setter
-	def programs(self, value):
-		"""
-		Set the list of Program_target objects that are supported by this calculation.
-		"""
-		self.submit_parents = value
+		return self.programs
 		
 	@property
 	def descriptive_name(self):
@@ -223,7 +218,7 @@ class Calculation_target(Configurable_target):
 		
 		# If we're auto converting, decide whether we should or not.
 		if convert == "auto":
-			if input_format is "":
+			if input_format == "":
 				getLogger(silico.logger_name).warning("Cannot convert input file '{}' because file has no suffix (cannot determine format); the file will be submitted without conversion".format(input_file_path))
 				convert = False
 			else:
@@ -231,7 +226,7 @@ class Calculation_target(Configurable_target):
 				
 		# Try and convert the format if we've been asked to.
 		if convert:
-			if input_format is "":
+			if input_format == "":
 				raise Submission_error(self, "cannot convert input file because file has no suffix (cannot determine format)", file_name = input_file_path)
 				
 			try:

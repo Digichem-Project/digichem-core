@@ -2,8 +2,8 @@
 ---
 TYPE: basis_set
 
-NAME: SBKJC-VDZ for K to Rn
-ALIAS: [SBKJC_VDZ_K_Rn]
+NAME: SBKJC-VDZ for >= K
+ALIAS: [SBKJC_VDZ]
 
 # Basis set for gaussian calculation.
 CLASS: gaussian_basis

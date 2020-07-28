@@ -2,8 +2,8 @@
 ##############################################################
 ---
 TYPE: calculation
-ALIAS: [tda_default]
-PARENT: [g09_default]
+ALIAS: [TDA-defaults]
+PARENT: [Gaussian-defaults]
 GROUP: [TDA, 10 Singlets 10 Triplets]
 
 calculation_keywords:
@@ -12,7 +12,8 @@ calculation_keywords:
 ##############################################################
 ---
 TYPE: calculation
-PARENT: [g09_default]
+ALIAS: [TDA-triplets-defaults]
+PARENT: [Gaussian-defaults]
 GROUP: [TDA, 5 Triplets]
 
 calculation_keywords:
@@ -23,8 +24,8 @@ calculation_keywords:
 ##############################################################
 ---
 TYPE: calculation
-PARENT: [g09_default]
-ALIAS: [tda_abs_default]
+PARENT: [Gaussian-defaults]
+ALIAS: [TDA-singlets-defaults]
 GROUP: [TDA, 100 Singlets]
 
 calculation_keywords:
@@ -40,8 +41,8 @@ silico_options:
 ##############################################################
 ---
 TYPE: calculation
-PARENT: [g09_default]
-ALIAS: [opt_tda_s1_default]
+PARENT: [Gaussian-defaults]
+ALIAS: [Opt-TDA-S1-defaults]
 GROUP: [TDA, Optimised S(1)]
 
 calculation_keywords:
@@ -52,8 +53,8 @@ calculation_keywords:
 ##############################################################
 ---
 TYPE: calculation
-PARENT: [g09_default]
-ALIAS: [opt_tda_t1_default]
+PARENT: [Gaussian-defaults]
+ALIAS: [Opt-TDA-T1-defaults]
 GROUP: [TDA, Optimised T(1)]
 
 calculation_keywords:

@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python3.6
 
 # This should suppress a matplotlib warning when we compile with pyinstaller.
 import warnings

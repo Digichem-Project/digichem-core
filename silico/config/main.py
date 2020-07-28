@@ -28,6 +28,8 @@ class Silico_options(Config):
 	def resolve(self):
 		"""
 		Resolve all Configurables which we contain.
+		
+		NOTE: This method can be (and is) quite expensive.
 		"""
 		# First, resolve each list.
 		self.methods = self.methods.resolve()
@@ -36,10 +38,10 @@ class Silico_options(Config):
 		self.basis_sets = self.basis_sets.resolve()
 		
 		# Now init.
-		self.methods.post_init()
-		self.programs.post_init()
-		self.basis_sets.post_init()
-		self.calculations.post_init(silico_options = self, available_basis_sets = self.basis_sets)
+		self.methods.configure()
+		self.programs.configure()
+		self.basis_sets.configure()
+		self.calculations.configure(silico_options = self, available_basis_sets = self.basis_sets)
 
 	def add_config(self, config):
 		"""
