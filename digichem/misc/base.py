@@ -12,7 +12,7 @@ def is_int(value):
 		return True
 	except ValueError:
 		return False
-
+	
 def date_to_string(datetime_object):
 	"""
 	Convert a datetime object to a standard string representation.
