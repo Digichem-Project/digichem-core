@@ -178,12 +178,13 @@ def _main(args, config, logger):
 			break
 		
 		# Ask the user for calcs.
-		#args.calculations = shlex.split(silico.misc.tree.run(Node.from_list((known_methods, known_programs, known_calculations))))
 		args.calculations = shlex.split(Calculation_browser.run(Tree_node.from_configurable_lists((known_methods, known_programs, known_calculations))))
-	
-		# Get upset again if we have no calculations.
 		if len(args.calculations) == 0:
-			raise Silico_exception("No calculations to submit" + ("(use the -i option for interactive mode)" if not args.interactive else ""))
+			break
+	
+	# Get upset again if we have no calculations.
+	if len(args.calculations) == 0:
+		raise Silico_exception("No calculations to submit" + (" (use the -i option for interactive mode)" if not args.interactive else ""))
 	
 	try:
 		# Arrange our calcs into a linked list.
