@@ -3,13 +3,11 @@ from mako.lookup import TemplateLookup
 import silico
 from silico.exception import Configurable_exception
 from silico.exception.base import Submission_error, Silico_exception
-from silico.submit.calculation import Calculation_target
-import copy
 from silico.config.configurable.option import Option
 from silico.misc.base import is_int
-from itertools import chain
+from silico.submit.calculation import Concrete_calculation
 
-class Gaussian_DFT(Calculation_target):
+class Gaussian_DFT(Concrete_calculation):
 	"""
 	DFT (density functional theory) calculations with Gaussian.
 	"""

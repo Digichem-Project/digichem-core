@@ -1,4 +1,4 @@
-from silico.submit.calculation.base import Calculation_target
+from silico.submit.calculation import Calculation_target
 from silico.config.configurable.option import Option
 
 class Calculation_series(Calculation_target):
@@ -17,7 +17,7 @@ class Calculation_series(Calculation_target):
 		type = tuple
 	)
 	# Hack; Calculation_series inherits from Calculation_target and so inherits a number of configurable options that it ignores. Memory is required for a real calc, but is safely ignored here.
-	memory = Option(help = "The amount of memory to use for the calculation",rawtype = str)
+	#memory = Option(help = "The amount of memory to use for the calculation",rawtype = str)
 	
 	def configure(self, CONFIGS, **kwargs):
 		"""

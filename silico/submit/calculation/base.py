@@ -12,24 +12,67 @@ from silico.config.configurable.option import Option
 from silico.config.configurable.options import Options
 
 def _merge_silico_options(option, configurable, silico_options):
-		"""
-		Helper function, called to merge specific silico options with the global set.
-		"""
-		# Deep copy silico_options (because we're going to merge it).
-		combined_silico_options = copy.deepcopy(configurable.global_silico_options)
-		
-		# Merge silico_options with the global options.
-		combined_silico_options = configurable.merge_dict(silico_options, combined_silico_options)
-					
-		return combined_silico_options
+	"""
+	Helper function, called to merge specific silico options with the global set.
+	"""
+	# Deep copy silico_options (because we're going to merge it).
+	combined_silico_options = copy.deepcopy(configurable.global_silico_options)
+	
+	# Merge silico_options with the global options.
+	combined_silico_options = configurable.merge_dict(silico_options, combined_silico_options)
+				
+	return combined_silico_options
 
 class Calculation_target(Configurable_target):
 	"""
-	Top-level class for classes that implement a particular calculation
+	Abstract top-level class for calculation targets.
 	"""
-	
 	# Top level Configurable for calculations.
 	CLASS_HANDLE = ("calculation",)
+	
+	# Configurable options.
+	programs = Option(help = "A list of programs that this calculation is compatible with", required = True, type = list)
+	
+	def configure(self, available_basis_sets, silico_options, **kwargs):
+		"""
+		Configure this calculation.
+		
+		:param available_basis_sets: List (possibly empty) of known external basis sets.
+		:param silico_options: Global Silico options (note that this is not the per-calculation Option of the same name, but the actual global Silico options with which the former will be merged).
+		"""
+		self.available_basis_sets = available_basis_sets
+		self.global_silico_options = silico_options
+		super().configure(**kwargs)
+	
+	@property
+	def program(self):
+		"""
+		Get the Program_target object that is going to run this calculation.
+		"""
+		return self._program
+	
+	@program.setter
+	def program(self, value):
+		"""
+		The Program_target object that is going to run this calculation.
+		
+		:raises Configurable_target_exception: If the given program is not compatible with this calculation.
+		"""
+		self._set_submit_parent("_program", value)
+		
+	@property
+	def submit_parents(self):
+		"""
+		Convenience property to get the 'submit parents' (programs for calculations; methods for programs) that this target supports.
+		"""
+		return self.programs
+
+class Concrete_calculation(Calculation_target):
+	"""
+	Top-level class for real calculations.
+	"""
+	
+	CLASS_HANDLE = ()
 	
 	# A list of strings describing the expected input file types (file extensions) for calculations of this class. The first item of this list will be passed to obabel via the -o flag. 
 	INPUT_FILE_TYPES = []
@@ -41,7 +84,6 @@ class Calculation_target(Configurable_target):
 		self.name = None
 	
 	# Configurable options.
-	programs = Option(help = "A list of programs that this calculation is compatible with", required = True, type = list)
 	memory = Option(help = "The amount of memory to use for the calculation", required = True, type = Memory, rawtype = str)
 	num_CPUs = Option(help = "An integer specifying the number of CPUs to use for this calculation", default = 1, type = int)
 	scratch_options = Options(
@@ -81,17 +123,6 @@ class Calculation_target(Configurable_target):
 			self._silico_options = self.merge_dict(self.custom_silico_options, self._silico_options)
 						
 			return self._silico_options
-
-	def configure(self, available_basis_sets, silico_options, **kwargs):
-		"""
-		Configure this calculation.
-		
-		:param available_basis_sets: List (possibly empty) of known external basis sets.
-		:param silico_options: Global Silico options (note that this is not the per-calculation Option of the same name, but the actual global Silico options with which the former will be merged).
-		"""
-		self.available_basis_sets = available_basis_sets
-		self.global_silico_options = silico_options
-		super().configure(**kwargs)
 
 	@classmethod	
 	def prepare_list(self, calculation_list):
@@ -173,30 +204,7 @@ class Calculation_target(Configurable_target):
 		"""
 		# Set.
 		self._num_CPUs = value
-			
-	@property
-	def program(self):
-		"""
-		Get the Program_target object that is going to run this calculation.
-		"""
-		return self._program
-	
-	@program.setter
-	def program(self, value):
-		"""
-		The Program_target object that is going to run this calculation.
-		
-		:raises Configurable_target_exception: If the given program is not compatible with this calculation.
-		"""
-		self._set_submit_parent("_program", value)
-		
-	@property
-	def submit_parents(self):
-		"""
-		Convenience property to get the 'submit parents' (programs for calculations; methods for programs) that this target supports.
-		"""
-		return self.programs
-		
+					
 	@property
 	def descriptive_name(self):
 		"""
