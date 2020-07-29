@@ -47,13 +47,13 @@ SPLIT:
           external_ECPs:
             - - LANL2DZ
     # Solvents.
-    - GROUP: ['{options[SCRF]} (SCRF-PCM)']
-      options: 
-        - {SCRF: Acetonitrile}
-        - {SCRF: Dichloromethane}
-        - {SCRF: Hexane}
-        - {SCRF: Toluene}
-        - {SCRF: Water}
+    - GROUP: ['{solvent} (SCRF-PCM)']
+      solvent: 
+        - Acetonitrile
+        - Dichloromethane
+        - Hexane
+        - Toluene
+        - Water
       SPLIT:    
         - GROUP: ["{functional}"]
           functional: 

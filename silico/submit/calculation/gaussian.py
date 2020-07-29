@@ -6,6 +6,7 @@ from silico.exception.base import Submission_error, Silico_exception
 from silico.config.configurable.option import Option
 from silico.misc.base import is_int
 from silico.submit.calculation import Concrete_calculation
+from logging import getLogger
 
 class Gaussian_DFT(Concrete_calculation):
 	"""
@@ -39,6 +40,7 @@ class Gaussian_DFT(Concrete_calculation):
 	)
 	_multiplicity = Option("multiplicity", help = "Forcibly set the system multiplicity. Use 'auto' to use the multiplicity given in the input file", default = 'auto', validate = lambda option, configurable, value: value == "auto" or is_int(value))
 	_charge = Option("charge", help = "Forcibly set the system charge. Use 'auto' to use the charge given in the input file", default = 'auto', validate = lambda option, configurable, value: value == "auto" or is_int(value))
+	solvent = Option(help = "Name of the solvent to use for the calculation (the model used is SCRF-PCM)", default = None, type = str)
 	options = Option(help = "Additional Gaussian route options. These are written to the input file with only minor modification ('name : value' becomes 'name=value'), so any option valid to Gaussian can be given here", default = {'Population': 'Regular', 'Density': 'Current'}, type = dict)
 	convert_chk = Option(help = "Whether to create an .fchk file at the end of the calculation", default = True, type = bool)
 	keep_chk = Option(help = "Whether to keep the .chk file at the end of the calculation. If False, the .chk file will be automatically deleted, but not before it is converted to an .fchk file (if convert_chk is True)", default = False, type = bool)
@@ -114,6 +116,10 @@ class Gaussian_DFT(Concrete_calculation):
 		
 		# Model chemistry
 		route_parts.append(self.model_chemistry)
+		
+		# Solvent.
+		if self.solvent is not None:
+			route_parts.append("SCRF=(Solvent={})".format(self.solvent))
 		
 		# Finally, add any free-form options.
 		for option in self.options:
