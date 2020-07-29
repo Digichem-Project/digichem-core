@@ -246,10 +246,10 @@ class Configurable(Config, Dynamic_parent, Options_mixin):
 		This is because SPLIT occurs last (after resolving PARENT, for example), so can't be used for inheritance (and hence resolving ALIAS would be pointless). 
 		"""
 		if self.get('NAME') is not None:
-			self['NAME'] = self['NAME'].format(**self)
-		self['GROUP'] = [group.format(**self) for group in self.GROUP]
+			self['NAME'] = self['NAME'].format(CONFIGURABLE = self, **self)
+		self['GROUP'] = [group.format(CONFIGURABLE = self, **self) for group in self.GROUP]
 		if self.get('GROUP_NAME') is not None:
-			self['GROUP_NAME'] = self['GROUP_NAME'].format(**self)
+			self['GROUP_NAME'] = self['GROUP_NAME'].format(CONFIGURABLE = self, **self)
 		#self['ALIAS'] = [alias.format(**self) for alias in self.ALIAS]
 		#self.pop('ALIAS')
 			
