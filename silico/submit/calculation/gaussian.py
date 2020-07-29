@@ -31,7 +31,7 @@ class Gaussian_DFT(Concrete_calculation):
 		default = ()
 	)
 	_external_ECPs = Option(
-		"external_basis_sets",
+		"external_ECPs",
 		help = "A list of external ECPs (effective core potentials) to use",
 		choices = lambda option, configurable: [name for basis_set in configurable.external_ECPs for name in basis_set.NAMES],
 		type = tuple,
@@ -62,18 +62,6 @@ class Gaussian_DFT(Concrete_calculation):
 		return self._multiplicity if self._multiplicity != "auto" else self.input_file.multiplicity
 	
 	@property
-	def external_basis_sets(self):
-		"""
-		The list of basis set Configurable objects we'll be using in the calculation.
-		
-		This property will translate the names of the basis sets, under self._extended_basis_sets, to the actual objects.
-		"""
-		try:
-			return [self.available_basis_sets.get_config(extended_ECP) for extended_ECP in self._external_ECPs]
-		except Exception:
-			raise Configurable_exception(self, "could not load extended ECP")
-		
-	@property
 	def external_ECPs(self):
 		"""
 		The list of basis set Configurable objects we'll be using in the calculation for effective core potentials.
@@ -81,9 +69,21 @@ class Gaussian_DFT(Concrete_calculation):
 		This property will translate the names of the basis sets, under self._extended_ECPs, to the actual objects.
 		"""
 		try:
+			return [self.available_basis_sets.get_config(extended_ECP) for extended_ECP in self._external_ECPs]
+		except Exception:
+			raise Configurable_exception(self, "could not load external ECP")
+		
+	@property
+	def external_basis_sets(self):
+		"""
+		The list of basis set Configurable objects we'll be using in the calculation.
+		
+		This property will translate the names of the basis sets, under self._extended_basis_sets, to the actual objects.
+		"""
+		try:
 			return [self.available_basis_sets.get_config(extended_basis_set) for extended_basis_set in self._external_basis_sets]
 		except Exception:
-			raise Configurable_exception(self, "could not load extended basis set")
+			raise Configurable_exception(self, "could not load external basis set")
 		
 	@property
 	def model_chemistry(self):
