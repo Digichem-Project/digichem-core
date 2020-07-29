@@ -67,6 +67,36 @@ class Calculation_target(Configurable_target):
 		"""
 		return self.programs
 
+	@classmethod	
+	def prepare_list(self, calculation_list):
+		"""
+		Prepare a number of Calculation_target objects for submission.
+		
+		:param calculation_list: A list of 3-membered tuples (method, program, calculation) that are to be prepared. 
+		"""
+		first = None
+		previous = None
+				
+		for method, program, calculation in calculation_list:
+			# Expand calculation.
+			for expanded_calculation in calculation.prepare():
+				# Keep track of the first.
+				if first is None:
+					first = expanded_calculation
+					
+				# Setup the parent/child relationships.
+				expanded_calculation.program = program
+				program.method = method
+				
+				# Add to the chain.
+				if previous is not None:
+					previous.next = expanded_calculation
+					
+				previous = expanded_calculation
+		
+		# Return the first calculation in the chain.
+		return first
+
 class Concrete_calculation(Calculation_target):
 	"""
 	Top-level class for real calculations.
@@ -123,36 +153,6 @@ class Concrete_calculation(Calculation_target):
 			self._silico_options = self.merge_dict(self.custom_silico_options, self._silico_options)
 						
 			return self._silico_options
-
-	@classmethod	
-	def prepare_list(self, calculation_list):
-		"""
-		Prepare a number of Calculation_target objects for submission.
-		
-		:param calculation_list: A list of 3-membered tuples (method, program, calculation) that are to be prepared. 
-		"""
-		first = None
-		previous = None
-				
-		for method, program, calculation in calculation_list:
-			# Expand calculation.
-			for expanded_calculation in calculation.prepare():
-				# Keep track of the first.
-				if first is None:
-					first = expanded_calculation
-					
-				# Setup the parent/child relationships.
-				expanded_calculation.program = program
-				program.method = method
-				
-				# Add to the chain.
-				if previous is not None:
-					previous.next = expanded_calculation
-					
-				previous = expanded_calculation
-		
-		# Return the first calculation in the chain.
-		return first
 	
 	def prepare(self):
 		"""
