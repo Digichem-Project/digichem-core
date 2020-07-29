@@ -77,7 +77,7 @@ class Configurable_list(list):
 		:return: A modified Configurable_list.
 		"""
 		# First, resolve duplicates.
-		self.resolve_duplicates()
+		self.resolve_duplicates() 
 		
 		# Now, resolve parents (do this in place so we're not constantly resolving the same parents).
 		for index, config in enumerate(self):
