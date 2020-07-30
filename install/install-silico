@@ -1,0 +1,13 @@
+#!/bin/bash
+
+INSTALL_LOC="$HOME/.silico_link"
+BIN_LOC="/gpfs1/apps/EZC-tools/bin/"
+
+# Install script for silico.
+if [ -f "$INSTALL_LOC" ]; then
+    printf "Already installed\n"
+else
+    printf "PATH=\"$BIN_LOC:\$PATH\"" > "$INSTALL_LOC"
+    printf "source .silico_link" >> "$HOME/.bash_profile"
+    printf "Installed successfully. Please log out and in again to complete\n"
+fi
