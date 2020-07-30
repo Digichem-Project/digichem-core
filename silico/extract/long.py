@@ -25,16 +25,16 @@ class Long_tabular_group_extractor(Result_extractor_group):
 		:param **kwargs: Keyword args that will be passed as is to each extractor class to construct.
 		"""
 		return [
-			Atoms_long_extractor(),
-			SCF_long_extractor(),
-			MP_long_extractor(),
-			CC_long_extractor(),
-			Orbitals_long_extractor(),
-			Beta_long_extractor(),
-			Vibrations_long_extractor(),
-			Excited_state_long_extractor(),
-			Excited_state_transitions_long_extractor(),
-			TDM_long_extractor()
+			Atoms_long_extractor(**kwargs),
+			SCF_long_extractor(**kwargs),
+			MP_long_extractor(**kwargs),
+			CC_long_extractor(**kwargs),
+			Orbitals_long_extractor(**kwargs),
+			Beta_long_extractor(**kwargs),
+			Vibrations_long_extractor(**kwargs),
+			Excited_state_long_extractor(**kwargs),
+			Excited_state_transitions_long_extractor(**kwargs),
+			TDM_long_extractor(**kwargs)
 		]
 	
 	@classmethod
