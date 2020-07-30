@@ -118,6 +118,7 @@ def main():
 	parser.add_argument("-c", "--calculations", help = "Calculations to perform, identified either by name or by ID. To use a method and/or program other than the default, use the format M/P/C (eg, 2/1/1)", nargs = "*", default = [])
 	#parser.add_argument("-l", "--list", help = "List all known calculations; give twice for more output", action = "count", default = 0)
 	parser.add_argument("-i", "--interactive", help = "Run in interactive mode, prompting for missing input", action = "store_true")
+	parser.add_argument("-v", "--version", action = "version", version = str(silico.version))
 		
 	# ----- Program begin -----
 	return silico.program.main_wrapper(
