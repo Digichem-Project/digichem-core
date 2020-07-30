@@ -76,7 +76,8 @@ class HTML_report(Report):
 			pass
 		
 		try:
-			shutil.copytree(str(self.src_static_dir), str(self.static_dir))
+			# We use copy rather than copy2 because we don't care about metadata.
+			shutil.copytree(str(self.src_static_dir), str(self.static_dir), copy_function = shutil.copy)
 		except FileExistsError:
 			# This is maybe ok...
 			pass
