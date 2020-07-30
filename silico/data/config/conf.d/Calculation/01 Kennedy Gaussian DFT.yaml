@@ -147,7 +147,7 @@ scratch_options:
     force_delete: True
     
     # If True, all calculation output will be written to the scratch directory. If False, only intermediate files will be written to scratch (.log will be written directly to output directory for example).
-    #all_output: False
+    all_output: False
 
 # These options are added to the Gaussian route section with only minor modification:
 #       Options of the form 'Foo: Bar' will become 'Foo=Bar'
