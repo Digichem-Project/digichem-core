@@ -4,6 +4,7 @@ from pathlib import Path
 import pkg_resources
 import silico
 import shutil
+import subprocess
 
 class HTML_report(Report):
 	"""
@@ -75,12 +76,24 @@ class HTML_report(Report):
 			# This is ok.
 			pass
 		
-		try:
-			# We use copy rather than copy2 because we don't care about metadata.
-			shutil.copytree(str(self.src_static_dir), str(self.static_dir), copy_function = shutil.copy)
-		except FileExistsError:
-			# This is maybe ok...
-			pass
+		# Because the in-built python copytree functions appear to be broken, we'll just use cp for now.
+		# This is a work around for #21.
+		subprocess.run([
+				"cp", "-R",
+				str(self.src_static_dir),
+				str(self.static_dir)
+			],
+			universal_newlines = True,
+			check = True
+		)
+		
+		# This function also appears to be bugged, see #21
+# 		try:
+# 			# We use copy rather than copy2 because we don't care about metadata.
+# 			shutil.copytree(str(self.src_static_dir), str(self.static_dir), copy_function = shutil.copy)
+# 		except FileExistsError:
+# 			# This is maybe ok...
+# 			pass
 		
 		# Sadly distutils is bugged if it gets called twice.
 		#distutils.dir_util.copy_tree(str(self.src_static_dir), str(self.static_dir))
