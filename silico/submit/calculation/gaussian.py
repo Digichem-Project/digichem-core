@@ -34,7 +34,7 @@ class Gaussian_DFT(Concrete_calculation):
 	_external_ECPs = Option(
 		"external_ECPs",
 		help = "A list of external ECPs (effective core potentials) to use",
-		choices = lambda option, configurable: [name for basis_set in configurable.external_ECPs for name in basis_set.NAMES],
+		choices = lambda option, configurable: [name for basis_set in configurable.available_ECPs for name in basis_set.NAMES],
 		type = tuple,
 		default = ()
 	)
@@ -74,7 +74,14 @@ class Gaussian_DFT(Concrete_calculation):
 			return [self.available_basis_sets.get_config(extended_ECP) for extended_ECP in self._external_ECPs]
 		except Exception:
 			raise Configurable_exception(self, "could not load external ECP")
-		
+	
+	@property
+	def available_ECPs(self):
+		"""
+		A list of available external basis sets with ECPs.
+		"""
+		return [ECP for ECP in self.available_basis_sets if ECP.ECP is not None]
+	
 	@property
 	def external_basis_sets(self):
 		"""

@@ -76,7 +76,7 @@ class HTML_report(Report):
 			# This is ok.
 			pass
 		
-		# Because the in-built python copytree functions appear to be broken, we'll just use cp for now.
+		# Because the in-built python copytree functions appears to be broken, we'll just use cp for now.
 		# This is a work around for #21.
 		subprocess.run([
 				"cp", "-R",

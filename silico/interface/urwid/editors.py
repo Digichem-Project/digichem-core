@@ -10,10 +10,19 @@ class Option_editor(urwid.Pile):
 	def __init__(self, original_widget, configurable, option):
 		"""
 		"""
+		help_msg = option.help
+		choices = option.choices(configurable)
+		# If we have choices, append them.
+		if choices is not None:
+			if help_msg[-1] != ".":
+				help_msg += "."
+			help_msg += " Possible values are: " + ", ".join(["'{}'".format(choice) for choice in choices])
+		
+		
 		# Construct our Pile of editable widget and help.
 		super().__init__([
 			urwid.AttrMap(original_widget, 'editable'),
-			urwid.Text(option.help)
+			urwid.Text(help_msg)
 		])
 		self.configurable = configurable
 		self.option = option
