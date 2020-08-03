@@ -118,6 +118,7 @@ def main():
 	parser.add_argument("-c", "--calculations", help = "Calculations to perform, identified either by name or by ID. To use a method and/or program other than the default, use the format M/P/C (eg, 2/1/1)", nargs = "*", default = [])
 	#parser.add_argument("-l", "--list", help = "List all known calculations; give twice for more output", action = "count", default = 0)
 	parser.add_argument("-i", "--interactive", help = "Run in interactive mode, prompting for missing input", action = "store_true")
+	parser.add_argument("-v", "--version", action = "version", version = str(silico.version))
 		
 	# ----- Program begin -----
 	return silico.program.main_wrapper(
@@ -143,11 +144,6 @@ def _main(args, config, logger):
 	
 	logger.debug("Loaded {} methods, {} programs and {} calculations".format(len(known_methods), len(known_programs), len(known_calculations)))
 	
-# 	# Print our list if we've been asked to.
-# 	if args.list > 0:
-# 		_list(known_methods, known_programs, known_calculations, all = args.list > 1)
-# 		return 0
-	
 	# Check to see if we've got any files to submit (and prompt if we can).
 	while len(args.calculation_files) == 0 and args.interactive:
 		# Prompt for some files.
@@ -168,8 +164,6 @@ def _main(args, config, logger):
 			calculations = [_parse_calc_string(calc_string, known_methods, known_programs, known_calculations) for calc_string in args.calculations]
 		except:
 			raise Silico_exception("Failed to parse calculations to submit")
-			#logger.error("Failed to parse calculations to submit", exc_info = True)
-			#exit(1)
 						
 		# If a 'dangerous' (one with a warning set) method has been chosen (and we're interactive), get confirmation.
 		for method, program, calculation in calculations:
@@ -185,15 +179,13 @@ def _main(args, config, logger):
 			break
 		
 		# Ask the user for calcs.
-		#args.calculations = shlex.split(silico.misc.tree.run(Node.from_list((known_methods, known_programs, known_calculations))))
 		args.calculations = shlex.split(Calculation_browser.run(Tree_node.from_configurable_lists((known_methods, known_programs, known_calculations))))
+		if len(args.calculations) == 0:
+			break
 	
 	# Get upset again if we have no calculations.
 	if len(args.calculations) == 0:
-		raise Silico_exception("No calculations to submit (use the -i option for interactive mode)")
-		#logger.error("No calculations to submit (use the -i option for interactive mode)")
-		#return 1
-		
+		raise Silico_exception("No calculations to submit" + (" (use the -i option for interactive mode)" if not args.interactive else ""))
 	
 	try:
 		# Arrange our calcs into a linked list.

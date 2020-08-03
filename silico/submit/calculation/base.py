@@ -12,76 +12,27 @@ from silico.config.configurable.option import Option
 from silico.config.configurable.options import Options
 
 def _merge_silico_options(option, configurable, silico_options):
-		"""
-		Helper function, called to merge specific silico options with the global set.
-		"""
-		# Deep copy silico_options (because we're going to merge it).
-		combined_silico_options = copy.deepcopy(configurable.global_silico_options)
-		
-		# Merge silico_options with the global options.
-		combined_silico_options = configurable.merge_dict(silico_options, combined_silico_options)
-					
-		return combined_silico_options
+	"""
+	Helper function, called to merge specific silico options with the global set.
+	"""
+	# Deep copy silico_options (because we're going to merge it).
+	combined_silico_options = copy.deepcopy(configurable.global_silico_options)
+	
+	# Merge silico_options with the global options.
+	combined_silico_options = configurable.merge_dict(silico_options, combined_silico_options)
+				
+	return combined_silico_options
 
 class Calculation_target(Configurable_target):
 	"""
-	Top-level class for classes that implement a particular calculation
+	Abstract top-level class for calculation targets.
 	"""
-	
 	# Top level Configurable for calculations.
 	CLASS_HANDLE = ("calculation",)
 	
-	# A list of strings describing the expected input file types (file extensions) for calculations of this class. The first item of this list will be passed to obabel via the -o flag. 
-	INPUT_FILE_TYPES = []
-	
-	def __init__(self, *args, **kwargs):
-		super().__init__(*args, **kwargs)
-		# Next is a linked list of Calculation_targets. We will call submit() on next once this object has been submitted.
-		self.next = None
-		self.name = None
-	
 	# Configurable options.
 	programs = Option(help = "A list of programs that this calculation is compatible with", required = True, type = list)
-	memory = Option(help = "The amount of memory to use for the calculation", required = True, type = Memory, rawtype = str)
-	num_CPUs = Option(help = "An integer specifying the number of CPUs to use for this calculation", default = 1, type = int)
-	scratch_options = Options(
-		help = "Options that control the use of the scratch directory",
-		use_scratch = Option(help = "Whether to use a scratch directory. False will disable the scratch directory, and is not recommended", default = True, type = bool),
-		path = Option(help = "Path to the top of the scratch directory. For each calculation, a sub-directory will be created under this path", default = "/scratch", type = str),
-		use_username = Option(help = "Whether to create a subdirectory for each user", default = True, type = bool),
-		keep = Option(help = "Whether to copy any leftover files from the scratch directory once the calculation has completed successfully", default = False, type = bool),
-		rescue = Option(help = "Whether to copy files from the scratch directory if the calculation fails or stops unexpectedly", default = True, type = bool),
-		force_delete = Option(help = "Whether to always delete the scratch directory at the end of the calculation, even if output files could not be safely copied", default = False, type = bool),
-		all_output = Option(help = "Whether to output all files to the scratch directory. If False, only intermediate files will be written to scratch (.log will be written directly to output directory for example)", default = True, type = bool)
-	)
-	write_summary = Option(help = "Whether to write Silico summary text files to the 'Results' folder at the end of the calculation", default = True, type = bool)
-	write_report = Option(help = "Whether to write a Silico PDF report to the 'Report' folder at the end of the calculation", default = True, type = bool)
-	custom_silico_options = Option(
-		"silico_options",
-		help = "Silico options to overwrite for this calculation",
-		default = {},
-		type = dict
-	)
-
-	@property
-	def silico_options(self):
-		"""
-		Get the specific silico options to this calculation.
-		
-		This property is a speed-hack; it combines global and specific silico_options the first time it is called and caches the results.
-		"""
-		try:
-			return self._silico_options
-		except AttributeError:
-			# First time.
-			# Deep copy silico_options (because we're going to merge it).
-			self._silico_options = copy.deepcopy(self.global_silico_options)
-			
-			# Merge silico_options with the global options.
-			self._silico_options = self.merge_dict(self.custom_silico_options, self._silico_options)
-						
-			return self._silico_options
-
+	
 	def configure(self, available_basis_sets, silico_options, **kwargs):
 		"""
 		Configure this calculation.
@@ -92,6 +43,29 @@ class Calculation_target(Configurable_target):
 		self.available_basis_sets = available_basis_sets
 		self.global_silico_options = silico_options
 		super().configure(**kwargs)
+	
+	@property
+	def program(self):
+		"""
+		Get the Program_target object that is going to run this calculation.
+		"""
+		return self._program
+	
+	@program.setter
+	def program(self, value):
+		"""
+		The Program_target object that is going to run this calculation.
+		
+		:raises Configurable_target_exception: If the given program is not compatible with this calculation.
+		"""
+		self._set_submit_parent("_program", value)
+		
+	@property
+	def submit_parents(self):
+		"""
+		Convenience property to get the 'submit parents' (programs for calculations; methods for programs) that this target supports.
+		"""
+		return self.programs
 
 	@classmethod	
 	def prepare_list(self, calculation_list):
@@ -122,6 +96,63 @@ class Calculation_target(Configurable_target):
 		
 		# Return the first calculation in the chain.
 		return first
+
+class Concrete_calculation(Calculation_target):
+	"""
+	Top-level class for real calculations.
+	"""
+	
+	CLASS_HANDLE = ()
+	
+	# A list of strings describing the expected input file types (file extensions) for calculations of this class. The first item of this list will be passed to obabel via the -o flag. 
+	INPUT_FILE_TYPES = []
+	
+	def __init__(self, *args, **kwargs):
+		super().__init__(*args, **kwargs)
+		# Next is a linked list of Calculation_targets. We will call submit() on next once this object has been submitted.
+		self.next = None
+		self.name = None
+	
+	# Configurable options.
+	memory = Option(help = "The amount of memory to use for the calculation", required = True, type = Memory, rawtype = str)
+	num_CPUs = Option(help = "An integer specifying the number of CPUs to use for this calculation", default = 1, type = int)
+	scratch_options = Options(
+		help = "Options that control the use of the scratch directory",
+		use_scratch = Option(help = "Whether to use a scratch directory. False will disable the scratch directory, and is not recommended", default = True, type = bool),
+		path = Option(help = "Path to the top of the scratch directory. For each calculation, a sub-directory will be created under this path", default = "/scratch", type = str),
+		use_username = Option(help = "Whether to create a subdirectory for each user", default = True, type = bool),
+		keep = Option(help = "Whether to copy any leftover files from the scratch directory once the calculation has completed successfully", default = False, type = bool),
+		rescue = Option(help = "Whether to copy files from the scratch directory if the calculation fails or stops unexpectedly", default = True, type = bool),
+		force_delete = Option(help = "Whether to always delete the scratch directory at the end of the calculation, even if output files could not be safely copied", default = False, type = bool),
+		all_output = Option(help = "Whether to output all files to the scratch directory. If False, only intermediate files will be written to scratch (.log will be written directly to output directory for example)", default = False, type = bool)
+	)
+	write_summary = Option(help = "Whether to write Silico summary text files to the 'Results' folder at the end of the calculation", default = True, type = bool)
+	write_report = Option(help = "Whether to write a Silico PDF report to the 'Report' folder at the end of the calculation", default = True, type = bool)
+	custom_silico_options = Option(
+		"silico_options",
+		help = "Silico options to overwrite for this calculation",
+		default = {},
+		type = dict
+	)
+
+	@property
+	def silico_options(self):
+		"""
+		Get the specific silico options to this calculation.
+		
+		This property is a speed-hack; it combines global and specific silico_options the first time it is called and caches the results.
+		"""
+		try:
+			return self._silico_options
+		except AttributeError:
+			# First time.
+			# Deep copy silico_options (because we're going to merge it).
+			self._silico_options = copy.deepcopy(self.global_silico_options)
+			
+			# Merge silico_options with the global options.
+			self._silico_options = self.merge_dict(self.custom_silico_options, self._silico_options)
+						
+			return self._silico_options
 	
 	def prepare(self):
 		"""
@@ -173,30 +204,7 @@ class Calculation_target(Configurable_target):
 		"""
 		# Set.
 		self._num_CPUs = value
-			
-	@property
-	def program(self):
-		"""
-		Get the Program_target object that is going to run this calculation.
-		"""
-		return self._program
-	
-	@program.setter
-	def program(self, value):
-		"""
-		The Program_target object that is going to run this calculation.
-		
-		:raises Configurable_target_exception: If the given program is not compatible with this calculation.
-		"""
-		self._set_submit_parent("_program", value)
-		
-	@property
-	def submit_parents(self):
-		"""
-		Convenience property to get the 'submit parents' (programs for calculations; methods for programs) that this target supports.
-		"""
-		return self.programs
-		
+					
 	@property
 	def descriptive_name(self):
 		"""

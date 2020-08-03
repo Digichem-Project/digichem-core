@@ -3,13 +3,12 @@ from mako.lookup import TemplateLookup
 import silico
 from silico.exception import Configurable_exception
 from silico.exception.base import Submission_error, Silico_exception
-from silico.submit.calculation import Calculation_target
-import copy
 from silico.config.configurable.option import Option
 from silico.misc.base import is_int
-from itertools import chain
+from silico.submit.calculation import Concrete_calculation
+from logging import getLogger
 
-class Gaussian_DFT(Calculation_target):
+class Gaussian_DFT(Concrete_calculation):
 	"""
 	DFT (density functional theory) calculations with Gaussian.
 	"""
@@ -33,14 +32,15 @@ class Gaussian_DFT(Calculation_target):
 		default = ()
 	)
 	_external_ECPs = Option(
-		"external_basis_sets",
+		"external_ECPs",
 		help = "A list of external ECPs (effective core potentials) to use",
-		choices = lambda option, configurable: [name for basis_set in configurable.external_ECPs for name in basis_set.NAMES],
+		choices = lambda option, configurable: [name for basis_set in configurable.available_ECPs for name in basis_set.NAMES],
 		type = tuple,
 		default = ()
 	)
 	_multiplicity = Option("multiplicity", help = "Forcibly set the system multiplicity. Use 'auto' to use the multiplicity given in the input file", default = 'auto', validate = lambda option, configurable, value: value == "auto" or is_int(value))
 	_charge = Option("charge", help = "Forcibly set the system charge. Use 'auto' to use the charge given in the input file", default = 'auto', validate = lambda option, configurable, value: value == "auto" or is_int(value))
+	solvent = Option(help = "Name of the solvent to use for the calculation (the model used is SCRF-PCM)", default = None, type = str)
 	options = Option(help = "Additional Gaussian route options. These are written to the input file with only minor modification ('name : value' becomes 'name=value'), so any option valid to Gaussian can be given here", default = {'Population': 'Regular', 'Density': 'Current'}, type = dict)
 	convert_chk = Option(help = "Whether to create an .fchk file at the end of the calculation", default = True, type = bool)
 	keep_chk = Option(help = "Whether to keep the .chk file at the end of the calculation. If False, the .chk file will be automatically deleted, but not before it is converted to an .fchk file (if convert_chk is True)", default = False, type = bool)
@@ -64,18 +64,6 @@ class Gaussian_DFT(Calculation_target):
 		return self._multiplicity if self._multiplicity != "auto" else self.input_file.multiplicity
 	
 	@property
-	def external_basis_sets(self):
-		"""
-		The list of basis set Configurable objects we'll be using in the calculation.
-		
-		This property will translate the names of the basis sets, under self._extended_basis_sets, to the actual objects.
-		"""
-		try:
-			return [self.available_basis_sets.get_config(extended_ECP) for extended_ECP in self._external_ECPs]
-		except Exception:
-			raise Configurable_exception(self, "could not load extended ECP")
-		
-	@property
 	def external_ECPs(self):
 		"""
 		The list of basis set Configurable objects we'll be using in the calculation for effective core potentials.
@@ -83,9 +71,28 @@ class Gaussian_DFT(Calculation_target):
 		This property will translate the names of the basis sets, under self._extended_ECPs, to the actual objects.
 		"""
 		try:
+			return [self.available_basis_sets.get_config(extended_ECP) for extended_ECP in self._external_ECPs]
+		except Exception:
+			raise Configurable_exception(self, "could not load external ECP")
+	
+	@property
+	def available_ECPs(self):
+		"""
+		A list of available external basis sets with ECPs.
+		"""
+		return [ECP for ECP in self.available_basis_sets if ECP.ECP is not None]
+	
+	@property
+	def external_basis_sets(self):
+		"""
+		The list of basis set Configurable objects we'll be using in the calculation.
+		
+		This property will translate the names of the basis sets, under self._extended_basis_sets, to the actual objects.
+		"""
+		try:
 			return [self.available_basis_sets.get_config(extended_basis_set) for extended_basis_set in self._external_basis_sets]
 		except Exception:
-			raise Configurable_exception(self, "could not load extended basis set")
+			raise Configurable_exception(self, "could not load external basis set")
 		
 	@property
 	def model_chemistry(self):
@@ -116,6 +123,10 @@ class Gaussian_DFT(Calculation_target):
 		
 		# Model chemistry
 		route_parts.append(self.model_chemistry)
+		
+		# Solvent.
+		if self.solvent is not None:
+			route_parts.append("SCRF=(Solvent={})".format(self.solvent))
 		
 		# Finally, add any free-form options.
 		for option in self.options:

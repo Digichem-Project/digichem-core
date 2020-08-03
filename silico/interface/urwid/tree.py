@@ -139,7 +139,7 @@ class Configurable_node(Tree_node):
 		self.configurable = configurable
 		
 		try:			
-			name += "({})".format(configurable.status)
+			name += " ({})".format(configurable.status)
 		except AttributeError:
 			# This is ok.
 			pass

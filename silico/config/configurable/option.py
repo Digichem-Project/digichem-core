@@ -160,7 +160,8 @@ class Option():
 		value = self.getraw(dictobj)
 		
 		# Try and cast to our type (if not default).
-		if not self.is_default(dictobj):
+		#if not self.is_default(dictobj):
+		if not self.is_default(dictobj) and value is not None:
 			try:
 				value = self.type(value) if self.type is not None else value
 			except (TypeError, ValueError):
