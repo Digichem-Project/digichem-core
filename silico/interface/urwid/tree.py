@@ -10,11 +10,15 @@ from silico.interface.urwid.misc import Tab_pile
 import silico
 from silico.interface.urwid.edit import Configurable_editor
 from silico.interface.urwid.base import Top, Window
+from silico.interface.urwid.dialogue import Confirm
+from silico.exception.base import Silico_exception
 
 # Default palette for urwid.
 palette = [
 	('body', 'black', 'light gray'),
 	('boldnode', 'black, bold', 'light gray'),
+	('warningnode', 'dark red', 'light gray'),
+	('hiddennode', 'light red, blink', 'light gray'),
 	('focus', 'light gray', 'dark blue', 'standout'),
 	('header', 'light gray,bold', 'dark blue', 'standout'),
 	('footer', 'light gray', 'dark blue', 'standout'),
@@ -22,6 +26,9 @@ palette = [
 	('arrowtip', 'light blue', 'light gray', ''),
 	('connectors', 'light red', 'light gray', ''),
 	('editable', 'light magenta, bold', 'light gray'),
+	
+	('dialogue', 'white', 'dark blue'),
+	('title', 'white, bold', 'dark blue'),
 	('good_button', 'black', 'dark green'),
 	('bad_button', 'black', 'dark red')
 ]
@@ -103,7 +110,6 @@ class Tree_node(urwid.WidgetWrap):
 			base_node = base_node._children[-1]
 			
 		# Now add the config to the (current) base node.
-		#node = self(configurable.ID, configurable.NAME if configurable.GROUP_NAME is None else configurable.GROUP_NAME)
 		node = Configurable_node(configurable, **kwargs)
 		base_node._children.append(node)
 		
@@ -120,6 +126,11 @@ class Tree_node(urwid.WidgetWrap):
 
 	def keypress(self, size, key):
 		return key
+	
+class Category_node(Tree_node):
+	"""
+	Variation of a tree node used to represent a category.
+	"""
 	
 class Configurable_node(Tree_node):
 	"""
@@ -138,6 +149,18 @@ class Configurable_node(Tree_node):
 		name = configurable.NAME if configurable.GROUP_NAME is None else configurable.GROUP_NAME
 		self.configurable = configurable
 		
+		# Decide on which attribute to use.
+		#if self.configurable.HIDDEN:
+		#	attr = "hiddennode"
+		if self.configurable.warning is not None:
+			attr = "warningnode"
+		
+		# Add exclamation if we have a warning.
+		#if self.configurable.warning is not None:
+		#	name += " (!)"
+		#if self.configurable.HIDDEN:
+		#	name += " (hidden)"
+		
 		try:			
 			name += " ({})".format(configurable.status)
 		except AttributeError:
@@ -153,34 +176,47 @@ class Calculation_tree(TreeBox):
 	Modified TreeBox.
 	"""
 	
-	def __init__(self, *args, calcbox, top, **kwargs):
+	def __init__(self, methods, programs, calculations, *, show_hidden = False, include_top = False, calcbox, top, **kwargs):
 		"""
 		:param calcbox: Editable widget that will be populated with selected options.
 		:param top: The outer containing Top widget.
 		"""
-		super().__init__(*args, **kwargs)
+		# Save our configurables.
+		self.methods = methods
+		self.programs = programs
+		self.calculations = calculations
+		
+		# Get a converted node.
+		self.show_hidden = show_hidden
+		self.include_top = include_top
+		
+		# Get our top node.
+		if self.show_hidden:
+			top_node = Tree_node.from_configurable_lists((self.methods, self.programs, self.calculations))
+		else:
+			top_node = Tree_node.from_configurable_lists((self.methods.visible(), self.programs.visible(), self.calculations.visible()))
+		
+		# Now update our forest accordingly.
+		forest = (top_node,) if self.include_top else top_node[1]
+		
+		if forest is None:
+			# We have nothing to display, which breaks urwid trees quite badly. Give up.
+			raise Silico_exception("Unable to render browser; there is nothing to display.")
+		
+		super().__init__(CollapsibleArrowTree(
+				SimpleTree(forest),
+				is_collapsed = lambda x: True
+			), **kwargs)
+		
 		self.calcbox = calcbox
 		self.top = top
-		
+	
 	def keypress(self, size, key):
 		"""
 		Handler for keypress events.
 		"""
 		if key in ['enter', ' ']:
-			# Toggle expanded state.
-			# First, get the focused widget.
-			focuspos = self.get_focus()[1]
-			
-			# Check we can expand (and selected is not a leaf with no children).
-			if not self._tree._tree.is_leaf(focuspos):
-				# Determine whether widget is currently expanded.
-				if self._tree.is_collapsed(focuspos):
-					super().keypress(size, '+')
-				else:
-					super().keypress(size, '-')
-			else:
-				# Leaf node, add selected.
-				self.calcbox.edit_text += (" " if self.calcbox.edit_text != "" else "") + self.get_calc_string(focuspos) + " "
+			self.select()
 		elif key in ['m', 'e']:
 			self.edit()
 		elif key in ['backspace']:
@@ -191,6 +227,40 @@ class Calculation_tree(TreeBox):
 		else:
 			# Not for us to deal with.
 			return super().keypress(size, key)
+		
+	def select(self):
+		"""
+		Handler function when an item is selected.
+		"""
+		# Toggle expanded state.
+		# First, get the focused widget.
+		focuspos = self.get_focus()[1]
+		
+		# Check we can expand (and selected is not a leaf with no children).
+		if not self._tree._tree.is_leaf(focuspos):
+			# Determine whether widget is currently expanded.
+			if self._tree.is_collapsed(focuspos):
+				#super().keypress(size, '+')
+				self.expand_focussed()
+			else:
+				#super().keypress(size, '-')
+				self.collapse_focussed()
+		else:
+			# Leaf node, add selected.
+			self.calcbox.edit_text += (" " if self.calcbox.edit_text != "" else "") + self.get_calc_string(focuspos) + " "
+	
+	def expand_focussed(self, *args, _no_prompt = False, **kwargs):
+		"""
+		Overridden method to prompt for confirmation in certain situations.
+		"""
+		focus_widget = self._tree[self.get_focus()[1]].base_widget
+		
+		# If we have a configurable node with a warning, prompt.
+		if not _no_prompt and hasattr(focus_widget, 'configurable') and getattr(focus_widget.configurable, 'warning', None) is not None:
+			self.top.swap(Confirm('WARNING', focus_widget.configurable.warning, lambda: self.expand_focussed(_no_prompt = True), self.top))
+		else:
+			super().expand_focussed(*args, **kwargs)
+				
 		
 	def edit(self):
 		"""
@@ -257,28 +327,77 @@ class Calculation_browser(Tab_pile):
 	Urwid box widget that allows selecting calculations.
 	"""
 	
-	def __init__(self, nodes, confirm_action, *, confirm_text = "Confirm", calcbox_attr = "body", calcbox_inner_attr = "editable", confirm_attr = "good_button", top):
+	def __init__(self, methods, programs, calculations, confirm_action, *, show_hidden = False, confirm_text = "Confirm", calcbox_attr = "body", calcbox_inner_attr = "editable", confirm_attr = "good_button", top, **kwargs):
 		"""
 		Constructor for Calculation_browser widgets.
 		"""
+		self.methods = methods
+		self.programs = programs
+		self.calculations = calculations
+		self.show_hidden = show_hidden
+		self.top = top
+		self.browser_args = kwargs
+		
 		# Each browser is made up of 3 main child widgets; the browser itself, a text field (calcbox) and the confirm button.
 		self.calcbox = Calcbox((calcbox_attr, 'Selected calculations: '))
 		self.confirm = urwid.Button(confirm_text, confirm_action)
-		self.browser = Calculation_tree(
-			CollapsibleArrowTree(
-				SimpleTree(nodes),
-				is_collapsed = lambda x: True
-			),
-			calcbox = self.calcbox,
-			top = top
-		)
+# 		self.browser = Calculation_tree(
+# 			methods,
+# 			programs,
+# 			calculations,
+# 			show_hidden = self.show_hidden,
+# 			calcbox = self.calcbox,
+# 			top = top,
+# 		)
 		
 		# Call our parent constructor to make the pile.
 		super().__init__([
-			urwid.LineBox(self.browser),
+			#urwid.LineBox(self.browser),
+			urwid.LineBox(urwid.Filler(urwid.Edit())),
 			(4, urwid.LineBox(urwid.AttrMap(urwid.Filler(self.calcbox), calcbox_inner_attr))),
 			(1, urwid.AttrMap(urwid.Filler(urwid.Padding(self.confirm, 'center', 11)), confirm_attr))
 		])
+		
+		self.update_browser()
+	
+	def keypress(self, size, key):
+		"""
+		Handle keypress events.
+		"""
+		if key in ['s']:
+			self.show_hidden = not self.show_hidden
+			self.update_browser()
+		else:
+			return super().keypress(size, key)
+	
+	def update_browser(self):
+		"""
+		Update the browser window.
+		
+		Sadly, urwidtrees does not respond well to in-place changes. As such, the entire treebox is regenerated (and replaced) by this method.
+		"""
+		# First, get the configurables we're going to display. This depends on whether we are showing hidden items or not.
+		if self.show_hidden:
+			methods = self.methods
+			programs = self.programs
+			calculations = self.calculations
+		else:
+			methods = self.methods.visible()
+			programs = self.programs.visible()
+			calculations = self.calculations.visible()
+			
+		self.browser = Calculation_tree(
+			methods,
+			programs,
+			calculations,
+			show_hidden = self.show_hidden,
+			calcbox = self.calcbox,
+			top = self.top,
+			**self.browser_args
+		)
+		
+		# Now update our pile.
+		self.contents[0] = (urwid.LineBox(self.browser), ('weight', 1))
 	
 	@classmethod
 	def stop(self, *args, **kwargs):
@@ -288,7 +407,7 @@ class Calculation_browser(Tab_pile):
 		raise urwid.ExitMainLoop() 
 		
 	@classmethod
-	def run(self, node_tuple, include_top = False):
+	def run(self, methods, programs, calculations, include_top = False):
 		"""
 		Interactively run urwid, using a Calculation_browser as the top-most widget.
 		
@@ -297,11 +416,11 @@ class Calculation_browser(Tab_pile):
 		:return: The selected calculations, as a string.
 		"""
 		top = Top(urwid.SolidFill())
-		browser = Calculation_browser((node_tuple,) if include_top else node_tuple[1], confirm_action = self.stop, top = top)
+		browser = Calculation_browser(methods, programs, calculations, include_top = include_top, confirm_action = self.stop, top = top)
 		top.original_widget = Window(
 			urwid.AttrMap(browser, 'body'),
 			title = 'Silico Calculation Browser',
-			help = 'ENTER: select   m: modify   DELETE: delete   E: expand all   C: contract all   ctrl-c: quit'
+			help = 'ENTER: select   m: modify   s: show    DELETE: delete   E: expand all   C: contract all   ctrl-c: quit'
 		)
 	
 # 		header = urwid.AttrMap(urwid.Text('Silico Calculation Browser', align = "center"), 'header')

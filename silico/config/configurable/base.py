@@ -98,6 +98,11 @@ class Configurable_list(list):
 		"""
 		return type(self)([resolved for config in self for resolved in config.resolve_split()])
 		
+	def visible(self):
+		"""
+		Get a new Configurable_list object containing the configurables in this object that are visible.
+		"""
+		return type(self)([configurable for configurable in self if not configurable.HIDDEN])
 	
 	def configure(self, **kwargs):
 		"""
@@ -213,6 +218,9 @@ class Configurable(Config, Dynamic_parent, Options_mixin):
 		required = True,
 		no_edit = True
 	)
+	HIDDEN = Option(help = "If True, this configurable will not appear in lists (but can still be specified by the user). Useful for configurables that should not be used naively", type = bool, default = False)
+	# Configurable Options.
+	warning = Option(help = "A warning message to display when this configurable is chosen", default = None, type = str)
 		
 	def configure(self, *, ID, CONFIGS = None):
 		"""
