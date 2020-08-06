@@ -54,6 +54,15 @@ mem_per_CPU: auto
 
 ---
 TYPE: method
+NAME: BigMem SLURM
+PARENT: [slurm]
+ALIAS: [slurm_big_mem]
+CLASS: SLURM
+partition: bigmem
+warning: You have selected the high memory capacity partition. This memory capacity is not normally required for DFT calculations; please make sure you know what you are doing.
+
+---
+TYPE: method
 NAME: Debug SLURM
 PARENT: [slurm]
 ALIAS: [slurm_debug]
@@ -61,15 +70,6 @@ CLASS: SLURM
 HIDDEN: True
 partition: debug
 warning: You have selected the debug partition. This partition is for testing purposes only; please make sure you know what you are doing.
-
----
-TYPE: method
-NAME: BigMem SLURM
-PARENT: [slurm]
-ALIAS: [slurm_big_mem]
-CLASS: SLURM
-partition: bigmem
-warning: You have selected the high memory capacity partition. This memory capacity is not normally required for DFT calculations; please make sure you know what you are doing.
 
 ---
 TYPE: method
