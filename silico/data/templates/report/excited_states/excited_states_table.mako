@@ -11,7 +11,7 @@
 <div class=tableBorder>
 	<table class="table">
 		<tr class="table__row table__row--header">
-			%for column in ["Level", "Symbol", "Symmetry", "Energy<br>(eV)", "Wavelength<br>(nm)", "Colour","Oscillator<br>Strength", "Transitions<br>(probability)"]:
+			%for column in ["Level", "Symbol", "Symmetry", "Energy<br>/eV", "Wavelength<br>/nm", "Colour,<br>CIE (x,y)", "Oscillator<br>Strength", "Transitions<br>(probability)"]:
 			<th class="table__header">${column}</th>
 			%endfor
 		</tr>
@@ -34,8 +34,12 @@
 			</td>
 			<td class="table__cell">
 				${excited_state.color}<br>
-				<%include file="color_box.mako" args="rgb = excited_state.rgb"/>
+				<%include file="color_box.mako" args="rgb = excited_state.rgb"/><br>
+				(${"{:0.2f}".format(excited_state.CIE_xy[0])}, ${"{:0.2f}".format(excited_state.CIE_xy[1])})
 			</td>
+## 			<td class="table__cell">
+## 				(${"{:0.2f}".format(excited_state.CIE_xy[0])}, ${"{:0.2f}".format(excited_state.CIE_xy[1])})
+## 			</td>
 			<td class="table__cell">
 				${"{:0.4f}".format(excited_state.oscillator_strength)}
 			</td>

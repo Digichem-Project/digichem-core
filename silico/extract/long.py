@@ -262,6 +262,8 @@ class Excited_state_long_extractor(Long_table_extractor):
 			"Energy /eV": excited_state.energy,
 			"Wavelength /nm": excited_state.wavelength,
 			"Colour": excited_state.color,
+			"CIE X": excited_state.CIE_xy[0],
+			"CIE Y": excited_state.CIE_xy[1],
 			"Oscillator strength": excited_state.oscillator_strength
 		})
 		

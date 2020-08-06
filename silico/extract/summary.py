@@ -290,6 +290,8 @@ class Excited_states_summary_extractor(Summary_extractor):
 			'{} energy /eV'.format(es.state_symbol): es.energy,
 			'{} wavelength /nm'.format(es.state_symbol): es.wavelength,
 			'{} colour'.format(es.state_symbol): es.color,
+			'{} CIE X'.format(es.state_symbol): es.CIE_xy[0],
+			'{} CIE Y'.format(es.state_symbol): es.CIE_xy[1],
 			'{} oscillator strength'.format(es.state_symbol): es.oscillator_strength
 		})
 		
