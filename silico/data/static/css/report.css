@@ -70,6 +70,10 @@ h3 {
 	/*margin-top: 10px;*/
 	width: 19cm;
 	page-break-after: avoid;
+	/* Prevent section header's from taking up more than one line (which will break layout otherwise). */
+	text-overflow: ellipsis;
+	overflow: hidden;
+    white-space: nowrap;
 }
 
 .section__body {
