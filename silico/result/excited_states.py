@@ -8,8 +8,8 @@ from silico.image.excited_states import Excited_states_diagram_maker
 from silico.image.spectroscopy import Absorption_graph_maker
 import colour
 import math
-from logging import getLogger
-import silico
+# from logging import getLogger
+# import silico
 
 class Excited_state_list(Result_container):
 	"""

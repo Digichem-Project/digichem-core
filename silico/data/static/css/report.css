@@ -76,6 +76,12 @@ h3 {
     white-space: nowrap;
 }
 
+.warning_msg {
+	margin-top: 10px;
+	font-weight: bold;
+	color: #ff3300;
+}
+
 .section__body {
 	page-break-before: avoid;
 	width: 19cm;
