@@ -21,7 +21,7 @@
 		<div class="tableBorder">
 			<table class="table">
 				<tr class="table__row table__row--header">
-					%for column in ["Level", "Symmetry", "Frequency (cm<sup>-1</sup>)", "Intensity (km mol<sup>-1</sup>)"]:
+					%for column in ["Level", "Symmetry", "Frequency /cm<sup>-1</sup>", "Intensity /km mol<sup>-1</sup>"]:
 					<th class="table__header">${column}</th>
 					%endfor
 				</tr>

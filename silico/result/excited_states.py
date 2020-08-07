@@ -8,8 +8,8 @@ from silico.image.excited_states import Excited_states_diagram_maker
 from silico.image.spectroscopy import Absorption_graph_maker
 import colour
 import math
-from logging import getLogger
-import silico
+# from logging import getLogger
+# import silico
 
 class Excited_state_list(Result_container):
 	"""
@@ -389,22 +389,33 @@ class Excited_state(Energy_state):
 		return "???"
 	
 	@property
-	def cieXYZ(self):
+	def CIE_XYZ(self):
 		"""
-		The CIE xyz coordinates of the 'color' that corresponds to the energy of this excited state (as a numpy array).
+		The CIE XYZ tristimulus values of the 'color' that corresponds to the energy of this excited state (as a numpy array).
 		"""
 		try:
 			return colour.wavelength_to_XYZ(self.wavelength)
 		except ValueError:
 			# Wavelength is out of our colour range, so we can't see it.
 			return numpy.zeros(3)
+		
+	@property
+	def CIE_xy(self):
+		"""
+		The CIE xy chromaticity coordinates of the 'color' that corresponds to the energy of this excited state.
+		"""
+		try:
+			return colour.XYZ_to_xy(self.CIE_XYZ)
+		except Exception:
+			return numpy.zeros(2)
+		
 				
 	@property
 	def rgb(self):
 		"""
 		The RGB values of the 'color' that corresponds to the energy of this excited state (as a list of [r, g, b] from 0 -> 255).
 		"""
-		return self.xyz_to_rgb(self.cieXYZ)
+		return self.xyz_to_rgb(self.CIE_XYZ)
 		
 	@classmethod
 	def xyz_to_rgb(self, XYZ):

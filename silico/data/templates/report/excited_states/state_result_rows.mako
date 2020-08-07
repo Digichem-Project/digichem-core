@@ -20,6 +20,10 @@
 	%endif
 </tr>
 <tr>
+	<td class="results__name">${state.multiplicity_symbol}<sub>${state.multiplicity_level}</sub> CIE (x,y):</td>
+	<td class="results__value">${"({:0.2f}, {:0.2f})".format(state.CIE_xy[0], state.CIE_xy[1]) if state.safe_get('CIE_xy') is not None else "N/A"}</td>
+</tr>
+<tr>
 	<td class="results__name">${state.multiplicity_symbol}<sub>${state.multiplicity_level}</sub> oscillator strength:</td>
 	<td class="results__value">${"{:0.2f}".format(state.oscillator_strength) if state.safe_get('oscillator_strength') is not None else "N/A"}</td>
 </tr>

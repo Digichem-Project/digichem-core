@@ -143,6 +143,8 @@ def _main(args, config, logger):
 		raise Silico_exception("Failed to load calculations")
 	
 	logger.debug("Loaded {} methods, {} programs and {} calculations".format(len(known_methods), len(known_programs), len(known_calculations)))
+	if len(known_methods) == 0 or len(known_programs) == 0 or len(known_calculations) == 0:
+		raise Silico_exception("Missing at least one method, program and/or calculation")
 	
 	# Check to see if we've got any files to submit (and prompt if we can).
 	while len(args.calculation_files) == 0 and args.interactive:
@@ -165,23 +167,32 @@ def _main(args, config, logger):
 		except:
 			raise Silico_exception("Failed to parse calculations to submit")
 						
-		# If a 'dangerous' (one with a warning set) method has been chosen (and we're interactive), get confirmation.
-		for method, program, calculation in calculations:
-			if args.interactive and method.warning is not None:
-				# Get confirm.
-				if not _get_warning_confirmation(method):
-					# User said no, reset out list so we'll ask them again.
-					args.calculations = []
-					calculations = []
+# 		# If a 'dangerous' (one with a warning set) method has been chosen (and we're interactive), get confirmation.
+# 		for method, program, calculation in calculations:
+# 			if args.interactive and method.warning is not None:
+# 				# Get confirm.
+# 				if not _get_warning_confirmation(method):
+# 					# User said no, reset out list so we'll ask them again.
+# 					args.calculations = []
+# 					calculations = []
 		
 		# Quit the loop if we have some calculations or if we can't ask the user for some.
 		if len(calculations) != 0 or not args.interactive:
 			break
 		
 		# Ask the user for calcs.
-		args.calculations = shlex.split(Calculation_browser.run(Tree_node.from_configurable_lists((known_methods, known_programs, known_calculations))))
+		#args.calculations = shlex.split(Calculation_browser.run(Tree_node.from_configurable_lists((known_methods, known_programs, known_calculations))))
+		args.calculations = shlex.split(Calculation_browser.run(known_methods, known_programs, known_calculations))
 		if len(args.calculations) == 0:
 			break
+		
+	# Print any warning messages (but only once each).
+	warnings = [None]
+	for configurables in calculations:
+		for configurable in configurables:
+				if configurable.warning not in warnings:
+					logger.warning(configurable.warning)
+					
 	
 	# Get upset again if we have no calculations.
 	if len(args.calculations) == 0:

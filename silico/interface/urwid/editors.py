@@ -16,7 +16,7 @@ class Option_editor(urwid.Pile):
 		if choices is not None:
 			if help_msg[-1] != ".":
 				help_msg += "."
-			help_msg += " Possible values are: " + ", ".join(["'{}'".format(choice) for choice in choices])
+			help_msg += " Possible values are:\n" + "\n".join(["- '{}'".format(choice) for choice in choices])
 		
 		
 		# Construct our Pile of editable widget and help.

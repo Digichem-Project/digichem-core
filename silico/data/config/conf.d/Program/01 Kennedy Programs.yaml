@@ -13,6 +13,7 @@ methods:
     - slurm
     - slurm_big_mem
     - slurm_multi
+    - slurm_debug
 #    - local
 #    - local_nw 
 

@@ -12,10 +12,7 @@ class Method_target(Configurable_target):
 	"""
 	
 	CLASS_HANDLE = ("method",)
-	
-	# Configurable Options.
-	warning = Option(help = "A warning message to display when this method is chosen", default = None, type = str)
-	
+		
 	@property
 	def unique_name(self):
 		"""
