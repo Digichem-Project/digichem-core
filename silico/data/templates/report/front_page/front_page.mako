@@ -14,7 +14,7 @@
 			<h1 class="title__superTitle title__superTitle--report">Calculation Report</h1>
 			<h2 class="title__mainTitle title__mainTitle--report">${Path(result.metadata.name).name}</h2>
 			%if len(result.metadata.calculations) > 0:
-			<div class="title__subTitle title__subTitle--report">${result.metadata.title}</div>
+			<div class="title__subTitle title__subTitle--report">${result.title}</div>
 			%endif
 		</div>
 		<div class="imageBlock imageBlock--multi imageBlock--frontPage">
