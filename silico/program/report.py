@@ -1,37 +1,12 @@
-#!/usr/bin/env python3.6
-
 # The creport program.
 
-# This should suppress a matplotlib warning when we compile with pyinstaller.
-import warnings
-warnings.filterwarnings("ignore", "(?s).*MATPLOTLIBDATA.*", category = UserWarning)
-# This one is caused by some minor bug when plotting graphs.
-warnings.filterwarnings("ignore", "(?s).*Source ID .* was not found when attempting to remove it.*")
-# This one is caused by the way tight_layout works. It's fine to ignore here, but not so good if we want to plot interactively.
-warnings.filterwarnings("ignore", "(?s).*tight_layout: falling back to Agg renderer*", category = UserWarning)
-
-import sys
-# These	two suppress weasyprint warnings about incompatible libraries (which we ignore when freezing).
-if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
-	warnings.filterwarnings("ignore", "(?s).*@font-face support needs Pango >= 1.38*", category = UserWarning)
-	warnings.filterwarnings("ignore", "(?s).*There are known rendering problems and missing features with cairo < 1.15.4*", category = UserWarning)
-
-# Init openbabel.
-import silico
-silico.init_obabel()
-
 # General imports.
-import argparse
 from pathlib import Path
 
 # Silico imports.
 import silico.program
 from silico.report.pdf import PDF_report
 from silico.exception.base import Silico_exception
-from silico.submit.method import *
-from silico.submit.program import *
-from silico.submit.calculation import *
-from silico.submit.basis import *
 
 
 # Printable name of this program.
@@ -40,17 +15,18 @@ DESCRIPTION = "generate PDF reports from finished Gaussian calculations"
 EPILOG = "{} V{}. Written by {}. Last updated {}.".format(NAME, silico.version, silico.author, silico.last_updated.strftime("%d/%m/%Y"))
 USAGE = "%(prog)s [options] file.log [file.chk] [file.fchk] [-o report.pdf]"
 
-def main():
+def arguments(subparsers):
 	"""
-	Main entry point for the creport program.
+	Add this program's arguments to an argparser object.
 	"""
-	# ----- Program init -----
-	
-	# First configure our argument reader.
-	parser = argparse.ArgumentParser(
+	parser = subparsers.add_parser("report",
 		description = DESCRIPTION,
+		parents = [silico.program.standard_args],
 		usage = USAGE,
-		epilog = EPILOG)
+		epilog = EPILOG,
+		help = "Write reports"
+	)
+
 	parser.add_argument("calculation_files", help = "calculation result files (.log, .chk, .fchk etc) to extract results from", nargs = "*", default = [])
 	
 	emission_group = parser.add_argument_group("emission energy", "options for specifying additional input files that allow for the calculation of relaxed emission energy")
@@ -65,7 +41,6 @@ def main():
 	
 	parser.add_argument("--name", help = "name of the molecule/system to use in the report", default = None)
 	parser.add_argument("--type", help = "the type of report to make", choices = ["full", "atoms"], default = "full")
-	parser.add_argument("-v", "--version", action = "version", version = str(silico.version))
 	
 	aux_input_group = parser.add_argument_group("additional input", "options for specifying additional input files used to generate the report. These options are all optional. Note that these input files can be given as positional arguments, in which case their file type is determined automatically. Use these named arguments to explicitly set the file type")
 	aux_input_group.add_argument("--log_file", help = "a Gaussian log file that results will be read from", nargs = "?", default = None)
@@ -91,13 +66,12 @@ def main():
 				'dont_modify': args.dont_create_new_images
 			}
 		})
-	
-	# ----- Program begin -----
-	return silico.program.main_wrapper(
-		_main,
-		arg_parser = parser,
-		arg_to_config = arg_to_config
-	)
+
+def main(args):
+	"""
+	Main entry point for the resume program.
+	"""
+	silico.program.main_wrapper(_main, args = args)
 
 def _main(args, config, logger):
 	"""
@@ -158,7 +132,3 @@ def _main(args, config, logger):
 	# Done.
 	logger.info("Done generating report '{}'".format(args.pdf_file))
 
-	
-# If we've been invoked as a program, call main().	
-if __name__ == '__main__':
-	sys.exit(main())

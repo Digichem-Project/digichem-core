@@ -1,49 +1,24 @@
-#!/usr/bin/env python3.6
-
 # The csubmit program (this is the successor to gsubmit).
 
-# This should suppress a matplotlib warning when we compile with pyinstaller.
-import warnings
-import copy
-from silico.interface.urwid.tree import Calculation_browser, Tree_node
-warnings.filterwarnings("ignore", "(?s).*MATPLOTLIBDATA.*", category = UserWarning)
-# This one is caused by some minor bug when plotting graphs.
-warnings.filterwarnings("ignore", "(?s).*Source ID .* was not found when attempting to remove it.*")
-# This one is caused by the way tight_layout works. It's fine to ignore here, but not so good if we want to plot interactively.
-warnings.filterwarnings("ignore", "(?s).*tight_layout: falling back to Agg renderer*", category = UserWarning)
-
-import sys
-# These	two suppress weasyprint warnings about incompatible libraries (which we ignore when freezing).
-if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
-	warnings.filterwarnings("ignore", "(?s).*@font-face support needs Pango >= 1.38*", category = UserWarning)
-	warnings.filterwarnings("ignore", "(?s).*There are known rendering problems and missing features with cairo < 1.15.4*", category = UserWarning)
-
-# Init openbabel.
-import silico
-silico.init_obabel()
-
 # General imports.
-import argparse
 from pathlib import Path
 import readline
 import shlex
-import textwrap
+import copy
 
 # Silico imports.
 import silico.program
-from silico.submit.method import *
-from silico.submit.program import *
-from silico.submit.calculation import *
-from silico.submit.basis import *
+from silico.submit.calculation import Calculation_target
 from silico.exception import Silico_exception, Configurable_exception
 from silico.exception.uncatchable import Submission_paused
+from silico.interface.urwid.tree import Calculation_browser
 
 # Printable name of this program.
 NAME = "Silico Calculation Submitter"
 DESCRIPTION = "submit calculation files"
 EPILOG = "{} V{}. Written by {}. Last updated {}.".format(NAME, silico.version, silico.author, silico.last_updated.strftime("%d/%m/%Y"))
-USAGE = """%(prog)s [options] -i
-   or: %(prog)s [options] file.com [file2.com ...] -i
+USAGE = """%(prog)s [options]
+   or: %(prog)s [options] file.com [file2.com ...]
    or: %(prog)s [options] file.com [file2.com ...] -c method/program/calc [method2/program2/calc2 ...]"""
 
 def _get_input(prompt):
@@ -89,42 +64,30 @@ def _parse_calc_string(calc_string, methods, programs, calculations):
 		except IndexError:
 			raise Configurable_exception(program, "program has no methods set")
 	
-	# We need to deepcopy our configurables incase we re-use one of them.
+	# We need to deepcopy our configurables in case we re-use one of them.
 	return (copy.deepcopy(method), copy.deepcopy(program), copy.deepcopy(calculation))
 
-def _get_warning_confirmation(method):
-	"""
-	Helper function that prompts the user for confirmation when they choose a method with a usage warning.
-	"""
-	print('\033[1m' +'\033[91m' + "-" * 80 + '\033[0m')
-	print(" " * 33 + '\033[1m' + '\033[91m' + "!!! WARNING !!!" + '\033[0m')
-	print('\033[1m' +'\033[91m' + "-" * 80 + '\033[0m')
-	print("\n".join(textwrap.wrap(method.warning, 80)))
-	return True if input('\033[1m' + "Are you sure?" + '\033[0m' + " (y/N): ").lower() == "y" else False
 
-def main():
+def arguments(subparsers):
 	"""
-	Main entry point for the creport program.
+	Add this program's arguments to an argparser object.
 	"""
-	# ----- Program init -----
-	
-	# First configure our argument reader.
-	parser = argparse.ArgumentParser(
+	parser = subparsers.add_parser(
+		'submit',
 		description = DESCRIPTION,
+		parents = [silico.program.standard_args],
 		usage = USAGE,
-		epilog = EPILOG)
+		epilog = EPILOG,
+		help = "Submit calculations")
 	parser.add_argument("calculation_files", help = "Gaussian input files to submit", nargs = "*", type = Path)
 	parser.add_argument("-o", "--output", help = "Base directory to perform calculations in. Defaults to the current directory", default = Path("./"))
 	parser.add_argument("-c", "--calculations", help = "Calculations to perform, identified either by name or by ID. To use a method and/or program other than the default, use the format M/P/C (eg, 2/1/1)", nargs = "*", default = [])
-	#parser.add_argument("-l", "--list", help = "List all known calculations; give twice for more output", action = "count", default = 0)
-	parser.add_argument("-i", "--interactive", help = "Run in interactive mode, prompting for missing input", action = "store_true")
-	parser.add_argument("-v", "--version", action = "version", version = str(silico.version))
-		
-	# ----- Program begin -----
-	return silico.program.main_wrapper(
-		_main,
-		arg_parser = parser
-	)
+
+def main(args):
+	"""
+	Main entry point for the resume program.
+	"""
+	silico.program.main_wrapper(_main, args = args)
 
 def _main(args, config, logger):
 	"""
@@ -147,14 +110,14 @@ def _main(args, config, logger):
 		raise Silico_exception("Missing at least one method, program and/or calculation")
 	
 	# Check to see if we've got any files to submit (and prompt if we can).
-	while len(args.calculation_files) == 0 and args.interactive:
+	while len(args.calculation_files) == 0:
 		# Prompt for some files.
 		print("Specify a list of files to submit (separate each with a space)")
 		args.calculation_files = [Path(calc_file) for calc_file in shlex.split(_get_input("Files: "))]
 		
 	# Get upset if we have no files.
 	if len(args.calculation_files) == 0:
-		raise Silico_exception("No files to submit (use the -i option for interactive mode)")
+		raise Silico_exception("No files to submit")
 		#logger.error("No files to submit (use the -i option for interactive mode)")
 		#return 1
 	
@@ -166,18 +129,9 @@ def _main(args, config, logger):
 			calculations = [_parse_calc_string(calc_string, known_methods, known_programs, known_calculations) for calc_string in args.calculations]
 		except:
 			raise Silico_exception("Failed to parse calculations to submit")
-						
-# 		# If a 'dangerous' (one with a warning set) method has been chosen (and we're interactive), get confirmation.
-# 		for method, program, calculation in calculations:
-# 			if args.interactive and method.warning is not None:
-# 				# Get confirm.
-# 				if not _get_warning_confirmation(method):
-# 					# User said no, reset out list so we'll ask them again.
-# 					args.calculations = []
-# 					calculations = []
-		
+							
 		# Quit the loop if we have some calculations or if we can't ask the user for some.
-		if len(calculations) != 0 or not args.interactive:
+		if len(calculations) != 0:
 			break
 		
 		# Ask the user for calcs.
@@ -196,15 +150,13 @@ def _main(args, config, logger):
 	
 	# Get upset again if we have no calculations.
 	if len(args.calculations) == 0:
-		raise Silico_exception("No calculations to submit" + (" (use the -i option for interactive mode)" if not args.interactive else ""))
+		raise Silico_exception("No calculations to submit")
 	
 	try:
 		# Arrange our calcs into a linked list.
 		calculation = Calculation_target.prepare_list(calculations)
 	except Exception:
 		raise Silico_exception("Error processing calculations to submit")
-		#logger.error("Error processing calculations to submit", exc_info = True)
-		#return 1
 	
 	# The number of calcs we successfully submitted.
 	done = 0
@@ -222,9 +174,4 @@ def _main(args, config, logger):
 		done += 1
 	
 	return done
-	
-	
-# If we've been invoked as a program, call main().	
-if __name__ == '__main__':
-	sys.exit(main())
 	

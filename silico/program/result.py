@@ -1,28 +1,7 @@
-#!/usr/bin/env python3.6
-
 # The cresult (Result Extraction) program.
 # This program is designed to extract results from gaussian calculations and display/save them as more convenient formats.
 
-# This should suppress a matplotlib warning when we compile with pyinstaller.
-import warnings
-warnings.filterwarnings("ignore", "(?s).*MATPLOTLIBDATA.*", category = UserWarning)
-# This one is caused by some minor bug when plotting graphs.
-warnings.filterwarnings("ignore", "(?s).*Source ID .* was not found when attempting to remove it.*")
-# This one is caused by the way tight_layout works. It's fine to ignore here, but not so good if we want to plot interactively.
-warnings.filterwarnings("ignore", "(?s).*tight_layout: falling back to Agg renderer*", category = UserWarning)
-
-import sys
-# These	two suppress weasyprint warnings about incompatible libraries (which we ignore when freezing).
-if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
-	warnings.filterwarnings("ignore", "(?s).*@font-face support needs Pango >= 1.38*", category = UserWarning)
-	warnings.filterwarnings("ignore", "(?s).*There are known rendering problems and missing features with cairo < 1.15.4*", category = UserWarning)
-
-# Init openbabel.
-import silico
-silico.init_obabel()
-
 # General imports.
-import argparse
 import cclib
 from multiprocessing import Pool
 from itertools import filterfalse
@@ -32,10 +11,6 @@ import signal
 
 # Silico imports.
 import silico.program
-from silico.submit.method import *
-from silico.submit.program import *
-from silico.submit.calculation import *
-from silico.submit.basis import *
 from silico.misc.base import List_grouper
 from silico.result.result import Result_set
 from silico.misc.file_wrapper import Multi_file_wrapper
@@ -139,31 +114,20 @@ def _split_file_names(names):
 			
 	return (file_names, sections)
 
-def main():
+def arguments(subparsers):
 	"""
-	Main entry point for the cresult program.
+	Add this program's arguments to an argparser object.
 	"""
-	# ----- Program init -----
-	
-	# First configure out argument reader.
-	parser = argparse.ArgumentParser(
+	parser = subparsers.add_parser("result",
 		description = DESCRIPTION,
+		parents = [silico.program.standard_args],
 		usage = USAGE,
-		epilog = EPILOG
+		epilog = EPILOG,
+		help = "Extract results"
 	)
 	parser.add_argument("calculation_files", help = "calculation result files (.log etc) to extract results from", nargs = "*", default = [])
-	
-# 	emission_group = parser.add_argument_group("emission energy", "options for specifying additional input files that allow for the calculation of relaxed emission energy")
-# 	emission_group.add_argument("--adiabatic_ground", help = "path to a secondary result file that contains results for the ground state to be used to calculate the adiabatic emission energy", default = None)
-# 	emission_group.add_argument("--adiabatic_excited", help = "path to a secondary result file that contains results for the excited state to be used to calculate the adiabatic emission energy", default = None)
-# 	emission_group.add_argument("--adiabatic_state", help = "the excited state in 'adiabatic_excited' to use, either a number indicating the state (eg, '1' for lowest state) or the state label (eg, 'S(1)', 'T(1)'). If not given and 'adiabatic_excited' contains excited states, the lowest will be used, otherwise the total energy of 'adiabatic_excited' will be used", default = None)
-# 	emission_group.add_argument("--vertical_ground", help = "same as --adiabatic_ground, but for vertical emission", default = None)
-# 	emission_group.add_argument("--vertical_excited", help = "same as --adiabatic_excited, but for vertical emission", default = None)
-# 	emission_group.add_argument("--vertical_state", help = "same as --adiabatic_state, but for vertical emission", default = None)
-	
+		
 	parser.add_argument("-i", "--ignore", help = "ignore missing sections rather than stopping with an error", action = "store_true")
-	parser.add_argument("-v", "--version", action = "version", version = str(silico.version))
-	#parser.add_argument("-l", "--list", help = "list the available subsections for each requested output format and exit", action = "store_true")
 	
 	# Now process our output formats. The list of understood formats is generated automatically from the classes that inherit from silico.result.output.base.Output
 	output_formats = parser.add_argument_group("output formats", "Specify output formats to write results to. Optionally give a number of filenames after the format (eg, -t output1.results output2.results) to write to those filenames, otherwise output is written to stdout. stdout can also be explicitly requested using the dash ('-') character (eg, -t -). Additionally, subsections can be requested by specifying the name of the section preceded by a percent ('%') character (eg, -t atoms.text %GEOM)")
@@ -174,12 +138,12 @@ def main():
 	output_formats.add_argument("-d", dest = "outputs", metavar = ("%FORMAT", "file.csv"), help = "CSV summary format; shows a separate table for each property (atoms, MOs etc); one row for each item (atom, orbital etc)", nargs = "*", action = List_grouper)
 	output_formats.add_argument("-a", dest = "outputs", metavar = ("%FORMAT", "file.tbl"), help = "tabulated text format; the same as -c but formatted with an ASCII table, recommended that output piped to 'less -S'", nargs = "*", action = List_grouper)
 	output_formats.add_argument("-b", dest = "outputs", metavar = ("%FORMAT", "file.tbl"), help = "tabulated summary text format; the same as -d but formatted with an ASCII table", nargs = "*", action = List_grouper)
-	
-	# ----- Program begin -----
-	return silico.program.main_wrapper(
-		_main,
-		arg_parser = parser
-	)
+
+def main(args):
+	"""
+	Main entry point for the resume program.
+	"""
+	silico.program.main_wrapper(_main, args = args)
 
 def _subprocess_init(*args, **kwargs):
 	"""
@@ -234,19 +198,10 @@ def _main(args, config, logger):
 			extractor_groups.append(extractor_group)
 	except Exception:
 		raise Silico_exception("Failed to process extraction commands")
-		#logger.error("failed to process extraction commands", exc_info = True)
-		#return -1
-	
-	# If we were asked to list, do do.
-	#if args.list:
-	#	list_known_sections([group_dict['extractor'] for group_dict in extractor_groups])
-	#	exit(0)
 	
 	# Get upset if we've got nothing to read.
 	if len(args.calculation_files) == 0:
 		raise Silico_exception("No calculation files to read (input files should appear before -a -b -c -d or -t options)")
-		#logger.error("no calculation files to read (input files should appear before -a -b -c -d or -t options)")
-		#return -1
 		
 	# Get our list of results. Do this in parallel.
 	try:
@@ -257,12 +212,6 @@ def _main(args, config, logger):
 						partial(
 							_get_result_set,
 							alignment_class_name = config['alignment'],
-# 							adiabatic_emission_ground_result = args.adiabatic_ground,
-# 							adiabatic_emission_excited_result = args.adiabatic_excited,
-# 							adiabatic_emission_excited_state = args.adiabatic_state,
-# 							vertical_emission_ground_result = args.vertical_ground,
-# 							vertical_emission_excited_result = args.vertical_excited,
-# 							vertical_emission_excited_state = args.vertical_state,
 						),
 						args.calculation_files
 					)
@@ -287,7 +236,4 @@ def _main(args, config, logger):
 		#logger.error("failed to extract results", exc_info = True)
 		#return -1
 
-# If we've been invoked as a program, call main().	
-if __name__ == '__main__':
-	main()
 	

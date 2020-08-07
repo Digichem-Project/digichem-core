@@ -21,7 +21,8 @@ from logging import getLogger
 from pathlib import Path
 import cclib.io
 from silico.exception.base import Silico_exception
-import silico
+#import silico
+import silico.result.excited_states
 from silico.file.cube import Spin_cube_maker
 from silico.image.vmd import Spin_density_image_maker
 from silico.result.emission import Relaxed_excited_state
@@ -85,7 +86,17 @@ class Metadata(Result_object):
 		self.calc_temperature = calc_temperature
 		self.calc_pressure = calc_pressure
 		self.orbital_spin_type = orbital_spin_type
-		
+	
+	@property
+	def title(self):
+		"""
+		A string Title describing this result.
+		"""
+		title = ", ".join(self.calculations)
+		if True:
+			title += " ({})".format(silico.result.excited_states.Energy_state.multiplicity_number_to_string(self.system_multiplicity).capitalize())
+		return title
+	
 	@property
 	def package_string(self):
 		"""

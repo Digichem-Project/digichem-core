@@ -34,7 +34,6 @@
 #SBATCH --output="${Path(SLURM_target.calc_dir.output_directory, 'slurm.out')}"
 #SBATCH --error="${Path(SLURM_target.calc_dir.output_directory, 'slurm.out')}"
 ##
-##_silico_resume "${SLURM_target.resume_file_path.relative_to(SLURM_target.calc_dir.input_directory)}"
 ## exec into resume, so we handle signals from SLURM etc.
-exec _silico_resume "${SLURM_target.resume_file_path}"
+exec silico resume "${SLURM_target.resume_file_path}"
 <%page args="SLURM_target"/>
