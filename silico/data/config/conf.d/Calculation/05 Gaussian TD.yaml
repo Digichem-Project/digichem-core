@@ -34,7 +34,7 @@ calculation_keywords:
 
 silico_options:
     excited_states_diagram:
-        y_limits: standard
+        y_limits: auto
 
 
 ##############################################################
