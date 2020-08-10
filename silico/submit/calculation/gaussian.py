@@ -97,7 +97,7 @@ class Gaussian_DFT(Concrete_calculation):
 	@property
 	def model_chemistry(self):
 		"""
-		The 'model chemistry' to be used by the calculation, this is a string containing both the functional and bases set (separated by /).
+		The 'model chemistry' to be used by the calculation, this is a string containing both the functional and basis set (separated by /).
 		"""	
 		model = ""
 		# Add the functional.
