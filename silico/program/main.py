@@ -68,7 +68,13 @@ def main():
 	# Before we call parse_args(), we check to see if a sub command has been chosen.
 	# If not, we'll add 'submit' as the default.
 	# This is a bit hacky, but works ok.
-	if sys.argv[1] not in ["submit", "result", "report", "resume"] and "-h" not in sys.argv and "--help" not in sys.argv:
+	if len(sys.argv) <= 1 or (
+		sys.argv[1] not in ["submit", "result", "report", "resume"]
+		and "-h" not in sys.argv
+		and "--help" not in sys.argv
+		and "-v" not in sys.argv
+		and "--version" not in sys.argv
+	):
 		sys.argv.insert(1, "submit")
 	
 	# Process command line arguments.
@@ -88,6 +94,7 @@ def main():
 	# Go.
 	# args.func is defined by each subprogram.
 	return args.func(args)
+
 	
 # If we've been invoked as a program, call main().	
 if __name__ == '__main__':
