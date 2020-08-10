@@ -16,6 +16,7 @@ import datetime
 from silico import misc
 from silico.submit.structure.flag import Flag
 from silico.config.configurable.option import Option
+from silico.file.babel import Openbabel_converter
 
 class Program_target(Configurable_target):
 	"""
@@ -110,6 +111,9 @@ class Program_target(Configurable_target):
 		self.start_time = None
 		self.end_time = None
 		self.duration = None
+		
+		self.error = None
+		# An exception caught during the calculation. This will be re-raised once cleanup and analysis has been finished (attempted).
 		
 	def submit_pre(self):
 		"""
@@ -213,6 +217,11 @@ class Program_target(Configurable_target):
 		finally:
 			# Done post.
 			self.method.calc_dir.del_flag(Flag.POST)
+			
+		# All done.
+		# If we got an error during the calc, re-raise it now.
+		if self.error is not None:
+			raise self.error
 		
 	def _submit_post(self):
 		"""
@@ -235,7 +244,7 @@ class Program_target(Configurable_target):
 			raise
 		else:
 			# See if our calculation was successful or not.
-			if self.result.metadata.calc_success:
+			if self.result.metadata.calc_success and self.error is None:
 				self.method.calc_dir.set_flag(Flag.SUCCESS)
 			else:
 				# No good.
@@ -256,12 +265,19 @@ class Program_target(Configurable_target):
 		except Exception:
 			getLogger(silico.logger_name).warning("Failed to write calculation result summary files", exc_info = True)
 			
+		# Write XYZ file.
+		try:
+			self.write_XYZ()
+		except Exception:
+			getLogger(silico.logger_name).warning("Failed to write XYZ result file", exc_info = True)
+			
 		# Similarly, if we've been asked to write a report, do that.
 		try:
 			if self.calculation.write_report:
 				self.write_report_files()
 		except Exception:
 			getLogger(silico.logger_name).warning("Failed to write calculation report", exc_info = True)
+		
 		
 	def write_summary_files(self):
 		"""
@@ -309,6 +325,16 @@ class Program_target(Configurable_target):
 		# And atoms.
 		self.result.write(Path(self.method.calc_dir.report_directory, self.calculation.name + ".atoms.pdf"), report_type = "atoms")
 		
+	def write_XYZ(self):
+		"""
+		Write an XYZ file from the finished calculation results.
+		"""
+		# Get our converter.
+		conv = Openbabel_converter.from_file(self.calc_output_file_path, output_file_type = "xyz", input_file_type = self.calc_output_file_path.suffix[1:])
 		
+		# Open output file.
+		with open(Path(self.method.calc_dir.result_directory, self.calculation.name + ".xyz"), "wt") as xyz_file:
+			# Write.
+			xyz_file.write(conv.convert())
 		
 		

@@ -228,7 +228,7 @@ class Energy_state(Result_object):
 	
 	# Colour categories.
 	colors = [
-		{"max": 300, "name": "UV"},
+		{"max": 400, "name": "UV"},
 		{"max": 420, "name": "Violet"},
 		{"max": 470, "name": "Blue"},
 		{"max": 505, "name": "Cyan"},

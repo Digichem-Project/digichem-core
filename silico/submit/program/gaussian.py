@@ -169,7 +169,9 @@ class Gaussian(Program_target):
 			self.calculation_cleanup(False)
 			
 			# Raise.
-			raise Submission_error(self, "Error executing Gaussian '{}'".format(self.executable)) from e
+			#raise Submission_error(self, "Error executing Gaussian '{}'".format(self.executable)) from e
+			# Store for later so we can try and generate PDFs and results.
+			self.error = Submission_error(self, "Error executing Gaussian '{}'".format(self.executable))
 		else:
 			self.calc_end()
 			# All good, do cleanup.

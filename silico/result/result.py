@@ -21,7 +21,8 @@ from logging import getLogger
 from pathlib import Path
 import cclib.io
 from silico.exception.base import Silico_exception
-import silico
+#import silico
+import silico.result.excited_states
 from silico.file.cube import Spin_cube_maker
 from silico.image.vmd import Spin_density_image_maker
 from silico.result.emission import Relaxed_excited_state
@@ -85,7 +86,7 @@ class Metadata(Result_object):
 		self.calc_temperature = calc_temperature
 		self.calc_pressure = calc_pressure
 		self.orbital_spin_type = orbital_spin_type
-		
+	
 	@property
 	def package_string(self):
 		"""
@@ -253,7 +254,29 @@ class Result_set(Result_object):
 		self.vibrations = vibrations
 		self.vertical_emission = vertical_emission
 		self.adiabatic_emission = adiabatic_emission
-		
+	
+	
+	
+	@property
+	def title(self):
+		"""
+		A string Title describing this result.
+		"""
+		title = ", ".join(self.metadata.calculations)
+		if "Excited States" in self.metadata.calculations:
+			# Add multiplicity based on ES.
+			mult = self.excited_states.group()
+			mult_strings = [silico.result.excited_states.Energy_state.multiplicity_number_to_string(multiplicity).capitalize() for multiplicity in mult]
+			if len(mult_strings) <= 2:
+				# Add the strings.
+				title += " ({})".format(", ".join(mult_strings))
+			else:
+				# Add something non-specific.
+				title += " (Various Multiplicities)"
+		else:
+			title += " ({})".format(silico.result.excited_states.Energy_state.multiplicity_number_to_string(self.metadata.system_multiplicity).capitalize())
+		return title
+	
 	@property
 	def energy(self):
 		"""
