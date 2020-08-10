@@ -28,6 +28,7 @@ import silico.program.submit
 import silico.program.result
 import silico.program.report
 import silico.program.resume
+#import silico.program.spreadsheet
 
 # Make configurables available
 from silico.submit.method import *
@@ -61,30 +62,32 @@ def main():
 	silico.program.submit.arguments(subparsers)
 	silico.program.result.arguments(subparsers)
 	silico.program.report.arguments(subparsers)
+	#silico.program.spreadsheet.arguments(subparsers)
 	silico.program.resume.arguments(subparsers)
 	
 	# Before we call parse_args(), we check to see if a sub command has been chosen.
 	# If not, we'll add 'submit' as the default.
 	# This is a bit hacky, but works ok.
-	if sys.argv[1] not in ["submit", "result", "report", "resume"]:
+	if sys.argv[1] not in ["submit", "result", "report", "resume"] and "-h" not in sys.argv and "--help" not in sys.argv:
 		sys.argv.insert(1, "submit")
 	
 	# Process command line arguments.
 	args = parser.parse_args()
 	
-	# Decide on which function to call.
-	# TODO: This would be improved if each sub-program gave us this information.
-	if args.prog == "submit" or not hasattr(args, 'prog'):
-		main_func = silico.program.submit.main
-	elif args.prog == "result":
-		main_func  = silico.program.result.main
-	elif args.prog == "report":
-		main_func = silico.program.report.main
-	elif args.prog == "resume":
-		main_func = silico.program.resume.main
+# 	# Decide on which function to call.
+# 	# TODO: This would be improved if each sub-program gave us this information.
+# 	if args.prog == "submit":
+# 		main_func = silico.program.submit.main
+# 	elif args.prog == "result":
+# 		main_func  = silico.program.result.main
+# 	elif args.prog == "report":
+# 		main_func = silico.program.report.main
+# 	elif args.prog == "resume":
+# 		main_func = silico.program.resume.main
 		
 	# Go.
-	return main_func(args)
+	# args.func is defined by each subprogram.
+	return args.func(args)
 	
 # If we've been invoked as a program, call main().	
 if __name__ == '__main__':

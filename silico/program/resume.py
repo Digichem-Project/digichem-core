@@ -26,6 +26,9 @@ def arguments(subparsers):
 		epilog = EPILOG,
 		help = "Resume submission (used automatically by part of the submission mechanism)"
 	)
+	# Set main function.
+	parser.set_defaults(func = main)
+	
 	parser.add_argument("resume_file", help = "Path to the file to resume from (this should be a pickled calculation class)", type = Path)
 
 def main(args):

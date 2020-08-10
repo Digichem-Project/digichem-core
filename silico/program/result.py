@@ -125,6 +125,9 @@ def arguments(subparsers):
 		epilog = EPILOG,
 		help = "Extract results"
 	)
+	# Set main function.
+	parser.set_defaults(func = main)
+	
 	parser.add_argument("calculation_files", help = "calculation result files (.log etc) to extract results from", nargs = "*", default = [])
 		
 	parser.add_argument("-i", "--ignore", help = "ignore missing sections rather than stopping with an error", action = "store_true")

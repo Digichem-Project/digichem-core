@@ -79,6 +79,9 @@ def arguments(subparsers):
 		usage = USAGE,
 		epilog = EPILOG,
 		help = "Submit calculations")
+	# Set main function.
+	parser.set_defaults(func = main)
+	
 	parser.add_argument("calculation_files", help = "Gaussian input files to submit", nargs = "*", type = Path)
 	parser.add_argument("-o", "--output", help = "Base directory to perform calculations in. Defaults to the current directory", default = Path("./"))
 	parser.add_argument("-c", "--calculations", help = "Calculations to perform, identified either by name or by ID. To use a method and/or program other than the default, use the format M/P/C (eg, 2/1/1)", nargs = "*", default = [])

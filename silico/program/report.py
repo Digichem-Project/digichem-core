@@ -26,8 +26,11 @@ def arguments(subparsers):
 		epilog = EPILOG,
 		help = "Write reports"
 	)
-
+	# Set main function.
+	parser.set_defaults(func = main)
+	
 	parser.add_argument("calculation_files", help = "calculation result files (.log, .chk, .fchk etc) to extract results from", nargs = "*", default = [])
+
 	
 	emission_group = parser.add_argument_group("emission energy", "options for specifying additional input files that allow for the calculation of relaxed emission energy")
 	emission_group.add_argument("--adiabatic_ground", help = "path to a secondary result file that contains results for the ground state to be used to calculate the adiabatic emission energy", default = None)
@@ -66,6 +69,7 @@ def arguments(subparsers):
 				'dont_modify': args.dont_create_new_images
 			}
 		})
+	
 
 def main(args):
 	"""
