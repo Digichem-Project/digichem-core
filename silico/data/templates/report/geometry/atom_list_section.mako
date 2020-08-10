@@ -8,7 +8,8 @@
 		<div class="tableBorder">
 			<table class="table">
 				<tr class="table__row table__row--header">
-					%for column in ["Element", "Isotope Mass", "X Coord", "Y Coord", "Z Coord"]:
+##					%for column in ["Element", "Isotope Mass", "X Coord", "Y Coord", "Z Coord"]:
+					%for column in ["Element", "X Coord", "Y Coord", "Z Coord"]:
 					<th class="table__header">${column}</th>
 					%endfor
 				</tr>
@@ -17,9 +18,9 @@
 					<td class="table__cell">
 						${atom.element.symbol}
 					</td>
-					<td class="table__cell">
-						${atom.mass if atom.safe_get('mass') is not None else "N/A"}
-					</td>
+## 					<td class="table__cell">
+## 						${atom.mass if atom.safe_get('mass') is not None else "N/A"}
+## 					</td>
 					<td class="table__cell">
 						${"{:0.7f}".format(atom.coords[0])}
 					</td>
