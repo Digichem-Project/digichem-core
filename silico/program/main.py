@@ -62,7 +62,13 @@ def main():
 	silico.program.result.arguments(subparsers)
 	silico.program.report.arguments(subparsers)
 	silico.program.resume.arguments(subparsers)
-		
+	
+	# Before we call parse_args(), we check to see if a sub command has been chosen.
+	# If not, we'll add 'submit' as the default.
+	# This is a bit hacky, but works ok.
+	if sys.argv[1] not in ["submit", "result", "report", "resume"]:
+		sys.argv.insert(1, "submit")
+	
 	# Process command line arguments.
 	args = parser.parse_args()
 	
