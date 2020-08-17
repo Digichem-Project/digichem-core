@@ -170,6 +170,7 @@ options:
     Symmetry: Tight
 
     # Among other things, the Population option controls how much information is printed in the calculation log file (but does not affect the .chk file?). Regular or Full are the most likely options.
+#    Population: Full
     Population: Regular
 
     # This option controls which density to use with the Population option. 'Current' is generally what you want, but alternatives may be required for eg MP2.

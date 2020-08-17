@@ -15,6 +15,9 @@ calculation_keywords:
 # Freq requires more mem than usual.
 memory: 30GB
 
+# For Opt, we ask for more output so we can visualise in Chemissian.
+options:
+    Population: Full
 
 # Opt + Freq Unrestricted triplet
 ##############################################################
