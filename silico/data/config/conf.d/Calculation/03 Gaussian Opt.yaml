@@ -9,7 +9,7 @@ GROUP: [Opt Freq]
 
 # The type of calculation to perform.
 calculation_keywords:
-    - Opt
+    - Opt=(MaxCycles=100)
     - Freq
 
 # Freq requires more mem than usual.
@@ -29,7 +29,7 @@ PARENT: [Gaussian-defaults]
 
 # The type of calculation to perform.
 calculation_keywords:
-    - Opt
+    - Opt=(MaxCycles=100)
     - Freq
     
 multiplicity: 3
