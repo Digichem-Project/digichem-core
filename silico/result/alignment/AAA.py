@@ -9,6 +9,26 @@ class Adjusted_average_angle(Average_angle):
 	# Names that uniquely describe this alignment protocol.
 	CLASS_HANDLE = ["Adjusted Average Angle", "AAA"]	
 	
+	def align_axes(self):
+		"""
+		Realign the axes of our coordinate system, so they have the following meaning:
+		
+		X-axis: The long axis (the kebab skewer), which we define as passing through the pair of atoms with the greatest separation in our set.
+		Y-axis: The middle axis, which we define as perpendicular to the the X-axis (obviously) and passing through the atom that is furthest from the X-axis. Note that the Y-axis only has to pass through one atom; there may not be a corresponding atom on the other side (but there will be if the molecule is symmetrical about the X-axis).
+		Z-axis: The short axis, defined as perpendicular to both the X and Y-axes (so we have no choice where this goes).
+		
+		:return: Nothing. The atoms are rearranged in place.
+		"""
+		# First complete a total AA alignment.
+		super().align_X()
+		super().align_Y()
+		super().align_Z()
+		
+		# Now align using our methods.
+		self.align_X()
+		self.align_Y()
+		self.align_Z()
+	
 	def align_X(self):
 		"""
 		Align the X axis.

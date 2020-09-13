@@ -22,12 +22,6 @@ class Average_angle(Furthest_atom_pair, Axis_swapper_mix):
 		
 		:return: Nothing. The atoms are rearranged in place.
 		"""
-		# First complete a total AA alignment.
-		super().align_X()
-		super().align_Y()
-		super().align_Z()
-		
-		# Now align using our methods.
 		self.align_X()
 		self.align_Y()
 		self.align_Z()
