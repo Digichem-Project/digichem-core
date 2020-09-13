@@ -212,11 +212,13 @@ class Report(Result_set):
 		:param output_name: A string that will be used as the start of the file name of the files we create.
 		"""
 		# First, get our fchk file.
-		Result_object.set_file_options(self, fchk_file = Fchk_maker(
-			Path(output_dir, output_name + ".fchk"),
-			chk_file = self.chk_file_path,
-			fchk_file = self.fchk_file_path,
-			output_base = output_base)
+		Result_object.set_file_options(self,
+			fchk_file = Fchk_maker(
+				Path(output_dir, output_name + ".fchk"),
+				chk_file = self.chk_file_path,
+				fchk_file = self.fchk_file_path,
+				output_base = output_base
+			)
 		)
 		
 		# Get a dictionary of key-word arguments we'll pass to our children.

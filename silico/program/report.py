@@ -7,6 +7,7 @@ from pathlib import Path
 import silico.program
 from silico.report.pdf import PDF_report
 from silico.exception.base import Silico_exception
+from silico.result.excited_states import Excited_state_list
 
 
 # Printable name of this program.
@@ -99,8 +100,7 @@ def _main(args, config, logger):
 			options = config
 		)
 	except Exception as e:
-		raise Silico_exception("Failed to load results")
-		
+		raise Silico_exception("Failed to load results")	
 	
 	# The filename (excluding parent directories) we'll write to if the user doesn't give us one.
 	if args.type == "full":

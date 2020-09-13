@@ -73,7 +73,7 @@ molecule_image:
         #    - -3: The 'Medium' grid, twice the size of the 'Coarse' grid and taking roughly 10x as long. This option is probably adequate for most publication purposes.
         #    - -4: The 'Fine' grid, twice the size again of 'Medium' and taking a further, rough 10x as long. This option can also consume large amounts of file space, and is probably unnecessary for most purposes.
         cube_grid_size: 0
-        # The isovalue to use for rendering orbital density. This is a non-linear scale from 0 (huge) to infinity (tiny).
+        # The isovalue to use for rendering orbital density.
         isovalue: 0.02
       
     # Specific options for spin density images.
