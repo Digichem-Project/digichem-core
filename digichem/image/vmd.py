@@ -117,7 +117,7 @@ class VMD_image_maker(File_converter):
 		config = copy.deepcopy(options)
 		
 		# We need one of two possible sub-options depending on whether we're rendering spin images or nah.
-		if isinstance(self, Spin_density_image_maker):
+		if issubclass(self, Spin_density_image_maker):
 			sub_config = config['spin']
 		else:
 			sub_config = config['orbital']
@@ -420,10 +420,6 @@ class Orbital_image_maker(Structure_image_maker):
 				"{}".format(self.file_path['x45y45z45'].with_suffix(self.scene_file_extension))
 			]
 	
-	#cubegen_type = "MO"
-	
-# 	def __init__(self, *args, **kwargs):
-# 		super().__init__(*args, **kwargs)
 	
 class Spin_density_image_maker(Orbital_image_maker):
 	"""
