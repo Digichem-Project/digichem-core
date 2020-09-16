@@ -108,7 +108,7 @@ class Gaussian(Program_target):
 		"""
 		super()._submit_proper()
 		
-		# Write out input file to our calculation Input directory.
+		# Write our input file to our calculation Input directory.
 		with open(self.com_file_path, "wt") as com_file:
 			com_file.write(self.calculation.com_file_body)
 		

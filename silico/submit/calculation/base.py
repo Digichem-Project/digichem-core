@@ -66,6 +66,20 @@ class Calculation_target(Configurable_target):
 		Convenience property to get the 'submit parents' (programs for calculations; methods for programs) that this target supports.
 		"""
 		return self.programs
+	
+	@classmethod
+	def safe_name(self, file_name):
+		"""
+		Get a filename safe for Gaussian (and other programs).
+		
+		What constitutes a safe name from Gaussian's point of view is not entirely clear, to play it safe we'll only allow alpha-numeric characters, dots and underscores.
+		
+		:param file_name: The file name to make safe, note that a path (containing path separators) will not maintain its structure after a call to safe_name().
+		:return: The safe path name.
+		"""
+		# Adapted from https://stackoverflow.com/questions/7406102/create-sane-safe-filename-from-any-unsafe-string
+		safe_chars = "._"
+		return "".join([char if char.isalnum() or char in safe_chars else "_" for char in file_name])
 
 	@classmethod	
 	def prepare_list(self, calculation_list):
@@ -270,9 +284,6 @@ class Concrete_calculation(Calculation_target):
 		
 		It is important to note that the normal submission order is reversed for submit_init(); the order is calculation -> program -> method.
 		
-		The input file to be submitted can be specified in one of two ways.
-			- input_file_path: a string/path to a file that will be read and submitted.
-			- input_str: a string containing a calculation file, useful if the file has already been loaded into memory.
 		
 		:param output: Path to perform the calculation in.
 		:param input_str: String containing a calculation file to submit, this should be in a format appropriate for this Calculation_target.
@@ -296,6 +307,7 @@ class Concrete_calculation(Calculation_target):
 		"""
 		self.output = output
 		self.name = name
+		self.input_file = input_str
 		
 	def submit_pre(self):
 		"""

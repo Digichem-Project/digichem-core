@@ -140,22 +140,7 @@ class Gaussian_DFT(Concrete_calculation):
 				route_parts.append("{}={}".format(option, self.options[option]))
 				
 		# Convert to string and return.
-		return " ".join(route_parts)
-		
-	@classmethod
-	def safe_name(self, file_name):
-		"""
-		Get a filename safe for Gaussian.
-		
-		What constitutes a safe name from Gaussian's point of view is not entirely clear, to play it safe we'll only allow alpha-numeric characters, dots and underscores.
-		
-		:param file_name: The file name to make safe, note that a path (containing path separators) will not maintain its structure after a call to safe_name().
-		:return: The safe path name.
-		"""
-		# Adapted from https://stackoverflow.com/questions/7406102/create-sane-safe-filename-from-any-unsafe-string
-		safe_chars = "._"
-		return "".join([char if char.isalnum() or char in safe_chars else "_" for char in file_name])
-	
+		return " ".join(route_parts)	
 	
 	def _submit_init(self, output, input_str, name):
 		"""
