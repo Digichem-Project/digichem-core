@@ -8,6 +8,7 @@ import silico.program
 from silico.report.pdf import PDF_report
 from silico.exception.base import Silico_exception
 from silico.result.excited_states import Excited_state_list
+import tabulate
 
 
 # Printable name of this program.
@@ -56,13 +57,21 @@ def _main(args, config, logger):
 	else:
 		methods = type(known_methods)([known_methods.get_config(method_id) for method_id in args.methods])
 		
+	# Build a table of status to show.
+	statuses = []
 	for method in methods:
 		try:
-			print("{}: {}".format(method.NAME, method.status))
+			status = method.status
 		except NotImplementedError:
 			# No status for this method.
-			print("{}: Status not available for this method".format(method.NAME))
+			status = "N/A (status not available)"
 		except Exception:
+			status = "Error retrieving status"
 			logger.error("Failed to fetch status information for method '{}'".format(method.NAME), exc_info = True)
+			
+		statuses.append((method.ID, method.NAME, status))
+			
+	# Print with tabulate.
+	print(tabulate.tabulate(statuses, ("ID", "Name", "Status")))
 	
 	
