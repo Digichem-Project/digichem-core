@@ -1,26 +1,20 @@
-# ---
-# TYPE: method
-# 
-# # Config for a local submission
-# NAME: Local
-# ALIAS: [local]
-# 
-# CLASS: local
-# 
-# # Whether to daemonise (run in the background) or not.
-# daemon: False
-# 
-# ---
-# TYPE: method
-# 
-# # Config for a local submission
-# NAME: Local (No Wait)
-# ALIAS: [local_nw]
-# 
-# CLASS: local
-# 
-# # Whether to daemonise (run in the background) or not.
-# daemon: True
+---
+TYPE: method
+
+# Config for a local submission
+NAME: Series
+ALIAS: [series]
+
+CLASS: series
+
+---
+TYPE: method
+
+# Config for a local submission
+NAME: Parallel
+ALIAS: [parallel]
+
+CLASS: parallel
 
 ---
 TYPE: method

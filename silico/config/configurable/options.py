@@ -8,6 +8,7 @@ class Options(Option, dict, Options_mixin):
 	"""
 	A type of option that expects more options (another dict).
 	"""
+	# TODO: Options doesn't currently support nested options...
 	
 	def __init__(self, *args, name = None, help = None, default = None, exclude = None, **kwargs):
 		super().__init__(name = name, help = help, rawtype = dict, default = default if default is not None else {}, exclude = exclude)

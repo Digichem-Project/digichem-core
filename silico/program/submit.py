@@ -121,8 +121,6 @@ def _main(args, config, logger):
 	# Get upset if we have no files.
 	if len(args.calculation_files) == 0:
 		raise Silico_exception("No files to submit")
-		#logger.error("No files to submit (use the -i option for interactive mode)")
-		#return 1
 	
 	
 	calculations = []
@@ -138,7 +136,6 @@ def _main(args, config, logger):
 			break
 		
 		# Ask the user for calcs.
-		#args.calculations = shlex.split(Calculation_browser.run(Tree_node.from_configurable_lists((known_methods, known_programs, known_calculations))))
 		args.calculations = shlex.split(Calculation_browser.run(known_methods, known_programs, known_calculations))
 		if len(args.calculations) == 0:
 			break
@@ -157,7 +154,7 @@ def _main(args, config, logger):
 	
 	try:
 		# Arrange our calcs into a linked list.
-		calculation = Calculation_target.prepare_list(calculations)
+		first = Calculation_target.link(calculations)
 	except Exception:
 		raise Silico_exception("Error processing calculations to submit")
 	
@@ -166,15 +163,24 @@ def _main(args, config, logger):
 	
 	for input_file_path in args.calculation_files:
 		try:
-			calculation.submit_from_file(args.output, input_file_path)
+			# Prepare.
+			first.prepare_from_file(args.output, input_file_path)
+			
+			# Go.
+			first.submit()
+			
+			done += 1
+			
 		except Submission_paused:
 			# This is fine.
-			pass
+			done += 1
+		
 		except Exception:
 			# Something went wrong.
 			# We don't stop here though, we might have more calcs we can submit.
 			logger.error("Failed to submit file '{}'".format(input_file_path), exc_info = True)
-		done += 1
+			
+		
 	
 	return done
 	

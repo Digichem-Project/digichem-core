@@ -16,8 +16,6 @@ class Calculation_series(Calculation_target):
 		required = True,
 		type = tuple
 	)
-	# Hack; Calculation_series inherits from Calculation_target and so inherits a number of configurable options that it ignores. Memory is required for a real calc, but is safely ignored here.
-	#memory = Option(help = "The amount of memory to use for the calculation",rawtype = str)
 	
 	def configure(self, CONFIGS, **kwargs):
 		"""
@@ -26,9 +24,9 @@ class Calculation_series(Calculation_target):
 		self.calculations = CONFIGS
 		super().configure(CONFIGS = CONFIGS, **kwargs)
 		
-	def prepare(self):
+	def expand(self):
 		"""
-		Prepare this calculation target for submission.
+		Expand this calculation target if it represents multiple real calcs.
 		
 		For Calculation_series, we return the calcs we represent.
 		

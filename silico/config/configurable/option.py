@@ -113,30 +113,31 @@ class Option():
 		if obj is None:
 			return self
 		# TODO: There is lots of room for improvement here; the whole Configurables inheriting from dicts can probably be scrapped...
-		try:
+		try:			
 			return obj._configurable_options[self.name]
 		except KeyError:
 			# We haven't been configured yet.
 			#return obj.get(self.name, self.default)
 			return self.getraw(obj)
 		
-	def __set__(self, obj, value):
+	def __set__(self, obj, value, dictobj = None):
 		"""
 		Set the value of this option.
 		
 		This method will update the underlying raw value (so changes can be preserved) and will also call configure(); validating the value given.
 		"""
-		old = self.getraw(obj)
+		old = self.getraw(obj, dictobj = dictobj)
 		old_def = self.is_default(obj)
 		
-		self.setraw(obj, value)
+		self.setraw(obj, value, dictobj = dictobj)
 		try:
 			self.configure(obj)
 		except Exception:
 			if old_def:
+				# Pretty sure this is wrong.. (should be dictobj?)
 				obj.pop(self.name)
 			else:
-				self.setraw(obj, old)
+				self.setraw(obj, old, dictobj = dictobj)
 			raise
 		
 	def __delete__(self, obj):
@@ -198,11 +199,4 @@ class Option():
 		"""
 		# All good.
 		obj._configurable_options[self.name] = self.pre_configure(obj)
-		#self.value = self.type(value) if self.type is not None else value
-		#self.action(self, self.owner, self.type(value) if self.type is not None else value)
-# 		try:
-# 			#obj[self.name] = self.rawtype(value) if self.rawtype is not None else value
-# 			obj._configurable_options[self.name] = self._configure(self, obj, self.type(value) if self.type is not None else value)
-# 		except (TypeError, ValueError):
-# 			raise Configurable_exception(obj, "value '{}' of type '{}' is invalid for configurable option '{}'".format(value, type(value).__name__, self.name))
 		

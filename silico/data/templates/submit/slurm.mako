@@ -31,8 +31,8 @@
 %endfor
 ##
 ## Set slurm stderr and stdout
-#SBATCH --output="${Path(SLURM_target.calc_dir.output_directory, 'slurm.out')}"
-#SBATCH --error="${Path(SLURM_target.calc_dir.output_directory, 'slurm.out')}"
+#SBATCH --output="${SLURM_target.calc_dir.log_file}"
+#SBATCH --error="${SLURM_target.calc_dir.log_file}"
 ##
 ## exec into resume, so we handle signals from SLURM etc.
 exec silico resume "${SLURM_target.resume_file_path}"

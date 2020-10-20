@@ -1,0 +1,100 @@
+---
+# TD-DFT excited states.
+TYPE: calculation
+
+PARENT: [Turbomole-DFT-defaults]
+GROUP: ["Excited States", "TD-DFT", "10 Singlets"]
+
+# Specify excited states.
+dft_exci:
+    multiplicity: 1
+    nexc: 10
+    TDA: False
+
+# This is a singlepoint.
+modules:
+    - dscf
+    - escf
+    
+---
+# TD-DFT excited states.
+TYPE: calculation
+
+PARENT: [Turbomole-DFT-defaults]
+GROUP: ["Excited States", "TD-DFT", "10 Triplets"]
+
+# Specify excited states.
+dft_exci:
+    multiplicity: 3
+    nexc: 10
+    TDA: False
+    
+# This is a singlepoint.
+modules:
+    - dscf
+    - escf
+    
+---
+# TD-DFT excited states.
+TYPE: calculation
+
+PARENT: [Turbomole-DFT-defaults]
+GROUP: ["Excited States", "TD-DFT", "100 Singlets"]
+
+# Specify excited states.
+dft_exci:
+    multiplicity: 1
+    nexc: 100
+    TDA: False
+    
+# This is a singlepoint.
+modules:
+    - dscf
+    - escf
+
+---
+# CC2 excited states.
+TYPE: calculation
+
+PARENT: [Turbomole-defaults]
+GROUP: ["Excited States", "CC2-SCS", "S1 & S2"]
+
+# Turn on CC2.
+ricc2:
+    model: cc2
+    scs: scs
+    
+# Specify excited states.
+ricc2_exci:
+    multiplicity: 1
+    nexc: 2
+    oscillator_strengths: diplen
+    
+# This is a single point.
+modules:
+    - dscf
+    - ricc2
+    
+---
+# CC2 excited states.
+TYPE: calculation
+
+PARENT: [Turbomole-defaults]
+GROUP: ["Excited States", "CC2-SCS", "T1 & T2"]
+
+# Turn on CC2.
+ricc2:
+    model: cc2
+    scs: scs
+    
+# Specify excited states.
+ricc2_exci:
+    multiplicity: 3
+    nexc: 2
+    # Can't calculate oscillator strengths for triplets.
+    oscillator_strengths: null
+    
+# This is a single point.
+modules:
+    - dscf
+    - ricc2

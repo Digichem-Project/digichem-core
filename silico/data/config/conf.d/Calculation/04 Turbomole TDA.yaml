@@ -1,0 +1,53 @@
+---
+# TD-DFT excited states.
+TYPE: calculation
+
+PARENT: [Turbomole-DFT-defaults]
+GROUP: ["Excited States", "TDA", "10 Singlets"]
+
+# Specify excited states.
+dft_exci:
+    multiplicity: 1
+    nexc: 10
+    TDA: True
+
+# This is a singlepoint.
+modules:
+    - dscf
+    - escf
+    
+---
+# TD-DFT excited states.
+TYPE: calculation
+
+PARENT: [Turbomole-DFT-defaults]
+GROUP: ["Excited States", "TDA", "10 Triplets"]
+
+# Specify excited states.
+dft_exci:
+    multiplicity: 3
+    nexc: 10
+    TDA: True
+    
+# This is a singlepoint.
+modules:
+    - dscf
+    - escf
+    
+---
+# TD-DFT excited states.
+TYPE: calculation
+
+PARENT: [Turbomole-DFT-defaults]
+GROUP: ["Excited States", "TDA", "100 Singlets"]
+
+# Specify excited states.
+dft_exci:
+    multiplicity: 1
+    nexc: 100
+    TDA: True
+    
+# This is a singlepoint.
+modules:
+    - dscf
+    - escf

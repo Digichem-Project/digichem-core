@@ -1,0 +1,24 @@
+---
+# DFT Optimisations.
+TYPE: calculation
+
+PARENT: [Turbomole-DFT-defaults]
+GROUP: ["Single Point"]
+
+
+# This is a single point.
+modules:
+    - dscf
+
+
+---
+# DFT Optimisations.
+TYPE: calculation
+
+PARENT: [Turbomole-defaults]
+GROUP: ["Single Point", "CC2-SCS"]
+
+
+# This is a single point.
+modules:
+    - dscf

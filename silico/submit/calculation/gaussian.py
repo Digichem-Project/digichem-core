@@ -6,17 +6,19 @@ from silico.exception.base import Submission_error, Silico_exception
 from silico.config.configurable.option import Option
 from silico.misc.base import is_int
 from silico.submit.calculation import Concrete_calculation
-from logging import getLogger
 
-class Gaussian_DFT(Concrete_calculation):
+class Gaussian(Concrete_calculation):
 	"""
 	DFT (density functional theory) calculations with Gaussian.
 	"""
 	# Identifying handle.
-	CLASS_HANDLE = ("Gaussian-DFT",)
+	CLASS_HANDLE = ("Gaussian",)
 	
 	# A list of strings describing the expected input file types (file extensions) for calculation's of this class. The first item of this list will be passed to obabel via the -o flag. 
 	INPUT_FILE_TYPES = ["gau", "com", "gjf", "gjc"]
+	
+	# The format of the output file containing coordinates.
+	OUTPUT_COORD_TYPE = "log"
 
 	# Configurable options.
 	CPU_list = Option(help = "A list of integers specifying specific CPUs to use for the calculation, starting at 0. CPU_list and num_CPUs are mutually exclusive", exclude = ("num_CPUs",), default = (), type = tuple)
@@ -38,8 +40,8 @@ class Gaussian_DFT(Concrete_calculation):
 		type = tuple,
 		default = ()
 	)
-	_multiplicity = Option("multiplicity", help = "Forcibly set the system multiplicity. Use 'auto' to use the multiplicity given in the input file", default = 'auto', validate = lambda option, configurable, value: value == "auto" or is_int(value))
-	_charge = Option("charge", help = "Forcibly set the system charge. Use 'auto' to use the charge given in the input file", default = 'auto', validate = lambda option, configurable, value: value == "auto" or is_int(value))
+	_multiplicity = Option("multiplicity", help = "Forcibly set the molecule multiplicity. Use 'auto' to use the multiplicity given in the input file", default = 'auto', validate = lambda option, configurable, value: value == "auto" or is_int(value))
+	_charge = Option("charge", help = "Forcibly set the molecule charge. Use 'auto' to use the charge given in the input file", default = 'auto', validate = lambda option, configurable, value: value == "auto" or is_int(value))
 	solvent = Option(help = "Name of the solvent to use for the calculation (the model used is SCRF-PCM)", default = None, type = str)
 	options = Option(help = "Additional Gaussian route options. These are written to the input file with only minor modification ('name : value' becomes 'name=value'), so any option valid to Gaussian can be given here", default = {'Population': 'Regular', 'Density': 'Current'}, type = dict)
 	convert_chk = Option(help = "Whether to create an .fchk file at the end of the calculation", default = True, type = bool)
@@ -52,7 +54,7 @@ class Gaussian_DFT(Concrete_calculation):
 		
 		Unlike the charge attribute, this property will translate "auto" to the actual charge to be used.
 		"""
-		return self._charge if self._charge != "auto" else self.input_file.charge
+		return self._charge if self._charge != "auto" else self.input_coords.charge
 	
 	@property
 	def multiplicity(self):
@@ -61,7 +63,7 @@ class Gaussian_DFT(Concrete_calculation):
 		
 		Unlike the multiplicity attribute, this property will translate "auto" to the actual multiplicity to be used.
 		"""
-		return self._multiplicity if self._multiplicity != "auto" else self.input_file.multiplicity
+		return self._multiplicity if self._multiplicity != "auto" else self.input_coords.multiplicity
 	
 	@property
 	def external_ECPs(self):
@@ -141,51 +143,49 @@ class Gaussian_DFT(Concrete_calculation):
 				
 		# Convert to string and return.
 		return " ".join(route_parts)
-		
-	@classmethod
-	def safe_name(self, file_name):
-		"""
-		Get a filename safe for Gaussian.
-		
-		What constitutes a safe name from Gaussian's point of view is not entirely clear, to play it safe we'll only allow alpha-numeric characters, dots and underscores.
-		
-		:param file_name: The file name to make safe, note that a path (containing path separators) will not maintain its structure after a call to safe_name().
-		:return: The safe path name.
-		"""
-		# Adapted from https://stackoverflow.com/questions/7406102/create-sane-safe-filename-from-any-unsafe-string
-		safe_chars = "._"
-		return "".join([char if char.isalnum() or char in safe_chars else "_" for char in file_name])
 	
 	
-	def _submit_init(self, output, input_str, name):
+	############################
+	# Class creation mechanism #
+	############################
+	
+	class _actual(Concrete_calculation._actual):
 		"""
-		Step 1/4 of the submission process, this method is called to set-up submission.
-		
-		Performs init for Gaussian calculations.
-		
-		:param output: Path to perform the calculation in.
-		:param input_str: String containing a calculation file to submit.
-		:param name: Name of the submitted file (should include extension if any). This is used eg as the base name for files created during the calculation.
+		Inner class for calculations.
 		"""
-		super()._submit_init(output, input_str, name)
-		# Load our input file.
-		try:
-			self.input_file = Gaussian_input_parser(input_str)
-		except Exception:
-			raise Submission_error(self, "Failed to read input file")
 		
-	def _submit_pre(self):
-		"""
-		Step 2/4 of the submission process, this method is called before submission begins.
-		"""
-		super()._submit_pre()
+		def __init__(self, *args, **kwargs):
+			"""
+			Constructor for Gaussian calcs.
+			"""
+			super().__init__(*args, **kwargs)
+			self.chk_file_name = None
+			self.com_file_name = None
+			self.com_file_body = None
 		
-		# Decide on our file names.
-		self.chk_file_name = self.safe_name(self.name + ".chk")
-		self.com_file_name = self.safe_name(self.name + ".com")
-		
-		# Get and load our com file template.
-		self.com_file_body = TemplateLookup(directories = str(silico.default_template_directory())).get_template("/submit/gaussian_input.mako").render_unicode(calculation = self)
+		def prepare(self, output, input_coords, molecule_name):
+			"""
+			Prepare this calculation for submission.
+			
+			:param output: Path to a directory to perform the calculation in.
+			:param input_coords: A string containing input coordinates in a format suitable for this calculation type.
+			:param molecule_name: A name that refers to the system under study (eg, Benzene etc).
+			"""
+			# Load our input file (and parse).
+			try:
+				input_coords = Gaussian_input_parser(input_coords)
+			except Exception:
+				raise Submission_error(self, "Failed to read/parse gaussian input file")
+			
+			# Call parent.
+			super().prepare(output, input_coords, molecule_name)
+			
+			# Decide on our file names.
+			self.chk_file_name = self.safe_name(self.molecule_name + ".chk")
+			self.com_file_name = self.safe_name(self.molecule_name + ".com")
+			
+			# Get and load our com file template.
+			self.com_file_body = TemplateLookup(directories = str(silico.default_template_directory())).get_template("/submit/gaussian/input_file.mako").render_unicode(calculation = self)
 		
 		
 class Gaussian_input_parser():
@@ -235,7 +235,7 @@ class Gaussian_input_parser():
 		
 		None and empty string values are translated to a single whitespace character (because otherwise they will be interpreted wrong).
 		"""
-		return self._title if self._title is not None and self._title is not "" else " "
+		return self._title if self._title is not None and self._title != "" else " "
 	
 	@title.setter
 	def title(self, value):

@@ -200,8 +200,12 @@ class Configurable(Config, Dynamic_parent, Options_mixin):
 	"""
 	
 	def __init__(self, *args, **kwargs):
+		"""
+		Constructor for Configurable objects.
+		"""
 		super().__init__(*args, **kwargs)
 		self._configurable_options = {}
+		self.inner_cls = None
 		
 	# Configurable options.
 	_NAME = Option("NAME", help = "The unique name of this Configurable and the name of the folder under which this calculation will run. If left blank and a GROUP_NAME is set, a name will be generated automatically", type = str)
@@ -398,8 +402,10 @@ class Configurable(Config, Dynamic_parent, Options_mixin):
 		:return: The NAME (a string) or None if this configurable is hidden.
 		"""
 		# If we have a real NAME set, we use that.
-		if self.get("NAME", None) is not None:
-			return self['NAME']
+		#if self.get("NAME", None) is not None:
+		#	return self['NAME']
+		if self._NAME is not None:
+			return self._NAME
 		elif len(self.GROUP) > 0 and self.GROUP_NAME is not None:
 		# If we are part of a group, then we might be able to make a name.
 			return (" ".join(self.GROUP)) + " " + self.GROUP_NAME
@@ -462,6 +468,62 @@ class Configurable(Config, Dynamic_parent, Options_mixin):
 			self.group(grouped_dict[curname], names[1:])
 			
 		return grouped_dict
+		
+	
+	############################
+	# Class creation mechanism #
+	############################
+	
+	def classify(self):
+		"""
+		Create a new class from this Configurable object.
+		
+		The new class will inherit this object's attributes as class-level attributes, so all new objects created from the class will 'share' the attributes of this object.
+		"""
+		cls = type(type(self).__name__ + "_actual", (self._actual, type(self)), vars(self))
+		cls.__module__ = '__main__'
+		return cls
+	
+	def finalize(self, force = True):
+		"""
+		Finalize this configurable, indicating that no further changes are going to be made.
+		
+		Calling finalize creates a new class which is stored at this object's inner_cls attribute, which can be used to create new objects, using this object as a template.
+		Alternatively, once finalize() has been called, new objects from this inner class can be created by calling this object.
+		
+		Once called, all objects created from this class template will have the same type and share class-level attributes.
+		Further modifications to this object will not be reflected in children objects, unless finalize is called again in which case changes will propagate to newly created children only.
+		Objects created before and after a call to finalize() will not share the same type (although they will have the same type name...)
+		
+		:param force: Whether to finalize again if this method has already been called. If False and finalize() has been previously called, nothing will happen.
+		"""
+		if force or self.inner_cls is None:
+			self.inner_cls = self.classify()
+		
+	def __call__(self, *args, **kwargs):
+		"""
+		Create a new object using this object as a class template.
+		
+		:raises TypeError: If finalize has not yet been called.
+		"""
+		try:
+			return self.inner_cls(*args, **kwargs)
+		except TypeError:
+			# Type Error, possibly because inner_cls is None.
+			if self.inner_cls is None:
+				raise TypeError("Attempted to create object before calling finalize() (inner_cls is None)")
+			else:
+				raise
+		
+	class _actual():
+		"""
+		The inner class that is used as the base for the classes returned by classify().
+		
+		Objects of this class will have attributes of the outer-level object as class-level attributes.
+		
+		This default implementation does nothing.
+		"""
+		pass
 			
 		
 		

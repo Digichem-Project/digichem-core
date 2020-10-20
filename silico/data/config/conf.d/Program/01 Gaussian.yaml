@@ -4,18 +4,10 @@ TYPE: program
 # Config for a Gaussian submission
 NAME: Gaussian 09
 ALIAS: [g09]
+PARENT: [prog-defaults]
 
 # The name of the program this config is for. These are pre-built into silico.
 CLASS: gaussian
-
-# These are the methods that this program is compatible with.
-methods:
-    - slurm
-    - slurm_big_mem
-    - slurm_multi
-    - slurm_debug
-#    - local
-#    - local_nw 
 
 # 'Path' to the Gaussian executable we'll use (this is usefull to differentiate between versions if multiple are installed).
 executable: g09

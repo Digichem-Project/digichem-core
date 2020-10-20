@@ -7,7 +7,7 @@ class Option_editor(urwid.Pile):
 	Top-level class for those that edit options in a Configurable.
 	"""
 	
-	def __init__(self, original_widget, configurable, option):
+	def __init__(self, original_widget, configurable, option, dictobj = None):
 		"""
 		"""
 		help_msg = option.help
@@ -26,12 +26,13 @@ class Option_editor(urwid.Pile):
 		])
 		self.configurable = configurable
 		self.option = option
+		self.dictobj = dictobj
 		
 	def save(self):
 		"""
 		Save the current value of this editor.
 		"""
-		self.option.__set__(self.configurable, self.value)
+		self.option.__set__(self.configurable, self.value, dictobj = self.dictobj)
 	
 	@property
 	def value(self):
@@ -43,20 +44,20 @@ class Option_editor(urwid.Pile):
 		raise NotImplementedError()
 	
 	@classmethod
-	def from_type(self, configurable, option, padding = 4):
+	def from_type(self, configurable, option, padding = 4, **kwargs):
 		"""
 		Get an appropriate urwid widget depending on the type of an option.
 		"""
 		if isinstance(option, Options):
 			return Options_editor(configurable, option, padding)
 		elif option.type is bool:
-			return Bool_editor(configurable, option)
+			return Bool_editor(configurable, option, **kwargs)
 		elif option.type is list or option.type is tuple:
-			return List_editor(configurable, option)
+			return List_editor(configurable, option, **kwargs)
 		elif option.type is dict:
-			return Dict_editor(configurable, option)
+			return Dict_editor(configurable, option, **kwargs)
 		else:
-			return Text_editor(configurable, option)
+			return Text_editor(configurable, option, **kwargs)
 
 
 class Text_editor(Option_editor):
@@ -64,13 +65,13 @@ class Text_editor(Option_editor):
 	Editer widget for generic text types.
 	"""
 	
-	def __init__(self, configurable, option):
+	def __init__(self, configurable, option, **kwargs):
 		"""
 		Constructor for Bool_editor widgets.
 		"""
-		value = option.getraw(configurable)
+		value = option.getraw(configurable, **kwargs)
 		self.edit = urwid.Edit(('boldnode', option.name +": "), edit_text = str(value) if value is not None else "")
-		super().__init__(self.edit, configurable, option)
+		super().__init__(self.edit, configurable, option, **kwargs)
 	
 	@property
 	def value(self):
@@ -116,12 +117,12 @@ class Bool_editor(Option_editor):
 	Editer widget for bool values.
 	"""
 	
-	def __init__(self, configurable, option):
+	def __init__(self, configurable, option, **kwargs):
 		"""
 		Constructor for Bool_editor widgets.
 		"""
-		self.checkbox = urwid.CheckBox(('boldnode', option.name), option.getraw(configurable))
-		super().__init__(self.checkbox, configurable, option)
+		self.checkbox = urwid.CheckBox(('boldnode', option.name), option.getraw(configurable, **kwargs))
+		super().__init__(self.checkbox, configurable, option, **kwargs)
 	
 	@property
 	def value(self):
@@ -135,7 +136,7 @@ class List_editor(Option_editor):
 	Editor widget for list values.
 	"""
 	
-	def __init__(self, configurable, option, *, strip_empty = True):
+	def __init__(self, configurable, option, *, strip_empty = True, **kwargs):
 		"""
 		Constructor for Bool_editor widgets.
 		
@@ -147,19 +148,19 @@ class List_editor(Option_editor):
 		editors = [urwid.Text(('boldnode', option.name + ": "))]
 		self.fields = []
 		self.pile = urwid.Pile(editors)
-		self.build_fields(configurable, option)
+		self.build_fields(configurable, option, **kwargs)
 		
 		# Set focus properly.
 		self.pile.focus_position = len(self.pile.contents) -1
 		
-		super().__init__(self.pile, configurable, option)
+		super().__init__(self.pile, configurable, option, **kwargs)
 		
-	def build_fields(self, configurable, option,):
+	def build_fields(self, configurable, option, **kwargs):
 		"""
 		Build a list of edit fields based on a value.
 		"""
 		# Add edit fields.
-		for num, value in enumerate(option.getraw(configurable)):
+		for num, value in enumerate(option.getraw(configurable, **kwargs)):
 			# Create a new text edit.
 			self.new_field(num, value)
 			
@@ -211,15 +212,20 @@ class Dict_editor(List_editor):
 	Editor widget for dicts
 	"""
 	
-	def build_fields(self, configurable, option):
+	def build_fields(self, configurable, option, **kwargs):
 		"""
 		Build a list of edit fields based on a value.
 		"""
 		# Add edit fields.
-		value = option.getraw(configurable)
+		value = option.getraw(configurable, **kwargs)
 		for name, value in (value.items() if value is not None else {}.items()):
 			# Create a new text edit.
 			self.new_field(name, value)
+		
+# 		value = option.__get__(configurable, type(configurable))
+# 		for name, value in (value.items() if value is not None else {}.items()):
+# 			# Create a new text edit.
+# 			self.new_field(name, value)
 			
 		# Add one final editor so we can add more values.
 		self.new_field(None, None)
@@ -307,6 +313,13 @@ class Options_editor(Tab_pile):
 			urwid.Padding(edit_list, left = padding)
 		])
 		
+		# Save our Options (plural) object.
+		if isinstance(option, Options):
+			self.options_obj = option
+		else:
+			self.options_obj = None
+		self.configurable = configurable
+		
 	def get_widgets(self, configurable, option_or_configurable, padding = 4):
 		"""
 		Get a list of widgets that will make up the body of this editor.
@@ -314,13 +327,13 @@ class Options_editor(Tab_pile):
 		Editable widgets will also be added to the 'fields' list attribute.
 		
 		:return: List of widgets (some editable, some not).
-		"""	
+		"""
 		# Build our editing widgets.
 		widgets = []
 		for name,sub_option in option_or_configurable.OPTIONS.items():
 			if not sub_option.no_edit:
 				# Get our edit field.
-				field = Option_editor.from_type(configurable, sub_option, padding = padding + 4)
+				field = Option_editor.from_type(configurable, sub_option, padding = padding + 4, dictobj = option_or_configurable.getraw(configurable) if isinstance(option_or_configurable, Options) else None)
 								
 				# Add.
 				self.fields.append(field)
@@ -335,3 +348,7 @@ class Options_editor(Tab_pile):
 		"""
 		for field in self.fields:
 			field.save()
+			
+		# Also configure our Options object.
+		if getattr(self, 'options_obj', None) is not None:
+			self.options_obj.configure(self.configurable)

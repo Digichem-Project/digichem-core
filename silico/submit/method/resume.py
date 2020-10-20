@@ -1,74 +1,110 @@
 from silico.exception.uncatchable import Submission_paused
-import pickle
+import dill
+#import pickle as dill
 from pathlib import Path
+from silico.submit.structure.flag import Flag
+from silico.submit.method import Method_target
 
-class Resumable_method():
+class Resumable_method(Method_target):
 	"""
 	Mixin class for method that are resumable.
 	
 	Resumable here means that program execution stops during the submission process. Submission is then 'resumed' in a new process immediately before the calculation proper begins.
 	This mechanism is required by several methods, for example SLURM (calculation has to occur from the SLURM node) and SSH (calculation occurs on a different machine entirely).
 	
-	The 'resume' is achieved via pickle, so you class should be picklable.
+	The 'resume' is achieved via pickle, so your class should be picklable.
 	"""
 	
-	def __init__(self):
+	CLASS_HANDLE = ()
+	
+	############################
+	# Class creation mechanism #
+	############################
+	
+	class _actual(Method_target._actual):
 		"""
-		Constructor for Resumable_method objects.
-		
-		:param output: Path to the file that we will write to resume from.
+		Inner class for SLURM.
 		"""
-		# A flag keeping track of which side of the pickle reload we are.
-		self._resumed = False
-		
-	def _submit_pre(self):
-		"""
-		
-		"""
-		# If we've already resumed, then there's nothing for us to do.
-		if not self._resumed:
-			# Pause here.
-			self.pause()
+		def __init__(self, *args, **kwargs):
+			"""
+			Constructor for Resumable_method objects.
 			
-			# Use a special 'exception' to prevent normal submission.
-			raise Submission_paused()
+			:param output: Path to the file that we will write to resume from.
+			"""
+			super().__init__(*args, **kwargs)
+			# A flag keeping track of which side of the pickle reload we are.
+			self._resumed = False
+			
+		def pre(self):
+			"""
+			Method called prior to pausing, inheriting classes should define setup here.
+			
+			This default implementation does nothing.
+			"""
+			pass
 		
-	@property
-	def resume_file_path(self):
-		"""
-		Path to our pickled resume file. 
-		"""
-		return Path(self.calc_dir.input_directory, "silico.resume.pickle")
-		
-	def pause(self):
-		"""
-		The first part of the 'resume' mechanism, pause() should set-up the class for resuming later. Typically this involves writing to a pickle file.
-		
-		#This default implementation is a helper function for inheriting classes, calling it will pickle this object to the path given. Normal implementations will take no arguments.
-		
-		#:param output: The path to pickle to. Note that this argument is required, it is set as optional so a more descriptive error message can be given.
-		"""
-		#if output is None:
-		#	raise Silico_exception("default Resumable_method.pause() implementation called without output argument; if you are writing your own Resumable_method class, you should write your own implementation of pause()")
-		
-		with open(self.resume_file_path, "bw") as pickle_file:
-			pickle.dump(self, pickle_file)
-		
-	def resume(self):
-		"""
-		The second part of the 'resume' mechanism, resume() is called after the pickle file has been re-loaded. Execution should continue from here.
-		"""
-		self._resumed = True
-		
-		# Continue submitting.
-		self.program.calculation.submit_pre()
-		self.program.calculation.submit_proper()
-		
-		# We now rest our flag because we might re-use the same SLURM method for the next calc, which hasn't resumed yet.
-		self._resumed = False
-		self.program.calculation.submit_post()
-		
-		
-		
-		
+		def post(self):
+			"""
+			Method called after pausing, inheriting classes should define setup here.
+			
+			This default implementation does nothing.
+			"""
+			pass
+			
+		def submit(self):
+			"""
+			Submit to this resumable method.
+			
+			In resumable methods, this method will get called twice (automatically) during the submission process.
+			This method can raise Submission_paused exceptions as part of this process,
+			you should not go out of you way to catch these exceptions unless you know what you are doing
+			(and you should almost certainly be re-raising once you are done).
+			"""
+			# If we have not yet resumed, create our directory structure.
+			# We need to do this before the resume because this is where we'll write our SLURM batch file.
+			if not self._resumed:
+				# First, call our parent (creates directories).
+				super().submit()
+				
+				# Call user defined pre function.
+				self.pre()
+
+				# Pause here.
+				self.pause()
+				
+				# Set our pending flag (we will be going into a queue).
+				self.calc_dir.set_flag(Flag.PENDING)
+				
+				# Call user defined post function.
+				self.post()
+				
+				# Use a special 'exception' to prevent normal submission.
+				raise Submission_paused()
+			
+			# If we get this far, then we have resumed and can continue as normal.
+			# Delete the pending flag.
+			self.calc_dir.del_flag(Flag.PENDING)
+			
+		@property
+		def resume_file_path(self):
+			"""
+			Path to our pickled resume file. 
+			"""
+			return Path(self.calc_dir.input_directory, "silico.resume.pickle")
+			
+		def pause(self):
+			"""
+			The first part of the 'resume' mechanism, pause() should set-up the class for resuming later. Typically this involves writing to a pickle file.
+			"""
+			with open(self.resume_file_path, "bw") as pickle_file:
+				dill.dump(self, pickle_file)
+			
+		def resume(self):
+			"""
+			The second part of the 'resume' mechanism, resume() is called after the pickle file has been re-loaded. Execution should continue from here.
+			"""
+			self._resumed = True
+			
+			# Continue submitting.
+			self.program.calculation.submit()
 		

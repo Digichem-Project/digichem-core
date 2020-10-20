@@ -4,7 +4,7 @@
 
 <%
 	# First work out our title, which changes slightly depending on whether this is the ground or excited state dipole.
-	if dipole_moment.dipole_type is "permanent":
+	if dipole_moment.dipole_type == "permanent":
 		# This is the ground state dipole.
 		dipole_title = 'Permanent Dipole Moment'
 	else:

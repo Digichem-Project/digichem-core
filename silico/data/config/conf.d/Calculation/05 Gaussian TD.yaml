@@ -4,7 +4,7 @@
 TYPE: calculation
 ALIAS: [TD-defaults]
 PARENT: [Gaussian-defaults]
-GROUP: [TD-DFT, 10 Singlets 10 Triplets]
+GROUP: [Excited States, TD-DFT, 10 Singlets 10 Triplets]
 
 calculation_keywords:
     - TD=(NStates=10,50-50)
@@ -14,7 +14,7 @@ calculation_keywords:
 TYPE: calculation
 PARENT: [Gaussian-defaults]
 ALIAS: [TD-triplets-defaults]
-GROUP: [TD-DFT, 5 Triplets]
+GROUP: [Excited States, TD-DFT, 5 Triplets]
 
 calculation_keywords:
     - TD=(NStates=5,Triplets)
@@ -27,7 +27,7 @@ calculation_keywords:
 TYPE: calculation
 PARENT: [Gaussian-defaults]
 ALIAS: [TD-singlets-defaults]
-GROUP: [TD-DFT, 100 Singlets]
+GROUP: [Excited States, TD-DFT, 100 Singlets]
 
 calculation_keywords:
     - TD=(NStates=100,Singlets)
@@ -44,7 +44,7 @@ silico_options:
 TYPE: calculation
 ALIAS: [Opt-TD-S1-defaults]
 PARENT: [Gaussian-defaults]
-GROUP: [TD-DFT, Optimised S(1)]
+GROUP: [Excited States, TD-DFT, Optimised S(1)]
 
 calculation_keywords:
     - Opt
@@ -56,7 +56,7 @@ calculation_keywords:
 TYPE: calculation
 PARENT: [Gaussian-defaults]
 ALIAS: [Opt-TD-T1-defaults]
-GROUP: [TD-DFT, Optimised T(1)]
+GROUP: [Excited States, TD-DFT, Optimised T(1)]
 
 calculation_keywords:
     - Opt
