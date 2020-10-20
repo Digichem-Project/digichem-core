@@ -59,59 +59,6 @@ ricc2:
 cc_geoopt:
     wavefunction: cc2
     
-#             
-# 
-# 
-# ---
-# # Optimisation @ DFT
-# TYPE: calculation
-# 
-# #NAME: SCS CC2 Opt (cc-pVDZ)
-# #GROUP: [Opt, PBE0]
-# PARENT: [Turbomole-defaults]
-# 
-# # Define methods.
-# methods:
-#     dft:
-#         - on
-#     dsp:
-#         - on
-#         - bj
-# 
-# # Split on functional.
-# SPLIT:
-#     - GROUP: [Opt, PBE0]
-#       methods:
-#         - dft: [func pbe0]
-#       basis_set:
-#         - 6-31G(d,p)
-#         - 6-31G+(d,p)
-#         - 6-31G++(d,p)
-#         - 6-311G(d,p)
-#         - 6-311G+(d,p)
-#         - 6-311G++(d,p)
-#         - cc-pVDZ
-#         - cc-pVTZ
-#         - cc-pVQZ
-#         - cc-pV5Z
-#         - cc-pV6Z
-#     - GROUP: [Opt, B3LYP]
-#       methods:
-#         - dft: [func b3-lyp]
-#       basis_set:
-#         - 6-31G(d,p)
-#         - 6-31G+(d,p)
-#         - 6-31G++(d,p)
-#         - 6-311G(d,p)
-#         - 6-311G+(d,p)
-#         - 6-311G++(d,p)
-#         - cc-pVDZ
-#         - cc-pVTZ
-#         - cc-pVQZ
-#         - cc-pV5Z
-#         - cc-pV6Z
-# 
-# # Turbomole sub-programs.
-# modules:
-#     - jobex -level dft -c 100 -keep
-#             
+# We normally need more SCF for CC2.
+scf:
+    iter: 300

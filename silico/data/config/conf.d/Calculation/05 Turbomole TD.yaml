@@ -98,3 +98,7 @@ ricc2_exci:
 modules:
     - dscf
     - ricc2
+    
+# We normally need more SCF for CC2.
+scf:
+    iter: 300
