@@ -1,4 +1,3 @@
-from silico.submit.method import Method_target
 from silico.exception import Submission_error, Silico_exception
 from mako.lookup import TemplateLookup
 from pathlib import Path
@@ -134,7 +133,7 @@ class SLURM(Resumable_method):
 	# Class creation mechanism #
 	############################
 	
-	class _actual(Method_target._actual):
+	class _actual(Resumable_method._actual):
 		"""
 		Inner class for SLURM.
 		"""
