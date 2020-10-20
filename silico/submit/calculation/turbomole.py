@@ -64,7 +64,7 @@ class Turbomole_AI(Turbomole):
 		)
 	dft = Options(
 		help = "Options for DFT.",
-		functional = Option(help = "The DFT functional to use. If None is given, DFT will not be used. Please note these are CaSe SeNsItIvE.", type = str, default = None),
+		functional = Option(help = "The DFT functional to use. If None is given, DFT will not be used.", type = str, default = None),
 		grid = Option(help = "The grid size to use.", type = str, default = None),
 		)
 	dft_exci = Options(
@@ -76,7 +76,7 @@ class Turbomole_AI(Turbomole):
 		)
 	dispersion = Options(
 		help = "Options for dispersion correction.",
-		dsp = Option(help = "Dispersion correction to use.", choices = ("D2", "D3", "D3BJ", "D4", None), default = None),
+		dsp = Option(help = "Dispersion correction to use.", choices = ("GD2", "GD3", "GD3BJ", "GD4", None), default = None),
 		abc = Option(help = "Whether to switch on the three-body term. This option is ignored if no dsp is to be used.", type = bool, default = False)
 		)
 	cc = Options(
@@ -114,6 +114,24 @@ class Turbomole_AI(Turbomole):
 			return ""
 		else:
 			return self.dft['functional'].upper()
+		
+	@property
+	def func(self):
+		"""
+		The name of the functional to use for this calculation in a format acceptable to turbomole.
+		
+		If no functional is to be used (because this is not a DFT calculation), then None is returned.
+		"""
+		func = self.dft['functional']
+		
+		# If none, giveup.
+		if func is None:
+			return None
+		
+		# Convert to lowercase, but the G in Gaussian is upper case (sigh).
+		return func.lower().replace("gaussian", "Gaussian")
+		
+		
 	
 	@property
 	def unpaired_electrons(self):

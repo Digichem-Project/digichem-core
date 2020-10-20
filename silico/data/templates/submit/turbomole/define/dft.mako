@@ -13,7 +13,8 @@ dft
 on
 ##
 ## Set functional.
-func ${calculation.dft['functional']}
+##func ${calculation.dft['functional']}
+func ${calculation.func}
 ##
 ## Change grid if we've been asked to.
 %if calculation.dft['grid'] is not None:
@@ -56,12 +57,14 @@ n
 dsp
 ##
 ## Set type of dsp (some have weird names).
-%if calculation.dispersion['dsp'].upper() == "B3":
+%if calculation.dispersion['dsp'].upper() == "GD3":
 on
-%elif calculation.dispersion['dsp'].upper() == "B2":
+%elif calculation.dispersion['dsp'].upper() == "GD2":
 old
-%elif calculation.dispersion['dsp'].upper() == "D3BJ":
+%elif calculation.dispersion['dsp'].upper() == "GD3BJ":
 bj
+%elif calculation.dispersion['dsp'].upper() == "GD4":
+d4
 %else:
 ${calculation.dispersion['dsp']}
 %endif
