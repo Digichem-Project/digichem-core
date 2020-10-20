@@ -162,12 +162,13 @@ class Obabel_converter(Openbabel_converter):
 	"""
 	
 	# The regex we'll use to check obabel converted successfully.
-	obabel_success = re.compile(r"\b(?!0\b)\d*\b molecules? converted")
+	#obabel_success = re.compile(r"\b(?!0\b)\d*\b molecules? converted")
+	obabel_fail = re.compile(r"\b0 molecules converted")
 	
 	# 'Path' to the obabel executable.
 	obabel_execuable = "obabel"
 		
-	def __init__(self, input_file_path, output_file_type, *, gen3D = None, **kwargs):
+	def __init__(self, input_file_path, output_file_type, *, input_file_type, gen3D = None, **kwargs):
 		"""
 		Constructor for the OpenBabel converter.
 		
@@ -176,6 +177,7 @@ class Obabel_converter(Openbabel_converter):
 		super().__init__(
 			input_file_path,
 			output_file_type,
+			input_file_type = input_file_type,
 			gen3D = gen3D if gen3D is not None else False,
 			**kwargs
 			)
@@ -203,7 +205,8 @@ class Obabel_converter(Openbabel_converter):
 		sig = [
  			self.obabel_execuable,
  			str(self.input_file_path),
- 			"-o", self.output_file_type
+ 			"-o", self.output_file_type,
+ 			"-i", self.input_file_type
  		]
 		
 		if self.gen3D:
@@ -233,7 +236,8 @@ class Obabel_converter(Openbabel_converter):
 		
 		# Sadly, openbabel doesn't appear to make use of return codes all the time.
 		# We'll do basic error checking on whether our output contains a certain string.
-		if not self.obabel_success.search(done_process.stderr):
+		#if not self.obabel_success.search(done_process.stderr):
+		if self.obabel_fail.search(done_process.stderr):
 			raise Silico_exception("Obabel command did not appear to complete successfully") from CalledProcessError(done_process.returncode, " ".join(done_process.args), done_process.stdout, done_process.stderr)
 		
 		# Return our output.
