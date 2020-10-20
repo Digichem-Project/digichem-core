@@ -59,7 +59,7 @@ class Turbomole(Program_target):
 			"""
 			Path to the file in which define output is written.
 			"""
-			return Path(self.method.calc_dir.output_directory, "define.out")
+			return Path(self.method.calc_dir.output_directory, "define.output")
 		
 		@property
 		def turbomole_output_path(self):
