@@ -1,0 +1,136 @@
+---
+TYPE: calculation
+
+# Name for our default config.
+ALIAS: [Turbomole-defaults]
+
+# Parent.
+PARENT: [calc-defaults]
+
+# This is a turbomole calc.
+CLASS: Turbomole
+
+# Increase number of SCF iterations.
+scf:
+    iter: 100
+    
+# The programs that this calculation is compatible with.
+programs: [Turbomole]
+
+# Options that control use of the scratch directory.
+scratch_options:
+    # Set True is useful for Turbomole.
+    all_output: True
+    
+num_CPUs: 8
+
+# SPLIT, but know that this is overwritten by other splits.
+SPLIT:
+  - GROUP_NAME: "{basis_set}"
+    basis_set:
+      - cc-pVDZ
+      - cc-pVTZ
+      - cc-pVQZ
+      - cc-pV5Z
+      - cc-pV6Z
+
+---
+# DFT
+TYPE: calculation
+
+ABSTRACT: True
+ALIAS: [Turbomole-DFT-defaults]
+PARENT: [Turbomole-defaults]
+
+# Split on functionals.
+SPLIT:
+    - GROUP: ["{dft[functional]} (D3BJ)"]
+      dft: 
+        - {functional: pbe0}
+        - {functional: b3-lyp}
+      dispersion:
+        - {dsp: D3BJ}
+      SPLIT:
+        - GROUP_NAME: "{basis_set}"
+          basis_set:
+            - 6-31G**
+            - 6-311G
+            - 6-311G*
+            - 6-311G**
+            - 6-311++G**
+            - cc-pVDZ
+            - cc-pVTZ
+            - cc-pVQZ
+            - cc-pV5Z
+            - cc-pV6Z
+    - GROUP: ["{dft[functional]} (D3)"]
+      dft: 
+        - {functional: m06-2x}
+      dispersion:
+        - {dsp: D3}
+      SPLIT:
+        - GROUP_NAME: "{basis_set}"
+          basis_set:
+            - 6-31G**
+            - 6-311G
+            - 6-311G*
+            - 6-311G**
+            - 6-311++G**
+            - cc-pVDZ
+            - cc-pVTZ
+            - cc-pVQZ
+            - cc-pV5Z
+            - cc-pV6Z
+
+
+# ---
+# # Excited state S1 and S2 @ SCS-CC2.
+# TYPE: calculation
+# 
+# GROUP: [ES, S1 & S2, CC2 (SCS)]
+# PARENT: [Turbomole-defaults]
+# 
+# # ricc2 options.
+# cc:
+#     # Turn on aux. basis set.
+#     cbas: True
+#     # CC2.
+#     ricc2:
+#         model: cc2
+#         scs: scs
+#     # S1 and S2
+#     exci:
+#         symmetry: a
+#         multiplicity: 1
+#         nexc: 2
+#         oscillator_strengths: True
+# 
+# # Turbomole sub-programs.
+# modules:
+#     - dscf
+#     - ricc2
+
+# ---
+# # Excited state T1 and T2 @ SCS-CC2.
+# TYPE: calculation
+# 
+# #NAME: SCS CC2 T1 T2 (cc-pVDZ)
+# GROUP: [ES, T1 & T2, CC2 (SCS)]
+# PARENT: [Turbomole-defaults]
+# 
+# # Define methods.
+# methods:
+#     cc:
+#         cbas: []
+#         ricc2:
+#             - geoopt model=CC2
+#             - CC2
+#             - SCS
+#         exci:
+#             - irrep=a multiplicity=3 nexc=2
+#             - xgrad states=(a{3} 1-2)
+# 
+# # Turbomole sub-programs.
+# modules:
+#     - dscf
+#     - ricc2
