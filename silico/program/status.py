@@ -61,7 +61,7 @@ def _main(args, config, logger):
 			print("{}: {}".format(method.NAME, method.status))
 		except NotImplementedError:
 			# No status for this method.
-			print("{}: Not available".format(method.NAME))
+			print("{}: Status not available for this method".format(method.NAME))
 		except Exception:
 			logger.error("Failed to fetch status information for method '{}'".format(method.NAME), exc_info = True)
 	
