@@ -145,9 +145,9 @@ class Layered_dict(list):
 				for key in dict_layer:
 					yield ((layer_index,), key, dict_layer[key])
 			
-		while True:
-			# Nothing more to iterate over.
-			raise StopIteration()
+		#while True:
+		#	# Nothing more to iterate over.
+		#	raise StopIteration()
 		
 	def update(self, *iterables, **key_values):
 		"""
