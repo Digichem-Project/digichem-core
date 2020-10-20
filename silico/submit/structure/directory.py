@@ -74,12 +74,18 @@ class Calculation_directory(Silico_directory):
 	Class that represents the directory hierarchy where we submit calculations to.
 	"""
 	
-	def __init__(self, molecule_directory, name, directory_time = None, create = False):
+	def __init__(self, molecule_directory, program, name, directory_time = None, create = False):
 		"""
-		Constructor for 
+		Constructor for calculation directory objects.
+		
+		:param molecule_directory: Molecule_directory object in which the calculation is to take place.
+		:param program: Name of the program carrying out the calculation.
+		:param name: Name of the calculation.
 		"""
 		self.molecule_directory = molecule_directory
+		self.program = program
 		self.name = name
+		# Believe this is deprecated...
 		self.directory_time = directory_time if directory_time is not None else datetime.now()
 		if create:
 			self.molecule_directory.create_structure()
@@ -90,15 +96,15 @@ class Calculation_directory(Silico_directory):
 		"""
 		Create a Calculation_directory object from a Calculation_target object.
 		"""
-		return self(Molecule_directory.from_calculation(calculation), self.safe_name(calculation.NAME), create = create)		
+		return self(Molecule_directory.from_calculation(calculation), calculation.program.NAME, self.safe_name(calculation.NAME), create = create)		
 	
 	@property
 	def path(self):
 		"""
 		Pathlib Path object to this calculation dir.
 		"""
-		#return Path(str(self.molecule_directory), self.name, self.directory_time.strftime("%d-%m-%Y %M-%H-%S"))
-		return Path(str(self.molecule_directory), self.name)
+		#return Path(str(self.molecule_directory), self.name, self.directory_time.strftime("%d-%m-%Y %M-%H-%S"))#
+		return Path(str(self.molecule_directory), self.program, self.name)
 	
 	@property
 	def input_directory(self):
