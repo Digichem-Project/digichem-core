@@ -2,7 +2,8 @@
 import numpy
 import argparse
 from pathlib import Path
-import pickle
+import dill
+#import pickle as dill
 from logging import getLogger
 
 # Silico imports.
@@ -39,7 +40,7 @@ def main(args):
 		
 	# Load the pickled class.
 	with open(args.resume_file, "rb") as pickle_file:
-		method = pickle.load(pickle_file)
+		method = dill.load(pickle_file)
 
 	# Delete the pickled file to clean up (also prevents us running twice on the same file, which would be bad. Maybe we should do some file locking anyway?)
 	try:

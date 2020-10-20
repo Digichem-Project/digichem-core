@@ -87,8 +87,8 @@ class Submission_error(Silico_exception):
 		"""
 		Constructor for Submission_error exception objects.
 		
-		:param calculation: The calculation that was in process of being submitted when the error occured. This can be any one of a Method_target, Program_target or Calculation_target.
-		:param reason: String describing why the error occured.
+		:param calculation: The calculation that was in process of being submitted when the error occurred. This can be any one of a Method_target, Program_target or Calculation_target.
+		:param reason: String describing why the error occurred.
 		"""		
 		# Do some quick type checking.
 		if calculation.TYPE == "method":
@@ -100,7 +100,7 @@ class Submission_error(Silico_exception):
 		
 		# Decide on file name.
 		if file_name is None:
-			file_name = calculation.name
+			file_name = calculation.molecule_name
 		self.file_name = file_name
 		
 		self.calculation = calculation
@@ -110,7 +110,8 @@ class Submission_error(Silico_exception):
 		"""
 		Stringify this error.
 		"""
-		return "Error submitting file '{}' to '{}/{}/{}'; {}".format(self.file_name, self.calculation.program.method.NAME, self.calculation.program.NAME, self.calculation.NAME, self.reason)
+		return "Error submitting file '{}' to '{}'; {}".format(self.file_name, self.calculation.NAME, self.reason)
+	
 	
 class Extractor_error(Silico_exception):
 	"""

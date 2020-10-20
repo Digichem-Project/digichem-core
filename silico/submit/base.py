@@ -13,46 +13,25 @@ class Configurable_target(Configurable):
 		"""
 		Get all the configurable target objects from a list that contain this object as a parent.
 		"""
-		return [child for child in target_list if len(set(self.NAMES).intersection(child.submit_parents)) > 0]
+		return [child for child in target_list if child.compatible_parent(self)]
 	
-	@property
-	def submit_parents(self):
+	def compatible_parent(self, parent):
 		"""
-		Convenience property to get the 'submit parents' (programs for calculations; methods for programs) that this target supports.
+		Determine whether a configurable is allowed to be a parent of this configurable.
 		
-		Inheriting classes should write their own implementation, this one raises NotImplementedError.
 		"""
-		raise NotImplementedError
+		return len(set(parent.NAMES).intersection(self.parents)) != 0
 		
-# 	@property
-# 	def submit_parents(self):
-# 		"""
-# 		Get the list of 'Submit parents' (programs for calculations; methods for programs) that this target supports (all automatically converted to lower case to aid comparison).
-# 		"""
-# 		return [parent.lower() for parent in self._submit_parents]
-# 	
-# 	@submit_parents.setter
-# 	def submit_parents(self, value):
-# 		"""
-# 		Set the list of 'Submit parents' (programs for calculations; methods for programs) that this target supports. 
-# 		"""
-# 		self._submit_parents = value
-	
-	def _set_submit_parent(self, parent_type, parent):
+	def validate_parent(self, parent):
 		"""
-		Convenience method for child classes, sets the 'Submit parent' (program for calculations; method for programs), first checking to make sure the submit_parent is allowed to submit this object.
+		Determine whether a configurable is allowed to be a parent of this configurable, raising an exception if not.
 		
-		:raises Configurable_target_exception: If parent is not allowed.
-		:param parent_type: String of the attribute name which will be set.
-		:param parent: The Configurable_target object to set.
+		:raises Configurable_exception: If the given parent is not valid.
+		:return: None.
 		"""
-		# We check to make sure the given parent is actually allowed to be our parent.
-		if parent is not None and len(set(parent.NAMES).intersection(self.submit_parents)) == 0:
+		if not self.compatible_parent(parent):
 			raise Configurable_exception(self, "{} '{}' is not compatible with {} '{}'".format(parent.TYPE, parent.NAME, self.TYPE, self.NAME))
-		# All fine, set.
-		#self._program = value
-		setattr(self, parent_type, parent)
-	
+		
 	@classmethod
 	def get_available_CPUs(self):
 		"""
@@ -64,7 +43,8 @@ class Configurable_target(Configurable):
 			return len(os.sched_getaffinity(0))
 			# The python docs mention that sched_getaffinity() is not available on all systems, but it is not clear what exception will be raised in such a case. These two seem most likely.
 		except (AttributeError, NotImplementedError):
-			return os.cpu_count()	
+			return os.cpu_count()
+		
 	
 class Memory():
 	"""
@@ -79,6 +59,9 @@ class Memory():
 		'KB': 1000,
 		 'B': 1
 		}
+	
+	# When outputting units, whether to separate the number and unit with a space.
+	SPACE_UNIT = False
 	
 	def __init__(self, value = None, print_decimal = False):
 		"""
@@ -120,7 +103,7 @@ class Memory():
 		if not self.print_decimal:
 			value = int(value)
 		
-		return "{}{}".format(value, ordered_units[suffix_index][0])
+		return "{}{}{}".format(value, " " if self.SPACE_UNIT else "", ordered_units[suffix_index][0])
 			
 		
 	@auto.setter
@@ -143,7 +126,20 @@ class Memory():
 		
 		# Convert to int (because not sure it makes sense to represent fractions of bytes) and store.
 		self.value = int(value)
-		
+	
+	@property	
+	def MiB(self):
+		"""
+		The value of this memory in MiB.
+		"""
+		return round(self.value/1048576, None)
+	
+	@property	
+	def MB(self):
+		"""
+		The value of this memory in MB.
+		"""
+		return round(self.value/1000000, None)
 		
 	def __float__(self):
 		"""

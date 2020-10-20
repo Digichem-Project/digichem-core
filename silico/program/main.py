@@ -1,4 +1,4 @@
-#!/usr/bin/env python3.6
+#!/usr/bin/env python3.8
 
 # Main entry point to Silico.
 
@@ -28,6 +28,8 @@ import silico.program.submit
 import silico.program.result
 import silico.program.report
 import silico.program.resume
+import silico.program.status
+#import pydevd;pydevd.settrace()
 #import silico.program.spreadsheet
 
 # Make configurables available
@@ -63,13 +65,14 @@ def main():
 	silico.program.result.arguments(subparsers)
 	silico.program.report.arguments(subparsers)
 	#silico.program.spreadsheet.arguments(subparsers)
+	silico.program.status.arguments(subparsers)
 	silico.program.resume.arguments(subparsers)
 	
 	# Before we call parse_args(), we check to see if a sub command has been chosen.
 	# If not, we'll add 'submit' as the default.
 	# This is a bit hacky, but works ok.
 	if len(sys.argv) <= 1 or (
-		sys.argv[1] not in ["submit", "result", "report", "resume"]
+		sys.argv[1] not in ["submit", "result", "report", "resume", "status"]
 		and "-h" not in sys.argv
 		and "--help" not in sys.argv
 		and "-v" not in sys.argv
@@ -79,17 +82,6 @@ def main():
 	
 	# Process command line arguments.
 	args = parser.parse_args()
-	
-# 	# Decide on which function to call.
-# 	# TODO: This would be improved if each sub-program gave us this information.
-# 	if args.prog == "submit":
-# 		main_func = silico.program.submit.main
-# 	elif args.prog == "result":
-# 		main_func  = silico.program.result.main
-# 	elif args.prog == "report":
-# 		main_func = silico.program.report.main
-# 	elif args.prog == "resume":
-# 		main_func = silico.program.resume.main
 		
 	# Go.
 	# args.func is defined by each subprogram.

@@ -4,7 +4,7 @@
 TYPE: calculation
 ALIAS: [TDA-defaults]
 PARENT: [Gaussian-defaults]
-GROUP: [TDA, 10 Singlets 10 Triplets]
+GROUP: [Excited States, TDA, 10 Singlets 10 Triplets]
 
 calculation_keywords:
     - TDA=(NStates=10,50-50)
@@ -14,7 +14,7 @@ calculation_keywords:
 TYPE: calculation
 ALIAS: [TDA-triplets-defaults]
 PARENT: [Gaussian-defaults]
-GROUP: [TDA, 5 Triplets]
+GROUP: [Excited States, TDA, 5 Triplets]
 
 calculation_keywords:
     - TDA=(NStates=5,Triplets)
@@ -26,7 +26,7 @@ calculation_keywords:
 TYPE: calculation
 PARENT: [Gaussian-defaults]
 ALIAS: [TDA-singlets-defaults]
-GROUP: [TDA, 100 Singlets]
+GROUP: [Excited States, TDA, 100 Singlets]
 
 calculation_keywords:
     - TDA=(NStates=100,Singlets)
@@ -43,7 +43,7 @@ silico_options:
 TYPE: calculation
 PARENT: [Gaussian-defaults]
 ALIAS: [Opt-TDA-S1-defaults]
-GROUP: [TDA, Optimised S(1)]
+GROUP: [Excited States, TDA, Optimised S(1)]
 
 calculation_keywords:
     - Opt
@@ -55,7 +55,7 @@ calculation_keywords:
 TYPE: calculation
 PARENT: [Gaussian-defaults]
 ALIAS: [Opt-TDA-T1-defaults]
-GROUP: [TDA, Optimised T(1)]
+GROUP: [Excited States, TDA, Optimised T(1)]
 
 calculation_keywords:
     - Opt

@@ -1,7 +1,7 @@
 from pathlib import Path
 from datetime import datetime
 
-class Silico_Directory():
+class Silico_directory():
 	"""
 	Top level class for Directory helper classes.
 	
@@ -39,7 +39,7 @@ class Silico_Directory():
 			safe_str = safe_str.replace(unsafe_char, "_")
 		return safe_str
 
-class Molecule_directory(Silico_Directory):
+class Molecule_directory(Silico_directory):
 	"""
 	Class that represents directory holding several calculations for a single molecule.
 	"""		
@@ -49,7 +49,7 @@ class Molecule_directory(Silico_Directory):
 		"""
 		Create a Molecule_directory object from a Calculation_target.
 		"""
-		return self(calculation.output, calculation.name)
+		return self(calculation.output, calculation.molecule_name)
 	
 	def create_structure(self):
 		"""
@@ -69,7 +69,7 @@ class Molecule_directory(Silico_Directory):
 		"""
 		return [Calculation_directory(calc_path) for calc_path in self.path.iterdir()]
 
-class Calculation_directory(Silico_Directory):
+class Calculation_directory(Silico_directory):
 	"""
 	Class that represents the directory hierarchy where we submit calculations to.
 	"""
@@ -197,6 +197,13 @@ class Calculation_directory(Silico_Directory):
 		Full path to the calculation report directory.
 		"""
 		return Path(str(self) + "/Report")
+	
+	@property
+	def log_file(self):
+		"""
+		Full path to the file to which info should be logged.
+		"""
+		return Path(str(self) + "/Output/silico.log")
 	
 	def create_structure(self, adjust = False):
 		"""

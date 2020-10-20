@@ -30,7 +30,7 @@ ${calculation.safe_name(calculation.descriptive_name)}
 ## Charge and mult.
 ${calculation.charge}, ${calculation.multiplicity}
 ## Geometry
-${calculation.input_file.geometry}
+${calculation.input_coords.geometry}
 
 ## Extended Basis.
 %for extended_basis_set in calculation.external_basis_sets:
