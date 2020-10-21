@@ -419,7 +419,7 @@ class Calculation_browser(Tab_pile):
 		browser = Calculation_browser(methods, programs, calculations, include_top = include_top, confirm_action = self.stop, top = top)
 		top.original_widget = Window(
 			urwid.AttrMap(browser, 'body'),
-			title = 'Silico Calculation Browser',
+			title = 'Silico {} Calculation Browser'.format(silico.version),
 			help = 'ENTER: select   m: modify   s: show    DELETE: delete   E: expand all   C: contract all   ctrl-c: quit'
 		)
 	
