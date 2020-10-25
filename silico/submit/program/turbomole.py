@@ -136,7 +136,7 @@ class Turbomole(Program_target):
 					stderr = subprocess.STDOUT,
 					universal_newlines = True,
 					timeout = self.calculation.define_timeout,
-					cwd = self.method.calc_dir.input_directory,
+					cwd = self.method.calc_dir.prep_directory,
 					check = True
 				)
 				
@@ -161,8 +161,12 @@ class Turbomole(Program_target):
 			"""
 			# Get our wrapper script.
 			wrapper_body = TemplateLookup(directories = str(silico.default_template_directory())).get_template("/submit/turbomole/turbomole_wrapper.mako").render_unicode(program = self)
-						
+			
+			# Copy atoms to prep dir.
+			shutil.copy2(self.coord_file_path, self.method.calc_dir.prep_directory)
+			
 			# Run control to generate input.
+			# We check for errors, but sadly uff doesn't seem to raise any?
 			try:
 				subprocess.run(
 					("bash",),
@@ -170,7 +174,7 @@ class Turbomole(Program_target):
 					stdout = subprocess.PIPE,
 					stderr = subprocess.STDOUT,
 					universal_newlines = True,
-					cwd = self.method.calc_dir.input_directory,
+					cwd = self.method.calc_dir.prep_directory,
 					check = True
 				)
 				
@@ -188,7 +192,7 @@ class Turbomole(Program_target):
 			
 			# We now need to manually alter some options in control (sigh...).
 			# Open control.
-			with open(Path(self.method.calc_dir.input_directory, "control"), "r+") as control_file:
+			with open(Path(self.method.calc_dir.prep_directory, "control"), "r+") as control_file:
 				# Read in existing control.
 				control = control_file.read()
 				
@@ -215,6 +219,9 @@ class Turbomole(Program_target):
 			# Write our input file to our calculation Input directory.
 			with open(self.coord_file_path, "wt") as coord_file:
 				coord_file.write(self.calculation.input_coords)
+				
+			# Create our prep dir.
+			self.method.calc_dir.prep_directory.mkdir()
 			
 			# Run define.
 			if "Turbomole-UFF" in self.calculation.CLASS_HANDLE:
@@ -228,7 +235,7 @@ class Turbomole(Program_target):
 			if self.scratch_output is not None:
 				try:		
 					# Copy our input dir to the scratch version.
-					copytree(self.method.calc_dir.input_directory, self.scratch_output)
+					copytree(self.method.calc_dir.prep_directory, self.scratch_output)
 				except Exception as e:
 					raise Submission_error(self, "Failed to make scratch subdirectory") from e
 				
@@ -237,7 +244,11 @@ class Turbomole(Program_target):
 				#os.symlink(Path(self.method.calc_dir.output_directory, "job.last").resolve(), Path(self.scratch_output, "job.last"), target_is_directory = False)
 			else:
 				# Copy input to normal output folder.
-				copytree(self.method.calc_dir.input_directory, self.method.calc_dir.output_directory)
+				copytree(self.method.calc_dir.prep_directory, self.method.calc_dir.output_directory)
+				
+			# Copy prep dir to input dir and delete.
+			copytree(self.method.calc_dir.prep_directory, self.method.calc_dir.input_directory)
+			shutil.rmtree(self.method.calc_dir.prep_directory)
 			
 		def calculate(self):
 			"""

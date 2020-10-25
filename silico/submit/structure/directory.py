@@ -114,6 +114,15 @@ class Calculation_directory(Silico_directory):
 		return Path(str(self) + "/Input")
 	
 	@property
+	def prep_directory(self):
+		"""
+		Full path to the calculation prep directory.
+		
+		This directory is similar to the input directory; it is used for temporary input and setup.
+		"""
+		return Path(str(self) + "/Setup")
+	
+	@property
 	def output_directory(self):
 		"""
 		Full path to the calculation output directory.

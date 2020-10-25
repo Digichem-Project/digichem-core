@@ -11,7 +11,7 @@
 ${calculation.safe_name(calculation.descriptive_name)}
 ##
 ## Load atom coordinates.
-a coord
+a ../Input/coord
 ##
 ## Load redundant coords.
 %if calculation.redundant_internal_coordinates:
