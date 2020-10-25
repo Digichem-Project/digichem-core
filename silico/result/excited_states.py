@@ -516,19 +516,20 @@ class Excited_state(Energy_state):
 			# Assemble cclib's various arrays into a single list.
 			excited_states_data = list(zip(ccdata.etsyms, ccdata.etenergies, ccdata.etoscs, ccdata.etsecs))	
 			
-			# If we have optimised an excited state, we will have excited state data for each round of optimisation (at least for Gaussian...)
-			if len(getattr(ccdata, 'scfenergies', [])) > 1:
-				
-				# Get the number of states we think are from the final step.
-				num_final_states = len(excited_states_data) / len(ccdata.scfenergies)
-				
-				if not num_final_states.is_integer():
-					# We've hit a dead end; we think we have two many states, but the number of states is not a multiple of the number of optimisation steps.
-					# Continue without pruning the list.
-					pass
-				
-				# Prune the list, keeping only the final states.
-				excited_states_data = excited_states_data[-int(num_final_states):]
+			# This cclib bug has been fixed in version 1.6.4; this workaround is not longer required.
+# 			# If we have optimised an excited state, we will have excited state data for each round of optimisation (at least for Gaussian...)
+# 			if len(getattr(ccdata, 'scfenergies', [])) > 1:
+# 				
+# 				# Get the number of states we think are from the final step.
+# 				num_final_states = len(excited_states_data) / len(ccdata.scfenergies)
+# 				
+# 				if not num_final_states.is_integer():
+# 					# We've hit a dead end; we think we have two many states, but the number of states is not a multiple of the number of optimisation steps.
+# 					# Continue without pruning the list.
+# 					pass
+# 				
+# 				# Prune the list, keeping only the final states.
+# 				excited_states_data = excited_states_data[-int(num_final_states):]
 			
 			# Loop through our data.
 			for index, (symmetry, energy, oscillator_strength, transitions) in enumerate(excited_states_data):
