@@ -270,4 +270,72 @@ report:
         max_frequency: null
         # The maximum number of frequencies to show in the table.
         max_num: null
-      
+
+# Colour palette for urwid interfaces.
+# Please see http://urwid.org/manual/displayattributes.html for allowed combinations.
+palette:
+    body:
+        # Foreground.
+        - black
+        # Background.
+        - light gray
+    
+    boldnode:
+        - black, bold
+        - light gray
+    
+    warningnode:
+        - dark red
+        - light gray
+    
+    hiddennode:
+        - light red, blink
+        - light gray
+        
+    focus:
+        - light gray
+        - dark blue
+        - standout
+        
+    header:
+        - light gray, bold
+        - dark blue
+        - standout
+
+    footer:
+        - light gray
+        - dark blue
+        - standout
+        
+    bars:
+        - dark blue
+        - light gray
+        
+    arrowtip:
+        - light blue
+        - light gray
+        
+    connectors:
+        - light red
+        - light gray
+        
+    editable:
+        - dark blue, bold
+        - light gray
+        
+    dialogue:
+        - white
+        - dark blue
+        
+    title:
+        - white, bold
+        - dark blue
+        
+    good_button:
+        - black
+        - dark green
+        
+    bad_button:
+        - black
+        - dark red
+        

@@ -136,7 +136,7 @@ def _main(args, config, logger):
 			break
 		
 		# Ask the user for calcs.
-		args.calculations = shlex.split(Calculation_browser.run(known_methods, known_programs, known_calculations))
+		args.calculations = shlex.split(Calculation_browser.run(known_methods, known_programs, known_calculations, Calculation_browser.yaml_to_palette(config['palette'])))
 		if len(args.calculations) == 0:
 			break
 		

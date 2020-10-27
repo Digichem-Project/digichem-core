@@ -14,24 +14,24 @@ from silico.interface.urwid.dialogue import Confirm
 from silico.exception.base import Silico_exception
 
 # Default palette for urwid.
-palette = [
-	('body', 'black', 'light gray'),
-	('boldnode', 'black, bold', 'light gray'),
-	('warningnode', 'dark red', 'light gray'),
-	('hiddennode', 'light red, blink', 'light gray'),
-	('focus', 'light gray', 'dark blue', 'standout'),
-	('header', 'light gray,bold', 'dark blue', 'standout'),
-	('footer', 'light gray', 'dark blue', 'standout'),
-	('bars', 'dark blue', 'light gray', ''),
-	('arrowtip', 'light blue', 'light gray', ''),
-	('connectors', 'light red', 'light gray', ''),
-	('editable', 'light magenta, bold', 'light gray'),
-	
-	('dialogue', 'white', 'dark blue'),
-	('title', 'white, bold', 'dark blue'),
-	('good_button', 'black', 'dark green'),
-	('bad_button', 'black', 'dark red')
-]
+# palette = [
+# 	('body', 'black', 'light gray'),
+# 	('boldnode', 'black, bold', 'light gray'),
+# 	('warningnode', 'dark red', 'light gray'),
+# 	('hiddennode', 'light red, blink', 'light gray'),
+# 	('focus', 'light gray', 'dark blue', 'standout'),
+# 	('header', 'light gray,bold', 'dark blue', 'standout'),
+# 	('footer', 'light gray', 'dark blue', 'standout'),
+# 	('bars', 'dark blue', 'light gray', ''),
+# 	('arrowtip', 'light blue', 'light gray', ''),
+# 	('connectors', 'light red', 'light gray', ''),
+# 	('editable', 'dark magenta', 'light gray'),
+# 	
+# 	('dialogue', 'white', 'dark blue'),
+# 	('title', 'white, bold', 'dark blue'),
+# 	('good_button', 'black', 'dark green'),
+# 	('bad_button', 'black', 'dark red')
+# ]
 
 class Tree_node(urwid.WidgetWrap):
 	"""
@@ -407,7 +407,7 @@ class Calculation_browser(Tab_pile):
 		raise urwid.ExitMainLoop() 
 		
 	@classmethod
-	def run(self, methods, programs, calculations, include_top = False):
+	def run(self, methods, programs, calculations, palette, include_top = False):
 		"""
 		Interactively run urwid, using a Calculation_browser as the top-most widget.
 		
@@ -423,18 +423,30 @@ class Calculation_browser(Tab_pile):
 			help = 'ENTER: select   m: modify   s: show    DELETE: delete   E: expand all   C: contract all   ctrl-c: quit'
 		)
 	
-# 		header = urwid.AttrMap(urwid.Text('Silico Calculation Browser', align = "center"), 'header')
-# 		footer = urwid.AttrMap(urwid.Text('ENTER: select   m: modify   DELETE: delete   E: expand all   C: contract all   ctrl-c: quit', align = "center"), 'focus')
 		#enclose in a frame
 		urwid.MainLoop(
-# 			urwid.Frame(
-# 				urwid.AttrMap(top, 'body'),
-# 				footer=footer,
-# 				header=header
-# 			),
 			top,
 			palette
 		).run()  # go
 	
 		return browser.calcbox.edit_text
+	
+	@classmethod
+	def yaml_to_palette(self, yaml_palette):
+		"""
+		Convert a palette loaded from a YAML config file to a format understoof by urwid.
+		"""
+		# The palette (a list of tuples)
+		palette = []
+		
+		# Go through each item in the yaml_palette (a dict).
+		for name, values in yaml_palette.items():
+			# Add the name to the start of values.
+			values.insert(0, name)
+			
+			# Add as a tuple.
+			palette.append(tuple(values))
+		
+		# Done.
+		return palette
 	
