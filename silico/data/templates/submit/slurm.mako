@@ -1,6 +1,8 @@
 ## -*- coding: utf-8 -*-
 <%!
 	from pathlib import Path
+	import shlex
+	import silico
 %>\
 ##
 #!/bin/bash
@@ -35,5 +37,5 @@
 #SBATCH --error="${SLURM_target.calc_dir.log_file}"
 ##
 ## exec into resume, so we handle signals from SLURM etc.
-exec silico resume "${SLURM_target.resume_file_path}"
+exec ${silico.silico_cmd} resume ${shlex.quote(str(SLURM_target.resume_file_path))}
 <%page args="SLURM_target"/>
