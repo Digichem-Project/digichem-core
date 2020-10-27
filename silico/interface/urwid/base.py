@@ -33,7 +33,7 @@ class Top(urwid.WidgetPlaceholder):
 			self.original_widget = self.stack.pop()
 		except IndexError:
 			# The stack is empty.
-			raise urwid.ExitMainLoop() 
+			raise urwid.ExitMainLoop()
 		
 	def keypress(self, size, key):
 		"""

@@ -327,7 +327,7 @@ class Calculation_browser(Tab_pile):
 	Urwid box widget that allows selecting calculations.
 	"""
 	
-	def __init__(self, methods, programs, calculations, confirm_action, *, show_hidden = False, confirm_text = "Confirm", calcbox_attr = "body", calcbox_inner_attr = "editable", confirm_attr = "good_button", top, **kwargs):
+	def __init__(self, methods, programs, calculations, *, show_hidden = False, confirm_text = "Confirm", calcbox_attr = "body", calcbox_inner_attr = "editable", confirm_attr = "good_button", top, **kwargs):
 		"""
 		Constructor for Calculation_browser widgets.
 		"""
@@ -338,9 +338,13 @@ class Calculation_browser(Tab_pile):
 		self.top = top
 		self.browser_args = kwargs
 		
+		
+		# Whether the tree exited normally (ie, by using the confirm button).
+		self.confirmed = False
+		
 		# Each browser is made up of 3 main child widgets; the browser itself, a text field (calcbox) and the confirm button.
 		self.calcbox = Calcbox((calcbox_attr, 'Selected calculations: '))
-		self.confirm = urwid.Button(confirm_text, confirm_action)
+		self.confirm = urwid.Button(confirm_text, self.stop)
 # 		self.browser = Calculation_tree(
 # 			methods,
 # 			programs,
@@ -399,11 +403,13 @@ class Calculation_browser(Tab_pile):
 		# Now update our pile.
 		self.contents[0] = (urwid.LineBox(self.browser), ('weight', 1))
 	
-	@classmethod
 	def stop(self, *args, **kwargs):
 		"""
 		This method is called when the user clicks the confirm button.
 		"""
+		print(self.confirmed)
+		self.confirmed = True
+		print(self.confirmed)
 		raise urwid.ExitMainLoop() 
 		
 	@classmethod
@@ -415,12 +421,13 @@ class Calculation_browser(Tab_pile):
 		:param include_top: Whether to include the top-most node in the browser. If False, the children will instead be used as top nodes.
 		:return: The selected calculations, as a string.
 		"""
+		
 		top = Top(urwid.SolidFill())
-		browser = Calculation_browser(methods, programs, calculations, include_top = include_top, confirm_action = self.stop, top = top)
+		browser = Calculation_browser(methods, programs, calculations, include_top = include_top, top = top)
 		top.original_widget = Window(
 			urwid.AttrMap(browser, 'body'),
 			title = 'Silico {} Calculation Browser'.format(silico.version),
-			help = 'ENTER: select   m: modify   s: show    DELETE: delete   E: expand all   C: contract all   ctrl-c: quit'
+			help = 'ENTER: select   m: modify   s: show    DELETE: delete   E: expand all   C: contract all   Esc: quit'
 		)
 	
 		#enclose in a frame
@@ -429,7 +436,7 @@ class Calculation_browser(Tab_pile):
 			palette
 		).run()  # go
 	
-		return browser.calcbox.edit_text
+		return browser.calcbox.edit_text if browser.confirmed else ""
 	
 	@classmethod
 	def yaml_to_palette(self, yaml_palette):
