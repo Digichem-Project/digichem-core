@@ -320,7 +320,7 @@ palette:
         - light gray
         
     editable:
-        - dark blue, bold
+        - dark blue
         - light gray
         
     dialogue:
