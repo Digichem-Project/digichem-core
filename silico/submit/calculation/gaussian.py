@@ -14,7 +14,7 @@ class Gaussian(Concrete_calculation):
 	# Identifying handle.
 	CLASS_HANDLE = ("Gaussian",)
 	
-	# A list of strings describing the expected input file types (file extensions) for calculation's of this class. The first item of this list will be passed to obabel via the -o flag. 
+	# A list of strings describing the expected input file types (file extensions) for calculations of this class. The first item of this list will be passed to obabel via the -o flag. 
 	INPUT_FILE_TYPES = ["gau", "com", "gjf", "gjc"]
 	
 	# The format of the output file containing coordinates.
@@ -278,7 +278,11 @@ class Gaussian_input_parser():
 		self.title = sections[1] if len(sections) > 1 else None
 		
 		# Geometry (the first line contains charge and mult).
-		geometry_section = (sections[2] if len(sections) > 2 else "").split("\n", 1)
+		try:
+			geometry_section = sections[2].split("\n", 1)
+		except IndexError:
+			# No geometry available.
+			raise Silico_exception("Failed to read Gaussian geometry data from input file; is the file formatted correctly?") 
 		
 		# We'll first try to split on comma (,) for charge,mult.
 		charge_mult = geometry_section[0].split(",", 1)
