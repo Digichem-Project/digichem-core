@@ -25,7 +25,7 @@ palette = [
 	('bars', 'dark blue', 'light gray', ''),
 	('arrowtip', 'light blue', 'light gray', ''),
 	('connectors', 'light red', 'light gray', ''),
-	('editable', 'light magenta, bold', 'light gray'),
+	('editable', 'dark blue', 'light gray'),
 	
 	('dialogue', 'white', 'dark blue'),
 	('title', 'white, bold', 'dark blue'),
