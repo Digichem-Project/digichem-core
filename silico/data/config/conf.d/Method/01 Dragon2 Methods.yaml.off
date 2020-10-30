@@ -30,6 +30,24 @@ PARENT: [slurm]
 ALIAS: [slurm_long]
 CLASS: SLURM
 partition: long
-time: 41-00:00:00
+time: 21-00:00:00
+
+---
+TYPE: method
+
+# Config for a local submission
+NAME: Local (series)
+ALIAS: [series]
+
+CLASS: series
+
+---
+TYPE: method
+
+# Config for a local submission
+NAME: Local (parallel)
+ALIAS: [parallel]
+
+CLASS: parallel
 
 

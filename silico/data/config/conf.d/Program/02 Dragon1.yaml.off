@@ -57,4 +57,17 @@ gaussian_root: /usr/local/gaussian/G16/A03
 # Path to the gaussian .profile script which is run to set-up gaussian.
 gaussian_init_file: /usr/local/gaussian/G16/A03/g16/bsd/g16.profile
 
+---
+TYPE: program
+
+# Config for a Turbomole submission
+NAME: Turbomole
+PARENT: [prog-defaults]
+
+# The name of the program this config is for. These are pre-built into silico.
+CLASS: Turbomole
+
+# Setup locations.
+root: /usr/local/turbomole/7.4/
+init_file: /usr/local/turbomole/7.4/Config_turbo_env
 
