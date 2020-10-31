@@ -298,7 +298,7 @@ class Concrete_calculation(Calculation_target):
 					raise Submission_error(self, "cannot convert input file because file has no suffix (cannot determine format)", file_name = input_file_path)
 					
 				try:
-					input_str = Openbabel_converter.from_file(input_file_path, output_file_type = self.INPUT_FILE_TYPES[0], input_file_type = input_format, gen3D = gen3D).convert()
+					input_str = Openbabel_converter.from_file(input_file_path = input_file_path, input_file_type = input_format, gen3D = gen3D).convert(output_file_type = self.INPUT_FILE_TYPES[0])
 				except Exception:
 					raise Submission_error(self, "failed to convert input file (format may not be supported)", file_name = input_file_path)
 			
