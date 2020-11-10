@@ -16,7 +16,7 @@ import datetime
 from silico import misc
 from silico.submit.structure.flag import Flag
 from silico.config.configurable.option import Option
-from silico.file.babel import Openbabel_converter
+from silico.file.convert.babel import Openbabel_converter
 from silico.exception.base import Submission_error
 from silico.exception.uncatchable import Signal_caught
 import shutil

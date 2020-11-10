@@ -6,7 +6,7 @@ import silico
 
 from silico.submit.structure.flag import Flag
 from silico.exception.base import Submission_error
-from silico.file.babel import Openbabel_converter
+from silico.file.convert.babel import Openbabel_converter
 from silico.submit import Configurable_target, Memory
 from silico.config.configurable.option import Option
 from silico.config.configurable.options import Options

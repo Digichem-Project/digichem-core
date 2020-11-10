@@ -6,6 +6,7 @@ import silico
 import re
 import os
 import copy
+from silico.file.convert.gaussian import Gaussian_input_parser
 
 # Try and load openbabel bindings.
 HAVE_BINDINGS = False
@@ -49,6 +50,10 @@ class Openbabel_converter():
 		self.input_file_type = input_file_type
 		self.gen3D = gen3D if gen3D is not None else False
 		
+	def from_com(self):
+		"""
+		"""
+		
 	@property
 	def input_name(self):
 		"""
@@ -66,9 +71,24 @@ class Openbabel_converter():
 		"""
 		# First, decide which class
 		cls = self.get_cls(input_file_type)
+		# Normally we use input_file_path, not input_file.
+		input_file = None
+		
+		# Obabel can't natively read Gaussian input files (.com, .gau, .gjc, .gjf etc), but these are just fancy .xyz files so it's trivial to implement them.
+		if input_file_type.lower() in ["com", "gau", "gjc", "gjf"]:
+			with open(input_file_path, "rt") as gaussian_file:
+				# Get and parse our gaussian file.
+				gaussian_parser = Gaussian_input_parser(gaussian_file.read())
+				
+				# Because we've now loaded into memory, we'll unset input_file_path and use input_file instead.
+				input_file_path = None
+				input_file = gaussian_parser.xyz
+				
+				# And our file type has changed.
+				input_file_type = "xyz"
 		
 		# And return, if gen3D is not set, we turn it on for cdx files (which have to use the naive Obabel_converter and are always 2D).
-		return cls(input_file_path = input_file_path, input_file_type = input_file_type, gen3D = True if gen3D is None and input_file_type.lower() == "cdx" else gen3D, **kwargs)
+		return cls(input_file_path = input_file_path, input_file = input_file, input_file_type = input_file_type, gen3D = True if gen3D is None and input_file_type.lower() == "cdx" else gen3D, **kwargs)
 		
 		
 	def convert(self, output_file_type):
