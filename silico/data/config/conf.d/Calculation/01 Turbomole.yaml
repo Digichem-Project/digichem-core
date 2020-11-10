@@ -22,7 +22,8 @@ scratch_options:
     # Set True is useful for Turbomole.
     all_output: True
     
-num_CPUs: 8
+# CC2 is slooow; use double CPUs to compensate.
+num_CPUs: 16
 
 # SPLIT, but know that this is overwritten by other splits.
 SPLIT:
