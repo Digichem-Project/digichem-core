@@ -218,7 +218,7 @@ class Calculation_directory(Silico_directory):
 		"""
 		Full path to the file to which info should be logged.
 		"""
-		return Path(str(self) + "/Output/silico.log")
+		return Path(str(self) + "/Output/silico.out")
 	
 	def create_structure(self, adjust = False):
 		"""
