@@ -51,7 +51,7 @@ SPLIT:
     # M062X
     - GROUP: ['Gas Phase', "{functional} (GD3)"]
       functional: 
-        - MO62X
+        - M062X
       options:
         - {EmpiricalDispersion: GD3}
       SPLIT:
@@ -132,7 +132,7 @@ SPLIT:
         # M062X
         - GROUP: ["{functional} (GD3)"]
           functional: 
-            - MO62X
+            - M062X
           options:
             - {EmpiricalDispersion: GD3}
           SPLIT:
