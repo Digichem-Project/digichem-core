@@ -157,18 +157,21 @@ if HAVE_BINDINGS:
 				# This is a generator.
 				# Use a different func depending on whether we're reading from file or memory.
 				if self.input_file_path is not None: 
+					# Readfile gives us an iterator of molecules...
 					molecules = pybel.readfile(self.input_file_type, str(self.input_file_path))
+					
+					# ...but we're only ever interested in one.
+					# Try and get the first molecule.
+					try:
+						molecule = next(molecules)
+					except StopIteration:
+						raise Silico_exception("Cannot read file '{}'; file does not contain any molecules".format(self.input_name))
+					
 				else:
-					molecules = pybel.readstring(self.input_file_type, str(self.input_file))
+					molecule = pybel.readstring(self.input_file_type, str(self.input_file))
 			except Exception as e:
 				raise Silico_exception("Failed to parse file '{}'".format(self.input_name)) from e
-			
-			# Try and get the first molecule.
-			try:
-				molecule = next(molecules)
-			except StopIteration:
-				raise Silico_exception("Cannot read file '{}'; file does not contain any molecules".format(self.input_name))
-			
+						
 			# If we got a 2D (or 1D) format, convert to 3D (but warn that we are doing so.
 			if molecule.dim != 3 and self.gen3D:
 				# We're missing 3D coords.
