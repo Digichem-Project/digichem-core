@@ -277,21 +277,23 @@ class Concrete_calculation(Calculation_target):
 			:param output: Path to a directory to perform the calculation in.
 			:param calculation: A previously submitted calculation.
 			"""
-			self.prepare_from_file(output, calculation.program.next_coords, input_format = calculation.OUTPUT_COORD_TYPE, molecule_name = calculation.molecule_name)
+			self.prepare_from_file(output, calculation.program.next_coords, input_format = calculation.OUTPUT_COORD_TYPE, molecule_name = calculation.molecule_name, molecule_charge = calculation.input_coords.charge, molecule_multiplicity = calculation.input_coords.multiplicity)
 			
-		def prepare_from_file(self, output, input_file_path, *, input_format = None, gen3D = None, molecule_name = None):
+		def prepare_from_file(self, output, input_file_path, *, input_format = None, gen3D = None, molecule_name = None, molecule_charge = None, molecule_multiplicity = None):
 			"""
 			Alternative submission constructor that first reads in an input file.
 			
 			:param output: Path to a directory to perform the calculation in.
 			:param input_file_path: Path (string or pathlib.Path) to the file to submit. This file should contain input coordinates for the system under study.
 			:param gen3D: If True (and convert is True or "auto") and the loaded molecule does not have 3D coordinates, obabel will be used to generate them.
-			:param molecule_name: Optional molecule_name to use for the new calculation. If None, a name will be chosen based on the given file.
+			:param molecule_name: Optional molecule name to use for the new calculation. If None, a name will be chosen based on the given file.
+			:param molecule_charge: optional molecule charge to use for the new calculation. If None, a charge will be taken from the given file or otherwise a default will be used.
+			:param molecule_multiplicity: optional molecule multiplicity to use for the new calculation. If None, a multiplicity will be taken from the given file or otherwise a default will be used.
 			"""			
 			# First, try and convert our given input file to the universal silico input format.
 			try:
 				#input_str = Openbabel_converter.from_file(input_file_path = input_file_path, input_file_type = input_format, gen3D = gen3D).convert(output_file_type = self.INPUT_FILE_TYPES[0])
-				input_coords = Silico_input.from_file(input_file_path, input_format, gen3D = gen3D, name = molecule_name)
+				input_coords = Silico_input.from_file(input_file_path, input_format, gen3D = gen3D, name = molecule_name, charge = molecule_charge, multiplicity = molecule_multiplicity)
 			except Exception:
 				raise Submission_error(self, "failed to prepare input file (input format may not be supported)", file_name = input_file_path)
 			
