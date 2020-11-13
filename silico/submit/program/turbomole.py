@@ -218,7 +218,7 @@ class Turbomole(Program_target):
 					
 			# Write our input file to our calculation Input directory.
 			with open(self.coord_file_path, "wt") as coord_file:
-				coord_file.write(self.calculation.input_coords)
+				coord_file.write(self.calculation.input_coords.to_format("tmol"))
 				
 			# Create our prep dir.
 			self.method.calc_dir.prep_directory.mkdir()

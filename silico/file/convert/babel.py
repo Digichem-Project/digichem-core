@@ -6,6 +6,7 @@ import silico
 import re
 import os
 import copy
+from pathlib import Path
 from silico.file.convert.gaussian import Gaussian_input_parser
 
 # Try and load openbabel bindings.
@@ -40,19 +41,33 @@ class Openbabel_converter():
 		if (input_file is None and input_file_path is None) or (input_file is not None and input_file_path is not None):
 			raise TypeError(type(self).__name__ + "; exactly one of input_file or input_file_path must be given as argument")
 		
-		# Check we have an input type.
-		if input_file_type is None and input_file_path is not None:
-			input_file_type = input_file_path.suffix[1:]
-
-		
 		self.input_file = input_file
 		self.input_file_path = input_file_path
 		self.input_file_type = input_file_type
 		self.gen3D = gen3D if gen3D is not None else False
 		
-	def from_com(self):
+	@classmethod
+	def type_from_file_name(self, input_file_name):
 		"""
+		Get the type of a fail based on its file name.
+		
+		This method largely uses the file extension (.com, .tmol etc), with a few other simple rules.
 		"""
+		input_file_name = Path(input_file_name)
+		
+		# Get file extension (removing the dot character).
+		extension = input_file_name.suffix[1:]
+		
+		if extension != "":
+			# All done.
+			return extension
+		elif input_file_name.name == "coord":
+			# This is a turbomole file.
+			return "tmol"
+		else:
+			# Don't recognise the file format.
+			raise Silico_exception("Could not determine file format of file '{}'; the file does not have an extension and is not recognised".format(input_file_name))
+		
 		
 	@property
 	def input_name(self):
@@ -65,11 +80,19 @@ class Openbabel_converter():
 			return "(file loaded from memory)"
 		
 	@classmethod
-	def from_file(self, input_file_path, input_file_type, gen3D = None, **kwargs):
+	def from_file(self, input_file_path, input_file_type = None, gen3D = None, **kwargs):
 		"""
 		A more powerful constructor that automatically decides which concrete class to use.
+		
+		:param input_file_path: A Path to a file that should be converted.
+		:param input_file_type: The format of the file; a string recognised by openbabel. If not given, an attempt will be made to guess from the file name (see type_from_file_name()).
+		:param gen3D: If True and the loaded molecule does not have 3D coordinates, these will be generated (this will scramble atom coordinates).
 		"""
-		# First, decide which class
+		# First, get out file format if it wasn't given to us.
+		if input_file_type is None:
+			input_file_type = self.type_from_file_name(input_file_path)
+		
+		# Next, decide which class
 		cls = self.get_cls(input_file_type)
 		# Normally we use input_file_path, not input_file.
 		input_file = None

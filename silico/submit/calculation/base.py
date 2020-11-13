@@ -10,6 +10,7 @@ from silico.file.convert.babel import Openbabel_converter
 from silico.submit import Configurable_target, Memory
 from silico.config.configurable.option import Option
 from silico.config.configurable.options import Options
+from silico.submit.io import Silico_input
 
 def _merge_silico_options(option, configurable, silico_options):
 	"""
@@ -197,7 +198,6 @@ class Concrete_calculation(Calculation_target):
 			# Next is a linked list of Calculation_targets. We will call submit() on next once this object has been submitted.
 			self.next = None
 			self.output = None
-			self.molecule_name = None
 			self.input_coords = None
 			self.program = program
 			self.validate_parent(program)
@@ -221,7 +221,16 @@ class Concrete_calculation(Calculation_target):
 			
 			# Make a path and return.
 			return Path(directory, self.program.method.unique_name)
-					
+		
+		@property
+		def molecule_name(self):
+			"""
+			The name of the molecule under study.
+			
+			This name is 'safe' for Gaussian and other sensitive programs.
+			"""
+			return self.safe_name(self.input_coords.name)
+		
 		@property
 		def descriptive_name(self):
 			"""
@@ -249,17 +258,16 @@ class Concrete_calculation(Calculation_target):
 			# Set.
 			self._num_CPUs = value
 			
-		def prepare(self, output, input_coords, molecule_name):
+		def prepare(self, output, input_coords):
 			"""
 			Prepare this calculation for submission.
 			
 			:param output: Path to a directory to perform the calculation in.
-			:param input_coords: A string containing input coordinates in a format suitable for this calculation type.
+			:param input_coords: A Silico_input object containing the coordinates on which the calculation will be performed.
 			:param molecule_name: A name that refers to the system under study (eg, Benzene etc).
 			"""
 			# Because we normally run the program in a different environment to where we are currently, we need to load all input files we need into memory so they can be pickled.
 			self.output = output
-			self.molecule_name = self.safe_name(molecule_name)
 			self.input_coords = input_coords
 			
 		def prepare_from_calculation(self, output, calculation):
@@ -271,47 +279,25 @@ class Concrete_calculation(Calculation_target):
 			"""
 			self.prepare_from_file(output, calculation.program.next_coords, input_format = calculation.OUTPUT_COORD_TYPE, molecule_name = calculation.molecule_name)
 			
-		def prepare_from_file(self, output, input_file_path, *, input_format = None, convert = "auto", gen3D = None, molecule_name = None):
+		def prepare_from_file(self, output, input_file_path, *, input_format = None, gen3D = None, molecule_name = None):
 			"""
 			Alternative submission constructor that first reads in an input file.
 			
 			:param output: Path to a directory to perform the calculation in.
 			:param input_file_path: Path (string or pathlib.Path) to the file to submit. This file should contain input coordinates for the system under study.
-			:param convert: If True, the given file will be automatically converted to an appropriate input file type. If "auto", conversion is only done if the file is not already of the correct type.
 			:param gen3D: If True (and convert is True or "auto") and the loaded molecule does not have 3D coordinates, obabel will be used to generate them.
 			:param molecule_name: Optional molecule_name to use for the new calculation. If None, a name will be chosen based on the given file.
-			"""
-			input_format = input_format if input_format is not None else input_file_path.suffix[1:]
-			input_str = None
-			
-			# If we're auto converting, decide whether we should or not.
-			if convert == "auto":
-				if input_format == "":
-					getLogger(silico.logger_name).warning("Cannot convert input file '{}' because file has no suffix (cannot determine format); the file will be submitted without conversion".format(input_file_path))
-					convert = False
-				else:
-					convert = input_format.lower() not in self.INPUT_FILE_TYPES
-					
-			# Try and convert the format if we've been asked to.
-			if convert:
-				if input_format == "":
-					raise Submission_error(self, "cannot convert input file because file has no suffix (cannot determine format)", file_name = input_file_path)
-					
-				try:
-					input_str = Openbabel_converter.from_file(input_file_path = input_file_path, input_file_type = input_format, gen3D = gen3D).convert(output_file_type = self.INPUT_FILE_TYPES[0])
-				except Exception:
-					raise Submission_error(self, "failed to convert input file (format may not be supported)", file_name = input_file_path)
-			
-			# Read our file in by hand if we haven't done so far.
-			if input_str is None:
-				with open(input_file_path, "rt") as input_file:
-					input_str = input_file.read()
+			"""			
+			# First, try and convert our given input file to the universal silico input format.
+			try:
+				#input_str = Openbabel_converter.from_file(input_file_path = input_file_path, input_file_type = input_format, gen3D = gen3D).convert(output_file_type = self.INPUT_FILE_TYPES[0])
+				input_coords = Silico_input.from_file(input_file_path, input_format, gen3D = gen3D, name = molecule_name)
+			except Exception:
+				raise Submission_error(self, "failed to prepare input file (input format may not be supported)", file_name = input_file_path)
 			
 			# Prep normally.
-			self.prepare(output, input_str, molecule_name if molecule_name is not None else input_file_path.with_suffix("").name)
+			self.prepare(output, input_coords)
 			
-			# Submit normally.
-			#return self.submit(output, input_str, input_file_path.with_suffix("").name)
 			
 		def submit(self):
 			"""

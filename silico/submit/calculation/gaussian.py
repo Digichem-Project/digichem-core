@@ -2,11 +2,9 @@ from mako.lookup import TemplateLookup
 
 import silico
 from silico.exception import Configurable_exception
-from silico.exception.base import Submission_error
 from silico.config.configurable.option import Option
 from silico.misc.base import is_int
 from silico.submit.calculation import Concrete_calculation
-from silico.file.convert.gaussian import Gaussian_input_parser
 
 class Gaussian(Concrete_calculation):
 	"""
@@ -164,22 +162,15 @@ class Gaussian(Concrete_calculation):
 			self.com_file_name = None
 			self.com_file_body = None
 		
-		def prepare(self, output, input_coords, molecule_name):
+		def prepare(self, output, input_coords):
 			"""
 			Prepare this calculation for submission.
 			
 			:param output: Path to a directory to perform the calculation in.
-			:param input_coords: A string containing input coordinates in a format suitable for this calculation type.
-			:param molecule_name: A name that refers to the system under study (eg, Benzene etc).
-			"""
-			# Load our input file (and parse).
-			try:
-				input_coords = Gaussian_input_parser(input_coords)
-			except Exception:
-				raise Submission_error(self, "Failed to read/parse gaussian input file")
-			
+			:param input_coords: A Silico_input object containing the coordinates on which the calculation will be performed.
+			"""			
 			# Call parent.
-			super().prepare(output, input_coords, molecule_name)
+			super().prepare(output, input_coords)
 			
 			# Decide on our file names.
 			self.chk_file_name = self.safe_name(self.molecule_name + ".chk")
