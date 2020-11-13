@@ -289,7 +289,7 @@ class Concrete_calculation(Calculation_target):
 			:param molecule_name: Optional molecule name to use for the new calculation. If None, a name will be chosen based on the given file.
 			:param molecule_charge: optional molecule charge to use for the new calculation. If None, a charge will be taken from the given file or otherwise a default will be used.
 			:param molecule_multiplicity: optional molecule multiplicity to use for the new calculation. If None, a multiplicity will be taken from the given file or otherwise a default will be used.
-			"""			
+			"""	
 			# First, try and convert our given input file to the universal silico input format.
 			try:
 				#input_str = Openbabel_converter.from_file(input_file_path = input_file_path, input_file_type = input_format, gen3D = gen3D).convert(output_file_type = self.INPUT_FILE_TYPES[0])

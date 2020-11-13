@@ -2,6 +2,7 @@ import yaml
 from silico.file.convert.gaussian import Gaussian_input_parser
 from silico.file.convert.babel import Openbabel_converter
 from pathlib import Path
+from silico.exception.base import Silico_exception
 
 # Custom formats to allow literal strings in yaml output.
 # Adapted from https://stackoverflow.com/questions/6432605/any-yaml-libraries-in-python-that-support-dumping-of-long-strings-as-block-liter
@@ -21,7 +22,7 @@ class Silico_input():
 	The .si format is yaml based, and stores the input geometry in a modified xyz format along with charge and multiplicity.
 	"""
 	
-	def __init__(self, geometry, charge = None, multiplicity = None, *, name = None):
+	def __init__(self, geometry, *, charge = None, multiplicity = None, name = None, file_name = None):
 		"""
 		Constructor for .si files.
  		
@@ -29,14 +30,21 @@ class Silico_input():
 		:param charge: The molecular charge.
 		:param multiplicity: The molecular multiplicity (as an integer).
 		:param name: Name of the system/molecule
+		:param file_name: The name of the file which was loaded. This can be used as a back-up file name.
 		"""
 		self.geometry = geometry
 		self.charge = charge
 		self.multiplicity = multiplicity
-		self.name = name
+		
+		# If a real name wasn't given, but a file name was, use it.
+		if name is None and file_name is not None:
+			self.name = Path(file_name).with_suffix("").name
+		else:	
+			self.name = name
+		
 
 	@classmethod
-	def from_xyz(self, geometry, *args, **kwargs):
+	def from_xyz(self, geometry, **kwargs):
 		"""
 		Create a Silico_input object from a molecule in xyz format.
 		
@@ -52,10 +60,10 @@ class Silico_input():
 		split_geom = split_geom[2:]
 		
 		# Call our main constructor.
-		return self("\n".join(split_geom), *args, **kwargs)
+		return self("\n".join(split_geom), **kwargs)
 	
 	@classmethod
-	def from_com(self, geometry, charge = None, multiplicity = None, *args, **kwargs):
+	def from_com(self, geometry, *, charge = None, multiplicity = None, **kwargs):
 		"""
 		Create a Silico_input object from a molecule in gaussian input format (.com, .gjf etc).
 		
@@ -74,11 +82,11 @@ class Silico_input():
 			multiplicity = parser.multiplicity
 			
 		# Continue with other constructors.
-		return self.from_xyz(parser.xyz, charge = charge, multiplicity = multiplicity, *args, **kwargs)
+		return self.from_xyz(parser.xyz, charge = charge, multiplicity = multiplicity, **kwargs)
 		
 		
 	@classmethod
-	def from_file(self, file_name, file_type = None, *args, gen3D = None, name = None, **kwargs):
+	def from_file(self, file_name, file_type = None, *, gen3D = None, **kwargs):
 		"""
 		Create a Silico_input object from a file in arbitrary format.
 		
@@ -93,21 +101,17 @@ class Silico_input():
 		# Get the file format.
 		if file_type is None:
 			file_type = Openbabel_converter.type_from_file_name(file_name)
-			
-		# Get a name from the file if none were given.
-		if name is None:
-			name = file_name.with_suffix("").name
-		
+				
 		# Certain formats we support natively; others we convert to an intermediate format.
 		if file_type in ["com", "gau", "gjc", "gjf"]:
 			# Gaussian input format.
 			with open(file_name, "rt") as com_file:
-				return self.from_com(com_file.read(), *args, name = name, **kwargs)
-			
+				return self.from_com(com_file.read(), file_name = file_name, **kwargs)
+
 		elif file_type == "si":
-			# Silico input file.
+			# Silico input format.
 			with open(file_name, "rt") as si_file:
-				return self.from_si(si_file.read(), *args, **kwargs)
+				return self.from_si(si_file.read(), file_name = file_name, **kwargs)
 			
 		else:
 			# Generic input format.
@@ -116,21 +120,31 @@ class Silico_input():
 			com_file = Openbabel_converter.from_file(file_name, file_type, gen3D = gen3D).convert("com") 		
 		
 			# Continue with other constructors.
-			return self.from_com(com_file, *args, name = name, **kwargs)
+			return self.from_com(com_file, file_name = file_name, **kwargs)
 	
 	@classmethod
-	def from_yaml(self, yaml_dict):
+	def from_yaml(self, yaml_dict, file_name = None, **kwargs):
 		"""
 		Create a Silico_input object from a loaded/parsed .si file.
 		"""
-		return self(**yaml_dict)
+		yaml_dict = dict(yaml_dict)
+		# Overwrite dictionary values if explicit ones have been given.
+		for kwarg in kwargs:
+			if kwargs[kwarg] is not None:
+				yaml_dict[kwarg] = kwargs[kwarg]
+			
+		# Continue constructing.
+		try:
+			return self(**yaml_dict, file_name = file_name)
+		except TypeError:
+			raise Silico_exception("Failed to load .si file '{}'; is the file formatted correctly?".format(file_name))
 	
 	@classmethod
-	def from_si(self, si_file):
+	def from_si(self, si_file, **kwargs):
 		"""
 		Create a Silico_input object from a raw .si file.
 		"""
-		return self.from_yaml(yaml.safe_load(si_file))
+		return self.from_yaml(yaml.safe_load(si_file), **kwargs)
 		
 	def to_file(self, file):
 		"""

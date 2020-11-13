@@ -396,7 +396,7 @@ class Program_target(Configurable_target):
 			Write a .si file from the finished calculation results.
 			"""
 			# Get our convertor.
-			conv = Silico_input.from_file(self.next_coords, file_type = self.calculation.OUTPUT_COORD_TYPE)
+			conv = Silico_input.from_file(self.next_coords, file_type = self.calculation.OUTPUT_COORD_TYPE, name = self.calculation.input_coords.name, charge = self.calculation.input_coords.charge, multiplicity = self.calculation.input_coords.multiplicity)
 			
 			# Write new file.
 			with open(Path(self.method.calc_dir.result_directory, self.calculation.molecule_name + ".si"), "wt") as si_file:
