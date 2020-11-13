@@ -11,6 +11,7 @@ import silico
 from silico.misc.directory import copytree
 import shutil
 import re
+from logging import getLogger
 
 
 class Turbomole(Program_target):
@@ -296,93 +297,15 @@ class Turbomole(Program_target):
 				# Delete the scratch output.
 				shutil.rmtree(self.scratch_output)
 				
-		def post(self):
+		def parse_results(self):
 			# Not implemented for turbomole yet.
 			pass
 		
-			# If we got an error during the calc, re-raise it now.
-			if self.error is not None:
-				raise self.error
+		def write_summary_files(self):
+			getLogger(silico.logger_name).info("Skipping writing text summary files; these are not currently supported for Turbomole")
+			
+		def write_report_files(self):
+			getLogger(silico.logger_name).info("Skipping writing pdf report files; these are not currently supported for Turbomole")
 			
 			
-# class Turbomole_UFF(Turbomole):
-# 	"""
-# 	Top level class for submitting calculations to Turbomole.
-# 	"""
-# 	
-# 	CLASS_HANDLE = ("Turbomole-UFF",) 
-# 
-# 	define_executable = Option(help = "Name/path of the define executable", default = "define", type = str)
-# 	root = Option(help = "Path to the directory where turbomole is installed", required = True, type = str)
-# 	init_file = Option(help = "Path to the turbomole Config_turbo_env script which is run to set-up Turbomole", required = True, type = str)
-# 	
-# 	# The regex for setting the UFF max iterations,
-# 	MAXITER_MATCH = re.compile(r"\$uff\n +[0-9]+ +[0-9]+ +[0-9]+")
-# 	
-# 	# The regex for setting the convergence criteria.
-# 	CONV_MATCH = re.compile(r"\$uff\n +[0-9]+ +[0-9]+ +[0-9]+")
-# 	
-# 	# Regex for matching the UFF section.
-# 	UFF_SECTION = r"(\$uff\n(.|\n)+?)\n\$.+"
-# 	
-# 	############################
-# 	# Class creation mechanism #
-# 	############################
-# 	
-# 	class _actual(Program_target._actual):
-# 		"""
-# 		Inner class for programs.
-# 		"""
-# 		
-# 		def define(self):
-# 			"""
-# 			Run setup for turbomole UFF.
-# 			
-# 			Unlike real turbomole calcs, UFF doesn't use define for setup (but we still take some options from the control file weirdly...)
-# 			"""
-# 			# Get our wrapper script.
-# 			wrapper_body = TemplateLookup(directories = str(silico.default_template_directory())).get_template("/submit/turbomole/turbomole_wrapper.mako").render_unicode(program = self)
-# 						
-# 			# Run control to generate input.
-# 			try:
-# 				subprocess.run(
-# 					("bash",),
-# 					input = wrapper_body,
-# 					stdout = subprocess.PIPE,
-# 					stderr = subprocess.STDOUT,
-# 					universal_newlines = True,
-# 					cwd = self.method.calc_dir.input_directory,
-# 					check = True
-# 				)
-# 				
-# 			except CalledProcessError as e:
-# 				# Something went wrong.
-# 				e.__context__ = None
-# 				raise Submission_error(self, "UFF (setup) did not exit successfully:\n{}".format(e.stdout)) from e
-# 			
-# 			except Exception as e:
-# 				# Something else.
-# 				raise e from None
-# 			
-# 			# Get our custom uff section.
-# 			uff_input = TemplateLookup(directories = str(silico.default_template_directory())).get_template("/submit/turbomole/uff.mako").render_unicode(program = self)
-# 			
-# 			# We now need to manually alter some options in control (sigh...).
-# 			# Open control.
-# 			with open(Path(self.method.calc_dir.input_directory, "control"), "r+") as control_file:
-# 				# Read in existing control.
-# 				control = control_file.read()
-# 				
-# 				# Replace existing uff section with our custom one.
-# 				control = re.sub(self.UFF_SECTION, uff_input, control)
-# 				
-# 				# Seek back to start of file.
-# 				control_file.seek(0)
-# 				
-# 				# Write modified control.
-# 				control_file.write(control)
-# 				
-# 				# Remove any leftover data.
-# 				control_file.truncate()
-# 	
 			

@@ -10,7 +10,7 @@ from silico.file.convert.babel import Openbabel_converter
 from silico.submit import Configurable_target, Memory
 from silico.config.configurable.option import Option
 from silico.config.configurable.options import Options
-from silico.submit.io import Silico_input
+from silico.file.convert import Silico_input
 
 def _merge_silico_options(option, configurable, silico_options):
 	"""

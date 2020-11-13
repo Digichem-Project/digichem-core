@@ -21,7 +21,7 @@ class Silico_input():
 	The .si format is yaml based, and stores the input geometry in a modified xyz format along with charge and multiplicity.
 	"""
 	
-	def __init__(self,  geometry, charge = None, multiplicity = None, *, name = None):
+	def __init__(self, geometry, charge = None, multiplicity = None, *, name = None):
 		"""
 		Constructor for .si files.
  		
@@ -90,15 +90,47 @@ class Silico_input():
 		"""
 		file_name = Path(file_name)
 		
-		# We convert all formats to gaussian input formats (because this format contains charge and multiplicity, which we can extract).
-		com_file = Openbabel_converter.from_file(file_name, file_type, gen3D = gen3D).convert("com")
-		
+		# Get the file format.
+		if file_type is None:
+			file_type = Openbabel_converter.type_from_file_name(file_name)
+			
 		# Get a name from the file if none were given.
 		if name is None:
 			name = file_name.with_suffix("").name
 		
-		# Continue with other constructors.
-		return self.from_com(com_file, *args, name = name, **kwargs)
+		# Certain formats we support natively; others we convert to an intermediate format.
+		if file_type in ["com", "gau", "gjc", "gjf"]:
+			# Gaussian input format.
+			with open(file_name, "rt") as com_file:
+				return self.from_com(com_file.read(), *args, name = name, **kwargs)
+			
+		elif file_type == "si":
+			# Silico input file.
+			with open(file_name, "rt") as si_file:
+				return self.from_si(si_file.read(), *args, **kwargs)
+			
+		else:
+			# Generic input format.
+			
+			# We convert all formats to gaussian input formats (because this format contains charge and multiplicity, which we can extract).
+			com_file = Openbabel_converter.from_file(file_name, file_type, gen3D = gen3D).convert("com") 		
+		
+			# Continue with other constructors.
+			return self.from_com(com_file, *args, name = name, **kwargs)
+	
+	@classmethod
+	def from_yaml(self, yaml_dict):
+		"""
+		Create a Silico_input object from a loaded/parsed .si file.
+		"""
+		return self(**yaml_dict)
+	
+	@classmethod
+	def from_si(self, si_file):
+		"""
+		Create a Silico_input object from a raw .si file.
+		"""
+		return self.from_yaml(yaml.safe_load(si_file))
 		
 	def to_file(self, file):
 		"""
@@ -114,7 +146,10 @@ class Silico_input():
 		
 		:param file_type: The format of the file; a string recognised by openbabel.
 		"""
-		return Openbabel_converter.get_cls("xyz")(input_file = self.xyz, input_file_type = "xyz", gen3D = False).convert(file_type)
+		if file_type.lower() == "si":
+			return self.yaml
+		else:
+			return Openbabel_converter.get_cls("xyz")(input_file = self.xyz, input_file_type = "xyz", gen3D = False).convert(file_type)
 
 	@property
 	def implicit_charge(self):

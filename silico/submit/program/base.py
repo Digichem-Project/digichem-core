@@ -1,6 +1,16 @@
-from silico.submit import Configurable_target
-import silico
 from pathlib import Path
+from logging import getLogger
+from timeit import default_timer as timer
+import datetime
+import shutil
+
+from silico import misc
+from silico.submit.structure.flag import Flag
+from silico.config.configurable.option import Option
+from silico.file.convert.babel import Openbabel_converter
+from silico.exception.base import Submission_error
+from silico.exception.uncatchable import Signal_caught
+from silico.file.convert.main import Silico_input
 from silico.report.pdf import PDF_report
 from silico.extract.text import Text_summary_group_extractor
 from silico.extract.csv import Long_CSV_group_extractor
@@ -10,16 +20,8 @@ from silico.extract.long import Atoms_long_extractor, Orbitals_long_extractor,\
 	TDM_long_extractor, Vibrations_long_extractor,\
 	Absorption_spectrum_long_extractor, Absorption_energy_spectrum_long_extractor,\
 	IR_spectrum_long_extractor
-from logging import getLogger
-from timeit import default_timer as timer
-import datetime
-from silico import misc
-from silico.submit.structure.flag import Flag
-from silico.config.configurable.option import Option
-from silico.file.convert.babel import Openbabel_converter
-from silico.exception.base import Submission_error
-from silico.exception.uncatchable import Signal_caught
-import shutil
+from silico.submit import Configurable_target
+import silico
 
 class Program_target(Configurable_target):
 	"""
@@ -247,14 +249,13 @@ class Program_target(Configurable_target):
 			"""
 			pass
 		
-		def post(self):
+		def parse_results(self):
 			"""
-			Perform post analysis and cleanup, this method is called after a calculation has finished.
-			"""
-			# Set Flag.
-			self.method.calc_dir.set_flag(Flag.POST)
+			Parse the finished calculation result file(s).
 			
-			# First, (try) and load our results.
+			Certain flags will be set depending on the status of the calculation. Additionally, a PDF_report object will be stored to self.result
+			"""
+			# Try and load our results.
 			# We'll actually load a report object because it is the same as a Result_set but with some extra methods which we might need to write a report. Saves us loading results twice.
 			# We need to know whether the calculation was successful or not, so we make no effort to catch exceptions here.
 			try:
@@ -284,6 +285,22 @@ class Program_target(Configurable_target):
 						self.method.calc_dir.set_flag(Flag.CONVERGED)
 					else:
 						self.method.calc_dir.set_flag(Flag.NOT_CONVERGED)
+		
+		def post(self):
+			"""
+			Perform post analysis and cleanup, this method is called after a calculation has finished.
+			"""
+			# Set Flag.
+			self.method.calc_dir.set_flag(Flag.POST)						
+			
+			# First, make our result directory.
+			try:
+				self.method.calc_dir.result_directory.mkdir()
+			except FileExistsError:
+				pass
+			
+			# Next, load calc results.
+			self.parse_results()
 			
 			# If we've been asked to write result files, do so.
 			try:
@@ -294,12 +311,18 @@ class Program_target(Configurable_target):
 				
 			# Write XYZ file.
 			try:
-				self.write_XYZ()
+				self.write_xyz_file()
 			except Exception:
 				getLogger(silico.logger_name).warning("Failed to write XYZ result file", exc_info = True)
 				
+			# Write .si file.
+			try:
+				self.write_si_file()
+			except Exception:
+				getLogger(silico.logger_name).warning("Failed to write silico (.si) result file", exc_info = True)
+				
 			# Similarly, if we've been asked to write a report, do that.
-			# TEMP: Don't write reports if we fail, see #29.
+			# TEMP: Don't write reports if we fail, see issue #29.
 			if self.error is None:
 				try:
 					if self.calculation.write_report:
@@ -320,12 +343,6 @@ class Program_target(Configurable_target):
 			"""
 			Write text result files (like with cresult) from this calculation.
 			"""
-			# First, make our result directory.
-			try:
-				self.method.calc_dir.result_directory.mkdir()
-			except FileExistsError:
-				pass
-			
 			# First, write a text summary.
 			Text_summary_group_extractor(ignore = True, config = self.calculation.silico_options).write_single(self.result, Path(self.method.calc_dir.result_directory, self.calculation.molecule_name +".summary"))
 			
@@ -362,16 +379,29 @@ class Program_target(Configurable_target):
 			# And atoms.
 			self.result.write(Path(self.method.calc_dir.report_directory, self.calculation.molecule_name + ".atoms.pdf"), report_type = "atoms")
 			
-		def write_XYZ(self):
+		def write_xyz_file(self):
 			"""
 			Write an XYZ file from the finished calculation results.
 			"""
 			# Get our converter.
-			conv = Openbabel_converter.from_file(self.calc_output_file_path, output_file_type = "xyz", input_file_type = self.calc_output_file_path.suffix[1:])
+			conv = Openbabel_converter.from_file(self.next_coords, input_file_type = self.calculation.OUTPUT_COORD_TYPE)
 			
 			# Open output file.
 			with open(Path(self.method.calc_dir.result_directory, self.calculation.molecule_name + ".xyz"), "wt") as xyz_file:
 				# Write.
-				xyz_file.write(conv.convert())
-		
+				xyz_file.write(conv.convert("xyz"))
+				
+		def write_si_file(self):
+			"""
+			Write a .si file from the finished calculation results.
+			"""
+			# Get our convertor.
+			conv = Silico_input.from_file(self.next_coords, file_type = self.calculation.OUTPUT_COORD_TYPE)
+			
+			# Write new file.
+			with open(Path(self.method.calc_dir.result_directory, self.calculation.molecule_name + ".si"), "wt") as si_file:
+				# Write.
+				conv.to_file(si_file)
+			
+			
 		

@@ -29,6 +29,7 @@ import silico.program.result
 import silico.program.report
 import silico.program.resume
 import silico.program.status
+import silico.program.convert
 #import pydevd;pydevd.settrace()
 #import silico.program.spreadsheet
 
@@ -62,6 +63,7 @@ def main():
 	
 	# Create sub parsers for each sub-program. Each will define its own parser.
 	silico.program.submit.arguments(subparsers)
+	silico.program.convert.arguments(subparsers)
 	silico.program.result.arguments(subparsers)
 	silico.program.report.arguments(subparsers)
 	#silico.program.spreadsheet.arguments(subparsers)
@@ -72,7 +74,7 @@ def main():
 	# If not, we'll add 'submit' as the default.
 	# This is a bit hacky, but works ok.
 	if len(sys.argv) <= 1 or (
-		sys.argv[1] not in ["submit", "result", "report", "resume", "status"]
+		sys.argv[1] not in ["submit", "result", "report", "resume", "status", "convert"]
 		and "-h" not in sys.argv
 		and "--help" not in sys.argv
 		and "-v" not in sys.argv
