@@ -74,13 +74,13 @@ class Program_target(Configurable_target):
 			# Call method submit first to setup the environment.
 			self.method.submit()
 			
+			# Pre-calc (write input files etc).
+			self.pre()
 			
 			# Run Program (script).
 			self.start()			
 				
 			try:
-				# Pre-calc (write input files etc).
-				self.pre()
 				
 				# Go.
 				self.calculate()
@@ -228,6 +228,10 @@ class Program_target(Configurable_target):
 					getLogger(silico.logger_name).warning("Could not create scratch directory '{}' because it already exists; continuing anyway".format(self.calculation.scratch_directory)) 
 				except Exception:
 					raise Submission_error(self, "unable to create scratch directory")
+			
+			# Write our input file in .si format for easy reuse.
+			with open(Path(self.method.calc_dir.input_directory, self.calculation.molecule_name).with_suffix(".si"), "wt") as input_file:
+				self.calculation.input_coords.to_file(input_file)
 	
 		def calculate(self):
 			"""

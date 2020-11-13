@@ -125,3 +125,6 @@ class Gaussian_input_parser():
         Get the geometry of this gaussian input file in XYZ format.
         """
         return "{}\n\n{}".format(len(self.geometry.split("\n")), self.geometry)
+       
+       
+       

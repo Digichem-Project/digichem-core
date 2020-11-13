@@ -2,6 +2,14 @@
 ##
 <%page args="calculation" />\
 ##
+<%!
+	from silico.file.convert.gaussian import Gaussian_input_parser
+%>\
+##
+<%
+	# Get our input geometry in .com format.
+	input_coords = Gaussian_input_parser(calculation.input_coords.to_format("com"))
+%>\
 ## First, the chk file (if we're using one).
 %if calculation.chk_file_name is not None:
 %%Chk="${calculation.chk_file_name}"
@@ -30,7 +38,7 @@ ${calculation.safe_name(calculation.descriptive_name)}
 ## Charge and mult.
 ${calculation.charge}, ${calculation.multiplicity}
 ## Geometry
-${calculation.input_coords.geometry}
+${input_coords.geometry}
 
 ## Extended Basis.
 %for extended_basis_set in calculation.external_basis_sets:
