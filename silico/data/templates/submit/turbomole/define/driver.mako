@@ -37,7 +37,7 @@ eht
 ${calculation.charge}
 ##
 ## What we do next depends on whether we are setting up a RHF or UHF calc.
-%if calculation.multiplicity == 0:
+%if not calculation.unrestricted_HF:
 ##
 ## RHF, accept defaults.
 

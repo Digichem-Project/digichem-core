@@ -4,6 +4,7 @@ from silico.submit.base import Memory
 from mako.lookup import TemplateLookup
 import silico
 from silico.config.configurable.options import Options
+from silico.misc.base import is_int
 
 				
 class Turbomole_memory(Memory):
@@ -43,11 +44,37 @@ class Turbomole_AI(Turbomole):
 	
 	# Configurable options.
 	basis_set = Option(help = "The basis set to use.", required = True, type = str)
-	charge = Option(help = "The molecule charge.", default = 0, type = int)
-	multiplicity = Option(help = "The molecule multiplicity. A value of 0 will request turbomole defaults, which will be RHF singlet in most cases. Any other multiplicity will request UHF.", default = 0, type = int)
+	_charge = Option("charge", help = "Forcibly set the molecule charge. Use 'auto' to use the charge given in the input file.", default = 'auto', validate = lambda option, configurable, value: value == "auto" or is_int(value))
+	_multiplicity = Option("multiplicity", help = "Forcibly set the molecule multiplicity. Use 'auto' to use the multiplicity given in the input file. A value of 1 will request turbomole defaults, which will be RHF singlet in most cases. Any other multiplicity will request UHF.", default = 'auto', validate = lambda option, configurable, value: value == "auto" or is_int(value))
+	force_unrestricted = Option(help = "Whether to force use of unrestricted HF. This option only has an effect if multiplicity is 1; as all other multiplicities will use unrestricted HF by necessity.", type = bool, default = False)
 	redundant_internal_coordinates = Option(help = "Whether to use redundant internal coordinates", type = bool, default = True)
 	methods = Option(help = "Method keywords and options from the define general menu, including scf, mp2, cc etc.", type = dict, default = {})
 	define_timeout = Option(help = "The amount of time (s) to allow define to run for. After the given timeout, define will be forcibly stopped if it is still running, which normally occurs because something went wrong and define froze.", type = int, default = 15)	
+	
+	@property
+	def charge(self):
+		"""
+		The molecule/system charge that we'll actually be using in the calculation.
+		
+		Unlike the charge attribute, this property will translate "auto" to the actual charge to be used.
+		"""
+		return self._charge if self._charge != "auto" else self.input_coords.charge
+	
+	@property
+	def multiplicity(self):
+		"""
+		The molecule/system multiplicity that we'll actually be using in the calculation.
+		
+		Unlike the multiplicity attribute, this property will translate "auto" to the actual multiplicity to be used.
+		"""
+		return self._multiplicity if self._multiplicity != "auto" else self.input_coords.multiplicity
+	
+	@property
+	def unrestricted_HF(self):
+		"""
+		Whether this calculation will be using unrestricted HF.
+		"""
+		return self.multiplicity != 1 or self.force_unrestricted
 	
 	# General turbomole options.
 	scf = Options(
@@ -201,7 +228,7 @@ class Turbomole_UFF(Turbomole):
 	iterm = Option(help = "Switches controlling force field terms; please see the Turbomole manual for more details.", type = str, default = "111111")
 	econv = Option(help = "Energy convergence criteria.", type = str, default = "0.10D-07")
 	gconv = Option(help = "Gradient convergence criteria.", type = str, default = "0.10D-04")
-	qtot = Option(help = "The molecular charge.", type = float, default = 0.0)
+	_qtot = Option("qtot", help = "The molecular charge. Use 'auto' to use the charge given in the input file.", default = 'auto')
 	dfac = Option(help = "Multiplication factor to determine bonds between atoms.", type = str, default = "1.10")
 	epssteep = Option(help = "Criteria for determining whether to perform a deepest-descent-step.", type = str, default = "0.10D+03")
 	epssearch = Option(help = "Criteria for performing a line-search step.", type = str, default = "0.10D-04")
@@ -216,6 +243,16 @@ class Turbomole_UFF(Turbomole):
 	lnumhess = Option(help = "Whether to calculate a numerical Hessian", type = bool, default = False)
 	lmd = Option(help = "Whether to perform an MD calculation.", type = bool, default = False)
 	
+	
+	@property
+	def qtot(self):
+		"""
+		The molecule/system charge that we'll actually be using in the calculation.
+		
+		Unlike the _qtot attribute, this property will translate "auto" to the actual charge to be used.
+		"""
+		return float(self._qtot if self._qtot != "auto" else self.input_coords.charge)
+		
 	
 	# We only have one module to run.
 	modules = ("uff",)
