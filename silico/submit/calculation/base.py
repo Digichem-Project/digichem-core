@@ -285,8 +285,7 @@ class Concrete_calculation(Calculation_target):
 				molecule_charge = calculation.input_coords.charge,
 				molecule_multiplicity = calculation.input_coords.multiplicity,
 				# Don't gen3D or add H (we want to use of output coordinates exactly as-is).
-				gen3D = False,
-				add_H = False
+				gen3D = False
 			)
 			
 		def prepare_from_file(self, output, input_file_path, *, input_format = None, gen3D = None, molecule_name = None, molecule_charge = None, molecule_multiplicity = None):
