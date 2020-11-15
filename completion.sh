@@ -9,7 +9,7 @@ _silico_complete() {
 	
 	if [ "$COMP_CWORD" -eq 1 ]; then
 		# First argument is a sub command name.
-		COMPREPLY=($(compgen -W "submit report result status" "${COMP_WORDS[1]}"))
+		COMPREPLY=($(compgen -W "submit convert report result status" "${COMP_WORDS[1]}"))
 	else
 		COMPREPLY=($(compgen -f "${COMP_WORDS[$COMP_CWORD]}"))
 	fi
