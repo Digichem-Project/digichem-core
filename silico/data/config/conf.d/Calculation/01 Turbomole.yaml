@@ -23,7 +23,7 @@ scratch_options:
     all_output: True
     
 # CC2 is slooow; use double CPUs to compensate.
-num_CPUs: 8
+num_CPUs: 16
 
 # SPLIT, but know that this is overwritten by other splits.
 SPLIT:

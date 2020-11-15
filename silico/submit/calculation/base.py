@@ -277,7 +277,17 @@ class Concrete_calculation(Calculation_target):
 			:param output: Path to a directory to perform the calculation in.
 			:param calculation: A previously submitted calculation.
 			"""
-			self.prepare_from_file(output, calculation.program.next_coords, input_format = calculation.OUTPUT_COORD_TYPE, molecule_name = calculation.molecule_name, molecule_charge = calculation.input_coords.charge, molecule_multiplicity = calculation.input_coords.multiplicity)
+			self.prepare_from_file(
+				output,
+				calculation.program.next_coords,
+				input_format = calculation.OUTPUT_COORD_TYPE,
+				molecule_name = calculation.molecule_name,
+				molecule_charge = calculation.input_coords.charge,
+				molecule_multiplicity = calculation.input_coords.multiplicity,
+				# Don't gen3D or add H (we want to use of output coordinates exactly as-is).
+				gen3D = False,
+				add_H = False
+			)
 			
 		def prepare_from_file(self, output, input_file_path, *, input_format = None, gen3D = None, molecule_name = None, molecule_charge = None, molecule_multiplicity = None):
 			"""
@@ -292,8 +302,11 @@ class Concrete_calculation(Calculation_target):
 			"""	
 			# First, try and convert our given input file to the universal silico input format.
 			try:
-				#input_str = Openbabel_converter.from_file(input_file_path = input_file_path, input_file_type = input_format, gen3D = gen3D).convert(output_file_type = self.INPUT_FILE_TYPES[0])
-				input_coords = Silico_input.from_file(input_file_path, input_format, gen3D = gen3D, name = molecule_name, charge = molecule_charge, multiplicity = molecule_multiplicity)
+				# Load file.
+				input_coords = Silico_input.from_file(input_file_path, input_format, name = molecule_name, charge = molecule_charge, multiplicity = molecule_multiplicity)
+				
+				# gen3D and/or add H.
+				input_coords = Silico_input.from_si(input_coords.to_format("si", gen3D = gen3D), name = molecule_name, charge = molecule_charge, multiplicity = molecule_multiplicity)
 			except Exception:
 				raise Submission_error(self, "failed to prepare input file (input format may not be supported)", file_name = input_file_path)
 			

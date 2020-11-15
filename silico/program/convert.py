@@ -11,6 +11,7 @@ from silico.misc.file_wrapper import Multi_file_wrapper
 from silico.file.convert.babel import Openbabel_converter
 from silico.exception.base import Silico_exception
 from logging import getLogger
+from silico.misc.base import to_bool
 
 # Printable name of this program.
 NAME = "Calculation File Converter"
@@ -35,6 +36,8 @@ def arguments(subparsers):
 	parser.add_argument("-i", "--input_format", help = "Input format (.com, .xyz, .tmol etc)")
 	parser.add_argument("-o", "--output_format", help = "Output format (.com, .xyz, .tmol etc)")
 	parser.add_argument("-O", "--output_file", help = "Output file", default = "-")
+	parser.add_argument("--gen3D", help = "Whether to generate 3D coordinates (this will scramble existing atom coordinates). The default is yes, but only if it can be safely determined that the loaded coordinates are not already in 3D)", type = to_bool , default = None)
+	#parser.add_argument("--addH", help = "Whether to add any missing hydrogens", type = to_bool, default = None)
 	
 def main(args):
 	"""
@@ -48,7 +51,7 @@ def _main(args, config, logger):
 	"""
 	# Load the file we were given.
 	parser = Silico_input.from_file(args.input_file, args.input_format)
-	
+		
 	# If we weren't given an output format, try and guess one.
 	if args.output_format is None:
 		try:
@@ -60,4 +63,6 @@ def _main(args, config, logger):
 	
 	# Convert and write.
 	with Multi_file_wrapper(args.output_file, "wt") as outfile:
-		outfile.write(parser.to_format(args.output_format))
+		outfile.write(parser.to_format(args.output_format, gen3D = args.gen3D))
+		
+		
