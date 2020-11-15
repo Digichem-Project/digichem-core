@@ -1,6 +1,22 @@
 import argparse
 import math
 
+def to_bool(booly):
+	"""
+	Convert something that might be a bool into a bool.
+	"""
+	if type(booly) is str:
+		# Convert to lowercase.
+		booly = booly.lower()
+		if booly in ["yes", "1", "one", "true"]:
+			return True
+		elif booly in ["no", "0", "zero", "false"]:
+			return False
+		else:
+			raise Exception("Could not convert '{}' to bool".format(booly))
+	else:
+		return bool(booly)
+
 def is_int(value):
 	"""
 	Determine whether a variable has a valid integer representation.
