@@ -53,7 +53,7 @@ class Gaussian(Concrete_calculation):
 		
 		Unlike the charge attribute, this property will translate "auto" to the actual charge to be used.
 		"""
-		return self._charge if self._charge is not None else self.input_coords.implicit_charge
+		return int(self._charge if self._charge is not None else self.input_coords.implicit_charge)
 	
 	@property
 	def multiplicity(self):
@@ -62,7 +62,7 @@ class Gaussian(Concrete_calculation):
 		
 		Unlike the multiplicity attribute, this property will translate "auto" to the actual multiplicity to be used.
 		"""
-		return self._multiplicity if self._multiplicity is not None else self.input_coords.implicit_multiplicity
+		return int(self._multiplicity if self._multiplicity is not None else self.input_coords.implicit_multiplicity)
 	
 	@property
 	def external_ECPs(self):
