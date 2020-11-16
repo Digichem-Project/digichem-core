@@ -1,8 +1,9 @@
 import yaml
+from pathlib import Path
+
+from silico.exception.base import Silico_exception
 from silico.file.convert.gaussian import Gaussian_input_parser
 from silico.file.convert.babel import Openbabel_converter
-from pathlib import Path
-from silico.exception.base import Silico_exception
 
 # Custom formats to allow literal strings in yaml output.
 # Adapted from https://stackoverflow.com/questions/6432605/any-yaml-libraries-in-python-that-support-dumping-of-long-strings-as-block-liter
@@ -86,7 +87,7 @@ class Silico_input():
 		
 		
 	@classmethod
-	def from_file(self, file_name, file_type = None, **kwargs):
+	def from_file(self, file_name, file_type = None, *, gen3D = None, **kwargs):
 		"""
 		Create a Silico_input object from a file in arbitrary format.
 		
@@ -117,7 +118,7 @@ class Silico_input():
 			# Generic input format.
 			
 			# We convert all formats to gaussian input formats (because this format contains charge and multiplicity, which we can extract).
-			com_file = Openbabel_converter.from_file(file_name, file_type, gen3D = False).convert("com") 		
+			com_file = Openbabel_converter.from_file(file_name, file_type).convert("com", gen3D = gen3D) 		
 		
 			# Continue with other constructors.
 			return self.from_com(com_file, file_name = file_name, **kwargs)
@@ -154,24 +155,20 @@ class Silico_input():
 		"""
 		file.write(self.yaml)
 		
-	def to_format(self, file_type, gen3D = None):
+	def to_format(self, file_type):
 		"""
 		Get this input file in an arbitrary format.
 		
 		:param file_type: The format of the file; a string recognised by openbabel.
 		"""
 		if file_type.lower() == "si":
-			# First convert to an intermediate format (so we can gen3D and/or add hydrogens).
-			intermediate = self.from_xyz(
-				Openbabel_converter.get_cls("xyz")(input_file = self.xyz, input_file_path = self.name, input_file_type = "xyz", gen3D = gen3D).convert("xyz"),
-				name = self.name,
-				charge = self.charge,
-				multiplicity = self.multiplicity
-			)
-			# Convert for real.
-			return intermediate.yaml
+			# Convertto yaml
+			return self.yaml
 		else:
-			return Openbabel_converter.get_cls("xyz")(input_file = self.xyz, input_file_path = self.name, input_file_type = "xyz", gen3D = gen3D).convert(file_type)
+			# Convert.
+			charge = int(self.charge) if self.charge is not None else None
+			multiplicity = int(self.multiplicity) if self.multiplicity is not None else None
+			return Openbabel_converter.get_cls("xyz")(input_file = self.xyz, input_file_path = self.name, input_file_type = "xyz").convert(file_type, charge = charge, multiplicity = multiplicity)
 
 	@property
 	def implicit_charge(self):

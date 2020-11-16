@@ -12,6 +12,7 @@ from silico.submit.calculation import Calculation_target
 from silico.exception import Silico_exception, Configurable_exception
 from silico.exception.uncatchable import Submission_paused
 from silico.interface.urwid.tree import Calculation_browser
+from silico.misc.base import to_bool
 
 # Printable name of this program.
 NAME = "Silico Calculation Submitter"
@@ -85,6 +86,9 @@ def arguments(subparsers):
 	parser.add_argument("calculation_files", help = "Gaussian input files to submit", nargs = "*", type = Path)
 	parser.add_argument("-o", "--output", help = "Base directory to perform calculations in. Defaults to the current directory", default = Path("./"))
 	parser.add_argument("-c", "--calculations", help = "Calculations to perform, identified either by name or by ID. To use a method and/or program other than the default, use the format M/P/C (eg, 2/1/1)", nargs = "*", default = [])
+	parser.add_argument("-C", "--charge", help = "Set the molecular charge of all input files. Note that certain calculations will override this value", default = None, type = float)
+	parser.add_argument("-M", "--multiplicity", help = "Set the multiplicity of all input files. Note that certain calculations will override this value", default = None, type = int)
+	parser.add_argument("--gen3D", help = "Whether to generate 3D coordinates (this will scramble existing atom coordinates). The default is yes, but only if it can be safely determined that the loaded coordinates are not already in 3D)", type = to_bool, default = None)
 
 def main(args):
 	"""
@@ -164,7 +168,7 @@ def _main(args, config, logger):
 	for input_file_path in args.calculation_files:
 		try:
 			# Prepare.
-			first.prepare_from_file(args.output, input_file_path)
+			first.prepare_from_file(args.output, input_file_path, molecule_charge = args.charge, molecule_multiplicity = args.multiplicity, gen3D = args.gen3D)
 			
 			# Go.
 			first.submit()

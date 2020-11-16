@@ -288,7 +288,15 @@ class Concrete_calculation(Calculation_target):
 				gen3D = False
 			)
 			
-		def prepare_from_file(self, output, input_file_path, *, input_format = None, gen3D = None, molecule_name = None, molecule_charge = None, molecule_multiplicity = None):
+		def prepare_from_file(self,
+			output,
+			input_file_path,
+			*,
+			input_format = None,
+			gen3D = None,
+			molecule_name = None,
+			molecule_charge = None,
+			molecule_multiplicity = None):
 			"""
 			Alternative submission constructor that first reads in an input file.
 			
@@ -302,10 +310,7 @@ class Concrete_calculation(Calculation_target):
 			# First, try and convert our given input file to the universal silico input format.
 			try:
 				# Load file.
-				input_coords = Silico_input.from_file(input_file_path, input_format, name = molecule_name, charge = molecule_charge, multiplicity = molecule_multiplicity)
-				
-				# gen3D and/or add H.
-				input_coords = Silico_input.from_si(input_coords.to_format("si", gen3D = gen3D), name = molecule_name, charge = molecule_charge, multiplicity = molecule_multiplicity)
+				input_coords = Silico_input.from_file(input_file_path, input_format, name = molecule_name, charge = molecule_charge, multiplicity = molecule_multiplicity, gen3D = gen3D)
 			except Exception:
 				raise Submission_error(self, "failed to prepare input file (input format may not be supported)", file_name = input_file_path)
 			

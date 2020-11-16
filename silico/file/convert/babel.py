@@ -7,7 +7,6 @@ import re
 import os
 import copy
 from pathlib import Path
-from silico.file.convert.gaussian import Gaussian_input_parser
 
 # Try and load openbabel bindings.
 HAVE_BINDINGS = False
@@ -29,7 +28,7 @@ class Openbabel_converter():
 	We support both the python interface (pybel) and running obabel directly.
 	"""
 	
-	def __init__(self, *, input_file = None, input_file_path = None, input_file_type = None, gen3D = None):
+	def __init__(self, *, input_file = None, input_file_path = None, input_file_type = None):
 		"""
 		Constructor for the OpenBabel converter.
 		
@@ -44,7 +43,6 @@ class Openbabel_converter():
 		self.input_file = input_file
 		self.input_file_path = input_file_path
 		self.input_file_type = input_file_type
-		self.gen3D = gen3D if gen3D is not None else False
 		# Currently, we always use add H because certain formats (xyz) cannot have H added.
 		self.add_H = True
 		
@@ -82,7 +80,7 @@ class Openbabel_converter():
 			return "(file loaded from memory)"
 		
 	@classmethod
-	def from_file(self, input_file_path, input_file_type = None, gen3D = None, **kwargs):
+	def from_file(self, input_file_path, input_file_type = None, **kwargs):
 		"""
 		A more powerful constructor that automatically decides which concrete class to use.
 		
@@ -98,22 +96,9 @@ class Openbabel_converter():
 		cls = self.get_cls(input_file_type)
 		# Normally we use input_file_path, not input_file.
 		input_file = None
-		
-# 		# Obabel can't natively read Gaussian input files (.com, .gau, .gjc, .gjf etc), but these are just fancy .xyz files so it's trivial to implement them.
-# 		if input_file_type.lower() in ["com", "gau", "gjc", "gjf"]:
-# 			with open(input_file_path, "rt") as gaussian_file:
-# 				# Get and parse our gaussian file.
-# 				gaussian_parser = Gaussian_input_parser(gaussian_file.read())
-# 				
-# 				# Because we've now loaded into memory, we'll unset input_file_path and use input_file instead.
-# 				input_file_path = None
-# 				input_file = gaussian_parser.xyz
-# 				
-# 				# And our file type has changed.
-# 				input_file_type = "xyz"
-		
+				
 		# And return, if gen3D is not set, we turn it on for cdx files (which have to use the naive Obabel_converter and are always 2D).
-		return cls(input_file_path = input_file_path, input_file = input_file, input_file_type = input_file_type, gen3D = True if gen3D is None and input_file_type.lower() == "cdx" else gen3D, **kwargs)
+		return cls(input_file_path = input_file_path, input_file = input_file, input_file_type = input_file_type, **kwargs)
 		
 		
 	def convert(self, output_file_type):
@@ -150,29 +135,21 @@ if HAVE_BINDINGS:
 		"""
 		Wrapper class for pybel
 		
-		"""
-			
-		def __init__(self, *args, gen3D = None, **kwargs):
-			"""
-			Constructor for the Pybel converter.
-			
-			:param gen3D: If True (default) and the loaded molecule does not have 3D coordinates, these will be generated (this will scramble atom coordinates).
-			"""
-			super().__init__(
-				*args,
-				# For Pybel, gen3D defaults to True, because we'll only use gen3d if not already in 3D.
-				gen3D = gen3D if gen3D is not None else True,
-				**kwargs
-				)
-			
+		"""			
 		
-		def convert(self, output_file_type):
+		def convert(self, output_file_type, *, gen3D = None, charge = None, multiplicity = None):
 			"""
 			Convert the input file wrapped by this class to the designated output_file_type.
 			
 			:param output_file_type: The file type to convert to.
+			:param gen3D: If True and the loaded molecule does not have 3D coordinates, these will be generated (this will scramble atom coordinates).
+			:param charge: Optional charge of the output format.
+			:param multiplicity: Optional multiplicity of the output format.
 	 		:return: The converted file.
 			"""
+			# For Pybel, gen3D defaults to True, because we'll only use gen3d if not already in 3D.
+			gen3D = gen3D if gen3D is not None else True
+			
 			# Get upset if input_file_type is empty (because openbabel acts weird when it is).
 			if self.input_file_type is None or self.input_file_type == "":
 				raise TypeError("Cannot convert file; input_file_type '{}' is None or empty".format(self.input_file_type))
@@ -198,9 +175,15 @@ if HAVE_BINDINGS:
 					
 			except Exception as e:
 				raise Silico_exception("Failed to parse file '{}'".format(self.input_name)) from e
-						
+			
+			if charge is not None:
+				molecule.OBMol.SetTotalCharge(charge)
+				
+			if multiplicity is not None:
+				molecule.OBMol.SetTotalSpinMultiplicity(multiplicity)
+			
 			# If we got a 2D (or 1D) format, convert to 3D (but warn that we are doing so.)
-			if molecule.dim != 3 and self.gen3D:
+			if molecule.dim != 3 and gen3D:
 				# We're missing 3D coords.
 				getLogger(silico.logger_name).warning("Generating 3D coordinates from {}D file '{}'; this will scramble atom coordinates".format(molecule.dim, self.input_name))
 				molecule.localopt()
@@ -225,38 +208,40 @@ class Obabel_converter(Openbabel_converter):
 	obabel_fail = re.compile(r"\b0 molecules converted")
 	
 	# 'Path' to the obabel executable.
-	obabel_execuable = "obabel"
-		
-	def __init__(self, *args, gen3D = None, **kwargs):
-		"""
-		Constructor for the OpenBabel converter.
-		
-		:param gen3D: If True (not default) 3D coordinates will be generated (this will scramble atom coordinates).
-		"""
-		super().__init__(
-			*args,
-			# For Obabel, gen3D defaults to False, because we can't determine ahead of time whether we're in 3D or not.
-			gen3D = gen3D if gen3D is not None else False,
-			**kwargs
-			)
-			
-		
+	obabel_execuable = "obabel"		
 	
-	def convert(self, output_file_type):
+	def convert(self, output_file_type, *, gen3D = None, charge = None, multiplicity = None):
 		"""
 		Convert the input file wrapped by this class to the designated output_file_type.
-		 		
+		 
+		:param gen3D: If True and the loaded molecule does not have 3D coordinates, these will be generated (this will scramble atom coordinates).		
  		:param output_file_type: The file type to convert to.
+		:param charge:  Optional charge of the output format.
  		:return: The converted file.
 		"""
+		# For Obabel, gen3D defaults to False, because we can't determine ahead of time whether we're in 3D or not (unless format is cdx, which is always 2D).
+		if gen3D is None:
+			if self.input_file_type.lower() == "cdx":
+				gen3D = True
+			else:
+				gen3D = False
+		
+		if charge is not None:
+			# We can't set charge with obabel sadly.
+			getLogger(silico.logger_name).warning("Unable to set charge '{}' of molecule loaded from file '{}' with obabel converter".format(charge, self.input_name))
+			
+		if multiplicity is not None:
+			# We can't set charge with obabel sadly.
+			getLogger(silico.logger_name).warning("Unable to set multiplicity '{}' of molecule loaded from file '{}' with obabel converter".format(multiplicity, self.input_name))
+		
 		# Run
-		return self.run_obabel(output_file_type)
+		return self.run_obabel(output_file_type, gen3D = gen3D)
 		
-		
-	def run_obabel(self, output_file_type):
+	def run_obabel(self, output_file_type, *, gen3D):
 		"""
  		Run obabel, converting the input file wrapped by this class to the designated output_file_type.
-		 		
+		 
+		 :param gen3D: If True and the loaded molecule does not have 3D coordinates, these will be generated (this will scramble atom coordinates).		
  		:param output_file_type: The file type to convert to. 		 		
  		:return: The converted file.
  		"""
@@ -274,7 +259,7 @@ class Obabel_converter(Openbabel_converter):
 		])
 		
 		# Add gen3D command if we've been asked to.
-		if self.gen3D:
+		if gen3D:
 			getLogger(silico.logger_name).warning("Generating 3D coordinates from file '{}'; this will scramble atom coordinates".format(self.input_name))
 			sig.append("--gen3D")
 		

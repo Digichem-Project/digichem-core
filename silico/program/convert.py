@@ -36,8 +36,9 @@ def arguments(subparsers):
 	parser.add_argument("-i", "--input_format", help = "Input format (.com, .xyz, .tmol etc)")
 	parser.add_argument("-o", "--output_format", help = "Output format (.com, .xyz, .tmol etc)")
 	parser.add_argument("-O", "--output_file", help = "Output file", default = "-")
+	parser.add_argument("-C", "--charge", help = "The molecular charge to set in the output format. Note that not all formats support a charge", default = None, type = float)
+	parser.add_argument("-M", "--multiplicity", help = "The multiplicity to set in the output format. Note that not all formats support a multiplicity", default = None, type = int)
 	parser.add_argument("--gen3D", help = "Whether to generate 3D coordinates (this will scramble existing atom coordinates). The default is yes, but only if it can be safely determined that the loaded coordinates are not already in 3D)", type = to_bool , default = None)
-	#parser.add_argument("--addH", help = "Whether to add any missing hydrogens", type = to_bool, default = None)
 	
 def main(args):
 	"""
@@ -50,7 +51,7 @@ def _main(args, config, logger):
 	Inner portion of main (wrapped by a try-catch-log hacky boi).
 	"""
 	# Load the file we were given.
-	parser = Silico_input.from_file(args.input_file, args.input_format)
+	parser = Silico_input.from_file(args.input_file, args.input_format, charge = args.charge, multiplicity = args.multiplicity, gen3D = args.gen3D)
 		
 	# If we weren't given an output format, try and guess one.
 	if args.output_format is None:
@@ -63,6 +64,6 @@ def _main(args, config, logger):
 	
 	# Convert and write.
 	with Multi_file_wrapper(args.output_file, "wt") as outfile:
-		outfile.write(parser.to_format(args.output_format, gen3D = args.gen3D))
+		outfile.write(parser.to_format(args.output_format))
 		
 		
