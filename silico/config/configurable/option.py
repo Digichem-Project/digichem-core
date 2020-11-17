@@ -184,7 +184,7 @@ class Option():
 			
 			for subvalue in values:
 				if subvalue not in choices:
-					raise Configurable_exception(obj, "value '{}' is not one of the allowed choices for option '{}'".format(subvalue, self.name))
+					raise Configurable_exception(obj, "value '{}' is not one of the allowed choices for option '{}': {}".format(subvalue, self.name, choices))
 			
 		# Check the value is valid.
 		if not self.validate(self, obj, value):

@@ -96,7 +96,7 @@ class Turbomole_AI(Turbomole):
 	dft_exci = Options(
 		help = "Options for calculation of excited states with DFT (TDA or TD-DFT)",
 		symmetry = Option(help = "Symmetry of the excited states to calculate.", type = str, default = "a"),
-		multiplicity = Option(help = "Multiplicity of the excited states to calculate.", type = int, default = 1, choices = (1, 3)),
+		multiplicity = Option(help = "Multiplicity of the excited states to calculate.", type = int, default = 1, choices = (None, 1, 3)),
 		nexc = Option(help = "The number of excited states to calculate.", type = int, default = 0),
 		TDA = Option(help = "Whether to use the Tamm–Dancoff approximation.", type = bool, default = False)
 		)
