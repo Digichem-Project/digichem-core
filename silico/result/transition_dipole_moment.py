@@ -1,7 +1,9 @@
-from silico.result.dipole_moment import Dipole_moment
-from silico.exception.base import Result_unavailable_error
-from silico.file.cube import Cube_maker
+# General imports.
 from pathlib import Path
+
+# Silico imports.
+from silico.result.dipole_moment import Dipole_moment
+from silico.file.cube import Cube_maker
 from silico.image.vmd import Dipole_image_maker
 
 class Transition_dipole_moment(Dipole_moment):
@@ -30,6 +32,18 @@ class Transition_dipole_moment(Dipole_moment):
 		
 		# Save a name describing which dipole we are (permanent vs transition etc).
 		self.dipole_type = "transition"
+		
+	def list_from_parser(self, parser):
+		"""
+		Get a list of TDMs from an output file parser.
+		
+		:param parser: An output file parser.
+		:return: A list of TDM objects. An empty list will be returned if no TDM data is available.
+		"""
+		try:
+			return [self(state_level = index +1, origin_coords = (0,0,0), vector_coords = tdm) for index, tdm in enumerate(parser.data.etmoments)]
+		except AttributeError:
+			return []
 	
 	@property
 	def name(self):
@@ -73,95 +87,5 @@ class Transition_dipole_moment(Dipole_moment):
 		# Remove our cube file.
 		super().cleanup_intermediate_files('cube_file')
 	
-	@classmethod
-	def list_from_log(self, log_file_path, atoms = None):	
-		"""
-		Construct a list of transition Dipole_moment objects from a Gaussian logfile.
-		
-		Currently cclib does not support extracting transition dipole moment data from Gaussian files, so we'll have to fetch it ourselves.
-		:param log_file_path: Path to a logfile to read data from.
-		:param atoms: An Atom_list object that is passed to the Dipole_moment's constructor. Used for getting alignment info about the dipole etc.
-		:return: The list of transition dipole moment objects. This list will be empty (len == 0) if no data is available.
-		"""
-		# First, try and get our list of raw dipole moment data.
-		try:
-			# Get our raw list.
-			raw_dipole_list = self.get_t_dipole_section(log_file_path)
-			
-			# Sort our list (we probably don't need to do this, but it doesn't hurt.)
-			raw_dipole_list.sort(key = lambda dipole: dipole['state_level'])
-			
-			# Build our object list.
-			return [self(state_level = raw_dipole['state_level'], origin_coords = raw_dipole['origin_coords'], vector_coords = raw_dipole['vector_coords'], atoms = atoms) for raw_dipole in raw_dipole_list]
-		
-		except Result_unavailable_error:
-			return []
-		
-	@classmethod
-	def get_t_dipole_section(self, log_file_path):
-		"""
-		Get and return the whole transition dipole moment section without further formating.
-		
-		:param logfile: Path to a logfile to read data from.
-		:return: The t dipole section as an unformatted string
-		"""
-		transition_dipole_groups = []
-		
-		# Open our file.
-		with open(log_file_path, "rt") as log_file:
-			# Loop through our lines, looking for a specific line of text.
-			#found = False
-			for log_file_line in log_file:
-				# Look for our key string.
-				# It might be better to look for a substring rather than the whole string? Need to benchmark.
-				if log_file_line == self.t_dipole_section_header:
-					# We found our header.
-					
-					# The next line should be the table header, so we can skip it.
-					log_file.readline()
-					
-					# Now loop through, splitting on white space.
-					transition_dipoles = []
-					for log_file_line in log_file:
-						# Split on whitespace.
-						split_line = log_file_line.split()
-						
-						try:
-							# Add into our list.
-							transition_dipoles.append({
-								'state_level': int(split_line[0]),
-								'origin_coords': (0.0, 0.0, 0.0),
-								'vector_coords': (
-									self.au_to_debye(float(split_line[1])),
-									self.au_to_debye(float(split_line[2])),
-									self.au_to_debye(float(split_line[3]))
-								)
-								})
-						except (ValueError, IndexError):
-							# No more data.
-							break
-					
-					# Add this set of transition dipoles to our big list.
-					transition_dipole_groups.append(transition_dipoles)
-		
-		# Return the last t-dipole moment (unless we have none, in which case we get upset).
-		if len(transition_dipole_groups) == 0:
-			raise Result_unavailable_error("Transition dipole moment", "There is no transition dipole moment data in '{}'".format(log_file_path))
-		else:
-			return transition_dipole_groups[-1]
-	
-	@classmethod
-	def au_to_debye(self, au):
-		"""
-		Convert a dipole moment in au to debye.
-		"""
-		return au * 2.541746473
-	
-	@classmethod
-	def bohr_to_angstrom(self, bohr_distance):
-		"""
-		Convert a length in bohr to angstrom.
-		"""
-		return bohr_distance * 0.529177210903
 		
 			

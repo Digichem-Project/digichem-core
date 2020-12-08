@@ -25,30 +25,54 @@ class Ground_state(Energy_state):
 		self.charge = charge
 		# Also save our absolute energy.
 		self.absolute_energy = energy
-		
+	
 	@classmethod
-	def from_results(self, results):
+	def from_parser(self, parser):
 		"""
-		Construct a Ground_state object from a set of results.
+		Create a Ground_state object from an output file parser.
 		
 		As different energy types can be present in a single calculation, the following (arbitrary?) precedence is used:
 		1) Coupled-cluster energy.
 		2) The highest level Moller-Plesset energy.
 		3) SCF energy.
 		
-		:param results: A result_set object.
-		:return: The populated Ground_state object. Note this object is NOT added to the given Result_set object.
+		:param parser: An output file parser.
 		"""
-		if len(results.CC_energies) > 0:
-			energy = results.CC_energies.final
-		elif len(results.MP_energies) > 0:
-			energy = results.MP_energies.final
-		elif len(results.SCF_energies) > 0:
-			energy = results.SCF_energies.final
+		if len(parser.results.CC_energies) > 0:
+			energy = parser.results.CC_energies.final
+		elif len(parser.results.MP_energies) > 0:
+			energy = parser.results.MP_energies.final
+		elif len(parser.results.SCF_energies) > 0:
+			energy = parser.results.SCF_energies.final
 		else:
 			# We have no energies that we can understand. Give up.
 			raise Result_unavailable_error("Ground_state", "No ground state energies that we understand are available")
 		# Return our constructed object.
-		return self(results.metadata.system_charge, results.metadata.system_multiplicity, energy)
+		return self(parser.results.metadata.system_charge, parser.results.metadata.system_multiplicity, energy)
+	
+# 	@classmethod
+# 	def from_results(self, results):
+# 		"""
+# 		Construct a Ground_state object from a set of results.
+# 		
+# 		As different energy types can be present in a single calculation, the following (arbitrary?) precedence is used:
+# 		1) Coupled-cluster energy.
+# 		2) The highest level Moller-Plesset energy.
+# 		3) SCF energy.
+# 		
+# 		:param results: A result_set object.
+# 		:return: The populated Ground_state object. Note this object is NOT added to the given Result_set object.
+# 		"""
+# 		if len(results.CC_energies) > 0:
+# 			energy = results.CC_energies.final
+# 		elif len(results.MP_energies) > 0:
+# 			energy = results.MP_energies.final
+# 		elif len(results.SCF_energies) > 0:
+# 			energy = results.SCF_energies.final
+# 		else:
+# 			# We have no energies that we can understand. Give up.
+# 			raise Result_unavailable_error("Ground_state", "No ground state energies that we understand are available")
+# 		# Return our constructed object.
+# 		return self(results.metadata.system_charge, results.metadata.system_multiplicity, energy)
 		
 		

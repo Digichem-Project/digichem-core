@@ -145,11 +145,11 @@ class Molecular_orbital_list(Result_container):
 		return ordered_list
 		
 	@classmethod
-	def from_cclib(self, ccdata, cls = None):
+	def from_parser(self, parser, cls = None):
 		"""
-		Construct a Molecular_orbital_list object from the data provided by cclib.
+		Construct a Molecular_orbital_list object from an output file parser.
 		
-		:param ccdata: Result object as provided by cclib.
+		:param parser: An output file parser.
 		:param cls: Optional class of objects to populate this list with, should inherit from Molecular_orbital. Defaults to Molecular_orbital if only one set of orbitals are available, or Alpha_orbital if both alpha and beta are available (in which case you should call Molecular_orbital_list.from_cclib() again with cls = Beta_orbital to get beta as well).
 		:returns: The new Molecular_orbital_list object. The list will be empty if no MO data is available.
 		"""
@@ -157,12 +157,12 @@ class Molecular_orbital_list(Result_container):
 			# Set our default class if we've not been given one.
 			if cls is None:
 				# Check to see if we have only 'alpha' or beta as well.
-				if len(ccdata.moenergies) == 1:
+				if len(parser.data.moenergies) == 1:
 					cls = Molecular_orbital
 				else:
 					cls = Alpha_orbital
 			# Get our list.
-			return self(cls.list_from_cclib(ccdata))
+			return self(cls.list_from_parser(parser))
 		except AttributeError:
 			return self()
 		
@@ -419,31 +419,32 @@ class Molecular_orbital(Result_object):
 		"""
 		return self.get_file("cube_file")
 
-	@classmethod
-	def from_cclib(self, index, symmetry, energy, HOMO_index):
-		"""
-		Create a Molecular_orbital object from the data provided by cclib.
-		
-		:param index: The index of this MO.
-		:param symmetry: The symmetry of this MO.
-		:param energy: The energy of this MO (in eV).
-		:param HOMO_index: The index of the HOMO in this MO set.
-		"""
-		return self(index +1, index - HOMO_index, symmetry, energy)
+# 	@classmethod
+# 	def from_parser(self, index, symmetry, energy, HOMO_index):
+# 		"""
+# 		Create a Molecular_orbital object from the data provided by cclib.
+# 		
+# 		:param index: The index of this MO.
+# 		:param symmetry: The symmetry of this MO.
+# 		:param energy: The energy of this MO (in eV).
+# 		:param HOMO_index: The index of the HOMO in this MO set.
+# 		"""
+# 		return self(index +1, index - HOMO_index, symmetry, energy)
 	
 	# The index used to access data from cclib (which always has two lists, one for alpha one for beta).
 	ccdata_index = 0
 	
 	@classmethod
-	def list_from_cclib(self, ccdata):
+	def list_from_parser(self, parser):
 		"""
-		Create a list of Molecular_orbital objects from the data provided by cclib.
+		Create a list of Molecular_orbital objects from an output file parser.
 		
-		:param ccdata: Result object as provided by cclib.
+		:param parser: An output file parser.
 		:return: A list of Molecular_orbital objects. The list will be empty if no MO is available.
 		"""
 		try:
-			return [self.from_cclib(index, symmetry, energy, ccdata.homos[self.ccdata_index]) for index, (symmetry, energy) in enumerate(zip(ccdata.mosyms[self.ccdata_index], ccdata.moenergies[self.ccdata_index]))]
+			#return [self.from_cclib(index, symmetry, energy, ccdata.homos[self.ccdata_index]) for index, (symmetry, energy) in enumerate(zip(ccdata.mosyms[self.ccdata_index], ccdata.moenergies[self.ccdata_index]))]
+			return [self(index +1, index - parser.data.homos[self.ccdata_index], symmetry, energy) for index, (symmetry, energy) in enumerate(zip(parser.data.mosyms[self.ccdata_index], parser.data.moenergies[self.ccdata_index]))]
 		except (AttributeError, IndexError):
 			return []
 	

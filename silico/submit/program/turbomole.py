@@ -91,22 +91,22 @@ class Turbomole(Program_target):
 			else:
 				return self.calculation.scratch_directory
 			
-		@property
-		def scratch_output(self):
-			"""
-			Path to the scratch folder in which the calculation will be run.
-			
-			When scratch is on for turbomole, two directories are considered:
-			 - TURBOTMPDIR: The 'real' scratch location as understood by turbomole, possibly ignored when not in a parallel mode (SMP/MPI)?
-			 - Output dir: The directory where 'control' is located, turbomole will be run with this directory as the CWD.
-			Most scratch files are written according to TURBOTMPDIR, but many other files are written to the the output dir, including some that could be arguably described as scratch files.
-			As such, we will set the output dir to be inside the scratch directory if all_output is True.
-			This is the recommended option, but may brake MPI...
-			"""
-			if self.calculation.scratch_directory is None or not self.calculation.scratch_options['all_output']:
-				return None
-			else:
-				return Path(self.calculation.scratch_directory, "Output")
+# 		@property
+# 		def scratch_output(self):
+# 			"""
+# 			Path to the scratch folder in which the calculation will be run.
+# 			
+# 			When scratch is on for turbomole, two directories are considered:
+# 			 - TURBOTMPDIR: The 'real' scratch location as understood by turbomole, possibly ignored when not in a parallel mode (SMP/MPI)?
+# 			 - Output dir: The directory where 'control' is located, turbomole will be run with this directory as the CWD.
+# 			Most scratch files are written according to TURBOTMPDIR, but many other files are written to the the output dir, including some that could be arguably described as scratch files.
+# 			As such, we will set the output dir to be inside the scratch directory if all_output is True.
+# 			This is the recommended option, but may brake MPI...
+# 			"""
+# 			if self.calculation.scratch_directory is None or not self.calculation.scratch_options['all_output']:
+# 				return None
+# 			else:
+# 				return Path(self.calculation.scratch_directory, "Output")
 		
 		@property
 		def define_input_path(self):
@@ -238,11 +238,8 @@ class Turbomole(Program_target):
 					# Copy our input dir to the scratch version.
 					copytree(self.method.calc_dir.prep_directory, self.scratch_output)
 				except Exception as e:
-					raise Submission_error(self, "Failed to make scratch subdirectory") from e
+					raise Submission_error(self, "Failed to copy input to scratch subdirectory") from e
 				
-				# We're using scratch to write all our output.
-				# So that we can keep track of the calc as it runs, we'll temporarily turn our real output path into a symlink to the scratch output dir.
-				#os.symlink(Path(self.method.calc_dir.output_directory, "job.last").resolve(), Path(self.scratch_output, "job.last"), target_is_directory = False)
 			else:
 				# Copy input to normal output folder.
 				copytree(self.method.calc_dir.prep_directory, self.method.calc_dir.output_directory)
@@ -258,11 +255,11 @@ class Turbomole(Program_target):
 			# Get our wrapper script.
 			wrapper_body = TemplateLookup(directories = str(silico.default_template_directory())).get_template("/submit/turbomole/turbomole_wrapper.mako").render_unicode(program = self)
 			
-			# Decide on where we are running.
-			if self.scratch_output is not None:
-				cwd = self.scratch_output
-			else:
-				cwd = self.method.calc_dir.output_directory
+# 			# Decide on where we are running.
+# 			if self.scratch_output is not None:
+# 				cwd = self.scratch_output
+# 			else:
+# 				cwd = self.method.calc_dir.output_directory
 			
 			
 			# Run Turbomole!
@@ -272,30 +269,9 @@ class Turbomole(Program_target):
 				stdout = subprocess.PIPE,
 				stderr = subprocess.STDOUT,
 				universal_newlines = True,
-				cwd = cwd,
+				cwd = self.working_directory,
 				check = True
 			)
-	
-		def cleanup(self, success):
-			"""
-			Cleanup files and directory once the calculation has finished (successfully or otherwise).
-			
-			:param success: True if the calculation finished normally, false otherwise.
-			"""
-			# If we were using scratch output, copy back now.
-			if self.scratch_output is not None:
-				# Delete the job.last symlink.
-# 				try:
-# 					os.unlink(Path(self.scratch_output, "job.last"))
-# 				except FileNotFoundError:
-# 					# ok.
-# 					pass
-				
-				# Copy.
-				copytree(self.scratch_output, self.method.calc_dir.output_directory)
-				
-				# Delete the scratch output.
-				shutil.rmtree(self.scratch_output)
 				
 		def parse_results(self):
 			# Not implemented for turbomole yet.

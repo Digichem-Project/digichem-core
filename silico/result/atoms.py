@@ -209,16 +209,16 @@ class Atom_list(Result_container):
 	@property
 	def structure_image(self):
 		return self.get_file('structure_image')
-	
-	@classmethod
-	def from_cclib(self, ccdata, **kwargs):
-		"""
-		Get an Atom_list object from the data provided by cclib.
 		
-		:param ccdata: Result object as provided by cclib.
-		:return: An Atom_list object. The list will be empty if no atom data is available.
+	def from_parser(self, parser):
 		"""
-		return self(Atom.list_from_cclib(ccdata), **kwargs)
+		Get an Atom_list object from an output file parser.
+		
+		:param parser: An output file parser.
+		:param charge: Charge of the system.
+		:return: A list of TDM objects.
+		"""
+		return self(Atom.list_from_parser(parser), charge = parser.results.metadata.system_charge)
 		
 		
 
@@ -241,28 +241,30 @@ class Atom(Result_object):
 		# Get our element class.
 		self.element = periodictable.elements[atomic_number]
 	
+
 	@classmethod
-	def list_from_cclib(self, ccdata):
+	def list_from_parser(self, parser):
 		"""
-		Get a list of Atom objects from the data provided by cclib.
+		Get a list of Atom objects from an output file parser.
 		
-		:param ccdata: Result object as provided by cclib.
+		:param parser: An output file parser.
 		:result: A list of Atom objects. An empty list is returned if no atom data is available.
 		"""
 		# First pack our data together to make is easier to loop through.
 		try:
-			# Sometimes atommasses is not available for some reason, even when other atom data is.
-			zip_data = zip(ccdata.atomnos, ccdata.atomcoords[-1], ccdata.atommasses)
+			atomnos = parser.data.atomnos
+			atomcoords = parser.data.atomcoords
+			atommasses = getattr(parser.data, 'atommasses', [])
 		except AttributeError:
-			#zip_data = list(zip_longest(*zip(ccdata.atomnos, ccdata.atomcoords[-1]), [None], fillvalue = None))
-			zip_data = list(zip_longest(ccdata.atomnos, ccdata.atomcoords[-1], [], fillvalue = None))
+			# No atom data available.
+			return []
+		
+		# Zip.
+		zip_data = zip_longest(atomnos, atomcoords, atommasses, fillvalue = None)
 		
 		# Loop through and rebuild our objects.
-		# Coords is provided as a list, we repack it as a tuple (necessary?).
-		try:
-			return [self(atomic_number, tuple(coords), mass) for atomic_number, coords, mass in zip_data]
-		except AttributeError:
-			return []
+		return [self(atomic_number, tuple(coords), mass) for atomic_number, coords, mass in zip_data]
+
 			
 	def distance(self, foreign_atom):
 		"""

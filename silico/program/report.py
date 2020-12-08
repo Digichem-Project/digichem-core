@@ -86,6 +86,7 @@ def _main(args, config, logger):
 		logger.warning("Alignment method has been changed but not overwriting existing images; use '-OK method' to ensure molecule images are re-rendered to reflect this change")
 	
 	try:
+		# TODO: Here
 		report = PDF_report.from_calculation_files(
 			*args.calculation_files,
 			name = args.name,
@@ -130,8 +131,6 @@ def _main(args, config, logger):
 		report.write(args.pdf_file, report_type = args.type)
 	except Exception as e:
 		raise Silico_exception("Failed to generate report '{}'; {}".format(args.pdf_file, str(e)))
-		#logger.error("Failed to generate report '{}'; {}".format(args.pdf_file, str(e)), exc_info = True)
-		#return -1
 	
 	# Done.
 	logger.info("Done generating report '{}'".format(args.pdf_file))

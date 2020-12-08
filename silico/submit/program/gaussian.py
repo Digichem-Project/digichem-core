@@ -36,8 +36,6 @@ class Gaussian(Program_target):
 			Constructor for Gaussian programs.
 			"""
 			super().__init__(*args, **kwargs)
-			self.log_file_path = None
-			self.chk_file_path = None
 			
 		@property
 		def com_file_path(self):
@@ -47,7 +45,7 @@ class Gaussian(Program_target):
 			return Path(self.method.calc_dir.input_directory, self.calculation.com_file_name)
 	
 		@property
-		def default_log_file_path(self):
+		def log_file_path(self):
 			"""
 			Default path to the .log output file written to by Gaussian, see log_file_path for where the log file is currently.
 			"""
@@ -69,46 +67,20 @@ class Gaussian(Program_target):
 			"""
 			return self.log_file_path
 	
-		@property
-		def log_file_path(self):
-			"""
-			Current path to the Gaussian .log output file. Note that this location can move throughout the submission process.
-			"""
-			if self._log_file_path is not None:
-				return self._log_file_path
-			else:
-				return self.default_log_file_path
-		
-		@log_file_path.setter
-		def log_file_path(self, value):
-			"""
-			Change the Gaussian .log output file location, set None to reset to default.
-			"""
-			self._log_file_path = value
 	
 		@property
-		def default_chk_file_path(self):
+		def chk_file_path(self):
 			"""
-			Default path to the Gaussian checkpoint .chk file written to by Gaussian, see chk_file_path for where the chk file is currently.
+			Path to the Gaussian checkpoint .chk file written to by Gaussian.
 			"""
 			return Path(self.method.calc_dir.output_directory, self.calculation.chk_file_name)
 		
 		@property
-		def chk_file_path(self):
+		def rwf_file_path(self):
 			"""
-			Current path to the Gaussian checkpoint .chk file. Note that this location can move throughout the submission process.
+			Path to the Gaussian read-write .rwf file written to by Gaussian.
 			"""
-			if self._chk_file_path is not None:
-				return self._chk_file_path
-			else:
-				return self.default_chk_file_path
-			
-		@chk_file_path.setter
-		def chk_file_path(self, value):
-			"""
-			Change the Gaussian checkpoint .chk file location, set None to reset to default.
-			"""
-			self._chk_file_path = value
+			return Path(self.method.calc_dir.output_directory, self.calculation.rwf_file_name)
 			
 		@property
 		def fchk_file_path(self):
@@ -124,15 +96,15 @@ class Gaussian(Program_target):
 			# Call parent for setup first.
 			super().pre()
 			
-			# Set locations.
-			if self.calculation.scratch_directory is not None:			
-				# Set our chk location.
-				self.chk_file_path = Path(self.calculation.scratch_directory, self.calculation.chk_file_name)
-				
-				# If we're writing everything to scratch, set our log file there too.
-				if self.calculation.scratch_options['all_output']:
-					self.log_file_path = Path(self.calculation.scratch_directory, self.calculation.com_file_name).with_suffix(".log")
-					
+# 			# Set locations.
+# 			if self.calculation.scratch_directory is not None:			
+# 				# Set our chk location.
+# 				self.chk_file_path = Path(self.calculation.scratch_directory, self.calculation.chk_file_name)
+# 				
+# 				# If we're writing everything to scratch, set our log file there too.
+# 				if self.calculation.scratch_options['all_output']:
+# 					self.log_file_path = Path(self.calculation.scratch_directory, self.calculation.com_file_name).with_suffix(".log")
+			
 			# Write our input file to our calculation Input directory.
 			with open(self.com_file_path, "wt") as com_file:
 				com_file.write(self.calculation.com_file_body)
@@ -149,7 +121,7 @@ class Gaussian(Program_target):
 				['bash'],
 				input = gaussian_wrapper_body,
 				universal_newlines = True,
-				cwd = self.method.calc_dir.output_directory if self.calculation.scratch_directory is None else self.calculation.scratch_directory,
+				cwd = self.working_directory,
 				check = True,
 				# Capture output.
 				stdout = subprocess.PIPE,
@@ -162,24 +134,24 @@ class Gaussian(Program_target):
 			
 			:param success: True if the calculation finished normally, false otherwise.
 			"""		
-			# Check to see if our main output files are in their proper (default) locations or not. Move them if necessary.
-			for out_file, default_location in [
-					('log_file_path', 'default_log_file_path'),
-					('chk_file_path', 'default_chk_file_path')
-				]:
-				# Check to see if the file is in scratch or not.
-				if getattr(self, out_file).resolve() != getattr(self, default_location).resolve():
-					# Try and move.
-					try:
-						# Smart move.
-						shutil.move(getattr(self, out_file), getattr(self, default_location))
-					except FileNotFoundError:
-						# This is safe to ignore, the file simply wasn't written.
-						pass
-						# We halt on other errors so we don't do something dangerous. Perhaps the most common reason why this copying might fail is because dst is out of file space, in such an instance it would a shame to contine and delete the (possibly comopleted) calc files.
-					
-					# And update (reset) our attribute.
-					setattr(self, out_file, None)
+# 			# Check to see if our main output files are in their proper (default) locations or not. Move them if necessary.
+# 			for out_file, default_location in [
+# 					('log_file_path', 'default_log_file_path'),
+# 					('chk_file_path', 'default_chk_file_path')
+# 				]:
+# 				# Check to see if the file is in scratch or not.
+# 				if getattr(self, out_file).resolve() != getattr(self, default_location).resolve():
+# 					# Try and move.
+# 					try:
+# 						# Smart move.
+# 						shutil.move(getattr(self, out_file), getattr(self, default_location))
+# 					except FileNotFoundError:
+# 						# This is safe to ignore, the file simply wasn't written.
+# 						pass
+# 						# We halt on other errors so we don't do something dangerous. Perhaps the most common reason why this copying might fail is because dst is out of file space, in such an instance it would a shame to contine and delete the (possibly comopleted) calc files.
+# 					
+# 					# And update (reset) our attribute.
+# 					setattr(self, out_file, None)
 		
 		def post(self):
 			"""

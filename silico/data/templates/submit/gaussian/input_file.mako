@@ -15,6 +15,11 @@
 %%Chk="${calculation.chk_file_name}"
 %endif
 ##
+## Next, the rwf file (if we're using one).
+%if calculation.rwf_file_name is not None:
+%%Rwf="${calculation.rwf_file_name}"
+%endif
+##
 ## Next, the number of processes.
 ## There are two ways this can be specified; either with CPU_list or num_CPUs.
 %if len(calculation.CPU_list) != 0:

@@ -30,8 +30,8 @@ scratch_options:
     # This is normally unsafe, but on Kennedy we can't easily get access to the scratch anyway, so we might as well cleanup after ourselves.
     force_delete: True
     
-    # If True, all calculation output will be written to the scratch directory. If False, only intermediate files will be written to scratch (.log will be written directly to output directory for example).
-    all_output: False
+    # If True, all calculation output will be written to the scratch directory. If False, only intermediate files will be written to scratch. Note that the .log file is always written to the true output directory to allow the calculation to be monitored.
+    all_output: True
 
 # Whether to write silico result files once the calculation has complete.
 # The files writen are the same as can be aquired by using cresult later, they are small text files so there is generally little reason to set this to False.

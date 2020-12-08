@@ -1,6 +1,12 @@
 # Code for processing results from calculations and generating reports.
 
-# Imports.
+# General imports.
+from logging import getLogger
+from pathlib import Path
+import cclib.io
+from pysoc.io.SOC import Calculator
+
+# Silico imports.
 from silico.result.alignment.AAA import Adjusted_average_angle
 from silico.result.alignment.AA import Average_angle
 from silico.result.alignment.FAP import Furthest_atom_pair
@@ -17,9 +23,6 @@ from silico.result.vibrations import Vibration_list
 from silico.result.base import Result_object
 from silico.result.transition_dipole_moment import Transition_dipole_moment
 from silico.result.alignment.base import Alignment
-from logging import getLogger
-from pathlib import Path
-import cclib.io
 from silico.exception.base import Silico_exception
 #import silico
 import silico.result.excited_states
@@ -166,33 +169,34 @@ class Metadata(Result_object):
 			return "none"
 	
 	@classmethod
-	def from_cclib(self, ccdata, *args, **kwargs):
+	def from_parser(self, parser, name = None, date = None, duration = None):
 		"""
-		Construct a Metadata object from the data provided by cclib.
+		Construct a Metadata object from an output file parser.
 		
 		:param name: Optional name of this calculation result.
 		:param date: Optional date (datetime object) of this calculation result.
 		:param duration: Optional duration (timedelta object) of this calculation.
-		:param ccdata: The data provided by cclib.
+		:param parser: Output data parser.
 		:return: A populated Metadata object.
 		"""
 		try:
 			return self(
-				*args,
-				package = ccdata.metadata.get('package', None),
-				package_version = ccdata.metadata.get('package_version', None),
-				calculations = self.get_calculation_types_from_cclib(ccdata),
-				calc_success = ccdata.metadata.get('success', None),
-				calc_methods = self.get_methods_from_cclib(ccdata),
-				calc_functional = ccdata.metadata.get('functional', None),
-				calc_basis_set = ccdata.metadata.get('basis_set', None),
-				system_charge = getattr(ccdata, 'charge', None),
-				system_multiplicity = getattr(ccdata, 'mult', None),
-				optimisation_converged = getattr(ccdata, 'optdone', None),
-				calc_temperature = getattr(ccdata, 'temperature', None),
-				calc_pressure = getattr(ccdata, 'pressure', None),
-				orbital_spin_type = self.get_orbital_spin_type_from_cclib(ccdata),
-				**kwargs
+				name = parser.data.metadata.get('name', None),
+				date = parser.data.metadata.get('date', None),
+				duration = parser.data.metadata.get('walltime', None),
+				package = parser.data.metadata.get('package', None),
+				package_version = parser.data.metadata.get('package_version', None),
+				calculations = self.get_calculation_types_from_cclib(parser.data),
+				calc_success = parser.data.metadata.get('success', None),
+				calc_methods = self.get_methods_from_cclib(parser.data),
+				calc_functional = parser.data.metadata.get('functional', None),
+				calc_basis_set = parser.data.metadata.get('basis_set', None),
+				system_charge = getattr(parser.data, 'charge', None),
+				system_multiplicity = getattr(parser.data, 'mult', None),
+				optimisation_converged = getattr(parser.data, 'optdone', None),
+				calc_temperature = getattr(parser.data, 'temperature', None),
+				calc_pressure = getattr(parser.data, 'pressure', None),
+				orbital_spin_type = self.get_orbital_spin_type_from_cclib(parser.data),
 			)
 		except AttributeError:
 			# There is no metadata available, give up.
@@ -208,28 +212,30 @@ class Result_set(Result_object):
 	
 	def __init__(
 			self,
-			gaussian_log_file =  None,
 			metadata = None,
-			ccenergies = None,
-			mpenergies = None,
-			scfenergies = None,
+			CC_energies = None,
+			MP_energies = None,
+			SCF_energies = None,
 			atoms = None,
 			alignment = None,
 			dipole_moment = None,
 			molecular_orbitals = None,
 			beta_orbitals = None,
+			ground_state = None,
 			excited_states = None,
+			energy_states = None,
 			vertical_emission = None,
 			adiabatic_emission = None,
-			vibrations = None):
+			vibrations = None,
+			spin_orbit_coupling = None):
 		"""
 		Constructor for Result_set objects.
 		
 		:param gaussian_log_file: The Gaussian log file from which these results were read.
 		:param metadata: Optional Metadata result object.
-		:param ccenergies: Optional Energy_list object of coupled-cluster energies.
-		:param mpenergies: Optional Energy_list object of Moller-Plesset energies.
-		:param scfenergies: Optional Energy_list object of self-consistent field energies (SCF is the type of energy printed for normal HF and DFT).
+		:param CC_energies: Optional Energy_list object of coupled-cluster energies.
+		:param MP_energies: Optional Energy_list object of Moller-Plesset energies.
+		:param SCF_energies: Optional Energy_list object of self-consistent field energies (SCF is the type of energy printed for normal HF and DFT).
 		:param atoms: Optional Atom_list object of atom positions.
 		:param dipole_moment: Optional dipole_moment object.
 		:param molecular_orbitals: Optional Molecular_orbital_list object.
@@ -238,22 +244,25 @@ class Result_set(Result_object):
 		:param vertical_emission: A Relaxed_excited_state object representing the vertical emission energy.
 		:param adiabatic_emission: A Relaxed_excited_state object representing the adiabatic emission energy.
 		:param vibrations: Optional molecular Vibrations object.
+		:param spin_orbit_coupling: A list of spin_orbit_coupling.
 		"""
 		super().__init__()
-		self.gaussian_log_file = Path(gaussian_log_file) if gaussian_log_file is not None else None
 		self.metadata = metadata
-		self.CC_energies = ccenergies
-		self.MP_energies = mpenergies
-		self.SCF_energies = scfenergies
+		self.CC_energies = CC_energies
+		self.MP_energies = MP_energies
+		self.SCF_energies = SCF_energies
 		self.dipole_moment = dipole_moment
 		self.atoms = atoms
 		self.alignment = alignment
 		self.molecular_orbitals = molecular_orbitals
 		self.beta_orbitals = beta_orbitals
+		self.ground_state = ground_state
 		self.excited_states = excited_states
+		self.energy_states = energy_states
 		self.vibrations = vibrations
 		self.vertical_emission = vertical_emission
 		self.adiabatic_emission = adiabatic_emission
+		self.spin_orbit_coupling = spin_orbit_coupling
 	
 	
 	
@@ -366,105 +375,45 @@ class Result_set(Result_object):
 			return None
 
 		
-	@classmethod
-	def from_cclib(
-			self,
-			ccdata,
-			*args,
-			gaussian_log_file = None,
-			name = None,
-			date = None,
-			duration = None,
-			alignment_class_name = None,
+	def add_emission(self,
 			vertical_emission_ground_result = None,
 			adiabatic_emission_ground_result = None,
 			emission_excited_result = None,
-			emission_excited_state = None,
-			**kwargs):
+			emission_excited_state = None
+			):
 		"""
-		Construct a Result_set object from the data provided by cclib.
+		Add additional result sets containing emission energies to this result set.
 		
-		Missing results will be populated as empty lists (if a list-like object) or as None if singletons.
+		# TODO: Rethink the way we handle emission energy.
 		
-		:param ccdata: Result object as provided by cclib.
-		:param name: Optional name of this calculation result.
-		:param date: Optional date (datetime object) of this calculation result.
-		:param duration: Optional duration (timedelta object) of this calculation.
-		:param alignment_class_name: The name/handle of an alignment class to use for molecule alignment. Defaults to Kebab+ (the average angle method).
 		:param vertical_emission_ground_result: An optional additional Result_set object which will be used as the ground state for calculation of vertical emission energy.
 		:param adiabatic_emission_ground_result: An optional additional Result_set object which will be used as the ground state for calculation of adiabatic emision energy.
 		:param emission_excited_result: An optional additional Result_set object which will be used as the excited state for calculation of vertical and/or adiabatic emission energy. If emission_ground_result is give, then emission_excited_result is not optional.
 		:param emission_excited_state: Optionally either an Excited_state object or a string describing one ('S(1)' etc) for use in calculating vertical and/or adiabatic emission energy.
-		:return: A populated Result_set object.
 		"""
-		alignment_class_name = "MIN" if alignment_class_name is None else alignment_class_name
-		
-		#try:
-		# First get our list of MOs (because we need them for excited states too.
-		molecular_orbitals = Molecular_orbital_list.from_cclib(ccdata)
-		beta_orbitals = Molecular_orbital_list.from_cclib(ccdata, cls = Beta_orbital)
-		
-		# Metadata.
-		metadata = Metadata.from_cclib(ccdata, name = name, date = date, duration = duration)
-		
-		# Our alignment orientation data.
-		alignment =	Alignment.from_class_handle(alignment_class_name).from_cclib(ccdata, charge = metadata.system_charge)
-		atoms = Atom_list.from_cclib(ccdata, charge = metadata.system_charge)
-		
-		# Get transition dipoles.
-		if gaussian_log_file is not None:
-			transition_dipole_moments = Transition_dipole_moment.list_from_log(gaussian_log_file, atoms = alignment)
-		else:
-			transition_dipole_moments = []
-		
-		
-		# Get our object.
-		result = self(
-			*args,
-			gaussian_log_file = gaussian_log_file,
-			metadata = 		metadata,
-			ccenergies = 	CC_energy_list.from_cclib(ccdata),
-			mpenergies = 	MP_energy_list.from_cclib(ccdata),
-			scfenergies = 	SCF_energy_list.from_cclib(ccdata),
-			atoms = 		atoms,
-			alignment = 	alignment,
-			dipole_moment = Dipole_moment.from_cclib(ccdata, atoms = alignment),
-			molecular_orbitals = 	molecular_orbitals,
-			beta_orbitals = 		beta_orbitals,
-			excited_states = 		Excited_state_list.from_cclib(ccdata, molecular_orbitals, beta_orbitals, transition_dipole_moments),
-			vibrations = 	Vibration_list.from_cclib(ccdata),
-			**kwargs
-			)
-		
-		# Set emission energy if we have it.
-	
 		# Set our emission energies.
 		# For vertical, we can also use the adiabatic excited energy
 		try:
-			self._set_emission(result, 'vertical', vertical_emission_ground_result, emission_excited_result, emission_excited_state)
+			self._set_emission('vertical', vertical_emission_ground_result, emission_excited_result, emission_excited_state)
 		except Exception:
 			getLogger(silico.logger_name).warning("Could not load vertical emission energy", exc_info = True)
 		try:
-			self._set_emission(result, 'adiabatic', adiabatic_emission_ground_result, emission_excited_result, emission_excited_state)
+			self._set_emission('adiabatic', adiabatic_emission_ground_result, emission_excited_result, emission_excited_state)
 		except Exception:
 			getLogger(silico.logger_name).warning("Could not load adiabatic emission energy", exc_info = True)
-
-		# All done.
-		return result
-		#except Exception:
-		#	raise Silico_exception("Unable to parse calculation '{}'".format(name))
 		
 	@classmethod
-	def _set_emission(self, result, transition_type, emission_ground_result = None, emission_excited_result = None, emission_excited_state = None):
+	def _set_emission(self, transition_type, emission_ground_result = None, emission_excited_result = None, emission_excited_state = None):
 		"""
+		Helper function.
 		"""
 		if transition_type != "vertical" and transition_type != "adiabatic":
 			raise ValueError("Unknown transition_type '{}'".format(transition_type))
 		
 		# Set our emission energy.
 		if emission_excited_result is not None:
-			setattr(result, transition_type + "_emission", Relaxed_excited_state.from_results(
-				result,
+			setattr(self, transition_type + "_emission", Relaxed_excited_state.from_results(
+				self,
 				ground_state_result = emission_ground_result,
 				excited_state_result = emission_excited_result,
 				transition_type = transition_type,
@@ -472,44 +421,44 @@ class Result_set(Result_object):
 		elif emission_ground_result is not None:
 			raise Silico_exception("Cannot calculate emission energy; no excited state given for ground state '{}'".format(emission_ground_result.metadata.name))
 		
-	@classmethod
-	def from_calculation_file(self,
-			calc_file_path,
-			*args,
-			gaussian_log_file = None,
-			name = None,
-			alignment_class_name = None,
-			**kwargs):
-		"""
-		Construct a Result_set object from a calculation file.
-		
-		:param calc_file_path: Path to a calculation file to load.
-		"""
-		# Load emission results.
-		for emission in ['vertical_emission_ground_result', 'adiabatic_emission_ground_result', 'emission_excited_result']:
-			if kwargs.get(emission, None) is not None and not isinstance(kwargs.get(emission, None), self):
-				# This emission 'result' is not a result (assume it is a path); try and load it.
-				try:
-					kwargs[emission] = Result_set.from_calculation_file(kwargs[emission], alignment_class_name = alignment_class_name)
-				except Exception:
-					raise Silico_exception("Error loading emission result file '{}'".format(kwargs[emission]))
-		
-		try:		
-			# Output a message (because this is slow).
-			getLogger(silico.logger_name).info("Reading result file '{}'".format(calc_file_path))
-			
-			# Read and parse the file with cclib.
-			with open(calc_file_path, "rt") as calc_file:
-				ccdata = cclib.io.ccread(calc_file)
-				
-			# Now call our next 'constructor'.
-			return self.from_cclib(
-				ccdata,
-				*args,
-				name = name if name is not None else str(calc_file_path),
-				alignment_class_name = alignment_class_name,
-				gaussian_log_file = calc_file_path if gaussian_log_file is None else gaussian_log_file,
-				**kwargs)
-		except Exception:
-			raise Silico_exception("Unable to load calculation result file '{}'".format(calc_file_path))
+# 	@classmethod
+# 	def from_calculation_file(self,
+# 			calc_file_path,
+# 			*args,
+# 			gaussian_log_file = None,
+# 			name = None,
+# 			alignment_class_name = None,
+# 			**kwargs):
+# 		"""
+# 		Construct a Result_set object from a calculation file.
+# 		
+# 		:param calc_file_path: Path to a calculation file to load.
+# 		"""
+# 		# Load emission results.
+# 		for emission in ['vertical_emission_ground_result', 'adiabatic_emission_ground_result', 'emission_excited_result']:
+# 			if kwargs.get(emission, None) is not None and not isinstance(kwargs.get(emission, None), self):
+# 				# This emission 'result' is not a result (assume it is a path); try and load it.
+# 				try:
+# 					kwargs[emission] = Result_set.from_calculation_file(kwargs[emission], alignment_class_name = alignment_class_name)
+# 				except Exception:
+# 					raise Silico_exception("Error loading emission result file '{}'".format(kwargs[emission]))
+# 		
+# 		try:		
+# 			# Output a message (because this is slow).
+# 			getLogger(silico.logger_name).info("Reading result file '{}'".format(calc_file_path))
+# 			
+# 			# Read and parse the file with cclib.
+# 			with open(calc_file_path, "rt") as calc_file:
+# 				ccdata = cclib.io.ccread(calc_file)
+# 				
+# 			# Now call our next 'constructor'.
+# 			return self.from_cclib(
+# 				ccdata,
+# 				*args,
+# 				name = name if name is not None else str(calc_file_path),
+# 				alignment_class_name = alignment_class_name,
+# 				gaussian_log_file = calc_file_path if gaussian_log_file is None else gaussian_log_file,
+# 				**kwargs)
+# 		except Exception:
+# 			raise Silico_exception("Unable to load calculation result file '{}'".format(calc_file_path))
 		

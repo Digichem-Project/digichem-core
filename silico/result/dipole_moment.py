@@ -43,7 +43,7 @@ class Dipole_moment(Result_object):
 		self.vector_coords = vector_coords
 		
 		# Save our atoms object.
-		self.atoms = atoms
+		self.atoms = atoms if atoms is not None else []
 		
 		# Save a name describing which dipole we are (permanent vs transition etc).
 		self.dipole_type = "permanent"
@@ -60,7 +60,7 @@ class Dipole_moment(Result_object):
 		"""
 		The origin coords of this vector as a tuple of (x, y, z). origin_coords is automatically realigned by the atoms alignment object of this dipole, use _origin_coords if you do not want this behaviour.
 		"""
-		if self.atoms is not None:
+		if len(self.atoms) > 0:
 			return self.atoms.apply_transformation(self._origin_coords)
 		else:
 			return self._origin_coords
@@ -77,7 +77,7 @@ class Dipole_moment(Result_object):
 		"""
 		The ending coords of this vector as a tuple of (x, y, z). vector_coords is automatically realigned by the atoms alignment object of this dipole, use _vector_coords if you do not want this behaviour.
 		"""
-		if self.atoms is not None:
+		if len(self.atoms) > 0:
 			return self.atoms.apply_transformation(self._vector_coords)
 		else:
 			return self._vector_coords
@@ -102,7 +102,7 @@ class Dipole_moment(Result_object):
 		"""
 		if self.total == 0:
 			return Angle(0)
-		elif self.atoms is not None:
+		elif len(self.atoms) > 0:
 			return Angle(math.fabs(self.atoms.get_X_axis_angle(self.origin_coords, self.vector_coords)), "rad")
 		else:
 			return None
@@ -114,7 +114,7 @@ class Dipole_moment(Result_object):
 		"""
 		if self.total == 0:
 			return Angle(0)
-		elif self.atoms is not None:
+		elif len(self.atoms) > 0:
 			return Angle(math.fabs(self.atoms.get_XY_plane_angle(self.origin_coords, self.vector_coords)), "rad")
 		else:
 			return None
@@ -143,30 +143,17 @@ class Dipole_moment(Result_object):
 	@property
 	def dipole_image(self):
 		return self.get_file('dipole_image')
-	
-# 	def realign(self, atoms):
-# 		"""
-# 		Realign this dipole moment to a new coordinate system.
-# 		
-# 		:param atoms: An atom Alignment object.
-# 		"""
-# 		# Realign both our coordinates.
-# 		self.origin_coords = atoms.apply_transformation(self.origin_coords)
-# 		self.vector_coords = atoms.apply_transformation(self.vector_coords)
-# 		# Done.
-		
+			
 	@classmethod
-	def from_cclib(self, ccdata, atoms = None):
+	def from_parser(self, parser):
 		"""
-		Construct a Dipole_moment object from the data provided by cclib.
+		Construct a Dipole_moment object from an output file parser.
 		
-		:param ccdata: Result object as provided by cclib.
-		:param atoms: Optional Atom Alignment object that will be used to calculate addition data and to optionally realign the coordinates of our dipole.
+		:param parser: An output file parser.
 		:result: A single Dipole_moment object, or None if no dipole information is available.
 		"""
 		try:
-			dipole = self(ccdata.moments[0], ccdata.moments[1], atoms)
-			return dipole
+			return self(parser.data.moments[0], parser.data.moments[1], parser.result.alignment)
 		except AttributeError:
 			return None
 

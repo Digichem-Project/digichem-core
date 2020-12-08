@@ -12,7 +12,7 @@ CLASS: Turbomole
 
 # Increase number of SCF iterations.
 scf:
-    iter: 100
+    iter: 500
     
 # The programs that this calculation is compatible with.
 programs: [Turbomole]

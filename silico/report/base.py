@@ -106,6 +106,10 @@ class Report(Result_set):
 			discover_additional_inputs = True,
 			alignment_class_name = None,
 			options,
+			vertical_emission_ground_result = None,
+			adiabatic_emission_ground_result = None,
+			emission_excited_result = None,
+			emission_excited_state = None,
 			**kwargs):
 		"""
 		A more intelligent constructor that can automatically determine file type(s).
@@ -171,17 +175,34 @@ class Report(Result_set):
 		if files[file_types.gaussian_log_file] is None:
 			raise Silico_exception("Missing required file type '{}'".format(file_types.gaussian_log_file))
 		
-		# Use the constructor on Result_set.
-		return super().from_calculation_file(
+		# Get a result set.
+		results =  super().from_calculation_file(
 			files[file_types.gaussian_log_file],
-			gaussian_log_file = files[file_types.gaussian_log_file],
-			name = files[file_types.gaussian_log_file] if name is None else name,
-			chk_file_path = files[file_types.gaussian_chk_file],
-			fchk_file_path = files[file_types.gaussian_fchk_file],
 			alignment_class_name = options['alignment'] if alignment_class_name is None else alignment_class_name,
-			options = options,
 			**kwargs
 		)
+		
+# 		# Load emission results.
+# 		for emission in ['vertical_emission_ground_result', 'adiabatic_emission_ground_result', 'emission_excited_result']:
+# 			if kwargs.get(emission, None) is not None and not isinstance(kwargs.get(emission, None), self):
+# 				# This emission 'result' is not a result (assume it is a path); try and load it.
+# 				try:
+# 					kwargs[emission] = Result_set.from_calculation_file(kwargs[emission], alignment_class_name = alignment_class_name)
+# 				except Exception:
+# 					raise Silico_exception("Error loading emission result file '{}'".format(kwargs[emission]))
+		
+		# Add some stuff.
+		results.chk_file_path = files[file_types.gaussian_chk_file]
+		results.fchk_file_path = files[file_types.gaussian_fchk_file]
+		results.options = options
+		results.add_emission(
+			vertical_emission_ground_result = vertical_emission_ground_result,
+			adiabatic_emission_ground_result = adiabatic_emission_ground_result,
+			emission_excited_result = emission_excited_result,
+			emission_excited_state = emission_excited_state
+		)
+		
+		return results
 		
 					
 	@classmethod
@@ -251,14 +272,14 @@ class Report(Result_set):
 			self.dipole_moment.set_file_options(output_dir, output_name, cube_file = self.structure_cube, **image_maker_options)
 			
 		# Now our excited states (this also sets all our TDMs, hence why we give it the cube file).
-		ground_state = Ground_state.from_results(self)
-		self.excited_states.set_file_options(output_dir, output_name, cube_file = self.structure_cube, ground_state = ground_state, **image_maker_options)
+		#ground_state = Ground_state.from_results(self)
+		self.excited_states.set_file_options(output_dir, output_name, cube_file = self.structure_cube, ground_state = self.ground_state, **image_maker_options)
 		
 		# And emission energy.
 		if self.vertical_emission is not None:
-			self.vertical_emission.set_file_options(output_dir, output_name, ground_state = ground_state, **image_maker_options)
+			self.vertical_emission.set_file_options(output_dir, output_name, ground_state = self.ground_state, **image_maker_options)
 		if self.adiabatic_emission is not None:
-			self.adiabatic_emission.set_file_options(output_dir, output_name, ground_state = ground_state, **image_maker_options)
+			self.adiabatic_emission.set_file_options(output_dir, output_name, ground_state = self.ground_state, **image_maker_options)
 		
 		# Convergence graphs.
 		self.CC_energies.set_file_options(output_dir, output_name, **image_maker_options)

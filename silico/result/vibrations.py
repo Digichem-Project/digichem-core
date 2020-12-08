@@ -2,6 +2,7 @@ from silico.result import Result_container
 from silico.result.base import Result_object
 from silico.image.spectroscopy import Frequency_graph_maker
 from pathlib import Path
+from itertools import zip_longest
 
 class Vibration_list(Result_container):
 	"""
@@ -38,28 +39,28 @@ class Vibration_list(Result_container):
 
 	
 	@classmethod
-	def from_cclib(self, ccdata):
+	def from_parser(self, parser):
 		"""
-		Get an Vibration_list object from the data provided by cclib.
+		Get an Vibration_list object from an output file parser.
 		
-		:param ccdata: Result object as provided by cclib.
+		:param parser: An output file parser.
 		:return: An Vibration_list object. The list will be empty if no vibration frequency data is available.
 		"""
-		return self(Vibration.list_from_cclib(ccdata))
+		return self(Vibration.list_from_parser(parser))
 	
 class Vibration(Result_object):
 	"""
 	Class for representing vibrational frequencies.
 	"""
 	
-	def __init__(self, level, symmetry, frequency, intensity):
+	def __init__(self, level, frequency, intensity, symmetry = None):
 		"""
 		Vibration object constructor.
 		
 		:param level: The level of the vibration.
-		:param symmetry: Symmetry term of the vibration (string).
 		:param frequency: Frequency of the vibration (cm-1).
 		:param intensity: Intensity of the vibration in IR (km mol-1)
+		:param symmetry: Symmetry term of the vibration (string).
 		"""
 		self.level = level
 		self.symmetry = symmetry
@@ -68,14 +69,14 @@ class Vibration(Result_object):
 		
 		
 	@classmethod
-	def list_from_cclib(self, ccdata):
+	def list_from_parser(self, parser):
 		"""
-		Create a list of Vibration objects from the data provided by cclib.
+		Create a list of Vibration objects from an output file parser.
 		
-		:param ccdata: Result object as provided by cclib.
+		:param parser: An output file parser.
 		:return: A list of Vibration objects. The list will be empty if no frequency data is available.
 		"""
 		try:
-			return [self(index+1, symmetry, frequency, intensity) for index, (symmetry, frequency, intensity) in enumerate(zip(ccdata.vibsyms, ccdata.vibfreqs, ccdata.vibirs))]
+			return [self(index+1, symmetry, frequency, intensity) for index, (symmetry, frequency, intensity) in enumerate(zip_longest(getattr(parser.data, 'vibsyms', []), parser.data.vibfreqs, parser.data.vibirs, fillvalue = None))]
 		except AttributeError:
 			return []

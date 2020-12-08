@@ -22,6 +22,7 @@ from silico.extract.long import Atoms_long_extractor, Orbitals_long_extractor,\
 	IR_spectrum_long_extractor
 from silico.submit import Configurable_target
 import silico
+from silico.misc.directory import copytree
 
 class Program_target(Configurable_target):
 	"""
@@ -64,6 +65,19 @@ class Program_target(Configurable_target):
 			
 			# An exception caught during the calculation. This will be re-raised once cleanup and analysis has been finished (attempted).
 			self.error = None
+			
+		@property
+		def scratch_output(self):
+			"""
+			Path to the scratch folder in which the calculation will be run.
+			
+			When using scratch and all_output is set to True, this is the folder in which the calculation will be run (the CWD).
+			If all_output is False (or no scratch is to be used at all), this property will == None.
+			"""
+			if self.calculation.scratch_directory is None or not self.calculation.scratch_options['all_output']:
+				return None
+			else:
+				return Path(self.calculation.scratch_directory, "Output")
 			
 		def submit(self):
 			"""
@@ -180,6 +194,15 @@ class Program_target(Configurable_target):
 				# Call user specified cleanup.
 				self.cleanup(success)
 				
+				# If we were using scratch output, copy back now.
+				if self.scratch_output is not None:
+					
+					# Copy.
+					copytree(self.scratch_output, self.method.calc_dir.output_directory)
+					
+					# Delete the scratch output.
+					shutil.rmtree(self.scratch_output)
+				
 				# If we've been asked to, we'll try and save what remains of the scratch directory (might contain something useful).
 				if self.calculation.scratch_options['use_scratch'] and ((self.calculation.scratch_options['rescue'] and not success) or self.calculation.scratch_options['keep']):
 					# Check to see if there's anything in scratch.
@@ -214,6 +237,17 @@ class Program_target(Configurable_target):
 			"""
 			raise NotImplementedError()
 		
+		@property
+		def working_directory(self):
+			"""
+			The working directory in which the calculation will be performed. 
+			"""
+			# Decide on where we are running.
+			if self.scratch_output is not None:
+				return self.scratch_output
+			else:
+				return self.method.calc_dir.output_directory
+		
 		def pre(self):
 			"""
 			Perform pre-setup for a calculation.
@@ -230,6 +264,13 @@ class Program_target(Configurable_target):
 					getLogger(silico.logger_name).warning("Could not create scratch directory '{}' because it already exists; continuing anyway".format(self.calculation.scratch_directory)) 
 				except Exception:
 					raise Submission_error(self, "unable to create scratch directory")
+			
+			# Also make our scratch output directory if we're using one.
+			if self.scratch_output is not None:
+				try:		
+					self.scratch_output.mkdir()
+				except Exception as e:
+					raise Submission_error(self, "Failed to make scratch output subdirectory") from e
 			
 			# Write our input file in .si format for easy reuse.
 			with open(Path(self.method.calc_dir.input_directory, self.calculation.molecule_name).with_suffix(".si"), "wt") as input_file:

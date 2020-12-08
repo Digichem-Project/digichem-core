@@ -25,27 +25,6 @@ if Path(str(dest) + ".tar.gz").exists():
 # The date that the packaged version was last edited, which is right now.
 edited_date = datetime.today()
 
-# Add a new header.
-#changelog = ["[{} ({})]\n".format(silico.version_number, edited_date.strftime("%d/%m/%Y"))]
-
-# First get our new changes
-#with open("updates") as updates_file:
-#	changelog.extend(updates_file.readlines())
-	
-# Add a blank line (?)
-#changelog.append("\n")
-	
-# Then read in the old changelog.
-#with open("changelog") as changelog_file:
-#	changelog.extend(changelog_file.readlines())
-	
-# Now write a new changelog with both.
-#with open("changelog", "wt")  as changelog_file:
-#	changelog_file.writelines(changelog)
-	
-# Remove the updates file.
-#os.remove("updates")
-
 # First copy our source to an appropriate folder name
 distutils.dir_util.copy_tree("./", str(dest))
 

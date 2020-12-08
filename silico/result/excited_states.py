@@ -68,7 +68,6 @@ class Excited_state_list(Result_container):
 		else:
 			raise ValueError("Missing criteria to search by; specify one of 'criteria', 'state_symbol', 'level' or 'mult_level'")
 		
-		# TODO: This brute force method works fine, but we could instead parse our given state...
 		try:
 			return next(filterfalse(filter_func, self))
 		except Exception:
@@ -133,16 +132,14 @@ class Excited_state_list(Result_container):
 		return grouped_excited_states
 		
 	@classmethod
-	def from_cclib(self, *args, **kwargs):
+	def from_parser(self, parser):
 		"""
-		Create an Excited_state_list object from the data provided by cclib.
+		Create an Excited_state_list object from an output file parser.
 		
-		:param ccdata: Result object as provided by cclib.
-		:param mo_list: A Molecular_orbital_list object of MOs. This is required in order to construct excited state transitions.
-		:param beta_mo_list: A Molecular_orbital_list object of beta MOs. If this is specified, then the mo_list argument is assumed to contain alpha MOs.
+		:param parser: An output file parser.
 		:return: The populated Excited_state_list object.
 		"""
-		return self(Excited_state.list_from_cclib( *args, **kwargs))
+		return self(Excited_state.list_from_parser(parser))
 			
 
 class Excited_state_transition(Result_object):
@@ -172,24 +169,24 @@ class Excited_state_transition(Result_object):
 		return self.coefficient **2
 		
 	@classmethod
-	def list_from_cclib(self, etsecs, mo_list, beta_mo_list = None):
+	def list_from_parser(self, parser):
 		"""
-		Create a list of excited state transitions from the data provided by cclib.
+		Create a list of excited state transitions from an output file parser.
 		
-		:param etsecs: List of excited state transitions as returned from cclib.
+		:param parser: An output file parser.
 		:param alpha_mo_list: A Molecular_orbital_list object of the MOs of this system.
 		:param beta_mo_list: A Molecular_orbital_list object of the beta MOs of this system. This can be left as null for restricted calcs.
 		:return: A list of Excited_state_transition objects.
 		"""
 		try:
 			# Create a tuple of our MOs (helps us later).
-			MOs = (mo_list, beta_mo_list)
+			MOs = (parser.results.molecular_orbitals, parser.results.beta_orbitals)
 			
 			# We'll first create an intermediate list of keyword dicts which we'll then sort.
 			data_list = [ 
 				{'starting_mo': MOs[starting_mo_AB][starting_mo_index], 'ending_mo': MOs[ending_mo_AB][ending_mo_index], 'coefficient': coefficient}
 				for (starting_mo_index, starting_mo_AB), (ending_mo_index, ending_mo_AB), coefficient
-				in etsecs
+				in parser.data.etsecs
 			]
 			
 			# Sort by probability/coefficient.
@@ -198,24 +195,12 @@ class Excited_state_transition(Result_object):
 			# Now get a list objects.
 			return [self(index+1, keywords['starting_mo'], keywords['ending_mo'], keywords['coefficient']) for index, keywords in enumerate(data_list)]
 			
-# 			# Get our list.
-# 			transition_list = [
-# 				self(MOs[starting_mo_AB][starting_mo_index], MOs[ending_mo_AB][ending_mo_index], coefficient)
-# 				for (starting_mo_index, starting_mo_AB), (ending_mo_index, ending_mo_AB), coefficient
-# 				in etsecs
-# 			]
-# 			# Sort our list (because gaussian doesn't).
-# 			transition_list.sort(key=lambda transition: transition.probability, reverse=True)
-# 			return transition_list
-		except TypeError:
-			# Probably because our transition is from a beta orbital and we haven't been given any beta orbitals.
-			if beta_mo_list is None:
-				raise TypeError("Unable to construct excited state transition; transition is to/from a beta orbital and only alpha orbitals are available")
-			else:
-				raise
 		except IndexError:
 			# Probably because one (or both) of our given mo_lists is empty (or too short).
 			raise TypeError("Unable to construct excited state transition; transition is to/from an orbital that is not available")
+		except AttributeError:
+			# No data.
+			return []
 
 class Energy_state(Result_object):
 	"""
@@ -465,48 +450,15 @@ class Excited_state(Energy_state):
 		"""
 		return self.wavelength_to_energy((1 / wavenumbers) * 10000000)
 	
-	@classmethod
-	def from_cclib(self, level, multiplicity_level, symmetry, energy, oscillator_strength, etsecs, mo_list, beta_mo_list = None, transition_dipole_moment = None):
-		"""
-		Create an Excited_state object from the data provided by cclib.
-		
-		:param level: The 'level' of this excited state (essentially an index), where the lowest state has a level of 1, increasing by 1 for each higher state.
-		:param multiplicity_level: The 'level' of this state within the excited states that have the same multiplicity.
-		:param symmetry: The symmetry of this excited state; a complicated term that contains our multiplicity among other things.
-		:param energy: The energy of this excited state (in cm-1).
-		:param oscillator_strength: The oscillator strength of this transition.
-		:param etsecs: List of excited state transitions as returned from cclib.
-		:param alpha_mo_list: A Molecular_orbital_list object of the MOs of this system.
-		:param beta_mo_list: A Molecular_orbital_list object of the beta MOs of this system. This can be left as None for restricted calcs.
-		:param transition_dipole_moment: Optional transition dipole moment of the excited state.
-		:return: A list of Excited_state objects.
-		"""
-		return self(
-			level,
-			multiplicity_level,
-			symmetry,
-			self.wavenumbers_to_energy(energy),
-			oscillator_strength,
-			Excited_state_transition.list_from_cclib(etsecs, mo_list, beta_mo_list),
-			transition_dipole_moment
-		)		
 		
 	@classmethod
-	def list_from_cclib(self, ccdata, mo_list, beta_mo_list = None, transition_dipole_moments = None):
+	def list_from_parser(self, parser):
 		"""
-		Create a list of Excited_state objects from the data provided by cclib.
-		
-		Remember that in an Opt calculation gaussian prints excited states after each iteration.
-		
-		:param ccdata: Result object as provided by cclib.
-		:param mo_list: A Molecular_orbital_list object of MOs. This is required in order to construct excited state transitions.
-		:param beta_mo_list: A Molecular_orbital_list object of beta MOs. If this is specified, then the mo_list argument is assumed to contain alpha MOs.
-		:param transition_dipole_moments: An optional list of transition dipole moments.
+		Create a list of Excited_state objects from an output file parser.
+				
+		:param parser: An output file parser.
 		:return: A list of Excited_state objects in the same order as given in cclib.
 		"""
-		if transition_dipole_moments is None:
-			transition_dipole_moments = []
-		
 		try:
 			# List of excited states.
 			excited_states = []
@@ -514,25 +466,10 @@ class Excited_state(Energy_state):
 			multiplicities = {}
 			
 			# Assemble cclib's various arrays into a single list.
-			excited_states_data = list(zip(ccdata.etsyms, ccdata.etenergies, ccdata.etoscs, ccdata.etsecs))	
-			
-			# This cclib bug has been fixed in version 1.6.4; this workaround is not longer required.
-# 			# If we have optimised an excited state, we will have excited state data for each round of optimisation (at least for Gaussian...)
-# 			if len(getattr(ccdata, 'scfenergies', [])) > 1:
-# 				
-# 				# Get the number of states we think are from the final step.
-# 				num_final_states = len(excited_states_data) / len(ccdata.scfenergies)
-# 				
-# 				if not num_final_states.is_integer():
-# 					# We've hit a dead end; we think we have two many states, but the number of states is not a multiple of the number of optimisation steps.
-# 					# Continue without pruning the list.
-# 					pass
-# 				
-# 				# Prune the list, keeping only the final states.
-# 				excited_states_data = excited_states_data[-int(num_final_states):]
+			excited_states_data = list(zip(parser.data.etsyms, parser.data.etenergies, parser.data.etoscs))	
 			
 			# Loop through our data.
-			for index, (symmetry, energy, oscillator_strength, transitions) in enumerate(excited_states_data):
+			for index, (symmetry, energy, oscillator_strength) in enumerate(excited_states_data):
 				# Get our multiplicity.
 				mult = Excited_state.get_multiplicity_from_symmetry(symmetry)
 				# Try and see if we've already got some states of this mult.
@@ -547,22 +484,20 @@ class Excited_state(Energy_state):
 					
 				# Relevant transition dipole moments.
 				try:
-					dipole_moment = transition_dipole_moments[index]
+					tdm = parser.results.transition_dipole_moments[index]
 				except IndexError:
-					dipole_moment = None
+					tdm = None
 					
 				# Get and append our object.
 				excited_states.append(
-					self.from_cclib(
-						index +1,
-						mult_level,
-						symmetry,
-						energy,
-						oscillator_strength,
-						transitions,
-						mo_list,
-						beta_mo_list,
-						dipole_moment
+					self(
+						level = index +1,
+						multiplicity_level = mult_level,
+						symmetry = symmetry,
+						energy = self.wavenumbers_to_energy(energy),
+						oscillator_strength = oscillator_strength,
+						transitions = Excited_state_transition.list_from_parser(parser),
+						transition_dipole_moment = tdm
 					)
 				)
 			
@@ -571,13 +506,4 @@ class Excited_state(Energy_state):
 		except AttributeError:
 			return []
 
-# class Absorption_graph():
-# 	"""
-# 	A class for generating simulated absorption graphs.
-# 	
-# 	This class is for generating graph data, not images of that data. If you want an image file, see Absorption_graph_maker in silico.image.spectroscopy
-# 	"""
-# 	
-# 	def 
-	
 	
