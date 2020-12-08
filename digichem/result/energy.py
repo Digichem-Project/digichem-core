@@ -89,15 +89,15 @@ class Energy_list(Result_container):
 		return self.kJ_to_kJmol(self.eV_to_kJ(eV))
 
 	@classmethod
-	def from_cclib(self, ccdata):
+	def from_parser(self, parser):
 		"""
-		Get an Energy_list from the data provided by cclib.
+		Get an Energy_list from an output file parser.
 		
-		:param ccdata: Result object as provided by cclib.
+		:param parser: An output file parser.
 		:return: The populated Energy_list object. The object will be empty if the energy is not available.
 		"""
 		try:
-			return self(getattr(ccdata, self.cclib_energy_type, []))
+			return self(getattr(parser.data, self.cclib_energy_type))
 		except AttributeError:
 			return self()
 	
@@ -123,18 +123,18 @@ class MP_energy_list(Energy_list):
 	energy_type = "MP"
 	
 	@classmethod
-	def from_cclib(self, ccdata, order = -1):
+	def from_parser(self, parser, order = -1):
 		"""
-		Get a MP_energy_list from the data provided by cclib.
+		Get an MP_energy_list from an output file parser.
 		
 		Note that unlike other calculated energies, MP energies are calculated sequentially up to the requested order. So for example, MP4 first calculates the MP1 energy (which is the same as the uncorrected energy), then MP2, MP3 and finally MP4.
 		
-		:param ccdata: Result object as provided by cclib.
+		:param parser: An output file parser.
 		:param order: The order of the MP correction to get (ie, what is n in MPn). A value of -1 will get the highest order MP energy.
 		:return: The populated Energy_list object. The object will be empty if the energy is not available.
 		"""
 		try:
-			return self([energy[order] for energy in super().from_cclib(ccdata)])
+			return self([energy[order] for energy in super().from_parser(parser)])
 		except IndexError:
 			# No energy.
 			return self()
