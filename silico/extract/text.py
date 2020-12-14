@@ -25,7 +25,8 @@ class Text_summary_group_extractor(Result_extractor_group):
 			Beta_text_summary_extractor(**kwargs),
 			PDM_text_summary_extractor(**kwargs),
 			TDM_text_summary_extractor(**kwargs),
-			Excited_states_text_summary_extractor(**kwargs)
+			Excited_states_text_summary_extractor(**kwargs),
+			SOC_text_summary_extractor(**kwargs)
 		]
 	
 	def join_results(self, extracted_results):
@@ -145,6 +146,14 @@ class Excited_states_text_summary_extractor(Text_summary_extractor):
 	CLASS_HANDLE = silico.extract.EXCITED_STATE_CLASS_HANDLE
 	TEMPLATE = "excited_states.mako"
 	TEMPLATE_ARGS ={'excited_states': 'excited_states'}
+	
+class SOC_text_summary_extractor(Text_summary_extractor):
+	"""
+	Text extractor for spin orbit coupling.
+	"""
+	CLASS_HANDLE = silico.extract.SOC_CLASS_HANDLE
+	TEMPLATE = "spin_orbit_coupling.mako"
+	TEMPLATE_ARGS ={'SOC_list': 'spin_orbit_coupling'}
 		
 class Geometry_text_summary_extractor(Text_summary_extractor):
 	"""

@@ -40,7 +40,7 @@ class Long_table_group_extractor(Long_tabular_group_extractor):
 		:param fieldnames: List of fieldnames/table headers.
 		:param table_data: List of table rows.
 		"""
-		return "{}\n".format(tabulate(table_data, headers = fieldnames, numalign = "center", stralign = "center"))
+		return "{}\n".format(tabulate(table_data, headers = fieldnames, numalign = "center", stralign = "center", floatfmt=".4f"))
 
 	@classmethod
 	def recursive_subclasses(self):

@@ -6,8 +6,8 @@
 	# Get our excited states grouped by multiplicity.
 	grouped_states = excited_states.group()
 	
-	num_singlets = len(grouped_states[1]) if 1 in grouped_states else 0
-	num_triplets = len(grouped_states[3]) if 3 in grouped_states else 0
+	num_singlets = excited_states.num_singlets
+	num_triplets = excited_states.num_triplets
 	num_other = len(excited_states) - (num_singlets + num_triplets)
 %>
 

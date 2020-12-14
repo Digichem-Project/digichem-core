@@ -34,6 +34,7 @@ class Long_tabular_group_extractor(Result_extractor_group):
 			Vibrations_long_extractor(**kwargs),
 			Excited_state_long_extractor(**kwargs),
 			Excited_state_transitions_long_extractor(**kwargs),
+			SOC_long_extractor(**kwargs),
 			TDM_long_extractor(**kwargs)
 		]
 	
@@ -274,12 +275,31 @@ class Excited_state_long_extractor(Long_table_extractor):
 				"Transition {} orbitals:".format(transition.level): "{} -> {}".format(transition.starting_mo.label, transition.ending_mo.label),
 				"Transition {} probability:".format(transition.level): transition.probability
 			}))
-
-# 		data.update({
-# 			'Transitions (probabilty)': "\n".join(["{} -> {} ({:0.2f})".format(transition.starting_mo.label, transition.ending_mo.label, transition.probability) for transition in excited_state.transitions])
-# 		})
-	
 		return data
+	
+class SOC_long_extractor(Long_table_extractor):
+	"""
+	Long table extractor for SOC.
+	"""
+	CLASS_HANDLE = silico.extract.SOC_CLASS_HANDLE
+	LIST_NAME = "spin_orbit_coupling"
+	
+	def _extract_item(self, index, soc):
+		"""
+		"""
+		return OrderedDict({
+			"Singlet": soc.singlet_state.state_symbol,
+			"Triplet": soc.singlet_state.state_symbol,
+			"+1 /cm-1": soc.positive_one,
+			"0 /cm-1": soc.zero,
+			"-1 /cm-1": soc.negative_one,
+			"RSS /cm -1": soc.wavenumbers,
+			"Hso /eV": soc.energy,
+			"ΔE /eV": soc.splitting_energy,
+			"λ": soc.mixing_coefficient,
+			
+		})
+	
 	
 class TDM_long_extractor(Long_table_extractor):
 	"""
