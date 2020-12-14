@@ -209,7 +209,8 @@ class Atom_list(Result_container):
 	@property
 	def structure_image(self):
 		return self.get_file('structure_image')
-		
+	
+	@classmethod
 	def from_parser(self, parser):
 		"""
 		Get an Atom_list object from an output file parser.
@@ -253,8 +254,16 @@ class Atom(Result_object):
 		# First pack our data together to make is easier to loop through.
 		try:
 			atomnos = parser.data.atomnos
-			atomcoords = parser.data.atomcoords
+			# Atom coords contains a list for each iteration, we only want the last.
+			atomcoords = parser.data.atomcoords[-1]
 			atommasses = getattr(parser.data, 'atommasses', [])
+			
+			# Atommasses sometimes is longer than atomcoords or atomnos.
+			# This might be a cclib bug, it is not clear.
+			if len(atommasses) > len(atomnos):
+				# Take the last values only.
+				atommasses = atommasses[-len(atomnos):]
+			
 		except AttributeError:
 			# No atom data available.
 			return []

@@ -33,6 +33,19 @@ class Excited_state_list(Result_container):
 		T1 = self.get_state("T(1)")
 		# Calculate their difference.))
 		return float(S1) - float(T1)
+	
+	def difference(self, state1, state2):
+		"""
+		Get the difference in energy between the states by given labels.
+		
+		The returned energy difference will always be positive.
+		
+		:param state1: State symbol of the first state.
+		:param state2: State symbol of the second state.
+		"""
+		states = (self.get_state(state_symbol = state1).energy, self.get_state(state_symbol = state2).energy)
+		return max(states) - min(states)
+	
 		
 	def get_state(self, criteria = None, *, state_symbol = None, level = None, mult_level = None):
 		"""
@@ -130,6 +143,22 @@ class Excited_state_list(Result_container):
 				
 		# Return.
 		return grouped_excited_states
+	
+	@property
+	def num_singlets(self):
+		"""
+		The number of singlet excited states in this list.
+		"""
+		grouped_states = self.group()
+		return len(grouped_states[1]) if 1 in grouped_states else 0
+	
+	@property
+	def num_triplets(self):
+		"""
+		The number of triplet excited states in this list.
+		"""
+		grouped_states = self.group()
+		return len(grouped_states[3]) if 3 in grouped_states else 0
 		
 	@classmethod
 	def from_parser(self, parser):
@@ -182,18 +211,28 @@ class Excited_state_transition(Result_object):
 			# Create a tuple of our MOs (helps us later).
 			MOs = (parser.results.molecular_orbitals, parser.results.beta_orbitals)
 			
-			# We'll first create an intermediate list of keyword dicts which we'll then sort.
-			data_list = [ 
-				{'starting_mo': MOs[starting_mo_AB][starting_mo_index], 'ending_mo': MOs[ending_mo_AB][ending_mo_index], 'coefficient': coefficient}
-				for (starting_mo_index, starting_mo_AB), (ending_mo_index, ending_mo_AB), coefficient
-				in parser.data.etsecs
-			]
+			transitions_list = []
 			
-			# Sort by probability/coefficient.
-			data_list.sort(key=lambda keywords: keywords['coefficient'], reverse=True)
-			
-			# Now get a list objects.
-			return [self(index+1, keywords['starting_mo'], keywords['ending_mo'], keywords['coefficient']) for index, keywords in enumerate(data_list)]
+			# etsecs is a list of list, the outer list corresponds to each excited state, the inner list contains actual transitions.
+			for excited_state_transitions in parser.data.etsecs:
+	
+				# We'll first create an intermediate list of keyword dicts which we'll then sort.
+				data_list = [ 
+					{'starting_mo': MOs[starting_mo_AB][starting_mo_index], 'ending_mo': MOs[ending_mo_AB][ending_mo_index], 'coefficient': coefficient}
+					for (starting_mo_index, starting_mo_AB), (ending_mo_index, ending_mo_AB), coefficient
+					in excited_state_transitions
+				]
+				
+				# Sort by probability/coefficient.
+				data_list.sort(key=lambda keywords: keywords['coefficient'], reverse=True)
+				
+				# Now get a list objects and append to our big list.
+				transitions_list.append(
+					[self(index+1, keywords['starting_mo'], keywords['ending_mo'], keywords['coefficient']) for index, keywords in enumerate(data_list)]
+				)
+				
+			# All done.
+			return transitions_list
 			
 		except IndexError:
 			# Probably because one (or both) of our given mo_lists is empty (or too short).
@@ -206,10 +245,6 @@ class Energy_state(Result_object):
 	"""
 	Class for representing different energy states of the same system.
 	"""
-	# Some constants.
-	speed_of_light = 299792458 # m/s
-	plancks_constant = 6.62607004e-34
-	electron_volt = 1.602176634e-19 # J
 	
 	# Colour categories.
 	colors = [
@@ -424,32 +459,7 @@ class Excited_state(Energy_state):
 		# Set our TDP if we have one.
 		if self.transition_dipole_moment is not None:
 			self.transition_dipole_moment.set_file_options(output_dir, output_name, **kwargs)
-	
-	
-	@classmethod
-	def wavelength_to_energy(self, emission_wavelength):
-		"""
-		Convert an emission wavelength (in nm) to energy (in eV).
-		"""
-		#TODO: No reason for this method to have 'emission' in its name (it's very old).
-		# e = (c * h) / λ
-		return ((self.speed_of_light * self.plancks_constant) / (emission_wavelength / 1000000000)) / self.electron_volt
-	
-	@classmethod
-	def energy_to_wavelength(self, energy):
-		"""
-		Convert an energy (in eV) to wavelength (in nm).
-		"""
-		# λ = (c * h) / e
-		return ((self.speed_of_light * self.plancks_constant) / (energy * self.electron_volt)) * 1000000000
-	
-	@classmethod
-	def wavenumbers_to_energy(self, wavenumbers):
-		"""
-		Convert wavenumbers (in cm-1) to energy (in eV).
-		"""
-		return self.wavelength_to_energy((1 / wavenumbers) * 10000000)
-	
+		
 		
 	@classmethod
 	def list_from_parser(self, parser):
@@ -466,7 +476,10 @@ class Excited_state(Energy_state):
 			multiplicities = {}
 			
 			# Assemble cclib's various arrays into a single list.
-			excited_states_data = list(zip(parser.data.etsyms, parser.data.etenergies, parser.data.etoscs))	
+			excited_states_data = list(zip(parser.data.etsyms, parser.data.etenergies, parser.data.etoscs))
+			
+			# First get our transitions.
+			transitions = Excited_state_transition.list_from_parser(parser)
 			
 			# Loop through our data.
 			for index, (symmetry, energy, oscillator_strength) in enumerate(excited_states_data):
@@ -496,7 +509,7 @@ class Excited_state(Energy_state):
 						symmetry = symmetry,
 						energy = self.wavenumbers_to_energy(energy),
 						oscillator_strength = oscillator_strength,
-						transitions = Excited_state_transition.list_from_parser(parser),
+						transitions = transitions[index] if len(transitions) != 0 else [],
 						transition_dipole_moment = tdm
 					)
 				)

@@ -89,11 +89,9 @@ def _main(args, config, logger):
 		# TODO: Here
 		report = PDF_report.from_calculation_files(
 			*args.calculation_files,
-			name = args.name,
 			gaussian_log_file = args.log_file,
 			chk_file_path = args.chk_file,
 			fchk_file_path = args.fchk_file,
-			prog_version = silico.version,
 			adiabatic_emission_ground_result = args.adiabatic_ground,
 			vertical_emission_ground_result = args.vertical_ground,
 			emission_excited_result = args.emission,

@@ -6,7 +6,7 @@ from silico.result.transition_dipole_moment import Transition_dipole_moment
 from silico.result.excited_states import Excited_state_list
 from silico.result.energy import CC_energy_list, MP_energy_list, SCF_energy_list
 from silico.result.ground_state import Ground_state
-from silico.result.spin_orbit_coupling import Spin_orbit_coupling
+from silico.result.spin_orbit_coupling import SOC_list
 from silico.result.dipole_moment import Dipole_moment
 from silico.result.vibrations import Vibration_list
 from silico.exception.base import Silico_exception
@@ -82,20 +82,21 @@ class Parser(Result_set):
         self.results.excited_states = Excited_state_list.from_parser(self)
         
         # Energies.
-        self.results.CC_energies = CC_energy_list.from_parser(self),
-        self.results.MP_energies = MP_energy_list.from_parser(self),
-        self.results.SCF_energies = SCF_energy_list.from_parser(self),
+        self.results.CC_energies = CC_energy_list.from_parser(self)
+        self.results.MP_energies = MP_energy_list.from_parser(self)
+        self.results.SCF_energies = SCF_energy_list.from_parser(self)
         
         # Our ground state.
         self.results.ground_state = Ground_state.from_parser(self)
         
         # And a similar list but also including the ground.
         self.results.energy_states = Excited_state_list()
-        self.results.energy_states.append(self.ground_state)
-        self.results.energy_states.extend(self.excited_states)
+        self.results.energy_states.append(self.results.ground_state)
+        self.results.energy_states.extend(self.results.excited_states)
         
         # SOC.
-        self.results.spin_orbit_coupling = Spin_orbit_coupling.list_from_parser(self)
+        #self.results.spin_orbit_coupling = Spin_orbit_coupling.list_from_parser(self)
+        self.results.spin_orbit_coupling = SOC_list.from_parser(self)
         
         # PDM
         self.results.dipole_moment = Dipole_moment.from_parser(self)

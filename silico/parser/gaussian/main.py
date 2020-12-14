@@ -24,7 +24,7 @@ class Gaussian(Parser):
         Constructor for Gaussian output file parsers.
         """
         self.log_file_path = Path(log_file)
-        self.rwf_file_path = Path(rwf_file)
+        self.rwf_file_path = Path(rwf_file) if rwf_file is not None else None
         super().__init__(self.log_file_path.with_suffix("").name)
         
     def parse(self):
@@ -59,6 +59,7 @@ class Gaussian(Parser):
     DATE_HEADER = "Normal termination of"
     ELAPSED_TIME_HEADER = "Elapsed time:"
     CPU_TIME_HEADER = "Job cpu time:"
+    CPU_HEADER = "Will use up to"
     
     def parse_metadata(self):
         """
@@ -77,7 +78,7 @@ class Gaussian(Parser):
                 if self.DATE_HEADER in log_file_line:
                     # This line looks like: "Normal termination of Gaussian 16 at Sun Dec  6 19:13:09 2020"
                     date_str = " ".join(log_file_line.split()[-4:])
-                    self.data.metadata['date'] = datetime.strptime(date_str, "%b %d %H:%M:%S %Y").timestamp()
+                    self.data.metadata['date'] = datetime.strptime(date_str, "%b %d %H:%M:%S %Y.").timestamp()
                     
                 elif self.ELAPSED_TIME_HEADER in log_file_line:
                     # This line looks like: "Elapsed time:       0 days  2 hours 38 minutes 50.9 seconds."
@@ -89,7 +90,9 @@ class Gaussian(Parser):
                     datey = log_file_line.split()[-8:]
                     self.data.metadata['cputime'] = timedelta(days = int(datey[0]), hours = int(datey[2]), minutes = int(datey[4]), seconds = float(datey[6])).total_seconds()
                     
-        
+                elif self.CPU_HEADER in log_file_line:
+                    # This line looks like: "Will use up to   10 processors via shared memory."
+                    self.data.metadata['numcpus'] = int(log_file_line.split()[4])
     
     
     def parse_transition_dipole_moments(self):
@@ -159,14 +162,16 @@ class Gaussian(Parser):
         # For SOC, we need both .log and .rwf file.
         # We also need etsyms to decide which excited state is which.
         if self.rwf_file_path is None:
-            raise Result_unavailable_error("Spin-orbit coupling", "There is no .rwf file available")
+            pass
+            #raise Result_unavailable_error("Spin-orbit coupling", "There is no .rwf file available")
         elif not hasattr(self.data, "etsyms"):
             raise Result_unavailable_error("Spin-orbit coupling", "There are no excited states available")
         
         
         # Get a PySOC parser.
-        pysoc = pysoc.io.SOC.Calculator(self.log_file_path, rwf_file_name = self.rwf_file_path)
-        SOC_table = pysoc.calculate()
+        soc_calculator = pysoc.io.SOC.Calculator(self.log_file_path, rwf_file_name = self.rwf_file_path)
+        soc_calculator.calculate()
+        SOC_table = soc_calculator.soc_td.SOC
         
         # We'll split the SOC table given to use by PySOC to better match the format used by cclib.
         socstates = []

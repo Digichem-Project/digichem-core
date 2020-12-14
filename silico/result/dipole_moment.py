@@ -153,7 +153,7 @@ class Dipole_moment(Result_object):
 		:result: A single Dipole_moment object, or None if no dipole information is available.
 		"""
 		try:
-			return self(parser.data.moments[0], parser.data.moments[1], parser.result.alignment)
+			return self(parser.data.moments[0], parser.data.moments[1], parser.results.alignment)
 		except AttributeError:
 			return None
 

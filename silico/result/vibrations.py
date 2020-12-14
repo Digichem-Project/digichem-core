@@ -8,9 +8,6 @@ class Vibration_list(Result_container):
 	"""
 	Class for representing a group of molecular vibrations.
 	"""
-	
-	def __init__(self, *args, **kwargs):
-		super().__init__(*args, **kwargs)
 		
 	@property
 	def negative_frequencies(self):
@@ -77,6 +74,6 @@ class Vibration(Result_object):
 		:return: A list of Vibration objects. The list will be empty if no frequency data is available.
 		"""
 		try:
-			return [self(index+1, symmetry, frequency, intensity) for index, (symmetry, frequency, intensity) in enumerate(zip_longest(getattr(parser.data, 'vibsyms', []), parser.data.vibfreqs, parser.data.vibirs, fillvalue = None))]
+			return [self(index+1, frequency, intensity, symmetry) for index, (symmetry, frequency, intensity) in enumerate(zip_longest(getattr(parser.data, 'vibsyms', []), parser.data.vibfreqs, parser.data.vibirs, fillvalue = None))]
 		except AttributeError:
 			return []

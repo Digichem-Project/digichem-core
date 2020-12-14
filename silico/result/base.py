@@ -4,6 +4,10 @@ class Result_object():
 	"""
 	Top level class for objects that are designed to hold calculation results.
 	"""
+	# Some constants.
+	speed_of_light = 299792458 # m/s
+	plancks_constant = 6.62607004e-34
+	electron_volt = 1.602176634e-19 # J
 	
 	# A dictionary of File_maker objects that can be used to create files (eg. images) from this result object. The keys given here are the references used to access the file maker objects from the object instance.
 	#file_classes = {}
@@ -82,6 +86,31 @@ class Result_object():
 		
 		# And done.
 		return attr
+	
+	@classmethod
+	def wavelength_to_energy(self, emission_wavelength):
+		"""
+		Convert an emission wavelength (in nm) to energy (in eV).
+		"""
+		#TODO: No reason for this method to have 'emission' in its name (it's very old).
+		# e = (c * h) / λ
+		return ((self.speed_of_light * self.plancks_constant) / (emission_wavelength / 1000000000)) / self.electron_volt
+	
+	@classmethod
+	def energy_to_wavelength(self, energy):
+		"""
+		Convert an energy (in eV) to wavelength (in nm).
+		"""
+		# λ = (c * h) / e
+		return ((self.speed_of_light * self.plancks_constant) / (energy * self.electron_volt)) * 1000000000
+	
+	@classmethod
+	def wavenumbers_to_energy(self, wavenumbers):
+		"""
+		Convert wavenumbers (in cm-1) to energy (in eV).
+		"""
+		return self.wavelength_to_energy((1 / wavenumbers) * 10000000)
+	
 		
 class Result_container(list, Result_object):
 	"""

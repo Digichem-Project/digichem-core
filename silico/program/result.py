@@ -18,6 +18,8 @@ from silico.extract.text import Text_summary_group_extractor
 from silico.extract.csv import CSV_summary_group_extractor, Long_CSV_group_extractor
 from silico.extract.table import Table_summary_group_extractor, Long_table_group_extractor
 from silico.exception.base import Silico_exception
+from silico.parser.gaussian.main import Gaussian
+from silico.result.alignment.base import Alignment
 
 # Printable name of this program.
 NAME = "Calculation Result Extractor"
@@ -39,20 +41,24 @@ def list_known_sections(extractor_groups):
 				print(extractor_class.CLASS_HANDLE[0])
 	
 		
-def _get_result_set(filename, **kwargs):
+def _get_result_set(filename, alignment_class):
 	"""
 	Helper function, designed to be called in parallel to read input files.
 	"""
 	logger = logging.getLogger(silico.logger_name)
 	# First open our file.
 	try:
-		with Multi_file_wrapper(filename, "rt") as input_file:
-			logger.info("Parsing calculation result file '{}'".format(filename))
-			return Result_set.from_cclib(
-				cclib.io.ccread(input_file.file),
-				gaussian_log_file = input_file.name if input_file.name != "-" else None,
-				name = input_file.name,
-				**kwargs)
+		return Gaussian(filename).process(alignment_class)
+#         
+#         
+# 		with Multi_file_wrapper(filename, "rt") as input_file:
+# 			# Get our result object.
+#             parser = Gaussian()
+# 			return Result_set.from_cclib(
+# 				cclib.io.ccread(input_file.file),
+# 				gaussian_log_file = input_file.name if input_file.name != "-" else None,
+# 				name = input_file.name,
+# 				**kwargs)
 	except Exception:
 			logger.warning("Unable to parse calculation result file '{}'; skipping".format(filename), exc_info = True)
 
@@ -205,7 +211,10 @@ def _main(args, config, logger):
 	# Get upset if we've got nothing to read.
 	if len(args.calculation_files) == 0:
 		raise Silico_exception("No calculation files to read (input files should appear before -a -b -c -d or -t options)")
-		
+	
+	# Get our alignment class.
+	alignment_class = Alignment.from_class_handle(config['alignment'])
+	
 	# Get our list of results. Do this in parallel.
 	try:
 		with Pool(initializer = _subprocess_init) as pool:
@@ -214,7 +223,7 @@ def _main(args, config, logger):
 					pool.map(
 						partial(
 							_get_result_set,
-							alignment_class_name = config['alignment'],
+							alignment_class = alignment_class,
 						),
 						args.calculation_files
 					)

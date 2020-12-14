@@ -2,6 +2,7 @@ from weasyprint import HTML
 from mako.lookup import TemplateLookup
 from silico.report.html import HTML_report
 import shutil
+import silico
 
 class PDF_report(HTML_report):
 	"""
@@ -24,14 +25,13 @@ class PDF_report(HTML_report):
 	  discussion in the library github issues: https://github.com/Kozea/WeasyPrint/issues/92
 	"""
 	
-	def __init__(self, *args, prog_version, **kwargs):
+	def __init__(self, *args, **kwargs):
 		"""
 		Constructor for PDF report objects.
 		
-		:param prog_version: Version string of out program (this gets inserted into the pdf).
 		"""
 		super().__init__(*args, **kwargs)
-		self.prog_version = prog_version
+		self.prog_version = silico.version
 	
 	def _write(self, output, **kwargs):
 		"""

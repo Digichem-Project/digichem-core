@@ -10,33 +10,37 @@ from itertools import chain
 from silico.result.molecular_orbitals import Molecular_orbital_list
 from silico.result.base import Result_object
 import silico
+from silico.parser.gaussian.main import Gaussian
+from silico.result.alignment.base import Alignment
 
-class Report(Result_set):
+class Report():
 	"""
 	An enhanced report set object that contains graphics and other objects for building graphical reports.
 	"""
 	
-	def __init__(
-			self, 
-			*args,
+	def __init__(self,
+			results,
+			*,
+			gaussian_log_file,
 			chk_file_path = None,
 			fchk_file_path = None,
-			options,
-			**kwargs):
+			options
+		):
 		"""
-		Constructor for Report objects. See the Result_set constructor definition for a description of *args and **kwargs.
+		Constructor for Report objects.
 		
 		:param chk_file_path: Optional path to a chk file, which can be converted to a fchk file,
 		:param fchk_file_path: Optional path to an fchk file that will be used to generate cube files that are missing.
 		:param options: A silico Config dictionary which contains various options that control the appearance of this report.
 		"""	
-		# Use the normal result set constructor.
-		super().__init__(*args, **kwargs)
+		# Save our result set object.
+		self.results = results
 		
 		# Save our image maker options.
 		self.options = options
 		
 		# Save our aux inputs.
+		self.gaussian_log_file = Path(gaussian_log_file)
 		self.chk_file_path = Path(chk_file_path) if chk_file_path is not None else None
 		self.fchk_file_path = Path(fchk_file_path) if fchk_file_path is not None else None
 		
@@ -99,17 +103,16 @@ class Report(Result_set):
 	def from_calculation_files(
 			self,
 			*input_files,
-			name = None,
 			gaussian_log_file = None,
 			chk_file_path = None,
 			fchk_file_path = None,
 			discover_additional_inputs = True,
 			alignment_class_name = None,
 			options,
-			vertical_emission_ground_result = None,
-			adiabatic_emission_ground_result = None,
-			emission_excited_result = None,
-			emission_excited_state = None,
+			#vertical_emission_ground_result = None,
+			#adiabatic_emission_ground_result = None,
+			#emission_excited_result = None,
+			#emission_excited_state = None,
 			**kwargs):
 		"""
 		A more intelligent constructor that can automatically determine file type(s).
@@ -176,34 +179,53 @@ class Report(Result_set):
 			raise Silico_exception("Missing required file type '{}'".format(file_types.gaussian_log_file))
 		
 		# Get a result set.
-		results =  super().from_calculation_file(
-			files[file_types.gaussian_log_file],
-			alignment_class_name = options['alignment'] if alignment_class_name is None else alignment_class_name,
-			**kwargs
-		)
+		# First decide on which alignment class we're using.
+		alignment_class = Alignment.from_class_handle(options['alignment'] if alignment_class_name is None else alignment_class_name)
+		results = Gaussian(files[file_types.gaussian_log_file]).process(alignment_class)
 		
-# 		# Load emission results.
-# 		for emission in ['vertical_emission_ground_result', 'adiabatic_emission_ground_result', 'emission_excited_result']:
-# 			if kwargs.get(emission, None) is not None and not isinstance(kwargs.get(emission, None), self):
-# 				# This emission 'result' is not a result (assume it is a path); try and load it.
-# 				try:
-# 					kwargs[emission] = Result_set.from_calculation_file(kwargs[emission], alignment_class_name = alignment_class_name)
-# 				except Exception:
-# 					raise Silico_exception("Error loading emission result file '{}'".format(kwargs[emission]))
+		# Load emission results if we're given file names instead of results.
+		for emission in ['vertical_emission_ground_result', 'adiabatic_emission_ground_result', 'emission_excited_result']:
+			if kwargs.get(emission, None) is not None and not isinstance(kwargs.get(emission, None), Result_set):
+				# This emission 'result' is not a result (assume it is a path); try and load it.
+				try:
+					#kwargs[emission] = Result_set.from_calculation_file(kwargs[emission], alignment_class_name = alignment_class_name)
+					kwargs[emission] = Gaussian(kwargs[emission]).process(alignment_class)
+				except Exception:
+					raise Silico_exception("Error loading emission result file '{}'".format(kwargs[emission]))
+		
+		# Add emission energies to result.
+		results.add_emission(
+			**kwargs
+			#vertical_emission_ground_result = vertical_emission_ground_result,
+			#adiabatic_emission_ground_result = adiabatic_emission_ground_result,
+			#emission_excited_result = emission_excited_result,
+			#emission_excited_state = emission_excited_state
+		)
+				
+		# Use our proper constructor.
+		report = self(results, gaussian_log_file = files[file_types.gaussian_log_file], chk_file_path = files[file_types.gaussian_chk_file], fchk_file_path = files[file_types.gaussian_fchk_file], options = options)
+		
+# 		results =  Result_object.from_calculation_file(
+# 			files[file_types.gaussian_log_file],
+# 			alignment_class_name = options['alignment'] if alignment_class_name is None else alignment_class_name,
+# 			**kwargs
+# 		)
+		
+
 		
 		# Add some stuff.
-		results.chk_file_path = files[file_types.gaussian_chk_file]
-		results.fchk_file_path = files[file_types.gaussian_fchk_file]
-		results.options = options
-		results.add_emission(
-			vertical_emission_ground_result = vertical_emission_ground_result,
-			adiabatic_emission_ground_result = adiabatic_emission_ground_result,
-			emission_excited_result = emission_excited_result,
-			emission_excited_state = emission_excited_state
-		)
+# 		results.chk_file_path = files[file_types.gaussian_chk_file]
+# 		results.fchk_file_path = files[file_types.gaussian_fchk_file]
+# 		results.options = options
+
+		# All done.
+		return report
 		
-		return results
-		
+	def __getattr__(self, attrname):
+		"""
+		Provide access to the result set.
+		"""
+		return getattr(self.results, attrname)
 					
 	@classmethod
 	def find_additional_inputs(self, input_files, file_type):
@@ -251,8 +273,8 @@ class Report(Result_set):
  			'options': self.options
  		}
 		
-		# Call our parent (sets spin density picture).
-		super().set_file_options(output_dir, output_name, **image_maker_options)
+		# Call our result (sets spin density picture).
+		self.results.set_file_options(output_dir, output_name, **image_maker_options)
 		
 		# Set our MO pictures.
 		self.molecular_orbitals.set_file_options(output_dir, output_name, **image_maker_options)
@@ -305,7 +327,7 @@ class Report(Result_set):
 		Result_object.cleanup_intermediate_files(self, 'fchk_file', 'structure_cube')
 		
 		# Cleanup super.
-		super().cleanup_intermediate_files()
+		self.results.cleanup_intermediate_files()
 		
 		# Now cleanup our children too.
 		for attr_name, sub_object in vars(self).items():

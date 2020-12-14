@@ -32,7 +32,8 @@ class Transition_dipole_moment(Dipole_moment):
 		
 		# Save a name describing which dipole we are (permanent vs transition etc).
 		self.dipole_type = "transition"
-		
+	
+	@classmethod
 	def list_from_parser(self, parser):
 		"""
 		Get a list of TDMs from an output file parser.
@@ -41,7 +42,7 @@ class Transition_dipole_moment(Dipole_moment):
 		:return: A list of TDM objects. An empty list will be returned if no TDM data is available.
 		"""
 		try:
-			return [self(state_level = index +1, origin_coords = (0,0,0), vector_coords = tdm) for index, tdm in enumerate(parser.data.etmoments)]
+			return [self(state_level = index +1, origin_coords = (0,0,0), vector_coords = tdm, atoms = parser.results.alignment) for index, tdm in enumerate(parser.data.etmoments)]
 		except AttributeError:
 			return []
 	

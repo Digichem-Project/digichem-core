@@ -1,5 +1,5 @@
 # Classes for representing MOs.
-from itertools import filterfalse
+from itertools import filterfalse, zip_longest
 from silico.result import Result_container
 from silico.result.base import Result_object
 from silico.exception import Result_unavailable_error
@@ -293,14 +293,14 @@ class Molecular_orbital(Result_object):
 	# True MOs don't have a spin.
 	spin_type = "none"
 	
-	def __init__(self, level, HOMO_difference, symmetry, energy):
+	def __init__(self, level, HOMO_difference, energy, symmetry = None):
 		"""
 		Constructor for MOs.
 		
 		:param level: The 'level' of this MO (essentially an index), where the lowest MO has a level of 1, increasing by 1 for each higher orbital.
 		:param HOMO_difference: The distance of this MO from the HOMO. A negative value means this orbital is HOMO-n. A positive value means this orbital is HOMO+n (or LUMO+(n-1). A value of 0 means this orbital is the HOMO. A value of +1 means this orbital is the LUMO.
-		:param symmetry: The symmetry of this MO.
 		:param energy: The energy of this MO (in eV).
+		:param symmetry: The symmetry of this MO.
 		"""
 		super().__init__()
 		self.level = level
@@ -418,18 +418,6 @@ class Molecular_orbital(Result_object):
 		Get a Cube_maker object that can create a cube file of this orbital.
 		"""
 		return self.get_file("cube_file")
-
-# 	@classmethod
-# 	def from_parser(self, index, symmetry, energy, HOMO_index):
-# 		"""
-# 		Create a Molecular_orbital object from the data provided by cclib.
-# 		
-# 		:param index: The index of this MO.
-# 		:param symmetry: The symmetry of this MO.
-# 		:param energy: The energy of this MO (in eV).
-# 		:param HOMO_index: The index of the HOMO in this MO set.
-# 		"""
-# 		return self(index +1, index - HOMO_index, symmetry, energy)
 	
 	# The index used to access data from cclib (which always has two lists, one for alpha one for beta).
 	ccdata_index = 0
@@ -443,8 +431,23 @@ class Molecular_orbital(Result_object):
 		:return: A list of Molecular_orbital objects. The list will be empty if no MO is available.
 		"""
 		try:
-			#return [self.from_cclib(index, symmetry, energy, ccdata.homos[self.ccdata_index]) for index, (symmetry, energy) in enumerate(zip(ccdata.mosyms[self.ccdata_index], ccdata.moenergies[self.ccdata_index]))]
-			return [self(index +1, index - parser.data.homos[self.ccdata_index], symmetry, energy) for index, (symmetry, energy) in enumerate(zip(parser.data.mosyms[self.ccdata_index], parser.data.moenergies[self.ccdata_index]))]
+			# Get and zip required params.
+			if hasattr(parser.data, "mosyms"):
+				# We have symmetries.
+				symmetry = parser.data.mosyms[self.ccdata_index]
+			else:
+				# No symmetry.
+				symmetry = []
+				
+			# Don't catch this exception; if we don't have MO energies there's nothing we can do.
+			energy = parser.data.moenergies[self.ccdata_index]
+			
+			# Build our list.
+			return [
+				self(index +1, index - parser.data.homos[self.ccdata_index], energy, symmetry)
+				for index, (symmetry, energy)
+				in enumerate(zip_longest(symmetry, energy, fillvalue = None))
+			]
 		except (AttributeError, IndexError):
 			return []
 	
@@ -453,7 +456,7 @@ class Unrestricted_orbital(Molecular_orbital):
 	Top-level class for unrestricted orbitals.
 	"""
 	
-	def __init__(self, level, HOMO_difference, symmetry, energy, spin_type):
+	def __init__(self, level, HOMO_difference, energy, spin_type, symmetry = None):
 		"""
 		Constructor for MOs.
 		
@@ -464,7 +467,7 @@ class Unrestricted_orbital(Molecular_orbital):
 		:param spin_type: The spin of this spin-orbital (either alpha or beta).
 		"""
 		# Call parent first.
-		super().__init__(level, HOMO_difference, symmetry, energy)
+		super().__init__(level, HOMO_difference, energy, symmetry)
 		self.spin_type = spin_type
 	
 	@property
@@ -480,16 +483,16 @@ class Alpha_orbital(Unrestricted_orbital):
 	An alpha spin orbital (these types of orbitals are only singly occupied, electrons are spin-up).
 	"""
 	
-	def __init__(self, level, HOMO_difference, symmetry, energy):
+	def __init__(self, level, HOMO_difference, energy, symmetry):
 		"""
 		Constructor for alpha MOs.
 		
 		:param level: The 'level' of the MO (essentially an index), where the lowest MO has a level of 1, increasing by 1 for each higher orbital.
 		:param HOMO_difference: The distance of this MO from the HOMO. A negative value means this orbital is HOMO-n. A positive value means this orbital is HOMO+n (or LUMO+(n-1). A value of 0 means this orbital is the HOMO. A value of +1 means this orbital is the LUMO.
-		:param symmetry: The symmetry of the MO.
 		:param energy: The energy of the MO (in eV).
+		:param symmetry: The symmetry of the MO.
 		"""
-		super().__init__(level, HOMO_difference, symmetry, energy, "alpha")
+		super().__init__(level, HOMO_difference, energy, "alpha", symmetry)
 		
 class Beta_orbital(Unrestricted_orbital):
 	"""
@@ -499,14 +502,14 @@ class Beta_orbital(Unrestricted_orbital):
 	# Beta orbitals use the other list in cclib.
 	ccdata_index = 1
 	
-	def __init__(self, level, HOMO_difference, symmetry, energy):
+	def __init__(self, level, HOMO_difference, energy, symmetry):
 		"""
 		Constructor for beta MOs.
 		
 		:param level: The 'level' of the MO (essentially an index), where the lowest MO has a level of 1, increasing by 1 for each higher orbital.
 		:param HOMO_difference: The distance of this MO from the HOMO. A negative value means this orbital is HOMO-n. A positive value means this orbital is HOMO+n (or LUMO+(n-1). A value of 0 means this orbital is the HOMO. A value of +1 means this orbital is the LUMO.
-		:param symmetry: The symmetry of the MO.
 		:param energy: The energy of the MO (in eV).
+		:param symmetry: The symmetry of the MO.
 		"""
-		super().__init__(level, HOMO_difference, symmetry, energy, "beta")
+		super().__init__(level, HOMO_difference, energy, "beta", symmetry)
 	
