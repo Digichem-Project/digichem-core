@@ -35,7 +35,7 @@ No. ${Energy_state.multiplicity_number_to_string(group)}s: ${len(grouped_states[
 ${state.state_symbol} energy /eV: ${"{:0.2f}".format(state.energy)}
 ${state.state_symbol} wavelength /nm: ${"{:0.0f}".format(state.wavelength)}
 ${state.state_symbol} colour: ${state.color}
-${state.state_symbol} CIE X: ${state.CIE_xy[0]}
-${state.state_symbol} CIE Y: ${state.CIE_xy[1]}
+${state.state_symbol} CIE X: ${"{:0.2f}".format(state.CIE_xy[0])}
+${state.state_symbol} CIE Y: ${"{:0.2f}".format(state.CIE_xy[1])}
 ${state.state_symbol} oscillator strength: ${"{:0.2f}".format(state.oscillator_strength)}
 %endfor
