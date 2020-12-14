@@ -10,15 +10,11 @@
 	# Get our input geometry in .com format.
 	input_coords = Gaussian_input_parser(calculation.input_coords.to_format("com"))
 %>\
-## First, the chk file (if we're using one).
-%if calculation.chk_file_name is not None:
+## First, the chk file.
 %%Chk="${calculation.chk_file_name}"
-%endif
 ##
-## Next, the rwf file (if we're using one).
-%if calculation.rwf_file_name is not None:
+## Next, the rwf file.
 %%Rwf="${calculation.rwf_file_name}"
-%endif
 ##
 ## Next, the number of processes.
 ## There are two ways this can be specified; either with CPU_list or num_CPUs.

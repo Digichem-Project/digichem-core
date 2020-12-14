@@ -4,7 +4,6 @@ import subprocess
 import silico
 from mako.lookup import TemplateLookup
 from logging import getLogger
-import shutil
 from silico.file.fchk import Fchk_maker
 from silico.config.configurable.option import Option
 
@@ -133,7 +132,7 @@ class Gaussian(Program_target):
 			Cleanup files and directory once the calculation has finished (successfully or otherwise).
 			
 			:param success: True if the calculation finished normally, false otherwise.
-			"""		
+			"""
 # 			# Check to see if our main output files are in their proper (default) locations or not. Move them if necessary.
 # 			for out_file, default_location in [
 # 					('log_file_path', 'default_log_file_path'),
@@ -178,4 +177,14 @@ class Gaussian(Program_target):
 			
 			# Use our parent to create result and report files.
 			super().post()
+			
+			# Remove rwf if we've been asked to.
+			try:
+				if not self.calculation.keep_rwf:
+					self.rwf_file_path.unlink()
+			except FileNotFoundError:
+				# We can ignore not finding the file; we were trying to get rid of it anyway.
+				pass
+			except Exception:
+				getLogger(silico.logger_name).error("Failed to delete rwf file", exc_info = True)
 		

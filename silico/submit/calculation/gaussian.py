@@ -178,7 +178,7 @@ class Gaussian(Concrete_calculation):
 			
 			# Decide on our file names.
 			self.chk_file_name = self.safe_name(self.molecule_name + ".chk")
-			self.rwf_file_name = self.safe_name(self.molecule_name + ".rwf") if self.keep_rwf else None
+			self.rwf_file_name = self.safe_name(self.molecule_name + ".rwf")
 			self.com_file_name = self.safe_name(self.molecule_name + ".com")
 			
 			# Get and load our com file template.

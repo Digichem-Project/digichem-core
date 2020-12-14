@@ -19,7 +19,7 @@ from silico.extract.long import Atoms_long_extractor, Orbitals_long_extractor,\
 	Excited_state_long_extractor, Excited_state_transitions_long_extractor,\
 	TDM_long_extractor, Vibrations_long_extractor,\
 	Absorption_spectrum_long_extractor, Absorption_energy_spectrum_long_extractor,\
-	IR_spectrum_long_extractor
+	IR_spectrum_long_extractor, SOC_long_extractor
 from silico.submit import Configurable_target
 import silico
 from silico.misc.directory import copytree
@@ -300,13 +300,11 @@ class Program_target(Configurable_target):
 			# We'll actually load a report object because it is the same as a Result_set but with some extra methods which we might need to write a report. Saves us loading results twice.
 			# We need to know whether the calculation was successful or not, so we make no effort to catch exceptions here.
 			try:
-				self.result = PDF_report.from_calculation_files(
-					date = self.end_date,
-					duration = self.duration,
+				self.report = PDF_report.from_calculation_files(
 					gaussian_log_file = self.calc_output_file_path,
-					prog_version = silico.version,
 					options = self.calculation.silico_options
 					)
+				self.result = self.report.results
 			except Exception:
 				# No good.
 				self.method.calc_dir.set_flag(Flag.ERROR)
@@ -406,6 +404,7 @@ class Program_target(Configurable_target):
 			Long_CSV_group_extractor(TDM_long_extractor(ignore = True, config = self.calculation.silico_options)).write_single(self.result, Path(self.method.calc_dir.result_directory, self.calculation.molecule_name + ".TDM.csv"))
 			Long_CSV_group_extractor(Absorption_spectrum_long_extractor(ignore = True, config = self.calculation.silico_options)).write_single(self.result, Path(self.method.calc_dir.result_directory, self.calculation.molecule_name + ".UV-Vis.csv"))
 			Long_CSV_group_extractor(Absorption_energy_spectrum_long_extractor(ignore = True, config = self.calculation.silico_options)).write_single(self.result, Path(self.method.calc_dir.result_directory, self.calculation.molecule_name + ".absorptions.csv"))
+			Long_CSV_group_extractor(SOC_long_extractor(ignore = True, config = self.calculation.silico_options)).write_single(self.result, Path(self.method.calc_dir.result_directory, self.calculation.molecule_name + ".SOC.csv"))
 			
 			# And vibrations.
 			Long_CSV_group_extractor(Vibrations_long_extractor(ignore = True, config = self.calculation.silico_options)).write_single(self.result, Path(self.method.calc_dir.result_directory, self.calculation.molecule_name + ".vibrations.csv"))
@@ -416,9 +415,9 @@ class Program_target(Configurable_target):
 			Write report files (like with creport) from this calculation.
 			"""
 			# The full report.
-			self.result.write(Path(self.method.calc_dir.report_directory, self.calculation.molecule_name + ".pdf"))
+			self.report.write(Path(self.method.calc_dir.report_directory, self.calculation.molecule_name + ".pdf"))
 			# And atoms.
-			self.result.write(Path(self.method.calc_dir.report_directory, self.calculation.molecule_name + ".atoms.pdf"), report_type = "atoms")
+			self.report.write(Path(self.method.calc_dir.report_directory, self.calculation.molecule_name + ".atoms.pdf"), report_type = "atoms")
 			
 		def write_xyz_file(self):
 			"""
