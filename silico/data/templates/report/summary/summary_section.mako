@@ -55,6 +55,9 @@
 	%if result.adiabatic_emission is not None:
 		<%include file="/emission/emission_results.mako" args="relaxed_excited_state = result.adiabatic_emission"/><span></span>
 	%endif
+	%if len(result.excited_states) > 0 and len(result.spin_orbit_coupling) > 0:
+		<%include file="/spin_orbit_coupling/SOC_results.mako" args="spin_orbit_coupling = result.spin_orbit_coupling, excited_states = result.excited_states"/>
+	%endif
 	%if len(result.excited_states) > 0:
 		<%include file="/excited_states/excited_states_results.mako" args="excited_states = result.excited_states"/><span></span>
 	%endif

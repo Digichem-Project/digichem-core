@@ -89,6 +89,9 @@
 		%if len(result.excited_states) > 0:
 			<%include file="/excited_states/excited_states_section.mako" args="excited_states = result.excited_states"/>
 		%endif
+		%if len(result.spin_orbit_coupling) > 0:
+			<%include file="/spin_orbit_coupling/SOC_table.mako" args="spin_orbit_coupling = result.spin_orbit_coupling"/>
+		%endif
 		%if len(result.vibrations) > 0:
 			<%include file="/vibrations/vibrations_section.mako" args="vibrations = result.vibrations" />
 			<%include file="/vibrations/vibrations_table.mako" args="vibrations = result.vibrations, min_frequency = result.options['report']['frequency_table']['min_frequency'], max_frequency = result.options['report']['frequency_table']['max_frequency'], max_num = result.options['report']['frequency_table']['max_num']" />
