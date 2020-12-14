@@ -21,7 +21,7 @@ class Ground_state(Energy_state):
 		# The 'level' refers to the ordering of energy states, the ground state is always the lowest so have level 0.
 		# Similarly, the multiplicity_level refers to the ordering of energy states that share the same multiplicity. Regardless of what multiplicity our GS has, we will be the lowest by definition.
 		# Energy is our energy above the GS, so that will always be 0.
-		super().__init__(level = 0, multiplicity = multiplicity, multiplicity_level = 0, energy = 0)
+		super().__init__(level = 0, multiplicity = multiplicity, multiplicity_level = 0, energy = 0.0)
 		self.charge = charge
 		# Also save our absolute energy.
 		self.absolute_energy = energy

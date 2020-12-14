@@ -29,6 +29,7 @@ import silico.result.excited_states
 from silico.file.cube import Spin_cube_maker
 from silico.image.vmd import Spin_density_image_maker
 from silico.result.emission import Relaxed_excited_state
+from datetime import timedelta, datetime
 
 class Metadata(Result_object):
 	"""
@@ -180,10 +181,28 @@ class Metadata(Result_object):
 		:return: A populated Metadata object.
 		"""
 		try:
+			# Do some processing on time objects.
+			if parser.data.metadata.get('walltime', None) is not None:
+				duration = timedelta(seconds = parser.data.metadata['walltime'])
+				
+			elif parser.data.metadata.get('cputime', None) is not None and parser.data.metadata.get('numcpus', None) is not None:
+				# We can estimate the wall time from the CPU time and number of cpus.
+				duration = timedelta(seconds = parser.data.metadata['cputime'] / parser.data.metadata['numcpus'])
+				
+			else:
+				duration = None
+				
+
+				
+			if parser.data.metadata.get('date', None) is not None:
+				date = datetime.fromtimestamp(parser.data.metadata['date'])
+			else:
+				date = None
+			
 			return self(
 				name = parser.data.metadata.get('name', None),
-				date = parser.data.metadata.get('date', None),
-				duration = parser.data.metadata.get('walltime', None),
+				date = date,
+				duration = duration,
 				package = parser.data.metadata.get('package', None),
 				package_version = parser.data.metadata.get('package_version', None),
 				calculations = self.get_calculation_types_from_cclib(parser.data),
