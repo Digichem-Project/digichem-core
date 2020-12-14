@@ -15,7 +15,7 @@ description = "Silico Computational Chemistry Package"
 development = True
 # Version information.
 major_version = 0
-minor_version = 18
+minor_version = 16
 revision = 0
 version_number = "{}.{}.{}".format(major_version, minor_version, revision)
 # The full version number of this package.
