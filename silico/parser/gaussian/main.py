@@ -1,17 +1,16 @@
 # General imports.
 from pathlib import Path
-import cclib.io
 import pysoc.io.SOC
 from logging import getLogger
 from datetime import datetime, timedelta
 
 # Silico imports.
-from silico.parser import Parser
+from silico.parser.base import Parser
 import silico
 from silico.exception.base import Result_unavailable_error
 
 
-class Gaussian(Parser):
+class Gaussian_parser(Parser):
     """
     Top level class for parsing output from Gaussian log files.
     """
@@ -19,23 +18,39 @@ class Gaussian(Parser):
     # Headers that indicate certain data is about to be printed.
     TDM_HEADER = " Ground to excited state transition electric dipole moments (Au):\n"
     
-    def __init__(self, log_file, *, rwf_file = None):
+    def __init__(self, log_file, *, rwf_file = None, **kwargs):
         """
         Constructor for Gaussian output file parsers.
         """
-        self.log_file_path = Path(log_file)
-        self.rwf_file_path = Path(rwf_file) if rwf_file is not None else None
-        super().__init__(self.log_file_path.with_suffix("").name)
+        self.rwf_file_path = rwf_file
+        
+        super().__init__(log_file, **kwargs)
+        
+    @classmethod
+    def from_log(self, log_file, **kwargs):
+        """
+        Intelligent constructor that will attempt to guess the location of files from a given log file.
+        
+        :param log_file: Output file to parse.
+        """
+        log_file = Path(log_file)
+        
+        # See if we can find our rwf file.
+        if log_file.with_suffix(".rwf").exists():
+            kwargs['rwf_file'] = log_file.with_suffix(".rwf")
+            
+        # Continue with normal constructor.
+        return self(log_file, **kwargs)
         
     def parse(self):
         """
         Extract results from our output files.
         """
         # We start by using cclib to get most of the data we need.
+        super().parse()
         
-        # Read and parse the file with cclib.
-        with open(self.log_file_path, "rt") as log_file:
-            self.data = cclib.io.ccread(log_file)
+        # Output a message (because this is slow).
+        getLogger(silico.logger_name).debug("Secondary parsing calculation result '{}'".format(self.description))
                     
         # Date and time.
         self.parse_metadata()

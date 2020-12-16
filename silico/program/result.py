@@ -18,7 +18,7 @@ from silico.extract.text import Text_summary_group_extractor
 from silico.extract.csv import CSV_summary_group_extractor, Long_CSV_group_extractor
 from silico.extract.table import Table_summary_group_extractor, Long_table_group_extractor
 from silico.exception.base import Silico_exception
-from silico.parser.gaussian.main import Gaussian
+from silico.parser import get_parser
 from silico.result.alignment.base import Alignment
 
 # Printable name of this program.
@@ -48,7 +48,7 @@ def _get_result_set(filename, alignment_class):
 	logger = logging.getLogger(silico.logger_name)
 	# First open our file.
 	try:
-		return Gaussian(filename).process(alignment_class)
+		return get_parser(filename).process(alignment_class)
 #         
 #         
 # 		with Multi_file_wrapper(filename, "rt") as input_file:

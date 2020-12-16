@@ -1,7 +1,6 @@
 from silico.result.result import Result_set
 #from silico.file.cube import Cube_maker
 from silico.file.fchk import Fchk_maker
-from silico.result.ground_state import Ground_state
 from pathlib import Path
 from silico.exception import Unknown_file_type_exception, Silico_exception
 import silico.file.types as file_types
@@ -10,7 +9,7 @@ from itertools import chain
 from silico.result.molecular_orbitals import Molecular_orbital_list
 from silico.result.base import Result_object
 import silico
-from silico.parser.gaussian.main import Gaussian
+from silico.parser import get_parser
 from silico.result.alignment.base import Alignment
 
 class Report():
@@ -181,7 +180,7 @@ class Report():
 		# Get a result set.
 		# First decide on which alignment class we're using.
 		alignment_class = Alignment.from_class_handle(options['alignment'] if alignment_class_name is None else alignment_class_name)
-		results = Gaussian(files[file_types.gaussian_log_file]).process(alignment_class)
+		results = get_parser(files[file_types.gaussian_log_file]).process(alignment_class)
 		
 		# Load emission results if we're given file names instead of results.
 		for emission in ['vertical_emission_ground_result', 'adiabatic_emission_ground_result', 'emission_excited_result']:
@@ -189,7 +188,7 @@ class Report():
 				# This emission 'result' is not a result (assume it is a path); try and load it.
 				try:
 					#kwargs[emission] = Result_set.from_calculation_file(kwargs[emission], alignment_class_name = alignment_class_name)
-					kwargs[emission] = Gaussian(kwargs[emission]).process(alignment_class)
+					kwargs[emission] = get_parser(kwargs[emission]).process(alignment_class)
 				except Exception:
 					raise Silico_exception("Error loading emission result file '{}'".format(kwargs[emission]))
 		

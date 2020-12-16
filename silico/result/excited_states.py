@@ -289,6 +289,8 @@ class Energy_state(Result_object):
 			return "triplet"
 		elif multiplicity == 4:
 			return"quartet"
+		elif multiplicity is None:
+			return "None"
 		elif multiplicity % 1 == 0:
 			# Multiplicity is an integer, so return as a stringy whole number.
 			return str(int(multiplicity))

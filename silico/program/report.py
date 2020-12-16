@@ -7,7 +7,6 @@ from pathlib import Path
 import silico.program
 from silico.report.pdf import PDF_report
 from silico.exception.base import Silico_exception
-from silico.result.excited_states import Excited_state_list
 
 
 # Printable name of this program.
@@ -86,7 +85,6 @@ def _main(args, config, logger):
 		logger.warning("Alignment method has been changed but not overwriting existing images; use '-OK method' to ensure molecule images are re-rendered to reflect this change")
 	
 	try:
-		# TODO: Here
 		report = PDF_report.from_calculation_files(
 			*args.calculation_files,
 			gaussian_log_file = args.log_file,
