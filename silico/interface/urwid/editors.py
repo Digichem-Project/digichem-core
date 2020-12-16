@@ -265,7 +265,13 @@ class Dict_editor(List_editor):
 		"""
 		The currently, possible edited, value of this widget.
 		"""
-		return {name.value: value.value for name,value in self.fields if (name.value is not None and value.value is not None) or not self.strip_empty}
+		val =  {
+			name.value: value.value if value.value is not None else ""
+			for name,value
+			in self.fields
+			if not (name.value is None and value.value is None) or not self.strip_empty
+		}
+		return val
 	
 	def adjust(self, *args):
 		"""
