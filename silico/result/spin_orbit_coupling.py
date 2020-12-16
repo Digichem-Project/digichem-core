@@ -126,7 +126,10 @@ class Spin_orbit_coupling(Result_object):
         """
         SOC in eV.
         """
-        return self.wavenumbers_to_energy(self.root_sum_square)
+        try:
+            return self.wavenumbers_to_energy(self.root_sum_square)
+        except (FloatingPointError, ZeroDivisionError):
+            return 0.0
     
     def __str__(self):
         """
