@@ -66,7 +66,9 @@ class Summary_group_extractor(Result_extractor_group):
 			Excited_states_summary_extractor((1,1), **kwargs),
 			Excited_state_transitions_summary_extractor((1,1), 1, **kwargs),
 			Excited_states_summary_extractor((3,1), **kwargs),
-			Excited_state_transitions_summary_extractor((3,1), 1, **kwargs)
+			Excited_state_transitions_summary_extractor((3,1), 1, **kwargs),
+			SOC_summary_extractor("S(0)", "T(1)", **kwargs),
+			SOC_summary_extractor("S(1)", "T(1)", **kwargs)
 		]
 	
 	def join(self, extracted_results):
@@ -306,6 +308,39 @@ class Excited_states_summary_extractor(Summary_extractor):
 			'ΔEst /eV': result.safe_get('excited_states', 'singlet_triplet_energy'),
 			'No. excited states': len(result.excited_states)
 		})
+		
+		
+class SOC_summary_extractor(Summary_extractor):
+	"""
+	dict extractor for ES.
+	"""
+	ALLOW_CRITERIA = True
+	CLASS_HANDLE = silico.extract.SOC_CLASS_HANDLE
+	
+	def _extract_with_criteria(self, state1, state2, *, result):
+		"""
+		Convert a Result_set into an OrderedDict object.
+		
+		"""
+		soc = result.spin_orbit_coupling.between(state1, state2)
+		
+		return OrderedDict({
+			'<{}|Hso|{}> /cm-1'.format(soc.singlet_state.state_symbol, soc.triplet_state.state_symbol): soc.wavenumbers,
+			'<{}|λ|{}> /cm-1'.format(soc.singlet_state.state_symbol, soc.triplet_state.state_symbol): soc.mixing_coefficient,
+		})
+		
+# 	def _extract(self, result):
+# 		"""
+# 		Convert a Result_set into an OrderedDict object.
+# 		"""
+# 		if len(result.spin_orbit_coupling) == 0:
+# 			raise Result_unavailable_error("SOC", "there is no spin-orbit coupling0")
+# 		
+# 		return OrderedDict({
+# 			'ΔEst /eV': result.safe_get('excited_states', 'singlet_triplet_energy'),
+# 			'No. excited states': len(result.excited_states)
+# 		})
+		
 	
 class Excited_state_transitions_summary_extractor(Summary_extractor):
 	"""
