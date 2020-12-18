@@ -47,7 +47,8 @@ def timedelta_to_string(timedelta_object):
 	"""
 	hours = math.floor(timedelta_object.seconds / 3600)
 	minutes = math.floor((timedelta_object.seconds - hours * 3600) / 60)
-	return "{} days, {} hours, {} minutes".format(timedelta_object.days, hours, minutes)
+	seconds = round(timedelta_object.seconds - (hours * 3600 + minutes * 60))
+	return "{} days, {} hours, {} minutes, {} seconds".format(timedelta_object.days, hours, minutes, seconds)
 
 class Dynamic_parent():
 	"""
