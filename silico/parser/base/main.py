@@ -47,6 +47,13 @@ class Parser(Result_set):
         except Exception:
             raise Silico_exception("Error parsing calculation result '{}'".format(self.description))
     
+    @property
+    def log_file_path(self):
+        """
+        The main log file.
+        """
+        return self.log_file_paths[0]
+    
     @classmethod
     def from_parser(self, parser):
         """
