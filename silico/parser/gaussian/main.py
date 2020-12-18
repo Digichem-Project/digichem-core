@@ -84,6 +84,9 @@ class Gaussian_parser(Parser):
         if self.name is not None:
             self.data.metadata['name'] = self.name
         
+        # Assume we used 1 CPU if not otherwise clear (is this a good idea?)
+        self.data.metadata['numcpus'] = 1
+        
         # Open our file.
         with open(self.log_file_path, "rt") as log_file:
             # Loop through our lines, looking for a specific line of text.
