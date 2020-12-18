@@ -9,6 +9,12 @@ GROUP: [Excited States, TD-DFT, 10 Singlets 10 Triplets]
 calculation_keywords:
     - TD=(NStates=10,50-50)
     
+options:
+    # Options required for PySOC
+    6D: ""
+    10F: ""
+    GFInput: ""
+    
 ##############################################################
 ---
 TYPE: calculation
@@ -18,6 +24,12 @@ GROUP: [Excited States, TD-DFT, 5 Triplets]
 
 calculation_keywords:
     - TD=(NStates=5,Triplets)
+    
+options:
+    # Options required for PySOC
+    6D: ""
+    10F: ""
+    GFInput: ""
 
 
 ##############################################################
@@ -62,3 +74,8 @@ calculation_keywords:
     - Opt
     - TD=(NStates=10,Triplets)
 
+options:
+    # Options required for PySOC
+    6D: ""
+    10F: ""
+    GFInput: ""

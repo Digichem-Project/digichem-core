@@ -9,21 +9,12 @@ GROUP: [Excited States, TDA, 10 Singlets 10 Triplets]
 calculation_keywords:
     - TDA=(NStates=10,50-50)
     
-##############################################################
----
-TYPE: calculation
-PARENT: [Gaussian-defaults]
-GROUP: [Excited States, TDA, 10 Singlets 10 Triplets with SOC]
-
-calculation_keywords:
-    - TDA=(NStates=10,50-50)
-    
 options:
     # Options required for PySOC
     6D: ""
     10F: ""
     GFInput: ""
-    
+       
     
 ##############################################################
 ---
@@ -34,6 +25,12 @@ GROUP: [Excited States, TDA, 5 Triplets]
 
 calculation_keywords:
     - TDA=(NStates=5,Triplets)
+    
+options:
+    # Options required for PySOC
+    6D: ""
+    10F: ""
+    GFInput: ""
 
 ##############################################################
 # BIG TDA CALCS
@@ -77,3 +74,8 @@ calculation_keywords:
     - Opt
     - TDA=(NStates=10,Triplets)
 
+options:
+    # Options required for PySOC
+    6D: ""
+    10F: ""
+    GFInput: ""
