@@ -224,7 +224,7 @@ class Excited_state_transition(Result_object):
 				]
 				
 				# Sort by probability/coefficient.
-				data_list.sort(key=lambda keywords: keywords['coefficient'], reverse=True)
+				data_list.sort(key=lambda keywords: math.fabs(keywords['coefficient']), reverse=True)
 				
 				# Now get a list objects and append to our big list.
 				transitions_list.append(
