@@ -52,6 +52,11 @@ class Turbomole_parser(Parser):
         self.gradient_file = gradient_file
         self.aoforce_file = aoforce_file
         
+        # Get out subparsers.
+        self.sub_parser_classes = [
+            Turbomole_orbitals
+        ]
+        
         # Pass to next constructor.
         super().__init__(
             log_file,
@@ -132,20 +137,18 @@ class Turbomole_parser(Parser):
                 
         self.parse_metadata()
         
-        # Get a list of subparsers.
-        subparsers = [Turbomole_orbitals(self)]
-        
         # Read main log file.
-        with open(self.optimisation_step_file_paths[-1]) as log_file:
-            while True:
-                try:
-                    line = next(log_file)
-                except StopIteration:
-                    # Nothing more to read.
-                    break
+        with open(self.control_file) as log_file:
+            # Init parsers.
+            parsers = [parser_cls(self) for parser_cls in self.sub_parser_classes]
             
-                for subparser in subparsers:
-                    subparser.parse(line, log_file)
+            for line in log_file:            
+                for parser in parsers:
+                    parser.parse(line, log_file)
+
+            # Finalize each parser.
+            for parser in parsers:
+                parser.finalize()
         
     def parse_metadata(self):
         """
@@ -156,12 +159,14 @@ class Turbomole_parser(Parser):
             self.data.metadata['name'] = self.name
             
     
-    
-    def parse_HOMO_LUMO(self):
-        """
-        Get our HOMO and LUMO.
-        """
-        # The HOMO and LUMO energies are stored in the main .log file.
+#     
+#     def parse_HOMO_LUMO(self):
+#         """
+#         Get our HOMO and LUMO.
+#         """
+#         # HOMO/LUMO levels are determined from control file.
+#         # Get a subparser.
+#         sub_parser = Turbomole_orbitals(self)
         
         
     # This method is not required; cclib can already parse these files.          

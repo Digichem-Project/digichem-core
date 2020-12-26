@@ -187,3 +187,12 @@ class Sub_parser():
         :param parser: The top-level parser.
         """
         self.parser = parser
+        
+        
+    def finalize(self):
+        """
+        Finalize this sub parser.
+        """
+        pass
+    
+    
