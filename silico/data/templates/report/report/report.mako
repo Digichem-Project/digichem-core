@@ -65,7 +65,8 @@
 		%if result.transition_dipole_moment is not None:
 			<%include file="/dipole_moment/dipole_moment_section.mako" args="dipole_moment = result.transition_dipole_moment"/>
 		%endif
-		%if result.metadata.system_multiplicity != 1:
+		##%if result.metadata.system_multiplicity != 1:
+		%if result.metadata.system_multiplicity != 1 and len(result.beta_orbitals) > 0:
 			<%include file="/spin/spin_density_section.mako" args="result = result"/>
 		%endif
 		%if len(pre_HOMO_orbitals) > 0:

@@ -1,6 +1,6 @@
 ## -*- coding: utf-8 -*-
 
-## Template to display images of generic orbitals (ie, not the FMOs)
+## Template to display spin density.
 
 <%page args="result" />
 
