@@ -16,14 +16,14 @@ development = True
 # Version information.
 major_version = 0
 minor_version = 17
-revision = 0
+revision = 1
 version_number = "{}.{}.{}".format(major_version, minor_version, revision)
 # The full version number of this package.
 version = "{}{}".format(version_number, "-dev" if development else "")
 # The bloke who wrote this.
 author = "Oliver Lee"
 # Program date (when we were last updated).
-_last_updated_string = "07/08/2020"
+_last_updated_string = "12/01/2021"
 last_updated = datetime.strptime(_last_updated_string, "%d/%m/%Y")
 
 # The name of the command to launch new instances of silico.
