@@ -1,5 +1,4 @@
 # General imports.
-from pathlib import Path
 import pysoc.io.SOC
 from logging import getLogger
 from datetime import datetime, timedelta
@@ -57,12 +56,6 @@ class Gaussian_parser(Parser):
             self.parse_SOC()
         except Exception:
             getLogger(silico.logger_name).debug("Cannot parse SOC from output file '{}'".format(self.log_file_path), exc_info = True)
-        
-        # Then TDM.
-        try:
-            self.parse_transition_dipole_moments()
-        except Exception:
-            getLogger(silico.logger_name).debug("Cannot parse TDM from output file '{}'".format(self.log_file_path), exc_info = True)
         
         # All done.
         return self.data

@@ -42,7 +42,11 @@ class Transition_dipole_moment(Dipole_moment):
 		:return: A list of TDM objects. An empty list will be returned if no TDM data is available.
 		"""
 		try:
-			return [self(state_level = index +1, origin_coords = (0,0,0), vector_coords = tdm, atoms = parser.results.alignment) for index, tdm in enumerate(parser.data.etmoments)]
+			return [
+				self(state_level = index +1,
+				origin_coords = (0,0,0),
+				vector_coords = (parser.au_to_debye(tdm[0]), parser.au_to_debye(tdm[1]), parser.au_to_debye(tdm[2])),
+				atoms = parser.results.alignment) for index, tdm in enumerate(parser.data.etdips)]
 		except AttributeError:
 			return []
 	
