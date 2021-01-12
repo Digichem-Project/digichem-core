@@ -47,14 +47,14 @@
 		<%include file="/front_page/front_page.mako" args="result = result"/>
 		<%include file="/summary/summary_section.mako" args="result = result"/>
 		## We don't need these sections unless we're doing an opt.
-		%if len(result.CC_energies) > 1:
-			<%include file="/energy/energy_section.mako" args="energies = result.CC_energies"/>
+		%if len(result.SCF_energies) > 1:
+			<%include file="/energy/energy_section.mako" args="energies = result.SCF_energies"/>
 		%endif
 		%if len(result.MP_energies) > 1:
 			<%include file="/energy/energy_section.mako" args="energies = result.MP_energies"/>
 		%endif
-		%if len(result.SCF_energies) > 1:
-			<%include file="/energy/energy_section.mako" args="energies = result.SCF_energies"/>
+		%if len(result.CC_energies) > 1:
+			<%include file="/energy/energy_section.mako" args="energies = result.CC_energies"/>
 		%endif
 		%if len(result.atoms) > 0:
 			<%include file="/geometry/geometry_section.mako" args="alignment = result.alignment"/>
