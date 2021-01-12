@@ -57,7 +57,7 @@ modules:
 TYPE: calculation
 
 PARENT: [Turbomole-defaults]
-GROUP: ["Excited States", "CC2-SCS", "S1 & S2"]
+GROUP: ["Excited States", "CC2-SCS", "S(1) & S(2)"]
 
 # Turn on CC2.
 ricc2:
@@ -84,7 +84,7 @@ scf:
 TYPE: calculation
 
 PARENT: [Turbomole-defaults]
-GROUP: ["Excited States", "CC2-SCS", "T1 & T2"]
+GROUP: ["Excited States", "CC2-SCS", "T(1) & T(2)"]
 
 # Turn on CC2.
 ricc2:
