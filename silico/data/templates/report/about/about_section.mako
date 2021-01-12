@@ -12,7 +12,8 @@
 		{"title": "Calculation of CIE colour coordinates", "citations": [{"name": "Colour Science", "number": 5}]},
 		{"title": "Generation of report", "citations": [{"name": "Mako", "number": 6}, {"name": "Weasyprint", "number": 7}]},
 		{"title": "Scientific constants", "citations": [{"name": "SciPy", "number": 8}]},
-		{"title": "Conversion of file formats", "citations": [{"name": "Pybel", "number": 9}, {"name": "Openbabel", "number": 10}]}
+		{"title": "Conversion of file formats", "citations": [{"name": "Pybel", "number": 9}, {"name": "Openbabel", "number": 10}]},
+		{"title": "Calculation of spin-orbit coupling", "citations": [{"name": "PySOC", "number": 11}]},
 	]
 %>
 
