@@ -1,4 +1,4 @@
-from itertools import filterfalse
+from itertools import filterfalse, zip_longest
 from silico.result import Result_container
 from silico.result.base import Result_object
 import numpy
@@ -478,7 +478,9 @@ class Excited_state(Energy_state):
 			multiplicities = {}
 			
 			# Assemble cclib's various arrays into a single list.
-			excited_states_data = list(zip(parser.data.etsyms, parser.data.etenergies, parser.data.etoscs))
+			# If we're missing etoscs, that's ok.
+			etoscsc = getattr(parser.data, "etoscs", [])
+			excited_states_data = list(zip_longest(parser.data.etsyms, parser.data.etenergies, etoscsc, fillvalue = 0.0))
 			
 			# First get our transitions.
 			transitions = Excited_state_transition.list_from_parser(parser)
