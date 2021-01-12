@@ -68,6 +68,13 @@ class Turbomole(Program_target):
 			Path to the file in which turbomole output is written.
 			"""
 			return Path(self.method.calc_dir.output_directory, self.calculation.molecule_name).with_suffix(".log")
+		
+		@property
+		def calc_output_file_path(self):
+			"""
+			Path to the main calculation output file.
+			"""
+			return self.turbomole_output_path
 				
 		@property
 		def next_coords(self):
@@ -253,14 +260,7 @@ class Turbomole(Program_target):
 			Main submission method; the calculation will be run here (for which this method will block, possibly for hours+).
 			"""										
 			# Get our wrapper script.
-			wrapper_body = TemplateLookup(directories = str(silico.default_template_directory())).get_template("/submit/turbomole/turbomole_wrapper.mako").render_unicode(program = self)
-			
-# 			# Decide on where we are running.
-# 			if self.scratch_output is not None:
-# 				cwd = self.scratch_output
-# 			else:
-# 				cwd = self.method.calc_dir.output_directory
-			
+			wrapper_body = TemplateLookup(directories = str(silico.default_template_directory())).get_template("/submit/turbomole/turbomole_wrapper.mako").render_unicode(program = self)			
 			
 			# Run Turbomole!
 			subprocess.run(
@@ -273,15 +273,6 @@ class Turbomole(Program_target):
 				check = True
 			)
 				
-		def parse_results(self):
-			# Not implemented for turbomole yet.
-			pass
-		
-		def write_summary_files(self):
-			getLogger(silico.logger_name).info("Skipping writing text summary files; these are not currently supported for Turbomole")
-			
-		def write_report_files(self):
-			getLogger(silico.logger_name).info("Skipping writing pdf report files; these are not currently supported for Turbomole")
 			
 			
 			
