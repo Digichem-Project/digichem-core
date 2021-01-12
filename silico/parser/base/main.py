@@ -15,6 +15,8 @@ from silico.result.dipole_moment import Dipole_moment
 from silico.result.vibrations import Vibration_list
 from silico.exception.base import Silico_exception
 import silico
+from glob import iglob
+import itertools
 
 class Parsed_data():
     """
@@ -26,7 +28,7 @@ class Parser(Result_set):
     Top-level abstract class for calculation result parsers.
     """
     
-    def __init__(self, *log_files, _parsed_data = None):
+    def __init__(self, *log_files):
         """
         Top level constructor for calculation parsers.
         
@@ -36,7 +38,7 @@ class Parser(Result_set):
         self.log_file_paths = [Path(log_file) for log_file in log_files if log_file is not None]
         
         # An object that we will populate with raw results.
-        self.data = _parsed_data
+        self.data = None
         
         # A result set object that we'll populate with results.
         self.results = None
@@ -46,67 +48,119 @@ class Parser(Result_set):
             self.parse()
         except Exception:
             raise Silico_exception("Error parsing calculation result '{}'".format(self.description))
+        
+    @classmethod
+    def from_log(self, log_file, **kwargs):
+        """
+        Intelligent constructor that will attempt to guess the location of files from a given log file.
+        
+        :param log_file: Output file to parse or a directory of output files to parse.
+        """
+        log_files, parent, kwfiles = self.find_logs(log_file)
+        
+        # Make sure we only have unique log files.
+        log_files = list(set(log_file.resolve() for log_file in log_files))
+        
+        return self(*log_files, **kwargs)
+    
+    @classmethod
+    def find_logs(self, log_file):
+        """
+        Find output (log) files from a given hint.
+        
+        :param log_file: A path to a file to use as a hint to find additional log files. log_file can be a directory, in which case files inside this directory will be found.
+        """
+        log_file = Path(log_file)
+        
+        # First, find our parent dir.
+        # Log file may actually be a dir.
+        if log_file.is_dir():
+            # Look for all .log files.
+            parent = log_file
+            log_files = [Path(found_log_file) for found_log_file in iglob(str(Path(parent, "*.log")))]
+        else:
+            parent = log_file.parent
+            log_files = [log_file]
+                            
+        # Try and find job files.
+        # These files have names like 'job.0', 'job.1' etc, ending in 'job.last'.
+        for number in itertools.count():
+            # Get the theoretical file name.
+            job_file_path = Path(parent, "job.{}".format(number))
+            
+            # See if it exists (and isn't the log_file given to us).
+            if job_file_path.exists():
+                # Add to list.
+                log_files.append(job_file_path)
+            else:
+                # We've found all the numbered files.
+                break
+                    
+        # Look for other files.
+        for maybe_file_name in ("basis", "control", "mos", "alpha", "beta", "coord", "gradient", "aoforce", "job.last"):
+            maybe_file_path = Path(parent, maybe_file_name)
+            
+            if maybe_file_path.exists():
+                # Found it.
+                log_files.append(maybe_file_path)
+        
+        # Some parsers recognise other (non-log) files.
+        kwfiles = {}
+        
+        return log_files, parent, kwfiles
+        
     
     @property
     def log_file_path(self):
         """
         The main log file.
         """
+        for log_file in self.log_file_paths:
+            if log_file.suffix.lower() == ".log":
+                return log_file
+            
         return self.log_file_paths[0]
-    
-    @classmethod
-    def from_parser(self, parser):
-        """
-        Get a new parser object from an existing parser object.
-        
-        :param parser: An existing parser object.
-        :return: A new parser, which will be of the current type (which is normally a different type to parser).
-        """
-        return self.from_log(*parser.log_file_paths, _parsed_data = parser.data)
-    
-    @classmethod
-    def from_log(self, log_file, **kwargs):
-        """
-        Intelligent constructor that will attempt to guess the location of files from a given log file.
-        
-        :param log_file: Output file to parse.
-        """
-        return self(log_file, **kwargs)
-    
+            
     @property
     def name(self):
         """
         Short name to describe this calculation result.
         """
-        return self.log_file_paths[0].with_suffix("").name
+        return self.log_file_path.with_suffix("").name
     
     @property
     def description(self):
         """
         A name/path that describes the file(s) being parsed, used for error messages etc.
         """
-        return self.log_file_paths[0]
+        return self.log_file_path
     
     def parse(self):
         """
         Extract results from our output files.
         
-        This default implementation will parse the log file with cclib and save the result to self.data, but only if self.data is already None.
+        This default implementation will parse the log file with cclib and save the result to self.data.
         """
         # We start by using cclib to get most of the data we need.
         
-        # Read and parse the file with cclib if we don't already have some data.
-        if self.data is None:
-            # Output a message (because this is slow).
-            getLogger(silico.logger_name).info("Parsing calculation result '{}'".format(self.description))
-            
-            # Use cclib to open our log files.
-            # ccread will accept a list of log files to read, but will sometimes choke if the list contains only one entry,
-            # in which case we give it only one file name.
-            # ccread will also choke if we give it pathlib Paths.
-            file_paths = [str(log_file) for log_file in self.log_file_paths]
-            
-            self.data = cclib.io.ccread(file_paths if len(file_paths) > 1 else file_paths[0])
+        # Output a message (because this is slow).
+        getLogger(silico.logger_name).info("Parsing calculation result '{}'".format(self.description))
+        
+        # Use cclib to open our log files.
+        # ccread will accept a list of log files to read, but will sometimes choke if the list contains only one entry,
+        # in which case we give it only one file name.
+        # ccread will also choke if we give it pathlib Paths.
+        file_paths = [str(log_file) for log_file in self.log_file_paths]
+        
+        self.data = cclib.io.ccread(file_paths if len(file_paths) > 1 else file_paths[0])
+        
+        self.parse_metadata()
+        
+    def parse_metadata(self):
+        """
+        Parse additional calculation metadata.
+        """
+        pass
         
     def process(self, alignment_class):
         """

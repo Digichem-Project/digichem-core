@@ -18,29 +18,29 @@ class Gaussian_parser(Parser):
     # Headers that indicate certain data is about to be printed.
     TDM_HEADER = " Ground to excited state transition electric dipole moments (Au):\n"
     
-    def __init__(self, log_file, *, rwf_file = None, **kwargs):
+    def __init__(self, *log_files, rwf_file = None, **kwargs):
         """
         Constructor for Gaussian output file parsers.
         """
         self.rwf_file_path = rwf_file
         
-        super().__init__(log_file, **kwargs)
+        super().__init__(*log_files, **kwargs)
         
     @classmethod
-    def from_log(self, log_file, **kwargs):
+    def find_logs(self, log_file):
         """
-        Intelligent constructor that will attempt to guess the location of files from a given log file.
-        
-        :param log_file: Output file to parse.
+        Find output (log) files from a given hint.
+         
+        :param log_file: A path to a file to use as a hint to find additional log files. log_file can be a directory, in which case files inside this directory will be found.
         """
-        log_file = Path(log_file)
+        log_files, parent, kwfiles = super().find_logs(log_file)
         
         # See if we can find our rwf file.
-        if log_file.with_suffix(".rwf").exists():
-            kwargs['rwf_file'] = log_file.with_suffix(".rwf")
+        for found_log_file in log_files:
+            if found_log_file.with_suffix(".rwf").exists():
+                kwfiles['rwf_file'] = found_log_file.with_suffix(".rwf")
             
-        # Continue with normal constructor.
-        return self(log_file, **kwargs)
+        return log_files, parent, kwfiles
         
     def parse(self):
         """
@@ -51,10 +51,7 @@ class Gaussian_parser(Parser):
         
         # Output a message (because this is slow).
         getLogger(silico.logger_name).debug("Secondary parsing calculation result '{}'".format(self.description))
-                    
-        # Date and time.
-        self.parse_metadata()
-        
+                            
         # Next try and get SOC.
         try:
             self.parse_SOC()
