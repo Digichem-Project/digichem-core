@@ -108,10 +108,6 @@ class Report():
 			discover_additional_inputs = True,
 			alignment_class_name = None,
 			options,
-			#vertical_emission_ground_result = None,
-			#adiabatic_emission_ground_result = None,
-			#emission_excited_result = None,
-			#emission_excited_state = None,
 			**kwargs):
 		"""
 		A more intelligent constructor that can automatically determine file type(s).
@@ -195,27 +191,10 @@ class Report():
 		# Add emission energies to result.
 		results.add_emission(
 			**kwargs
-			#vertical_emission_ground_result = vertical_emission_ground_result,
-			#adiabatic_emission_ground_result = adiabatic_emission_ground_result,
-			#emission_excited_result = emission_excited_result,
-			#emission_excited_state = emission_excited_state
 		)
 				
 		# Use our proper constructor.
 		report = self(results, gaussian_log_file = files[file_types.gaussian_log_file], chk_file_path = files[file_types.gaussian_chk_file], fchk_file_path = files[file_types.gaussian_fchk_file], options = options)
-		
-# 		results =  Result_object.from_calculation_file(
-# 			files[file_types.gaussian_log_file],
-# 			alignment_class_name = options['alignment'] if alignment_class_name is None else alignment_class_name,
-# 			**kwargs
-# 		)
-		
-
-		
-		# Add some stuff.
-# 		results.chk_file_path = files[file_types.gaussian_chk_file]
-# 		results.fchk_file_path = files[file_types.gaussian_fchk_file]
-# 		results.options = options
 
 		# All done.
 		return report

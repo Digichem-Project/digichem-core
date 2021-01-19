@@ -2,7 +2,6 @@
 # This program is designed to extract results from gaussian calculations and display/save them as more convenient formats.
 
 # General imports.
-import cclib
 from multiprocessing import Pool
 from itertools import filterfalse
 from functools import partial
@@ -12,8 +11,6 @@ import signal
 # Silico imports.
 import silico.program
 from silico.misc.base import List_grouper
-from silico.result.result import Result_set
-from silico.misc.file_wrapper import Multi_file_wrapper
 from silico.extract.text import Text_summary_group_extractor
 from silico.extract.csv import CSV_summary_group_extractor, Long_CSV_group_extractor
 from silico.extract.table import Table_summary_group_extractor, Long_table_group_extractor
@@ -49,16 +46,6 @@ def _get_result_set(filename, alignment_class):
 	# First open our file.
 	try:
 		return get_parser(filename).process(alignment_class)
-#         
-#         
-# 		with Multi_file_wrapper(filename, "rt") as input_file:
-# 			# Get our result object.
-#             parser = Gaussian()
-# 			return Result_set.from_cclib(
-# 				cclib.io.ccread(input_file.file),
-# 				gaussian_log_file = input_file.name if input_file.name != "-" else None,
-# 				name = input_file.name,
-# 				**kwargs)
 	except Exception:
 			logger.warning("Unable to parse calculation result file '{}'; skipping".format(filename), exc_info = True)
 
@@ -231,8 +218,6 @@ def _main(args, config, logger):
 			)
 	except Exception:
 		raise Silico_exception("Failed to read calculation files")
-		#logger.error("failed to read calculation files", exc_info = True)
-		#return -1
 	
 	# Now process.
 	try:
@@ -245,7 +230,5 @@ def _main(args, config, logger):
 			extractor_group['extractor'].write(results, extractor_group['output_file_paths'])	
 	except Exception:
 		raise Silico_exception("Failed to read calculation files")
-		#logger.error("failed to extract results", exc_info = True)
-		#return -1
 
 	

@@ -256,12 +256,4 @@ class Turbomole_UFF(Turbomole):
 	# We only have one module to run.
 	modules = ("uff",)
 	
-# 	############################
-# 	# Class creation mechanism #
-# 	############################
-# 	
-# 	class _actual(Turbomole_UFF._actual):
-# 		"""
-# 		Inner class for calculations.
-# 		"""
 		

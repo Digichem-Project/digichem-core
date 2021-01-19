@@ -11,7 +11,6 @@ import silico
 from silico.misc.directory import copytree
 import shutil
 import re
-from logging import getLogger
 
 
 class Turbomole(Program_target):
@@ -274,5 +273,9 @@ class Turbomole(Program_target):
 			)
 				
 			
-			
+class Turbomole_restart(Turbomole):
+	"""
+	Restarted calculations with Turbomole.
+	"""
+				
 			

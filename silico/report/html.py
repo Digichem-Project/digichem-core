@@ -1,4 +1,4 @@
-from silico.report import Report
+from silico.report.base import Report
 from mako.lookup import TemplateLookup
 from pathlib import Path
 import pkg_resources

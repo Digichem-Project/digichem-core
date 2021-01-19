@@ -6,20 +6,10 @@ from pathlib import Path
 
 # Silico imports.
 from silico.exception import Result_unavailable_error
-# from silico.result.alignment.AAA import Adjusted_average_angle
-# from silico.result.alignment.AA import Average_angle
-# from silico.result.alignment.FAP import Furthest_atom_pair
-# from silico.result.alignment import Minimal
-# from silico.result.energy import CC_energy_list, MP_energy_list,\
-# 	SCF_energy_list
-# from silico.result.atoms import Atom_list
-# from silico.result.dipole_moment import Dipole_moment
-# from silico.result.molecular_orbitals import Molecular_orbital_list,\
-# 	Beta_orbital
-# from silico.result.excited_states import Excited_state_list
-# from silico.result.vibrations import Vibration_list
-# from silico.result.transition_dipole_moment import Transition_dipole_moment
-# from silico.result.alignment.base import Alignment
+from silico.result.alignment.AAA import Adjusted_average_angle
+from silico.result.alignment.AA import Average_angle
+from silico.result.alignment.FAP import Furthest_atom_pair
+from silico.result.alignment import Minimal
 from silico.result.base import Result_object
 from silico.exception.base import Silico_exception
 #import silico
