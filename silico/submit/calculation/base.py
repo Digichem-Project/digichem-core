@@ -136,6 +136,12 @@ class Concrete_calculation(Calculation_target):
 		force_delete = Option(help = "Whether to always delete the scratch directory at the end of the calculation, even if output files could not be safely copied", default = False, type = bool),
 		all_output = Option(help = "Whether to output all files to the scratch directory. If False, only intermediate files will be written to scratch (.log will be written directly to output directory for example)", default = False, type = bool)
 	)
+	structure = Options(
+		help = "Options that control the calculation folder structure",
+		program_sub_folder = Option(help = "Whether to use a separate subfolder for each calculation program", default = False, type = bool),
+		prepend_program_name = Option(help = "Whether to prepend the calculation program name to the calculation folder", default = True, type = bool),
+		append_program_name = Option(help = "Whether to append the calculation program name to the calculation folder", default = False, type = bool),
+	)
 	write_summary = Option(help = "Whether to write Silico summary text files to the 'Results' folder at the end of the calculation", default = True, type = bool)
 	write_report = Option(help = "Whether to write a Silico PDF report to the 'Report' folder at the end of the calculation", default = True, type = bool)
 	custom_silico_options = Option(

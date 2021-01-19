@@ -33,6 +33,16 @@ scratch_options:
     # If True, all calculation output will be written to the scratch directory. If False, only intermediate files will be written to scratch. Note that the .log file is always written to the true output directory to allow the calculation to be monitored.
     all_output: True
 
+# Options that control the calculations folder structure.
+structure:
+    # Whether to use a separate subfolder for each calculation program.
+    program_sub_folder: False
+    # Whether to prepend the calculation program name to the calculation folder.
+    prepend_program_name: True
+    # Whether to append the calculation program name to the calculation folder.
+    append_program_name: False
+    
+
 # Whether to write silico result files once the calculation has complete.
 # The files writen are the same as can be aquired by using cresult later, they are small text files so there is generally little reason to set this to False.
 # This option only controls writing of additional silico result files; even if write_results is False, the output files produced by the calculation (.log, .out etc) will still be saved. 
