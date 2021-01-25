@@ -17,6 +17,7 @@ Silico currently supports the following:
 #### Computational Packages
  - Gaussian 09
  - Gaussian 16
+ - Turbomole
  
 #### Python
  - Python 3.6 (and above)
