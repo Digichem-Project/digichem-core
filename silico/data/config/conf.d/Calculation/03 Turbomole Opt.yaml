@@ -44,7 +44,7 @@ TYPE: calculation
 
 #NAME: SCS CC2 Opt (cc-pVDZ)
 GROUP: [Opt, CC2-SCS]
-PARENT: [Turbomole-defaults]
+PARENT: [Turbomole-CC2-defaults]
 
 # This is an opt.
 modules:
@@ -58,7 +58,3 @@ ricc2:
 # Turn on optimisation.
 cc_geoopt:
     wavefunction: cc2
-    
-# We normally need more SCF for CC2.
-scf:
-    iter: 300

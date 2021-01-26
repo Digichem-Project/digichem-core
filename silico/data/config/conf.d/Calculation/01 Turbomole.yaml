@@ -22,10 +22,18 @@ scratch_options:
     # Set True is useful for Turbomole.
     all_output: True
     
-# CC2 is slooow; use double CPUs to compensate.
-num_CPUs: 16
+---
+# CC2-SCS
+TYPE: calculation
 
-# SPLIT, but know that this is overwritten by other splits.
+ABSTRACT: True
+ALIAS: [Turbomole-CC2-defaults]
+PARENT: [Turbomole-defaults]
+
+# CC2 is very slow, assign more CPUs to try and compensate.
+num_CPUs: 32
+
+# SPLIT on basis set.
 SPLIT:
   - GROUP_NAME: "{basis_set}"
     basis_set:
