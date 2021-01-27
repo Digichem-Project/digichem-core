@@ -1,7 +1,7 @@
 import math
 from silico.result.base import Result_object
 from silico.result.angle import Angle
-from silico.file.cube import Cube_maker
+from silico.file.cube import Fchk_to_cube
 from pathlib import Path
 from silico.image.vmd import Dipole_image_maker
 
@@ -128,7 +128,7 @@ class Dipole_moment(Result_object):
 		"""
 		# Get ourselves a cube file maker if we need one.
 		if cube_file is None:
-			cube_file = Cube_maker.from_image_options(Path(output_dir, "Dipole Moment", output_name + ".dipole.cube"), cubegen_type = "MO", orbital = "HOMO", **kwargs)
+			cube_file = Fchk_to_cube.from_image_options(Path(output_dir, "Dipole Moment", output_name + ".dipole.cube"), cubegen_type = "MO", orbital = "HOMO", **kwargs)
 			
 		# Get our image.
 		self._files['dipole_image'] = Dipole_image_maker.from_image_options(Path(output_dir, "Dipole Moment", output_name + ".dipole.jpg"), cube_file = cube_file, dipole_moment = self, **kwargs)

@@ -22,7 +22,7 @@ class Fchk_maker(File_converter):
 	
 	def __init__(self, *args, chk_file = None, fchk_file = None,  **kwargs):
 		"""
-		Constructor for Cube_maker objects.
+		Constructor for Fchk_maker objects.
 		
 		See Image_maker for a full signature.
 		

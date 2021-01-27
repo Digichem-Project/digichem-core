@@ -3,7 +3,7 @@ from pathlib import Path
 
 # Silico imports.
 from silico.result.dipole_moment import Dipole_moment
-from silico.file.cube import Cube_maker
+from silico.file.cube import Fchk_to_cube
 from silico.image.vmd import Dipole_image_maker
 
 class Transition_dipole_moment(Dipole_moment):
@@ -80,7 +80,7 @@ class Transition_dipole_moment(Dipole_moment):
 		# Get ourselves a cube file maker if we need one.
 		if cube_file is None:
 			# We'll just use the HOMO to get our cube, as it almost certainly should exist.
-			cube_file = Cube_maker.from_image_options(Path(output_dir, sub_dir_name, output_name + ".{}.cube".format(file_name)), cubegen_type = "MO", orbital = "HOMO", **kwargs)
+			cube_file = Fchk_to_cube.from_image_options(Path(output_dir, sub_dir_name, output_name + ".{}.cube".format(file_name)), cubegen_type = "MO", orbital = "HOMO", **kwargs)
 			
 		# Get our image.
 		self._files['dipole_image'] = Dipole_image_maker.from_image_options(Path(output_dir, sub_dir_name, output_name + ".{}.jpg".format(file_name)), cube_file = cube_file, dipole_moment = self, **kwargs)

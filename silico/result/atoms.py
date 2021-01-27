@@ -3,7 +3,7 @@ import periodictable
 from silico.result import Result_container
 from silico.result import Result_object
 from itertools import zip_longest
-from silico.file.cube import Cube_maker
+from silico.file.cube import Fchk_to_cube
 from pathlib import Path
 from silico.image.vmd import Structure_image_maker
 from silico.exception.base import Result_unavailable_error
@@ -185,7 +185,7 @@ class Atom_list(Result_container):
 		# Get ourselves a cube file maker if we need one.
 		if cube_file is None:
 			# We'll just use the HOMO to get our cube, as it almost certainly should exist.
-			cube_file = Cube_maker.from_image_options(
+			cube_file = Fchk_to_cube.from_image_options(
 				Path(output_dir, "Structure", output_name + ".structure.cube"),
 				cubegen_type = "MO",
 				orbital = "HOMO",

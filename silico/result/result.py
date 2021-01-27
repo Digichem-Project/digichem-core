@@ -14,7 +14,7 @@ from silico.result.base import Result_object
 from silico.exception.base import Silico_exception
 #import silico
 import silico.result.excited_states
-from silico.file.cube import Spin_cube_maker
+from silico.file.cube import Fchk_to_spin_cube
 from silico.image.vmd import Spin_density_image_maker
 from silico.result.emission import Relaxed_excited_state
 from datetime import timedelta, datetime
@@ -321,7 +321,7 @@ class Result_set(Result_object):
 		:param options: A silico Config dictionary (or a dictionary with the same structure at least) of options to set. This should match the format laid out in the silico config file.
 		"""
 		# Get our cube maker object.
-		cube_file = Spin_cube_maker.from_image_options(
+		cube_file = Fchk_to_spin_cube.from_image_options(
 			Path(output_dir, "Spin Density", output_name + ".spin.cube"),
 			cubegen_type = "Spin",
 			orbital = "SCF",

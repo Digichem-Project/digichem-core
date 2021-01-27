@@ -4,7 +4,7 @@ from silico.result import Result_container
 from silico.result.base import Result_object
 from silico.exception import Result_unavailable_error
 from silico.image.vmd import Orbital_image_maker, Combined_orbital_image_maker
-from silico.file.cube import Cube_maker
+from silico.file.cube import Fchk_to_cube
 from pathlib import Path
 from silico.image.orbitals import Orbital_diagram_maker
 
@@ -383,7 +383,7 @@ class Molecular_orbital(Result_object):
 				cubegen_type = "MO"
 			
 			# Get our cube maker object.
-			cube_file = Cube_maker.from_image_options(
+			cube_file = Fchk_to_cube.from_image_options(
 				Path(output_dir, self.label, output_name + ".{}.cube".format(self.label)),
 				cubegen_type = cubegen_type,
 				orbital = self.level,
@@ -415,7 +415,7 @@ class Molecular_orbital(Result_object):
 	@property
 	def cube_file(self):
 		"""
-		Get a Cube_maker object that can create a cube file of this orbital.
+		Get a Fchk_to_cube object that can create a cube file of this orbital.
 		"""
 		return self.get_file("cube_file")
 	
