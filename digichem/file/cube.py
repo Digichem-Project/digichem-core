@@ -7,7 +7,7 @@ from logging import getLogger
 import silico.file.types as file_types
 import silico
 
-class Cube_maker(File_converter):
+class Fchk_to_cube(File_converter):
 	"""
 	Class for handling file references to Gaussian cube files.
 	
@@ -30,7 +30,7 @@ class Cube_maker(File_converter):
 	
 	def __init__(self, *args, fchk_file = None, cubegen_type = "MO", orbital = "HOMO", npts = 0, cube_file = None, use_existing = True, **kwargs):
 		"""
-		Constructor for Cube_maker objects.
+		Constructor for Fchk_to_cube objects.
 		
 		See Image_maker for a full signature.
 		
@@ -99,7 +99,7 @@ class Cube_maker(File_converter):
 
 
 
-class Spin_cube_maker(Cube_maker):
+class Fchk_to_spin_cube(Fchk_to_cube):
 	"""
 	A variation of the cube maker designed for making spin density cubes.
 	
@@ -108,9 +108,9 @@ class Spin_cube_maker(Cube_maker):
 	
 	def __init__(self, *args, spin_density = "SCF", **kwargs):
 		"""
-		Constructor for Cube_maker objects.
+		Constructor for Fchk_to_cube objects.
 		
-		See Cube_maker for a full signature.
+		See Fchk_to_cube for a full signature.
 		
 		:param output: The filename/path to the cube file (this path doesn't need to point to a real file yet; we will use this path to write to).
 		:param fchk_file: Optional fchk_file to use to generate this cube file.
@@ -135,4 +135,29 @@ class Spin_cube_maker(Cube_maker):
 			cube_file = cube_file,
 			**options['image']
 		)
+		
+class Turbomole_to_cube(File_converter):
+	"""
+	Class for converting Turbomole output to cube format.
+	"""
+	
+	# Text description of our input file type, used for error messages etc.
+	input_file_type = "Turbomole Directory"
+	# Text description of our output file type, used for error messages etc.
+	output_file_type = file_types.gaussian_cube_file
+	
+	def __init__(self, *args, turbomole_output = None, orbitals = [], **kwargs):
+		"""
+		Constructor for Fchk_to_cube objects.
+		
+		See Image_maker for a full signature.
+		
+		:param output: Path to a directory in which the new cube files will be written.
+		:param turbomole_output: A completed Turbomole calculation that will be used to generate cube files.
+		:param orbitals: The orbital to be included in the cube file when we make it. Possible values are 'HOMO', 'LUMO' or the integer level of the desired orbital.
+		"""
+		super().__init__(*args, input_file = turbomole_output, **kwargs)
+		self.orbitals = orbitals
+		
+		
 		

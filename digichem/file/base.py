@@ -52,17 +52,7 @@ class File_maker():
 		# This dictionary contains pathlib Path objects to the file(s) that this class represents.
 		# Inheriting classes can change this if they represent multiple files, in which case each key should be the name that will be used to access the file.
 		self.file_path = {'file': self.output}
-	
-# 	def __getattr__(self, name):
-# 		"""
-# 		Magic getattr method to fetch one of the files that we represent.		
-# 		"""
-# 		if name in self.file_path:
-# 			print("GETTING: {}".format(name))
-# 			return self.safe_get_file(name)
-# 		
-# 		raise AttributeError("{} does not have attribute {}".format(type(self), name))
-	
+		
 	def safe_get_file(self, name = 'file', log = True):
 		"""
 		Get the path to one of the files that this class represents, converting from our input file and writing to file first if necessary.
