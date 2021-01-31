@@ -129,6 +129,11 @@ class Turbomole_AI(Turbomole):
 		oscillator_strengths = Option(help = "The operators with which to calculate oscillator strengths.", type = str, default = None),
 		gradients = Option(help = "Whether to calculate excited state gradients.", type = bool, default = True)
 		)
+	plt = Options(
+		help = "Options for orbital grid plotting.",
+		orbitals = Option(help = "List of orbitals to plot for. Orbitals are identified by their 'irrep', a combination of symmetry and number.", type = tuple, default = []),
+		format = Option(help = "The format to write to.", default = "cub", choices = ("plt", "map", "xyz", "plv"), type = str)
+		)
 	
 	@property
 	def pretty_functional(self):
@@ -257,3 +262,9 @@ class Turbomole_UFF(Turbomole):
 	modules = ("uff",)
 	
 		
+class Turbomole_restart(Turbomole):
+	"""
+	Turbomole calculations 
+	"""
+
+

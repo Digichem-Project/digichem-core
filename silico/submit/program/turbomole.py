@@ -96,24 +96,7 @@ class Turbomole(Program_target):
 				return Path(self.calculation.scratch_directory, "node")
 			else:
 				return self.calculation.scratch_directory
-			
-# 		@property
-# 		def scratch_output(self):
-# 			"""
-# 			Path to the scratch folder in which the calculation will be run.
-# 			
-# 			When scratch is on for turbomole, two directories are considered:
-# 			 - TURBOTMPDIR: The 'real' scratch location as understood by turbomole, possibly ignored when not in a parallel mode (SMP/MPI)?
-# 			 - Output dir: The directory where 'control' is located, turbomole will be run with this directory as the CWD.
-# 			Most scratch files are written according to TURBOTMPDIR, but many other files are written to the the output dir, including some that could be arguably described as scratch files.
-# 			As such, we will set the output dir to be inside the scratch directory if all_output is True.
-# 			This is the recommended option, but may brake MPI...
-# 			"""
-# 			if self.calculation.scratch_directory is None or not self.calculation.scratch_options['all_output']:
-# 				return None
-# 			else:
-# 				return Path(self.calculation.scratch_directory, "Output")
-		
+					
 		@property
 		def define_input_path(self):
 			"""
@@ -278,4 +261,20 @@ class Turbomole_restart(Turbomole):
 	Restarted calculations with Turbomole.
 	"""
 				
+	############################
+	# Class creation mechanism #
+	############################
+	
+	class _actual(Program_target._actual):
+		"""
+		Inner class for programs.
+		"""
+		
+		def pre(self):
+			"""
+			Pre-calculation setup for Turbomole.
+			"""
+			# Call parent for setup first.
+			super().pre()
 			
+			# Next we need to copy our old calc dir to new location.

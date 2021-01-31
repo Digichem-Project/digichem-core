@@ -267,7 +267,6 @@ class Concrete_calculation(Calculation_target):
 			
 			:param output: Path to a directory to perform the calculation in.
 			:param input_coords: A Silico_input object containing the coordinates on which the calculation will be performed.
-			:param molecule_name: A name that refers to the system under study (eg, Benzene etc).
 			"""
 			# Because we normally run the program in a different environment to where we are currently, we need to load all input files we need into memory so they can be pickled.
 			self.output = output
@@ -363,4 +362,86 @@ class Concrete_calculation(Calculation_target):
 					raise Submission_error(self, "failed to submit to next calculation in chain")
 	
 	
-				
+class Directory_calculation(Concrete_calculation):
+	"""
+	A class for calculations that take an existing calculation directory as input, instead of a molecule/geometry.
+	"""
+	
+	############################
+	# Class creation mechanism #
+	############################
+	
+	class _actual(Calculation_target._actual):
+		"""
+		Inner class for calculations.
+		"""
+		
+		def __init__(self, *args, **kwargs):
+			"""
+			Constructor for calculation objects.
+			
+			:param program: A Program_target_actual object to submit to.
+			"""	
+			super().__init__(*args, **kwargs)
+			
+			# We don't have input coords.
+			del(self.input_coords)
+			self.input = None
+		
+		@property
+		def molecule_name(self):
+			"""
+			The name of the molecule under study.
+			
+			This name is 'safe' for Gaussian and other sensitive programs.
+			"""
+			return self.safe_name(self._molecule_name)
+		
+		@molecule_name.setter
+		def molecule_name(self, value):
+			"""
+			Set the name of the molecule under study.
+			"""
+			self._molecule_name = value
+		
+		def prepare(self, output, input, *, molecule_name):
+			"""
+			Prepare this calculation for submission.
+			
+			:param output: Path to a directory to perform the calculation in.
+			:param input: A directory containing existing calculation files to run.
+			:param molecule_name: A name that refers to the system under study (eg, Benzene etc).
+			"""
+			# Because we normally run the program in a different environment to where we are currently, we need to load all input files we need into memory so they can be pickled.
+			self.output = output
+			self.input = input
+			self.molecule_name = molecule_name 
+		
+		def prepare_from_file(self,
+			output,
+			input,
+			*,
+			molecule_name = None):
+			"""
+			Alternative submission constructor that first reads in an input file.
+			
+			:param output: Path to a directory to perform the calculation in.
+			:param input: A directory containing existing calculation files to run.
+			:param molecule_name: A name that refers to the system under study (eg, Benzene etc).s
+			"""	
+			# Prep normally.
+			self.prepare(output, input, molecule_name = molecule_name)
+			
+		def prepare_from_calculation(self, output, calculation):
+			"""
+			Alternative submission constructor that gets the input coordinates from a previously finished calc.
+			
+			:param output: Path to a directory to perform the calculation in.
+			:param calculation: A previously submitted calculation.
+			"""
+			self.prepare_from_file(
+				output,
+				calculation.program.method.calc_dir.output_directory,
+				molecule_name = calculation.molecule_name
+			)
+	

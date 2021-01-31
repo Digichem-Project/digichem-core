@@ -62,6 +62,7 @@ u ${calculation.unpaired_electrons}
 ## ! SCF                     !
 ## !!!!!!!!!!!!!!!!!!!!!!!!!!!
 <%include file="scf.mako" args="calculation = calculation"/>\
+##
 ## !!!!!!!!!!!!!!!!!!!!!!!!!!!
 ## ! DFT                     !
 ## !!!!!!!!!!!!!!!!!!!!!!!!!!!
