@@ -1,9 +1,13 @@
 # Objects for making cube files.
 
-from silico.exception.base import File_maker_exception
-from silico.file import File_converter
+# General imports.
+from pathlib import Path
 import subprocess
 from logging import getLogger
+
+# Silico imports.
+from silico.exception.base import File_maker_exception
+from silico.file import File_converter
 import silico.file.types as file_types
 import silico
 
@@ -154,10 +158,18 @@ class Turbomole_to_cube(File_converter):
 		
 		:param output: Path to a directory in which the new cube files will be written.
 		:param turbomole_output: A completed Turbomole calculation that will be used to generate cube files.
-		:param orbitals: The orbital to be included in the cube file when we make it. Possible values are 'HOMO', 'LUMO' or the integer level of the desired orbital.
+		:param orbitals: A list of orbital irreps (strings) to create cube files for.
 		"""
 		super().__init__(*args, input_file = turbomole_output, **kwargs)
-		self.orbitals = orbitals
+		self.orbitals = [irrep.lower() for irrep in orbitals]
 		
+		# Set paths to the cube files we'll be making.
+		self.file_path = {mo_irrep: Path(self.output, "{}.cub".format(mo_irrep)) for mo_irrep in self.orbitals}
+		
+	def make_files(self):
+		"""
+		Make the files referenced by this object.
+		"""
+		# To generate cubes, we need to run the dscf Turbomole module after setting some control options.
 		
 		
