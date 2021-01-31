@@ -167,7 +167,7 @@ class SLURM(Resumable_method):
 			if self._mem_per_CPU is None:
 				return None
 			elif self._mem_per_CPU == "auto":
-				return SLURM_memory(round(float(float(self.program.calculation.memory) * 1.2)) / self.CPUs_per_task)
+				return SLURM_memory(round(float(float(self.program.calculation.memory) * 1.1)) / self.CPUs_per_task)
 			else:
 				return SLURM_memory(float(self._mem_per_CPU))
 	
