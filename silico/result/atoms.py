@@ -93,9 +93,9 @@ class Atom_list(Result_container):
 		if self.charge == 1:
 			formula_string += " +"
 		elif self.charge == -1:
-			formula_string += " ->"
+			formula_string += " -"
 		elif self.charge != 0:
-			formula_string += " {:+}".format(self.charge)
+			formula_string += " {}{}".format(abs(self.charge), "-" if self.charge < 0 else "+")
 			
 		return formula_string
 		
