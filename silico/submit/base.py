@@ -63,12 +63,13 @@ class Memory():
 	# When outputting units, whether to separate the number and unit with a space.
 	SPACE_UNIT = False
 	
-	def __init__(self, value = None, print_decimal = False):
+	def __init__(self, value = None, print_decimal = False, round_decimal = True):
 		"""
 		"""
 		self.value = None
 		self.auto = value
 		self.print_decimal = print_decimal
+		self.round_decimal = round_decimal
 	
 	@property
 	def auto(self):
@@ -89,14 +90,18 @@ class Memory():
 		else:
 			suffix_index -= 1
 		
-		try:
-			# Now check to see if we have a decimal part which is non zero.
-			while not self.print_decimal and (self.value / ordered_units[suffix_index][1]) % 1 != 0:
-				# Got a decimal part, use the next smallest unit.
-				suffix_index -= 1
-		except IndexError:
+		# Now check to see if we have a decimal part which is non zero.
+		while not self.print_decimal and suffix_index > -1 and (self.value / ordered_units[suffix_index][1]) % 1 != 0:
+			# Got a decimal part, use the next smallest unit.
+			suffix_index -= 1
+			
+		if suffix_index < 0:
 			# We ran out of units and couldn't remove our fraction.
-			raise ValueError("Unable to represent memory value '{}'B as non decimal".format(self.value))
+			if self.round_decimal:
+				# We're allowed to round our decimal away.
+				suffix_index = 0
+			else:
+				raise ValueError("Unable to represent memory value '{}'B as non decimal".format(self.value))
 		
 		# Now get our value in the correct units.
 		value = self.value / ordered_units[suffix_index][1]
