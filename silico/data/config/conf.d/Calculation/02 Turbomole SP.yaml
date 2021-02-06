@@ -26,3 +26,4 @@ ricc2:
 # This is a single point.
 modules:
     - dscf
+    - ricc2
