@@ -10,6 +10,8 @@ from silico.exception.base import File_maker_exception
 from silico.file import File_converter
 import silico.file.types as file_types
 import silico
+from silico.submit.method.local import Series
+import tempfile
 
 class Fchk_to_cube(File_converter):
 	"""
@@ -32,7 +34,7 @@ class Fchk_to_cube(File_converter):
 	# Text description of our output file type, used for error messages etc.
 	output_file_type = file_types.gaussian_cube_file
 	
-	def __init__(self, *args, fchk_file = None, cubegen_type = "MO", orbital = "HOMO", npts = 0, cube_file = None, use_existing = True, **kwargs):
+	def __init__(self, *args, fchk_file = None, cubegen_type = "MO", orbital = "HOMO", npts = 0, cube_file = None, **kwargs):
 		"""
 		Constructor for Fchk_to_cube objects.
 		
@@ -45,25 +47,24 @@ class Fchk_to_cube(File_converter):
 		:param npts: The 'npts' option of cubegen, controls how detailed the resulting file is. Common options are 0 (default), -2 ('low' quality), -3 (medium quality), -4 (very high quality).
 		:param cube_file: An optional file path to an existing cube file to use. If this is given (and points to an actual file), then a new cube will not be made and this file will be used instead.
 		"""
-		super().__init__(*args, input_file = fchk_file, existing_file = cube_file, use_existing = use_existing, **kwargs)
+		super().__init__(*args, input_file = fchk_file, existing_file = cube_file, **kwargs)
 		self.cubegen_type = cubegen_type
 		self.orbital = orbital
 		self.npts = npts
 		
 	@classmethod
-	def from_image_options(self, output, *, output_base = None, fchk_file = None, cubegen_type = "MO", orbital = "HOMO", cube_file = None, options, **kwargs):
+	def from_options(self, output, *, fchk_file = None, cubegen_type = "MO", orbital = "HOMO", options, **kwargs):
 		"""
-		An alternative constructor that discards any additional keyword arguments.
-		"""
+		Constructor that takes a dictionary of config like options.
+		"""		
 		return self(
 			output,
-			output_base = output_base,
 			fchk_file = fchk_file,
 			cubegen_type = cubegen_type,
 			orbital = orbital,
 			npts = options['molecule_image']['orbital']['cube_grid_size'],
-			cube_file = cube_file,
-			**options['image']
+			dont_modify = options['image']['dont_modify'],
+			**kwargs
 		)
 			
 	def make_files(self):
@@ -124,22 +125,31 @@ class Fchk_to_spin_cube(Fchk_to_cube):
 		"""
 		return super().__init__(*args, cubegen_type = "Spin", orbital = spin_density, **kwargs)
 	
-	
 	@classmethod
-	def from_image_options(self, output, *, output_base = None, fchk_file = None, spin_density = "SCF", cube_file = None, options, **kwargs):
+	def from_options(self, output, *, fchk_file = None, cubegen_type = "Spin", spin_density = "SCF", options, **kwargs):
 		"""
-		An alternative constructor that discards any additional keyword arguments.
-		"""
+		Constructor that takes a dictionary of config like options.
+		"""		
 		return self(
 			output,
-			output_base = output_base,
 			fchk_file = fchk_file,
+			cubegen_type = cubegen_type,
 			spin_density = spin_density,
 			npts = options['molecule_image']['spin']['cube_grid_size'],
-			cube_file = cube_file,
-			**options['image']
+			dont_modify = options['image']['dont_modify'],
+			**kwargs
 		)
 		
+class Turbomole_cube_adapter():
+	"""
+	"""
+	
+	def __init__(self, turbomole_to_cube, irrep):
+		"""
+		"""
+		self.turbomole_to_cube = turbomole_to_cube
+		self.irrep = irrep
+	
 class Turbomole_to_cube(File_converter):
 	"""
 	Class for converting Turbomole output to cube format.
@@ -150,26 +160,76 @@ class Turbomole_to_cube(File_converter):
 	# Text description of our output file type, used for error messages etc.
 	output_file_type = file_types.gaussian_cube_file
 	
-	def __init__(self, *args, turbomole_output = None, orbitals = [], **kwargs):
+	def __init__(self, *args, turbomole_calculation = None, orbitals = [], **kwargs):
 		"""
 		Constructor for Fchk_to_cube objects.
 		
 		See Image_maker for a full signature.
 		
 		:param output: Path to a directory in which the new cube files will be written.
-		:param turbomole_output: A completed Turbomole calculation that will be used to generate cube files.
+		:param turbomole_calculation: A completed Turbomole calculation that will be used to generate cube files.
 		:param orbitals: A list of orbital irreps (strings) to create cube files for.
 		"""
-		super().__init__(*args, input_file = turbomole_output, **kwargs)
+		super().__init__(*args, **kwargs)
+		
+		# Save our input calc dir.
+		self.turbomole_calculation = turbomole_calculation
+		
+		# The orbitals we've been asked to make.
 		self.orbitals = [irrep.lower() for irrep in orbitals]
 		
 		# Set paths to the cube files we'll be making.
 		self.file_path = {mo_irrep: Path(self.output, "{}.cub".format(mo_irrep)) for mo_irrep in self.orbitals}
+	
+	@property
+	def input_file(self):
+		"""
+		"""
+		if self.turbomole_calculation is None:
+			return None
+		else:
+			return self.turbomole_calculation.program.method.calc_dir.output_directory
 		
 	def make_files(self):
 		"""
 		Make the files referenced by this object.
 		"""
 		# To generate cubes, we need to run the dscf Turbomole module after setting some control options.
+		# We first need a method, program and calc we can use to make the files.
+		# The calc is generated for us from the old calculation.
+		calc_t = self.turbomole_calculation.orbital_calc()
+		
+		# We use the same program as the old calc too.
+		prog_t = type(self.turbomole_calculation.program)
+		
+		# And we use an in series method so we will block while the calc runs.
+		method_t = Series({"NAME": "Orbital cubes"}).configure(ID = None)
+		
+		
+		# Now link them up.
+		calc_t.finalize()
+		prog_t.finalize()
+		method_t.finalize()
+		
+		method = method_t()
+		prog = prog_t(method)
+		calc = calc_t(prog)
+		
+		# We'll write our calc to a tempdir.
+		with tempfile.TemporaryDirectory() as tempdir:
+			calc.prepare_from_calculation(tempdir, self.turbomole_calculation)
+			
+			# Go.
+			try:
+				calc.submit()
+			except Exception as e:
+				raise File_maker_exception(self, "Failed to make Turbomole cube files") from e
+			
+			# Move created cube files to our output dir.
+			for mo_irrep in self.orbitals:
+				src = Path(method.calc_dir.output_directory, "{}.cub".format(mo_irrep))
+				dst = self.file_path[mo_irrep]
+				
+				src.rename(dst)
 		
 		

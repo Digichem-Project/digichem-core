@@ -11,12 +11,11 @@ class File_maker():
 	# Text description of our output file type, used for error messages etc. This can be changed by inheriting classes.
 	output_file_type = "output"
 	
-	def __init__(self, output, output_base = None, existing_file = None, dont_modify = False, use_existing = False):
+	def __init__(self, output, existing_file = None, dont_modify = False, use_existing = False):
 		"""
 		Constructor for File_converter objects.
 		
 		:param output:  The filename/path to the new file (this path doesn't need to point to a real file yet; we will use this path to write to).
-		:param output_base: Optional path to the base directory where this file will be written to. This information is used by the relative_path() method.
 		:param existing_file: An optional existing file of the type we're converting to. If this is given, then no conversion is done. This option exists so the user can specify files they have already converted themselves.
 		:param dont_modify: Flag that prevents modifying the file on disk. If True, no new file will be written even if one does not already exist. dont_modify is automatically set to True if existing_file is not None (to prevent over-writing whatever file the user gave us).
 		:param use_existing: Flag that modifies how file conversion works. If True, existing files will be preferentially used if available (set to False to force overwriting existing files).
@@ -42,7 +41,6 @@ class File_maker():
 			output = Path(output)
 		
 		self.output = output
-		self.output_base = Path(output_base) if output_base is not None else None
 		self.dont_modify = dont_modify
 		self.use_existing = use_existing
 		
@@ -199,14 +197,14 @@ class File_maker():
 		"""
 		pass
 	
-	def relative_path(self, file_name = 'file', output_base = None):
+	def relative_path(self, file_name = 'file', *, output_base):
 		"""
 		Get the relative path to the file (or one of the files) represented by this object.
 		
-		The path is relative to the directory where we write our file, which can either be given explicitly to this method (via output_base) or can be set when this object's constructor is called.
+		The path is relative to the directory where we write our file, called the output_base.
 		
 		:param file_name: The name of one of the files that we represent to get the path of, this can be excluded if we only represent one file.
-		:param output_base: Optional pathlib Path to the base directory to get a relative path to. If this is None, then this object's output_base is used instead.
+		:param output_base: Pathlib Path to the base directory to get a relative path to.
 		:return: A relative Path object to the file.
 		"""
 		# First get the file's real path (this could trigger rendering).		
@@ -215,15 +213,7 @@ class File_maker():
 		# Return None if that doesn't work (eg, because dont_modify = True and use_existing = False) to match the rest of the class.
 		if file_path is None:
 			return None
-		
-		# Decide which output_base we're using.
-		output_base = output_base if output_base is not None else self.output_base
-		
-		# Complain if both output_base are None (because then we can't work).
-		if output_base is None:
-			print(type(self).__name__)
-			raise ValueError("Cannot compute relative file path; both output_base and self.output_base are None")
-				
+						
 		# And return a relative path (this can still raise exceptions).
 		return file_path.relative_to(output_base)
 
@@ -241,19 +231,18 @@ class File_converter(File_maker):
 	input_file_type = "input"
 	
 	
-	def __init__(self, output, output_base = None, input_file = None, existing_file = None, dont_modify = False, use_existing = True):
+	def __init__(self, output, input_file = None, existing_file = None, dont_modify = False, use_existing = True):
 		"""
 		Constructor for File_converter objects.
 		
 		:param output:  The filename/path to the new file (this path doesn't need to point to a real file yet; we will use this path to write to).
-		:param output_base: Optional path to the base directory where this file will be written to. This information is used by the relative_path() method.
 		:param input_file: The input file that will be converted. Not that while this option is formally optional, conversion will normally fail if no input is available.
 		:param existing_file: An optional existing file of the type we're converting to. If this is given, then no conversion is done. This option exists so the user can specify files they have already converted themselves.
 		:param dont_modify: Flag that modifies how file conversion works. If True, no new file will be written.
 		:param use_existing: Flag that modifies how file conversion works. If True, no new file will be written. If True, existing files will be preferentially used if available (set to False to force overwriting existing files).
 		"""
 		# Call our parent.
-		super().__init__(output, output_base, existing_file, dont_modify, use_existing)
+		super().__init__(output, existing_file, dont_modify, use_existing)
 		
 		# And save our input file.
 		self.input_file = Path(input_file) if isinstance(input_file, str) else input_file

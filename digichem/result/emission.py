@@ -156,36 +156,3 @@ class Relaxed_excited_state(Excited_state):
 		else:
 			return "phosphorescence"
 		
-		
-	def set_file_options(self, output_dir, output_name, *, ground_state, **kwargs):
-		"""
-		Set the options that will be used to create images from this object.
-		
-		This method will also call set_file_options on the excited states contained in this list.
-		
-		:param output_dir: A pathlib Path object to the directory within which our files should be created.
-		:param output_name: A string that will be used as the start of the file name of the files we create.
-		"""
-		# First our states diagram.
-		self._files['excited_states_diagram'] = Excited_states_diagram_maker.from_image_options(
-			Path(output_dir, output_name + ".{}_emission_states.png".format(self.transition_type)),
-			excited_states = Excited_state_list([self]),
-			ground_state = ground_state,
-			**kwargs
-		)
-		
-		# Now emission spectrum.
-		self._files['simulated_emission_graph'] = Emission_graph_maker.from_image_options(
-			Path(output_dir, output_name + ".simulated_{}_emission_spectrum.png".format(self.transition_type)),
-			excited_states = Excited_state_list([self]),
-			**kwargs
-			)
-
-	@property
-	def excited_states_diagram(self):
-		return self.get_file('excited_states_diagram')
-	
-	@property
-	def simulated_emission_graph(self):
-		return self.get_file('simulated_emission_graph')
-		

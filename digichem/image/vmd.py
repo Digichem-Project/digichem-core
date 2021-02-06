@@ -1,3 +1,5 @@
+
+# General imorts.
 from pathlib import Path
 import subprocess
 import math
@@ -6,13 +8,14 @@ from PIL import Image
 import numpy as np
 import logging
 import pkg_resources
-from silico.exception.base import File_maker_exception
 from uuid import uuid4
 import os
+from math import fabs
+
+# Silico imports.
+from silico.exception.base import File_maker_exception
 from silico.file import File_converter
 import silico
-from math import fabs
-import copy
 
 class VMD_image_maker(File_converter):
 	"""
@@ -37,13 +40,15 @@ class VMD_image_maker(File_converter):
 	# Text description of our output file type, used for error messages etc. This can be changed by inheriting classes.
 	output_file_type = "image"
 	
-	def __init__(self, *args, cube_file = None, translations = None, rotations = None, auto_crop = True, rendering_style = "pastel", resolution = 1024, also_make_png = True, isovalue = 0.2, **kwargs):
+	# Name of the section where we get some specific configs.
+	options_name = "orbital"
+	
+	def __init__(self, *args, cube_file = None, rotations = None, auto_crop = True, rendering_style = "pastel", resolution = 1024, also_make_png = True, isovalue = 0.2, **kwargs):
 		"""
 		Constructor for Image_maker objects.
 		
 		:param output: The path to write image files to. As more than one image can be created by this class, this name is used as the base name and is modified for each image. The suffix will be honoured (rendered imges will use it as a hint for their output format.
 		:param cube_file: The path to a cube_file to use to render images.
-		:param translations: This is currently ignored (because we cannot translate orbitals with VMD).
 		:param rotations: A list of tuples of rotations, where the first index in the tuple specifies the axis to rotate about and the second is the angle to rotate (in radians).
 		:param auto_crop: If False, images will not have excess white space cropped.
 		:param rendering_style: A string describing the rendering style to use, either 'silico' or 'gaussian'.
@@ -90,47 +95,24 @@ class VMD_image_maker(File_converter):
  			'x0y90z0_big': self.output.with_suffix(".x0y90z0.png"),
  			'x45y45z45_big': self.output.with_suffix(".x45y45z45.png")
 			}
-		
+	
 	@classmethod
-	def from_image_options(self, output, *, output_base = None, cube_file = None, translations = None, rotations = None, options, **kwargs):
+	def from_options(self, output, *, cube_file = None, rotations = None, options, **kwargs):
 		"""
-		An alternative constructor that discards any additional keyword arguments.
-		"""
+		Constructor that takes a dictionary of config like options.
+		"""		
 		return self(
 			output,
-			output_base = output_base,
 			cube_file = cube_file,
-			translations = translations,
 			rotations = rotations,
-			**self._get_config(options['molecule_image']),
-			**options['image']
+			auto_crop = options['molecule_image']['auto_crop'],
+			rendering_style = options['molecule_image']['rendering_style'],
+			resolution = options['molecule_image']['resolution'],
+			isovalue = options['molecule_image'][self.options_name]['isovalue'],
+			use_existing = options['molecule_image']['use_existing'],
+			dont_modify = options['image']['dont_modify'],
+			**kwargs
 		)
-		
-	@classmethod
-	def _get_config(self, options):
-		"""
-		Called as part of from_image_options().
-		
-		This method is temporary and will disappear once from_image_options() is refactored away.
-		"""
-		# Get our config options.
-		config = copy.deepcopy(options)
-		
-		# We need one of two possible sub-options depending on whether we're rendering spin images or nah.
-		if issubclass(self, Spin_density_image_maker):
-			sub_config = config['spin']
-		else:
-			sub_config = config['orbital']
-			
-		# Delete both sub-options.
-		del config['spin']
-		del config['orbital']
-		
-		# Delete cube grid size too.
-		del sub_config['cube_grid_size']
-		
-		config.update(sub_config)
-		return config
 		
 	def get_image(self, name = 'file'):
 		"""
@@ -428,6 +410,9 @@ class Spin_density_image_maker(Orbital_image_maker):
 		
 	vmd_script ="generate_spin_images.tcl"
 	
+	# Name of the section where we get some specific configs.
+	options_name = "spin"
+	
 	def __init__(self, *args, spin = "both", **kwargs):
 		"""
 		Constructor for Spin_density_image_maker objects.
@@ -437,23 +422,7 @@ class Spin_density_image_maker(Orbital_image_maker):
 		"""
 		super().__init__(*args, **kwargs)
 		self.spin = spin
-		
-	@classmethod
-	def from_image_options(self, output, *, output_base = None, cube_file = None, translations = None, rotations = None, spin = "both", options, **kwargs):
-		"""
-		An alternative constructor that discards any additional keyword arguments.
-		"""
-		return self(
-			output,
-			output_base = output_base,
-			cube_file = cube_file,
-			translations = translations,
-			rotations = rotations,
-			spin = spin,
-			**self._get_config(options['molecule_image']),
-			**options['image']
-		)
-		
+				
 	@property
 	def VMD_signature(self):
 		"""
@@ -494,7 +463,7 @@ class Combined_orbital_image_maker(VMD_image_maker):
 	
 	vmd_script ="generate_combined_orbital_images.tcl"
 	
-	def __init__(self, *args, HOMO_cube_file, LUMO_cube_file, **kwargs):
+	def __init__(self, *args, HOMO_cube_file = None, LUMO_cube_file = None, **kwargs):
 		"""
 		Constructor for combined orbital image maker objects.
 		
@@ -509,18 +478,22 @@ class Combined_orbital_image_maker(VMD_image_maker):
 		self.LUMO_cube_file = LUMO_cube_file
 		
 	@classmethod
-	def from_image_options(self, output, *, output_base = None, HOMO_cube_file, LUMO_cube_file, rotations = None, options, **kwargs):
+	def from_options(self, output, *, HOMO_cube_file = None, LUMO_cube_file = None, rotations = None, options, **kwargs):
 		"""
-		An alternative constructor that discards any additional keyword arguments.
-		"""
+		Constructor that takes a dictionary of config like options.
+		"""		
 		return self(
 			output,
-			output_base = output_base,
 			HOMO_cube_file = HOMO_cube_file,
 			LUMO_cube_file = LUMO_cube_file,
 			rotations = rotations,
-			**self._get_config(options['molecule_image']),
-			**options['image']
+			auto_crop = options['molecule_image']['auto_crop'],
+			rendering_style = options['molecule_image']['rendering_style'],
+			resolution = options['molecule_image']['resolution'],
+			isovalue = options['molecule_image'][self.options_name]['isovalue'],
+			use_existing = options['molecule_image']['use_existing'],
+			dont_modify = options['image']['dont_modify'],
+			**kwargs
 		)
 	
 	def check_can_make(self):
@@ -581,13 +554,12 @@ class Dipole_image_maker(Structure_image_maker):
 		self. dipole_moment = dipole_moment
 		
 	@classmethod
-	def from_image_options(self, output, *, output_base = None, cube_file, dipole_moment = None, existing_file = None, rotations = None, options = None, **kwargs):
+	def from_image_options(self, output, *, cube_file, dipole_moment = None, existing_file = None, rotations = None, options = None, **kwargs):
 		"""
 		An alternative constructor that discards any additional keyword arguments.
 		"""
 		return self(
-			output,
-			output_base = output_base, 
+			output, 
 			cube_file = cube_file,
 			dipole_moment = dipole_moment,
 			existing_file = existing_file,

@@ -41,16 +41,17 @@ class Orbital_diagram_maker(OneD_graph_image_maker):
 		self.limits_fallback = limits_fallback
 		
 	@classmethod
-	def from_image_options(self, output, *, molecular_orbitals, output_base = None, options, **kwargs):
+	def from_options(self, output, *, molecular_orbitals, options, **kwargs):
 		"""
-		An alternative constructor that discards any additional keyword arguments.
-		"""
+		Constructor that takes a dictionary of config like options.
+		"""	
 		return self(
 			output,
-			output_base = output_base,
 			molecular_orbitals = molecular_orbitals,
-			**options['orbital_diagram'],
-			**options['image']
+			full_axis_lines = options['orbital_diagram']['full_axis_lines'],
+			y_limits = options['orbital_diagram']['y_limits'],
+			dont_modify = options['image']['dont_modify'],
+			**kwargs
 		)
 		
 	def plot_lines(self):

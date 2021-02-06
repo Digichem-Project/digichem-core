@@ -236,15 +236,15 @@ class Convergence_graph_maker(Graph_image_maker):
 		self.y_label = "Energy /eV"
 		
 	@classmethod
-	def from_image_options(self, output, *, energies, output_base = None, options, **kwargs):
+	def from_options(self, output, *, energies, options, **kwargs):
 		"""
-		An alternative constructor that discards any additional keyword arguments.
-		"""
+		Constructor that takes a dictionary of config like options.
+		"""		
 		return self(
 			output,
 			energies = energies,
-			output_base = output_base,
-			**options['image']
+			dont_modify = options['image']['dont_modify'],
+			**kwargs
 		)
 	
 	def plot(self):

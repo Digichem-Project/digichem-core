@@ -181,22 +181,6 @@ class Alignment(Atom_list, Dynamic_parent):
 		"""
 		return self.rotate('X', theta)
 	
-	def set_file_options(self, output_dir, output_name, *, translations = None, rotations = None, **kwargs):
-		"""
-		Set the options that will be used to create images from this object.
-		
-		Set rotations to None to use this alignment class's rotations.
-		
-		:param output_dir: A pathlib Path object to the directory within which our files should be created.
-		:param output_name: A string that will be used as the start of the file name of the files we create.
-		"""
-		if rotations is None:
-			rotations = self.rotations
-		if translations is None:
-			translations = self.translations
-		# Our parent does all the hard work for us.
-		super().set_file_options(output_dir, output_name, translations= translations, rotations = rotations, **kwargs)
-
 	@classmethod
 	def get_theta(self, opposite, adjacent):
 		"""
