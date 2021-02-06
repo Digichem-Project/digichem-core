@@ -213,22 +213,18 @@ class Absorption_emission_graph_maker(Spectroscopy_graph_maker):
 		# Axes labels.
 		self.x_label = "Wavelength /nm"
 		self.y_label = "Intensity" if self.graph.use_jacobian else "Oscillator Strength"
-		
+	
 	@classmethod
-	def from_image_options(self, output, *, excited_states, output_base = None, options, **kwargs):
+	def from_options(self, output, *, excited_states, options, **kwargs):
 		"""
-		An alternative constructor that discards any additional keyword arguments.
-		"""
+		Constructor that takes a dictionary of config like options.
+		"""	
 		return self(
 			output,
 			excited_states = excited_states,
-			output_base = output_base,
-			
-			# Add absorption graph options.
 			**options[self.options_name],
-			
-			# And general image options.
-			**options['image']
+			dont_modify = options['image']['dont_modify'],
+			**kwargs
 		)
 	
 	def adjust_axes(self):
@@ -296,20 +292,16 @@ class Frequency_graph_maker(Spectroscopy_graph_maker):
 		
 		
 	@classmethod
-	def from_image_options(self, output, *, vibrations, output_base = None, options, **kwargs):
+	def from_options(self, output, *, vibrations, options, **kwargs):
 		"""
-		An alternative constructor that discards any additional keyword arguments.
-		"""
+		Constructor that takes a dictionary of config like options.
+		"""		
 		return self(
 			output,
 			vibrations = vibrations,
-			output_base = output_base,
-			
-			# Add frequency graph options.
 			**options['IR_spectrum'],
-			
-			# And general image options.
-			**options['image']
+			dont_modify = options['image']['dont_modify'],
+			**kwargs
 		)
 
 	def auto_x_limits(self):

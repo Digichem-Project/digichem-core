@@ -35,6 +35,12 @@ ${calculation.safe_name(calculation.descriptive_name)}
 ## !!!!!!!!!!!!!!!!!!!!!!!!!!!
 <%include file="cc.mako" args="calculation = calculation"/>\
 ##
+## !!!!!!!!!!!!!!!!!!!!!!!!!!!
+## ! prop                    !
+## !!!!!!!!!!!!!!!!!!!!!!!!!!!
+<%include file="prop.mako" args="calculation = calculation"/>\
+##
+##
 ## All done.
 *
 ##

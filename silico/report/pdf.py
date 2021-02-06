@@ -108,11 +108,11 @@ class PDF_report(HTML_report):
 			if footer_body is not None:
 				page_body.children += footer_body.all_children()
 				
-	def cleanup_intermediate_files(self):
+	def cleanup(self):
 		"""
 		Remove any intermediate files that may have been created by this object.
 		"""
-		super().cleanup_intermediate_files()
+		super().cleanup()
 		# Delete our HTML file.
 		try:
 			self.report_html_file.unlink()

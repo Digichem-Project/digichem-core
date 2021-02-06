@@ -2,7 +2,7 @@
 
 ## Template to display spin density.
 
-<%page args="result" />
+<%page args="result, report" />
 
 <%
 	# Decide which spin value (up/alpha or down/beta) corresponds to the 'hole' and 'electron'.
@@ -30,83 +30,83 @@
 		<div class="imageBlock imageBlock--multi imageBlock--orbital">
 			<div class="image">
 				<div class="image__aligner">
-					<img class="image__img" src="${result.spin_image_positive.relative_path('x0y0z0')}">
+					<img class="image__img" src="${report.relative_image('positive_spin_density', 'x0y0z0')}">
 				</div>
 				<div class="image__caption">X/Y plane</div>
 			</div>
 			<div class="image">
 				<div class="image__aligner">
-					<img class="image__img" src="${result.spin_image_positive.relative_path('x90y0z0')}">
+					<img class="image__img" src="${report.relative_image('positive_spin_density', 'x90y0z0')}">
 				</div>
 				<div class="image__caption">X/Z plane</div>
 			</div>
 			<div class="image">
 				<div class="image__aligner">
-					<img class="image__img" src="${result.spin_image_positive.relative_path('x0y90z0')}">
+					<img class="image__img" src="${report.relative_image('positive_spin_density', 'x0y90z0')}">
 				</div>
 				<div class="image__caption">Z/Y plane</div>
 			</div>
 			<div class="image">
 				<div class="image__aligner">
-					<img class="image__img" src="${result.spin_image_positive.relative_path('x45y45z45')}">
+					<img class="image__img" src="${report.relative_image('positive_spin_density', 'x45y45z45')}">
 				</div>
 				<div class="image__caption">45° to axes</div>
 			</div>
-			<div class="imageBlock__caption">Positive spin density (${alpha_designation}) (isovalue: ${result.spin_image_positive.isovalue})</div>
+			<div class="imageBlock__caption">Positive spin density (${alpha_designation}) (isovalue: ${report.images['positive_spin_density'].isovalue})</div>
 		</div>
 		<div class="imageBlock imageBlock--multi imageBlock--orbital">
 			<div class="image">
 				<div class="image__aligner">
-					<img class="image__img" src="${result.spin_image_negative.relative_path('x0y0z0')}">
+					<img class="image__img" src="${report.relative_image('negative_spin_density', 'x0y0z0')}">
 				</div>
 				<div class="image__caption">X/Y plane</div>
 			</div>
 			<div class="image">
 				<div class="image__aligner">
-					<img class="image__img" src="${result.spin_image_negative.relative_path('x90y0z0')}">
+					<img class="image__img" src="${report.relative_image('negative_spin_density', 'x90y0z0')}">
 				</div>
 				<div class="image__caption">X/Z plane</div>
 			</div>
 			<div class="image">
 				<div class="image__aligner">
-					<img class="image__img" src="${result.spin_image_negative.relative_path('x0y90z0')}">
+					<img class="image__img" src="${report.relative_image('negative_spin_density', 'x0y90z0')}">
 				</div>
 				<div class="image__caption">Z/Y plane</div>
 			</div>
 			<div class="image">
 				<div class="image__aligner">
-					<img class="image__img" src="${result.spin_image_negative.relative_path('x45y45z45')}">
+					<img class="image__img" src="${report.relative_image('negative_spin_density', 'x45y45z45')}">
 				</div>
 				<div class="image__caption">45° to axes</div>
 			</div>
-			<div class="imageBlock__caption">Negative spin density (${beta_designation}) (isovalue: ${result.spin_image_negative.isovalue})</div>
+			<div class="imageBlock__caption">Negative spin density (${beta_designation}) (isovalue: ${report.images['negative_spin_density'].isovalue})</div>
 		</div>
 		<div class="imageBlock imageBlock--multi imageBlock--orbital">
 			<div class="image">
 				<div class="image__aligner">
-					<img class="image__img" src="${result.spin_image_both.relative_path('x0y0z0')}">
+					<img class="image__img" src="${report.relative_image('spin_density', 'x0y0z0')}">
 				</div>
 				<div class="image__caption">X/Y plane</div>
 			</div>
 			<div class="image">
 				<div class="image__aligner">
-					<img class="image__img" src="${result.spin_image_both.relative_path('x90y0z0')}">
+					<img class="image__img" src="${report.relative_image('spin_density', 'x90y0z0')}">
 				</div>
 				<div class="image__caption">X/Z plane</div>
 			</div>
 			<div class="image">
 				<div class="image__aligner">
-					<img class="image__img" src="${result.spin_image_both.relative_path('x0y90z0')}">
+					<img class="image__img" src="${report.relative_image('spin_density', 'x0y90z0')}">
 				</div>
 				<div class="image__caption">Z/Y plane</div>
 			</div>
 			<div class="image">
 				<div class="image__aligner">
-					<img class="image__img" src="${result.spin_image_both.relative_path('x45y45z45')}">
+					<img class="image__img" src="${report.relative_image('spin_density', 'x45y45z45')}">
 				</div>
 				<div class="image__caption">45° to axes</div>
 			</div>
-			<div class="imageBlock__caption">Positive (${alpha_designation}) (${result.spin_image_both.primary_colour}) & negative (${beta_designation}) (${result.spin_image_both.secondary_colour}) spin density (isovalue: ${result.spin_image_both.isovalue})</div>
+			<div class="imageBlock__caption">Positive (${alpha_designation}) (${report.images['spin_density'].primary_colour}) & negative (${beta_designation}) (${report.images['spin_density'].secondary_colour}) spin density (isovalue: ${report.images['spin_density'].isovalue})</div>
 		</div>
 	</div>
 </div>

@@ -2,7 +2,6 @@
 
 # General imports.
 from logging import getLogger
-from pathlib import Path
 
 # Silico imports.
 from silico.exception import Result_unavailable_error
@@ -12,10 +11,7 @@ from silico.result.alignment.FAP import Furthest_atom_pair
 from silico.result.alignment import Minimal
 from silico.result.base import Result_object
 from silico.exception.base import Silico_exception
-#import silico
 import silico.result.excited_states
-from silico.file.cube import Fchk_to_spin_cube
-from silico.image.vmd import Spin_density_image_maker
 from silico.result.emission import Relaxed_excited_state
 from datetime import timedelta, datetime
 
@@ -309,62 +305,6 @@ class Result_set(Result_object):
 			return self.MP_energies.final
 		else:
 			return self.SCF_energies.final
-		
-	def set_file_options(self, output_dir, output_name, **kwargs):
-		"""
-		Set the options that will be used to create images from this object.
-		
-		:param output_dir: A pathlib Path object to the directory within which our files should be created.
-		:param output_name: A string that will be used as the start of the file name of the files we create.
-		:param output_base: The base directory where all output will be written to.
-		:param fchk_file: An optional fchk_file to use to render the MO image. If 'cube_file' is not given, this must be given.
-		:param options: A silico Config dictionary (or a dictionary with the same structure at least) of options to set. This should match the format laid out in the silico config file.
-		"""
-		# Get our cube maker object.
-		cube_file = Fchk_to_spin_cube.from_image_options(
-			Path(output_dir, "Spin Density", output_name + ".spin.cube"),
-			cubegen_type = "Spin",
-			orbital = "SCF",
-			**kwargs)
-		
-		# Save our cube file.
-		self._files['cube_file'] = cube_file
-		
-		# And then save our orbital images.
-		self._files['spin_image_positive'] = Spin_density_image_maker.from_image_options(
-			Path(output_dir, "Spin Density", output_name + ".spin_pos.jpg"),
-			cube_file = cube_file,
-			spin = "positive",
-			**kwargs)
-		self._files['spin_image_negative'] = Spin_density_image_maker.from_image_options(
-			Path(output_dir, "Spin Density", output_name + ".spin_neg.jpg"),
-			cube_file = cube_file,
-			spin = "negative",
-			**kwargs)
-		self._files['spin_image_both'] = Spin_density_image_maker.from_image_options(
-			Path(output_dir, "Spin Density", output_name + ".spin_both.jpg"),
-			cube_file = cube_file,
-			spin = "both",
-			**kwargs)
-			
-	@property
-	def spin_image_positive(self):
-		return self.get_file('spin_image_positive')
-	
-	@property
-	def spin_image_negative(self):
-		return self.get_file('spin_image_negative')
-	
-	@property
-	def spin_image_both(self):
-		return self.get_file('spin_image_both')
-		
-	def cleanup_intermediate_files(self):
-		"""
-		Remove any intermediate files that may have been created by this object.
-		"""
-		# Remove our cube file.
-		super().cleanup_intermediate_files('cube_file')	
 	
 		
 	@property

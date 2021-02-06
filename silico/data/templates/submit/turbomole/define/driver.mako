@@ -73,6 +73,12 @@ u ${calculation.unpaired_electrons}
 ## !!!!!!!!!!!!!!!!!!!!!!!!!!!
 <%include file="cc.mako" args="calculation = calculation"/>\
 ##
+## !!!!!!!!!!!!!!!!!!!!!!!!!!!
+## ! prop                    !
+## !!!!!!!!!!!!!!!!!!!!!!!!!!!
+<%include file="prop.mako" args="calculation = calculation"/>\
+##
+##
 ## All done.
 *
 ##

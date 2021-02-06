@@ -1,7 +1,11 @@
-from silico.submit.calculation.base import Concrete_calculation
+# General imports.
+from mako.lookup import TemplateLookup
+
+# Silico imports.
+from silico.submit.calculation.base import Concrete_calculation,\
+	Directory_calculation_mixin
 from silico.config.configurable.option import Option
 from silico.submit.base import Memory
-from mako.lookup import TemplateLookup
 import silico
 from silico.config.configurable.options import Options
 
@@ -162,7 +166,6 @@ class Turbomole_AI(Turbomole):
 		# Convert to lowercase, but the G in Gaussian is upper case (sigh).
 		return func.lower().replace("gaussian", "Gaussian")
 		
-		
 	
 	@property
 	def unpaired_electrons(self):
@@ -170,7 +173,6 @@ class Turbomole_AI(Turbomole):
 		The number of unpaired electrons at this given multiplicity.
 		"""
 		return self.multiplicity -1
-	
 	
 	############################
 	# Class creation mechanism #
@@ -193,10 +195,6 @@ class Turbomole_AI(Turbomole):
 	
 			self.define_input = None
 			
-			# If we've been asked to write everything to scratch, print a warning.
-			#if self.scratch_options.all_output:
-			#	logging.getLogger(silico.logger_name).warning("'{}';'scratch_options: all_output: True' is not supported for Turbomole; this setting will be ignored".format(self.NAME))
-			
 		def prepare(self, *args, **kwargs):
 			"""
 			Prepare this calculation for submission.
@@ -210,6 +208,29 @@ class Turbomole_AI(Turbomole):
 			# Get and load our define template.
 			self.define_input = TemplateLookup(directories = str(silico.default_template_directory())).get_template("/submit/turbomole/define/driver.mako").render_unicode(calculation = self)
 				
+		def orbital_calc(self, orbitals = []):
+			"""
+			Return a new calculation that can create orbital cube files from this calculation.
+			
+			:param orbitals: A list of orbital irreps to make cubes for.
+			"""
+			# First generate our calculation.
+			calc_t = Turbomole_restart({
+				"NAME": "Orbital Cubes for {}".format(self.NAME),
+				"memory": str(self.memory),
+				"num_CPUs": self._num_CPUs,
+				"plt": {
+					"orbitals": orbitals,
+					"format": "cub"
+				},
+				# We don't need these.
+				"write_summary": False,
+				"write_report": False
+			}).configure(ID = None, available_basis_sets = [], silico_options = self.silico_options)
+			
+			# Done.
+			return calc_t
+	
 	
 class Turbomole_UFF(Turbomole):
 	"""
@@ -262,9 +283,29 @@ class Turbomole_UFF(Turbomole):
 	modules = ("uff",)
 	
 		
-class Turbomole_restart(Turbomole):
+class Turbomole_restart(Directory_calculation_mixin, Turbomole):
 	"""
 	Turbomole calculations 
 	"""
 
-
+	############################
+	# Class creation mechanism #
+	############################
+	
+	class _actual(Directory_calculation_mixin._actual, Turbomole._actual):
+		"""
+		Inner class for calculations.
+		"""
+		
+		def prepare(self, *args, **kwargs):
+			"""
+			Prepare this calculation for submission.
+			
+			:param output: Path to a directory to perform the calculation in.
+			:param input_coords: A string containing input coordinates in a format suitable for this calculation type.
+			:param molecule_name: A name that refers to the system under study (eg, Benzene etc).
+			"""
+			super().prepare(*args, **kwargs)
+			
+			# Get and load our define template.
+			self.define_input = TemplateLookup(directories = str(silico.default_template_directory())).get_template("/submit/turbomole/define/restart.mako").render_unicode(calculation = self)

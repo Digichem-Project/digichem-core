@@ -40,27 +40,22 @@ def _parse_calc_string(calc_string, methods, programs, calculations):
 	# We parse backwards.
 	# The final part is the calculation.
 	if len(split_string) > 0:
-		#calculation = Calculation_target.from_name_in_list(split_string[-1], calculations)
 		calculation = calculations.get_config(split_string[-1])
 	else:
 		raise Silico_exception("'{}' is not a valid calculation identifier".format(calc_string))
 	
 	if len(split_string) > 1:
-		#program = Program_target.from_name_in_list(split_string[-2], programs)
 		program = programs.get_config(split_string[-2])
 	else:
 		try:
-			#program = Program_target.from_name_in_list(calculation.programs[0], programs)
 			program = programs.get_config(calculation.programs[0])
 		except IndexError:
 			raise Configurable_exception(calculation, "calculation has no programs set")
 		
 	if len(split_string) > 2:
-		#method = Method_target.from_name_in_list(split_string[-3], methods)
 		method = methods.get_config(split_string[-3])
 	else:
 		try:
-			#method = Method_target.from_name_in_list(program.methods[0], methods)
 			method = methods.get_config(program.methods[0])
 		except IndexError:
 			raise Configurable_exception(program, "program has no methods set")

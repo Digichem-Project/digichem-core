@@ -133,7 +133,7 @@ def init_from_config(logger, config):
 	silico.image.vmd.VMD_image_maker.vmd_execuable = config['external']['vmd']
 	silico.image.vmd.VMD_image_maker.tachyon_executable = config['external']['tachyon']
 	silico.file.cube.Fchk_to_cube.cubegen_executable = config['external']['cubegen']
-	silico.file.fchk.Fchk_maker.cubegen_executable = config['external']['formchk']
+	silico.file.fchk.Chk_to_fchk.cubegen_executable = config['external']['formchk']
 	
 	# Set angles.
 	silico.result.angle.Angle.set_default_angle_units(config['angle_units'])

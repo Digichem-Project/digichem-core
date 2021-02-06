@@ -53,10 +53,6 @@ class Energy_list(Result_container):
 			energy_type = self.energy_type,
 			**kwargs
 		)
-		
-	@property
-	def convergence_graph(self):
-		return self.get_file('convergence_graph')
 	
 	@classmethod
 	def eV_to_kJ(self, eV):

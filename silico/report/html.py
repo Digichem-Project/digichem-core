@@ -42,7 +42,7 @@ class HTML_report(Report):
 		:param report_template: Filename (relative to the report/report subdirectory of the template dir) of the report to make.
 		"""
 		# Call our parent first (this creates a lot of images and calls make() for us).
-		super()._write(output, **kwargs)
+		super()._write(output.parent, **kwargs)
 		
 		# Do no processing on output; it should be an exact path to a file to write.
 		self.report_html_file = output
@@ -86,17 +86,6 @@ class HTML_report(Report):
 			universal_newlines = True,
 			check = True
 		)
-		
-		# This function also appears to be bugged, see #21
-# 		try:
-# 			# We use copy rather than copy2 because we don't care about metadata.
-# 			shutil.copytree(str(self.src_static_dir), str(self.static_dir), copy_function = shutil.copy)
-# 		except FileExistsError:
-# 			# This is maybe ok...
-# 			pass
-		
-		# Sadly distutils is bugged if it gets called twice.
-		#distutils.dir_util.copy_tree(str(self.src_static_dir), str(self.static_dir))
 		
 		# Done.
 		

@@ -119,6 +119,7 @@ class Concrete_calculation(Calculation_target):
 	"""
 	
 	CLASS_HANDLE = ()
+	DIRECTORY_CALCULATION = False
 	
 	# A list of strings describing the expected input file types (file extensions) for calculations of this class. The first item of this list will be passed to obabel via the -o flag. 
 	INPUT_FILE_TYPES = []
@@ -362,16 +363,18 @@ class Concrete_calculation(Calculation_target):
 					raise Submission_error(self, "failed to submit to next calculation in chain")
 	
 	
-class Directory_calculation(Concrete_calculation):
+class Directory_calculation_mixin():
 	"""
 	A class for calculations that take an existing calculation directory as input, instead of a molecule/geometry.
 	"""
+	
+	DIRECTORY_CALCULATION = True
 	
 	############################
 	# Class creation mechanism #
 	############################
 	
-	class _actual(Calculation_target._actual):
+	class _actual():
 		"""
 		Inner class for calculations.
 		"""

@@ -1,6 +1,6 @@
 ## -*- coding: utf-8 -*-
 
-<%page args="dipole_moment"/>
+<%page args="dipole_moment, report, image_name"/>
 
 <%
 	# First work out our title, which changes slightly depending on whether this is the ground or excited state dipole.
@@ -19,25 +19,25 @@
 		<div class="imageBlock imageBlock--multi">
 			<div class="image">
 				<div class="image__aligner">
-					<img class="image__img" src="${dipole_moment.dipole_image.relative_path('x0y0z0')}">
+					<img class="image__img" src="${report.relative_image(image_name, 'x0y0z0')}">
 				</div>
 				<div class="image__caption">X/Y plane</div>
 			</div>
 			<div class="image">
 				<div class="image__aligner">
-					<img class="image__img" src="${dipole_moment.dipole_image.relative_path('x90y0z0')}">
+					<img class="image__img" src="${report.relative_image(image_name, 'x90y0z0')}">
 				</div>
 				<div class="image__caption">X/Z plane</div>
 			</div>
 			<div class="image">
 				<div class="image__aligner">
-					<img class="image__img" src="${dipole_moment.dipole_image.relative_path('x0y90z0')}">
+					<img class="image__img" src="${report.relative_image(image_name, 'x0y90z0')}">
 				</div>
 				<div class="image__caption">Z/Y plane</div>
 			</div>
 			<div class="image">
 				<div class="image__aligner">
-					<img class="image__img" src="${dipole_moment.dipole_image.relative_path('x45y45z45')}">
+					<img class="image__img" src="${report.relative_image(image_name, 'x45y45z45')}">
 				</div>
 				<div class="image__caption">45° to axes</div>
 			</div>

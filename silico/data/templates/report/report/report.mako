@@ -5,12 +5,12 @@
 	import math
 %>
 
-<%page args="result"/>
+<%page args="report"/>
 
 <%
 	# Split our list of orbitals to render images for into two, one for HOMO-n, another for LUMO+n.
-	pre_HOMO_orbitals = [orbital for orbital in result.orbitals_to_render if orbital.HOMO_difference < 0]
-	post_LUMO_orbitals = [orbital for orbital in result.orbitals_to_render if orbital.HOMO_difference > 1]
+	pre_HOMO_orbitals = [orbital for orbital in report.orbitals_to_render if orbital.HOMO_difference < 0]
+	post_LUMO_orbitals = [orbital for orbital in report.orbitals_to_render if orbital.HOMO_difference > 1]
 %>
 <!DOCTYPE html>
 
@@ -44,65 +44,63 @@
 		%endfor
 	</head>
 	<body>
-		<%include file="/front_page/front_page.mako" args="result = result"/>
-		<%include file="/summary/summary_section.mako" args="result = result"/>
+		<%include file="/front_page/front_page.mako" args="result = report.result"/>
+		<%include file="/summary/summary_section.mako" args="result = report.result"/>
 		## We don't need these sections unless we're doing an opt.
-		%if len(result.SCF_energies) > 1:
-			<%include file="/energy/energy_section.mako" args="energies = result.SCF_energies"/>
+		%if len(report.result.SCF_energies) > 1:
+			<%include file="/energy/energy_section.mako" args="energies = report.result.SCF_energies, report = report"/>
 		%endif
-		%if len(result.MP_energies) > 1:
-			<%include file="/energy/energy_section.mako" args="energies = result.MP_energies"/>
+		%if len(report.result.MP_energies) > 1:
+			<%include file="/energy/energy_section.mako" args="energies = report.result.MP_energies, report = report"/>
 		%endif
-		%if len(result.CC_energies) > 1:
-			<%include file="/energy/energy_section.mako" args="energies = result.CC_energies"/>
+		%if len(report.result.CC_energies) > 1:
+			<%include file="/energy/energy_section.mako" args="energies = report.result.CC_energies, report = report"/>
 		%endif
-		%if len(result.atoms) > 0:
-			<%include file="/geometry/geometry_section.mako" args="alignment = result.alignment"/>
+		%if len(report.result.atoms) > 0:
+			<%include file="/geometry/geometry_section.mako" args="report = report"/>
 		%endif
-		%if result.dipole_moment is not None:
-			<%include file="/dipole_moment/dipole_moment_section.mako" args="dipole_moment = result.dipole_moment"/>
+		%if report.result.dipole_moment is not None:
+			<%include file="/dipole_moment/dipole_moment_section.mako" args="dipole_moment = report.result.dipole_moment, report = report, image_name = 'dipole_moment'"/>
 		%endif
-		%if result.transition_dipole_moment is not None:
-			<%include file="/dipole_moment/dipole_moment_section.mako" args="dipole_moment = result.transition_dipole_moment"/>
+		%if report.result.transition_dipole_moment is not None:
+			<%include file="/dipole_moment/dipole_moment_section.mako" args="dipole_moment = report.result.transition_dipole_moment, report = report, image_name = '{}_dipole'.format(report.result.transition_dipole_moment.excited_state.state_symbol)"/>
 		%endif
-		##%if result.metadata.system_multiplicity != 1:
-		%if result.metadata.system_multiplicity != 1 and len(result.beta_orbitals) > 0:
-			<%include file="/spin/spin_density_section.mako" args="result = result"/>
+		%if report.result.metadata.system_multiplicity != 1 and len(report.result.beta_orbitals) > 0:
+			<%include file="/spin/spin_density_section.mako" args="result = report.result, report = report"/>
 		%endif
 		%if len(pre_HOMO_orbitals) > 0:
-			<%include file="/orbitals/orbitals_section.mako" args="molecular_orbitals = pre_HOMO_orbitals"/>
+			<%include file="/orbitals/orbitals_section.mako" args="molecular_orbitals = pre_HOMO_orbitals, report = report"/>
 		%endif
-		%if len(result.molecular_orbitals) > 0:
-			<%include file="/orbitals/HOMO_LUMO_section.mako" args="molecular_orbitals = result.molecular_orbitals"/>
+		%if len(report.result.molecular_orbitals) > 0:
+			<%include file="/orbitals/HOMO_LUMO_section.mako" args="molecular_orbitals = report.result.molecular_orbitals, report = report"/>
 		%endif
-		%if len(result.beta_orbitals) > 0:
-			<%include file="/orbitals/HOMO_LUMO_section.mako" args="molecular_orbitals = result.beta_orbitals"/>
+		%if len(report.result.beta_orbitals) > 0:
+			<%include file="/orbitals/HOMO_LUMO_section.mako" args="molecular_orbitals = report.result.beta_orbitals, report = report"/>
 		%endif
 		%if len(post_LUMO_orbitals) > 0:
-			<%include file="/orbitals/orbitals_section.mako" args="molecular_orbitals = post_LUMO_orbitals"/>
+			<%include file="/orbitals/orbitals_section.mako" args="molecular_orbitals = post_LUMO_orbitals, report = report"/>
 		%endif
-		%if result.vertical_emission is not None:
-			<%include file="/emission/emission_section.mako" args="relaxed_excited_state = result.vertical_emission"/>
+		%if report.result.vertical_emission is not None:
+			<%include file="/emission/emission_section.mako" args="relaxed_excited_state = report.result.vertical_emission, report = report, energies_image_name = 'vertical_emission_energies', graph_image_name = 'simulated_vertical_emission_graph'"/>
 		%endif
-		%if result.adiabatic_emission is not None:
-			<%include file="/emission/emission_section.mako" args="relaxed_excited_state = result.adiabatic_emission"/>
+		%if report.result.adiabatic_emission is not None:
+			<%include file="/emission/emission_section.mako" args="relaxed_excited_state = report.result.adiabatic_emission, report = report, energies_image_name = 'adiabatic_emission_energies', graph_image_name = 'simulated_adiabatic_emission_graph'"/>
 		%endif
-		%if len(result.excited_states) > 0:
-			<%include file="/excited_states/excited_states_section.mako" args="excited_states = result.excited_states"/>
+		%if len(report.result.excited_states) > 0:
+			<%include file="/excited_states/excited_states_section.mako" args="excited_states = report.result.excited_states, report = report"/>
 		%endif
-		%if len(result.spin_orbit_coupling) > 0:
-			<%include file="/spin_orbit_coupling/SOC_table.mako" args="spin_orbit_coupling = result.spin_orbit_coupling"/>
+		%if len(report.result.spin_orbit_coupling) > 0:
+			<%include file="/spin_orbit_coupling/SOC_table.mako" args="spin_orbit_coupling = report.result.spin_orbit_coupling"/>
 		%endif
-		%if len(result.vibrations) > 0:
-			<%include file="/vibrations/vibrations_section.mako" args="vibrations = result.vibrations" />
-			<%include file="/vibrations/vibrations_table.mako" args="vibrations = result.vibrations, min_frequency = result.options['report']['frequency_table']['min_frequency'], max_frequency = result.options['report']['frequency_table']['max_frequency'], max_num = result.options['report']['frequency_table']['max_num']" />
+		%if len(report.result.vibrations) > 0:
+			<%include file="/vibrations/vibrations_section.mako" args="vibrations = report.result.vibrations, report = report" />
+			<%include file="/vibrations/vibrations_table.mako" args="vibrations = report.result.vibrations, min_frequency = report.options['report']['frequency_table']['min_frequency'], max_frequency = report.options['report']['frequency_table']['max_frequency'], max_num = report.options['report']['frequency_table']['max_num']" />
 		%endif
-		%if len(result.molecular_orbitals) > 0 or len(result.beta_orbitals) > 0:
-			##<%include file="/orbitals/select_mo_table.mako" args="molecular_orbitals = result.molecular_orbitals, beta_orbitals = result.beta_orbitals, min_HOMO_difference = -10, max_LUMO_difference = 10 "/>
-			<%include file="/orbitals/select_mo_table.mako" args="molecular_orbitals = result.molecular_orbitals, beta_orbitals = result.beta_orbitals, min_HOMO_difference = result.options['report']['orbital_table']['min'], max_HOMO_difference = result.options['report']['orbital_table']['max']"/>
+		%if len(report.result.molecular_orbitals) > 0 or len(report.result.beta_orbitals) > 0:
+			<%include file="/orbitals/select_mo_table.mako" args="molecular_orbitals = report.result.molecular_orbitals, beta_orbitals = report.result.beta_orbitals, min_HOMO_difference = report.options['report']['orbital_table']['min'], max_HOMO_difference = report.options['report']['orbital_table']['max']"/>
 		%endif
-		%if len(result.alignment) > 0:
-			<%include file="/geometry/atom_list_section.mako" args="atoms = result.alignment"/>
+		%if len(report.result.alignment) > 0:
+			<%include file="/geometry/atom_list_section.mako" args="atoms = report.result.alignment"/>
 		%endif
 		<%include file="/about/about_section.mako"/>
 		<%include file="/references/references_section.mako"/>

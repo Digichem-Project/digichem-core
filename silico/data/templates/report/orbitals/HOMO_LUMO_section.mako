@@ -4,11 +4,13 @@
 	from silico.exception import Result_unavailable_error 
 %>
 
-<%page args="molecular_orbitals"/>
+<%page args="molecular_orbitals, report"/>
 
 <%
+	spin_prefix = orbital_type + "_" if orbital_type != "both" else ""
+	
 	# Render our alternative orbital energy diagrams (we don't actually use these in the template (yet?), just write to file.
-	molecular_orbitals.get_file('HOMO_LUMO_energy_diagram').relative_path()
+	report.relatve_image(spin_type + 'HOMO_LUMO_energies')
 
 
 	# First work out the type of orbitals we are dealing with (alpha, beta, or restricted).
@@ -31,11 +33,8 @@
 		LUMO = molecular_orbitals.get_orbital(HOMO_difference = 1)
 	except Result_unavailable_error:
 		LUMO = None
-		
-	try:
-		combined_image = molecular_orbitals.HOMO_LUMO_image
-	except Result_unavailable_error:
-		combined_image = None
+	
+	combined_orbital_image_name = spin_prefix + "HOMO_LUMO"
 %>
 
 <div class="section">
@@ -45,92 +44,92 @@
 		<div class="imageBlock imageBlock--multi imageBlock--orbital">
 			<div class="image">
 				<div class="image__aligner">
-					<img class="image__img" src="${HOMO.orbital_image.relative_path('x0y0z0')}">
+					<img class="image__img" src="${report.relative_image(HOMO.label, 'x0y0z0')}">
 				</div>
 				<div class="image__caption">X/Y plane</div>
 			</div>
 			<div class="image">
 				<div class="image__aligner">
-					<img class="image__img" src="${HOMO.orbital_image.relative_path('x90y0z0')}">
+					<img class="image__img" src="${report.relative_image(HOMO.label, 'x90y0z0')}">
 				</div>
 				<div class="image__caption">X/Z plane</div>
 			</div>
 			<div class="image">
 				<div class="image__aligner">
-					<img class="image__img" src="${HOMO.orbital_image.relative_path('x0y90z0')}">
+					<img class="image__img" src="${report.relative_image(HOMO.label, 'x0y90z0')}">
 				</div>
 				<div class="image__caption">Z/Y plane</div>
 			</div>
 			<div class="image">
 				<div class="image__aligner">
-					<img class="image__img" src="${HOMO.orbital_image.relative_path('x45y45z45')}">
+					<img class="image__img" src="${report.relative_image(HOMO.label, 'x45y45z45')}">
 				</div>
 				<div class="image__caption">45° to axes</div>
 			</div>
-			<div class="imageBlock__caption">HOMO density (isovalue: ${HOMO.orbital_image.isovalue})</div>
+			<div class="imageBlock__caption">HOMO density (isovalue: ${report.images[HOMO.label].isovalue})</div>
 		</div>
 		%endif
 		%if LUMO is not None:
 		<div class="imageBlock imageBlock--multi imageBlock--orbital">
 			<div class="image">
 				<div class="image__aligner">
-					<img class="image__img" src="${LUMO.orbital_image.relative_path('x0y0z0')}">
+					<img class="image__img" src="${report.relative_image(LUMO.label, 'x0y0z0')}">
 				</div>
 				<div class="image__caption">X/Y plane</div>
 			</div>
 			<div class="image">
 				<div class="image__aligner">
-					<img class="image__img" src="${LUMO.orbital_image.relative_path('x90y0z0')}">
+					<img class="image__img" src="${report.relative_image(LUMO.label, 'x90y0z0')}">
 				</div>
 				<div class="image__caption">X/Z plane</div>
 			</div>
 			<div class="image">
 				<div class="image__aligner">
-					<img class="image__img" src="${LUMO.orbital_image.relative_path('x0y90z0')}">
+					<img class="image__img" src="${report.relative_image(LUMO.label, 'x0y90z0')}">
 				</div>
 				<div class="image__caption">Z/Y plane</div>
 			</div>
 			<div class="image">
 				<div class="image__aligner">
-					<img class="image__img" src="${LUMO.orbital_image.relative_path('x45y45z45')}">
+					<img class="image__img" src="${report.relative_image(LUMO.label, 'x45y45z45')}">
 				</div>
 				<div class="image__caption">45° to axes</div>
 			</div>
-			<div class="imageBlock__caption">LUMO density (isovalue: ${LUMO.orbital_image.isovalue})</div>
+			<div class="imageBlock__caption">LUMO density (isovalue: ${report.images[LUMO.label].isovalue})</div>
 		</div>
 		%endif
-		%if combined_image is not None:
+		%if combined_orbital_image_name in report.images:
 		<div class="imageBlock imageBlock--multi imageBlock--orbital">
 			<div class="image">
 				<div class="image__aligner">
-					<img class="image__img" src="${combined_image.relative_path('x0y0z0')}">
+					<img class="image__img" src="${report.relative_image(combined_orbital_image_name, 'x0y0z0')}">
 				</div>
 				<div class="image__caption">X/Y plane</div>
 			</div>
 			<div class="image">
 				<div class="image__aligner">
-					<img class="image__img" src="${combined_image.relative_path('x90y0z0')}">
+					<img class="image__img" src="${report.relative_image(combined_orbital_image_name, 'x90y0z0')}">
 				</div>
 				<div class="image__caption">X/Z plane</div>
 			</div>
 			<div class="image">
 				<div class="image__aligner">
-					<img class="image__img" src="${combined_image.relative_path('x0y90z0')}">
+					<img class="image__img" src="${report.relative_image(combined_orbital_image_name, 'x0y90z0')}">
 				</div>
 				<div class="image__caption">Z/Y plane</div>
 			</div>
 			<div class="image">
 				<div class="image__aligner">
-					<img class="image__img" src="${combined_image.relative_path('x45y45z45')}">
+					<img class="image__img" src="${report.relative_image(combined_orbital_image_name, 'x45y45z45')}">
 				</div>
 				<div class="image__caption">45° to axes</div>
 			</div>
-			<div class="imageBlock__caption">HOMO (${combined_image.primary_colour}) & LUMO (${combined_image.secondary_colour}) density<br>(isovalue: ${combined_image.isovalue})</div>
+			<div class="imageBlock__caption">HOMO (${report.images[combined_orbital_image_name].primary_colour}) & LUMO (${report.images[combined_orbital_image_name].secondary_colour}) density<br>(isovalue: ${report.images[combined_orbital_image_name].isovalue})</div>
 		</div>
 		%endif
 		<div class="imageBlock imageBlock--multi imageBlock--orbital">
 			<div class="image__aligner image__aligner--orbital_diagram">
-				<img class="image_img image__img--orbital_diagram" src="${molecular_orbitals.energy_diagram.relative_path()}">
+				<img class="image_img image__img--orbital_diagram" src="${report.relatve_image(spin_prefix + 'orbital_energies')}">
 			</div>
 		</div>
 	</div>

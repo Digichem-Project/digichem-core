@@ -1,12 +1,12 @@
 # Classes for representing MOs.
+
+# General imports.
 from itertools import filterfalse, zip_longest
+
+# Silico imports.
 from silico.result import Result_container
 from silico.result.base import Result_object
 from silico.exception import Result_unavailable_error
-from silico.image.vmd import Orbital_image_maker, Combined_orbital_image_maker
-from silico.file.cube import Fchk_to_cube
-from pathlib import Path
-from silico.image.orbitals import Orbital_diagram_maker
 
 class Molecular_orbital_list(Result_container):
 	"""
@@ -165,73 +165,6 @@ class Molecular_orbital_list(Result_container):
 			return self(cls.list_from_parser(parser))
 		except AttributeError:
 			return self()
-		
-	def set_file_options(self, output_dir, output_name, **kwargs):
-		"""
-		Set the options that will be used to create images from this object.
-		
-		This method will also call set_file_options on the molecular orbitals contained in this list.
-		
-		
-		:param output_dir: A pathlib Path object to the directory within which our files should be created.
-		:param output_name: A string that will be used as the start of the file name of the files we create.
-		"""
-		# First set options for our list (because we want to steal some of their cube files later).
-		for mo in self:
-			mo.set_file_options(output_dir, output_name, **kwargs)
-		
-		try:
-			# Now get our spin type.
-			if self.spin_type == "alpha":
-				spin_type = "alpha_"
-			elif self.spin_type == "beta":
-				spin_type = "beta_"
-			else:
-				spin_type = ""
-				
-			# Save our orbital diagram.
-			self._files['energy_diagram'] = Orbital_diagram_maker.from_image_options(
-				Path(output_dir, "Orbital Diagram", output_name + ".{}orbitals.png".format(spin_type)),
-				molecular_orbitals = self,
-				**kwargs
-			)
-			# A version of the diagram with only the HOMO/LUMO
-			self._files['HOMO_LUMO_energy_diagram'] = Orbital_diagram_maker.from_image_options(
-				Path(output_dir, "Orbital Diagram", output_name + ".{}HOMO_LUMO.png".format(spin_type)),
-				molecular_orbitals = type(self)(orbital for orbital in self if orbital.HOMO_difference == 0 or orbital.HOMO_difference == 1),
-				**kwargs
-			)
-			
-			# Also get our HOMO/LUMO combined image.
-			# Get our FMOs.
-			HOMO = self.get_orbital(HOMO_difference = 0)
-			LUMO = self.get_orbital(HOMO_difference = 1)
-			
-			self._files['HOMO_LUMO_image'] = Combined_orbital_image_maker.from_image_options(
-				Path(output_dir, "HOMO LUMO", output_name + ".{}HOMO_LUMO.jpg".format(spin_type)),
-				HOMO_cube_file = HOMO.get_file('cube_file'),
-				LUMO_cube_file = LUMO.get_file('cube_file'),
-				**kwargs
-			)
-		except Result_unavailable_error:
-			# We couldn't find our HOMO/LUMO.
-			self._files.pop('HOMO_LUMO_image', None)
-	
-	def cleanup_intermediate_files(self):
-		"""
-		Remove any intermediate files that may have been created by this object.
-		"""
-		# No files from ourself to cleanup, but could be lots in our children.
-		for orbital in self:
-			orbital.cleanup_intermediate_files()
-		
-	@property
-	def energy_diagram(self):
-		return self.get_file('energy_diagram')
-	
-	@property
-	def HOMO_LUMO_image(self):
-		return self.get_file('HOMO_LUMO_image')
 	
 	def find_common_level(self, *other_lists, HOMO_difference):
 		"""
@@ -359,65 +292,6 @@ class Molecular_orbital(Result_object):
 		Hash operator.
 		"""
 		return hash(tuple(self.label))
-		
-	
-	def set_file_options(self, output_dir, output_name, *, cube_file = None, **kwargs):
-		"""
-		Set the options that will be used to create images from this object.
-		
-		:param output_dir: A pathlib Path object to the directory within which our files should be created.
-		:param output_name: A string that will be used as the start of the file name of the files we create.
-		:param output_base: The base directory where all output will be written to.
-		:param fchk_file: An optional fchk_file to use to render the MO image. If 'cube_file' is not given, this must be given.
-		:param cube_file: An optional cube file to use to render the MO image. If None, an appropriate cube file will be created automatically.
-		:param options: A silico Config dictionary (or a dictionary with the same structure at least) of options to set. This should match the format laid out in the silico config file.
-		"""
-		# If we haven't been given a cube file (which is pretty likely), then create one from the fchk file we should have been given.
-		if cube_file is None:
-			# Decide what type of orbital we need.
-			if self.spin_type == "alpha":
-				cubegen_type = "AMO"
-			elif self.spin_type == "beta":
-				cubegen_type = "BMO"
-			else:
-				cubegen_type = "MO"
-			
-			# Get our cube maker object.
-			cube_file = Fchk_to_cube.from_image_options(
-				Path(output_dir, self.label, output_name + ".{}.cube".format(self.label)),
-				cubegen_type = cubegen_type,
-				orbital = self.level,
-				**kwargs)
-		
-		# Save our cube file.
-		self._files['cube_file'] = cube_file
-		
-		# And then save our orbital image.
-		self._files['orbital_image'] = Orbital_image_maker.from_image_options(
-			Path(output_dir, self.label, output_name + ".{}.jpg".format(self.label)),
-			cube_file = cube_file,
-			**kwargs)
-		
-	def cleanup_intermediate_files(self):
-		"""
-		Remove any intermediate files that may have been created by this object.
-		"""
-		# Remove our cube file.
-		super().cleanup_intermediate_files('cube_file')
-	
-	@property
-	def orbital_image(self):
-		"""
-		Get an Orbital_image_maker object that can create an orbital density image of this orbital.
-		"""
-		return self.get_file("orbital_image")
-	
-	@property
-	def cube_file(self):
-		"""
-		Get a Fchk_to_cube object that can create a cube file of this orbital.
-		"""
-		return self.get_file("cube_file")
 	
 	# The index used to access data from cclib (which always has two lists, one for alpha one for beta).
 	ccdata_index = 0

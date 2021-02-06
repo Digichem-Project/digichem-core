@@ -51,21 +51,22 @@ class Excited_states_diagram_maker(OneD_graph_image_maker):
 		
 		# Save our scaling method.
 		self.limits_method = y_limits
-		
+	
 	@classmethod
-	def from_image_options(self, output, *, excited_states, ground_state, output_base = None, options, **kwargs):
+	def from_options(self, output, *, excited_states, ground_state, options, **kwargs):
 		"""
-		An alternative constructor that discards any additional keyword arguments.
-		"""
+		Constructor that takes a dictionary of config like options.
+		"""	
 		return self(
 			output,
 			excited_states = excited_states,
 			ground_state = ground_state,
-			output_base = output_base,
-			**options['excited_states_diagram'],
-			**options['image']
+			show_dest = options['excited_states_diagram']['show_dest'],
+			y_limits = options['excited_states_diagram']['y_limits'],
+			dont_modify = options['image']['dont_modify'],
+			**kwargs
 		)
-		
+			
 	def plot_lines(self):
 		"""
 		Plot the lines that make up the body of the graph.

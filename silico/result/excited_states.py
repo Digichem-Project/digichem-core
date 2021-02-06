@@ -1,15 +1,13 @@
+# General imports.
 from itertools import filterfalse, zip_longest
-from silico.result import Result_container
-from silico.result.base import Result_object
 import numpy
-from silico.exception.base import Result_unavailable_error
-from pathlib import Path
-from silico.image.excited_states import Excited_states_diagram_maker
-from silico.image.spectroscopy import Absorption_graph_maker
 import colour
 import math
-# from logging import getLogger
-# import silico
+
+# Silico imports.
+from silico.result import Result_container
+from silico.result.base import Result_object
+from silico.exception.base import Result_unavailable_error
 
 class Excited_state_list(Result_container):
 	"""
@@ -86,42 +84,6 @@ class Excited_state_list(Result_container):
 		except Exception:
 			raise Result_unavailable_error("Excited state", "could not find excited state with symbol = '{}'".format(state_symbol))
 		
-	
-	def set_file_options(self, output_dir, output_name, *, ground_state, **kwargs):
-		"""
-		Set the options that will be used to create images from this object.
-		
-		This method will also call set_file_options on the excited states contained in this list.
-		
-		:param output_dir: A pathlib Path object to the directory within which our files should be created.
-		:param output_name: A string that will be used as the start of the file name of the files we create.
-		"""
-		# First our states diagram.
-		self._files['excited_states_diagram'] = Excited_states_diagram_maker.from_image_options(
-			Path(output_dir, output_name + ".excited_states.png"),
-			excited_states = self,
-			ground_state = ground_state,
-			**kwargs
-		)
-		
-		# Then our simulated absorption graph.
-		self._files['simulated_absorption_graph'] = Absorption_graph_maker.from_image_options(
-			Path(output_dir, output_name + ".simulated_absorption_spectrum.png"),
-			excited_states = self,
-			**kwargs
-		)
-		
-		# Then set our excited states.
-		for state in self:
-			state.set_file_options(output_dir, output_name, **kwargs)
-			
-	@property
-	def excited_states_diagram(self):
-		return self.get_file('excited_states_diagram')
-	
-	@property
-	def simulated_absorption_graph(self):
-		return self.get_file('simulated_absorption_graph')
 	
 	def group(self):
 		"""
@@ -449,19 +411,6 @@ class Excited_state(Energy_state):
 			
 		# Now convert to 0 -> 255 and return.
 		return [int(clr * 255) for clr in rgb]
-		
-	
-	def set_file_options(self, output_dir, output_name, **kwargs):
-		"""
-		Set the options that will be used to create images from this object.
-		
-		:param output_dir: A pathlib Path object to the directory within which our files should be created.
-		:param output_name: A string that will be used as the start of the file name of the files we create.
-		"""
-		# Set our TDP if we have one.
-		if self.transition_dipole_moment is not None:
-			self.transition_dipole_moment.set_file_options(output_dir, output_name, **kwargs)
-		
 		
 	@classmethod
 	def list_from_parser(self, parser):

@@ -1,11 +1,11 @@
+# General imports
 import math
 import periodictable
+from itertools import zip_longest
+
+# Silico imports
 from silico.result import Result_container
 from silico.result import Result_object
-from itertools import zip_longest
-from silico.file.cube import Fchk_to_cube
-from pathlib import Path
-from silico.image.vmd import Structure_image_maker
 from silico.exception.base import Result_unavailable_error
 
 class Atom_list(Result_container):
@@ -174,41 +174,6 @@ class Atom_list(Result_container):
 		# The 'primary' axis is the adjacent side of our triangle, which we can get with pythagoras.
 		primary_axis = math.sqrt( (end_coord[0] - start_coord[0])**2 + (end_coord[1] - start_coord[1])**2 )
 		return self.get_theta(secondary_axis, primary_axis)
-	
-	def set_file_options(self, output_dir, output_name, *, cube_file = None, **kwargs):
-		"""
-		Set the options that will be used to create images from this object.
-		
-		:param output_dir: A pathlib Path object to the directory within which our files should be created.
-		:param output_name: A string that will be used as the start of the file name of the files we create.
-		"""
-		# Get ourselves a cube file maker if we need one.
-		if cube_file is None:
-			# We'll just use the HOMO to get our cube, as it almost certainly should exist.
-			cube_file = Fchk_to_cube.from_image_options(
-				Path(output_dir, "Structure", output_name + ".structure.cube"),
-				cubegen_type = "MO",
-				orbital = "HOMO",
-				**kwargs)
-			
-		# Save our cube.
-		self._files['structure_cube'] = cube_file
-			
-		# Get our image.
-		self._files['structure_image'] = Structure_image_maker.from_image_options(
-			Path(output_dir, "Structure", output_name + ".structure.jpg"),
-			cube_file = cube_file,
-			**kwargs)
-		
-	def cleanup_intermediate_files(self):
-		"""
-		Remove intermediate files (.cube files) that may have been made by this object.
-		"""
-		super().cleanup_intermediate_files('structure_cube')
-		
-	@property
-	def structure_image(self):
-		return self.get_file('structure_image')
 	
 	@classmethod
 	def from_parser(self, parser):

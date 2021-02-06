@@ -59,7 +59,7 @@ class Turbomole(Program_target):
 			"""
 			Path to the file in which define output is written.
 			"""
-			return Path(self.method.calc_dir.output_directory, "define.output")
+			return Path(self.method.calc_dir.output_directory, "define.out")
 		
 		@property
 		def turbomole_output_path(self):
@@ -102,7 +102,7 @@ class Turbomole(Program_target):
 			"""
 			Path to the input file used to power the define input generator.
 			"""
-			return Path(self.method.calc_dir.input_directory, "define.input")
+			return Path(self.method.calc_dir.input_directory, "define.in")
 		
 		def define(self):
 			"""
@@ -205,14 +205,29 @@ class Turbomole(Program_target):
 			"""
 			# Call parent for setup first.
 			super().pre()
-					
-			# Write our input file to our calculation Input directory.
-			with open(self.coord_file_path, "wt") as coord_file:
-				coord_file.write(self.calculation.input_coords.to_format("tmol"))
-				
-			# Create our prep dir.
-			self.method.calc_dir.prep_directory.mkdir()
 			
+			# If we have a directory calc, copy the old directory to our new Prep directory.
+			if self.calculation.DIRECTORY_CALCULATION:
+				copytree(self.calculation.input, self.method.calc_dir.prep_directory)
+				
+				# Clean up some old files which may be left by the previous calc if run with silico.
+				for delete_file in (self.define_output_path.name, self.method.calc_dir.log_file.name):
+					delete_path = Path(self.method.calc_dir.prep_directory, delete_file)
+					
+					try:
+						delete_path.unlink()
+					except FileNotFoundError:
+						# This is ok.
+						pass
+					
+			else:
+				# Our calc is not a directory calc, write our input file to our calculation Input directory.
+				with open(self.coord_file_path, "wt") as coord_file:
+					coord_file.write(self.calculation.input_coords.to_format("tmol"))
+					
+				# Create our prep dir.
+				self.method.calc_dir.prep_directory.mkdir()
+							
 			# Run define.
 			if "Turbomole-UFF" in self.calculation.CLASS_HANDLE:
 				# Use alternative UFF setup.
@@ -256,25 +271,3 @@ class Turbomole(Program_target):
 			)
 				
 			
-class Turbomole_restart(Turbomole):
-	"""
-	Restarted calculations with Turbomole.
-	"""
-				
-	############################
-	# Class creation mechanism #
-	############################
-	
-	class _actual(Program_target._actual):
-		"""
-		Inner class for programs.
-		"""
-		
-		def pre(self):
-			"""
-			Pre-calculation setup for Turbomole.
-			"""
-			# Call parent for setup first.
-			super().pre()
-			
-			# Next we need to copy our old calc dir to new location.

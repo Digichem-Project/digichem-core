@@ -20,7 +20,7 @@ programs: [Turbomole]
 # Options that control use of the scratch directory.
 scratch_options:
     # Set True is useful for Turbomole.
-    all_output: True
+    all_output: False
     
 # CC2 is slooow; use double CPUs to compensate.
 num_CPUs: 16

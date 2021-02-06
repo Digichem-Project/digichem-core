@@ -16,7 +16,6 @@ class Image_maker(File_maker):
 		These object are used to represent and make images. Note that a single Image_maker object can represent several image_files
 		
 		:param output: A path to an output file to write to. How exactly this operates depends on the inheriting class, it is often only used as a base file name. See the class you are using.
-		:param output_base: Optional path to the base directory where this image will be written to. This information is used by the relative_path() method.
 		:param dont_modify: Flag that modifies how image creation works. If True, no new images will be written to file.
 		:param use_existing: Flag that modifies how image creation works. If True, existing files will be preferentially used if available (set to False to force overwriting existing files).
 		"""

@@ -5,7 +5,7 @@ from logging import getLogger
 import silico.file.types as file_types
 import silico
 
-class Fchk_maker(File_converter):
+class Chk_to_fchk(File_converter):
 	"""
 	Class for creating Gaussian fchk files from Gaussian chk files.
 	"""
@@ -22,7 +22,7 @@ class Fchk_maker(File_converter):
 	
 	def __init__(self, *args, chk_file = None, fchk_file = None,  **kwargs):
 		"""
-		Constructor for Fchk_maker objects.
+		Constructor for Chk_to_fchk objects.
 		
 		See Image_maker for a full signature.
 		

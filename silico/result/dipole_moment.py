@@ -1,9 +1,9 @@
+# General imports
 import math
+
+# Silico imports
 from silico.result.base import Result_object
 from silico.result.angle import Angle
-from silico.file.cube import Fchk_to_cube
-from pathlib import Path
-from silico.image.vmd import Dipole_image_maker
 
 class Dipole_moment(Result_object):
 	"""
@@ -118,31 +118,6 @@ class Dipole_moment(Result_object):
 			return Angle(math.fabs(self.atoms.get_XY_plane_angle(self.origin_coords, self.vector_coords)), "rad")
 		else:
 			return None
-			
-	def set_file_options(self, output_dir, output_name, cube_file = None, **kwargs):
-		"""
-		Set the options that will be used to create images from this object.
-		
-		:param output_dir: A pathlib Path object to the directory within which our files should be created.
-		:param output_name: A string that will be used as the start of the file name of the files we create.
-		"""
-		# Get ourselves a cube file maker if we need one.
-		if cube_file is None:
-			cube_file = Fchk_to_cube.from_image_options(Path(output_dir, "Dipole Moment", output_name + ".dipole.cube"), cubegen_type = "MO", orbital = "HOMO", **kwargs)
-			
-		# Get our image.
-		self._files['dipole_image'] = Dipole_image_maker.from_image_options(Path(output_dir, "Dipole Moment", output_name + ".dipole.jpg"), cube_file = cube_file, dipole_moment = self, **kwargs)
-	
-	def cleanup_intermediate_files(self):
-		"""
-		Remove any intermediate files that may have been created by this object.
-		"""
-		# Remove our cube file.
-		super().cleanup_intermediate_files('cube_file')
-	
-	@property
-	def dipole_image(self):
-		return self.get_file('dipole_image')
 			
 	@classmethod
 	def from_parser(self, parser):

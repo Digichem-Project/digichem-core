@@ -2,7 +2,7 @@
 
 ## Template to display images of generic orbitals (ie, not the FMOs)
 
-<%page args="molecular_orbitals" />
+<%page args="molecular_orbitals, report" />
 
 ## We still use flexbox for some layout here, which breaks pagination in weasyprint. For now, we fix by splitting our list into fours (which is the number of MOs per page).
 
@@ -15,29 +15,29 @@
 		<div class="imageBlock imageBlock--multi imageBlock--orbital">
 			<div class="image">
 				<div class="image__aligner">
-					<img class="image__img" src="${orbital.orbital_image.relative_path('x0y0z0')}">
+					<img class="image__img" src="${report.relative_image(orbital.label, 'x0y0z0')}">
 				</div>
 				<div class="image__caption">X/Y plane</div>
 			</div>
 			<div class="image">
 				<div class="image__aligner">
-					<img class="image__img" src="${orbital.orbital_image.relative_path('x90y0z0')}">
+					<img class="image__img" src="${report.relative_image(orbital.label, 'x90y0z0')}">
 				</div>
 				<div class="image__caption">X/Z plane</div>
 			</div>
 			<div class="image">
 				<div class="image__aligner">
-					<img class="image__img" src="${orbital.orbital_image.relative_path('x0y90z0')}">
+					<img class="image__img" src="${report.relative_image(orbital.label, 'x0y90z0')}">
 				</div>
 				<div class="image__caption">Z/Y plane</div>
 			</div>
 			<div class="image">
 				<div class="image__aligner">
-					<img class="image__img" src="${orbital.orbital_image.relative_path('x45y45z45')}">
+					<img class="image__img" src="${report.relative_image(orbital.label, 'x45y45z45')}">
 				</div>
 				<div class="image__caption">45° to axes</div>
 			</div>
-			<div class="imageBlock__caption">${orbital.label} density (isovalue: ${orbital.orbital_image.isovalue})</div>
+			<div class="imageBlock__caption">${orbital.label} density (isovalue: ${report.images[orbital.label].isovalue})</div>
 		</div>
 		%endfor
 	</div>

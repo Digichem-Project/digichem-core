@@ -1,8 +1,9 @@
+# General imports.
+from itertools import zip_longest
+
+# Silico imports.
 from silico.result import Result_container
 from silico.result.base import Result_object
-from silico.image.spectroscopy import Frequency_graph_maker
-from pathlib import Path
-from itertools import zip_longest
 
 class Vibration_list(Result_container):
 	"""
@@ -15,25 +16,6 @@ class Vibration_list(Result_container):
 		Get a Vibration_list object of the vibrations in this list that have negative frequencies (they are imaginary).
 		"""
 		return type(self)([vibration for vibration in self if vibration.frequency < 0])
-	
-	def set_file_options(self, output_dir, output_name, **kwargs):
-		"""
-		Set the options that will be used to create images from this object.
-		
-		:param output_dir: A pathlib Path object to the directory within which our files should be created.
-		:param output_name: A string that will be used as the start of the file name of the files we create.
-		"""
-		# First our states diagram.
-		self._files['simulated_IR_graph'] = Frequency_graph_maker.from_image_options(
-			Path(output_dir, output_name + ".simulated_frequencies.png"),
-			vibrations = self,
-			**kwargs
-		)
-		
-	@property
-	def simulated_IR_graph(self):
-		return self.get_file('simulated_IR_graph')
-
 	
 	@classmethod
 	def from_parser(self, parser):
