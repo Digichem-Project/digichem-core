@@ -10,6 +10,12 @@ warnings.filterwarnings("ignore", "(?s).*Source ID .* was not found when attempt
 # This one is caused by the way tight_layout works. It's fine to ignore here, but not so good if we want to plot interactively.
 warnings.filterwarnings("ignore", "(?s).*tight_layout: falling back to Agg renderer*", category = UserWarning)
 
+# This warning is when we try to create a graph with no height, normally caused by an energy convergence graph with no change in energy.
+warnings.filterwarnings("ignore", "(?s).*Attempting to set identical bottom == top*", category = UserWarning)
+# This warning appear to arise from matplotlib internally, may become a problem in the future...
+warnings.filterwarnings("ignore", '(?s).*got unexpected keyword argument "dpi"*')
+
+
 import sys
 # These	two suppress weasyprint warnings about incompatible libraries (which we ignore when freezing).
 if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
