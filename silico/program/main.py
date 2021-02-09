@@ -17,10 +17,10 @@ warnings.filterwarnings("ignore", '(?s).*got unexpected keyword argument "dpi"*'
 
 
 import sys
-# These	two suppress weasyprint warnings about incompatible libraries (which we ignore when freezing).
+# These    two suppress weasyprint warnings about incompatible libraries (which we ignore when freezing).
 if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
-	warnings.filterwarnings("ignore", "(?s).*@font-face support needs Pango >= 1.38*", category = UserWarning)
-	warnings.filterwarnings("ignore", "(?s).*There are known rendering problems and missing features with cairo < 1.15.4*", category = UserWarning)
+    warnings.filterwarnings("ignore", "(?s).*@font-face support needs Pango >= 1.38*", category = UserWarning)
+    warnings.filterwarnings("ignore", "(?s).*There are known rendering problems and missing features with cairo < 1.15.4*", category = UserWarning)
 
 # Init openbabel.
 import silico
@@ -54,49 +54,49 @@ USAGE = """%(prog)s submit ...
    or: %(prog)s report ..."""
 
 def main():
-	"""
-	Main entry point for the creport program.
-	"""
-	# ----- Program init -----
-	
-	# Configure our argument parser.
-	# This is the top-level parser; each sub program will specify its own sub-parser.
-	parser = argparse.ArgumentParser(
-		description = DESCRIPTION,
-		epilog = EPILOG)
-	parser.add_argument("-v", "--version", action = "version", version = str(silico.version))
-	subparsers = parser.add_subparsers(dest="prog")
-	
-	# Create sub parsers for each sub-program. Each will define its own parser.
-	silico.program.submit.arguments(subparsers)
-	silico.program.convert.arguments(subparsers)
-	silico.program.result.arguments(subparsers)
-	silico.program.report.arguments(subparsers)
-	#silico.program.spreadsheet.arguments(subparsers)
-	silico.program.status.arguments(subparsers)
-	silico.program.resume.arguments(subparsers)
-	
-	# Before we call parse_args(), we check to see if a sub command has been chosen.
-	# If not, we'll add 'submit' as the default.
-	# This is a bit hacky, but works ok.
-	if len(sys.argv) <= 1 or (
-		sys.argv[1] not in ["submit", "result", "report", "resume", "status", "convert"]
-		and "-h" not in sys.argv
-		and "--help" not in sys.argv
-		and "-v" not in sys.argv
-		and "--version" not in sys.argv
-	):
-		sys.argv.insert(1, "submit")
-	
-	# Process command line arguments.
-	args = parser.parse_args()
-		
-	# Go.
-	# args.func is defined by each subprogram.
-	return args.func(args)
+    """
+    Main entry point for the creport program.
+    """
+    # ----- Program init -----
+    
+    # Configure our argument parser.
+    # This is the top-level parser; each sub program will specify its own sub-parser.
+    parser = argparse.ArgumentParser(
+        description = DESCRIPTION,
+        epilog = EPILOG)
+    parser.add_argument("-v", "--version", action = "version", version = str(silico.version))
+    subparsers = parser.add_subparsers(dest="prog")
+    
+    # Create sub parsers for each sub-program. Each will define its own parser.
+    silico.program.submit.arguments(subparsers)
+    silico.program.convert.arguments(subparsers)
+    silico.program.result.arguments(subparsers)
+    silico.program.report.arguments(subparsers)
+    #silico.program.spreadsheet.arguments(subparsers)
+    silico.program.status.arguments(subparsers)
+    silico.program.resume.arguments(subparsers)
+    
+    # Before we call parse_args(), we check to see if a sub command has been chosen.
+    # If not, we'll add 'submit' as the default.
+    # This is a bit hacky, but works ok.
+    if len(sys.argv) <= 1 or (
+        sys.argv[1] not in ["submit", "result", "report", "resume", "status", "convert"]
+        and "-h" not in sys.argv
+        and "--help" not in sys.argv
+        and "-v" not in sys.argv
+        and "--version" not in sys.argv
+    ):
+        sys.argv.insert(1, "submit")
+    
+    # Process command line arguments.
+    args = parser.parse_args()
+        
+    # Go.
+    # args.func is defined by each subprogram.
+    return args.func(args)
 
-	
-# If we've been invoked as a program, call main().	
+    
+# If we've been invoked as a program, call main().    
 if __name__ == '__main__':
-	sys.exit(main())
-	
+    sys.exit(main())
+    

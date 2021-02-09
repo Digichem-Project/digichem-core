@@ -19,55 +19,55 @@ DESCRIPTION = "resume an in-progress silico submission"
 EPILOG = "{} V{}. Written by {}. Last updated {}.".format(NAME, silico.version, silico.author, silico.last_updated.strftime("%d/%m/%Y"))
 
 def arguments(subparsers):
-	"""
-	Add this program's arguments to an argparser object.
-	"""
-	parser = subparsers.add_parser("resume",
-		description = DESCRIPTION,
-		epilog = EPILOG,
-		help = "Resume submission (used automatically by part of the submission mechanism)"
-	)
-	# Set main function.
-	parser.set_defaults(func = main)
-	
-	parser.add_argument("resume_file", help = "Path to the file to resume from (this should be a pickled calculation class)", type = Path)
+    """
+    Add this program's arguments to an argparser object.
+    """
+    parser = subparsers.add_parser("resume",
+        description = DESCRIPTION,
+        epilog = EPILOG,
+        help = "Resume submission (used automatically by part of the submission mechanism)"
+    )
+    # Set main function.
+    parser.set_defaults(func = main)
+    
+    parser.add_argument("resume_file", help = "Path to the file to resume from (this should be a pickled calculation class)", type = Path)
 
 def main(args):
-	"""
-	Main entry point for the resume program.
-	"""
-	# ----- Program init -----
-		
-	# Load the pickled class.
-	with open(args.resume_file, "rb") as pickle_file:
-		method = dill.load(pickle_file)
+    """
+    Main entry point for the resume program.
+    """
+    # ----- Program init -----
+        
+    # Load the pickled class.
+    with open(args.resume_file, "rb") as pickle_file:
+        method = dill.load(pickle_file)
 
-	# Delete the pickled file to clean up (also prevents us running twice on the same file, which would be bad. Maybe we should do some file locking anyway?)
-	try:
-		args.resume_file.unlink()
-	except Exception:
-		getLogger(silico.logger_name).error("Failed to delete pickle file", exc_info = True)
-		
-	# Set program stuff.
-	silico.program.init_from_config(getLogger(silico.logger_name), method.program.calculation.silico_options)
-	silico.program.init_signals(getLogger(silico.logger_name))
-	
-	# Set numpy errors (not sure why this isn't the default...)
-	numpy.seterr(invalid = 'raise', divide = 'raise')
-	
-	return silico.program.run(_main, method = method)
+    # Delete the pickled file to clean up (also prevents us running twice on the same file, which would be bad. Maybe we should do some file locking anyway?)
+    try:
+        args.resume_file.unlink()
+    except Exception:
+        getLogger(silico.logger_name).error("Failed to delete pickle file", exc_info = True)
+        
+    # Set program stuff.
+    silico.program.init_from_config(getLogger(silico.logger_name), method.program.calculation.silico_options)
+    silico.program.init_signals(getLogger(silico.logger_name))
+    
+    # Set numpy errors (not sure why this isn't the default...)
+    numpy.seterr(invalid = 'raise', divide = 'raise')
+    
+    return silico.program.run(_main, method = method)
 
 
 def _main(method):
-	"""
-	Main entry point for the resume program.
-	"""
-	# And resume.
-	try:
-		method.resume()
-	except Submission_paused:
-		# This is fine.
-		pass
-	except Exception:
-		raise Silico_exception("Error during submission")
+    """
+    Main entry point for the resume program.
+    """
+    # And resume.
+    try:
+        method.resume()
+    except Submission_paused:
+        # This is fine.
+        pass
+    except Exception:
+        raise Silico_exception("Error during submission")
 

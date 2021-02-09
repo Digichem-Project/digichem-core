@@ -1,19 +1,19 @@
 ## -*- coding: utf-8 -*-
 ##
 <%!
-	from silico.result.excited_states import Energy_state
-	from silico.exception import Result_unavailable_error
+    from silico.result.excited_states import Energy_state
+    from silico.exception import Result_unavailable_error
 %>\
 ##
 <%page args="excited_states, result_name = ''"/>\
 ##
 ##
 <%
-	if len(excited_states) == 0:
-		raise Result_unavailable_error("excited states", "there are no excited states")
-	
-	# A dictionary where each key is a multiplicity.
-	grouped_states = excited_states.group()
+    if len(excited_states) == 0:
+        raise Result_unavailable_error("excited states", "there are no excited states")
+    
+    # A dictionary where each key is a multiplicity.
+    grouped_states = excited_states.group()
 %>\
 ##
 <%include file="title.mako" args="title='Excited States', result_name=result_name"/>
@@ -29,7 +29,7 @@
 No. ${Energy_state.multiplicity_number_to_string(group)}s: ${len(grouped_states[group])}
 ##
 <%
-	state = grouped_states[group][0]
+    state = grouped_states[group][0]
 %>\
 ##
 ${state.state_symbol} energy /eV: ${"{:0.2f}".format(state.energy)}

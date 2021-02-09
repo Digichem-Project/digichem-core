@@ -9,381 +9,381 @@ from silico.result.base import Result_object
 from silico.exception import Result_unavailable_error
 
 class Molecular_orbital_list(Result_container):
-	"""
-	Class for representing a group of MOs.
-	"""
-	
-	def __init__(self, *args, **kwargs):
-		super().__init__(*args, **kwargs)
-		
-	@property
-	def HOMO_energy(self):
-		"""
-		Get the energy of the highest occupied orbital in this list.
-		
-		Use get_orbital(HOMO_difference = 0) to retrieve the HOMO as an object.
-		
-		:raises Result_unavailable_error: If the HOMO is not available.
-		:return The orbital energy (in eV).
-		"""
-		return self.get_orbital(HOMO_difference = 0).energy
-	
-	@property
-	def LUMO_energy(self):
-		"""
-		Get the energy of the lowest unoccupied orbital in this list.
-		
-		Use get_orbital(HOMO_difference = 1) to retrieve the LUMO as an object.
-		
-		:raises Result_unavailable_error: If the LUMO is not available.
-		:return The orbital energy (in eV).
-		"""
-		return self.get_orbital(HOMO_difference = 1).energy
-		
-	@property
-	def HOMO_LUMO_energy(self):
-		"""
-		Get ΔE HOMO-LUMO; the energy difference between the HOMO and LUMO.
-		
-		Depending on how the orbitals are occupied, it might not make sense to calculate the HOMO-LUMO energy.
-		
-		:raises Result_unavailable_error: If the HOMO or LUMO is not available.
-		:return: The HOMO-LUMO energy gap (in  eV).
-		"""
-		# Get out orbitals.
-		HOMO = self.get_orbital(HOMO_difference = 0)
-		LUMO = self.get_orbital(HOMO_difference = 1)
-		# Return the difference.
-		return float(LUMO) - float(HOMO)
+    """
+    Class for representing a group of MOs.
+    """
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        
+    @property
+    def HOMO_energy(self):
+        """
+        Get the energy of the highest occupied orbital in this list.
+        
+        Use get_orbital(HOMO_difference = 0) to retrieve the HOMO as an object.
+        
+        :raises Result_unavailable_error: If the HOMO is not available.
+        :return The orbital energy (in eV).
+        """
+        return self.get_orbital(HOMO_difference = 0).energy
+    
+    @property
+    def LUMO_energy(self):
+        """
+        Get the energy of the lowest unoccupied orbital in this list.
+        
+        Use get_orbital(HOMO_difference = 1) to retrieve the LUMO as an object.
+        
+        :raises Result_unavailable_error: If the LUMO is not available.
+        :return The orbital energy (in eV).
+        """
+        return self.get_orbital(HOMO_difference = 1).energy
+        
+    @property
+    def HOMO_LUMO_energy(self):
+        """
+        Get ΔE HOMO-LUMO; the energy difference between the HOMO and LUMO.
+        
+        Depending on how the orbitals are occupied, it might not make sense to calculate the HOMO-LUMO energy.
+        
+        :raises Result_unavailable_error: If the HOMO or LUMO is not available.
+        :return: The HOMO-LUMO energy gap (in  eV).
+        """
+        # Get out orbitals.
+        HOMO = self.get_orbital(HOMO_difference = 0)
+        LUMO = self.get_orbital(HOMO_difference = 1)
+        # Return the difference.
+        return float(LUMO) - float(HOMO)
 
-	@property
-	def spin_type(self):
-		"""
-		Get the spin type (alpha, beta etc.) of the orbitals in this list.
-		
-		:raises Result_unavailable_error: If there are no orbitals in this list.
-		:return: The spin type, one of either 'alpha' or 'beta' for unrestricted calcs, 'none' for restricted calcs, or 'mixed' if multiple spin types are present in this list.
-		"""
-		# Unique spin types in our list.
-		spin_types = list(set([orbital.spin_type for orbital in self]))
-		
-		if len(spin_types) == 1:
-			return spin_types[0]
-		elif len(spin_types) > 1:
-			return "mixed"
-		else:
-			raise Result_unavailable_error("Orbital Spin", "There are no orbitals")
-	
-	def get_orbital(self, criteria = None, *, label = None, HOMO_difference = None, level = None):
-		"""
-		Retrieve an orbital based on some property.
-		
-		Only one of the criteria should be specified.
-		
-		:raises Result_unavailable_error: If the requested MO could not be found.
-		:param criteria: A string describing the orbital to get. The meaning of criteria is determined automatically based on its content. If criteria begins with '+' or '-' then it is used as a HOMO_difference. Otherwise, if criteria is a valid integer, then it is used as a level. Otherwise, criteria is assumed to be an orbital label.
-		:param label: The label of the orbital to get.
-		:param HOMO_difference: The distance from the HOMO of the orbital to get.
-		:param level: The level of the orbital to get.
-		:return: The Molecular_orbital object.
-		"""
-		# Use the search() method to do our work for us.
-		try:
-			return self.search(criteria, label = label, HOMO_difference = HOMO_difference, level = level)[0]
-		except IndexError:
-			#raise ValueError("Unable to find orbital '{}'".format(label))
-			raise Result_unavailable_error("Orbital", "could not find orbital with criteria = '{}', label = '{}', HOMO_difference = '{}', level = '{}'".format(criteria, label, HOMO_difference, level))
-	
-	def search(self, criteria = None, *, label = None, HOMO_difference = None, level = None):
-		"""
-		Attempt to retrieve a number of orbitals based on some property.
-		
-		Only one of the criteria should be specified.
-		
-		:param criteria: A string describing the orbitals to get. The meaning of criteria is determined automatically based on its content. If criteria begins with '+' or '-' then it is used as a HOMO_difference. Otherwise, if criteria is a valid integer, then it is used as a level. Otherwise, criteria is assumed to be an orbital label.
-		:param label: The label of the orbitals to get.
-		:param HOMO_difference: The distance from the HOMO of the orbitals to get.
-		:param level: The level of the orbitals to get.
-		:return: A (possibly empty) Molecular_orbital_list object.
-		"""
-		# If we've been given a generic criteria, decide what it is actually talking about.		
-		if criteria is not None:
-			try:				
-				# If our string start with a sing (+ or -) then it's a HOMO_difference.
-				if criteria[:1] == "+" or criteria[:1] == "-":
-					HOMO_difference = int(criteria)
-				# If its and integer (or a string that looks like one), then its a level.
-				elif criteria.isdigit() or isinstance(criteria, int):
-					level = int(criteria)
-				# Otherwise we assume it a label.
-				else:
-					label = criteria
-				
-			except Exception:
-				# We couldn't parse criteria, get upset.
-				raise ValueError("Unable to understand given search criteria '{}'".format(criteria))
-		
-		# Now get our filter func.
-		if label is not None:
-			filter_func = lambda mo: mo.label != label
-		elif HOMO_difference is not None:
-			filter_func = lambda mo: mo.HOMO_difference != HOMO_difference
-		elif level is not None:
-			filter_func = lambda mo: mo.level != level
-		else:
-			raise ValueError("Missing criteria to search by; specify one of 'criteria', 'label', 'HOMO_difference' or 'level'")
-		
-		# Now search.
-		return type(self)(filterfalse(filter_func, self))
-	
-	def ordered(self):
-		"""
-		Return a copy of this list of MOs that is ordered in terms of energy and removes duplicate MOs.
-		"""
-		ordered_list = type(self)(set(self))
-		ordered_list.sort(key = lambda mo: mo.level)
-		return ordered_list
-		
-	@classmethod
-	def from_parser(self, parser, cls = None):
-		"""
-		Construct a Molecular_orbital_list object from an output file parser.
-		
-		:param parser: An output file parser.
-		:param cls: Optional class of objects to populate this list with, should inherit from Molecular_orbital. Defaults to Molecular_orbital if only one set of orbitals are available, or Alpha_orbital if both alpha and beta are available (in which case you should call Molecular_orbital_list.from_cclib() again with cls = Beta_orbital to get beta as well).
-		:returns: The new Molecular_orbital_list object. The list will be empty if no MO data is available.
-		"""
-		try:
-			# Set our default class if we've not been given one.
-			if cls is None:
-				# Check to see if we have only 'alpha' or beta as well.
-				if len(parser.data.moenergies) == 1:
-					cls = Molecular_orbital
-				else:
-					cls = Alpha_orbital
-			# Get our list.
-			return self(cls.list_from_parser(parser))
-		except AttributeError:
-			return self()
-	
-	def find_common_level(self, *other_lists, HOMO_difference):
-		"""
-		Find either:
-			The orbital with the lowest level that has no less than the given negative HOMO_difference.
-		or:
-			The orbital with the highest level that has no more than the given positive HOMO_difference.
-		Across one or more orbital lists.
-		
-		The method is useful for determining which orbitals to traverse between two limits from the HOMO/LUMO gap.
-		
-		:raises Result_unavailable_error: If all of the given orbital_lists (including this one) are empty.
-		:param *other_lists: Optional lists to search. If none are given, then only this orbital_list is search.
-		:param HOMO_difference: The distance from the HOMO to search for. Negative values indicate HOMO-n, positive values indicate LUMO+(n-1). The LUMO should be at +1 by definition.
-		:return: The level (as an integer) of the matching orbital.
-		"""
-		# Our list of orbitals that match our criteria.
-		found_orbitals = []
-		
-		# Our list of orbital_list objects to look through.
-		orbital_lists = list(other_lists)
-		orbital_lists.append(self)
-		
-		# Cant think of a better way to do this...
-		if HOMO_difference <= 0:
-			search_func = lambda orbital: orbital.HOMO_difference < HOMO_difference
-		else:
-			search_func = lambda orbital: orbital.HOMO_difference > HOMO_difference
-		
-		# Loop through each list and search.
-		for orbital_list in orbital_lists:
-			# Now search each list for orbitals that match our criteria.
-			matching_orbitals = list(filterfalse(search_func, orbital_list))
-			
-			# We can just add all the orbitals we find because we'll only look at the lowest/highest anyway.
-			found_orbitals.extend(matching_orbitals)
-			
-		# Get a list of orbital levels that match our criteria.
-		orbital_levels = [orbital.level for orbital in found_orbitals]
-		
-		# Now either return the smallest or largest orbital level, depending on what we were asked for.
-		try:
-			if HOMO_difference <= 0:
-				# The lowest orbital below HOMO.
-				return min(orbital_levels)
-			else:
-				# The highest orbital above LUMO.
-				return max(orbital_levels)
-		except ValueError:
-			# Min/Max couldn't find anything, this should only happen if all orbital_lists are completely empty.
-			raise Result_unavailable_error("Common orbital level", "there are no orbitals")
-	
+    @property
+    def spin_type(self):
+        """
+        Get the spin type (alpha, beta etc.) of the orbitals in this list.
+        
+        :raises Result_unavailable_error: If there are no orbitals in this list.
+        :return: The spin type, one of either 'alpha' or 'beta' for unrestricted calcs, 'none' for restricted calcs, or 'mixed' if multiple spin types are present in this list.
+        """
+        # Unique spin types in our list.
+        spin_types = list(set([orbital.spin_type for orbital in self]))
+        
+        if len(spin_types) == 1:
+            return spin_types[0]
+        elif len(spin_types) > 1:
+            return "mixed"
+        else:
+            raise Result_unavailable_error("Orbital Spin", "There are no orbitals")
+    
+    def get_orbital(self, criteria = None, *, label = None, HOMO_difference = None, level = None):
+        """
+        Retrieve an orbital based on some property.
+        
+        Only one of the criteria should be specified.
+        
+        :raises Result_unavailable_error: If the requested MO could not be found.
+        :param criteria: A string describing the orbital to get. The meaning of criteria is determined automatically based on its content. If criteria begins with '+' or '-' then it is used as a HOMO_difference. Otherwise, if criteria is a valid integer, then it is used as a level. Otherwise, criteria is assumed to be an orbital label.
+        :param label: The label of the orbital to get.
+        :param HOMO_difference: The distance from the HOMO of the orbital to get.
+        :param level: The level of the orbital to get.
+        :return: The Molecular_orbital object.
+        """
+        # Use the search() method to do our work for us.
+        try:
+            return self.search(criteria, label = label, HOMO_difference = HOMO_difference, level = level)[0]
+        except IndexError:
+            #raise ValueError("Unable to find orbital '{}'".format(label))
+            raise Result_unavailable_error("Orbital", "could not find orbital with criteria = '{}', label = '{}', HOMO_difference = '{}', level = '{}'".format(criteria, label, HOMO_difference, level))
+    
+    def search(self, criteria = None, *, label = None, HOMO_difference = None, level = None):
+        """
+        Attempt to retrieve a number of orbitals based on some property.
+        
+        Only one of the criteria should be specified.
+        
+        :param criteria: A string describing the orbitals to get. The meaning of criteria is determined automatically based on its content. If criteria begins with '+' or '-' then it is used as a HOMO_difference. Otherwise, if criteria is a valid integer, then it is used as a level. Otherwise, criteria is assumed to be an orbital label.
+        :param label: The label of the orbitals to get.
+        :param HOMO_difference: The distance from the HOMO of the orbitals to get.
+        :param level: The level of the orbitals to get.
+        :return: A (possibly empty) Molecular_orbital_list object.
+        """
+        # If we've been given a generic criteria, decide what it is actually talking about.        
+        if criteria is not None:
+            try:                
+                # If our string start with a sing (+ or -) then it's a HOMO_difference.
+                if criteria[:1] == "+" or criteria[:1] == "-":
+                    HOMO_difference = int(criteria)
+                # If its and integer (or a string that looks like one), then its a level.
+                elif criteria.isdigit() or isinstance(criteria, int):
+                    level = int(criteria)
+                # Otherwise we assume it a label.
+                else:
+                    label = criteria
+                
+            except Exception:
+                # We couldn't parse criteria, get upset.
+                raise ValueError("Unable to understand given search criteria '{}'".format(criteria))
+        
+        # Now get our filter func.
+        if label is not None:
+            filter_func = lambda mo: mo.label != label
+        elif HOMO_difference is not None:
+            filter_func = lambda mo: mo.HOMO_difference != HOMO_difference
+        elif level is not None:
+            filter_func = lambda mo: mo.level != level
+        else:
+            raise ValueError("Missing criteria to search by; specify one of 'criteria', 'label', 'HOMO_difference' or 'level'")
+        
+        # Now search.
+        return type(self)(filterfalse(filter_func, self))
+    
+    def ordered(self):
+        """
+        Return a copy of this list of MOs that is ordered in terms of energy and removes duplicate MOs.
+        """
+        ordered_list = type(self)(set(self))
+        ordered_list.sort(key = lambda mo: mo.level)
+        return ordered_list
+        
+    @classmethod
+    def from_parser(self, parser, cls = None):
+        """
+        Construct a Molecular_orbital_list object from an output file parser.
+        
+        :param parser: An output file parser.
+        :param cls: Optional class of objects to populate this list with, should inherit from Molecular_orbital. Defaults to Molecular_orbital if only one set of orbitals are available, or Alpha_orbital if both alpha and beta are available (in which case you should call Molecular_orbital_list.from_cclib() again with cls = Beta_orbital to get beta as well).
+        :returns: The new Molecular_orbital_list object. The list will be empty if no MO data is available.
+        """
+        try:
+            # Set our default class if we've not been given one.
+            if cls is None:
+                # Check to see if we have only 'alpha' or beta as well.
+                if len(parser.data.moenergies) == 1:
+                    cls = Molecular_orbital
+                else:
+                    cls = Alpha_orbital
+            # Get our list.
+            return self(cls.list_from_parser(parser))
+        except AttributeError:
+            return self()
+    
+    def find_common_level(self, *other_lists, HOMO_difference):
+        """
+        Find either:
+            The orbital with the lowest level that has no less than the given negative HOMO_difference.
+        or:
+            The orbital with the highest level that has no more than the given positive HOMO_difference.
+        Across one or more orbital lists.
+        
+        The method is useful for determining which orbitals to traverse between two limits from the HOMO/LUMO gap.
+        
+        :raises Result_unavailable_error: If all of the given orbital_lists (including this one) are empty.
+        :param *other_lists: Optional lists to search. If none are given, then only this orbital_list is search.
+        :param HOMO_difference: The distance from the HOMO to search for. Negative values indicate HOMO-n, positive values indicate LUMO+(n-1). The LUMO should be at +1 by definition.
+        :return: The level (as an integer) of the matching orbital.
+        """
+        # Our list of orbitals that match our criteria.
+        found_orbitals = []
+        
+        # Our list of orbital_list objects to look through.
+        orbital_lists = list(other_lists)
+        orbital_lists.append(self)
+        
+        # Cant think of a better way to do this...
+        if HOMO_difference <= 0:
+            search_func = lambda orbital: orbital.HOMO_difference < HOMO_difference
+        else:
+            search_func = lambda orbital: orbital.HOMO_difference > HOMO_difference
+        
+        # Loop through each list and search.
+        for orbital_list in orbital_lists:
+            # Now search each list for orbitals that match our criteria.
+            matching_orbitals = list(filterfalse(search_func, orbital_list))
+            
+            # We can just add all the orbitals we find because we'll only look at the lowest/highest anyway.
+            found_orbitals.extend(matching_orbitals)
+            
+        # Get a list of orbital levels that match our criteria.
+        orbital_levels = [orbital.level for orbital in found_orbitals]
+        
+        # Now either return the smallest or largest orbital level, depending on what we were asked for.
+        try:
+            if HOMO_difference <= 0:
+                # The lowest orbital below HOMO.
+                return min(orbital_levels)
+            else:
+                # The highest orbital above LUMO.
+                return max(orbital_levels)
+        except ValueError:
+            # Min/Max couldn't find anything, this should only happen if all orbital_lists are completely empty.
+            raise Result_unavailable_error("Common orbital level", "there are no orbitals")
+    
 
 class Molecular_orbital(Result_object):
-	"""
-	Class representing a molecular orbital.
-	"""
-	
-	# True MOs don't have a spin.
-	spin_type = "none"
-	
-	def __init__(self, level, HOMO_difference, energy, symmetry = None):
-		"""
-		Constructor for MOs.
-		
-		:param level: The 'level' of this MO (essentially an index), where the lowest MO has a level of 1, increasing by 1 for each higher orbital.
-		:param HOMO_difference: The distance of this MO from the HOMO. A negative value means this orbital is HOMO-n. A positive value means this orbital is HOMO+n (or LUMO+(n-1). A value of 0 means this orbital is the HOMO. A value of +1 means this orbital is the LUMO.
-		:param energy: The energy of this MO (in eV).
-		:param symmetry: The symmetry of this MO.
-		"""
-		super().__init__()
-		self.level = level
-		self.HOMO_difference = HOMO_difference
-		self.symmetry = symmetry
-		self.energy = energy
-	
-	def __float__(self):
-		return self.energy
-	
-	@property
-	def HOMO_level(self):
-		"""
-		The level of the HOMO in the collection of orbitals of which this orbital is a member.
-		"""
-		return self.level - self.HOMO_difference
-	
-	@property
-	def LUMO_level(self):
-		"""
-		The level of the LUMO in the collection of orbitals of which this orbital is a member.
-		"""
-		return self.HOMO_level +1		
-	
-	@property
-	def label(self):
-		"""
-		A label describing this MO in terms of its proximity to the HOMO and LUMO.
-		
-		:return: A string label, of the form either HOMO-n or LUMO+n.
-		"""
-		# The label we return depends on how close to the HOMO we are.
-		if self.level == self.HOMO_level:
-			# We are the HOMO.
-			label = "HOMO"
-		elif self.level < self.HOMO_level:
-			# We are below the HOMO (and presumably occupied).
-			label = "HOMO{}".format(self.level - self.HOMO_level)
-		elif self.level == self.LUMO_level:
-			# We are the LUMO.
-			label = "LUMO"
-		else:
-			# We are above the LUMO (and presumably unoccupied).
-			label = "LUMO{0:+}".format(self.level - self.LUMO_level)
-			
-		return label
-	
-	def __eq__(self, other):
-		"""
-		Equality operator between MOs.
-		"""
-		return self.label == other.label
-	
-	def __hash__(self):
-		"""
-		Hash operator.
-		"""
-		return hash(tuple(self.label))
-	
-	# The index used to access data from cclib (which always has two lists, one for alpha one for beta).
-	ccdata_index = 0
-	
-	@classmethod
-	def list_from_parser(self, parser):
-		"""
-		Create a list of Molecular_orbital objects from an output file parser.
-		
-		:param parser: An output file parser.
-		:return: A list of Molecular_orbital objects. The list will be empty if no MO is available.
-		"""
-		try:
-			# Get and zip required params.
-			if hasattr(parser.data, "mosyms"):
-				# We have symmetries.
-				symmetry = parser.data.mosyms[self.ccdata_index]
-			else:
-				# No symmetry.
-				symmetry = []
-				
-			# Don't catch this exception; if we don't have MO energies there's nothing we can do.
-			energy = parser.data.moenergies[self.ccdata_index]
-			
-			# Build our list.
-			return [
-				self(index +1, index - parser.data.homos[self.ccdata_index], energy, symmetry)
-				for index, (symmetry, energy)
-				in enumerate(zip_longest(symmetry, energy, fillvalue = None))
-			]
-		except (AttributeError, IndexError):
-			return []
-	
+    """
+    Class representing a molecular orbital.
+    """
+    
+    # True MOs don't have a spin.
+    spin_type = "none"
+    
+    def __init__(self, level, HOMO_difference, energy, symmetry = None):
+        """
+        Constructor for MOs.
+        
+        :param level: The 'level' of this MO (essentially an index), where the lowest MO has a level of 1, increasing by 1 for each higher orbital.
+        :param HOMO_difference: The distance of this MO from the HOMO. A negative value means this orbital is HOMO-n. A positive value means this orbital is HOMO+n (or LUMO+(n-1). A value of 0 means this orbital is the HOMO. A value of +1 means this orbital is the LUMO.
+        :param energy: The energy of this MO (in eV).
+        :param symmetry: The symmetry of this MO.
+        """
+        super().__init__()
+        self.level = level
+        self.HOMO_difference = HOMO_difference
+        self.symmetry = symmetry
+        self.energy = energy
+    
+    def __float__(self):
+        return self.energy
+    
+    @property
+    def HOMO_level(self):
+        """
+        The level of the HOMO in the collection of orbitals of which this orbital is a member.
+        """
+        return self.level - self.HOMO_difference
+    
+    @property
+    def LUMO_level(self):
+        """
+        The level of the LUMO in the collection of orbitals of which this orbital is a member.
+        """
+        return self.HOMO_level +1        
+    
+    @property
+    def label(self):
+        """
+        A label describing this MO in terms of its proximity to the HOMO and LUMO.
+        
+        :return: A string label, of the form either HOMO-n or LUMO+n.
+        """
+        # The label we return depends on how close to the HOMO we are.
+        if self.level == self.HOMO_level:
+            # We are the HOMO.
+            label = "HOMO"
+        elif self.level < self.HOMO_level:
+            # We are below the HOMO (and presumably occupied).
+            label = "HOMO{}".format(self.level - self.HOMO_level)
+        elif self.level == self.LUMO_level:
+            # We are the LUMO.
+            label = "LUMO"
+        else:
+            # We are above the LUMO (and presumably unoccupied).
+            label = "LUMO{0:+}".format(self.level - self.LUMO_level)
+            
+        return label
+    
+    def __eq__(self, other):
+        """
+        Equality operator between MOs.
+        """
+        return self.label == other.label
+    
+    def __hash__(self):
+        """
+        Hash operator.
+        """
+        return hash(tuple(self.label))
+    
+    # The index used to access data from cclib (which always has two lists, one for alpha one for beta).
+    ccdata_index = 0
+    
+    @classmethod
+    def list_from_parser(self, parser):
+        """
+        Create a list of Molecular_orbital objects from an output file parser.
+        
+        :param parser: An output file parser.
+        :return: A list of Molecular_orbital objects. The list will be empty if no MO is available.
+        """
+        try:
+            # Get and zip required params.
+            if hasattr(parser.data, "mosyms"):
+                # We have symmetries.
+                symmetry = parser.data.mosyms[self.ccdata_index]
+            else:
+                # No symmetry.
+                symmetry = []
+                
+            # Don't catch this exception; if we don't have MO energies there's nothing we can do.
+            energy = parser.data.moenergies[self.ccdata_index]
+            
+            # Build our list.
+            return [
+                self(index +1, index - parser.data.homos[self.ccdata_index], energy, symmetry)
+                for index, (symmetry, energy)
+                in enumerate(zip_longest(symmetry, energy, fillvalue = None))
+            ]
+        except (AttributeError, IndexError):
+            return []
+    
 class Unrestricted_orbital(Molecular_orbital):
-	"""
-	Top-level class for unrestricted orbitals.
-	"""
-	
-	def __init__(self, level, HOMO_difference, energy, spin_type, symmetry = None):
-		"""
-		Constructor for MOs.
-		
-		:param level: The 'level' of the MO (essentially an index), where the lowest MO has a level of 1, increasing by 1 for each higher orbital.
-		:param HOMO_difference: The distance of this MO from the HOMO. A negative value means this orbital is HOMO-n. A positive value means this orbital is HOMO+n (or LUMO+(n-1). A value of 0 means this orbital is the HOMO. A value of +1 means this orbital is the LUMO.
-		:param symmetry: The symmetry of the MO.
-		:param energy: The energy of the MO (in eV).
-		:param spin_type: The spin of this spin-orbital (either alpha or beta).
-		"""
-		# Call parent first.
-		super().__init__(level, HOMO_difference, energy, symmetry)
-		self.spin_type = spin_type
-	
-	@property
-	def label(self):
-		# Get the base of the label first.
-		label = super().label
-		# Append our spin type.
-		label = "{} ({})".format(label, self.spin_type)
-		return label
+    """
+    Top-level class for unrestricted orbitals.
+    """
+    
+    def __init__(self, level, HOMO_difference, energy, spin_type, symmetry = None):
+        """
+        Constructor for MOs.
+        
+        :param level: The 'level' of the MO (essentially an index), where the lowest MO has a level of 1, increasing by 1 for each higher orbital.
+        :param HOMO_difference: The distance of this MO from the HOMO. A negative value means this orbital is HOMO-n. A positive value means this orbital is HOMO+n (or LUMO+(n-1). A value of 0 means this orbital is the HOMO. A value of +1 means this orbital is the LUMO.
+        :param symmetry: The symmetry of the MO.
+        :param energy: The energy of the MO (in eV).
+        :param spin_type: The spin of this spin-orbital (either alpha or beta).
+        """
+        # Call parent first.
+        super().__init__(level, HOMO_difference, energy, symmetry)
+        self.spin_type = spin_type
+    
+    @property
+    def label(self):
+        # Get the base of the label first.
+        label = super().label
+        # Append our spin type.
+        label = "{} ({})".format(label, self.spin_type)
+        return label
 
 class Alpha_orbital(Unrestricted_orbital):
-	"""
-	An alpha spin orbital (these types of orbitals are only singly occupied, electrons are spin-up).
-	"""
-	
-	def __init__(self, level, HOMO_difference, energy, symmetry):
-		"""
-		Constructor for alpha MOs.
-		
-		:param level: The 'level' of the MO (essentially an index), where the lowest MO has a level of 1, increasing by 1 for each higher orbital.
-		:param HOMO_difference: The distance of this MO from the HOMO. A negative value means this orbital is HOMO-n. A positive value means this orbital is HOMO+n (or LUMO+(n-1). A value of 0 means this orbital is the HOMO. A value of +1 means this orbital is the LUMO.
-		:param energy: The energy of the MO (in eV).
-		:param symmetry: The symmetry of the MO.
-		"""
-		super().__init__(level, HOMO_difference, energy, "alpha", symmetry)
-		
+    """
+    An alpha spin orbital (these types of orbitals are only singly occupied, electrons are spin-up).
+    """
+    
+    def __init__(self, level, HOMO_difference, energy, symmetry):
+        """
+        Constructor for alpha MOs.
+        
+        :param level: The 'level' of the MO (essentially an index), where the lowest MO has a level of 1, increasing by 1 for each higher orbital.
+        :param HOMO_difference: The distance of this MO from the HOMO. A negative value means this orbital is HOMO-n. A positive value means this orbital is HOMO+n (or LUMO+(n-1). A value of 0 means this orbital is the HOMO. A value of +1 means this orbital is the LUMO.
+        :param energy: The energy of the MO (in eV).
+        :param symmetry: The symmetry of the MO.
+        """
+        super().__init__(level, HOMO_difference, energy, "alpha", symmetry)
+        
 class Beta_orbital(Unrestricted_orbital):
-	"""
-	A beta spin orbital (these types of orbitals are only singly occupied, electrons are spin-down).
-	"""
-	
-	# Beta orbitals use the other list in cclib.
-	ccdata_index = 1
-	
-	def __init__(self, level, HOMO_difference, energy, symmetry):
-		"""
-		Constructor for beta MOs.
-		
-		:param level: The 'level' of the MO (essentially an index), where the lowest MO has a level of 1, increasing by 1 for each higher orbital.
-		:param HOMO_difference: The distance of this MO from the HOMO. A negative value means this orbital is HOMO-n. A positive value means this orbital is HOMO+n (or LUMO+(n-1). A value of 0 means this orbital is the HOMO. A value of +1 means this orbital is the LUMO.
-		:param energy: The energy of the MO (in eV).
-		:param symmetry: The symmetry of the MO.
-		"""
-		super().__init__(level, HOMO_difference, energy, "beta", symmetry)
-	
+    """
+    A beta spin orbital (these types of orbitals are only singly occupied, electrons are spin-down).
+    """
+    
+    # Beta orbitals use the other list in cclib.
+    ccdata_index = 1
+    
+    def __init__(self, level, HOMO_difference, energy, symmetry):
+        """
+        Constructor for beta MOs.
+        
+        :param level: The 'level' of the MO (essentially an index), where the lowest MO has a level of 1, increasing by 1 for each higher orbital.
+        :param HOMO_difference: The distance of this MO from the HOMO. A negative value means this orbital is HOMO-n. A positive value means this orbital is HOMO+n (or LUMO+(n-1). A value of 0 means this orbital is the HOMO. A value of +1 means this orbital is the LUMO.
+        :param energy: The energy of the MO (in eV).
+        :param symmetry: The symmetry of the MO.
+        """
+        super().__init__(level, HOMO_difference, energy, "beta", symmetry)
+    

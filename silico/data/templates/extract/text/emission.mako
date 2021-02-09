@@ -1,18 +1,18 @@
 ## -*- coding: utf-8 -*-
 ##
 <%!
-	from silico.result.excited_states import Energy_state
-	from silico.exception import Result_unavailable_error
+    from silico.result.excited_states import Energy_state
+    from silico.exception import Result_unavailable_error
 %>\
 ##
 <%page args="relaxed_excited_state, result_name = ''"/>\
 ##
 ##
 <%
-	if relaxed_excited_state is None:
-		raise Result_unavailable_error("relaxed excited state", "there is no emission energy of the requested type")
-		
-	title = relaxed_excited_state.transition_type.capitalize() + " " + relaxed_excited_state.state_symbol + " " + "Emission Energy"
+    if relaxed_excited_state is None:
+        raise Result_unavailable_error("relaxed excited state", "there is no emission energy of the requested type")
+        
+    title = relaxed_excited_state.transition_type.capitalize() + " " + relaxed_excited_state.state_symbol + " " + "Emission Energy"
 %>\
 ##
 <%include file="title.mako" args="title=title, result_name=result_name"/>

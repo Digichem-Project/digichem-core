@@ -1,15 +1,15 @@
 .resultsContainer {
-	margin-left: 20px;
-	margin: 10px;
-	/* Expt */
-	
+    margin-left: 20px;
+    margin: 10px;
+    /* Expt */
+    
 }
 
 .reportHeader--results {
-	text-align: left;
-	max-width: 219px;
-	max-width: 212px;
-	display: inline-block;
+    text-align: left;
+    max-width: 219px;
+    max-width: 212px;
+    display: inline-block;
 }
 
 .results {
@@ -17,25 +17,25 @@
 }
 
 .results__name {
-	font-weight: bold;
-	vertical-align:top;
-	vertical-align: middle;
+    font-weight: bold;
+    vertical-align:top;
+    vertical-align: middle;
 }
 
 .results__value {
-	padding-left: 5px;
-	/* Because this is a td, this seems to act like min-height... */
-	height: 20px;
-	vertical-align:top;
-	vertical-align: middle;
+    padding-left: 5px;
+    /* Because this is a td, this seems to act like min-height... */
+    height: 20px;
+    vertical-align:top;
+    vertical-align: middle;
 }
 
 .results__value--good {
-	color: #18A701;
-	font-weight: bold;
+    color: #18A701;
+    font-weight: bold;
 }
 
 .results__value--bad {
-	color: #ff3300;
-	font-weight: bold;
+    color: #ff3300;
+    font-weight: bold;
 }

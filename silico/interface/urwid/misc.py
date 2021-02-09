@@ -1,18 +1,18 @@
 import urwid
 
 class Tab_pile(urwid.Pile):
-	"""
-	An enhanced Pile class that allows changing focus between children with the tab and shift-tab keys.
-	"""
-	
-	def keypress(self, size, key):
-		"""
-		Handler for keypress events.
-		"""
-		# Add support for traversing between our children.
-		if key == 'tab':
-			self.focus_position = self.focus_position +1 if self.focus_position+1 < len(self.contents) else self.focus_position
-		elif key == 'shift tab':
-			self.focus_position = self.focus_position -1 if self.focus_position > 0 else self.focus_position
-		else:
-			return super().keypress(size, key)
+    """
+    An enhanced Pile class that allows changing focus between children with the tab and shift-tab keys.
+    """
+    
+    def keypress(self, size, key):
+        """
+        Handler for keypress events.
+        """
+        # Add support for traversing between our children.
+        if key == 'tab':
+            self.focus_position = self.focus_position +1 if self.focus_position+1 < len(self.contents) else self.focus_position
+        elif key == 'shift tab':
+            self.focus_position = self.focus_position -1 if self.focus_position > 0 else self.focus_position
+        else:
+            return super().keypress(size, key)

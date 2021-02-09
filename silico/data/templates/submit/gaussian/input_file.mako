@@ -3,12 +3,12 @@
 <%page args="calculation" />\
 ##
 <%!
-	from silico.file.convert.gaussian import Gaussian_input_parser
+    from silico.file.convert.gaussian import Gaussian_input_parser
 %>\
 ##
 <%
-	# Get our input geometry in .com format.
-	input_coords = Gaussian_input_parser(calculation.input_coords.to_format("com"))
+    # Get our input geometry in .com format.
+    input_coords = Gaussian_input_parser(calculation.input_coords.to_format("com"))
 %>\
 ## First, the chk file.
 %%Chk="${calculation.chk_file_name}"

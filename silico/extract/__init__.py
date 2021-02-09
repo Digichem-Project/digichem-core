@@ -4,7 +4,7 @@ from .base import Result_extractor_group
 
 
 # These are the class handles for the various section extractors.
-SUMMARY_CLASS_HANDLE = ["summary", "all"]	
+SUMMARY_CLASS_HANDLE = ["summary", "all"]    
 PDM_CLASS_HANDLE = ["PDM", "permanent dipole moment", "dipole moment"]
 TDM_CLASS_HANDLE = ["TDM", "transition dipole moment", "S1 dipole moment"]
 SCF_CLASS_HANDLE = ["SCF", "SCF energy", "energy"]

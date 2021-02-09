@@ -1,9 +1,9 @@
 # This script expects 9 arguments, which are:
-# HOMO_cube_file	A .cube file to load molecular data from.
+# HOMO_cube_file    A .cube file to load molecular data from.
 set HOMO_cube_file [lindex $argv 0]
-# LUMO_cube_file	A .cube file to load molecular data from.
+# LUMO_cube_file    A .cube file to load molecular data from.
 set LUMO_cube_file [lindex $argv 1]
-# tcl_common	Path to our common library to source.
+# tcl_common    Path to our common library to source.
 set tcl_common [lindex $argv 2]
 # A string describing the rendering style to use; 'silico' or 'gaussian'.
 set rendering_style [lindex $argv 3]
@@ -11,15 +11,15 @@ set rendering_style [lindex $argv 3]
 set isovalue [lindex $argv 4]
 # A string of x,y,z translations to perform.
 set translations [lindex $argv 5]
-# rotations		A string list of rotations to perform.
+# rotations        A string list of rotations to perform.
 set rotations [lindex $argv 6]
-# x0y0z0		A file name to write one of the output images to (in png format).
+# x0y0z0        A file name to write one of the output images to (in png format).
 set x0y0z0 [lindex $argv 7]
-# x90y0z0		A file name to write one of the output images to (in png format).
+# x90y0z0        A file name to write one of the output images to (in png format).
 set x90y0z0 [lindex $argv 8]
-# x0y90z0		A file name to write one of the output images to (in png format).
+# x0y90z0        A file name to write one of the output images to (in png format).
 set x0y90z0 [lindex $argv 9]
-# x45y45z45		A file name to write one of the output images to (in png format).
+# x45y45z45        A file name to write one of the output images to (in png format).
 set x45y45z45 [lindex $argv 10]
 
 # Load our common library.

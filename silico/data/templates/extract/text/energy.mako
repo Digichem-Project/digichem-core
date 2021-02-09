@@ -1,14 +1,14 @@
 ## -*- coding: utf-8 -*-
 ##
 <%!
-	from silico.exception import Result_unavailable_error
+    from silico.exception import Result_unavailable_error
 %>\
 ##
 <%page args="energy, result_name = ''"/>\
 ##
 <%
-	if len(energy) == 0:
-		raise Result_unavailable_error(energy.energy_type, "there is no energy of the requested type")
+    if len(energy) == 0:
+        raise Result_unavailable_error(energy.energy_type, "there is no energy of the requested type")
 %>\
 ##
 <%include file="title.mako" args="title=energy.energy_type + ' Energy', result_name=result_name"/>

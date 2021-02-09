@@ -1,8 +1,8 @@
 ## -*- coding: utf-8 -*-
 <%!
-	from pathlib import Path
-	import shlex
-	import silico
+    from pathlib import Path
+    import shlex
+    import silico
 %>\
 ##
 #!/bin/bash

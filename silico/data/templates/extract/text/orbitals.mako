@@ -1,19 +1,19 @@
 ## -*- coding: utf-8 -*-
 ##
 <%
-	from silico.exception import Result_unavailable_error
+    from silico.exception import Result_unavailable_error
 %>\
 ##
 <%page args="orbitals, result_name"/>\
 ##
 ##
 <%
-	if len(orbitals) == 0:
-		raise Result_unavailable_error("orbitals", "there are no orbitals of the requested type") 
+    if len(orbitals) == 0:
+        raise Result_unavailable_error("orbitals", "there are no orbitals of the requested type") 
 
-	title = "Orbitals"
-	if orbitals.spin_type != "none":
-		title += " ({})".format(orbitals.spin_type)
+    title = "Orbitals"
+    if orbitals.spin_type != "none":
+        title += " ({})".format(orbitals.spin_type)
 %>\
 ##
 <%include file="title.mako" args="title=title, result_name=result_name"/>

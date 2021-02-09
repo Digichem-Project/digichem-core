@@ -1,21 +1,21 @@
 ## -*- coding: utf-8 -*-
 ##
 <%!
-	from silico.exception import Result_unavailable_error
+    from silico.exception import Result_unavailable_error
 %>\
 ##
 <%page args="dipole_moment, result_name = ''"/>\
 ##
 <%
-	# Get upset if we've been given nothing.
-	if dipole_moment is None:
-		raise Result_unavailable_error("dipole moment", "there is no dipole of the requested type")
-	
-	
-	if dipole_moment.dipole_type == "permanent":
-		title = "Permanent Dipole Moment"
-	else:
-		title = "{} Transition Dipole Moment".format(dipole_moment.excited_state.state_symbol)
+    # Get upset if we've been given nothing.
+    if dipole_moment is None:
+        raise Result_unavailable_error("dipole moment", "there is no dipole of the requested type")
+    
+    
+    if dipole_moment.dipole_type == "permanent":
+        title = "Permanent Dipole Moment"
+    else:
+        title = "{} Transition Dipole Moment".format(dipole_moment.excited_state.state_symbol)
 %>\
 ##
 ##

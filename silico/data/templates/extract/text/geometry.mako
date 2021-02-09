@@ -1,14 +1,14 @@
 ## -*- coding: utf-8 -*-
 ##
 <%!
-	from silico.exception import Result_unavailable_error
+    from silico.exception import Result_unavailable_error
 %>\
 ##
 <%page args="alignment, result_name = ''"/>\
 ##
 <%
-	if len(alignment) == 0:
-		raise Result_unavailable_error("geometry", "there are no atoms")
+    if len(alignment) == 0:
+        raise Result_unavailable_error("geometry", "there are no atoms")
 %>\
 ##
 <%include file="title.mako" args="title='Geometry', result_name=result_name"/>

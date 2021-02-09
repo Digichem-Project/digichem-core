@@ -6,13 +6,13 @@
 ##
 ##
 <%
-	# Amount of whitespace to add either side of our title.
-	padding = 5	
-	
-	longest_word = max(len(title), len(result_name))
-	
-	# Width of the decorative border (+2 is for the two pipe characters at either end).
-	border_width = longest_word + 2*padding +2
+    # Amount of whitespace to add either side of our title.
+    padding = 5    
+    
+    longest_word = max(len(title), len(result_name))
+    
+    # Width of the decorative border (+2 is for the two pipe characters at either end).
+    border_width = longest_word + 2*padding +2
 %>\
 ## Header top.
 ${"-" * border_width}

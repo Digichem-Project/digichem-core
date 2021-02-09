@@ -16,7 +16,7 @@ class Gaussian_report(PDF_report):
     INPUT_FILES = {
             file_types.gaussian_chk_file: 'chk_file_path',
             file_types.gaussian_fchk_file: 'fchk_file_path'
-		}
+        }
     
     def __init__(self, result, *, chk_file_path = None, fchk_file_path = None, options):
         """
