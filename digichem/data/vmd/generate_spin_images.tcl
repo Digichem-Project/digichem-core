@@ -1,7 +1,7 @@
 # This script expects 11 arguments, which are:
-# cube_file	A .cube file to load molecular data from.
+# cube_file    A .cube file to load molecular data from.
 set cube_file [lindex $argv 0]
-# tcl_common	Path to our common library to source.
+# tcl_common    Path to our common library to source.
 set tcl_common [lindex $argv 1]
 # A string describing the rendering style to use; 'silico' or 'gaussian'.
 set rendering_style [lindex $argv 2]
@@ -11,15 +11,15 @@ set isovalue [lindex $argv 3]
 set spin_type [lindex $argv 4]
 # A string of x,y,z translations to perform.
 set translations [lindex $argv 5]
-# rotations		A string list of rotations to perform.
+# rotations        A string list of rotations to perform.
 set rotations [lindex $argv 6]
-# x0y0z0		A file name to write one of the output images to (in png format).
+# x0y0z0        A file name to write one of the output images to (in png format).
 set x0y0z0 [lindex $argv 7]
-# x90y0z0		A file name to write one of the output images to (in png format).
+# x90y0z0        A file name to write one of the output images to (in png format).
 set x90y0z0 [lindex $argv 8]
-# x0y90z0		A file name to write one of the output images to (in png format).
+# x0y90z0        A file name to write one of the output images to (in png format).
 set x0y90z0 [lindex $argv 9]
-# x45y45z45		A file name to write one of the output images to (in png format).
+# x45y45z45        A file name to write one of the output images to (in png format).
 set x45y45z45 [lindex $argv 10]
 
 # Load our common library.
@@ -52,11 +52,11 @@ if {$spin_type == "positive" || $spin_type == "both"} {
 }
 
 if {$spin_type == "negative" || $spin_type == "both"} {
-	molecule addrep $mol_handle
-	standard_orbital_style $neg_orbital $mol_handle 1 -$isovalue
-	#molecule modstyle $neg_orbital $mol_handle isosurface -0.02 0 0 0 1 1
-	#molecule modcolor $neg_orbital $mol_handle ColorID 0
-	#molecule modmaterial $neg_orbital $mol_handle Translucent
+    molecule addrep $mol_handle
+    standard_orbital_style $neg_orbital $mol_handle 1 -$isovalue
+    #molecule modstyle $neg_orbital $mol_handle isosurface -0.02 0 0 0 1 1
+    #molecule modcolor $neg_orbital $mol_handle ColorID 0
+    #molecule modmaterial $neg_orbital $mol_handle Translucent
 }
 
 # And save our pictures.
