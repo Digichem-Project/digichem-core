@@ -57,13 +57,13 @@ class File_type():
 	
 	
 # Known file types.
-gaussian_log_file = File_type("log", "gaussian", [".log"])
+log_file = File_type("log", "general", [".log"])
 gaussian_chk_file = File_type("checkpoint", "gaussian", [".chk"])
 gaussian_fchk_file = File_type("formatted-checkpoint", "gaussian", [".fchk"])
-gaussian_cube_file = File_type("cube", "gaussian", [".cube"])
+gaussian_cube_file = File_type("cube", "gaussian", [".cube", ".cub"])
 
 # A list of all our known types.
-known_types = [gaussian_log_file, gaussian_chk_file, gaussian_fchk_file, gaussian_cube_file]
+known_types = [log_file, gaussian_chk_file, gaussian_fchk_file, gaussian_cube_file]
 
 def get_file_type(file_path):
 	"""

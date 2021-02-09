@@ -126,14 +126,13 @@ class Fchk_to_spin_cube(Fchk_to_cube):
 		return super().__init__(*args, cubegen_type = "Spin", orbital = spin_density, **kwargs)
 	
 	@classmethod
-	def from_options(self, output, *, fchk_file = None, cubegen_type = "Spin", spin_density = "SCF", options, **kwargs):
+	def from_options(self, output, *, fchk_file = None, spin_density = "SCF", options, **kwargs):
 		"""
 		Constructor that takes a dictionary of config like options.
 		"""		
 		return self(
 			output,
 			fchk_file = fchk_file,
-			cubegen_type = cubegen_type,
 			spin_density = spin_density,
 			npts = options['molecule_image']['spin']['cube_grid_size'],
 			dont_modify = options['image']['dont_modify'],
