@@ -13,7 +13,7 @@
 	max_width = 420
 	max_height = 450
 	try:
-		dimensions = report.image[energies_image_name].get_constrained_size(max_width, max_height)
+		dimensions = report.images[energies_image_name].get_constrained_size(max_width, max_height)
 	except Exception:
 		getLogger(silico.logger_name).error("Could not load image", exc_info = True)
 		dimensions = None

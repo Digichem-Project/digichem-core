@@ -1,6 +1,6 @@
 from weasyprint import HTML
 from mako.lookup import TemplateLookup
-from silico.report.html import HTML_report
+from silico.report.base.html import HTML_report
 import shutil
 import silico
 
@@ -64,7 +64,7 @@ class PDF_report(HTML_report):
 		:return: A Weasyprint pre-rendered representation of an html element.
 		"""
 		# We recompute the header and footer for each page so we can update page numbers etc.
-		html_text = TemplateLookup(directories = self.template_dir, strict_undefined = True).get_template(template_file).render_unicode(result = self, *args, **kwargs)
+		html_text = TemplateLookup(directories = self.template_dir, strict_undefined = True).get_template(template_file).render_unicode(report = self, *args, **kwargs)
 		
 		html = HTML(
 			string=html_text,

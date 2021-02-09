@@ -58,7 +58,7 @@ class HTML_report(Report):
 			raise TypeError("Unknown report type '{}'".format(self.report_type))
 		
 		# Now get and load our template.
-		template_body = TemplateLookup(directories = str(self.template_dir)).get_template("/report/{}".format(report_template)).render_unicode(result = self)
+		template_body = TemplateLookup(directories = str(self.template_dir)).get_template("/report/{}".format(report_template)).render_unicode(report = self)
 		
 		try:
 			# Write our template to file.

@@ -1,1 +1,1 @@
-from .base import Report
+from .main import from_files

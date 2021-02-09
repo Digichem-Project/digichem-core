@@ -1,4 +1,4 @@
-<%page args="result, prog_version, page_number, pages"/>
+<%page args="prog_version, page_number, pages"/>
 
 <html>
 	<head>

@@ -19,11 +19,12 @@ class Report():
     An enhanced report set object that contains graphics and other objects for building graphical reports.
     """
     
+    INPUT_FILES = {}
+    
     def __init__(self, result, *, options):
         """
         Constructor for Report objects.
         
-        :
         :param options: A silico Config dictionary which contains various options that control the appearance of this report.
         """    
         # Save our result set object.
@@ -48,6 +49,45 @@ class Report():
             beta_levels = options['report']['orbital_image']['beta_levels'],
             excited_state_transition_threshold = options['report']['orbital_image']['et_transition_threshold']
         )
+    
+    @classmethod
+    def from_result(self, result, *, log_file_path = None, options, **named_input_files):
+        """
+        Create a report object from a loaded result file, optionally searching for additional files.
+        
+        :param result: A result set.
+        :param log_file_path: Path to the log file from which result was loaded. If given, the directory containing log_file_path will be searched for additional files.
+        :param options: A silico Config dictionary which contains various options that control the appearance of this report.
+        :param named_input_files: Additional input files.
+        """
+        # If we're allowed to, have a look for other files we could add.
+        if log_file_path is not None:
+            for input_type, key_name in self.INPUT_FILES.items():
+                if named_input_files.get(key_name) is None:
+                    # This file was not given explicitly, see if we can find it.
+                    named_input_files[key_name] = self.find_additional_inputs(log_file_path, input_type)
+                    
+        # Continue as normal.
+        return self(result, options = options, **named_input_files)
+            
+                            
+    @classmethod
+    def find_additional_inputs(self, given_file, additional_file_type):
+        """
+        Search the directory of an input_file for additional input files of a given type.
+        
+        :param given_file: The path to a known file. The directory in which this file resides will be searched.
+        :param additional_file_type: A File_type object describing what file type to search for.
+        """
+        # Loop through each possible suffix of the given file type (most only have 1...)
+        for suffix in additional_file_type.extensions:
+            aux_path = Path(given_file).with_suffix(suffix)
+            # See if this file exists.
+            if aux_path.exists():
+                return aux_path
+    
+        # Nothing good found.
+        return None
         
     @property
     def rotations(self):
@@ -99,26 +139,6 @@ class Report():
         except Exception:
             self.orbitals_to_render = []
             raise
-                            
-    @classmethod
-    def find_additional_inputs(self, input_files, file_type):
-        """
-        Search the directories of a list of input_files for additional input files of a given type.
-        
-        :param input_files: An iterable of input_files. The directory in which each of these files resides will be searched. None values in the list are not tolerated.
-        :param file_type: A File_type object describing what file type to search for.
-        """
-        # Loop through each input file we've been given.
-        for input_file in input_files:
-            # And loop through each possible suffix of the given file type (most only have 1...)
-            for suffix in file_type.extensions:
-                aux_path = Path(input_file).with_suffix(suffix)
-                # See if this file exists.
-                if aux_path.exists():
-                    return aux_path
-        
-        # Nothing good found.
-        return None
           
     def setup_cubes(self, output_dir, output_name):
         """
@@ -129,7 +149,7 @@ class Report():
         """
         raise NotImplementedError()
     
-    def relative_image(self, image, sub_image = 'image'):
+    def relative_image(self, image, sub_image = 'file'):
         """
         Get a path to a particular image relative to the report file.
         
@@ -155,14 +175,14 @@ class Report():
             spin = "positive",
             options = self.options)
         
-        self.images['negative_spin_density'] = Spin_density_image_maker(
+        self.images['negative_spin_density'] = Spin_density_image_maker.from_options(
             Path(output_dir, "Spin Density", output_name + ".spin_neg.jpg"),
             cube_file = self.cubes['spin_density'],
             rotations = self.rotations,
             spin = "negative",
             options = self.options)
         
-        self.images['spin_density'] = Spin_density_image_maker(
+        self.images['spin_density'] = Spin_density_image_maker.from_options(
             Path(output_dir, "Spin Density", output_name + ".spin_both.jpg"),
             cube_file = self.cubes['spin_density'],
             rotations = self.rotations,
@@ -178,7 +198,7 @@ class Report():
             for orbital in orbital_list:
                 # Save our orbital image.
                 self.images[orbital.label] = Orbital_image_maker.from_options(
-                    Path(output_dir, self.label, output_name + ".{}.jpg".format(self.label)),
+                    Path(output_dir, orbital.label, output_name + ".{}.jpg".format(orbital.label)),
                     cube_file = self.cubes[orbital.label],
                     rotations = self.rotations,
                     options = self.options)
@@ -200,7 +220,7 @@ class Report():
                     options = self.options)
                 
                 # A version of the diagram with only the HOMO/LUMO
-                self._files[spin_type + 'HOMO_LUMO_energies'] = Orbital_diagram_maker.from_options(
+                self.images[spin_type + 'HOMO_LUMO_energies'] = Orbital_diagram_maker.from_options(
                     Path(output_dir, "Orbital Diagram", output_name + ".{}HOMO_LUMO.png".format(spin_type)),
                     molecular_orbitals = type(orbital_list)(orbital for orbital in orbital_list if orbital.HOMO_difference == 0 or orbital.HOMO_difference == 1),
                     options = self.options)
@@ -210,7 +230,7 @@ class Report():
                 HOMO = orbital_list.get_orbital(HOMO_difference = 0)
                 LUMO = orbital_list.get_orbital(HOMO_difference = 1)
                 
-                self._files[spin_type + 'HOMO_LUMO'] = Combined_orbital_image_maker.from_options(
+                self.images[spin_type + 'HOMO_LUMO'] = Combined_orbital_image_maker.from_options(
                     Path(output_dir, "HOMO LUMO", output_name + ".{}HOMO_LUMO.jpg".format(spin_type)),
                     HOMO_cube_file = self.cubes[HOMO.label],
                     LUMO_cube_file = self.cubes[LUMO.label],
@@ -262,14 +282,14 @@ class Report():
             self.images[file_name] = Dipole_image_maker.from_options(
                 Path(output_dir, sub_dir_name, output_name + ".{}.jpg".format(file_name)),
                 cube_file = self.cubes['structure'],
-                dipole_moment = excited_state.dipole_moment,
+                dipole_moment = excited_state.transition_dipole_moment,
             rotations = self.rotations,
                 options = self.options)
             
         # Also set our states diagram.
         self.images['excited_state_energies'] = Excited_states_diagram_maker.from_options(
             Path(output_dir, output_name + ".excited_states.png"),
-            excited_states = self.result.excited_state,
+            excited_states = self.result.excited_states,
             ground_state = self.result.ground_state,
             options = self.options
         )
@@ -277,7 +297,7 @@ class Report():
         # Then our simulated absorption graph.
         self.images['simulated_absorption_graph'] = Absorption_graph_maker.from_options(
             Path(output_dir, output_name + ".simulated_absorption_spectrum.png"),
-            excited_states = self,
+            excited_states = self.result.excited_states,
             options = self.options
         )
         
@@ -319,7 +339,7 @@ class Report():
         # First our states diagram.
         self.images['simulated_IR_graph'] = Frequency_graph_maker.from_options(
             Path(output_dir, output_name + ".simulated_frequencies.png"),
-            vibrations = self,
+            vibrations = self.result.vibrations,
             options = self.options
         )
                 
@@ -328,7 +348,7 @@ class Report():
         Remove any intermediate files that may have been created by this object.
         """
         # Delete all our cubes.
-        for name, cube in self.cubes:
+        for name, cube in self.cubes.items():
             cube.delete(lazy = True)
     
     def _write(self, output, **kwargs):
@@ -342,7 +362,7 @@ class Report():
         # Base directory for our images.
         image_dir = Path(self.report_directory, "image")
         # The base name for our images.
-        image_base_name = Path(self.metadata.name).with_suffix("").name
+        image_base_name = Path(self.result.metadata.name).with_suffix("").name
         
         # Make our output directory.
         try:

@@ -43,10 +43,10 @@
 			%endif
 		</tr>
 		%endif
-		%if result.metadata.package_string != "":
+		%if metadata.package_string != "":
 		<tr>
 			<td class="results__name">Computational package:</td>
-			<td class="results__value">${result.metadata.package_string}</td>
+			<td class="results__value">${metadata.package_string}</td>
 		</tr>
 		%endif
 		%if len(metadata.calc_methods) > 0:

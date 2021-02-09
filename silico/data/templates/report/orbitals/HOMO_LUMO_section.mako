@@ -7,14 +7,13 @@
 <%page args="molecular_orbitals, report"/>
 
 <%
-	spin_prefix = orbital_type + "_" if orbital_type != "both" else ""
-	
-	# Render our alternative orbital energy diagrams (we don't actually use these in the template (yet?), just write to file.
-	report.relatve_image(spin_type + 'HOMO_LUMO_energies')
-
-
 	# First work out the type of orbitals we are dealing with (alpha, beta, or restricted).
 	orbital_type = molecular_orbitals.spin_type
+	
+	spin_prefix = orbital_type + "_" if orbital_type != "none" else ""
+	
+	# Render our alternative orbital energy diagrams (we don't actually use these in the template (yet?), just write to file.
+	report.relative_image(spin_prefix + 'HOMO_LUMO_energies')
 	
 	# Our title.
 	title = "HOMO & LUMO"
@@ -129,7 +128,7 @@
 		%endif
 		<div class="imageBlock imageBlock--multi imageBlock--orbital">
 			<div class="image__aligner image__aligner--orbital_diagram">
-				<img class="image_img image__img--orbital_diagram" src="${report.relatve_image(spin_prefix + 'orbital_energies')}">
+				<img class="image_img image__img--orbital_diagram" src="${report.relative_image(spin_prefix + 'orbital_energies')}">
 			</div>
 		</div>
 	</div>

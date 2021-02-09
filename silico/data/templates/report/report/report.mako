@@ -44,7 +44,7 @@
 		%endfor
 	</head>
 	<body>
-		<%include file="/front_page/front_page.mako" args="result = report.result"/>
+		<%include file="/front_page/front_page.mako" args="report = report"/>
 		<%include file="/summary/summary_section.mako" args="result = report.result"/>
 		## We don't need these sections unless we're doing an opt.
 		%if len(report.result.SCF_energies) > 1:

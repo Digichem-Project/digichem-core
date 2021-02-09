@@ -19,7 +19,7 @@ ES_threshold = 100
 	<div class="section__body">
 		<div class="image--absorptionGraph">
 			<div class="image__aligner image__aligner--absorptionGraph">
-				<img class="image__img image__img--absorptionGraph" src="${report.relative_path(simulated_absorption_graph)}">
+				<img class="image__img image__img--absorptionGraph" src="${report.relative_image('simulated_absorption_graph')}">
 			</div>
 			<div class="image__caption">
 			Absorption spectrum (simulated Gaussian functions with FWHM: ${report.images['simulated_absorption_graph'].fwhm} eV).<br>
