@@ -56,7 +56,7 @@ modules:
 # CC2 excited states.
 TYPE: calculation
 
-PARENT: [Turbomole-defaults]
+PARENT: [Turbomole-CC2-defaults]
 GROUP: ["Excited States", "CC2-SCS", "S(1) & S(2)"]
 
 # Turn on CC2.
@@ -74,16 +74,12 @@ ricc2_exci:
 modules:
     - dscf
     - ricc2
-
-# We normally need more SCF for CC2.
-scf:
-    iter: 500
     
 ---
 # CC2 excited states.
 TYPE: calculation
 
-PARENT: [Turbomole-defaults]
+PARENT: [Turbomole-CC2-defaults]
 GROUP: ["Excited States", "CC2-SCS", "T(1) & T(2)"]
 
 # Turn on CC2.
@@ -103,6 +99,3 @@ modules:
     - dscf
     - ricc2
     
-# We normally need more SCF for CC2.
-scf:
-    iter: 500

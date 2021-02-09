@@ -1,5 +1,5 @@
 ---
-# DFT single point.
+# DFT SP.
 TYPE: calculation
 
 PARENT: [Turbomole-DFT-defaults]
@@ -12,12 +12,16 @@ modules:
 
 
 ---
-# CC2 single point
+# CC2 SP.
 TYPE: calculation
 
-PARENT: [Turbomole-defaults]
+PARENT: [Turbomole-CC2-defaults]
 GROUP: ["Single Point", "CC2-SCS"]
 
+# Turn on CC2.
+ricc2:
+    model: cc2
+    scs: scs
 
 # This is a single point.
 modules:
