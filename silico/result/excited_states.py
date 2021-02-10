@@ -142,7 +142,7 @@ class Excited_state_transition(Result_object):
         """
         Constructor for excited state transitions.
         
-        :param level: The 'level' if this transition. The most significant (highest probability) transition has level 1.
+        :param level: The 'level' of this transition. The most significant (highest probability) transition has level 1.
         :param starting_mo: The Molecular_orbital object from which this transition begins.
         :param ending_mo: The Molecular_orbital object to which the transition ends.
         :param coefficient: The coefficient of this orbital. Square to get the probability.
