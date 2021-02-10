@@ -4,6 +4,8 @@
 ##
 ## Define input for prop (orbital analysis etc).
 ##
+## Only continue if we've got some orbitals to plot.
+%if len(calculation.plt['orbitals']) > 0:
 ## First, enter prop
 prop
 ##
@@ -13,21 +15,21 @@ plt
 ## Answer yes to modify.
 y
 ##
-## List our orbitals if we have some.
-%if len(calculation.plt.orbitals) > 0:
 ##
 ## Orbital list.
-m ${" ".join(calculation.plt.orbitals)}
+m ${" ".join(calculation.plt['orbitals'])}
 ##
 ## Also set format.
-f ${calculation.plt.format}
+f ${calculation.plt['format']}
 ##
-## Done.
-%endif
 ##
 ## Exit plt.
 *
 ##
 ## Exit prop.
 *
+##
+##
+%endif
+##
 ## Done.
