@@ -226,7 +226,7 @@ class Molecular_orbital(Result_object):
     # True MOs don't have a spin.
     spin_type = "none"
     
-    def __init__(self, level, HOMO_difference, energy, symmetry = None):
+    def __init__(self, level, HOMO_difference, energy, symmetry = None, symmetry_level = None):
         """
         Constructor for MOs.
         
@@ -234,11 +234,13 @@ class Molecular_orbital(Result_object):
         :param HOMO_difference: The distance of this MO from the HOMO. A negative value means this orbital is HOMO-n. A positive value means this orbital is HOMO+n (or LUMO+(n-1). A value of 0 means this orbital is the HOMO. A value of +1 means this orbital is the LUMO.
         :param energy: The energy of this MO (in eV).
         :param symmetry: The symmetry of this MO.
+        :param symmetry_level: The ordered (by energy) index of this orbital in terms of orbitals that share the same symmetry.
         """
         super().__init__()
         self.level = level
         self.HOMO_difference = HOMO_difference
         self.symmetry = symmetry
+        self.symmetry_level = symmetry_level
         self.energy = energy
     
     def __float__(self):
@@ -281,6 +283,13 @@ class Molecular_orbital(Result_object):
             
         return label
     
+    @property
+    def irrep(self):
+        """
+        A unique description of this orbital combining symmetry and energy, as used by Turbomole.
+        """
+        return "{}{}".format(self.symmetry_level, self.symmetry.lower()) if self.symmetry_level is not None and self.symmetry is not None else None
+    
     def __eq__(self, other):
         """
         Equality operator between MOs.
@@ -316,12 +325,35 @@ class Molecular_orbital(Result_object):
             # Don't catch this exception; if we don't have MO energies there's nothing we can do.
             energy = parser.data.moenergies[self.ccdata_index]
             
-            # Build our list.
-            return [
-                self(index +1, index - parser.data.homos[self.ccdata_index], energy, symmetry)
-                for index, (symmetry, energy)
-                in enumerate(zip_longest(symmetry, energy, fillvalue = None))
-            ]
+            # Keep a track of all the symmetries we've seen.
+            symmetries = {}
+
+            orbitals = []
+            for index, (symmetry, energy) in enumerate(zip_longest(symmetry, energy, fillvalue = None)):
+                if symmetry is not None:
+                    try:
+                        # Add one to the level.
+                        symmetries[symmetry] += 1
+                        symm_level = symmetries[symmetry]
+                    except KeyError:
+                        # We haven't seen this mult before.
+                        symmetries[symmetry] = 1
+                        symm_level = symmetries[symmetry]
+                else:
+                    symm_level = None
+                    
+                orbitals.append(
+                    self(
+                        index +1,
+                        index - parser.data.homos[self.ccdata_index],
+                        energy,
+                        symmetry,
+                        symm_level
+                    )
+                )
+                 
+            return orbitals       
+                
         except (AttributeError, IndexError):
             return []
     
