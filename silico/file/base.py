@@ -66,7 +66,7 @@ class File_maker():
         try:
             return self.get_file(name)
         except Exception:
-            getLogger(silico.logger_name).error("Unable to get file '{}'".format(name), exc_info = True)
+            getLogger(silico.logger_name).error("Unable to get file '{}'".format(self.file_path[name]), exc_info = True)
     
     def get_file(self, name = 'file'):
         """
