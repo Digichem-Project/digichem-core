@@ -252,7 +252,7 @@ class Energy_state(Result_object):
         elif multiplicity == 4:
             return"quartet"
         elif multiplicity is None:
-            return "None"
+            return "(no multiplicity)"
         elif multiplicity % 1 == 0:
             # Multiplicity is an integer, so return as a stringy whole number.
             return str(int(multiplicity))
@@ -275,6 +275,8 @@ class Energy_state(Result_object):
             return "T"
         elif  self.multiplicity == 4:
             return "Q"
+        elif self.multiplicity is None:
+            return "?"
         elif self.multiplicity % 1 == 0:
             # Multiplicity is an integer, so return as a stringy whole number.
             return str(int(self.multiplicity))
@@ -340,6 +342,8 @@ class Excited_state(Energy_state):
             return 3
         elif multiplicity_string == "Quartet":
             return 4
+        elif multiplicity_string == "???":
+            return None
         else:
             # Try and cast to float.
             # Float multiplicities don't make sense in the real world, but are possible results from calculations.
