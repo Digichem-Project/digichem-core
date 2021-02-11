@@ -13,7 +13,7 @@ ES_threshold = 100
         <%include file="excited_states_results.mako" args="excited_states = excited_states"/>
     </div>
 </div>
-%if 'simulated_absorption_graph' in report.images:
+%if 'simulated_absorption_graph' in report.images and report.images['simulated_absorption_graph'].safe_get_file() is not None:
 <div class="section">
     <h2 class="section__header">Absorptions</h2>
     <div class="section__body">
