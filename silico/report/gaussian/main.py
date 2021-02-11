@@ -18,7 +18,7 @@ class Gaussian_report(PDF_report):
             file_types.gaussian_fchk_file: 'fchk_file_path'
         }
     
-    def __init__(self, result, *, chk_file_path = None, fchk_file_path = None, options):
+    def __init__(self, result, *, chk_file_path = None, fchk_file_path = None, log_file_path = None, options):
         """
         Constructor for Gaussian reports.
         
