@@ -21,7 +21,7 @@ class Report():
     
     INPUT_FILES = {}
     
-    def __init__(self, result, *, options):
+    def __init__(self, result, *, log_file_path = None, options):
         """
         Constructor for Report objects.
         
@@ -68,7 +68,7 @@ class Report():
                     named_input_files[key_name] = self.find_additional_inputs(log_file_path, input_type)
                     
         # Continue as normal.
-        return self(result, options = options, **named_input_files)
+        return self(result, options = options, log_file_path = log_file_path, **named_input_files)
             
                             
     @classmethod
@@ -349,7 +349,8 @@ class Report():
         """
         # Delete all our cubes.
         for name, cube in self.cubes.items():
-            cube.delete(lazy = True)
+            if cube is not None:
+                cube.delete(lazy = True)
     
     def _write(self, output, **kwargs):
         """

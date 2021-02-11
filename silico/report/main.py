@@ -59,6 +59,9 @@ def from_files(log_file, *, discover_additional_inputs = True, alignment_class_n
     # Get an appropriate report class.
     report_class = class_from_result(result)
     
+    # Remove any named_input_files that are None.
+    named_input_files = {named_file:named_input_files[named_file] for named_file in named_input_files if named_input_files[named_file] is not None}
+    
     # Now continue in subclass.
     return report_class.from_result(result, log_file_path = log_file if discover_additional_inputs else None, options = options, **named_input_files)
     

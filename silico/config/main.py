@@ -131,9 +131,13 @@ class Silico_options(Config):
         
         # Restore.
         self.methods = methods
+        new.methods = methods
         self.programs = programs
+        new.programs = programs
         self.calculations = calculations
+        new.calculations = calculations
         self.basis_sets = basis_sets
+        new.basis_sets = basis_sets
         self.__deepcopy__ = copyfunc
         
         # And return.

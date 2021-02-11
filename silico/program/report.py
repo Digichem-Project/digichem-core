@@ -80,6 +80,8 @@ def _main(args, config, logger):
     """
     Inner portion of main (wrapped by a try-catch-log hacky boi).
     """
+    config.resolve()
+    
     if args.alignment is not None and not args.overwrite_existing_images:
         logger.warning("Alignment method has been changed but not overwriting existing images; use '-OK method' to ensure molecule images are re-rendered to reflect this change")
     

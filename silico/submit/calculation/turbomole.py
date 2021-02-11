@@ -1,5 +1,6 @@
 # General imports.
 from mako.lookup import TemplateLookup
+from pathlib import Path
 
 # Silico imports.
 from silico.submit.calculation.base import Concrete_calculation,\
@@ -8,6 +9,7 @@ from silico.config.configurable.option import Option
 from silico.submit.base import Memory
 import silico
 from silico.config.configurable.options import Options
+from silico.file.convert.main import Silico_input
 
                 
 class Turbomole_memory(Memory):
@@ -37,6 +39,7 @@ class Turbomole(Concrete_calculation):
     modules = Option(help = "A list of turbomole commands/programs to execute in order.", type = tuple, required = True)
     parallel_mode = Option(help = "The type of parallelization to use. SMP uses shared memory and therefore is only suitable for parallelization across a single node, while MPI uses message-passing between processes and so can be used across multiple nodes. Use 'linear' to disable parallelization.", default = "SMP", choices = ("SMP", "MPI", "linear"), type = str)
     
+
 class Turbomole_AI(Turbomole):
     """
     Ab Initio calculations with Turbomole.
@@ -136,7 +139,7 @@ class Turbomole_AI(Turbomole):
     plt = Options(
         help = "Options for orbital grid plotting.",
         orbitals = Option(help = "List of orbitals to plot for. Orbitals are identified by their 'irrep', a combination of symmetry and number.", type = tuple, default = []),
-        format = Option(help = "The format to write to.", default = "cub", choices = ("plt", "map", "xyz", "plv"), type = str)
+        format = Option(help = "The format to write to.", default = "cub", choices = ("cub", "plt", "map", "xyz", "plv"), type = str)
         )
     
     @property
@@ -214,24 +217,35 @@ class Turbomole_AI(Turbomole):
             
             :param orbitals: A list of orbital irreps to make cubes for.
             """
-            # First generate our calculation.
-            calc_t = Turbomole_restart({
-                "NAME": "Orbital Cubes for {}".format(self.NAME),
-                "memory": str(self.memory),
-                "num_CPUs": self._num_CPUs,
-                "plt": {
-                    "orbitals": orbitals,
-                    "format": "cub"
-                },
-                # We don't need these.
-                "write_summary": False,
-                "write_report": False
-            }).configure(ID = None, available_basis_sets = [], silico_options = self.silico_options)
+            return get_orbital_calc(name = self.NAME, memory = self.memory, num_CPUs = self._num_CPUs, orbitals = orbitals, program_name = self.program.NAME, options = self.silico_options)
             
-            # Done.
-            return calc_t
     
+def get_orbital_calc(*, name, memory, num_CPUs, orbitals = [], program_name, options):
+    """
+    Get a calculation template that can be used to create orbital objects.
+    """
+    # First generate our calculation.
+    calc_t = Turbomole_restart({
+        "CLASS": "Turbomole-restart",
+        "TYPE": "calculation",
+        "NAME": "Orbital Cubes for {}".format(name),
+        "programs": [program_name],
+        "memory": str(memory),
+        "num_CPUs": num_CPUs,
+        "plt": {
+            "orbitals": orbitals,
+            "format": "cub"
+        },
+        "modules": ["dscf"],
+        # We don't need these.
+        "write_summary": False,
+        "write_report": False
+    })
+    calc_t.configure(ID = None, available_basis_sets = [], silico_options = options)
     
+    # Done.
+    return calc_t
+
 class Turbomole_UFF(Turbomole):
     """
     Universal force-field calculations with Turbomole.
@@ -283,29 +297,39 @@ class Turbomole_UFF(Turbomole):
     modules = ("uff",)
     
         
-class Turbomole_restart(Directory_calculation_mixin, Turbomole):
+class Turbomole_restart(Turbomole_AI):
     """
     Turbomole calculations 
     """
-
+    
+    # Identifying handle.
+    CLASS_HANDLE = ("Turbomole-restart",)
+    DIRECTORY_CALCULATION = True
+    
+    basis_set = Option(help = "The basis set to use.", required = False, type = str)
+    
     ############################
     # Class creation mechanism #
     ############################
     
-    class _actual(Directory_calculation_mixin._actual, Turbomole._actual):
+    class _actual(Directory_calculation_mixin._actual, Turbomole_AI._actual):
         """
         Inner class for calculations.
         """
         
-        def prepare(self, *args, **kwargs):
+        def prepare(self, output, input, *, molecule_name):
             """
             Prepare this calculation for submission.
             
             :param output: Path to a directory to perform the calculation in.
-            :param input_coords: A string containing input coordinates in a format suitable for this calculation type.
+            :param input: A string containing input coordinates in a format suitable for this calculation type.
             :param molecule_name: A name that refers to the system under study (eg, Benzene etc).
             """
-            super().prepare(*args, **kwargs)
+            # Load input coords, although we won't be using them.
+            input_coords = Silico_input.from_file(Path(input, "coord"), "tmol", name = molecule_name, charge = None, multiplicity = None, gen3D = False)
+            
+            super().prepare(output, input, input_coords)
             
             # Get and load our define template.
             self.define_input = TemplateLookup(directories = str(silico.default_template_directory())).get_template("/submit/turbomole/define/restart.mako").render_unicode(calculation = self)
+

@@ -2,7 +2,7 @@
 
 ## This is a mini version of the report that only contains atom positions (useful for including in the ESI).
 
-<%page args="result"/>
+<%page args="report"/>
 
 <!DOCTYPE html>
 
@@ -43,8 +43,8 @@
     </head>
     <body>
         ##<%include file="/front_page/front_page.mako" args="result = result"/>
-        %if len(result.atoms) > 0:
-            <%include file="/geometry/atom_list_section.mako" args="atoms = result.alignment, title = False"/>
+        %if len(report.result.atoms) > 0:
+            <%include file="/geometry/atom_list_section.mako" args="atoms = report.result.alignment, title = False"/>
         %endif
         ##<%include file="/about/about_section.mako"/>
         ##<%include file="/references/references_section.mako"/>

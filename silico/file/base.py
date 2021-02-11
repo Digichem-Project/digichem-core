@@ -101,10 +101,8 @@ class File_maker():
                     return self.file_path[name]
                 except Exception as e:
                     # Know that a KeyError could be thrown here if name is not valid, but I think we'd want that to propagate anyway.
-                    #getLogger(silico.logger_name).error("Error creating {} '{}'".format(self.output_file_type, self.file_path[name]), exc_info = True)
                     raise File_maker_exception(self, "Unable to create file") from e
             else:
-                #getLogger(silico.logger_name).warning("Not creating {} '{}' because dont_modify is True".format(self.output_file_type, self.file_path[name]))
                 raise File_maker_exception(self, "Not creating file because dont_modify is True")
     
     def check_can_make(self):

@@ -20,7 +20,6 @@ from silico.extract.long import Atoms_long_extractor, Orbitals_long_extractor,\
     Absorption_spectrum_long_extractor, Absorption_energy_spectrum_long_extractor,\
     IR_spectrum_long_extractor, SOC_long_extractor
 from silico.submit import Configurable_target
-import silico
 from silico.misc.directory import copytree
 import silico.report
 
@@ -273,8 +272,9 @@ class Program_target(Configurable_target):
                     raise Submission_error(self, "Failed to make scratch output subdirectory") from e
             
             # Write our input file in .si format for easy reuse.
-            with open(Path(self.method.calc_dir.input_directory, self.calculation.molecule_name).with_suffix(".si"), "wt") as input_file:
-                self.calculation.input_coords.to_file(input_file)
+            if hasattr(self.calculation, "input_coords"):
+                with open(Path(self.method.calc_dir.input_directory, self.calculation.molecule_name).with_suffix(".si"), "wt") as input_file:
+                    self.calculation.input_coords.to_file(input_file)
     
         def calculate(self):
             """
@@ -304,7 +304,7 @@ class Program_target(Configurable_target):
                     self.calc_output_file_path,
                     options = self.calculation.silico_options
                     )
-                self.result = self.report.results
+                self.result = self.report.result
             except Exception:
                 # No good.
                 self.method.calc_dir.set_flag(Flag.ERROR)
