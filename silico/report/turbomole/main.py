@@ -36,6 +36,7 @@ class Turbomole_report(PDF_report):
             Path(output_dir, "Cubes"),
             calculation_directory = self.calculation_directory,
             orbitals = required_orbitals,
+            density = self.result.metadata.system_multiplicity != 1,
             options = self.options
         )
         

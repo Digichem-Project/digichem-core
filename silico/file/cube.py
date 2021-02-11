@@ -187,7 +187,7 @@ class Turbomole_to_spin_cube(File_maker):
         :param irrep: 
         """
         self.turbomole_to_cube = turbomole_to_cube
-        super().__init__(turbomole_to_cube.file_path['spin'])
+        super().__init__(Path(turbomole_to_cube.output, 'td.cub'))
     
     def check_can_make(self):
         """
@@ -268,7 +268,7 @@ class Turbomole_to_cube(File_converter):
         self.method_t.finalize()
         
     @classmethod
-    def from_options(self, *args, calculation_directory, orbitals = [], density = True, options, **kwargs):
+    def from_options(self, *args, calculation_directory, orbitals = [], density = False, options, **kwargs):
         """
         Constructor that takes a dictionary of config like options.
         """
@@ -348,11 +348,6 @@ class Turbomole_to_cube(File_converter):
                 pass
             
             # Move created cube files to our output dir.
-#             for orbital in self.orbitals:
-#                 src = Path(method.calc_dir.output_directory, "{}.cub".format(orbital.sirrep))
-#                 dst = self.file_path[orbital.sirrep]
-#                 
-#                 src.rename(dst)
             for file, file_path in self.file_path.items():
                 src = Path(method.calc_dir.output_directory, file_path.name)
                 dst = file_path
