@@ -32,7 +32,20 @@ grid ${calculation.dft['grid']}
 ex
 ##
 ## Select our type of excited state based on TDA or no TDA and multiplicity.
+## Turbomole doesn't recognise multiplicity if we're unrestricted.
+%if calculation.unrestricted_HF:
+##
+##
+${"urpa" if not calculation.dft_exci['TDA'] else "ucis"}
+##
+##
+%else:
+##
+##
 ${"rpa" if not calculation.dft_exci['TDA'] else "cis"}${"s" if calculation.dft_exci['multiplicity'] == 1 else "t"}
+##
+##
+%endif
 ##
 ## Exit ex.
 *
