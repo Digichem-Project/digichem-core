@@ -300,22 +300,22 @@ class Program_target(Configurable_target):
             # We'll actually load a report object because it is the same as a Result_set but with some extra methods which we might need to write a report. Saves us loading results twice.
             # We need to know whether the calculation was successful or not, so we make no effort to catch exceptions here.
             try:
-                self.report = silico.report.from_files(
-                    self.calc_output_file_path,
-                    options = self.calculation.silico_options
-                    )
-                self.result = self.report.result
-            except Exception:
-                # No good.
-                self.method.calc_dir.set_flag(Flag.ERROR)
-                raise
-            else:
+                try:
+                    self.report = silico.report.from_files(
+                        self.calc_output_file_path,
+                        options = self.calculation.silico_options
+                        )
+                    self.result = self.report.result
+                except Exception as e:
+                    raise Submission_error(self, "failed to process completed calculation results") from e
+                
                 # See if our calculation was successful or not.
                 if self.result.metadata.calc_success and self.error is None:
                     self.method.calc_dir.set_flag(Flag.SUCCESS)
                 else:
                     # No good.
-                    self.method.calc_dir.set_flag(Flag.ERROR)
+                    #self.method.calc_dir.set_flag(Flag.ERROR)
+                    raise Submission_error(self, "an error occurred during the calculation; check calculation output for what went wrong")
                     
                 # Also check optimisation convergence.
                 if self.result.metadata.optimisation_converged is not None and "Optimisation" in self.result.metadata.calculations:
@@ -324,6 +324,12 @@ class Program_target(Configurable_target):
                         self.method.calc_dir.set_flag(Flag.CONVERGED)
                     else:
                         self.method.calc_dir.set_flag(Flag.NOT_CONVERGED)
+                        raise Submission_error(self, "the optimisation did not converge")
+                        
+            except Exception:
+                # No good.
+                self.method.calc_dir.set_flag(Flag.ERROR)
+                raise
         
         def post(self):
             """
