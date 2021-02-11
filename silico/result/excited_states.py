@@ -234,6 +234,18 @@ class Energy_state(Result_object):
         self.multiplicity = multiplicity
         self.multiplicity_level = multiplicity_level
         self.energy = energy
+        
+    @property
+    def multiplicity(self):
+        """
+        """
+        return self._multiplicity if self._multiplicity is not None else 0
+    
+    @multiplicity.setter
+    def multiplicity(self, value):
+        """
+        """
+        self._multiplicity = value
     
     def __float__(self):
         """
@@ -251,8 +263,8 @@ class Energy_state(Result_object):
             return "triplet"
         elif multiplicity == 4:
             return"quartet"
-        elif multiplicity is None:
-            return "(no multiplicity)"
+        elif multiplicity is None or multiplicity == 0:
+            return "no multiplicity"
         elif multiplicity % 1 == 0:
             # Multiplicity is an integer, so return as a stringy whole number.
             return str(int(multiplicity))
@@ -262,22 +274,22 @@ class Energy_state(Result_object):
     
     @property
     def multiplicity_string(self):
-        return self.multiplicity_number_to_string(self.multiplicity)
+        return self.multiplicity_number_to_string(self._multiplicity)
     
     @property
     def multiplicity_symbol(self):
         # Get a shorthand symbol if we can.
-        if  self.multiplicity == 1:
+        if  self._multiplicity == 1:
             return "S"
-        elif  self.multiplicity == 2:
+        elif  self._multiplicity == 2:
             return "D"
-        elif  self.multiplicity == 3:
+        elif  self._multiplicity == 3:
             return "T"
-        elif  self.multiplicity == 4:
+        elif  self._multiplicity == 4:
             return "Q"
-        elif self.multiplicity is None:
+        elif self._multiplicity is None:
             return "?"
-        elif self.multiplicity % 1 == 0:
+        elif self._multiplicity % 1 == 0:
             # Multiplicity is an integer, so return as a stringy whole number.
             return str(int(self.multiplicity))
         else:
