@@ -3,7 +3,8 @@ from pathlib import Path
 
 # Silico imports.
 from silico.report.base.pdf import PDF_report
-from silico.file.cube import Turbomole_to_cube, Turbomole_to_orbital_cube
+from silico.file.cube import Turbomole_to_cube, Turbomole_to_orbital_cube,\
+    Turbomole_to_spin_cube
 
 
 class Turbomole_report(PDF_report):
@@ -41,8 +42,7 @@ class Turbomole_report(PDF_report):
         ################
         # Spin density #
         ################
-        # Spin density is not yet supported for Turbomole.
-        self.cubes['spin_density'] = None
+        self.cubes['spin_density'] = Turbomole_to_spin_cube(turbomole_to_cube = self.cube_maker)
         
         ############
         # Orbitals #

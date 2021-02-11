@@ -174,6 +174,38 @@ class Turbomole_to_orbital_cube(File_maker):
         """
         return self.turbomole_to_cube.get_file(self.orbital.sirrep)
 
+class Turbomole_to_spin_cube(File_maker):
+    """
+    An adapter class that retrieves a spin density cube from a Turbomole_to_cube object.
+    """
+    
+    def __init__(self, *args, turbomole_to_cube, **kwargs):
+        """
+        Constructor for Turbomole_to_orbital_cube.
+        
+        :param turbomole_to_cube: A Turbomole_to_cube object.
+        :param irrep: 
+        """
+        self.turbomole_to_cube = turbomole_to_cube
+        super().__init__(turbomole_to_cube.file_path['spin'])
+    
+    def check_can_make(self):
+        """
+        Check whether it is feasible to try and create the files(s) that we represent.
+        
+        Reasons for making not being possible are varied and are up to the inheriting class, but include eg, a required input (cube, fchk) file not being given.
+        
+        This method returns nothing, but will raise an File_maker_exception exception if the rendering is not possible.
+        """
+        if "spin" not in self.turbomole_to_cube:
+            # Our cube maker wasn't setup to create this cube file.
+            raise File_maker_exception(self, "Turbomole orbital cube maker was not setup to create spin density")
+        
+    def get_file(self, file = None):
+        """
+        """
+        return self.turbomole_to_cube.get_file("spin")   
+
 
 class Turbomole_to_cube(File_converter):
     """
@@ -185,7 +217,7 @@ class Turbomole_to_cube(File_converter):
     # Text description of our output file type, used for error messages etc.
     output_file_type = file_types.gaussian_cube_file
     
-    def __init__(self, *args, calculation_directory, calc_t, prog_t, orbitals = [], **kwargs):
+    def __init__(self, *args, calculation_directory, calc_t, prog_t, orbitals = [], density, **kwargs):
         """
         Constructor for Turbomole_to_cube objects.
         
@@ -207,14 +239,12 @@ class Turbomole_to_cube(File_converter):
         
         # Set paths to the cube files we'll be making.
         self.file_path = {orbital.sirrep: self.path_for(orbital) for orbital in self.orbitals}
-#         if orbitals.spin_type == "none":
-#             self.file_path = {orbital.irrep: Path(self.output, "{}.cub".format(orbital.irrep)) for orbital in self.orbitals}
-#         else:
-#             self.file_path = {}
-#             # Unrestricted, we will get both alpha and beta cubes for each irrep.
-#             for orbital in self.orbitals:
-#                 self.file_path["{}_a".format(orbital.irrep)] =  Path(self.output, "{}_a.cub".format(orbital.irrep))
-#                 self.file_path["{}_b".format(orbital.irrep)] =  Path(self.output, "{}_b.cub".format(orbital.irrep))
+        
+        # Add spin density.
+        if density:
+            self.file_path['spin'] = Path(self.output, "sd.cub")
+            # Total density.
+            self.file_path['density'] = Path(self.output, "td.cub")
         
         # Save our calculation, program and method templates.
         # We use an in series method so we will block while the calc runs.
@@ -238,7 +268,7 @@ class Turbomole_to_cube(File_converter):
         self.method_t.finalize()
         
     @classmethod
-    def from_options(self, *args, calculation_directory, orbitals = [], options, **kwargs):
+    def from_options(self, *args, calculation_directory, orbitals = [], density = True, options, **kwargs):
         """
         Constructor that takes a dictionary of config like options.
         """
@@ -253,6 +283,7 @@ class Turbomole_to_cube(File_converter):
             memory = Turbomole_memory(options['report']['turbomole']['memory']),
             num_CPUs = options['report']['turbomole']['num_CPUs'],
             orbitals = [orbital.total_level for orbital in orbitals],
+            density = density,
             program_name = prog_t.NAME,
             options = options
            )
@@ -264,12 +295,13 @@ class Turbomole_to_cube(File_converter):
             calc_t = calc_t,
             prog_t = prog_t,
             orbitals = orbitals,
+            density = density,
             dont_modify = options['image']['dont_modify'],
             **kwargs
         )
         
     @classmethod
-    def from_calculation(self, *args, turbomole_calculation, orbitals = [], **kwargs):
+    def from_calculation(self, *args, turbomole_calculation, orbitals = [], density = False, **kwargs):
         """
         Create a Turbomole cube maker from an existing Turbomole calculation.
         """
@@ -279,6 +311,7 @@ class Turbomole_to_cube(File_converter):
             calc_t = self.turbomole_calculation.orbital_calc(),
             prog_t = type(self.turbomole_calculation.program),
             orbitals = orbitals,
+            density = density,
             **kwargs
         )
         
@@ -315,10 +348,14 @@ class Turbomole_to_cube(File_converter):
                 pass
             
             # Move created cube files to our output dir.
-            for orbital in self.orbitals:
-                src = Path(method.calc_dir.output_directory, "{}.cub".format(orbital.sirrep))
-                dst = self.file_path[orbital.sirrep]
-                
+#             for orbital in self.orbitals:
+#                 src = Path(method.calc_dir.output_directory, "{}.cub".format(orbital.sirrep))
+#                 dst = self.file_path[orbital.sirrep]
+#                 
+#                 src.rename(dst)
+            for file, file_path in self.file_path.items():
+                src = Path(method.calc_dir.output_directory, file_path.name)
+                dst = file_path
+                 
                 src.rename(dst)
-        
         

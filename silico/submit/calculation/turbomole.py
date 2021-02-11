@@ -137,7 +137,8 @@ class Turbomole_AI(Turbomole):
         gradients = Option(help = "Whether to calculate excited state gradients.", type = bool, default = True)
         )
     plt = Options(
-        help = "Options for orbital grid plotting.",
+        help = "Options for orbital and density grid plotting.",
+        density = Option(help = "Whether to plot electron/spin density.", type = bool, default = False),
         orbitals = Option(help = "List of orbitals to plot for. Orbitals are identified by their 'irrep', a combination of symmetry and number.", type = tuple, default = []),
         format = Option(help = "The format to write to.", default = "cub", choices = ("cub", "plt", "map", "xyz", "plv"), type = str)
         )
@@ -220,7 +221,7 @@ class Turbomole_AI(Turbomole):
             return get_orbital_calc(name = self.NAME, memory = self.memory, num_CPUs = self._num_CPUs, orbitals = orbitals, program_name = self.program.NAME, options = self.silico_options)
             
     
-def get_orbital_calc(*, name, memory, num_CPUs, orbitals = [], program_name, options):
+def get_orbital_calc(*, name, memory, num_CPUs, orbitals = [], density = False, program_name, options):
     """
     Get a calculation template that can be used to create orbital objects.
     """
@@ -233,6 +234,7 @@ def get_orbital_calc(*, name, memory, num_CPUs, orbitals = [], program_name, opt
         "memory": str(memory),
         "num_CPUs": num_CPUs,
         "plt": {
+            "density": density,
             "orbitals": orbitals,
             "format": "cub"
         },

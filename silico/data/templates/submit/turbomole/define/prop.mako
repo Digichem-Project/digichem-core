@@ -8,7 +8,7 @@
 	# To overcome this, we ask for all orbitals between the min and max.
 	# This may print more orbitals than we need, and so is somewhat wasteful.
 	if len(calculation.plt['orbitals']) > 0:
-		orbitals = "{}- {}".format(min(calculation.plt['orbitals']), max(calculation.plt['orbitals']))
+		orbitals = "{}-{}".format(min(calculation.plt['orbitals']), max(calculation.plt['orbitals']))
 	else:
 		orbitals = None
 %>\
@@ -17,7 +17,7 @@
 ##
 ## Only continue if we've got some orbitals to plot.
 ##%if len(calculation.plt['orbitals']) > 0:
-%if orbitals is not None:
+%if orbitals is not None or calculation.plt['density']:
 ## First, enter prop
 prop
 ##
@@ -29,8 +29,9 @@ y
 ##
 ##
 ## Orbital list.
-##m ${" ".join(calculation.plt['orbitals'])}
-m ${orbitals}
+%if orbitals is not None:
+m ${orbitals} ${"dens" if calculation.plt['density'] else ""}
+%endif
 ##
 ## Also set format.
 f ${calculation.plt['format']}
