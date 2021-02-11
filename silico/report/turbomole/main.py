@@ -27,14 +27,14 @@ class Turbomole_report(PDF_report):
         :param output_name: A string that will be used as the start of the file name of the files we create.
         """
         # First, we need to decide which cubes we're making.
-        required_orbitals = [orbital for orbital_list in (self.result.molecular_orbitals, self.result.beta_orbitals) for orbital in orbital_list]
+        #required_orbitals = [orbital for orbital_list in (self.result.molecular_orbitals, self.result.beta_orbitals) for orbital in orbital_list]
+        required_orbitals = self.orbitals_to_render
                 
         # Now get our main cube maker.
         self.cube_maker = Turbomole_to_cube.from_options(
             Path(output_dir, "Cubes"),
             calculation_directory = self.calculation_directory,
             orbitals = required_orbitals,
-            restricted = self.result.molecular_orbitals.spin_type == "none",
             options = self.options
         )
         
@@ -44,7 +44,6 @@ class Turbomole_report(PDF_report):
         # Spin density is not yet supported for Turbomole.
         self.cubes['spin_density'] = None
         
-        
         ############
         # Orbitals #
         ############
@@ -52,7 +51,7 @@ class Turbomole_report(PDF_report):
         for orbital_list in (self.result.molecular_orbitals, self.result.beta_orbitals):
             for orbital in orbital_list:                
                 # Save cube.
-                self.cubes[orbital.label] = Turbomole_to_orbital_cube(turbomole_to_cube = self.cube_maker, irrep = orbital.irrep, spin = orbital.spin_type)        
+                self.cubes[orbital.label] = Turbomole_to_orbital_cube(turbomole_to_cube = self.cube_maker, orbital = orbital)    
         
         #############
         # Structure #

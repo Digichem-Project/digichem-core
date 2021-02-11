@@ -1,7 +1,7 @@
 # Classes for representing MOs.
 
 # General imports.
-from itertools import filterfalse, zip_longest
+from itertools import filterfalse, zip_longest, chain
 
 # Silico imports.
 from silico.result import Result_container
@@ -217,6 +217,16 @@ class Molecular_orbital_list(Result_container):
             # Min/Max couldn't find anything, this should only happen if all orbital_lists are completely empty.
             raise Result_unavailable_error("Common orbital level", "there are no orbitals")
     
+    def assign_total_level(self, other_list):
+        """
+        Assign total levels to the orbitals in this list and another orbital list.
+        
+        'Total levels' are the index +1 of each orbital out of both alpha and beta orbitals.
+        
+        :param: other_list: If this list contains alpha orbitals, other_list should contain beta_orbitals (vice versa).
+        """
+        for index, orbital in enumerate(sorted(chain(self, other_list), key = lambda orbital: orbital.energy)):
+            orbital.total_level = index +1
 
 class Molecular_orbital(Result_object):
     """
@@ -242,6 +252,10 @@ class Molecular_orbital(Result_object):
         self.symmetry = symmetry
         self.symmetry_level = symmetry_level
         self.energy = energy
+        
+        # This needs to be set outside of this constructor, because it relies on multiple lists of orbitals being completed.
+        # Total level is the index +1 of this orbital out of both alpha and beta orbitals (for restricted this will == level).
+        self.total_level = None
     
     def __float__(self):
         return self.energy
@@ -289,6 +303,22 @@ class Molecular_orbital(Result_object):
         A unique description of this orbital combining symmetry and energy, as used by Turbomole.
         """
         return "{}{}".format(self.symmetry_level, self.symmetry.lower()) if self.symmetry_level is not None and self.symmetry is not None else None
+    
+    @property
+    def sirrep(self):
+        """
+        A unique description of this orbital combining symmetry, energy and spin (alpha/beta), as used by Turbomole.
+        """
+        if self.spin_type == "none":
+            return self.irrep
+        else:
+            if self.spin_type == "alpha":
+                spin_tag = "a"
+            elif self.spin_type == "beta":
+                spin_tag = "b"
+            else:
+                spin_tag = "?"
+            return "{}_{}".format(self.irrep, spin_tag)
     
     def __eq__(self, other):
         """
@@ -362,7 +392,7 @@ class Unrestricted_orbital(Molecular_orbital):
     Top-level class for unrestricted orbitals.
     """
     
-    def __init__(self, level, HOMO_difference, energy, spin_type, symmetry = None):
+    def __init__(self, level, HOMO_difference, energy, spin_type, symmetry = None, symm_level = None):
         """
         Constructor for MOs.
         
@@ -373,7 +403,7 @@ class Unrestricted_orbital(Molecular_orbital):
         :param spin_type: The spin of this spin-orbital (either alpha or beta).
         """
         # Call parent first.
-        super().__init__(level, HOMO_difference, energy, symmetry)
+        super().__init__(level, HOMO_difference, energy, symmetry, symm_level)
         self.spin_type = spin_type
     
     @property
@@ -389,7 +419,7 @@ class Alpha_orbital(Unrestricted_orbital):
     An alpha spin orbital (these types of orbitals are only singly occupied, electrons are spin-up).
     """
     
-    def __init__(self, level, HOMO_difference, energy, symmetry):
+    def __init__(self, level, HOMO_difference, energy, symmetry, symm_level):
         """
         Constructor for alpha MOs.
         
@@ -398,7 +428,7 @@ class Alpha_orbital(Unrestricted_orbital):
         :param energy: The energy of the MO (in eV).
         :param symmetry: The symmetry of the MO.
         """
-        super().__init__(level, HOMO_difference, energy, "alpha", symmetry)
+        super().__init__(level, HOMO_difference, energy, "alpha", symmetry, symm_level)
         
 class Beta_orbital(Unrestricted_orbital):
     """
@@ -408,7 +438,7 @@ class Beta_orbital(Unrestricted_orbital):
     # Beta orbitals use the other list in cclib.
     ccdata_index = 1
     
-    def __init__(self, level, HOMO_difference, energy, symmetry):
+    def __init__(self, level, HOMO_difference, energy, symmetry, symm_level):
         """
         Constructor for beta MOs.
         
@@ -417,5 +447,5 @@ class Beta_orbital(Unrestricted_orbital):
         :param energy: The energy of the MO (in eV).
         :param symmetry: The symmetry of the MO.
         """
-        super().__init__(level, HOMO_difference, energy, "beta", symmetry)
+        super().__init__(level, HOMO_difference, energy, "beta", symmetry, symm_level)
     
