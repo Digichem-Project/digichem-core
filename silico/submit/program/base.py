@@ -345,7 +345,10 @@ class Program_target(Configurable_target):
                 pass
             
             # Next, load calc results.
-            self.parse_results()
+            try:
+                self.parse_results()
+            except Exception as e:
+                self.error = e
             
             # If we've been asked to write result files, do so.
             try:
