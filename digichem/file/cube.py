@@ -141,6 +141,42 @@ class Fchk_to_spin_cube(Fchk_to_cube):
             **kwargs
         )
         
+class Fchk_to_density_cube(Fchk_to_cube):
+    """
+    A variation of the cube maker designed for making density cubes.
+    
+    Note that this class exists mainly for convenience; either class can be used to generate cubes of any supported type.
+    """
+    
+    def __init__(self, *args, density_type = "SCF", **kwargs):
+        """
+        Constructor for Fchk_to_cube objects.
+        
+        See Fchk_to_cube for a full signature.
+        
+        :param output: The filename/path to the cube file (this path doesn't need to point to a real file yet; we will use this path to write to).
+        :param fchk_file: Optional fchk_file to use to generate this cube file.
+        :param density_type: The density to use.
+        :param npts: The 'npts' option of cubegen, controls how detailed the resulting file is. Common options are 0 (default), -2 ('low' quality), -3 (medium quality), -4 (very high quality).
+        :param cube_file: An optional file path to an existing cube file to use. If this is given (and points to an actual file), then a new cube will not be made and this file will be used instead.
+        """
+        super().__init__(*args, cubegen_type = "Density", orbital = density_type, **kwargs)
+        self.type = density_type
+    
+    @classmethod
+    def from_options(self, output, *, fchk_file = None, density_type = "SCF", options, **kwargs):
+        """
+        Constructor that takes a dictionary of config like options.
+        """        
+        return self(
+            output,
+            fchk_file = fchk_file,
+            density_type = density_type,
+            npts = options['molecule_image']['density']['cube_grid_size'],
+            dont_modify = options['image']['dont_modify'],
+            **kwargs
+        )
+        
 class Turbomole_to_orbital_cube(File_maker):
     """
     An adapter class that retrieves a single orbital cube from a Turbomole_to_cube object.
@@ -174,6 +210,7 @@ class Turbomole_to_orbital_cube(File_maker):
         """
         return self.turbomole_to_cube.get_file(self.orbital.sirrep)
 
+
 class Turbomole_to_spin_cube(File_maker):
     """
     An adapter class that retrieves a spin density cube from a Turbomole_to_cube object.
@@ -187,7 +224,7 @@ class Turbomole_to_spin_cube(File_maker):
         :param irrep: 
         """
         self.turbomole_to_cube = turbomole_to_cube
-        super().__init__(Path(turbomole_to_cube.output, 'td.cub'))
+        super().__init__(Path(turbomole_to_cube.output, 'sd.cub'))
     
     def check_can_make(self):
         """
@@ -207,6 +244,40 @@ class Turbomole_to_spin_cube(File_maker):
         return self.turbomole_to_cube.get_file("spin")   
 
 
+class Turbomole_to_density_cube(File_maker):
+    """
+    An adapter class that retrieves a total density cube from a Turbomole_to_cube object.
+    """
+    
+    def __init__(self, *args, turbomole_to_cube, density_type = "SCF", **kwargs):
+        """
+        Constructor for Turbomole_to_orbital_cube.
+        
+        :param turbomole_to_cube: A Turbomole_to_cube object.
+        :param irrep: 
+        """
+        self.type = density_type
+        self.turbomole_to_cube = turbomole_to_cube
+        super().__init__(Path(turbomole_to_cube.output, 'td.cub'))
+    
+    def check_can_make(self):
+        """
+        Check whether it is feasible to try and create the files(s) that we represent.
+        
+        Reasons for making not being possible are varied and are up to the inheriting class, but include eg, a required input (cube, fchk) file not being given.
+        
+        This method returns nothing, but will raise an File_maker_exception exception if the rendering is not possible.
+        """
+        if self.type not in self.turbomole_to_cube:
+            # Our cube maker wasn't setup to create this cube file.
+            raise File_maker_exception(self, "Turbomole orbital cube maker was not setup to create {} density".format(self.type))
+        
+    def get_file(self, file = None):
+        """
+        """
+        return self.turbomole_to_cube.get_file(self.type)   
+
+
 class Turbomole_to_cube(File_converter):
     """
     Class for converting Turbomole output to cube format.
@@ -217,7 +288,7 @@ class Turbomole_to_cube(File_converter):
     # Text description of our output file type, used for error messages etc.
     output_file_type = file_types.gaussian_cube_file
     
-    def __init__(self, *args, calculation_directory, calc_t, prog_t, orbitals = [], density, **kwargs):
+    def __init__(self, *args, calculation_directory, calc_t, prog_t, orbitals = [], density, spin, **kwargs):
         """
         Constructor for Turbomole_to_cube objects.
         
@@ -240,11 +311,13 @@ class Turbomole_to_cube(File_converter):
         # Set paths to the cube files we'll be making.
         self.file_path = {orbital.sirrep: self.path_for(orbital) for orbital in self.orbitals}
         
-        # Add spin density.
-        if density:
+        # Add densities.
+        if spin:
+            # Spin density.
             self.file_path['spin'] = Path(self.output, "sd.cub")
+        if density:
             # Total density.
-            self.file_path['density'] = Path(self.output, "td.cub")
+            self.file_path['SCF'] = Path(self.output, "td.cub")
         
         # Save our calculation, program and method templates.
         # We use an in series method so we will block while the calc runs.
@@ -254,6 +327,7 @@ class Turbomole_to_cube(File_converter):
             "NAME": "Orbital cubes"
         })
         self.method_t.configure(ID = None)
+        self.method_t.finalize()
             
         # Given calc program.
         self.prog_t = prog_t
@@ -262,13 +336,8 @@ class Turbomole_to_cube(File_converter):
         # Given calc.
         self.calc_t = calc_t
         
-        # Make them ready.
-        self.calc_t.finalize()
-        self.prog_t.finalize()
-        self.method_t.finalize()
-        
     @classmethod
-    def from_options(self, *args, calculation_directory, orbitals = [], density = False, options, **kwargs):
+    def from_options(self, *args, calculation_directory, orbitals = [], density = True, spin = False, options, **kwargs):
         """
         Constructor that takes a dictionary of config like options.
         """
@@ -283,35 +352,45 @@ class Turbomole_to_cube(File_converter):
             memory = Turbomole_memory(options['report']['turbomole']['memory']),
             num_CPUs = options['report']['turbomole']['num_CPUs'],
             orbitals = [orbital.total_level for orbital in orbitals],
-            density = density,
+            density = density or spin,
             program_name = prog_t.NAME,
             options = options
            )
+        
+        # Make them ready.
+        calc_t.finalize()
+        prog_t.finalize()
         
         # And continue.
         return self(
             *args,
             calculation_directory = calculation_directory,
-            calc_t = calc_t,
-            prog_t = prog_t,
+            calc_t = calc_t.inner_cls,
+            prog_t = prog_t.inner_cls,
             orbitals = orbitals,
             density = density,
+            spin = spin,
             dont_modify = options['image']['dont_modify'],
             **kwargs
         )
         
     @classmethod
-    def from_calculation(self, *args, turbomole_calculation, orbitals = [], density = False, **kwargs):
+    def from_calculation(self, *args, turbomole_calculation, orbitals = [], density = True, spin = False, options, **kwargs):
         """
         Create a Turbomole cube maker from an existing Turbomole calculation.
         """
+        calc_t = turbomole_calculation.orbital_calc(orbitals = [orbital.total_level for orbital in orbitals], density = density or spin)
+        calc_t.finalize()
+        
         return self(
             *args,
             calculation_directory = turbomole_calculation.program.method.calc_dir.output_directory,
-            calc_t = self.turbomole_calculation.orbital_calc(),
-            prog_t = type(self.turbomole_calculation.program),
+            calc_t = calc_t.inner_cls,
+            prog_t = type(turbomole_calculation.program),
             orbitals = orbitals,
             density = density,
+            spin = spin,
+            dont_modify = options['image']['dont_modify'],
             **kwargs
         )
         

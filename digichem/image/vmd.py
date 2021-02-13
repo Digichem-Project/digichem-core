@@ -455,6 +455,52 @@ class Beta_orbital_image_maker(Orbital_image_maker):
     pass
     #cubegen_type = "BMO"
     
+class Density_image_maker(Orbital_image_maker):
+    """
+    Class for creating spin density images.
+    """
+        
+    vmd_script ="generate_density_images.tcl"
+    
+    # Name of the section where we get some specific configs.
+    options_name = "density"
+    
+    def __init__(self, *args, **kwargs):
+        """
+        Constructor for Spin_density_image_maker objects.
+        
+        See Orbital_image_maker for a complete constructor.
+        """
+        super().__init__(*args, **kwargs)
+    
+    @property
+    def type(self):
+        """
+        The density type.
+        """
+        return self.input_file.type
+                
+    @property
+    def VMD_signature(self):
+        """
+        The arguments which we'll pass to VMD, inheriting classes can implement this method if they have a different VMD call signature.
+        """
+        return [
+                "{}".format(self.vmd_execuable),
+                "-dispdev", "none",
+                "-e", "{}".format(self.vmd_script_path),
+                "-args",
+                "{}".format(self.input_file),
+                "{}".format(self.tcl_common_path),
+                "{}".format(self.rendering_style),
+                "{}".format(fabs(self.isovalue)),
+                "{}".format(self.prepared_translations),
+                "{}".format(self.prepared_rotations),
+                "{}".format(self.file_path['x0y0z0'].with_suffix(self.scene_file_extension)),
+                "{}".format(self.file_path['x90y0z0'].with_suffix(self.scene_file_extension)),
+                "{}".format(self.file_path['x0y90z0'].with_suffix(self.scene_file_extension)),
+                "{}".format(self.file_path['x45y45z45'].with_suffix(self.scene_file_extension))
+            ]
     
 class Combined_orbital_image_maker(VMD_image_maker):
     """
