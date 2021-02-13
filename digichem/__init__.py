@@ -4,8 +4,11 @@ import pkg_resources
 import os
 import sys
 import silico.base
+import PIL.Image
 
 from .base import init_obabel
+
+PIL.Image.MAX_IMAGE_PIXELS = None
 
 # The name of this package.
 name = "silico"
