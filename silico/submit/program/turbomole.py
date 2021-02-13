@@ -1,16 +1,18 @@
+# General imports.
 from pathlib import Path
-
-from silico.submit.program.base import Program_target
-from silico.config.configurable.option import Option
-import subprocess
-from silico.exception.base import Submission_error
+import shutil
 from subprocess import TimeoutExpired, CalledProcessError
 import os
-from mako.lookup import TemplateLookup
-import silico
-from silico.misc.directory import copytree
-import shutil
 import re
+from mako.lookup import TemplateLookup
+import subprocess
+
+# Silico imports.
+from silico.submit.program.base import Program_target
+from silico.config.configurable.option import Option
+from silico.exception.base import Submission_error
+from silico.misc.directory import copytree
+import silico.report
 
 
 class Turbomole(Program_target):
@@ -270,4 +272,14 @@ class Turbomole(Program_target):
                 check = True
             )
                 
+                
+        def get_report(self):
+            """
+            Get a report suitable for parsing this type of calculation.
+            """            
+            return silico.report.from_files(
+                self.calc_output_file_path,
+                options = self.calculation.silico_options,
+                turbomole_calculation = self.calculation
+            )
             

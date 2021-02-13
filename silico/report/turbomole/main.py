@@ -4,7 +4,7 @@ from pathlib import Path
 # Silico imports.
 from silico.report.base.pdf import PDF_report
 from silico.file.cube import Turbomole_to_cube, Turbomole_to_orbital_cube,\
-    Turbomole_to_spin_cube
+    Turbomole_to_spin_cube, Turbomole_to_density_cube
 
 
 class Turbomole_report(PDF_report):
@@ -12,12 +12,17 @@ class Turbomole_report(PDF_report):
     A specialised report object for processing Turbomole results.
     """
     
-    def __init__(self, *args, log_file_path, **kwargs):
+    def __init__(self, *args, log_file_path, turbomole_calculation = None, **kwargs):
+        """
+        Constructor for Turbomole report generator.
+        
+        :param: turbomole_program: An optional turbomole calculation which will be used as a  template to generate cubes.
+        """
         super().__init__(*args, **kwargs)
         self.cube_maker = None
         log_file_path = Path(log_file_path)
         self.calculation_directory = log_file_path.parent
-        
+        self.turbomole_calculation = turbomole_calculation
     
     
     def setup_cubes(self, output_dir, output_name):
@@ -32,18 +37,35 @@ class Turbomole_report(PDF_report):
         required_orbitals = self.orbitals_to_render
                 
         # Now get our main cube maker.
-        self.cube_maker = Turbomole_to_cube.from_options(
-            Path(output_dir, "Cubes"),
-            calculation_directory = self.calculation_directory,
-            orbitals = required_orbitals,
-            density = self.result.metadata.system_multiplicity != 1,
-            options = self.options
-        )
+        if self.turbomole_calculation is not None:
+            self.cube_maker = Turbomole_to_cube.from_calculation(
+                Path(output_dir, "Cubes"),
+                turbomole_calculation = self.turbomole_calculation,
+                orbitals = required_orbitals,
+                density = True,
+                spin = self.result.metadata.system_multiplicity != 1,
+                options = self.options
+            )
+        else:
+            self.cube_maker = Turbomole_to_cube.from_options(
+                Path(output_dir, "Cubes"),
+                calculation_directory = self.calculation_directory,
+                orbitals = required_orbitals,
+                density = True,
+                spin = self.result.metadata.system_multiplicity != 1,
+                options = self.options
+            )
         
         ################
         # Spin density #
         ################
         self.cubes['spin_density'] = Turbomole_to_spin_cube(turbomole_to_cube = self.cube_maker)
+        
+        #################
+        # Total density #
+        #################
+        self.cubes['SCF'] = Turbomole_to_density_cube(turbomole_to_cube = self.cube_maker)
+        
         
         ############
         # Orbitals #

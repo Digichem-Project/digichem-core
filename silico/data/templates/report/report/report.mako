@@ -59,6 +59,9 @@
         %if len(report.result.atoms) > 0:
             <%include file="/geometry/geometry_section.mako" args="report = report"/>
         %endif
+        %if 'SCF' in report.images:
+        	<%include file="/density/density_section.mako" args="report = report, density_image_name = 'SCF'"/>
+        %endif
         %if report.result.dipole_moment is not None:
             <%include file="/dipole_moment/dipole_moment_section.mako" args="dipole_moment = report.result.dipole_moment, report = report, image_name = 'dipole_moment'"/>
         %endif

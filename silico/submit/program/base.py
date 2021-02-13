@@ -290,6 +290,15 @@ class Program_target(Configurable_target):
             """
             pass
         
+        def get_report(self):
+            """
+            Get a report suitable for parsing this type of calculation.
+            """
+            return silico.report.from_files(
+                self.calc_output_file_path,
+                options = self.calculation.silico_options
+            )
+        
         def parse_results(self):
             """
             Parse the finished calculation result file(s).
@@ -301,10 +310,7 @@ class Program_target(Configurable_target):
             # We need to know whether the calculation was successful or not, so we make no effort to catch exceptions here.
             try:
                 try:
-                    self.report = silico.report.from_files(
-                        self.calc_output_file_path,
-                        options = self.calculation.silico_options
-                        )
+                    self.report = self.get_report()
                     self.result = self.report.result
                 except Exception as e:
                     raise Submission_error(self, "failed to process completed calculation results") from e

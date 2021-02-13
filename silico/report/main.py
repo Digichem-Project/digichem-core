@@ -19,7 +19,7 @@ def class_from_result(result):
     else:
         return PDF_report
     
-def from_files(log_file, *, discover_additional_inputs = True, alignment_class_name = None, options, emission_excited_state = None, **named_input_files):
+def from_files(log_file, *, discover_additional_inputs = True, alignment_class_name = None, options, emission_excited_state = None, named_input_files = None, **kwargs):
     """
     Convenience function to load a report object from a given calculation log file.
     
@@ -29,6 +29,8 @@ def from_files(log_file, *, discover_additional_inputs = True, alignment_class_n
     :param options: A silico Config dictionary which contains various options that control the appearance of this report.
     :param named_input_files: Additional input files.
     """
+    named_input_files = named_input_files if named_input_files is not None else {}
+    
     # First, decide on which alignment class we're using.
     alignment_class = Alignment.from_class_handle(options['alignment'] if alignment_class_name is None else alignment_class_name)
     
@@ -63,5 +65,5 @@ def from_files(log_file, *, discover_additional_inputs = True, alignment_class_n
     named_input_files = {named_file:named_input_files[named_file] for named_file in named_input_files if named_input_files[named_file] is not None}
     
     # Now continue in subclass.
-    return report_class.from_result(result, log_file_path = log_file if discover_additional_inputs else None, options = options, **named_input_files)
+    return report_class.from_result(result, log_file_path = log_file if discover_additional_inputs else None, options = options, named_input_files = named_input_files, **kwargs)
     

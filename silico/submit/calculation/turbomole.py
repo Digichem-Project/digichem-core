@@ -212,19 +212,29 @@ class Turbomole_AI(Turbomole):
             # Get and load our define template.
             self.define_input = TemplateLookup(directories = str(silico.default_template_directory())).get_template("/submit/turbomole/define/driver.mako").render_unicode(calculation = self)
                 
-        def orbital_calc(self, orbitals = []):
+        def orbital_calc(self, orbitals, density):
             """
             Return a new calculation that can create orbital cube files from this calculation.
             
             :param orbitals: A list of orbital irreps to make cubes for.
             """
-            return get_orbital_calc(name = self.NAME, memory = self.memory, num_CPUs = self._num_CPUs, orbitals = orbitals, program_name = self.program.NAME, options = self.silico_options)
+            return get_orbital_calc(name = self.NAME, memory = self.memory, num_CPUs = self._num_CPUs, orbitals = orbitals, density = density, program_name = self.program.NAME, options = self.silico_options)
             
     
-def get_orbital_calc(*, name, memory, num_CPUs, orbitals = [], density = False, program_name, options):
+def get_orbital_calc(*, name, memory, num_CPUs, orbitals = [], density = False, modules = None, program_name, options):
     """
     Get a calculation template that can be used to create orbital objects.
+    
+    :param name: The name of the calculation.
+    :param memory: The amount of memory to use for the calculation.
+    :param num_CPUs: The number of CPUs to use for the calculation.
+    :param orbitals: List of orbital indexes to create cubes for.
+    :param density: Whether to create density cubes.
+    :param modules: Turbomole modules to run.
     """
+    if modules is None:
+        modules = ["dscf"]
+    
     # First generate our calculation.
     calc_t = Turbomole_restart({
         "CLASS": "Turbomole-restart",
@@ -238,7 +248,7 @@ def get_orbital_calc(*, name, memory, num_CPUs, orbitals = [], density = False, 
             "orbitals": orbitals,
             "format": "cub"
         },
-        "modules": ["dscf"],
+        "modules": modules,
         # We don't need these.
         "write_summary": False,
         "write_report": False

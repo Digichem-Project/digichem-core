@@ -21,9 +21,6 @@
 %>
 
 
-## We still use flexbox for some layout here, which breaks pagination in weasyprint. For now, we fix by splitting our list into fours (which is the number of MOs per page).
-
-## This solution was taken from https://stackoverflow.com/questions/6614891/turning-a-list-into-nested-lists-in-python/6615011
 <div class="section">
     <h2 class="section__header">Spin Density</h2>
     <div class="section__body section__body--orbital">

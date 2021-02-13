@@ -4,7 +4,8 @@ from pathlib import Path
 
 # Silico imports.
 from silico.image.vmd import Spin_density_image_maker, Orbital_image_maker,\
-    Combined_orbital_image_maker, Structure_image_maker, Dipole_image_maker
+    Combined_orbital_image_maker, Structure_image_maker, Dipole_image_maker,\
+    Density_image_maker
 from silico.image.orbitals import Orbital_diagram_maker
 from silico.exception.base import Result_unavailable_error
 from silico.image.excited_states import Excited_states_diagram_maker
@@ -51,14 +52,14 @@ class Report():
         )
     
     @classmethod
-    def from_result(self, result, *, log_file_path = None, options, **named_input_files):
+    def from_result(self, result, *, log_file_path = None, options, named_input_files, **kwargs):
         """
         Create a report object from a loaded result file, optionally searching for additional files.
         
         :param result: A result set.
         :param log_file_path: Path to the log file from which result was loaded. If given, the directory containing log_file_path will be searched for additional files.
         :param options: A silico Config dictionary which contains various options that control the appearance of this report.
-        :param named_input_files: Additional input files.
+        :param named_input_files: A dictionary of additional input files.
         """
         # If we're allowed to, have a look for other files we could add.
         if log_file_path is not None:
@@ -68,7 +69,7 @@ class Report():
                     named_input_files[key_name] = self.find_additional_inputs(log_file_path, input_type)
                     
         # Continue as normal.
-        return self(result, options = options, log_file_path = log_file_path, **named_input_files)
+        return self(result, options = options, log_file_path = log_file_path, **named_input_files, **kwargs)
             
                             
     @classmethod
@@ -187,6 +188,15 @@ class Report():
             cube_file = self.cubes['spin_density'],
             rotations = self.rotations,
             spin = "both",
+            options = self.options)
+        
+        #################
+        # Total density #
+        #################
+        self.images['SCF'] = Density_image_maker.from_options(
+            Path(output_dir, "Density", output_name + ".SCF.jpg"),
+            cube_file = self.cubes['SCF'],
+            rotations = self.rotations,
             options = self.options)
 
         ############

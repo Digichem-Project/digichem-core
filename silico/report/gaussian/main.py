@@ -4,7 +4,8 @@ from pathlib import Path
 # Silico imports.
 from silico.report.base.pdf import PDF_report
 from silico.file.fchk import Chk_to_fchk
-from silico.file.cube import Fchk_to_spin_cube, Fchk_to_cube
+from silico.file.cube import Fchk_to_spin_cube, Fchk_to_cube,\
+    Fchk_to_density_cube
 import silico.file.types as file_types
 
 class Gaussian_report(PDF_report):
@@ -55,6 +56,16 @@ class Gaussian_report(PDF_report):
             Path(output_dir, "Spin Density", output_name + ".spin.cube"),
             fchk_file = self.fchk_file,
             spin_density = "SCF",
+            options = self.options
+        )
+        
+        #################
+        # Total density #
+        #################
+        self.cubes['SCF'] = Fchk_to_density_cube.from_options(
+            Path(output_dir, "Density", output_name + ".SCF.cube"),
+            fchk_file = self.fchk_file,
+            density_type = "SCF",
             options = self.options
         )
         

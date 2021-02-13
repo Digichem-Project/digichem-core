@@ -83,6 +83,14 @@ molecule_image:
         cube_grid_size: -3
         # Same as isovalue but specifically for spin density.
         isovalue: 0.0004
+        
+    # Specific options for spin density images.
+    density:
+        # Same as cube_grid_size but specifically for density cubes.
+        # As cubes of this type are rendered with a smaller isovalue, it is often necessary to use a larger grid size than normal to maintain quality.
+        cube_grid_size: 0
+        # Same as isovalue but specifically for density.
+        isovalue: 0.02
    
 # These options control the appearance of orbital energy diagrams.
 orbital_diagram:

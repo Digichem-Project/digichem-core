@@ -85,16 +85,20 @@ def _main(args, config, logger):
     if args.alignment is not None and not args.overwrite_existing_images:
         logger.warning("Alignment method has been changed but not overwriting existing images; use '-OK method' to ensure molecule images are re-rendered to reflect this change")
     
+    named_input_files = {
+        "chk_file_path": args.chk_file,
+        "fchk_file_path": args.fchk_file,
+        "adiabatic_emission_ground_result": args.adiabatic_ground,
+        "vertical_emission_ground_result": args.vertical_ground,
+        "emission_excited_result": args.emission
+    }
+    
     try:
         report = silico.report.from_files(
             args.log_file,
-            chk_file_path = args.chk_file,
-            fchk_file_path = args.fchk_file,
-            adiabatic_emission_ground_result = args.adiabatic_ground,
-            vertical_emission_ground_result = args.vertical_ground,
-            emission_excited_result = args.emission,
-            emission_excited_state = args.emission_state,
-            options = config
+            options = config,
+            named_input_files = named_input_files,
+            emission_excited_state = args.emission_state
         )
     except Exception as e:
         raise Silico_exception("Failed to load results")
