@@ -330,6 +330,7 @@ class Report():
                     Path(output_dir, output_name + ".simulated_{}_emission_spectrum.png".format(emission.transition_type)),
                     excited_states = Excited_state_list([emission]),
                     options = self.options)
+                
         
         
         #############################

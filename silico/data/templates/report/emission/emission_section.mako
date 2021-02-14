@@ -19,7 +19,7 @@
     <div class="section__body">
         <div class="image--absorptionGraph">
             <div class="image__aligner image__aligner--absorptionGraph">
-                <img class="image__img image__img--absorptionGraph" src="$report.relative_path(graph_image_name)}">
+                <img class="image__img image__img--absorptionGraph" src="${report.relative_image(graph_image_name)}">
             </div>
             <div class="imageBlock__caption">
             	Emission spectrum (simulated Gaussian functions with FWHM: ${report.images[graph_image_name].fwhm} eV)<br>
