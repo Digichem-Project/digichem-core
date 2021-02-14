@@ -349,7 +349,6 @@ class Result_set(Result_object):
         except Exception:
             getLogger(silico.logger_name).warning("Could not load adiabatic emission energy", exc_info = True)
         
-    @classmethod
     def _set_emission(self, transition_type, emission_ground_result = None, emission_excited_result = None, emission_excited_state = None):
         """
         Helper function.

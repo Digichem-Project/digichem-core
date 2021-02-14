@@ -274,22 +274,22 @@ class Energy_state(Result_object):
     
     @property
     def multiplicity_string(self):
-        return self.multiplicity_number_to_string(self._multiplicity)
+        return self.multiplicity_number_to_string(self.multiplicity)
     
     @property
     def multiplicity_symbol(self):
         # Get a shorthand symbol if we can.
-        if  self._multiplicity == 1:
+        if  self.multiplicity == 1:
             return "S"
-        elif  self._multiplicity == 2:
+        elif  self.multiplicity == 2:
             return "D"
-        elif  self._multiplicity == 3:
+        elif  self.multiplicity == 3:
             return "T"
-        elif  self._multiplicity == 4:
+        elif  self.multiplicity == 4:
             return "Q"
-        elif self._multiplicity is None:
+        elif self.multiplicity == 0:
             return "?"
-        elif self._multiplicity % 1 == 0:
+        elif self.multiplicity % 1 == 0:
             # Multiplicity is an integer, so return as a stringy whole number.
             return str(int(self.multiplicity))
         else:

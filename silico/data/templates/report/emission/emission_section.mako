@@ -9,7 +9,7 @@
         <%include file="emission_results.mako" args="relaxed_excited_state = relaxed_excited_state"/>
     </div>
 </div>
-%if graph_image_name in report.images:
+%if graph_image_name in report.images and report.images[graph_image_name].safe_get_file() is not None:
 <%
 	peaks = sorted(list(set([int(peak) for peak in report.images[graph_image_name].peaks])))
 	peaks = ["{}".format(peak) for peak in peaks]

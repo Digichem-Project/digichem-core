@@ -326,7 +326,7 @@ class Report():
                     options = self.options)
                 
                 # Now emission spectrum.
-                self._files['simulated_{}_emission_graph'.format(emission.transition_type)] = Emission_graph_maker.from_options(
+                self.images['simulated_{}_emission_graph'.format(emission.transition_type)] = Emission_graph_maker.from_options(
                     Path(output_dir, output_name + ".simulated_{}_emission_spectrum.png".format(emission.transition_type)),
                     excited_states = Excited_state_list([emission]),
                     options = self.options)
