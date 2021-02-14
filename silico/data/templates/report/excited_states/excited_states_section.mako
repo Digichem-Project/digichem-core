@@ -27,10 +27,10 @@
             </div>
             <div class="imageBlock__caption">
 	            Absorption spectrum (simulated Gaussian functions with FWHM: ${report.images['simulated_absorption_graph'].fwhm} eV).<br>
-	            Peaks /nm: ${", ".join(peaks)}. <br>
+	            Peaks /nm: ${", ".join(peaks)}.
 	            %if excited_states[-1].wavelength > ES_threshold:
 	            <span class="warning_msg">
-	            Note: high energy absorption peaks are not simulated.<br>For a complete absorption spectrum, use more excited states.
+	            <br>Note: high energy absorption peaks are not simulated.<br>For a complete absorption spectrum, use more excited states.
 	            </span>
 	            %endif
             </div>

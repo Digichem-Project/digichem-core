@@ -10,6 +10,10 @@
     </div>
 </div>
 %if graph_image_name in report.images:
+<%
+	peaks = sorted(list(set([int(peak) for peak in report.images[graph_image_name].peaks])))
+	peaks = ["{}".format(peak) for peak in peaks]
+%>
 <div class="section">
     <h2 class="section__header">Emission</h2>
     <div class="section__body">
@@ -17,7 +21,10 @@
             <div class="image__aligner image__aligner--absorptionGraph">
                 <img class="image__img image__img--absorptionGraph" src="$report.relative_path(graph_image_name)}">
             </div>
-            <div class="image__caption">Emission spectrum (simulated Gaussian functions with FWHM: ${report.images[graph_image_name].fwhm} eV)</div>
+            <div class="imageBlock__caption">
+            	Emission spectrum (simulated Gaussian functions with FWHM: ${report.images[graph_image_name].fwhm} eV)<br>
+            	Peaks /nm: ${", ".join(peaks)}.
+            </div>
         </div>
     </div>
 </div>
