@@ -51,3 +51,44 @@ dft_exci:
 modules:
     - dscf
     - escf
+    
+    
+---
+# TD-DFT excited states.
+TYPE: calculation
+
+PARENT: [Turbomole-DFT-defaults]
+GROUP: ["Excited States", "TDA", "Optimised S(1)"]
+
+# Specify excited states.
+dft_exci:
+    multiplicity: 1
+    nexc: 10
+    TDA: True
+    
+optimisation_state: 1
+
+# This is a singlepoint.
+modules:
+    - jobex -level scf -c 100 -keep -ex
+
+    
+---
+# TD-DFT excited states.
+TYPE: calculation
+
+PARENT: [Turbomole-DFT-defaults]
+GROUP: ["Excited States", "TDA", "Optimised T(1)"]
+
+# Specify excited states.
+dft_exci:
+    multiplicity: 3
+    nexc: 10
+    TDA: True
+    
+optimisation_state: 1
+
+# This is a singlepoint.
+modules:
+    - jobex -level scf -c 100 -keep -ex 
+    

@@ -107,6 +107,7 @@ class Turbomole_AI(Turbomole):
         nexc = Option(help = "The number of excited states to calculate.", type = int, default = 0),
         TDA = Option(help = "Whether to use the Tamm–Dancoff approximation.", type = bool, default = False)
         )
+    optimisation_state = Option(help = "The excited state to optimise. This should not exceed the number of excited states to calculate", type = int, default = None)
     dispersion = Options(
         help = "Options for dispersion correction.",
         dsp = Option(help = "Dispersion correction to use.", choices = ("GD2", "GD3", "GD3BJ", "GD4", None), default = None),

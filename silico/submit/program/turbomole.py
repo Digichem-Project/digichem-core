@@ -57,6 +57,13 @@ class Turbomole(Program_target):
             return Path(self.method.calc_dir.input_directory, "coord")
         
         @property
+        def control_file_path(self):
+            """
+            Path to the input control file.
+            """
+            return Path(self.method.calc_dir.input_directory, "control")
+        
+        @property
         def define_output_path(self):
             """
             Path to the file in which define output is written.
@@ -144,6 +151,32 @@ class Turbomole(Program_target):
             except Exception as e:
                 # Something else.
                 raise e from None
+            
+            # Sadly, some options are not supported by define and have to be appended manually.
+            if self.calculation.optimisation_state is not None:
+                self.add_control_option("$exopt {}".format(self.calculation.optimisation_state))
+            
+        def add_control_option(self, option):
+            """
+            Manually write to the control file.
+            
+            The control file should already exist before this method is called.
+            """
+            control_name = Path(self.method.calc_dir.prep_directory, "control")
+            tmp_control_name = Path(self.method.calc_dir.prep_directory, "control.tmp")
+            done = False
+            
+            with open(control_name, "r") as control_file_in, open(tmp_control_name, "w") as control_file_out:
+                for line in control_file_in:
+                    if "$end" in line.lower() and not done:
+                        # This is the end, append option now.
+                        control_file_out.write(option + "\n")
+                        done = True
+                    
+                    # Write existing line.
+                    control_file_out.write(line)
+            
+            tmp_control_name.rename(control_name)
             
         def UFF_define(self):
             """
