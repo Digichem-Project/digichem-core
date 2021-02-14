@@ -291,8 +291,8 @@ class Frequency_graph_maker(Spectroscopy_graph_maker):
         super().__init__(output, Spectroscopy_graph.from_vibrations(vibrations), *args, fwhm = fwhm, gaussian_resolution = gaussian_resolution, **kwargs)
         
         # Axes labels.
-        self.x_label = "Frequency /cm-1"
-        self.y_label = "Intensity /km mol-1"
+        self.x_label = "Frequency /cm$^{-1}$"
+        self.y_label = "Intensity /km mol$^{-1}$"
         
         # Space to allocate per unit of the y axis.
         self.inch_per_x = 0.00252
