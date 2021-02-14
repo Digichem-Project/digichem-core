@@ -46,6 +46,7 @@
 .reference {
     margin-bottom: 7px;
     width: 100%;
+    text-align: justify;
 }
 
 .reference__authors {
