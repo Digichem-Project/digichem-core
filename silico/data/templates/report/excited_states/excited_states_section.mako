@@ -3,7 +3,7 @@
 <%page args="excited_states, report"/>
 
 <%
-ES_threshold = 100
+	ES_threshold = 100
 %>
 
 <div class="section section--fullPage">
@@ -14,6 +14,10 @@ ES_threshold = 100
     </div>
 </div>
 %if 'simulated_absorption_graph' in report.images and report.images['simulated_absorption_graph'].safe_get_file() is not None:
+<%
+	peaks = sorted(list(set([int(peak) for peak in report.images['simulated_absorption_graph'].peaks])))
+	peaks = ["{}".format(peak) for peak in peaks]
+%>
 <div class="section">
     <h2 class="section__header">Absorptions</h2>
     <div class="section__body">
@@ -21,13 +25,14 @@ ES_threshold = 100
             <div class="image__aligner image__aligner--absorptionGraph">
                 <img class="image__img image__img--absorptionGraph" src="${report.relative_image('simulated_absorption_graph')}">
             </div>
-            <div class="image__caption">
-            Absorption spectrum (simulated Gaussian functions with FWHM: ${report.images['simulated_absorption_graph'].fwhm} eV).<br>
-            %if excited_states[-1].wavelength > ES_threshold:
-            <span class="warning_msg">
-            Note: high energy absorption peaks are not simulated.<br>For a complete absorption spectrum, use more excited states.
-            </span>
-            %endif
+            <div class="imageBlock__caption">
+	            Absorption spectrum (simulated Gaussian functions with FWHM: ${report.images['simulated_absorption_graph'].fwhm} eV).<br>
+	            Peaks /nm: ${", ".join(peaks)}. <br>
+	            %if excited_states[-1].wavelength > ES_threshold:
+	            <span class="warning_msg">
+	            Note: high energy absorption peaks are not simulated.<br>For a complete absorption spectrum, use more excited states.
+	            </span>
+	            %endif
             </div>
         </div>
     </div>

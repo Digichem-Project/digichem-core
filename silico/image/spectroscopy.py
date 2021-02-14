@@ -131,6 +131,13 @@ class Spectroscopy_graph_maker(Graph_image_maker):
         """
         data = self.transpose(self.graph.plot_cumulative_gaussian(self.fwhm, self.gaussian_resolution, self.gaussian_cutoff))
         self.axes.plot(*data, 'C0-', linewidth = 2)
+    
+    @property
+    def peaks(self):
+        """
+        A list of peaks (in x units).
+        """
+        return self.graph.peaks(self.fwhm, self.gaussian_resolution, self.gaussian_cutoff)
         
     def auto_x_limits(self):
         """
