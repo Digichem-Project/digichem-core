@@ -20,6 +20,7 @@ scratch_options:
     
 # No need for reports.
 write_report: False
+write_summary: False
 
 # Convergence criteria.
 econv: 0.10D-10

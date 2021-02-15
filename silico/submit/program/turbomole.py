@@ -304,7 +304,18 @@ class Turbomole(Program_target):
                 cwd = self.working_directory,
                 check = True
             )
-                
+        
+        def parse_results(self):
+            """
+            Parse the finished calculation result file(s).
+            
+            Certain flags will be set depending on the status of the calculation. Additionally, a PDF_report object will be stored to self.result
+            """
+            if "Turbomole-UFF" in self.calculation.CLASS_HANDLE:
+                # We can't parse UFF results yet.
+                return
+            else:
+                return super().parse_results()     
                 
         def get_report(self):
             """
