@@ -252,7 +252,10 @@ def get_orbital_calc(*, name, memory, num_CPUs, orbitals = [], density = False, 
         "modules": modules,
         # We don't need these.
         "write_summary": False,
-        "write_report": False
+        "write_report": False,
+        "scratch_options": {
+            "use_scratch": False
+        }
     })
     calc_t.configure(ID = None, available_basis_sets = [], silico_options = options)
     
