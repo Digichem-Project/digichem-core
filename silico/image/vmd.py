@@ -275,7 +275,7 @@ class VMD_image_maker(File_converter):
         """
         # Sadly, tachyon is old and decrepit and doesn't parse the output filename correctly (but weirdly the input file is fine).
         # To get around this, we'll use a semi-random output name that we know is safe, and change-directory to the output directory immediately before calling tachyon.
-        # This way we can ensure there will be no nasty file-names for tachyon to get stuck on."
+        # This way we can ensure there will be no nasty file-names for tachyon to get stuck on.
         working_directory = tga_file.parent
         tmpfile_name = ".tachyon_output_" + uuid4().hex + ".tga"
         tmpfile_full_path = Path(tga_file.parent, tmpfile_name)
@@ -302,7 +302,8 @@ class VMD_image_maker(File_converter):
             
             # Render complete (sadly we don't appear to have any ability to check for errors).
             # Now rename our tmpfile.
-            os.rename(tmpfile_full_path, tga_file)
+            #os.rename(tmpfile_full_path, tga_file)
+            tmpfile_full_path.rename(tga_file)
         except Exception:
             # Something went wrong, remove our tmpfile.
             try:
