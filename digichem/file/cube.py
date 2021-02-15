@@ -433,5 +433,5 @@ class Turbomole_to_cube(File_converter):
                 dst = file_path
                  
                 # Can't use src.rename() because tmp may be on a different device.
-                shutil.move(src, dst)
+                shutil.move(src, dst, copy_function = shutil.copy)
         
