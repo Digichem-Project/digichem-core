@@ -32,7 +32,7 @@ ALIAS: [Turbomole-CC2-defaults]
 PARENT: [Turbomole-defaults]
 
 # CC2 is very slow, assign more CPUs to try and compensate.
-num_CPUs: 32
+num_CPUs: 8
 
 # SPLIT on basis set.
 SPLIT:
