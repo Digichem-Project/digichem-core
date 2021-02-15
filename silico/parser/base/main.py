@@ -1,6 +1,8 @@
 from logging import getLogger
 from pathlib import Path
 import cclib.io
+from glob import iglob
+import itertools
 
 from silico.result.molecular_orbitals import Molecular_orbital_list,\
     Beta_orbital
@@ -15,8 +17,6 @@ from silico.result.dipole_moment import Dipole_moment
 from silico.result.vibrations import Vibration_list
 from silico.exception.base import Silico_exception
 import silico
-from glob import iglob
-import itertools
 
 class Parsed_data():
     """
