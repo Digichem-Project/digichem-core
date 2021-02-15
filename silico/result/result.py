@@ -366,45 +366,4 @@ class Result_set(Result_object):
                 excited_state = emission_excited_state))
         elif emission_ground_result is not None:
             raise Silico_exception("Cannot calculate emission energy; no excited state given for ground state '{}'".format(emission_ground_result.metadata.name))
-        
-#     @classmethod
-#     def from_calculation_file(self,
-#             calc_file_path,
-#             *args,
-#             gaussian_log_file = None,
-#             name = None,
-#             alignment_class_name = None,
-#             **kwargs):
-#         """
-#         Construct a Result_set object from a calculation file.
-#         
-#         :param calc_file_path: Path to a calculation file to load.
-#         """
-#         # Load emission results.
-#         for emission in ['vertical_emission_ground_result', 'adiabatic_emission_ground_result', 'emission_excited_result']:
-#             if kwargs.get(emission, None) is not None and not isinstance(kwargs.get(emission, None), self):
-#                 # This emission 'result' is not a result (assume it is a path); try and load it.
-#                 try:
-#                     kwargs[emission] = Result_set.from_calculation_file(kwargs[emission], alignment_class_name = alignment_class_name)
-#                 except Exception:
-#                     raise Silico_exception("Error loading emission result file '{}'".format(kwargs[emission]))
-#         
-#         try:        
-#             # Output a message (because this is slow).
-#             getLogger(silico.logger_name).info("Reading result file '{}'".format(calc_file_path))
-#             
-#             # Read and parse the file with cclib.
-#             with open(calc_file_path, "rt") as calc_file:
-#                 ccdata = cclib.io.ccread(calc_file)
-#                 
-#             # Now call our next 'constructor'.
-#             return self.from_cclib(
-#                 ccdata,
-#                 *args,
-#                 name = name if name is not None else str(calc_file_path),
-#                 alignment_class_name = alignment_class_name,
-#                 gaussian_log_file = calc_file_path if gaussian_log_file is None else gaussian_log_file,
-#                 **kwargs)
-#         except Exception:
-#             raise Silico_exception("Unable to load calculation result file '{}'".format(calc_file_path))
-        
+                
