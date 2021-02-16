@@ -6,7 +6,7 @@
 %>\
 ##
 #!/bin/bash
-#SBATCH -J "${SLURM_target.program.calculation.descriptive_name}"
+#SBATCH -J "${SLURM_target.program.calculation.descriptive_name} (${SLURM_target.program.NAME})"
 ##
 %if SLURM_target.partition is not None:
 #SBATCH -p ${SLURM_target.partition}
