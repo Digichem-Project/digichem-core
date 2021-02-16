@@ -4,6 +4,7 @@
 
 .section__body--references {
     justify-content: flex-start;
+    line-height: 1.2;
 }
 
 /* A citation appears in the text, while a reference appears in the bibliography. */

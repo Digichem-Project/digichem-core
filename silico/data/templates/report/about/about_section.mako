@@ -19,7 +19,7 @@
 
 <div class="section section--about">
     <h2 class="section__header">About</h2>
-    <div class="section__body section__body--text">
+    <div class="section__body section__body--text section__body--about">
         <div class="title">
             <div class="title__superTitle"><u>cr</u>eport: <u>C</u>alculation <u>R</u>eport Generator</div>
             <div class="title__mainTitle">Part of the silico software package</div>

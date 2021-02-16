@@ -2,6 +2,10 @@
     page-break-before: always;
 }
 
+.section__body--about {
+    line-height: 1.2;
+}
+
 .acknowledgements {
     margin-left: 100px;
     margin-right: 100px;
