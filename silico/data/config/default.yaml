@@ -83,6 +83,14 @@ molecule_image:
         cube_grid_size: -3
         # Same as isovalue but specifically for spin density.
         isovalue: 0.0004
+        
+    # Specific options for spin density images.
+    density:
+        # Same as cube_grid_size but specifically for density cubes.
+        # As cubes of this type are rendered with a smaller isovalue, it is often necessary to use a larger grid size than normal to maintain quality.
+        cube_grid_size: 0
+        # Same as isovalue but specifically for density.
+        isovalue: 0.02
    
 # These options control the appearance of orbital energy diagrams.
 orbital_diagram:
@@ -209,6 +217,15 @@ IR_spectrum:
 
 # Options for controlling the generation of calculation reports.
 report:
+    # Sub options for Turbomole reports.
+    turbomole:
+        # The number of CPUs to generate cubes.
+        num_CPUs: 1
+        # The amount of memory with which to generate cubes.
+        memory: 1GB
+        # The name of a program definition to use to create cubes.
+        program: Turbomole
+
     # Whether to delete intermediate files that are written during the report generation process.
     # Intermediate files include:
     #    - .cube files.
@@ -270,4 +287,72 @@ report:
         max_frequency: null
         # The maximum number of frequencies to show in the table.
         max_num: null
-      
+
+# Colour palette for urwid interfaces.
+# Please see http://urwid.org/manual/displayattributes.html for allowed combinations.
+palette:
+    body:
+        # Foreground.
+        - black
+        # Background.
+        - light gray
+    
+    boldnode:
+        - black, bold
+        - light gray
+    
+    warningnode:
+        - dark red
+        - light gray
+    
+    hiddennode:
+        - light red, blink
+        - light gray
+        
+    focus:
+        - light gray
+        - dark blue
+        - standout
+        
+    header:
+        - light gray, bold
+        - dark blue
+        - standout
+
+    footer:
+        - light gray
+        - dark blue
+        - standout
+        
+    bars:
+        - dark blue
+        - light gray
+        
+    arrowtip:
+        - light blue
+        - light gray
+        
+    connectors:
+        - light red
+        - light gray
+        
+    editable:
+        - dark blue
+        - light gray
+        
+    dialogue:
+        - white
+        - dark blue
+        
+    title:
+        - white, bold
+        - dark blue
+        
+    good_button:
+        - black
+        - dark green
+        
+    bad_button:
+        - black
+        - dark red
+        

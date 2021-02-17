@@ -1,0 +1,226 @@
+- 2021-01-12: Added PySOC to references.
+- 2021-01-12: TDMs are now parsed with cclib
+- 2021-01-12: Bumped version
+- 2021-01-12: Turbomole will now attempt to write results and reports after calculations.
+- 2021-01-12: Missing excited state oscillator strengths are now assumed to be 0.
+- 2021-01-12: Various updates to Turbomole and Gaussian parsers.
+- 2021-01-12: Changed order of SCF/MP/CC energies in reports.
+- 2021-01-12: Added Turbomole MR-TADF auto characterisation configs
+- 2020-12-26: Added HOMO/LUMO parser for turbomole
+- 2020-12-26: Fixed a bug when generating reports with unknown ground state multiplicity
+- 2020-12-22: Fixed ordering of excited state transitions
+- 2020-12-18: Bumped version
+- 2020-12-18: Tweaked format of dates and durations
+- 2020-12-18: Added seconds to calculation durations.
+- 2020-12-18: Number of CPUs defaults to 1 when parsing results from Gaussian
+- 2020-12-18: Added SOC to result tables
+- 2020-12-18: Added config options to support SOC for Gaussian TD and TDA.
+- 2020-12-18: Minor tweak to result parsers
+- 2020-12-16: Fixed a bug when editing empty options.
+- 2020-12-16: WIP updates to Turbomole parser.
+- 2020-12-16: Fixed a bug when rendering reports with SOC = 0
+- 2020-12-15: Added pysoc data to pyinstaller spec.
+- 2020-12-15: Switched to using scipy constants to convert between excited state energies
+- 2020-12-14: Fixed version numbering
+- 2020-12-14: Added support for SOC calculations using PySOC.
+- 2020-12-14: Added support for keeping .rwf file after gaussian calc
+- 2020-12-14: Updates to result parsing.
+- 2020-12-14: Added reports for SOC.
+- 2020-12-14: Fixed minor typo in HOMO/LUMO energies
+- 2020-12-14: Reduced num of sig figs in CIX coords
+- 2020-12-14: Reduced size of text in <sub> and <sup> tags
+- 2020-12-08: WIP Updates
+- 2020-11-17: Fixed a bug when editing turbomole calculations.
+- 2020-11-16: Fixed Gaussian calculations being submitted with non-integer charge.
+- 2020-11-16: Silico convert now correctly sets charge and multiplicity. Silico submit supports -C, -M and --gen3D options.
+- 2020-11-15: Fixed a bug when submitting to multiple calcs
+- 2020-11-15: Added convert program to command completion.
+- 2020-11-15: Fixed various bugs when submitting from 2D formats.
+- 2020-11-14: Fixed a bug where turbomole ignored mult/charge
+- 2020-11-13: Fixed a bug when submitting from .si files.
+- 2020-11-13: Fixed a bug where charge and multiplicity were not remembered between calcs.
+- 2020-11-13: Introduced 'convert' sub command; improved file conversion and submission.
+- 2020-11-13: Merge branch 'devel' of https://github.com/oliver-s-lee/silico into devel
+- 2020-11-13: Improvements to submission mechanism:   - Charge and multiplicity are now read from input files (where possible) for all calcs (not just Gaussian)   - Introduced universal .si input format   - .si input files are now written to input dir for all calcs (allows easy re-submission)
+- 2020-11-13: Improvements to submission mechanism:   - Charge and multiplicity are now read from input files (where possible) for all calcs (not just Gaussian)   - Introduced universal .si input format   - .si input files are now written to input dir for all calcs (allows easy re-submission)
+- 2020-11-12: Fixed a bug caused by the typo "MO62X" (changed to "M062X")
+- 2020-11-12: Fixed a bug when converting from Gaussian input format with pybel.
+- 2020-11-11: Renamed silico.log files to silico.out to avoid confusion with Gaussian .log files.
+- 2020-11-10: Added support for submitting turbomole calculations from gaussian input files.
+- 2020-11-10: Increased default number of CPUs for CC2 from 8 to 16.
+- 2020-10-31: Added initial bash completion support.
+- 2020-10-31: Openbabel converters can now convert directly from memory.
+- 2020-10-30: Updated configs for dragon
+- 2020-10-29: Added better error reporting for when an uncregonised Gaussian input file is encountered
+- 2020-10-27: Silico will no longer try to submit calculations whens using 'Esc' to quit.
+- 2020-10-27: Changed default colour of editable fields in urwid interfaces to dark blue to increase readability.
+- 2020-10-27: Added support for development version accessed by the silico-dev command.
+- 2020-10-27: Urwid colour palette can now be changed by a config file.
+- 2020-10-25: Added support for temporary prep/setup folder
+- 2020-10-25: Removed workaround for cclib bug (which has been fixed in 1.6.4)
+- 2020-10-21: Added silico version to calc browser.
+- 2020-10-20: Calculation directories now contain a subdirectory for each calc program.
+- 2020-10-20: Turbomole functionals are now case insensitive. The names of Turbomole DFT dispersion correction parameters now match those of Gaussian.
+- 2020-10-20: Fixed bug where num_CPUs could be stored as a str.
+- 2020-10-20: Improved format of silico status command.
+- 2020-10-20: Increased max SCF iterations to 300 for CC2.
+- 2020-10-20: Changed file of define output to define.output to reflect define.input
+- 2020-10-20: Fixed SLURM not acting as a resumable method.
+- 2020-10-20: Changed default ordering of submission methods.
+- 2020-10-20: Merge branch 'turbomole' into devel; adding turbomole support and multiple bug fixes.
+- 2020-10-20: Set devel flag
+- 2020-10-20: Added support for calculations with Turbomole (DFT/CC2/UFF)
+- 2020-10-20: Added support for turbomole file formats
+- 2020-10-20: Fixed small bug in PDM/TDM reports
+- 2020-10-20: Improvements to submission mechanism; introduced silico status command (displays how busy the queues are currently)
+- 2020-10-20: Incremented version to 0.15.0
+- 2020-09-16: WIP progress for Turbomole support
+- 2020-09-13: Fixed average alignment (AA) using the wrong molecular centre.
+- 2020-09-13: Fixed a bug where the wrong isovalue was used to render spin density.
+- 2020-08-17: Merge pull request #30 from oliver-s-lee/devel
+- 2020-08-17: Set max opt cycles to 100 by default.
+- 2020-08-17: Reports are disabled if the calculation does not finish successfully (temp, part of #29).
+- 2020-08-17: Increased output level to aid analysis with Chemissian
+- 2020-08-10: Merge pull request #28 from oliver-s-lee/devel
+- 2020-08-10: Updates to documentation to reflect changes
+- 2020-08-10: Bug fix for selecting the default sub-command
+- 2020-08-10: WIP implementation of #12.
+- 2020-08-10: Removed isotope mass column from atom tables in reports
+- 2020-08-10: Resolved #24 by writing .xyz file at the end of a calculation. Reports and results will now still be written even if the calculation does not complete successfully
+- 2020-08-10: Set 'submit' as default silico sub-command when none is given
+- 2020-08-10: Corrected numbering of neg frequencies in text results
+- 2020-08-07: Updated QR guide to reflect changes to command names (cresult -> silico result etc)
+- 2020-08-07: Fixed big TDA calculations using wrong option to limit size of ES diagram
+- 2020-08-07: Altered warning when displaying abs spectra with small num ES
+- 2020-08-07: Adjusted report titles to show appropriate multiplicity info
+- 2020-08-07: Refactored program names. There is now only one command: 'silico', with various functionality exposed as arguments to it (eg, silico submit, silico result etc)
+- 2020-08-07: Merge pull request #27 from oliver-s-lee/devel
+- 2020-08-06: Added a warning to reports when simulating absorption spectra with small numbers of ES
+- 2020-08-06: Implemented #4 by adding CIE xy coordinates to various outputs.
+- 2020-08-06: Prevented report section headers from taking up too much space and breaking page layouts
+- 2020-08-06: Reordered SLURM methods
+- 2020-08-04: Added pop-up warning messages when selecting configurables with warnings set. Configurables with a warning are displayed in red text in the calculation browser. Added the ability to 'hide' configurables, removing them from the calculation browser unless explicitly un-hidden. Added the debug partition (hidden & warning).
+- 2020-08-04: Updates to documentation.
+- 2020-08-03: Merge pull request #23 from oliver-s-lee/devel
+- 2020-07-31: Resolved #6 by adding initial documentation
+- 2020-07-31: Added configurable option 'choices' to help messages when editing with the calc browser
+- 2020-07-31: Adding (ongoing) work around for #21
+- 2020-07-30: Switched from using copy2 to copy to avoid copying metadata which resulted in bug on deployment server (src dir had some unusual permissions)
+- 2020-07-30: Added -v (version) switch to csubmit
+- 2020-07-30: Fixed a crash when extracting results in -b format using default section.
+- 2020-07-30: Changed scratch_options/all_output to False by default
+- 2020-07-30: Fixed a bug when editing calculations which caused the string 'None' to be written to input files
+- 2020-07-30: Added install script
+- 2020-07-29: Corrected implementation of Gaussian SCRF solvents
+- 2020-07-29: Fixed a bug so ECPs now work properly again
+- 2020-07-29: Added space between Method name and Method info
+- 2020-07-29: Inc version
+- 2020-07-29: Moved prepare_list() from Concrete_calculation to Calculation_target
+- 2020-07-29: Fixed some bizarre error messages introduced by 56f454a
+- 2020-07-29: Quit with message when the user does not pick any calculations, rather than looping for ever
+- 2020-07-29: 'Series' calculations no longer accept calculation options that are not relevant to them (memory etc)
+- 2020-07-28: Merge pull request #20 from oliver-s-lee/devel
+- 2020-07-28: Implemented #5, allowing interactive modification of calculations prior to submission
+- 2020-07-23: Improved the implementation of the calculation browser
+- 2020-07-23: Configurables are now only loaded when submitting calculations, improving the load times of the other programs
+- 2020-07-23: Increment version
+- 2020-07-23: Removed unused import
+- 2020-07-23: Switched to explicitly using python3.6 rather than generic python3
+- 2020-07-23: Added new convenience function to determine if a variable can be cast to an int
+- 2020-07-23: Configurables now know which options they expect, along with allowed values, defaults and more
+- 2020-07-18: Increment version
+- 2020-07-18: Refactoring urwid calculation browser widget
+- 2020-07-18: Don't print stack-trace on ctrl-c (unless on debug)
+- 2020-07-18: Improved error message if an extended basis set cannot be found
+- 2020-07-18: Failing to delete the scratch dir now generates a warning rather than an exception
+- 2020-07-18: Update after renaming references
+- 2020-07-18: Renamed references package to reference
+- 2020-07-18: Tweaks to config files; addition of LANL2DZ basis set
+- 2020-07-16: Setting dev flag
+- 2020-07-16: Merge pull request #17 from oliver-s-lee/bugfix
+- 2020-07-16: Deprecating use of changelog
+- 2020-07-16: Fixed #16
+- 2020-07-16: Setting dev flag
+- 2020-07-15: Setting dev flag
+- 2020-07-15: Update master to v0.12.2 Merge branch 'devel' of https://github.com/oliver-s-lee/silico
+- 2020-07-15: Include dev flag in packaged file name
+- 2020-07-15: Increment version
+- 2020-07-15: Fixed a bug when submitting to the same calculation twice Improved setting of error file flags
+- 2020-07-15: Moved setting of error flags
+- 2020-07-15: Added run-time obabel data path
+- 2020-07-15: Fix for broken Submission_error exceptions
+- 2020-07-15: Added missing obabel data folder to frozen versions and refactoring improvements
+- 2020-07-14: Increment version
+- 2020-07-14: Merge pull request #15 from oliver-s-lee/devel
+- 2020-07-14: Updates to dragon configs
+- 2020-07-14: Fixes for packing mechanism
+- 2020-07-14: Removing deprecated updates file' '
+- 2020-07-14: Fix for using __init__() instead of _post_init()
+- 2020-07-14: Better support for mini-report
+- 2020-07-14: Typo
+- 2020-07-14: Fix for not re-raising exceptions
+- 2020-07-14: Support for customising name of report
+- 2020-07-14: Add missing basis set import
+- 2020-07-14: Allow report atom table without header
+- 2020-07-14: Don't touch dev label when packing
+- 2020-07-14: Remove header, footer and front page from atom mini-report
+- 2020-07-14: Delete updates
+- 2020-07-09: Fixed crash in cresult caused by deepcopy failing on command-line args in Silico_options Added cresult long extractors for spectroscopy (UV-Vis and IR, no emission yet)
+- 2020-07-09: Increment version
+- 2020-07-09: Improvements to config system; prototype urwid interface
+- 2020-07-08: WIP improvements to Configurables, initial implementation of the SPLIT functionality
+- 2020-07-07: WIP general improvements to config files
+- 2020-07-05: Implemented file flags for conveying status during a calculation
+- 2020-07-04: Merge pull request #3 from oliver-s-lee/flags
+- 2020-07-04: Implemented file flags for conveying status during a calculation
+- 2020-07-04: Set dev flag
+- 2020-07-04: Merge pull request #2 from oliver-s-lee/devel
+- 2020-07-03: Fixed emission spectra using absorption spectra options and changed default settings for both
+- 2020-07-03: Condensed creport --adiabatic_excited and --vertical_excited into a single --emission option
+- 2020-07-03: Various updates to simulated spectroscopy spectra, including corrected Gaussian's and use of Jacobian transforms for absorption/emission spectra.
+- 2020-07-02: Corrected TDM name in text results
+- 2020-07-02: Setting development flag
+- 2020-07-02: Merge branch 'master' of https://github.com/oliver-s-lee/silico into devel
+- 2020-07-02: Added computational package description to metadata
+- 2020-07-02: WIP updating spectroscopy graphing
+- 2020-06-30: Added reverse gaussian
+- 2020-06-30: Removed development flag from master branch
+- 2020-06-30: Update README.md
+- 2020-06-30: Update README.md
+- 2020-06-30: Update README.md
+- 2020-06-30: Writing README
+- 2020-06-30: Switched to more verbose sbatch flags
+- 2020-06-30: Fixed configs with multiple parents that set the same option
+- 2020-06-30: Increased default memory for Gaussian freq to 16GB
+- 2020-06-29: Fix for accidentally catching SIGTERM in subprocess workers
+- 2020-06-29: Correcting sbatch flags
+- 2020-06-29: Increment version
+- 2020-06-29: Correcting sbatch flags
+- 2020-06-28: Prep for next version
+- 2020-06-28: Fix for reading .cdx files with obabel when frozen
+- 2020-06-28: Fix for reading .cdx files with obabel when frozen
+- 2020-06-28: Fix for reading .cdx files with obabel when frozen
+- 2020-06-28: Fix for reading .cdx files with obabel when frozen
+- 2020-06-28: Fixed for compiling on CentOS 6.10
+- 2020-06-28: Suppresed weasyprint missing library warning when freezing
+- 2020-06-28: Added required binary libz.so.1 for CentOS 6.10
+- 2020-06-28: Fix for pyinstaller https://github.com/pypa/setuptools/issues/1963
+- 2020-06-28: Fixing pack_current
+- 2020-06-28: New PyInstaller spec files
+- 2020-06-28: New PyInstaller spec files
+- 2020-06-28: Restructuring
+- 2020-06-28: Restructuring
+- 2020-06-28: Restructuring
+- 2020-06-28: Restructuring
+- 2020-06-28: Deleting folders
+- 2020-06-28: Deleting folders
+- 2020-06-28: Deleting folders
+- 2020-06-28: Delete __init__.pyc
+- 2020-06-28: Delete org.eclipse.core.resources.prefs
+- 2020-06-28: Delete slurm.log
+- 2020-06-28: Delete package
+- 2020-06-28: Delete .project
+- 2020-06-28: Delete .pydevproject
+- 2020-06-28: Merge branch 'master' of https://github.com/oliver-s-lee/silico
+- 2020-06-28: First commit
+- 2020-06-27: Initial commit

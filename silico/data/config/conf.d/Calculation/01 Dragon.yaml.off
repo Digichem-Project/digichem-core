@@ -4,10 +4,10 @@
 ---
 TYPE: calculation
 # Calculations without a name are  hidden and won't appear as an option, but they can still be used as templates for other, concrete calculations.
-ALIAS: [Gaussian-defaults]
+ALIAS: [calc-defaults]
     
 # Number of CPUs to use.
-num_CPUs: 10
+num_CPUs: 8
 
 # The amount of 'dynamic memory' to use for the calculation (https://gaussian.com/link0/).
 # Note that the amount of memory actually used by Gaussian can far exceed the value set here (at least in G09, not sure why).

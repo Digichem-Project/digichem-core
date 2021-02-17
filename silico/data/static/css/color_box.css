@@ -3,9 +3,9 @@
 }
 
 .colorBox {
-	height: 15px;
-	width: 50px;
-	border: 1px solid black;
-	display: inline-block;
-	vertical-align: middle;
+    height: 15px;
+    width: 50px;
+    border: 1px solid black;
+    display: inline-block;
+    vertical-align: middle;
 }

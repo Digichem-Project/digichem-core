@@ -1,4 +1,1 @@
-# Blank init file.
-import os
-from pathlib import Path
-from .base import Report
+from .main import from_files

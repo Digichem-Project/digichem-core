@@ -1,0 +1,140 @@
+---
+# TD-DFT excited states.
+TYPE: calculation
+
+PARENT: [Turbomole-DFT-defaults]
+GROUP: ["Excited States", "TD-DFT", "10 Singlets"]
+
+# Specify excited states.
+dft_exci:
+    multiplicity: 1
+    nexc: 10
+    TDA: False
+
+# This is a singlepoint.
+modules:
+    - dscf
+    - escf
+    
+---
+# TD-DFT excited states.
+TYPE: calculation
+
+PARENT: [Turbomole-DFT-defaults]
+GROUP: ["Excited States", "TD-DFT", "10 Triplets"]
+
+# Specify excited states.
+dft_exci:
+    multiplicity: 3
+    nexc: 10
+    TDA: False
+    
+# This is a singlepoint.
+modules:
+    - dscf
+    - escf
+    
+---
+# TD-DFT excited states.
+TYPE: calculation
+
+PARENT: [Turbomole-DFT-defaults]
+GROUP: ["Excited States", "TD-DFT", "100 Singlets"]
+
+# Specify excited states.
+dft_exci:
+    multiplicity: 1
+    nexc: 100
+    TDA: False
+    
+# This is a singlepoint.
+modules:
+    - dscf
+    - escf
+
+---
+# TD-DFT excited states.
+TYPE: calculation
+
+PARENT: [Turbomole-DFT-defaults]
+GROUP: ["Excited States", "TD-DFT", "Optimised S(1)"]
+
+# Specify excited states.
+dft_exci:
+    multiplicity: 1
+    nexc: 10
+    TDA: False
+    
+optimisation_state: 1
+
+# This is a singlepoint.
+modules:
+    - jobex -level scf -c 100 -keep -ex
+
+    
+---
+# TD-DFT excited states.
+TYPE: calculation
+
+PARENT: [Turbomole-DFT-defaults]
+GROUP: ["Excited States", "TD-DFT", "Optimised T(1)"]
+
+# Specify excited states.
+dft_exci:
+    multiplicity: 3
+    nexc: 10
+    TDA: False
+    
+optimisation_state: 1
+
+# This is a singlepoint.
+modules:
+    - jobex -level scf -c 100 -keep -ex 
+
+---
+# CC2 excited states.
+TYPE: calculation
+
+PARENT: [Turbomole-CC2-defaults]
+GROUP: ["Excited States", "CC2-SCS", "S(1) & S(2)"]
+
+# Turn on CC2.
+ricc2:
+    model: cc2
+    scs: scs
+    
+# Specify excited states.
+ricc2_exci:
+    multiplicity: 1
+    nexc: 2
+    oscillator_strengths: diplen
+    
+# This is a single point.
+modules:
+    - dscf
+    - ricc2
+    
+---
+# CC2 excited states.
+TYPE: calculation
+
+PARENT: [Turbomole-CC2-defaults]
+GROUP: ["Excited States", "CC2-SCS", "T(1) & T(2)"]
+
+# Turn on CC2.
+ricc2:
+    model: cc2
+    scs: scs
+    
+# Specify excited states.
+ricc2_exci:
+    multiplicity: 3
+    nexc: 2
+    # Can't calculate oscillator strengths for triplets.
+    oscillator_strengths: null
+    
+# This is a single point.
+modules:
+    - dscf
+    - ricc2
+    

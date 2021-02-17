@@ -1,74 +1,76 @@
 .section--references {
-	/*page-break-before: always;*/
+    /*page-break-before: always;*/
 }
 
 .section__body--references {
-	justify-content: flex-start;
+    justify-content: flex-start;
+    line-height: 1.2;
 }
 
 /* A citation appears in the text, while a reference appears in the bibliography. */
 
 .citation {
-	display: inline;
+    display: inline;
 }
 
 .citation__name {
-	display: inline;
+    display: inline;
 }
 
 .citation__number {
-	display: inline;
-	vertical-align: super;
+    display: inline;
+    vertical-align: super;
     font-size: smaller;
 }
 
 /* A reference appears in the bibliography, while a citation appears in the text. */
 .reference__title {
-	font-size: 13px;
-	font-weight: bold;
-	margin-bottom: 1px;
-	display: inline;
+    font-size: 13px;
+    font-weight: bold;
+    margin-bottom: 1px;
+    display: inline;
 }
 
 .reference__body {
-	display: inline;
+    display: inline;
 }
 
 .reference__link {
-	color: black;
-	text-decoration: none;
+    color: black;
+    text-decoration: none;
 }
 
 .reference__link:hover {
-	color: #2B649D;
+    color: #2B649D;
 }
 
 .reference {
-	margin-bottom: 7px;
-	width: 100%;
+    margin-bottom: 7px;
+    width: 100%;
+    text-align: justify;
 }
 
 .reference__authors {
-	display: inline;
+    display: inline;
 }
 
 .reference__journal {
-	display: inline;
-	font-style: italic;
+    display: inline;
+    font-style: italic;
 }
 
 .reference__year {
-	display: inline;
-	
+    display: inline;
+    
 }
 
 .reference__volume {
-	display: inline;
-	font-weight: bold;
-	
+    display: inline;
+    font-weight: bold;
+    
 }
 
 .reference__pages {
-	display: inline;
-	
+    display: inline;
+    
 }

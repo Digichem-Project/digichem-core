@@ -1,17 +1,17 @@
 ## -*- coding: utf-8 -*-
 ##
 <%!
-	from silico.exception import Result_unavailable_error
-	from silico.result.excited_states import Energy_state
-	from silico import misc
+    from silico.exception import Result_unavailable_error
+    from silico.result.excited_states import Energy_state
+    from silico import misc
 %>\
 ##
 <%page args="metadata, result_name = ''"/>\
 ##
 <%
-	# Note sure if this is even possible (I suspect we would have crashed well before; metadata is pretty vital), but no harm in checking.
-	if metadata is None:
-		raise Result_unavailable_error("metadata", "there is no metadata")
+    # Note sure if this is even possible (I suspect we would have crashed well before; metadata is pretty vital), but no harm in checking.
+    if metadata is None:
+        raise Result_unavailable_error("metadata", "there is no metadata")
 %>\
 ##
 ## We ignore 'result_name' because we always display it anyway.

@@ -1,14 +1,14 @@
 ## -*- coding: utf-8 -*-
 ##
 <%
-	from silico.exception import Result_unavailable_error
+    from silico.exception import Result_unavailable_error
 %>\
 ##
 <%page args="vibrations, result_name"/>\
 ##
 <%
-	if len(vibrations) == 0:
-		raise Result_unavailable_error("vibrations", "there are no vibrational frequencies")
+    if len(vibrations) == 0:
+        raise Result_unavailable_error("vibrations", "there are no vibrational frequencies")
 %>\
 ##
 <%include file="title.mako" args="title='Vibrational Frequencies', result_name=result_name"/>

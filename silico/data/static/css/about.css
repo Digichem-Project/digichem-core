@@ -1,29 +1,34 @@
 .section--about {
-	page-break-before: always;
+    page-break-before: always;
+}
+
+.section__body--about {
+    line-height: 1.2;
 }
 
 .acknowledgements {
-	margin-left: 100px;
-	margin-right: 100px;
-	font-size: 14px;
-	margin-top: 30px;
-	margin-bottom: 40px;
+    margin-left: 100px;
+    margin-right: 100px;
+    font-size: 14px;
+    margin-top: 20px;
+    margin-bottom: 40px;
 }
 
 .acknowledgements__title {
-	padding-bottom: 3px;
+    padding-bottom: 3px;
     border-bottom: 2px solid #2B649D;
     margin-bottom: 2px;
     /*font-size: 16px;*/
     font-weight: bold;
+    text-align: justify;
 }
 
 .acknowledgement__title {
-	/*font-weight: bold;*/
-	display: inline;
+    /*font-weight: bold;*/
+    display: inline;
 }
 
 .acknowledgement__body {
-	font-weight: bold;
-	display: inline;
+    font-weight: bold;
+    display: inline;
 }

@@ -1,0 +1,17 @@
+---
+TYPE: calculation
+
+GROUP: [Auto Characterisation, MR-TADF Emitter]
+GROUP_NAME: Opt → S(1) & S(2) → T(1) & T(2) (CC2-SCS/cc-pVDZ)
+
+CLASS: Series
+
+programs: [Turbomole]
+
+calculations:
+    - Opt CC2-SCS cc-pVDZ
+    - Excited States CC2-SCS S(1) & S(2) cc-pVDZ
+    - Excited States CC2-SCS T(1) & T(2) cc-pVDZ
+
+
+##############################################################

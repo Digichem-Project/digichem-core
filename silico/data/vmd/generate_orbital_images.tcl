@@ -1,7 +1,7 @@
 # This script expects 8 arguments, which are:
-# cube_file	A .cube file to load molecular data from.
+# cube_file    A .cube file to load molecular data from.
 set cube_file [lindex $argv 0]
-# tcl_common	Path to our common library to source.
+# tcl_common    Path to our common library to source.
 set tcl_common [lindex $argv 1]
 # A string describing the rendering style to use; 'silico' or 'gaussian'.
 set rendering_style [lindex $argv 2]
@@ -9,15 +9,15 @@ set rendering_style [lindex $argv 2]
 set isovalue [lindex $argv 3]
 # A string of x,y,z translations to perform.
 set translations [lindex $argv 4]
-# rotations		A string list of rotations to perform.
+# rotations        A string list of rotations to perform.
 set rotations [lindex $argv 5]
-# x0y0z0		A file name to write one of the output images to (in png format).
+# x0y0z0        A file name to write one of the output images to (in png format).
 set x0y0z0 [lindex $argv 6]
-# x90y0z0		A file name to write one of the output images to (in png format).
+# x90y0z0        A file name to write one of the output images to (in png format).
 set x90y0z0 [lindex $argv 7]
-# x0y90z0		A file name to write one of the output images to (in png format).
+# x0y90z0        A file name to write one of the output images to (in png format).
 set x0y90z0 [lindex $argv 8]
-# x45y45z45		A file name to write one of the output images to (in png format).
+# x45y45z45        A file name to write one of the output images to (in png format).
 set x45y45z45 [lindex $argv 9]
 
 # Load our common library.

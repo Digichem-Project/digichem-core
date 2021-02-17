@@ -1,27 +1,3 @@
-# ---
-# TYPE: method
-# 
-# # Config for a local submission
-# NAME: Local
-# ALIAS: [local]
-# 
-# CLASS: local
-# 
-# # Whether to daemonise (run in the background) or not.
-# daemon: False
-# 
-# ---
-# TYPE: method
-# 
-# # Config for a local submission
-# NAME: Local (No Wait)
-# ALIAS: [local_nw]
-# 
-# CLASS: local
-# 
-# # Whether to daemonise (run in the background) or not.
-# daemon: True
-
 ---
 TYPE: method
 
@@ -80,3 +56,23 @@ CLASS: SLURM
 HIDDEN: True
 partition: parallel
 warning: You have selected the high-performance parallel partition. This partition MUST NOT be used for Gaussian DFT; please make sure you know what you are doing.
+
+---
+TYPE: method
+
+# Config for a local submission
+NAME: Local (series)
+ALIAS: [series]
+HIDDEN: True
+
+CLASS: series
+
+---
+TYPE: method
+
+# Config for a local submission
+NAME: Local (parallel)
+ALIAS: [parallel]
+HIDDEN: True
+
+CLASS: parallel

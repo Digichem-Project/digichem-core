@@ -1,0 +1,29 @@
+---
+# DFT SP.
+TYPE: calculation
+
+PARENT: [Turbomole-DFT-defaults]
+GROUP: ["Single Point"]
+
+
+# This is a single point.
+modules:
+    - dscf
+
+
+---
+# CC2 SP.
+TYPE: calculation
+
+PARENT: [Turbomole-CC2-defaults]
+GROUP: ["Single Point", "CC2-SCS"]
+
+# Turn on CC2.
+ricc2:
+    model: cc2
+    scs: scs
+
+# This is a single point.
+modules:
+    - dscf
+    - ricc2

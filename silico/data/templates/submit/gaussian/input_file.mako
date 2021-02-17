@@ -2,10 +2,19 @@
 ##
 <%page args="calculation" />\
 ##
-## First, the chk file (if we're using one).
-%if calculation.chk_file_name is not None:
+<%!
+    from silico.file.convert.gaussian import Gaussian_input_parser
+%>\
+##
+<%
+    # Get our input geometry in .com format.
+    input_coords = Gaussian_input_parser(calculation.input_coords.to_format("com"))
+%>\
+## First, the chk file.
 %%Chk="${calculation.chk_file_name}"
-%endif
+##
+## Next, the rwf file.
+%%Rwf="${calculation.rwf_file_name}"
 ##
 ## Next, the number of processes.
 ## There are two ways this can be specified; either with CPU_list or num_CPUs.
@@ -30,7 +39,7 @@ ${calculation.safe_name(calculation.descriptive_name)}
 ## Charge and mult.
 ${calculation.charge}, ${calculation.multiplicity}
 ## Geometry
-${calculation.input_file.geometry}
+${input_coords.geometry}
 
 ## Extended Basis.
 %for extended_basis_set in calculation.external_basis_sets:

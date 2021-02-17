@@ -1,275 +1,251 @@
+# General imports
 import math
 import periodictable
+from itertools import zip_longest
+
+# Silico imports
 from silico.result import Result_container
 from silico.result import Result_object
-from itertools import zip_longest
-from silico.file.cube import Cube_maker
-from pathlib import Path
-from silico.image.vmd import Structure_image_maker
 from silico.exception.base import Result_unavailable_error
 
 class Atom_list(Result_container):
-	"""
-	Class for representing a group of atoms.
-	"""
-	
-	def __init__(self, *args, charge = None, **kwargs):
-		super().__init__(*args, **kwargs)
-		self.charge = charge if charge is not None else 0
-		
-	@property
-	def mass(self):
-		"""
-		The total mass of all the atoms in this set.
-		
-		:return: The mass (in Daltons).
-		"""
-		try:
-			return sum([atom.mass for atom in self])
-		except TypeError:
-			# Exact mass not available.
-			raise Result_unavailable_error("Exact mass")
-		# Sometimes we're not given explicit masses, in which case use the element mass instead.
-		#try:
-		#	return sum([atom.mass for atom in self])
-		#except TypeError:
-		#	return sum([atom.element.mass for atom in self])
-		
-	@property
-	def molar_mass(self):
-		"""
-		The molar mass of the molecule (takes into account different isotopes and relative isotope abundances, unlike the mass attribute).
-		
-		:return: The mass (in Daltons).
-		"""
-		return self.formula.mass
-		
-	@property
-	def element_dict(self):
-		"""
-		Get a dictionary where each key is one of the elements in the atom list (C, H, N etc) and the value is the number of that element that appears in the atom list.
-		
-		:return: The element dictionary.
-		"""
-		atoms = {}
-		for atom in self:
-			# Try and increment the count of the atom.
-			try:
-				atoms[atom.element.symbol] += 1
-			except KeyError:
-				# Add the new atom.
-				atoms[atom.element.symbol] = 1
-		return atoms;
-	
-	@property
-	def formula(self):
-		"""
-		Get a formula representation of this atom list.
-		
-		:return: The formula as a periodictable.formula object (which can be safely cast to string).
-		"""
-		# A dictionary where each key is a type of atom (N, C, H etc) and the value is the number of that atom.
-		atoms = self.element_dict
-		# Build a string rep.
-		form_string = ""
-		for atom in atoms:
-			form_string += "{}{}".format(atom, atoms[atom])
-		# Add our charge.
-		#if self.charge
-		#form_string += "{{{0}}}".format(self.charge)
-		# Get and return the formula object.
-		return periodictable.formula(form_string)
-		#return periodictable.formula([atoms[key] for key in atoms])
-		
-	@property
-	def formula_string(self):
-		"""
-		Get a formula representation of this atom list as a string, including optional charge.
-		"""
-		# Get the base formula
-		formula_string = str(self.formula)
-		
-		# Add charge, if we have one.
-		if self.charge == 1:
-			formula_string += " +"
-		elif self.charge == -1:
-			formula_string += " ->"
-		elif self.charge != 0:
-			formula_string += " {:+}".format(self.charge)
-			
-		return formula_string
-		
-	
-		
-	@property
-	def X_length(self):
-		return self.get_axis_length(0)
-	
-	@property
-	def Y_length(self):
-		return self.get_axis_length(1)
-	
-	@property
-	def Z_length(self):
-		return self.get_axis_length(2)
-	
-	def get_axis_length(self, axis):
-		"""
-		Calculate the length of an axis, defined as the distance required in that axis to contain all the atoms of the set.
-		
-		:param axis: The axis to calculate for as an integer (0: X-axis, 1: Y-axis, 2: Z-axis).
-		:return The length (in angstroms).
-		"""
-		if not 0 <= axis <= 2:
-			# Axis is invalid.
-			raise ValueError("Axis '{}' is out of bounds. Possible  values are 0 (X), 1 (Y) or 2 (Z)")
-		
-		# First sort our list of atoms in terms of x, y or z coord.
-		sorted_atoms = sorted(self, key = lambda atom: atom.coords[axis])
-				
-		# Now the axis length is simply the difference between the greatest and the smallest.
-		return sorted_atoms[-1].coords[axis] - sorted_atoms[0].coords[axis]
-	
-	def get_linear_ratio(self):
-		"""
-		Get the linear ratio of the molecule.
-		
-		The linear ratio is defined as 1 - (Y_length / X_length).
-		
-		:return: The ratio, from 0 (non-linear) to 1 (linear).
-		"""
-		return 1- (self.Y_length / self.X_length)
-	
-	def get_planar_ratio(self):
-		"""
-		Get the planar ratio of the molecule.
-		
-		The planar ratio is defined as 1 - (Z_length / Y_length).
-		
-		:return: The ratio, from 0 (non-planar) to 1 (planar).
-		"""
-		
-		return 1- (self.Z_length / self.Y_length)
-	
-	def get_X_axis_angle(self, start_coord, end_coord):
-		"""
-		Get the angle between a line and the X axis.
-		
-		:param start_coord: A (X, Y, Z) tuple of coordinates of the start of the line.
-		:param end_coord: A (X, Y, Z) tuple of coordinates of the end of the line.
-		:return: The angle (in radians). 
-		"""
-		return self.get_theta(math.sqrt( (end_coord[2] - start_coord[2])**2 + (end_coord[1] - start_coord[1])**2 ), end_coord[0] - start_coord[0])
-	
-	def get_XY_plane_angle(self, start_coord, end_coord):
-		"""
-		Get the angle between a line and the XY plane.
-		
-		:param start_coord: A (X, Y, Z) tuple of coordinates of the start of the line.
-		:param end_coord: A (X, Y, Z) tuple of coordinates of the end of the line.
-		:return: The angle (in radians). 
-		"""
-		# The 'secondary' axis is the opposite side of our triangle.
-		secondary_axis = end_coord[2] - start_coord[2]
-		# The 'primary' axis is the adjacent side of our triangle, which we can get with pythagoras.
-		primary_axis = math.sqrt( (end_coord[0] - start_coord[0])**2 + (end_coord[1] - start_coord[1])**2 )
-		return self.get_theta(secondary_axis, primary_axis)
-	
-	def set_file_options(self, output_dir, output_name, *, cube_file = None, **kwargs):
-		"""
-		Set the options that will be used to create images from this object.
-		
-		:param output_dir: A pathlib Path object to the directory within which our files should be created.
-		:param output_name: A string that will be used as the start of the file name of the files we create.
-		"""
-		# Get ourselves a cube file maker if we need one.
-		if cube_file is None:
-			# We'll just use the HOMO to get our cube, as it almost certainly should exist.
-			cube_file = Cube_maker.from_image_options(
-				Path(output_dir, "Structure", output_name + ".structure.cube"),
-				cubegen_type = "MO",
-				orbital = "HOMO",
-				**kwargs)
-			
-		# Save our cube.
-		self._files['structure_cube'] = cube_file
-			
-		# Get our image.
-		self._files['structure_image'] = Structure_image_maker.from_image_options(
-			Path(output_dir, "Structure", output_name + ".structure.jpg"),
-			cube_file = cube_file,
-			**kwargs)
-		
-	def cleanup_intermediate_files(self):
-		"""
-		Remove intermediate files (.cube files) that may have been made by this object.
-		"""
-		super().cleanup_intermediate_files('structure_cube')
-		
-	@property
-	def structure_image(self):
-		return self.get_file('structure_image')
-	
-	@classmethod
-	def from_cclib(self, ccdata, **kwargs):
-		"""
-		Get an Atom_list object from the data provided by cclib.
-		
-		:param ccdata: Result object as provided by cclib.
-		:return: An Atom_list object. The list will be empty if no atom data is available.
-		"""
-		return self(Atom.list_from_cclib(ccdata), **kwargs)
-		
-		
+    """
+    Class for representing a group of atoms.
+    """
+    
+    def __init__(self, *args, charge = None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.charge = charge if charge is not None else 0
+        
+    @property
+    def mass(self):
+        """
+        The total mass of all the atoms in this set.
+        
+        :return: The mass (in Daltons).
+        """
+        try:
+            return sum([atom.mass for atom in self])
+        except TypeError:
+            # Exact mass not available.
+            raise Result_unavailable_error("Exact mass")
+        # Sometimes we're not given explicit masses, in which case use the element mass instead.
+        #try:
+        #    return sum([atom.mass for atom in self])
+        #except TypeError:
+        #    return sum([atom.element.mass for atom in self])
+        
+    @property
+    def molar_mass(self):
+        """
+        The molar mass of the molecule (takes into account different isotopes and relative isotope abundances, unlike the mass attribute).
+        
+        :return: The mass (in Daltons).
+        """
+        return self.formula.mass
+        
+    @property
+    def element_dict(self):
+        """
+        Get a dictionary where each key is one of the elements in the atom list (C, H, N etc) and the value is the number of that element that appears in the atom list.
+        
+        :return: The element dictionary.
+        """
+        atoms = {}
+        for atom in self:
+            # Try and increment the count of the atom.
+            try:
+                atoms[atom.element.symbol] += 1
+            except KeyError:
+                # Add the new atom.
+                atoms[atom.element.symbol] = 1
+        return atoms;
+    
+    @property
+    def formula(self):
+        """
+        Get a formula representation of this atom list.
+        
+        :return: The formula as a periodictable.formula object (which can be safely cast to string).
+        """
+        # A dictionary where each key is a type of atom (N, C, H etc) and the value is the number of that atom.
+        atoms = self.element_dict
+        # Build a string rep.
+        form_string = ""
+        for atom in atoms:
+            form_string += "{}{}".format(atom, atoms[atom])
+        # Add our charge.
+        #if self.charge
+        #form_string += "{{{0}}}".format(self.charge)
+        # Get and return the formula object.
+        return periodictable.formula(form_string)
+        #return periodictable.formula([atoms[key] for key in atoms])
+        
+    @property
+    def formula_string(self):
+        """
+        Get a formula representation of this atom list as a string, including optional charge.
+        """
+        # Get the base formula
+        formula_string = str(self.formula)
+        
+        # Add charge, if we have one.
+        if self.charge == 1:
+            formula_string += " +"
+        elif self.charge == -1:
+            formula_string += " -"
+        elif self.charge != 0:
+            formula_string += " {}{}".format(abs(self.charge), "-" if self.charge < 0 else "+")
+            
+        return formula_string
+        
+    
+        
+    @property
+    def X_length(self):
+        return self.get_axis_length(0)
+    
+    @property
+    def Y_length(self):
+        return self.get_axis_length(1)
+    
+    @property
+    def Z_length(self):
+        return self.get_axis_length(2)
+    
+    def get_axis_length(self, axis):
+        """
+        Calculate the length of an axis, defined as the distance required in that axis to contain all the atoms of the set.
+        
+        :param axis: The axis to calculate for as an integer (0: X-axis, 1: Y-axis, 2: Z-axis).
+        :return The length (in angstroms).
+        """
+        if not 0 <= axis <= 2:
+            # Axis is invalid.
+            raise ValueError("Axis '{}' is out of bounds. Possible  values are 0 (X), 1 (Y) or 2 (Z)")
+        
+        # First sort our list of atoms in terms of x, y or z coord.
+        sorted_atoms = sorted(self, key = lambda atom: atom.coords[axis])
+                
+        # Now the axis length is simply the difference between the greatest and the smallest.
+        return sorted_atoms[-1].coords[axis] - sorted_atoms[0].coords[axis]
+    
+    def get_linear_ratio(self):
+        """
+        Get the linear ratio of the molecule.
+        
+        The linear ratio is defined as 1 - (Y_length / X_length).
+        
+        :return: The ratio, from 0 (non-linear) to 1 (linear).
+        """
+        return 1- (self.Y_length / self.X_length)
+    
+    def get_planar_ratio(self):
+        """
+        Get the planar ratio of the molecule.
+        
+        The planar ratio is defined as 1 - (Z_length / Y_length).
+        
+        :return: The ratio, from 0 (non-planar) to 1 (planar).
+        """
+        
+        return 1- (self.Z_length / self.Y_length)
+    
+    def get_X_axis_angle(self, start_coord, end_coord):
+        """
+        Get the angle between a line and the X axis.
+        
+        :param start_coord: A (X, Y, Z) tuple of coordinates of the start of the line.
+        :param end_coord: A (X, Y, Z) tuple of coordinates of the end of the line.
+        :return: The angle (in radians). 
+        """
+        return self.get_theta(math.sqrt( (end_coord[2] - start_coord[2])**2 + (end_coord[1] - start_coord[1])**2 ), end_coord[0] - start_coord[0])
+    
+    def get_XY_plane_angle(self, start_coord, end_coord):
+        """
+        Get the angle between a line and the XY plane.
+        
+        :param start_coord: A (X, Y, Z) tuple of coordinates of the start of the line.
+        :param end_coord: A (X, Y, Z) tuple of coordinates of the end of the line.
+        :return: The angle (in radians). 
+        """
+        # The 'secondary' axis is the opposite side of our triangle.
+        secondary_axis = end_coord[2] - start_coord[2]
+        # The 'primary' axis is the adjacent side of our triangle, which we can get with pythagoras.
+        primary_axis = math.sqrt( (end_coord[0] - start_coord[0])**2 + (end_coord[1] - start_coord[1])**2 )
+        return self.get_theta(secondary_axis, primary_axis)
+    
+    @classmethod
+    def from_parser(self, parser):
+        """
+        Get an Atom_list object from an output file parser.
+        
+        :param parser: An output file parser.
+        :param charge: Charge of the system.
+        :return: A list of TDM objects.
+        """
+        return self(Atom.list_from_parser(parser), charge = parser.results.metadata.system_charge)
+        
+        
 
 class Atom(Result_object):
-	"""
-	Class that represents an atom.
-	"""
-	
-	def __init__(self, atomic_number, coords, mass = None):
-		"""
-		Construct an Atom class.
-		
-		:param atomic_number: The atomic/proton number of the atom. Conventional wisdom suggests this has to be an integer, but we make no check here.
-		:param mass: The mass of the atom (in Daltons). This isn't always available for some reason (eg, Gaussian Freq calculations), but when it is it identifies the isotope of the given atom.
-		:param coords: The coords of the atom, as an (x, y, z) tuple.		
-		"""
-		# Just save each of our attributes.
-		self.mass = mass
-		self.coords = coords
-		# Get our element class.
-		self.element = periodictable.elements[atomic_number]
-	
-	@classmethod
-	def list_from_cclib(self, ccdata):
-		"""
-		Get a list of Atom objects from the data provided by cclib.
-		
-		:param ccdata: Result object as provided by cclib.
-		:result: A list of Atom objects. An empty list is returned if no atom data is available.
-		"""
-		# First pack our data together to make is easier to loop through.
-		try:
-			# Sometimes atommasses is not available for some reason, even when other atom data is.
-			zip_data = zip(ccdata.atomnos, ccdata.atomcoords[-1], ccdata.atommasses)
-		except AttributeError:
-			#zip_data = list(zip_longest(*zip(ccdata.atomnos, ccdata.atomcoords[-1]), [None], fillvalue = None))
-			zip_data = list(zip_longest(ccdata.atomnos, ccdata.atomcoords[-1], [], fillvalue = None))
-		
-		# Loop through and rebuild our objects.
-		# Coords is provided as a list, we repack it as a tuple (necessary?).
-		try:
-			return [self(atomic_number, tuple(coords), mass) for atomic_number, coords, mass in zip_data]
-		except AttributeError:
-			return []
-			
-	def distance(self, foreign_atom):
-		"""
-		Get the distance between this atom and another atom.
-		
-		:return: The distance. The units depend on the units of the atoms' coordinates. If the two atoms have coordinates of different units, then you will obviously get bizarre results.
-		"""
-		
-		return math.sqrt( (self.coords[0] - foreign_atom.coords[0])**2 + (self.coords[1] - foreign_atom.coords[1])**2 + (self.coords[2] - foreign_atom.coords[2])**2)
-		
+    """
+    Class that represents an atom.
+    """
+    
+    def __init__(self, atomic_number, coords, mass = None):
+        """
+        Construct an Atom class.
+        
+        :param atomic_number: The atomic/proton number of the atom. Conventional wisdom suggests this has to be an integer, but we make no check here.
+        :param mass: The mass of the atom (in Daltons). This isn't always available for some reason (eg, Gaussian Freq calculations), but when it is it identifies the isotope of the given atom.
+        :param coords: The coords of the atom, as an (x, y, z) tuple.        
+        """
+        # Just save each of our attributes.
+        self.mass = mass
+        self.coords = coords
+        # Get our element class.
+        self.element = periodictable.elements[atomic_number]
+    
+
+    @classmethod
+    def list_from_parser(self, parser):
+        """
+        Get a list of Atom objects from an output file parser.
+        
+        :param parser: An output file parser.
+        :result: A list of Atom objects. An empty list is returned if no atom data is available.
+        """
+        # First pack our data together to make is easier to loop through.
+        try:
+            atomnos = parser.data.atomnos
+            # Atom coords contains a list for each iteration, we only want the last.
+            atomcoords = parser.data.atomcoords[-1]
+            atommasses = getattr(parser.data, 'atommasses', [])
+            
+            # Atommasses sometimes is longer than atomcoords or atomnos.
+            # This might be a cclib bug, it is not clear.
+            if len(atommasses) > len(atomnos):
+                # Take the last values only.
+                atommasses = atommasses[-len(atomnos):]
+            
+        except AttributeError:
+            # No atom data available.
+            return []
+        
+        # Zip.
+        zip_data = zip_longest(atomnos, atomcoords, atommasses, fillvalue = None)
+        
+        # Loop through and rebuild our objects.
+        return [self(atomic_number, tuple(coords), mass) for atomic_number, coords, mass in zip_data]
+
+            
+    def distance(self, foreign_atom):
+        """
+        Get the distance between this atom and another atom.
+        
+        :return: The distance. The units depend on the units of the atoms' coordinates. If the two atoms have coordinates of different units, then you will obviously get bizarre results.
+        """
+        
+        return math.sqrt( (self.coords[0] - foreign_atom.coords[0])**2 + (self.coords[1] - foreign_atom.coords[1])**2 + (self.coords[2] - foreign_atom.coords[2])**2)
+        
