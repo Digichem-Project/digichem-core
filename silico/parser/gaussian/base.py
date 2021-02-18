@@ -4,7 +4,7 @@ from logging import getLogger
 from datetime import datetime, timedelta
 
 # Silico imports.
-from silico.parser.base import Parser
+from silico.parser.main import Parser
 import silico
 from silico.exception.base import Result_unavailable_error
 

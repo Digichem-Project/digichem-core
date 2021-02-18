@@ -1,7 +1,9 @@
+# General imports.
 import cclib.parser.gaussianparser
 import cclib.parser.turbomoleparser
 
-from silico.parser.base import Parser
+# Silico imports.
+from silico.parser.main import Parser
 from silico.parser.gaussian import Gaussian_parser
 from silico.parser.turbomole import Turbomole_parser
 

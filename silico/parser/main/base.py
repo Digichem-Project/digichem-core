@@ -1,12 +1,15 @@
+# General imports.
 from logging import getLogger
 from pathlib import Path
 import cclib.io
 from glob import iglob
 import itertools
 
+# Silico imports
 from silico.result.molecular_orbitals import Molecular_orbital_list,\
     Beta_orbital
-from silico.result.result import Metadata, Result_set
+from silico.result.metadata import Metadata
+from silico.result.result import Result_set
 from silico.result.atoms import Atom_list
 from silico.result.transition_dipole_moment import Transition_dipole_moment
 from silico.result.excited_states import Excited_state_list
@@ -16,7 +19,7 @@ from silico.result.spin_orbit_coupling import SOC_list
 from silico.result.dipole_moment import Dipole_moment
 from silico.result.vibrations import Vibration_list
 from silico.exception.base import Silico_exception
-import silico
+import silico    
 
 class Parsed_data():
     """
@@ -232,24 +235,4 @@ class Parser(Result_set):
         Convert a length in bohr to angstrom.
         """
         return bohr_distance * 0.529177210903
-    
-                
-class Sub_parser():
-    """
-    Top-level class for sub-parsers.
-    """
-    
-    def __init__(self, parser):
-        """
-        :param parser: The top-level parser.
-        """
-        self.parser = parser
-        
-        
-    def finalize(self):
-        """
-        Finalize this sub parser.
-        """
-        pass
-    
     

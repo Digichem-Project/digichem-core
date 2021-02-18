@@ -1,4 +1,4 @@
 # Classes for parsing calculation result data.
 #
 # Most of the heavy lifting is done by cclib, we just extract additional data not currently handed by cclib.
-from .main import get_parser
+from .base import get_parser

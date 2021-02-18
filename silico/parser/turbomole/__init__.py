@@ -1,2 +1,1 @@
-
-from .main import Turbomole_parser
+from .base import Turbomole_parser

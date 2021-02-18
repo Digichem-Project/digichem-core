@@ -1,7 +1,7 @@
 # General imports.
 
 # Silico imports.
-from silico.parser.base import Parser
+from silico.parser.main import Parser
 
 
 class Turbomole_parser(Parser):
