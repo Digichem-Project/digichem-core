@@ -1,8 +1,11 @@
+# General imports.
 from weasyprint import HTML
 from mako.lookup import TemplateLookup
-from silico.report.base.html import HTML_report
 import shutil
 import silico
+
+# Silico imports.
+from silico.report.main import HTML_report
 
 class PDF_report(HTML_report):
     """

@@ -2,7 +2,7 @@
 from pathlib import Path
 
 # Silico imports.
-from silico.report.base.pdf import PDF_report
+from silico.report.main import PDF_report
 from silico.file.fchk import Chk_to_fchk
 from silico.file.cube import Fchk_to_spin_cube, Fchk_to_cube,\
     Fchk_to_density_cube

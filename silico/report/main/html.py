@@ -1,10 +1,13 @@
-from silico.report.base import Report
+# General imports.
 from mako.lookup import TemplateLookup
 from pathlib import Path
 import pkg_resources
 import silico
 import shutil
 import subprocess
+
+# Silico imports.
+from silico.report.main import Report
 
 class HTML_report(Report):
     """

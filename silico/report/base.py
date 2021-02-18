@@ -2,7 +2,7 @@
 # Silico imports.
 from silico.report.turbomole import Turbomole_report
 from silico.report.gaussian import Gaussian_report
-from silico.report.base.pdf import PDF_report
+from silico.report.main.pdf import PDF_report
 from silico.result.result import Result_set
 from silico.exception import Silico_exception
 from silico.parser import get_parser

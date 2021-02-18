@@ -36,8 +36,6 @@ import silico.program.report
 import silico.program.resume
 import silico.program.status
 import silico.program.convert
-#import pydevd;pydevd.settrace()
-#import silico.program.spreadsheet
 
 # Make configurables available
 from silico.submit.method import *

@@ -1,1 +1,1 @@
-from .main import from_files
+from .base import from_files

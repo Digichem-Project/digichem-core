@@ -2,7 +2,7 @@
 from pathlib import Path
 
 # Silico imports.
-from silico.report.base.pdf import PDF_report
+from silico.report.main import PDF_report
 from silico.file.cube import Turbomole_to_cube, Turbomole_to_orbital_cube,\
     Turbomole_to_spin_cube, Turbomole_to_density_cube
 
