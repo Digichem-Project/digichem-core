@@ -5,7 +5,7 @@ from itertools import filterfalse, zip_longest, chain
 
 # Silico imports.
 from silico.result import Result_container
-from silico.result.base import Result_object
+from silico.result import Result_object
 from silico.exception import Result_unavailable_error
 
 class Molecular_orbital_list(Result_container):

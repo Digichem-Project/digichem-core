@@ -1,8 +1,10 @@
-from pysoc.io.soc_td import SOC
+# General imports.
+import math
+
+# Silico imports.
 from silico.result import Result_container
 from silico.exception import Result_unavailable_error
-from silico.result.base import Result_object
-import math
+from silico.result import Result_object
 
 
 class SOC_list(Result_container):

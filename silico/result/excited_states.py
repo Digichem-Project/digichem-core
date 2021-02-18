@@ -6,7 +6,7 @@ import math
 
 # Silico imports.
 from silico.result import Result_container
-from silico.result.base import Result_object
+from silico.result import Result_object
 from silico.exception.base import Result_unavailable_error
 
 class Excited_state_list(Result_container):

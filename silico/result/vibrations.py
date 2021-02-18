@@ -3,7 +3,7 @@ from itertools import zip_longest
 
 # Silico imports.
 from silico.result import Result_container
-from silico.result.base import Result_object
+from silico.result import Result_object
 
 class Vibration_list(Result_container):
     """
