@@ -6,12 +6,28 @@ from datetime import timedelta, datetime
 # Silico imports.
 from silico.exception import Result_unavailable_error
 from silico.result import Result_object
+import math
 
 class Metadata(Result_object):
     """
     Class for storing calculation metadata.
     """
-
+    
+    # A dictionary of known computational orders, where the key is name of the method (upercase) and the value is an integer describing the ordered 'level of theory'.
+    METHODS = {
+        "HF":       1,
+        "DFT":      2,
+        "LMP2":     3,
+        "DF-MP2":   4,
+        "MP2":      5,
+        "MP3":      6,
+        "MP4":      7,
+        "MP5":      8,
+        "CCSD":     9,
+        "CCSD(T)":  10,
+        "CCSD-T":   11
+    }
+    
     def __init__(
             self,
             name = None,
@@ -66,6 +82,28 @@ class Metadata(Result_object):
         self.calc_temperature = calc_temperature
         self.calc_pressure = calc_pressure
         self.orbital_spin_type = orbital_spin_type
+        
+    @property
+    def identity(self):
+        """
+        A dictionary of critical attributes that identify a calculation.
+        """
+        # Get our list of methods, replacing 'DFT' with the functional used if available.
+        methods = [method if method != "DFT" and self.calc_functional is not None else self.calc_functional for method in self.calc_methods]
+        return {
+            "package": self.package_string,
+            "methods": methods,
+            "basis": self.calc_basis_set,
+            "multiplicity": self.system_multiplicity,
+            "charge": self.system_charge
+        }
+    
+    @classmethod
+    def ordered_methods(self, methods):
+        """
+        Order a list of methods (HF, DFT, MP2 etc) in terms of 'level of theory', with the lowest level (HF or DFT probably) first and highest (MP4, CCSD etc) last.
+        """
+        return sorted((method.upper() for method in methods), key = lambda method: self.METHODS[method] if method in self.METHODS else math.inf)
     
     @property
     def package_string(self):
@@ -126,7 +164,8 @@ class Metadata(Result_object):
         :param ccdata: The data from cclib.
         :return: A list of strings of the methods used (each method appears once only; the order has no special significance). The list may be empty.
         """
-        return list(set(ccdata.metadata.get('methods', [])))
+        return self.ordered_methods((set(ccdata.metadata.get('methods', []))))
+        #return list(dict.fromkeys(ccdata.metadata.get('methods', [])))
     
     @classmethod
     def get_orbital_spin_type_from_cclib(self, ccdata):
