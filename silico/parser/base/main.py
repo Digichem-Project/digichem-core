@@ -126,7 +126,8 @@ class Parser(Result_set):
         """
         Short name to describe this calculation result.
         """
-        return self.log_file_path.with_suffix("").name
+        #return self.log_file_path.with_suffix("").name
+        return self.log_file_path
     
     @property
     def description(self):
