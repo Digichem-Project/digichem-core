@@ -2,7 +2,7 @@
 import math
 
 # Silico imports
-from silico.result.base import Result_object
+from silico.result import Result_object
 from silico.result.angle import Angle
 
 class Dipole_moment(Result_object):
