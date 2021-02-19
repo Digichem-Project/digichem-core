@@ -175,4 +175,6 @@ class Result_set(Result_object):
                 excited_state = emission_excited_state))
         elif emission_ground_result is not None:
             raise Silico_exception("Cannot calculate emission energy; no excited state given for ground state '{}'".format(emission_ground_result.metadata.name))
+        
+    
                 

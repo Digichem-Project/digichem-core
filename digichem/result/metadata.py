@@ -13,7 +13,7 @@ class Metadata(Result_object):
     Class for storing calculation metadata.
     """
     
-    # A dictionary of known computational orders, where the key is name of the method (upercase) and the value is an integer describing the ordered 'level of theory'.
+    # A dictionary of known computational orders, where the key is name of the method (upper case) and the value is an integer describing the ordered 'level of theory'.
     METHODS = {
         "HF":       1,
         "DFT":      2,
@@ -31,6 +31,7 @@ class Metadata(Result_object):
     def __init__(
             self,
             name = None,
+            sub_calculations = 0,
             date = None,
             duration = None,
             package = None,
@@ -50,6 +51,7 @@ class Metadata(Result_object):
         Constructor for result Metadata objects.
         
         :param name: Optional name of this calculation result.
+        :param sub_calculations: Optional number of sub calculations.
         :param date: Optional date (datetime object) of this calculation result.
         :param duration: Optional duration (timedelta object) of this calculation.
         :param package: Optional string identifying the computational chem program that performed the calculation.
@@ -82,6 +84,22 @@ class Metadata(Result_object):
         self.calc_temperature = calc_temperature
         self.calc_pressure = calc_pressure
         self.orbital_spin_type = orbital_spin_type
+        
+    
+    @classmethod
+    def merged(self, *multiple_metadata):
+        """
+        Return a new result object of this type with results from more than one calculation merged into one.
+        """
+        # Build our args.
+        # Name should all be the same so just take the first.
+        #name = multiple_metadata[0].name
+        
+        # Take the last date.
+        ordered_dates = sorted((metadata.date for metadata in multiple_metadata), key = lambda date: date.timestamp())
+        date = ordered_dates[-1]
+        
+        
         
     @property
     def identity(self):
