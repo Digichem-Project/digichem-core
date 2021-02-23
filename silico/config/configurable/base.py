@@ -162,8 +162,8 @@ class Configurable_list(list):
                 # We have a duplicate.
                 duplicate = duplicates[0]
                 # Merge the lists of PARENT and ALIAS (because lists are not normally merged). This might be unexpected?
-                config.PARENT.extend([parent for parent in duplicate.PARENT if parent not in config.PARENT])
-                config.ALIAS.extend([alias for alias in duplicate.ALIAS if alias not in config.ALIAS])
+                config.PARENT = list(set(config.PARENT).union(duplicate.PARENT))
+                config.ALIAS = list(set(config.ALIAS).union(duplicate.ALIAS))
                 
                 # Merge the duplicate with the current config.
                 # Because we are not replacing duplicate (it's the same object), this will update the config in the list.
