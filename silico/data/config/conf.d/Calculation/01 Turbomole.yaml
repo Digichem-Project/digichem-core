@@ -32,7 +32,13 @@ ALIAS: [Turbomole-CC2-defaults]
 PARENT: [Turbomole-defaults]
 
 # CC2 is very slow, assign more CPUs to try and compensate.
+# We no longer do this as over assigning CPUs leads to instability.
 num_CPUs: 8
+
+# Turn on CC2.
+ricc2:
+    model: cc2
+    scs: scs
 
 # SPLIT on basis set.
 SPLIT:
@@ -43,6 +49,33 @@ SPLIT:
       - cc-pVQZ
       - cc-pV5Z
       - cc-pV6Z
+      
+
+---
+# ADC(2)-SCS
+TYPE: calculation
+
+ABSTRACT: True
+ALIAS: [Turbomole-ADC2-defaults]
+PARENT: [Turbomole-defaults]
+
+num_CPUs: 8
+
+# Turn on ADC(2).
+ricc2:
+    model: adc(2)
+    scs: scs
+
+# SPLIT on basis set.
+SPLIT:
+  - GROUP_NAME: "{basis_set}"
+    basis_set:
+      - cc-pVDZ
+      - cc-pVTZ
+      - cc-pVQZ
+      - cc-pV5Z
+      - cc-pV6Z
+      
 
 ---
 # DFT
