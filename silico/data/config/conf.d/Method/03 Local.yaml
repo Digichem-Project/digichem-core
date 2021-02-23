@@ -1,0 +1,19 @@
+---
+TYPE: method
+
+# Config for a local submission
+NAME: Local (series)
+ALIAS: [series]
+HIDDEN: True
+
+CLASS: series
+
+---
+TYPE: method
+
+# Config for a local submission
+NAME: Local (parallel)
+ALIAS: [parallel]
+HIDDEN: True
+
+CLASS: parallel

@@ -2,11 +2,9 @@
 TYPE: method
 
 # Config for a SLURM submission.
-NAME: Singlenode SLURM
-ALIAS: [slurm]
+ALIAS: [slurm-defaults]
 
 CLASS: SLURM
-partition: singlenode
 
 # The command used to run sbatch (incase this has been renamed or wrapped in some way).
 sbatch_command: sbatch
@@ -17,62 +15,11 @@ num_tasks: 1
 # The number of CPUs to allocate per task (parallel job). If num_tasks is 1, then this is the number of CPUs to allocate (eg, for a multithreaded program). Unlike tasks, CPUs cannot be distributed over different nodes (computers).
 # The default is to use the same number of CPUs as the calculation uses.
 CPUs_per_task: auto
-#CPUs_per_task: 10
 
 # The amount of memory to allocate per CPU.
 # The default is to use the same amount of memory as the calculation uses.
 mem_per_CPU: auto
-#mem_per_CPU: 2100MB
 
 # Whether or not the worker nodes have access to the same directory structure as the main, control node.
 # This should be the case for most standard SLURM set-ups, and common_directory = False is currently not supported (because we would need a way to move our calculation file to the worker node(s).
 #common_directory: True
-
----
-TYPE: method
-NAME: BigMem SLURM
-PARENT: [slurm]
-ALIAS: [slurm_big_mem]
-CLASS: SLURM
-partition: bigmem
-warning: You have selected the high memory capacity partition. This memory capacity is not normally required for DFT calculations; please make sure you know what you are doing.
-
----
-TYPE: method
-NAME: Debug SLURM
-PARENT: [slurm]
-ALIAS: [slurm_debug]
-CLASS: SLURM
-HIDDEN: True
-partition: debug
-warning: You have selected the debug partition. This partition is for testing purposes only; please make sure you know what you are doing.
-
----
-TYPE: method
-NAME: Multi Node SLURM
-PARENT: [slurm]
-ALIAS: [slurm_multi]
-CLASS: SLURM
-HIDDEN: True
-partition: parallel
-warning: You have selected the high-performance parallel partition. This partition MUST NOT be used for Gaussian DFT; please make sure you know what you are doing.
-
----
-TYPE: method
-
-# Config for a local submission
-NAME: Local (series)
-ALIAS: [series]
-HIDDEN: True
-
-CLASS: series
-
----
-TYPE: method
-
-# Config for a local submission
-NAME: Local (parallel)
-ALIAS: [parallel]
-HIDDEN: True
-
-CLASS: parallel
