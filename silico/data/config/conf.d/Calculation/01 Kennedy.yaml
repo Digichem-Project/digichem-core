@@ -1,0 +1,9 @@
+# Global calc defaults.
+TYPE: calculation
+
+# Our reference name.
+ALIAS: [calc-defaults]
+
+scratch_options:
+    # We use a different scratch location on Kennedy.
+    path: /scratch/tmp

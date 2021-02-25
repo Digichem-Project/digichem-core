@@ -15,7 +15,7 @@ num_CPUs: 8
 # Set scratch_structure: None to disable scatch.
 scratch_options:
     # Path to the directory to use for scratch. For each calculation, a unique subdirectory will be created under this root directory.
-    path: /scratch/tmp
+    path: /scratch
     
     # If True, directories created in the scratch directory will be contained in a subdirectory for each user (so the path would become eg, /scratch/<USERNAME>/<CALC_ID>).
     use_username: True
