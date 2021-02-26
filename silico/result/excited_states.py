@@ -251,7 +251,7 @@ class Energy_state(Result_object):
         """
         Float of this class.
         """
-        return self.energy
+        return float(self.energy)
     
     @classmethod
     def multiplicity_number_to_string(self, multiplicity):
