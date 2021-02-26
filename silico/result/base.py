@@ -1,5 +1,6 @@
 from silico.exception.base import Result_unavailable_error
 import scipy.constants
+from operator import __eq__
 
 class Result_object():
     """
@@ -57,6 +58,43 @@ class Result_object():
         Convert wavenumbers (in cm-1) to energy (in eV).
         """
         return self.wavelength_to_energy((1 / wavenumbers) * 10000000)
+
+class Floatable_mixin():
+    """
+    A mixin class for result objects that have an unambigious numerical representation.
+    
+    This mixin class expects the implementing class to define __float__().
+    """
+    
+    def __lt__(self, other):
+        """
+        Is this class less than another?
+        """
+        return float(self) < float(other)
+    
+    def __le__(self, other):
+        """
+        Is this class equal or less than another?
+        """
+        return float(self) <= float(other)
+    
+    def __eq__(self, other):
+        """
+        Is this class equal to another?
+        """
+        return float(self) == float(other)
+    
+    def __ge__(self, other):
+        """
+        Is this class greater or equal to another?
+        """
+        return float(self) >= float(other)
+    
+    def __gt__(self, other):
+        """
+        Is this class greater than another?
+        """
+        return float(self) > float(other)
     
         
 class Result_container(list, Result_object):
