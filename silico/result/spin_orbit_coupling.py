@@ -114,7 +114,7 @@ class Spin_orbit_coupling(Result_object):
         """
         Floatify this SOC class.
         """
-        return self.root_sum_square
+        return float(self.root_sum_square)
     
     @property
     def wavenumbers(self):

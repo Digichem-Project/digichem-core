@@ -7,6 +7,7 @@ from itertools import filterfalse, zip_longest, chain
 from silico.result import Result_container
 from silico.result import Result_object
 from silico.exception import Result_unavailable_error
+from silico.result.base import Floatable_mixin
 
 class Molecular_orbital_list(Result_container):
     """
@@ -228,7 +229,7 @@ class Molecular_orbital_list(Result_container):
         for index, orbital in enumerate(sorted(chain(self, other_list), key = lambda orbital: orbital.energy)):
             orbital.total_level = index +1
 
-class Molecular_orbital(Result_object):
+class Molecular_orbital(Result_object, Floatable_mixin):
     """
     Class representing a molecular orbital.
     """
@@ -258,7 +259,7 @@ class Molecular_orbital(Result_object):
         self.total_level = None
     
     def __float__(self):
-        return self.energy
+        return float(self.energy)
     
     @property
     def HOMO_level(self):

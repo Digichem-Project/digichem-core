@@ -4,6 +4,7 @@ from itertools import zip_longest
 # Silico imports.
 from silico.result import Result_container
 from silico.result import Result_object
+from silico.result.base import Floatable_mixin
 
 class Vibration_list(Result_container):
     """
@@ -27,7 +28,7 @@ class Vibration_list(Result_container):
         """
         return self(Vibration.list_from_parser(parser))
     
-class Vibration(Result_object):
+class Vibration(Result_object, Floatable_mixin):
     """
     Class for representing vibrational frequencies.
     """
