@@ -20,6 +20,7 @@ from silico.result.dipole_moment import Dipole_moment
 from silico.result.vibrations import Vibration_list
 from silico.exception.base import Silico_exception
 import silico    
+from silico.result.alignment import Minimal
 
 class Parsed_data():
     """
@@ -165,13 +166,16 @@ class Parser(Result_set):
         """
         pass
         
-    def process(self, alignment_class):
+    def process(self, alignment_class = None):
         """
         Get a Result set object from this parser.
         
-        :param: alignment_class: An alignment class object to use to reorientate atoms.
+        :param: alignment_class: An alignment class object to use to reorientate atoms. If not specified the Minimal alignment method will be used by default.
         :return: The populated result set.
         """
+        if alignment_class is None:
+            alignment_class = Minimal
+        
         # Get our result set.
         self.results = Result_set()
         
