@@ -29,46 +29,18 @@ def is_int(value):
     except ValueError:
         return False
     
-def date_to_string(datetime_object):
+def is_iter(value):
     """
-    Convert a datetime object to a standard string representation.
+    Determine whether a variable is iterable.
     
-    :param datetime_object: The date and time to convert
-    :return: A string representation of datetime_object.
+    :returns: True or False.
     """
-    return datetime_object.strftime("%d/%m/%Y %H:%M:%S")
-
-def timedelta_to_string(timedelta_object):
-    """
-    Convert a timedelta object to a standard string representation.
+    try:
+        iter(value)
+        return True
+    except TypeError:
+        return False
     
-    :param timedelta_object: The time difference to convert
-    :return: A string representation of timedelta_object.
-    """
-    hours = math.floor(timedelta_object.seconds / 3600)
-    minutes = math.floor((timedelta_object.seconds - hours * 3600) / 60)
-    seconds = round(timedelta_object.seconds - (hours * 3600 + minutes * 60))
-    
-    date_str = ""
-    add = False
-    
-    # Only add each section if not zero.
-    if timedelta_object.days != 0:
-        date_str += "{} d, ".format(timedelta_object.days)
-        add = True
-        
-    if hours != 0 or add:
-        date_str += "{} h, ".format(hours)
-        add = True
-        
-    if minutes != 0 or add:
-        date_str += "{} m, ".format(minutes)
-        add = True
-        
-    date_str += "{} s".format(seconds)
-    
-    return date_str
-    #return "{} days, {} hours, {} minutes, {} seconds".format(timedelta_object.days, hours, minutes, seconds)
 
 class Dynamic_parent():
     """
