@@ -2,17 +2,21 @@
 
 # General imports.
 from itertools import filterfalse, zip_longest, chain
+import warnings
 
 # Silico imports.
 from silico.result import Result_container
 from silico.result import Result_object
 from silico.exception import Result_unavailable_error
-from silico.result.base import Floatable_mixin
+
 
 class Molecular_orbital_list(Result_container):
     """
     Class for representing a group of MOs.
     """
+    
+    # A warning issued when attempting to merge non-equivalent orbital lists.
+    MERGE_WARNING = "Attempting to merge lists of orbitals that are not identical; non-equivalent orbitals will be ignored"
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -142,7 +146,8 @@ class Molecular_orbital_list(Result_container):
         Return a copy of this list of MOs that is ordered in terms of energy and removes duplicate MOs.
         """
         ordered_list = type(self)(set(self))
-        ordered_list.sort(key = lambda mo: mo.level)
+        #ordered_list.sort(key = lambda mo: mo.level)
+        ordered_list.sort()
         return ordered_list
         
     @classmethod
@@ -228,8 +233,31 @@ class Molecular_orbital_list(Result_container):
         """
         for index, orbital in enumerate(sorted(chain(self, other_list), key = lambda orbital: orbital.energy)):
             orbital.total_level = index +1
+            
+    @classmethod
+    def merge(self, *multiple_lists):
+        """
+        Merge multiple lists of MOs into a single list.
+        """
+        MOs = multiple_lists[0]
+        
+        # Check all other lists are the same.
+        for MO_list in multiple_lists[1:]:
+            for index, MO in enumerate(MO_list):
+                try:
+                    other_MO = MOs[index]
+                    if MO.energy != other_MO.energy or MO.level != other_MO.level or MO.spin_type != other_MO.spin_type:
+                        warnings.warn(self.MERGE_WARNING)
+                        #raise Silico_exception("Cannot merge lists of atoms that are not identical; '{} is not equal to '{}'".format(atom, other_atom))
+                except IndexError:
+                    #raise Silico_exception("Cannot merge lists of atoms that are not identical; these atom lists contain different numbers of atoms")
+                    warnings.warn(self.MERGE_WARNING)
+                
+        # Return the 'merged' list.
+        return MOs
+    
 
-class Molecular_orbital(Result_object, Floatable_mixin):
+class Molecular_orbital(Result_object):
     """
     Class representing a molecular orbital.
     """
@@ -325,6 +353,7 @@ class Molecular_orbital(Result_object, Floatable_mixin):
         """
         Equality operator between MOs.
         """
+        print("DEBUG LABEL")
         return self.label == other.label
     
     def __hash__(self):

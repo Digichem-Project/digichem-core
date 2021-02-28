@@ -5,6 +5,7 @@ import math
 from silico.result import Result_container
 from silico.exception import Result_unavailable_error
 from silico.result import Result_object
+from silico.result.base import Floatable_mixin
 
 
 class SOC_list(Result_container):
@@ -45,8 +46,18 @@ class SOC_list(Result_container):
         :return: A SOC_list object. The list will be empty if no SOC is available.
         """
         return self(Spin_orbit_coupling.list_from_parser(parser))
+    
+    def sort(self, *, key = None, **kwargs):
+        """
+        Sort this list in place.
+        """
+        # If no key is given, we use a custom default key.
+        if key is None:
+            key = lambda SOC: (SOC.singlet_state.level, SOC.triplet_state.level)
+            
+        return super().sort(key = key, **kwargs)
 
-class Spin_orbit_coupling(Result_object):
+class Spin_orbit_coupling(Result_object, Floatable_mixin):
     """
     Class that represents spin-orbit coupling between two states.
     """

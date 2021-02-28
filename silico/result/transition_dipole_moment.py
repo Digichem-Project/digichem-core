@@ -1,10 +1,7 @@
 # General imports.
-from pathlib import Path
 
 # Silico imports.
 from silico.result.dipole_moment import Dipole_moment
-from silico.file.cube import Fchk_to_cube
-from silico.image.vmd import Dipole_image_maker
 
 class Transition_dipole_moment(Dipole_moment):
     """
@@ -12,9 +9,6 @@ class Transition_dipole_moment(Dipole_moment):
     
     Note that this class is almost identical to the standard (permanent) dipole moment, but the way in which we fetch the data is different.
     """
-    
-    # The text we look for that tells us where the transition dipole data is printed.
-    t_dipole_section_header = " Ground to excited state transition electric dipole moments (Au):\n"
     
     def __init__(self, state_level, *args, **kwargs):
         """

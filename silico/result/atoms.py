@@ -2,16 +2,21 @@
 import math
 import periodictable
 from itertools import zip_longest
+import warnings
 
 # Silico imports
 from silico.result import Result_container
 from silico.result import Result_object
 from silico.exception.base import Result_unavailable_error
 
+
 class Atom_list(Result_container):
     """
     Class for representing a group of atoms.
     """
+    
+    # A warning issued when attempting to merge non-equivalent atom lists.
+    MERGE_WARNING = "Attempting to merge lists of atoms that are not identical; non-equivalent atoms will be ignored"
     
     def __init__(self, *args, charge = None, **kwargs):
         super().__init__(*args, **kwargs)
@@ -29,11 +34,6 @@ class Atom_list(Result_container):
         except TypeError:
             # Exact mass not available.
             raise Result_unavailable_error("Exact mass")
-        # Sometimes we're not given explicit masses, in which case use the element mass instead.
-        #try:
-        #    return sum([atom.mass for atom in self])
-        #except TypeError:
-        #    return sum([atom.element.mass for atom in self])
         
     @property
     def molar_mass(self):
@@ -186,7 +186,30 @@ class Atom_list(Result_container):
         """
         return self(Atom.list_from_parser(parser), charge = parser.results.metadata.system_charge)
         
+    @classmethod
+    def merge(self, *multiple_lists, charge):
+        """
+        Merge multiple lists of atoms into a single list.
         
+        Note that it does not make logical sense to combine different list of atoms into one; hence the method only ensures that all given lists are the same and then returns the first given.
+        If the atom lists are not equivalent, a warning will be issued.
+        """
+        atoms = self(multiple_lists[0], charge = charge)
+        
+        # Check all other lists are the same.
+        for atom_list in multiple_lists[1:]:
+            for index, atom in enumerate(atom_list):
+                try:
+                    other_atom = atoms[index]
+                    if atom != other_atom:
+                        #raise Silico_exception("Cannot merge lists of atoms that are not identical; '{} is not equal to '{}'".format(atom, other_atom))
+                        warnings.warn(self.MERGE_WARNING)
+                except IndexError:
+                    #raise Silico_exception("Cannot merge lists of atoms that are not identical; these atom lists contain different numbers of atoms")
+                    warnings.warn(self.MERGE_WARNING)
+                
+        # Return the 'merged' list.
+        return atoms
 
 class Atom(Result_object):
     """
@@ -206,8 +229,20 @@ class Atom(Result_object):
         self.coords = coords
         # Get our element class.
         self.element = periodictable.elements[atomic_number]
+        
+    def __str__(self):
+        """
+        Stringify this atom.
+        """
+        return "'{}' at '{}'".format(self.element, self.coords)
+        
+    def __eq__(self, other):
+        """
+        Is this atom equal to another?
+        """
+        # Atoms are considered equal if they are the same element in the same position.
+        return self.element == other.element and self.coords == other.coords
     
-
     @classmethod
     def list_from_parser(self, parser):
         """

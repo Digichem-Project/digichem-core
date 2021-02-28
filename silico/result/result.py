@@ -1,7 +1,6 @@
 # Code for processing results from calculations and generating reports.
 
 # General imports.
-from logging import getLogger
 
 # Silico imports.
 from silico.exception import Result_unavailable_error
@@ -10,9 +9,7 @@ from silico.result.alignment.AA import Average_angle
 from silico.result.alignment.FAP import Furthest_atom_pair
 from silico.result.alignment import Minimal
 from silico.result import Result_object
-from silico.exception.base import Silico_exception
 import silico.result.excited_states
-from silico.result.emission import Relaxed_excited_state
 
         
 class Result_set(Result_object):
@@ -36,14 +33,11 @@ class Result_set(Result_object):
             ground_state = None,
             excited_states = None,
             energy_states = None,
-            vertical_emission = None,
-            adiabatic_emission = None,
             vibrations = None,
             spin_orbit_coupling = None):
         """
         Constructor for Result_set objects.
         
-        :param gaussian_log_file: The Gaussian log file from which these results were read.
         :param metadata: Optional Metadata result object.
         :param CC_energies: Optional Energy_list object of coupled-cluster energies.
         :param MP_energies: Optional Energy_list object of Moller-Plesset energies.
@@ -72,10 +66,9 @@ class Result_set(Result_object):
         self.excited_states = excited_states
         self.energy_states = energy_states
         self.vibrations = vibrations
-        self.vertical_emission = vertical_emission
-        self.adiabatic_emission = adiabatic_emission
+        self.vertical_emission = None
+        self.adiabatic_emission = None
         self.spin_orbit_coupling = spin_orbit_coupling
-    
     
     
     @property
@@ -131,50 +124,7 @@ class Result_set(Result_object):
             return None
 
         
-    def add_emission(self,
-            vertical_emission_ground_result = None,
-            adiabatic_emission_ground_result = None,
-            emission_excited_result = None,
-            emission_excited_state = None
-            ):
-        """
-        Add additional result sets containing emission energies to this result set.
-        
-        # TODO: Rethink the way we handle emission energy.
-        
-        :param vertical_emission_ground_result: An optional additional Result_set object which will be used as the ground state for calculation of vertical emission energy.
-        :param adiabatic_emission_ground_result: An optional additional Result_set object which will be used as the ground state for calculation of adiabatic emision energy.
-        :param emission_excited_result: An optional additional Result_set object which will be used as the excited state for calculation of vertical and/or adiabatic emission energy. If emission_ground_result is give, then emission_excited_result is not optional.
-        :param emission_excited_state: Optionally either an Excited_state object or a string describing one ('S(1)' etc) for use in calculating vertical and/or adiabatic emission energy.
-        """
-        # Set our emission energies.
-        # For vertical, we can also use the adiabatic excited energy
-        try:
-            self._set_emission('vertical', vertical_emission_ground_result, emission_excited_result, emission_excited_state)
-        except Exception:
-            getLogger(silico.logger_name).warning("Could not load vertical emission energy", exc_info = True)
-        try:
-            self._set_emission('adiabatic', adiabatic_emission_ground_result, emission_excited_result, emission_excited_state)
-        except Exception:
-            getLogger(silico.logger_name).warning("Could not load adiabatic emission energy", exc_info = True)
-        
-    def _set_emission(self, transition_type, emission_ground_result = None, emission_excited_result = None, emission_excited_state = None):
-        """
-        Helper function.
-        """
-        if transition_type != "vertical" and transition_type != "adiabatic":
-            raise ValueError("Unknown transition_type '{}'".format(transition_type))
-        
-        # Set our emission energy.
-        if emission_excited_result is not None:
-            setattr(self, transition_type + "_emission", Relaxed_excited_state.from_results(
-                self,
-                ground_state_result = emission_ground_result,
-                excited_state_result = emission_excited_result,
-                transition_type = transition_type,
-                excited_state = emission_excited_state))
-        elif emission_ground_result is not None:
-            raise Silico_exception("Cannot calculate emission energy; no excited state given for ground state '{}'".format(emission_ground_result.metadata.name))
+    
         
     
                 

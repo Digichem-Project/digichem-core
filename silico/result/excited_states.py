@@ -158,25 +158,6 @@ class Excited_state_list(Result_container):
             # Set mult and total level.
             state.multiplicity_level = multiplicities[state.multiplicity]
             state.level = total_level
-             
-    @classmethod
-    def merge(self, *multiple_excited_states):
-        """
-        Merge multiple lists of excited states into a single, ordered list.
-        
-        Note that this method will return a new Excited_states_list object, but will modify the contained Excited_states objects in place.
-        """
-        # First, get a new list containing the excited states of all the others.
-        excited_states = self(itertools.chain(*multiple_excited_states))
-        
-        # Now sort (by energy).
-        excited_states.sort()
-        
-        # Next, we need to reassign levels and multiplicity levels of the contained states.
-        excited_states.assign_levels()
-        
-        # All done.
-        return excited_states
             
 
 class Excited_state_transition(Result_object):
