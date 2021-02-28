@@ -7,6 +7,8 @@ from datetime import timedelta, datetime
 from silico.exception import Result_unavailable_error
 from silico.result import Result_object
 import math
+from silico.misc.time import latest_datetime, total_timedelta
+import itertools
 
 class Metadata(Result_object):
     """
@@ -31,7 +33,8 @@ class Metadata(Result_object):
     def __init__(
             self,
             name = None,
-            sub_calculations = 0,
+            log_files = None,
+            auxiliary_files = None,
             date = None,
             duration = None,
             package = None,
@@ -51,7 +54,9 @@ class Metadata(Result_object):
         Constructor for result Metadata objects.
         
         :param name: Optional name of this calculation result.
-        :param sub_calculations: Optional number of sub calculations.
+        :param log_files: An optional list of text-based calculation log files from which this result was parsed.
+        :param auxiliary_files: An optional dict of auxiliary files associated with this calculation result.
+        :param num_calculations: Optional number of individual calculations this metadata represents.
         :param date: Optional date (datetime object) of this calculation result.
         :param duration: Optional duration (timedelta object) of this calculation.
         :param package: Optional string identifying the computational chem program that performed the calculation.
@@ -69,6 +74,8 @@ class Metadata(Result_object):
         :param orbital_spin_type: The types of orbitals that have been calculated, either 'restricted' or 'unrestricted'.
         """
         self.name = name
+        self.log_files = log_files if log_files is not None else []
+        self.auxiliary_files = auxiliary_files if auxiliary_files is not None else {}
         self.date = date
         self.duration = duration
         self.package = package
@@ -85,21 +92,12 @@ class Metadata(Result_object):
         self.calc_pressure = calc_pressure
         self.orbital_spin_type = orbital_spin_type
         
-    
     @classmethod
-    def merged(self, *multiple_metadata):
+    def merge(self, *multiple_metadatas):
         """
-        Return a new result object of this type with results from more than one calculation merged into one.
+        Merge multiple metadata objects into a single metadata.
         """
-        # Build our args.
-        # Name should all be the same so just take the first.
-        #name = multiple_metadata[0].name
-        
-        # Take the last date.
-        ordered_dates = sorted((metadata.date for metadata in multiple_metadata), key = lambda date: date.timestamp())
-        date = ordered_dates[-1]
-        
-        
+        return Merged_metadata.from_metadatas(*multiple_metadatas)
         
     @property
     def identity(self):
@@ -110,6 +108,7 @@ class Metadata(Result_object):
         methods = [method if method != "DFT" and self.calc_functional is not None else self.calc_functional for method in self.calc_methods]
         return {
             "package": self.package_string,
+            "calculations": self.calculations,
             "methods": methods,
             "basis": self.calc_basis_set,
             "multiplicity": self.system_multiplicity,
@@ -117,7 +116,7 @@ class Metadata(Result_object):
         }
     
     @classmethod
-    def ordered_methods(self, methods):
+    def sorted_methods(self, methods):
         """
         Order a list of methods (HF, DFT, MP2 etc) in terms of 'level of theory', with the lowest level (HF or DFT probably) first and highest (MP4, CCSD etc) last.
         """
@@ -182,7 +181,7 @@ class Metadata(Result_object):
         :param ccdata: The data from cclib.
         :return: A list of strings of the methods used (each method appears once only; the order has no special significance). The list may be empty.
         """
-        return self.ordered_methods((set(ccdata.metadata.get('methods', []))))
+        return self.sorted_methods((set(ccdata.metadata.get('methods', []))))
         #return list(dict.fromkeys(ccdata.metadata.get('methods', [])))
     
     @classmethod
@@ -203,13 +202,10 @@ class Metadata(Result_object):
             return "none"
     
     @classmethod
-    def from_parser(self, parser, name = None, date = None, duration = None):
+    def from_parser(self, parser):
         """
         Construct a Metadata object from an output file parser.
         
-        :param name: Optional name of this calculation result.
-        :param date: Optional date (datetime object) of this calculation result.
-        :param duration: Optional duration (timedelta object) of this calculation.
         :param parser: Output data parser.
         :return: A populated Metadata object.
         """
@@ -225,8 +221,6 @@ class Metadata(Result_object):
             else:
                 duration = None
                 
-
-                
             if parser.data.metadata.get('date', None) is not None:
                 date = datetime.fromtimestamp(parser.data.metadata['date'])
             else:
@@ -234,6 +228,8 @@ class Metadata(Result_object):
             
             return self(
                 name = parser.data.metadata.get('name', None),
+                log_files = parser.data.metadata.get('log_files', None),
+                auxiliary_files = parser.data.metadata.get('aux_files', None),
                 date = date,
                 duration = duration,
                 package = parser.data.metadata.get('package', None),
@@ -253,4 +249,61 @@ class Metadata(Result_object):
         except AttributeError:
             # There is no metadata available, give up.
             raise Result_unavailable_error("Metadata", "no metadata is available")
-                        
+
+
+class Merged_metadata(Metadata):
+    """
+    A modified metadata class for merged calculation results.
+    """
+    
+    
+    def __init__(self, num_calculations, *args, **kwargs):
+        """
+        :param num_calculations: The number of merged calculations this metadata represents.
+        """
+        self.num_calculations = num_calculations
+        super().__init__(*args, file_paths = None, **kwargs)
+        
+    @classmethod
+    def from_metadatas(self, *multiple_metadatas):
+        """
+        Create a merged metadata object from multiple metadata objects.
+        
+        :param multiple_metadatas: A list of metadata objects to merge.
+        :returns: A new Merged_metadata object.
+        """
+        # Our merged metadata.
+        merged_metadata = self(num_calculations = len(multiple_metadatas))
+        for attr in ("name", "package", "package_version", "calc_functional", "calc_basis_set"):
+            setattr(merged_metadata, attr, self.merged_attr(attr, *multiple_metadatas))
+            
+        # We take the latest of the two dates.
+        merged_metadata.date = latest_datetime([metadata.date for metadata in multiple_metadatas if metadata.date is not None])
+        # And the total duration.
+        merged_metadata.duration = total_timedelta([metadata.duration for metadata in multiple_metadatas if metadata.duration is not None])
+        
+        # Merge methods and calculations (but keep unique only).
+        merged_metadata.calculations = list(dict.fromkeys(itertools.chain((metadata.calculations for metadata in multiple_metadatas))))
+        merged_metadata.methods = self.sorted_methods(set(itertools.chain(metadata.methods for metadata in multiple_metadatas)))
+        
+        # We are only successful if all calcs are successful.
+        merged_metadata.calc_success = all((metadata.calc_success for metadata in multiple_metadatas))
+        converged = [metadata.optimisation_converged for metadata in multiple_metadatas]
+        merged_metadata.optimisation_converged = False if False in converged else True if True in converged else None
+        
+        # Only keep these if all the same.
+        for attr in ("calc_temperature", "calc_pressure"):
+            # Get a unique list of the attrs.
+            attr_set = set(getattr(metadata, attr) for metadata in multiple_metadatas)
+            
+            # Only keep if we have exactly one entry.
+            if len(attr_set) == 1:
+                setattr(merged_metadata, attr, attr_set[0])
+                
+        # We take the first orbital spin type charge and mult, as this is what our orbital list will actually be.
+        merged_metadata.orbital_spin_type = multiple_metadatas[0].orbital_spin_type
+        merged_metadata.system_charge = multiple_metadatas[0].system_charge
+        merged_metadata.system_multiplicity = multiple_metadatas[0].system_multiplicity
+        
+        return merged_metadata
+    

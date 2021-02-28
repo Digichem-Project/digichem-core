@@ -1,6 +1,7 @@
 import math
 from silico.result.atoms import Atom_list
 from silico.misc import Dynamic_parent
+import warnings
 
 class Alignment(Atom_list, Dynamic_parent):
     """
@@ -228,7 +229,28 @@ class Alignment(Atom_list, Dynamic_parent):
         
         for atom in self:
             print("{}, {}, {}, {}".format(atom.element, atom.coords[0], atom.coords[1], atom.coords[2]))
-        
+    
+    
+#     @classmethod
+#     def merge(self, *multiple_lists):
+#         """
+#         Merge multiple lists of atoms into a single list.
+#         
+#         Note that it does not make logical sense to combine different list of atoms into one; hence the method only ensures that all given lists are the same and then returns the first given.
+#         If the atom lists are not equivalent, a warning will be issued.
+#         If any of the alignment methods are not the same, a warning will be issued.
+#         """
+#         alignment = multiple_lists[0]
+#         
+#         # Check all other lists are the same.
+#         for atom_list in multiple_lists[1:]:
+#             if type(alignment) != type(atom_list):
+#                 warnings.warn("")
+#                 
+#         # Return the 'merged' list.
+#         return alignment
+    
+    
 class Axis_swapper_mix():
     """
     A class mixin for automatically re-assigning the axes so that X, Y & Z axes are in decreasing length.

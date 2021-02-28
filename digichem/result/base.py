@@ -1,11 +1,19 @@
-from silico.exception.base import Result_unavailable_error
+# General imports.
 import scipy.constants
-from operator import __eq__
+import warnings
+
+# Silico imports.
+from silico.exception.base import Result_unavailable_error
+import itertools
+
 
 class Result_object():
     """
     Top level class for objects that are designed to hold calculation results.
     """
+    
+    # A warning issued when attempting to merge non-equivalent objects
+    MERGE_WARNING = "Attempting to merge lists of results that are not identical; non-equivalent results will be ignored"
     
     def safe_get(self, *attr_names, default = None):
         """
@@ -41,7 +49,6 @@ class Result_object():
         Convert a wavelength (in nm) to energy (in eV).
         """
         # e = (c * h) / λ
-        #return ((self.speed_of_light * self.plancks_constant) / (emission_wavelength / 1000000000)) / self.electron_volt
         return ((scipy.constants.speed_of_light * scipy.constants.Planck) / (wavelength / 1000000000)) / scipy.constants.eV
     
     @classmethod
@@ -58,6 +65,34 @@ class Result_object():
         Convert wavenumbers (in cm-1) to energy (in eV).
         """
         return self.wavelength_to_energy((1 / wavenumbers) * 10000000)
+    
+    @classmethod
+    def merged_attr(self, name, *objects):
+        """
+        Merge a number of str like attributes.
+        
+        :param name: The name of the attribute to merge.
+        :param objects: A list of objects to merge from.
+        :return: A single string containing the merged attributes.
+        """
+        attributes = list(dict.fromkeys([getattr(obj, name) for obj in objects]))
+        return " / ".join(set((attribute for attribute in attributes if attribute is not None)))
+    
+    
+    @classmethod
+    def merge(self, *multiple_objects):
+        """
+        Merge multiple Result objects of the same type into a single Result object.
+        
+        Note that this default implementation is intended for objects that cannot actually be merged;
+        truly mergable objects should implement their own merge() method.
+        """
+        # Check all items are the same.
+        if not all(obj == multiple_objects[0] for obj in multiple_objects):
+            warnings.warn(self.MERGE_WARNING)
+            
+        return multiple_objects[0]
+        
 
 class Floatable_mixin():
     """
@@ -104,13 +139,48 @@ class Result_container(list, Result_object):
     def __init__(self, *args, **kwargs):
         list.__init__(self, *args, **kwargs)
         Result_object.__init__(self)
-        
     
+    def assign_levels(self):
+        """
+        (Re)assign total levels of the objects in this list.
+        
+        The contents of this list will be modified in place.
+        """
+        total_level = 0
+        
+        for state in self:            
+            # Increment total level.
+            total_level += 1
+                
+            # Set level
+            state.level = total_level
+            
+    @classmethod
+    def merge(self, *multiple_lists):
+        """
+        Merge multiple lists of of the same type into a single, ordered list.
+        
+        Note that this method will return a new list object, but will modify the contained objects (eg, object.level) in place.
+        """
+        # First, get a new list containing all objects.
+        merged_list = self(itertools.chain(*multiple_lists))
+        
+        # Now sort.
+        # This works because the contained objects are all Floatables (see Floatable_mixin) and therefore have well-defined sort mechanics,
+        # or otherwise define their own __eq__ and related methods.
+        merged_list.sort()
+        
+        # Next, we need to reassign levels of the contained objects.
+        merged_list.assign_levels()
+        
+        # All done.
+        return merged_list
+    
+    # TODO: Redundant?
     def __getitem__(self, key):
         try:
             return list.__getitem__(self, key)
         except IndexError:
             raise
-            #raise Result_unavailable_error(type(self).__name__, "there is no item at index {}".format(key))
     
         

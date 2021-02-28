@@ -8,7 +8,10 @@ from silico.result.angle import Angle
 class Dipole_moment(Result_object):
     """
     Class that represents a dipole moment.
-    """    
+    """
+    
+    # A warning issued when attempting to merge non-equivalent objects
+    MERGE_WARNING = "Attempting to merge list of DPMs that are not identical; non-equivalent DPMs will be ignored"
     
     @property
     def magnitude(self):
@@ -95,6 +98,14 @@ class Dipole_moment(Result_object):
         """
         return self.magnitude
     
+    def __eq__(self, other):
+        """
+        Is this dipole moment equal to another?
+        
+        A dipole moment is considered equivalent only if all coordinates match.
+        """
+        return self.origin_coords == other.origin_coords and self.vector_coords == other.vector_coords
+    
     @property
     def X_axis_angle(self):
         """
@@ -131,7 +142,5 @@ class Dipole_moment(Result_object):
             return self(parser.data.moments[0], parser.data.moments[1], parser.results.alignment)
         except AttributeError:
             return None
-
-    
     
     

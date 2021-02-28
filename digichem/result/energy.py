@@ -1,8 +1,6 @@
 # Classes for total system energies.
 from silico.result import Result_container
 import scipy.constants
-from silico.image.graph import Convergence_graph_maker
-from pathlib import Path
 from silico.exception.base import Result_unavailable_error
 
 class Energy_list(Result_container):
@@ -39,20 +37,6 @@ class Energy_list(Result_container):
             return self[-1]
         except IndexError:
             raise Result_unavailable_error(self.energy_type + ' energy', 'there is no {} energy'.format(self.energy_type))
-    
-    def set_file_options(self, output_dir, output_name, **kwargs):
-        """
-        Set the options that will be used to create images from this object.
-        
-        :param output_dir: A pathlib Path object to the directory within which our files should be created.
-        :param output_name: A string that will be used as the start of the file name of the files we create.
-        """
-        self._files['convergence_graph'] = Convergence_graph_maker.from_image_options(
-            Path(output_dir, output_name + ".{}_graph.png".format(self.energy_type)),
-            energies = self,
-            energy_type = self.energy_type,
-            **kwargs
-        )
     
     @classmethod
     def eV_to_kJ(self, eV):
@@ -104,6 +88,9 @@ class SCF_energy_list(Energy_list):
     cclib_energy_type = "scfenergies"
     energy_type = "SCF"
     
+    # A warning issued when attempting to merge non-equivalent objects
+    MERGE_WARNING = "Attempting to merge list of SCF energies that are not identical; non-equivalent energies will be ignored"
+    
 class CC_energy_list(Energy_list):
     """
     List of coupled-cluster energies.
@@ -111,12 +98,18 @@ class CC_energy_list(Energy_list):
     cclib_energy_type = "ccenergies"
     energy_type = "CC"
     
+    # A warning issued when attempting to merge non-equivalent objects
+    MERGE_WARNING = "Attempting to merge list of CC energies that are not identical; non-equivalent energies will be ignored"
+    
 class MP_energy_list(Energy_list):
     """
     List of Moller-Plesset energies.
     """
     cclib_energy_type = "mpenergies"
     energy_type = "MP"
+    
+    # A warning issued when attempting to merge non-equivalent objects
+    MERGE_WARNING = "Attempting to merge list of MP energies that are not identical; non-equivalent energies will be ignored"
     
     @classmethod
     def from_parser(self, parser, order = -1):
