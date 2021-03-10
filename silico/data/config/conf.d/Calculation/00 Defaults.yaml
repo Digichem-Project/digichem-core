@@ -24,7 +24,7 @@ scratch_options:
     keep: False
     
     # Whether to copy everything from scratch to output on failure. True is safer as there is not risk of an important file being lost, but can involve copying huge files that aren't needed.
-    rescue: True
+    rescue: False
     
     # If True, the scratch directory is always deleted after the calculation has completed, even if the calculation failed or if the results could not be copied back to the output directory.
     # This is normally unsafe, but on Kennedy we can't easily get access to the scratch anyway, so we might as well cleanup after ourselves.
