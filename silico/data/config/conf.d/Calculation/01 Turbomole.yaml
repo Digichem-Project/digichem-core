@@ -23,6 +23,7 @@ scratch_options:
     #all_output: True
     all_output: False
     
+    
 ---
 # CC2-SCS
 TYPE: calculation
@@ -50,6 +51,8 @@ SPLIT:
       - cc-pV5Z
       - cc-pV6Z
       
+# Increase required memory for CC2.
+memory: 30GB
 
 ---
 # ADC(2)-SCS
@@ -76,6 +79,8 @@ SPLIT:
       - cc-pV5Z
       - cc-pV6Z
       
+# Increase required memory for ADC(2)
+memory: 30GB
 
 ---
 # DFT
