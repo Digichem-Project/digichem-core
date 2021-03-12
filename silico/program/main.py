@@ -55,7 +55,7 @@ USAGE = """%(prog)s submit ...
 
 def main():
     """
-    Main entry point for the creport program.
+    Main entry point for the program.
     """
     # ----- Program init -----
     
