@@ -22,6 +22,7 @@ from silico.extract.long import Atoms_long_extractor, Orbitals_long_extractor,\
 from silico.submit import Configurable_target
 from silico.misc.directory import copytree
 import silico.report
+from silico.parser import parse_calculation
 
 class Program_target(Configurable_target):
     """
@@ -136,7 +137,7 @@ class Program_target(Configurable_target):
             if self.result is None:
                 return None
             else:
-                return self.result.safe_get('metadata', 'calc_success')
+                return self.result.safe_get('metadata', 'success')
                         
             
         def start(self):
@@ -294,11 +295,11 @@ class Program_target(Configurable_target):
             """
             Get a report suitable for parsing this type of calculation.
             """
-            return silico.report.from_files(
-                self.calc_output_file_path,
+            return silico.report.from_result(
+                self.result,
                 options = self.calculation.silico_options
             )
-        
+            
         def parse_results(self):
             """
             Parse the finished calculation result file(s).
@@ -310,13 +311,12 @@ class Program_target(Configurable_target):
             # We need to know whether the calculation was successful or not, so we make no effort to catch exceptions here.
             try:
                 try:
-                    self.report = self.get_report()
-                    self.result = self.report.result
+                    self.result = parse_calculation(self.calc_output_file_path)
                 except Exception as e:
                     raise Submission_error(self, "failed to process completed calculation results") from e
                 
                 # See if our calculation was successful or not.
-                if self.result.metadata.calc_success and self.error is None:
+                if self.result.metadata.success and self.error is None:
                     self.method.calc_dir.set_flag(Flag.SUCCESS)
                 else:
                     # No good.
@@ -427,12 +427,14 @@ class Program_target(Configurable_target):
             
         def write_report_files(self):
             """
-            Write report files (like with creport) from this calculation.
+            Write report files for this calculation.
             """
+            # Load report.
+            report = self.get_report()
             # The full report.
-            self.report.write(Path(self.method.calc_dir.report_directory, self.calculation.molecule_name + ".pdf"))
+            report.write(Path(self.method.calc_dir.report_directory, self.calculation.molecule_name + ".pdf"))
             # And atoms.
-            self.report.write(Path(self.method.calc_dir.report_directory, self.calculation.molecule_name + ".atoms.pdf"), report_type = "atoms")
+            report.write(Path(self.method.calc_dir.report_directory, self.calculation.molecule_name + ".atoms.pdf"), report_type = "atoms")
             
         def write_xyz_file(self):
             """

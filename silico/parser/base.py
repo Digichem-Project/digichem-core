@@ -8,12 +8,11 @@ from silico.parser.gaussian import Gaussian_parser
 from silico.parser.turbomole import Turbomole_parser
 from silico.misc.base import is_iter
 from silico.result.multi.base import Merged
+from silico.result.alignment import Minimal
 
-def get_parser(*log_files, **aux_files):
+def class_from_log_files(*log_files):
     """
-    Get an output file parser of appropriate type.
-    
-    This is a convenience function.
+    Get a parser class based on some calculation log files.
     """
     # First get child files if we are a dir.
     found_log_files = Parser.find_log_files(log_files[0])
@@ -23,13 +22,35 @@ def get_parser(*log_files, **aux_files):
     
     # Either get a more complex parser if we have one, or just return the base parser.
     if log_file_type == cclib.parser.gaussianparser.Gaussian:
-        return Gaussian_parser.from_logs(*log_files, **aux_files)
+        return Gaussian_parser
     elif log_file_type == cclib.parser.turbomoleparser.Turbomole:
-        return Turbomole_parser.from_logs(*log_files, **aux_files)
+        return Turbomole_parser
     else:
-        return Parser.from_logs(*log_files, **aux_files)
+        return Parser
+
+def from_log_files(*log_files, **aux_files):
+    """
+    Get an output file parser of appropriate type.
     
-def parse_log_files(*log_files, alignment_class = None, **aux_files):
+    This is a convenience function.
+    """
+    return class_from_log_files(*log_files).from_logs(*log_files, **aux_files)
+    
+def parse_calculation(*log_files, alignment_class = None, **aux_files):
+    """
+    Parse a single calculation result.
+    
+    :param log_files: A number of calculation result files corresponding to the same calculation.
+    :param alignment_class: An optional alignment class to use to reorientate the molecule.
+    :param aux_files: Optional auxiliary calculation files corresponding to the calculation.
+    :return: A single Result_set object.
+    """
+    if alignment_class is None:
+        alignment_class = Minimal
+            
+    return from_log_files(*log_files, **aux_files).process(alignment_class)
+    
+def parse_calculations(*log_files, alignment_class = None, aux_files = None):
     """
     Get a single result object by parsing a number of computational log files.
     
@@ -37,16 +58,23 @@ def parse_log_files(*log_files, alignment_class = None, **aux_files):
     If multiple different calculations are given, the individually parsed results will be merged together (which may give bizarre results if the calculations are unrelated, eg if they are of different molecules).
     
     Example:
-        parse_log_files(['calc1/primary.log', 'calc1/secondary.log'], 'calc2/calc.log', 'calc3/calc.log')
+        parse_calculations(['calc1/primary.log', 'calc1/secondary.log'], 'calc2/calc.log', 'calc3/calc.log')
     Would parse three separate calculations (calc1, calc2 and calc3), of which the first is contained in two output files (primary.log and secondary.log), merging the result sets together.
     
     :param log_files: A list of paths to computational chemistry log files to parse. If more than one file is given, each is assumed to correspond to a separate calculation in which case the parsed results will be merged together. In addition, each given 'log file' can be an iterable of log file paths, which will be considered to correspond to an individual calculation.
-    :param alignment_class: An optional alignment class to use to reorientate each molecule.
-    :return: A single result_set.
+    :param alignment_class: An alignment class to use to reorientate each molecule.
+    :param aux_files: A list of dictionaries of auxiliary files. The ordering of aux_files should match that of log_files.
+    :return: A single Result_set object (or child thereof).
     """
+    if alignment_class is None:
+            alignment_class = Minimal
+    
+    if aux_files is None:
+        aux_files = []
+    
     # Process our given log files.
     results = []   
-    for log_file_or_list in log_files:
+    for index, log_file_or_list in enumerate(log_files):
         # First decide if this is a real log file path or is actually a list.
         if not isinstance(log_file_or_list, str) and is_iter(log_file_or_list):
             # Multiple paths.
@@ -55,15 +83,21 @@ def parse_log_files(*log_files, alignment_class = None, **aux_files):
             # Single path.
             logs = (log_file_or_list,)
             
+        # See if we have some aux files we can use.
+        try:
+            aux = aux_files[index]
+        except IndexError:
+            aux = {}
+            
         # Parse this calculation output.
-        result = get_parser(logs, **aux_files).process(alignment_class)
+        result = parse_calculation(*logs, alignment_class = alignment_class, **aux)
         
         # Add to our list.
         results.append(result)
     
     # If we have more than one result, merge them together.
     if len(results) > 1:
-        return Merged.from_results(results, alignment_class = alignment_class)
+        return Merged.from_results(*results, alignment_class = alignment_class)
     else:
         return results[0]
             

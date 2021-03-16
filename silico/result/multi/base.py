@@ -79,20 +79,20 @@ class Merged(Result_set):
         """
         # First, get a merged metadata object.
         metadatas = [result.metadata for result in results]
-        merged_metadata = Metadata.merge(metadatas)
-        
-        # Get a new ground state.
-        ground_state = Ground_state.from_energies(merged_metadata.system_charge, merged_metadata.system_multiplicity, merged_metadata.CC_energies, merged_metadata.MP_energies, merged_metadata.SCF_energies)
+        merged_metadata = Metadata.merge(*metadatas)
 
         # 'Merge' our atoms.
-        atoms = Atom_list.merge([result.atoms for result in results], charge = merged_metadata.system_charge)
+        atoms = Atom_list.merge(*[result.atoms for result in results], charge = merged_metadata.charge)
         # And alignment.
-        alignment = alignment_class(atoms, charge = merged_metadata.system_charge)
+        alignment = alignment_class(atoms, charge = merged_metadata.charge)
         
         # Merge remaining attributes.
         attrs = {}
         for attr in ["CC_energies", "MP_energies", "SCF_energies", "dipole_moment", "molecular_orbitals", "beta_orbitals", "excited_states", "vibrations", "spin_orbit_coupling"]:
-            attrs[attr] = type(getattr(results[0], attr)).merge([getattr(result, attr) for result in results])
+            attrs[attr] = type(getattr(results[0], attr)).merge(*[getattr(result, attr) for result in results])
+        
+        # Get a new ground state.
+        ground_state = Ground_state.from_energies(merged_metadata.charge, merged_metadata.multiplicity, attrs['CC_energies'], attrs['MP_energies'], attrs['SCF_energies'])
         
         # Build new list of energy states.
         energy_states = Excited_state_list()

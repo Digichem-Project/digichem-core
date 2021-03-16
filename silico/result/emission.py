@@ -134,14 +134,14 @@ class Relaxed_excited_state(Excited_state):
         if self.excited_state is not None:
             return self.excited_state.multiplicity
         else:
-            return self.excited_state_result.metadata.system_multiplicity
+            return self.excited_state_result.metadata.multiplicity
         
     @property
     def ground_multiplicity(self):
         """
         The multiplicity (as a number) of the ground state in this emission transition.
         """
-        return self.ground_state_result.metadata.system_multiplicity
+        return self.ground_state_result.metadata.multiplicity
     
     @property
     def emission_type(self):

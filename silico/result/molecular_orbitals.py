@@ -8,6 +8,7 @@ import warnings
 from silico.result import Result_container
 from silico.result import Result_object
 from silico.exception import Result_unavailable_error
+from silico.result.base import Floatable_mixin
 
 
 class Molecular_orbital_list(Result_container):
@@ -257,7 +258,7 @@ class Molecular_orbital_list(Result_container):
         return MOs
     
 
-class Molecular_orbital(Result_object):
+class Molecular_orbital(Result_object, Floatable_mixin):
     """
     Class representing a molecular orbital.
     """

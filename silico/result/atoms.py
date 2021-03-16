@@ -184,7 +184,7 @@ class Atom_list(Result_container):
         :param charge: Charge of the system.
         :return: A list of TDM objects.
         """
-        return self(Atom.list_from_parser(parser), charge = parser.results.metadata.system_charge)
+        return self(Atom.list_from_parser(parser), charge = parser.results.metadata.charge)
         
     @classmethod
     def merge(self, *multiple_lists, charge):

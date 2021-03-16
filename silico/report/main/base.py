@@ -20,9 +20,7 @@ class Report():
     An enhanced report set object that contains graphics and other objects for building graphical reports.
     """
     
-    INPUT_FILES = {}
-    
-    def __init__(self, result, *, log_file_path = None, options):
+    def __init__(self, result, *, options):
         """
         Constructor for Report objects.
         
@@ -41,7 +39,6 @@ class Report():
         # Path to the directory in which the current report is being written.
         self.report_directory = None
         
-        
         # Decide which extra orbitals we want.
         self._init_get_orbitals_to_render(
             orbital_distances = options['report']['orbital_image']['orbital_distances'],
@@ -51,44 +48,26 @@ class Report():
             excited_state_transition_threshold = options['report']['orbital_image']['et_transition_threshold']
         )
     
-    @classmethod
-    def from_result(self, result, *, log_file_path = None, options, named_input_files, **kwargs):
-        """
-        Create a report object from a loaded result file, optionally searching for additional files.
-        
-        :param result: A result set.
-        :param log_file_path: Path to the log file from which result was loaded. If given, the directory containing log_file_path will be searched for additional files.
-        :param options: A silico Config dictionary which contains various options that control the appearance of this report.
-        :param named_input_files: A dictionary of additional input files.
-        """
-        # If we're allowed to, have a look for other files we could add.
-        if log_file_path is not None:
-            for input_type, key_name in self.INPUT_FILES.items():
-                if named_input_files.get(key_name) is None:
-                    # This file was not given explicitly, see if we can find it.
-                    named_input_files[key_name] = self.find_additional_inputs(log_file_path, input_type)
-                    
-        # Continue as normal.
-        return self(result, options = options, log_file_path = log_file_path, **named_input_files, **kwargs)
+#     @classmethod
+#     def from_result(self, result, *, log_file_path = None, options, named_input_files, **kwargs):
+#         """
+#         Create a report object from a loaded result file, optionally searching for additional files.
+#         
+#         :param result: A result set.
+#         :param log_file_path: Path to the log file from which result was loaded. If given, the directory containing log_file_path will be searched for additional files.
+#         :param options: A silico Config dictionary which contains various options that control the appearance of this report.
+#         :param named_input_files: A dictionary of additional input files.
+#         """
+#         # If we're allowed to, have a look for other files we could add.
+#         if log_file_path is not None:
+#             for input_type, key_name in self.INPUT_FILES.items():
+#                 if named_input_files.get(key_name) is None:
+#                     # This file was not given explicitly, see if we can find it.
+#                     named_input_files[key_name] = self.find_additional_inputs(log_file_path, input_type)
+#                     
+#         # Continue as normal.
+#         return self(result, options = options, log_file_path = log_file_path, **named_input_files, **kwargs)
             
-                            
-    @classmethod
-    def find_additional_inputs(self, given_file, additional_file_type):
-        """
-        Search the directory of an input_file for additional input files of a given type.
-        
-        :param given_file: The path to a known file. The directory in which this file resides will be searched.
-        :param additional_file_type: A File_type object describing what file type to search for.
-        """
-        # Loop through each possible suffix of the given file type (most only have 1...)
-        for suffix in additional_file_type.extensions:
-            aux_path = Path(given_file).with_suffix(suffix)
-            # See if this file exists.
-            if aux_path.exists():
-                return aux_path
-    
-        # Nothing good found.
-        return None
         
     @property
     def rotations(self):

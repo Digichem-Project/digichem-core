@@ -12,17 +12,31 @@ class Turbomole_report(PDF_report):
     A specialised report object for processing Turbomole results.
     """
     
-    def __init__(self, *args, log_file_path, turbomole_calculation = None, **kwargs):
+    def __init__(self, result, *, turbomole_calculation = None, options):
         """
         Constructor for Turbomole report generator.
         
         :param: turbomole_program: An optional turbomole calculation which will be used as a  template to generate cubes.
         """
-        super().__init__(*args, **kwargs)
-        self.cube_maker = None
-        log_file_path = Path(log_file_path)
-        self.calculation_directory = log_file_path.parent
+        super().__init__(result, options = options)
         self.turbomole_calculation = turbomole_calculation
+        
+        # Find which turbomole directories we can use to generate cubes.
+        self.calculation_directories = {'structure': None, 'spin': None}
+        
+        for metadata in reversed(result.metadatas):
+            try:
+                self.calculation_directories['structure'] = metadata.log_files[0].parent
+                
+                # See if this will also do for our spin calc.
+                if metadata.multiplicity != 1:
+                    self.calculation_directories['spin'] = metadata.log_files[0].parent
+                
+            except (IndexError, KeyError):
+                # Either no log files or empty list of log files.
+                pass
+            
+        self.cube_makers = {}
     
     
     def setup_cubes(self, output_dir, output_name):
@@ -38,33 +52,57 @@ class Turbomole_report(PDF_report):
                 
         # Now get our main cube maker.
         if self.turbomole_calculation is not None:
-            self.cube_maker = Turbomole_to_cube.from_calculation(
+            # Normal structure maker.
+            self.cube_makers['structure'] = Turbomole_to_cube.from_calculation(
                 Path(output_dir, "Cubes"),
                 turbomole_calculation = self.turbomole_calculation,
+                calculation_directory = self.calculation_directories['structure'],
                 orbitals = required_orbitals,
                 density = True,
-                spin = self.result.metadata.system_multiplicity != 1,
+                spin = self.result.metadata.multiplicity != 1,
+                options = self.options
+            )
+            
+            # And spin.
+            self.cube_makers['spin'] = Turbomole_to_cube.from_calculation(
+                Path(output_dir, "Cubes"),
+                turbomole_calculation = self.turbomole_calculation,
+                calculation_directory = self.calculation_directories['spin'],
+                orbitals = required_orbitals,
+                density = True,
+                spin = self.result.metadata.multiplicity != 1,
                 options = self.options
             )
         else:
-            self.cube_maker = Turbomole_to_cube.from_options(
+            # Normal structure maker.
+            self.cube_makers['structure'] = Turbomole_to_cube.from_options(
                 Path(output_dir, "Cubes"),
-                calculation_directory = self.calculation_directory,
+                calculation_directory = self.calculation_directories['structure'],
                 orbitals = required_orbitals,
                 density = True,
-                spin = self.result.metadata.system_multiplicity != 1,
+                spin = self.result.metadata.multiplicity != 1,
+                options = self.options
+            )
+            
+            # And spin.
+            self.cube_makers['spin'] = Turbomole_to_cube.from_options(
+                Path(output_dir, "Cubes"),
+                calculation_directory = self.calculation_directories['spin'],
+                orbitals = required_orbitals,
+                density = True,
+                spin = self.result.metadata.multiplicity != 1,
                 options = self.options
             )
         
         ################
         # Spin density #
         ################
-        self.cubes['spin_density'] = Turbomole_to_spin_cube(turbomole_to_cube = self.cube_maker)
+        self.cubes['spin_density'] = Turbomole_to_spin_cube(turbomole_to_cube = self.cube_makers['spin'])
         
         #################
         # Total density #
         #################
-        self.cubes['SCF'] = Turbomole_to_density_cube(turbomole_to_cube = self.cube_maker)
+        self.cubes['SCF'] = Turbomole_to_density_cube(turbomole_to_cube = self.cube_makers['structure'])
         
         
         ############
@@ -74,7 +112,7 @@ class Turbomole_report(PDF_report):
         for orbital_list in (self.result.molecular_orbitals, self.result.beta_orbitals):
             for orbital in orbital_list:                
                 # Save cube.
-                self.cubes[orbital.label] = Turbomole_to_orbital_cube(turbomole_to_cube = self.cube_maker, orbital = orbital)    
+                self.cubes[orbital.label] = Turbomole_to_orbital_cube(turbomole_to_cube = self.cube_makers['structure'], orbital = orbital)    
         
         #############
         # Structure #

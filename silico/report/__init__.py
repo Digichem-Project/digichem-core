@@ -1,1 +1,1 @@
-from .base import from_files
+from .base import class_from_result, from_result

@@ -11,7 +11,9 @@ def latest_datetime(*datetimes):
     :returns: The latest of the given datetimes, or None if no datetimes were given.
     """
     try:
-        return datetimes.sort()[-1]
+        datetimes = list(datetimes)
+        datetimes.sort()
+        return datetimes[-1]
     except IndexError:
         # No datetimes.
         return None

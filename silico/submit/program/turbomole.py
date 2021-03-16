@@ -321,8 +321,8 @@ class Turbomole(Program_target):
             """
             Get a report suitable for parsing this type of calculation.
             """            
-            return silico.report.from_files(
-                self.calc_output_file_path,
+            return silico.report.from_result(
+                self.result,
                 options = self.calculation.silico_options,
                 turbomole_calculation = self.calculation
             )

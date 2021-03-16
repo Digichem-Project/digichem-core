@@ -54,6 +54,7 @@ class Result_set(Result_object):
         """
         super().__init__()
         self.metadata = metadata
+        self.metadatas = (self.metadata,)
         self.CC_energies = CC_energies
         self.MP_energies = MP_energies
         self.SCF_energies = SCF_energies
@@ -88,7 +89,7 @@ class Result_set(Result_object):
                 # Add something non-specific.
                 title += " (Various Multiplicities)"
         else:
-            title += " ({})".format(silico.result.excited_states.Energy_state.multiplicity_number_to_string(self.metadata.system_multiplicity).capitalize())
+            title += " ({})".format(silico.result.excited_states.Energy_state.multiplicity_number_to_string(self.metadata.multiplicity).capitalize())
         return title
     
     @property

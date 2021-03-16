@@ -19,8 +19,7 @@ from silico.result.spin_orbit_coupling import SOC_list
 from silico.result.dipole_moment import Dipole_moment
 from silico.result.vibrations import Vibrations_list
 from silico.exception.base import Silico_exception
-import silico    
-from silico.result.alignment import Minimal
+import silico
 
 class Parsed_data():
     """
@@ -40,12 +39,13 @@ class Parser(Result_set):
         Top level constructor for calculation parsers.
         
         :param log_files: A list of output file to analyse/parse. The first log_file given will be used for naming purposes.
+        :param aux_files: A dictionary of auxiliary input files related to the calculation.
         """
         # Set our name.
         self.log_file_paths = [Path(log_file) for log_file in log_files if log_file is not None]
         
-        # Also save our aux files.
-        self.aux_files = aux_files
+        # Also save our aux files, stripping None.
+        self.aux_files = {name: aux_file for name,aux_file in aux_files.items() if aux_file is not None}
         
         # An object that we will populate with raw results.
         self.data = None
@@ -204,18 +204,16 @@ class Parser(Result_set):
         self.data.metadata['log_files'] = self.log_file_paths
         self.data.metadata['aux_files'] = self.aux_files
         
-    def process(self, alignment_class = None):
+    def process(self, alignment_class):
         """
         Get a Result set object from this parser.
         
         :param: alignment_class: An alignment class object to use to reorientate atoms. If not specified the Minimal alignment method will be used by default.
         :return: The populated result set.
         """
-        if alignment_class is None:
-            alignment_class = Minimal
         
         # Get our result set.
-        self.results = Result_set()
+        self.results = Result_set(metadata = Metadata.from_parser(self))
         
         # First get our list of MOs (because we need them for excited states too.)
         self.results.molecular_orbitals = Molecular_orbital_list.from_parser(self)
@@ -225,7 +223,7 @@ class Parser(Result_set):
         self.results.molecular_orbitals.assign_total_level(self.results.beta_orbitals)
         
         # Metadata.
-        self.results.metadata = Metadata.from_parser(self)
+#         self.results.metadata = Metadata.from_parser(self)
         
         # Our alignment orientation data.
         self.results.alignment = alignment_class.from_parser(self)

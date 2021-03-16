@@ -23,9 +23,9 @@
                 </tr>
                 <tr>
                     <td class="results__name">Success:</td>
-                    %if result.metadata.calc_success:
+                    %if result.metadata.success:
                     <td class="results__value">True</td>
-                    %elif not result.metadata.calc_success:
+                    %elif not result.metadata.success:
                     <td class="results__value results__value--bad">False</td>
                     %else:
                     <td class="results__value results__value--bad">Unknown</td>
@@ -46,28 +46,28 @@
                     <td class="results__value">${result.metadata.package_string}</td>
                 </tr>
                 %endif
-                %if len(result.metadata.calc_methods) > 0:
+                %if len(result.metadata.methods) > 0:
                 <tr>
                     <td class="results__name">Methods:</td>
-                    <td class="results__value">${", ".join(result.metadata.calc_methods)}</td>
+                    <td class="results__value">${", ".join(result.metadata.methods)}</td>
                 </tr>
                 %endif
-                %if result.metadata.calc_functional is not None:
+                %if result.metadata.functional is not None:
                 <tr>
                     <td class="results__name">Functional:</td>
-                    <td class="results__value">${result.metadata.calc_functional}</td>
+                    <td class="results__value">${result.metadata.functional}</td>
                 </tr>
                 %endif
-                %if result.metadata.calc_basis_set is not None:
+                %if result.metadata.basis_set is not None:
                 <tr>
                     <td class="results__name">Basis set:</td>
-                    <td class="results__value">${result.metadata.calc_basis_set}</td>
+                    <td class="results__value">${result.metadata.basis_set}</td>
                 </tr>
                 %endif
-                %if result.metadata.system_multiplicity is not None:
+                %if result.metadata.multiplicity is not None:
                 <tr>
                     <td class="results__name">Multiplicity:</td>
-                    <td class="results__value">${result.metadata.system_multiplicity} (${Energy_state.multiplicity_number_to_string(result.metadata.system_multiplicity)})</td>
+                    <td class="results__value">${result.metadata.multiplicity} (${Energy_state.multiplicity_number_to_string(result.metadata.multiplicity)})</td>
                 </tr>
                 %endif
             </table>
@@ -105,19 +105,19 @@
                 </tr>
                 %endif
             </table>
-            %if result.metadata.calc_temperature is not None or result.metadata.calc_pressure is not None:
+            %if result.metadata.temperature is not None or result.metadata.pressure is not None:
             <div class="reportHeader reportHeader--minor reportHeader--results">Thermodynamics</div>
             <table class="results">
-                %if result.metadata.calc_temperature is not None:
+                %if result.metadata.temperature is not None:
                 <tr>
                     <td class="results__name">Calc temperature:</td>
-                    <td class="results__value">${result.metadata.calc_temperature} K</td>
+                    <td class="results__value">${result.metadata.temperature} K</td>
                 </tr>
                 %endif
-                %if result.metadata.calc_pressure is not None:
+                %if result.metadata.pressure is not None:
                 <tr>
                     <td class="results__name">Calc pressure:</td>
-                    <td class="results__value">${result.metadata.calc_pressure} atm</td>
+                    <td class="results__value">${result.metadata.pressure} atm</td>
                 </tr>
                 %endif
             </table>

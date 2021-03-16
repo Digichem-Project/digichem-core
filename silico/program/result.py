@@ -15,7 +15,7 @@ from silico.extract.text import Text_summary_group_extractor
 from silico.extract.csv import CSV_summary_group_extractor, Long_CSV_group_extractor
 from silico.extract.table import Table_summary_group_extractor, Long_table_group_extractor
 from silico.exception.base import Silico_exception
-from silico.parser import get_parser
+import silico.parser
 from silico.result.alignment.base import Alignment
 
 # Printable name of this program.
@@ -45,7 +45,7 @@ def _get_result_set(filename, alignment_class):
     logger = logging.getLogger(silico.logger_name)
     # First open our file.
     try:
-        return get_parser(filename).process(alignment_class)
+        return silico.parser.from_log_files(filename).process(alignment_class)
     except Exception:
             logger.warning("Unable to parse calculation result file '{}'; skipping".format(filename), exc_info = True)
 

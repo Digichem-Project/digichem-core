@@ -7,7 +7,8 @@ from pathlib import Path
 import silico.program
 from silico.exception.base import Silico_exception
 import silico.report
-
+from silico.parser import parse_calculations
+import itertools
 
 # Printable name of this program.
 NAME = "Calculation Report Generator"
@@ -29,7 +30,7 @@ def arguments(subparsers):
     # Set main function.
     parser.set_defaults(func = main)
     
-    parser.add_argument("log_file", help = "a calculation result file (.log) to extract results from")
+    parser.add_argument("log_files", help = "a (number of) calculation result file(s) (.log) to extract results from", nargs = "+")
 
     
     emission_group = parser.add_argument_group("emission energy", "options for specifying additional input files that allow for the calculation of relaxed emission energy")
@@ -45,9 +46,9 @@ def arguments(subparsers):
     parser.add_argument("--name", help = "name of the molecule/system to use in the report", default = None)
     parser.add_argument("--type", help = "the type of report to make", choices = ["full", "atoms"], default = "full")
     
-    aux_input_group = parser.add_argument_group("additional input", "options for specifying additional input files used to generate the report. These options are all optional. Note that these input files can be given as positional arguments, in which case their file type is determined automatically. Use these named arguments to explicitly set the file type")
-    aux_input_group.add_argument("--chk_file", help = "a Gaussian chk file that will be used to generate all image files required. Note that this option requires Gaussian to be installed and formchk & cubegen to be in your path", nargs = "?", default = None)
-    aux_input_group.add_argument("--fchk_file", help = "a Gaussian fchk file that will be used to generate all image files required. Note that this option requires Gaussian to be installed and cubegen to be in your path", nargs = "?", default = None)
+    aux_input_group = parser.add_argument_group("auxiliary input", "options for specifying additional input files. These options are all optional, but if given the ordering should match that of the given log files")
+    aux_input_group.add_argument("--chk", help = "a (number of) Gaussian chk file(s) that will be used to generate all image files required. Note that this option requires Gaussian to be installed and formchk & cubegen to be in your path", nargs = "*", default = [])
+    aux_input_group.add_argument("--fchk", help = "a (number of) Gaussian fchk file(s) that will be used to generate all image files required. Note that this option requires Gaussian to be installed and cubegen to be in your path", nargs = "*", default = [])
     
     image_group = parser.add_argument_group("image options", "advanced options for altering the appearance of images in the report")
     image_group.add_argument("--render_style", help = "change the style used to render molecules and orbitals", choices=['pastel', 'light-pastel', 'dark-pastel','sharp', 'gaussian', 'vesta'], default = None)
@@ -86,25 +87,35 @@ def _main(args, config, logger):
         logger.warning("Alignment method has been changed but not overwriting existing images; use '-OK method' to ensure molecule images are re-rendered to reflect this change")
     
     named_input_files = {
-        "chk_file_path": args.chk_file,
-        "fchk_file_path": args.fchk_file,
+        "chk_file_path": args.chk,
+        "fchk_file_path": args.fchk,
         "adiabatic_emission_ground_result": args.adiabatic_ground,
         "vertical_emission_ground_result": args.vertical_ground,
         "emission_excited_result": args.emission
     }
     
     try:
-        report = silico.report.from_files(
-            args.log_file,
-            options = config,
-            named_input_files = named_input_files,
-            emission_excited_state = args.emission_state
-        )
+        # Transpose our lists of aux inputs.
+        aux_files = [{"chk_file":chk_file, "fchk_file":fchk_file} for chk_file, fchk_file in list(itertools.zip_longest(args.chk, args.fchk))]
+        
+        # First, load results.
+        result = parse_calculations(*args.log_files, aux_files = aux_files)
+        
+        # Then get an appropriate report.
+        report = silico.report.from_result(result, options = config)
+        
+#         report = silico.report.from_files(
+#             args.log_file,
+#             options = config,
+#             named_input_files = named_input_files,
+#             emission_excited_state = args.emission_state
+#         )
     except Exception as e:
         raise Silico_exception("Failed to load results")
     
-    if args.log_file is not None:
-        input_name = Path(args.log_file)
+    log_file = args.log_files[0]
+    if log_file is not None:
+        input_name = Path(log_file)
     elif len(args.calculation_files) > 0:
         input_name = Path(args.calculation_files[0])
     else:
