@@ -2,6 +2,7 @@
 from silico.result import Result_container
 import scipy.constants
 from silico.exception.base import Result_unavailable_error
+import warnings
 
 class Energy_list(Result_container):
     """
@@ -89,6 +90,26 @@ class Energy_list(Result_container):
             return self(getattr(parser.data, self.cclib_energy_type))
         except AttributeError:
             return self()
+        
+    @classmethod
+    def merge(self, *multiple_lists):
+        """
+        Merge multiple lists of MOs into a single list.
+        """
+        energies = multiple_lists[0]
+        
+        # Check all other lists are the same.
+        for energy_list in multiple_lists[1:]:
+            for index, energy in enumerate(energy_list):
+                try:
+                    other_energy = energies[index]
+                    if energy != other_energy:
+                        warnings.warn(self.MERGE_WARNING)
+                except IndexError:
+                    warnings.warn(self.MERGE_WARNING)
+                
+        # Return the 'merged' list.
+        return energies
     
 class SCF_energy_list(Energy_list):
     """
