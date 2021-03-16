@@ -91,5 +91,11 @@
             <td class="results__value">${metadata.pressure} atm</td>
         </tr>
         %endif
+        %if metadata.num_calculations != 1:
+        <tr>
+            <td class="results__name">No. merged calculations:</td>
+            <td class="results__value">${metadata.num_calculations}</td>
+        </tr>
+        %endif
     </table>
 </div>

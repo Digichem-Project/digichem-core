@@ -76,7 +76,8 @@ class Result_object():
         :return: A single string containing the merged attributes.
         """
         attributes = list(dict.fromkeys([getattr(obj, name) for obj in objects]))
-        return " / ".join(set((attribute for attribute in attributes if attribute is not None)))
+        attributes = [attribute for attribute in attributes if attribute is not None]
+        return " / ".join(attributes) if len(attributes) > 0 else None
     
     
     @classmethod
