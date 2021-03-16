@@ -262,8 +262,8 @@ class Merged_metadata(Metadata):
         """
         :param num_calculations: The number of merged calculations this metadata represents.
         """
-        self.num_calculations = num_calculations
         super().__init__(*args, log_files = None, auxiliary_files = None, **kwargs)
+        self.num_calculations = num_calculations
         
     @classmethod
     def from_metadatas(self, *multiple_metadatas):
