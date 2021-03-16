@@ -67,7 +67,7 @@ class Result_object():
         return self.wavelength_to_energy((1 / wavenumbers) * 10000000)
     
     @classmethod
-    def merged_attr(self, name, *objects):
+    def merged_attr(self, name, objects):
         """
         Merge a number of str like attributes.
         

@@ -40,15 +40,15 @@ class Metadata(Result_object):
             package = None,
             package_version = None,
             calculations = None,
-            calc_success = None,
-            calc_methods = None,
-            calc_functional = None,
-            calc_basis_set = None,
-            system_charge = None,
-            system_multiplicity = None,
+            success = None,
+            methods = None,
+            functional = None,
+            basis_set = None,
+            charge = None,
+            multiplicity = None,
             optimisation_converged = None,
-            calc_temperature = None,
-            calc_pressure = None,
+            temperature = None,
+            pressure = None,
             orbital_spin_type = None):
         """
         Constructor for result Metadata objects.
@@ -62,17 +62,18 @@ class Metadata(Result_object):
         :param package: Optional string identifying the computational chem program that performed the calculation.
         :param package: Optional string identifying the version of the computational chem program that performed the calculation.
         :param calculations: A list of strings of the different calculations carried out (Opt, Freq, TD, TDA, SP etc).
-        :param calc_success: Whether the calculation completed successfully or not.
-        :param calc_methods: List of methods (DFT, HF, MPn etc) used in the calculation.
-        :param calc_functional: Functional used in the calculation.
-        :param calc_basis_set: Basis set used in the calculation.
-        :param system_charge: Charge (positive or negative integer) of the system studied.
-        :param system_multiplicity: The multiplicity of the system.
+        :param success: Whether the calculation completed successfully or not.
+        :param methods: List of methods (DFT, HF, MPn etc) used in the calculation.
+        :param functional: Functional used in the calculation.
+        :param basis_set: Basis set used in the calculation.
+        :param charge: Charge (positive or negative integer) of the system studied.
+        :param multiplicity: The multiplicity of the system.
         :param optimisation_converged: Whether the optimisation converged or not.
-        :param calc_temperature: The temperature used in the calculation (not always relevant).
-        :param calc_pressure: The pressure used in the calculation (not always relevant).
+        :param temperature: The temperature used in the calculation (not always relevant).
+        :param pressure: The pressure used in the calculation (not always relevant).
         :param orbital_spin_type: The types of orbitals that have been calculated, either 'restricted' or 'unrestricted'.
         """
+        self.num_calculations = 1
         self.name = name
         self.log_files = log_files if log_files is not None else []
         self.auxiliary_files = auxiliary_files if auxiliary_files is not None else {}
@@ -81,15 +82,15 @@ class Metadata(Result_object):
         self.package = package
         self.package_version = package_version
         self.calculations = calculations if calculations is not None else []
-        self.calc_success = calc_success
-        self.calc_methods = calc_methods if calc_methods is not None else []
-        self.calc_functional = calc_functional
-        self.calc_basis_set = calc_basis_set
-        self.system_charge = system_charge
-        self.system_multiplicity = system_multiplicity
+        self.success = success
+        self.methods = methods if methods is not None else []
+        self.functional = functional
+        self.basis_set = basis_set
+        self.charge = charge
+        self.multiplicity = multiplicity
         self.optimisation_converged = optimisation_converged
-        self.calc_temperature = calc_temperature
-        self.calc_pressure = calc_pressure
+        self.temperature = temperature
+        self.pressure = pressure
         self.orbital_spin_type = orbital_spin_type
         
     @classmethod
@@ -105,14 +106,14 @@ class Metadata(Result_object):
         A dictionary of critical attributes that identify a calculation.
         """
         # Get our list of methods, replacing 'DFT' with the functional used if available.
-        methods = [method if method != "DFT" and self.calc_functional is not None else self.calc_functional for method in self.calc_methods]
+        methods = [method if method != "DFT" and self.functional is not None else self.functional for method in self.methods]
         return {
             "package": self.package_string,
             "calculations": self.calculations,
             "methods": methods,
-            "basis": self.calc_basis_set,
-            "multiplicity": self.system_multiplicity,
-            "charge": self.system_charge
+            "basis": self.basis_set,
+            "multiplicity": self.multiplicity,
+            "charge": self.charge
         }
     
     @classmethod
@@ -144,11 +145,11 @@ class Metadata(Result_object):
         return ", ".join(self.calculations) if len(self.calculations) != 0 else None
     
     @property
-    def calc_methods_string(self):
+    def methods_string(self):
         """
         Get the list of calculation methods as a single string, or None if there are no methods set.
         """
-        return ", ".join(self.calc_methods) if len(self.calc_methods) != 0 else None
+        return ", ".join(self.methods) if len(self.methods) != 0 else None
             
     @classmethod
     def get_calculation_types_from_cclib(self, ccdata):
@@ -235,15 +236,15 @@ class Metadata(Result_object):
                 package = parser.data.metadata.get('package', None),
                 package_version = parser.data.metadata.get('package_version', None),
                 calculations = self.get_calculation_types_from_cclib(parser.data),
-                calc_success = parser.data.metadata.get('success', None),
-                calc_methods = self.get_methods_from_cclib(parser.data),
-                calc_functional = parser.data.metadata.get('functional', None),
-                calc_basis_set = parser.data.metadata.get('basis_set', None),
-                system_charge = getattr(parser.data, 'charge', None),
-                system_multiplicity = getattr(parser.data, 'mult', None),
+                success = parser.data.metadata.get('success', None),
+                methods = self.get_methods_from_cclib(parser.data),
+                functional = parser.data.metadata.get('functional', None),
+                basis_set = parser.data.metadata.get('basis_set', None),
+                charge = getattr(parser.data, 'charge', None),
+                multiplicity = getattr(parser.data, 'mult', None),
                 optimisation_converged = getattr(parser.data, 'optdone', None),
-                calc_temperature = getattr(parser.data, 'temperature', None),
-                calc_pressure = getattr(parser.data, 'pressure', None),
+                temperature = getattr(parser.data, 'temperature', None),
+                pressure = getattr(parser.data, 'pressure', None),
                 orbital_spin_type = self.get_orbital_spin_type_from_cclib(parser.data),
             )
         except AttributeError:
@@ -262,7 +263,7 @@ class Merged_metadata(Metadata):
         :param num_calculations: The number of merged calculations this metadata represents.
         """
         self.num_calculations = num_calculations
-        super().__init__(*args, file_paths = None, **kwargs)
+        super().__init__(*args, log_files = None, auxiliary_files = None, **kwargs)
         
     @classmethod
     def from_metadatas(self, *multiple_metadatas):
@@ -274,36 +275,36 @@ class Merged_metadata(Metadata):
         """
         # Our merged metadata.
         merged_metadata = self(num_calculations = len(multiple_metadatas))
-        for attr in ("name", "package", "package_version", "calc_functional", "calc_basis_set"):
-            setattr(merged_metadata, attr, self.merged_attr(attr, *multiple_metadatas))
+        for attr in ("name", "package", "package_version", "functional", "basis_set"):
+            setattr(merged_metadata, attr, self.merged_attr(attr, multiple_metadatas))
             
         # We take the latest of the two dates.
-        merged_metadata.date = latest_datetime([metadata.date for metadata in multiple_metadatas if metadata.date is not None])
+        merged_metadata.date = latest_datetime(*[metadata.date for metadata in multiple_metadatas if metadata.date is not None])
         # And the total duration.
-        merged_metadata.duration = total_timedelta([metadata.duration for metadata in multiple_metadatas if metadata.duration is not None])
+        merged_metadata.duration = total_timedelta(*[metadata.duration for metadata in multiple_metadatas if metadata.duration is not None])
         
         # Merge methods and calculations (but keep unique only).
-        merged_metadata.calculations = list(dict.fromkeys(itertools.chain((metadata.calculations for metadata in multiple_metadatas))))
-        merged_metadata.methods = self.sorted_methods(set(itertools.chain(metadata.methods for metadata in multiple_metadatas)))
+        merged_metadata.calculations = list(dict.fromkeys(itertools.chain(*(metadata.calculations for metadata in multiple_metadatas))))
+        merged_metadata.methods = self.sorted_methods(set(itertools.chain(*(metadata.methods for metadata in multiple_metadatas))))
         
         # We are only successful if all calcs are successful.
-        merged_metadata.calc_success = all((metadata.calc_success for metadata in multiple_metadatas))
+        merged_metadata.success = all((metadata.success for metadata in multiple_metadatas))
         converged = [metadata.optimisation_converged for metadata in multiple_metadatas]
         merged_metadata.optimisation_converged = False if False in converged else True if True in converged else None
         
         # Only keep these if all the same.
-        for attr in ("calc_temperature", "calc_pressure"):
+        for attr in ("temperature", "pressure"):
             # Get a unique list of the attrs.
             attr_set = set(getattr(metadata, attr) for metadata in multiple_metadatas)
             
             # Only keep if we have exactly one entry.
             if len(attr_set) == 1:
-                setattr(merged_metadata, attr, attr_set[0])
+                setattr(merged_metadata, attr, tuple(attr_set)[0])
                 
         # We take the first orbital spin type charge and mult, as this is what our orbital list will actually be.
         merged_metadata.orbital_spin_type = multiple_metadatas[0].orbital_spin_type
-        merged_metadata.system_charge = multiple_metadatas[0].system_charge
-        merged_metadata.system_multiplicity = multiple_metadatas[0].system_multiplicity
+        merged_metadata.charge = multiple_metadatas[0].charge
+        merged_metadata.multiplicity = multiple_metadatas[0].multiplicity
         
         return merged_metadata
     

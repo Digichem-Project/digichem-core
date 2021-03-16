@@ -25,6 +25,15 @@ class Energy_list(Result_container):
         Our string representation, same as the float but in text form.
         """
         return str(self.__float__())
+    
+    def assign_levels(self):
+        """
+        (Re)assign total levels of the objects in this list.
+        
+        The contents of this list will be modified in place.
+        """
+        # Energies don't have levels.
+        pass
 
     @property
     def final(self):

@@ -289,7 +289,7 @@ class Turbomole_to_cube(File_converter):
     # Text description of our output file type, used for error messages etc.
     output_file_type = file_types.gaussian_cube_file
     
-    def __init__(self, *args, calculation_directory, calc_t, prog_t, orbitals = [], density, spin, **kwargs):
+    def __init__(self, *args, calculation_directory = None, calc_t, prog_t, orbitals = [], density, spin, **kwargs):
         """
         Constructor for Turbomole_to_cube objects.
         
@@ -303,7 +303,7 @@ class Turbomole_to_cube(File_converter):
         super().__init__(*args, **kwargs)
         
         # Save our input calc dir.
-        self.input_file = Path(calculation_directory)
+        self.input_file = Path(calculation_directory) if calculation_directory is not None else None
         
         # The orbitals we've been asked to make.
         #self.orbitals = [orbital.level for orbital in orbitals]
@@ -338,14 +338,14 @@ class Turbomole_to_cube(File_converter):
         self.calc_t = calc_t
         
     @classmethod
-    def from_options(self, *args, calculation_directory, orbitals = [], density = True, spin = False, options, **kwargs):
+    def from_options(self, *args, calculation_directory = None, orbitals = [], density = True, spin = False, options, **kwargs):
         """
         Constructor that takes a dictionary of config like options.
         """
         # First, get our program.
         prog_t = options.programs.get_config(options['report']['turbomole']['program'])
         
-        calculation_directory = calculation_directory.resolve()
+        calculation_directory = calculation_directory.resolve() if calculation_directory is not None else None
         
         # Next, generate our calculation.
         calc_t = get_orbital_calc(
@@ -376,7 +376,7 @@ class Turbomole_to_cube(File_converter):
         )
         
     @classmethod
-    def from_calculation(self, *args, turbomole_calculation, orbitals = [], density = True, spin = False, options, **kwargs):
+    def from_calculation(self, *args, turbomole_calculation, calculation_directory = None, orbitals = [], density = True, spin = False, options, **kwargs):
         """
         Create a Turbomole cube maker from an existing Turbomole calculation.
         """
@@ -385,7 +385,7 @@ class Turbomole_to_cube(File_converter):
         
         return self(
             *args,
-            calculation_directory = turbomole_calculation.program.method.calc_dir.output_directory,
+            calculation_directory = calculation_directory if calculation_directory is not None else turbomole_calculation.program.method.calc_dir.output_directory,
             calc_t = calc_t.inner_cls,
             prog_t = type(turbomole_calculation.program),
             orbitals = orbitals,

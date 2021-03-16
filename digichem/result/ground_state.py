@@ -45,7 +45,7 @@ class Ground_state(Energy_state):
         
         :param parser: An output file parser.
         """
-        return self.from_energies(parser.results.metadata.system_charge, parser.results.metadata.system_multiplicity, parser.results.CC_energies, parser.results.MP_energies, parser.results.SCF_energies)
+        return self.from_energies(parser.results.metadata.charge, parser.results.metadata.multiplicity, parser.results.CC_energies, parser.results.MP_energies, parser.results.SCF_energies)
     
     @classmethod
     def from_energies(self, charge, multiplicity, CC_energies, MP_energies, SCF_energies):
