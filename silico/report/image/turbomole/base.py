@@ -12,7 +12,7 @@ class Turbomole_setup(Image_setup):
     Class for setting up Turbomole images.
     """
     
-    def __init__(self, report, metadata, options, calculation = None):
+    def __init__(self, report, metadata, options, orbitals, spin, calculation = None):
         """
         """
         super().__init__(report, metadata, options, calculation = calculation)
@@ -64,21 +64,26 @@ class Turbomole_setup(Image_setup):
                 calculation_directory = self.calculation_directories['structure'],
                 orbitals = required_orbitals,
                 density = True,
-                spin = self.metadata.multiplicity != 1,
+                # If we can use the same directory for both structure and spin, set spin to yes please.
+                spin = self.calculation_directories['spin'] is not None and self.calculation_directories['spin'] == self.calculation_directories['structure'],
                 options = self.options
             )
             
-            # And spin.
             if self.calculation_directories["spin"] != None:
-                self.cube_makers['spin'] = Turbomole_to_cube.from_calculation(
-                    Path(output_dir, "Cubes"),
-                    turbomole_calculation = self.calculation,
-                    calculation_directory = self.calculation_directories['spin'],
-                    orbitals = required_orbitals,
-                    density = True,
-                    spin = self.metadata.multiplicity != 1,
-                    options = self.options
-                )
+                # If we can use the same directory for both structure and spin, use the same cube maker.
+                if self.calculation_directories['spin'] == self.calculation_directories['structure']:
+                    self.cube_makers['spin'] = self.cube_makers['structure']
+                else:
+                    # We need to use a different directory for spin.
+                    self.cube_makers['spin'] = Turbomole_to_cube.from_calculation(
+                        Path(output_dir, "Cubes"),
+                        turbomole_calculation = self.calculation,
+                        calculation_directory = self.calculation_directories['spin'],
+                        orbitals = [],
+                        density = True,
+                        spin = True,
+                        options = self.options
+                    )
         else:
             # Normal structure maker.
             self.cube_makers['structure'] = Turbomole_to_cube.from_options(
@@ -86,20 +91,26 @@ class Turbomole_setup(Image_setup):
                 calculation_directory = self.calculation_directories['structure'],
                 orbitals = required_orbitals,
                 density = True,
-                spin = self.metadata.multiplicity != 1,
+                # If we can use the same directory for both structure and spin, set spin to yes please.
+                spin = self.calculation_directories['spin'] is not None and self.calculation_directories['spin'] == self.calculation_directories['structure'],
                 options = self.options
             )
             
-            # And spin.
-            if self.calculation_directories["spin"] != None:
-                self.cube_makers['spin'] = Turbomole_to_cube.from_options(
-                    Path(output_dir, "Cubes"),
-                    calculation_directory = self.calculation_directories['spin'],
-                    orbitals = required_orbitals,
-                    density = True,
-                    spin = self.metadata.multiplicity != 1,
-                    options = self.options
-                )
+            if self.calculation_directories["spin"] is not None:
+                # If we can use the same directory for both structure and spin, use the same cube maker.
+                if self.calculation_directories['spin'] == self.calculation_directories['structure']:
+                    self.cube_makers['spin'] = self.cube_makers['structure']
+                    print("Using same")
+                else:
+                    # We need to use a different directory for spin.
+                    self.cube_makers['spin'] = Turbomole_to_cube.from_options(
+                        Path(output_dir, "Cubes"),
+                        calculation_directory = self.calculation_directories['spin'],
+                        orbitals = [],
+                        density = True,
+                        spin = True,
+                        options = self.options
+                    )
         
         ################
         # Spin density #
