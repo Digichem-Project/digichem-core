@@ -9,6 +9,7 @@ from silico.exception.base import Silico_exception
 import silico.report
 from silico.parser import parse_calculations
 import itertools
+from silico.report.main.pdf import PDF_report
 
 # Printable name of this program.
 NAME = "Calculation Report Generator"
@@ -101,15 +102,9 @@ def _main(args, config, logger):
         # First, load results.
         result = parse_calculations(*args.log_files, aux_files = aux_files)
         
-        # Then get an appropriate report.
-        report = silico.report.from_result(result, options = config)
+        # Then get a report.
+        report = PDF_report(result, options = config)
         
-#         report = silico.report.from_files(
-#             args.log_file,
-#             options = config,
-#             named_input_files = named_input_files,
-#             emission_excited_state = args.emission_state
-#         )
     except Exception as e:
         raise Silico_exception("Failed to load results")
     

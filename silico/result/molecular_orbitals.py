@@ -9,6 +9,8 @@ from silico.result import Result_container
 from silico.result import Result_object
 from silico.exception import Result_unavailable_error
 from silico.result.base import Floatable_mixin
+import math
+import traceback
 
 
 class Molecular_orbital_list(Result_container):
@@ -247,11 +249,10 @@ class Molecular_orbital_list(Result_container):
             for index, MO in enumerate(MO_list):
                 try:
                     other_MO = MOs[index]
-                    if MO.energy != other_MO.energy or MO.level != other_MO.level or MO.spin_type != other_MO.spin_type:
+                    if not math.isclose(MO.energy,other_MO.energy) or MO.level != other_MO.level or MO.spin_type != other_MO.spin_type:
+                    #if MO.energy != other_MO.energy or MO.level != other_MO.level or MO.spin_type != other_MO.spin_type:
                         warnings.warn(self.MERGE_WARNING)
-                        #raise Silico_exception("Cannot merge lists of atoms that are not identical; '{} is not equal to '{}'".format(atom, other_atom))
                 except IndexError:
-                    #raise Silico_exception("Cannot merge lists of atoms that are not identical; these atom lists contain different numbers of atoms")
                     warnings.warn(self.MERGE_WARNING)
                 
         # Return the 'merged' list.
@@ -282,11 +283,11 @@ class Molecular_orbital(Result_object, Floatable_mixin):
         self.symmetry = symmetry
         self.symmetry_level = symmetry_level
         self.energy = energy
-        
+                
         # This needs to be set outside of this constructor, because it relies on multiple lists of orbitals being completed.
         # Total level is the index +1 of this orbital out of both alpha and beta orbitals (for restricted this will == level).
         self.total_level = None
-    
+            
     def __float__(self):
         return float(self.energy)
     
@@ -354,7 +355,6 @@ class Molecular_orbital(Result_object, Floatable_mixin):
         """
         Equality operator between MOs.
         """
-        print("DEBUG LABEL")
         return self.label == other.label
     
     def __hash__(self):

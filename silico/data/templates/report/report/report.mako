@@ -68,7 +68,7 @@
         %if report.result.transition_dipole_moment is not None:
             <%include file="/dipole_moment/dipole_moment_section.mako" args="dipole_moment = report.result.transition_dipole_moment, report = report, image_name = '{}_dipole'.format(report.result.transition_dipole_moment.excited_state.state_symbol)"/>
         %endif
-        %if report.result.metadata.multiplicity != 1 and len(report.result.beta_orbitals) > 0:
+        %if "spin_density" in report.images:
             <%include file="/spin/spin_density_section.mako" args="result = report.result, report = report"/>
         %endif
         %if len(pre_HOMO_orbitals) > 0:

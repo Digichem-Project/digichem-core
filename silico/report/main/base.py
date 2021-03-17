@@ -14,13 +14,14 @@ from silico.image.spectroscopy import Absorption_graph_maker,\
 from silico.result.excited_states import Excited_state_list
 from silico.image.graph import Convergence_graph_maker
 from silico.result.molecular_orbitals import Molecular_orbital_list
+import silico.report.image
 
 class Report():
     """
     An enhanced report set object that contains graphics and other objects for building graphical reports.
     """
     
-    def __init__(self, result, *, options):
+    def __init__(self, result, *, options, calculation = None):
         """
         Constructor for Report objects.
         
@@ -46,27 +47,10 @@ class Report():
             orbital_levels = options['report']['orbital_image']['orbital_levels'],
             beta_levels = options['report']['orbital_image']['beta_levels'],
             excited_state_transition_threshold = options['report']['orbital_image']['et_transition_threshold']
-        )
-    
-#     @classmethod
-#     def from_result(self, result, *, log_file_path = None, options, named_input_files, **kwargs):
-#         """
-#         Create a report object from a loaded result file, optionally searching for additional files.
-#         
-#         :param result: A result set.
-#         :param log_file_path: Path to the log file from which result was loaded. If given, the directory containing log_file_path will be searched for additional files.
-#         :param options: A silico Config dictionary which contains various options that control the appearance of this report.
-#         :param named_input_files: A dictionary of additional input files.
-#         """
-#         # If we're allowed to, have a look for other files we could add.
-#         if log_file_path is not None:
-#             for input_type, key_name in self.INPUT_FILES.items():
-#                 if named_input_files.get(key_name) is None:
-#                     # This file was not given explicitly, see if we can find it.
-#                     named_input_files[key_name] = self.find_additional_inputs(log_file_path, input_type)
-#                     
-#         # Continue as normal.
-#         return self(result, options = options, log_file_path = log_file_path, **named_input_files, **kwargs)
+        )            
+        
+        # Get image makers for each metadata.
+        self.image_setters = [silico.report.image.from_metadata(self, metadata, options, calculation) for metadata in reversed(self.result.metadatas)]
             
         
     @property
@@ -127,7 +111,8 @@ class Report():
         :param output_dir: A pathlib Path object to the directory within which our files should be created.
         :param output_name: A string that will be used as the start of the file name of the files we create.
         """
-        raise NotImplementedError()
+        for image_setup in self.image_setters:
+            image_setup.setup(output_dir, output_name)
     
     def relative_image(self, image, sub_image = 'file'):
         """
@@ -148,26 +133,28 @@ class Report():
         ################
         # Spin density #
         ################
-        self.images['positive_spin_density'] = Spin_density_image_maker.from_options(
-            Path(output_dir, "Spin Density", output_name + ".spin_pos.jpg"),
-            cube_file = self.cubes['spin_density'],
-            rotations = self.rotations,
-            spin = "positive",
-            options = self.options)
-        
-        self.images['negative_spin_density'] = Spin_density_image_maker.from_options(
-            Path(output_dir, "Spin Density", output_name + ".spin_neg.jpg"),
-            cube_file = self.cubes['spin_density'],
-            rotations = self.rotations,
-            spin = "negative",
-            options = self.options)
-        
-        self.images['spin_density'] = Spin_density_image_maker.from_options(
-            Path(output_dir, "Spin Density", output_name + ".spin_both.jpg"),
-            cube_file = self.cubes['spin_density'],
-            rotations = self.rotations,
-            spin = "both",
-            options = self.options)
+        # Only set spin image maker objects if we have a cube we can use.
+        if "spin_density" in self.cubes:
+            self.images['positive_spin_density'] = Spin_density_image_maker.from_options(
+                Path(output_dir, "Spin Density", output_name + ".spin_pos.jpg"),
+                cube_file = self.cubes['spin_density'],
+                rotations = self.rotations,
+                spin = "positive",
+                options = self.options)
+            
+            self.images['negative_spin_density'] = Spin_density_image_maker.from_options(
+                Path(output_dir, "Spin Density", output_name + ".spin_neg.jpg"),
+                cube_file = self.cubes['spin_density'],
+                rotations = self.rotations,
+                spin = "negative",
+                options = self.options)
+            
+            self.images['spin_density'] = Spin_density_image_maker.from_options(
+                Path(output_dir, "Spin Density", output_name + ".spin_both.jpg"),
+                cube_file = self.cubes['spin_density'],
+                rotations = self.rotations,
+                spin = "both",
+                options = self.options)
         
         #################
         # Total density #
@@ -341,6 +328,10 @@ class Report():
         for name, cube in self.cubes.items():
             if cube is not None:
                 cube.delete(lazy = True)
+                
+        # Cleanup image setup.
+        for image_setup in self.image_setters:
+            image_setup.cleanup()
     
     def _write(self, output, **kwargs):
         """

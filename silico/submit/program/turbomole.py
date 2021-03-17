@@ -13,6 +13,7 @@ from silico.config.configurable.option import Option
 from silico.exception.base import Submission_error
 from silico.misc.directory import copytree
 import silico.report
+from silico.report.main.pdf import PDF_report
 
 
 class Turbomole(Program_target):
@@ -320,10 +321,6 @@ class Turbomole(Program_target):
         def get_report(self):
             """
             Get a report suitable for parsing this type of calculation.
-            """            
-            return silico.report.from_result(
-                self.result,
-                options = self.calculation.silico_options,
-                turbomole_calculation = self.calculation
-            )
+            """
+            return PDF_report(self.results, options = self.calculation.silico_options, calculation = self.calculation)    
             

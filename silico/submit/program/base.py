@@ -23,6 +23,7 @@ from silico.submit import Configurable_target
 from silico.misc.directory import copytree
 import silico.report
 from silico.parser import parse_calculation
+from silico.report.main.pdf import PDF_report
 
 class Program_target(Configurable_target):
     """
@@ -295,10 +296,7 @@ class Program_target(Configurable_target):
             """
             Get a report suitable for parsing this type of calculation.
             """
-            return silico.report.from_result(
-                self.result,
-                options = self.calculation.silico_options
-            )
+            return PDF_report(self.results, options = self.calculation.silico_options)
             
         def parse_results(self):
             """
