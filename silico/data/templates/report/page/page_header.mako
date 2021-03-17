@@ -14,7 +14,8 @@
         <div class=header__title>
             ##Calculation Report
             ##${Path(result.metadata.name).name} - ${", ".join(result.metadata.calculations)}
-            ${Path(report.result.metadata.name).name} - ${report.result.title}
+            ##${Path(report.result.metadata.name).name} - ${report.result.title}
+            ${report.result.metadata.name} - ${report.result.title}
         </div>
     </header>
 </html>

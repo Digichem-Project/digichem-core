@@ -5,11 +5,11 @@
     from silico import misc
 %>
 
-<%page args="metadata" />
+<%page args="metadata, title = None" />
 
 
 <div class="resultsContainer">
-    <div class="reportHeader reportHeader--minor reportHeader--results">Metadata</div>
+    <div class="reportHeader reportHeader--minor reportHeader--results">${"Metadata" if title is None else title}</div>
     <table class="results">
         %if metadata.date is not None:
         <tr>

@@ -347,13 +347,13 @@ class Report():
         Write the various elements of this report to file.
         
         :param output: Path to a directory in which the report will be written.
-        
         """
         self.report_directory = output
         # Base directory for our images.
         image_dir = Path(self.report_directory, "image")
         # The base name for our images.
-        image_base_name = Path(self.result.metadata.name).with_suffix("").name
+        #image_base_name = Path(self.result.metadata.name).with_suffix("").name
+        image_base_name = self.result.metadata.name
         
         # Make our output directory.
         try:

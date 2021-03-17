@@ -22,6 +22,11 @@
     %if result.metadata is not None:
         <%include file="/metadata/metadata_results.mako" args="metadata = result.metadata"/>
     %endif
+    %if len(result.metadatas) > 1:
+    	%for index,sub_metadata in enumerate(result.metadatas):
+    		<%include file="/metadata/metadata_results.mako" args="metadata = sub_metadata, title = 'Calculation {}'.format(index +1)"/>
+    	%endfor
+    %endif
     %if len(result.SCF_energies) > 0:
         <%include file="/energy/energy_results.mako" args="energies = result.SCF_energies"/>
     %endif

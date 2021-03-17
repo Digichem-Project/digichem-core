@@ -77,7 +77,7 @@ class Result_object():
         """
         attributes = list(dict.fromkeys([getattr(obj, name) for obj in objects]))
         attributes = [attribute for attribute in attributes if attribute is not None]
-        return " / ".join(attributes) if len(attributes) > 0 else None
+        return ", ".join(attributes) if len(attributes) > 0 else None
     
     
     @classmethod
