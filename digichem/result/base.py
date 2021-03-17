@@ -5,6 +5,7 @@ import warnings
 # Silico imports.
 from silico.exception.base import Result_unavailable_error
 import itertools
+import math
 
 
 class Result_object():
@@ -112,19 +113,20 @@ class Floatable_mixin():
         """
         Is this class equal or less than another?
         """
-        return float(self) <= float(other)
+        return math.isclose(float(self), float(other)) or float(self) < float(other)
     
     def __eq__(self, other):
         """
         Is this class equal to another?
         """
-        return float(self) == float(other)
+        #return float(self) == float(other)
+        return math.isclose(float(self), float(other))
     
     def __ge__(self, other):
         """
         Is this class greater or equal to another?
         """
-        return float(self) >= float(other)
+        return math.isclose(float(self), float(other)) or float(self) > float(other)
     
     def __gt__(self, other):
         """
