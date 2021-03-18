@@ -162,8 +162,11 @@ class Configurable_list(list):
                 # We have a duplicate.
                 duplicate = duplicates[0]
                 # Merge the lists of PARENT and ALIAS (because lists are not normally merged). This might be unexpected?
-                config.PARENT.extend([parent for parent in duplicate.PARENT if parent not in config.PARENT])
-                config.ALIAS.extend([alias for alias in duplicate.ALIAS if alias not in config.ALIAS])
+                # Get new lists because these may be the default lists for these configurables, in which case the list object will be shared with others.
+                config.PARENT = list(itertools.chain(config.PARENT, [parent for parent in duplicate.PARENT if parent not in config.PARENT]))
+                config.ALIAS = list(itertools.chain(config.ALIAS, [alias for alias in duplicate.ALIAS if alias not in config.ALIAS]))
+                #config.PARENT.extend([parent for parent in duplicate.PARENT if parent not in config.PARENT])
+                #config.ALIAS.extend([alias for alias in duplicate.ALIAS if alias not in config.ALIAS])
                 
                 # Merge the duplicate with the current config.
                 # Because we are not replacing duplicate (it's the same object), this will update the config in the list.
@@ -293,7 +296,7 @@ class Configurable(Config, Dynamic_parent, Options_mixin):
                 parent = configs.get_config(parent_name)
             except Silico_exception as e:
                 # Couldn't find parent.
-                raise Configurable_exception(self, "could not find parent") from e        
+                raise Configurable_exception(self, "could not find parent") from e
             
             # Clone.
             parent = deepcopy(parent)
