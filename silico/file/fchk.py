@@ -1,9 +1,14 @@
-from silico.file import File_converter
+# General imports.
 import subprocess
-from silico.exception.base import File_maker_exception
 from logging import getLogger
+import os
+
+# Silico imports.
+from silico.file import File_converter
+from silico.exception.base import File_maker_exception
 import silico.file.types as file_types
 import silico
+from silico.submit import Memory
 
 class Chk_to_fchk(File_converter):
     """
@@ -20,7 +25,7 @@ class Chk_to_fchk(File_converter):
     #output_file_type = "fchk"
     output_file_type = file_types.gaussian_fchk_file
     
-    def __init__(self, *args, chk_file = None, fchk_file = None,  **kwargs):
+    def __init__(self, *args, chk_file = None, fchk_file = None, memory = "3 GB", **kwargs):
         """
         Constructor for Chk_to_fchk objects.
         
@@ -29,8 +34,10 @@ class Chk_to_fchk(File_converter):
         :param output: The filename/path to the fchk file (this path doesn't need to point to a real file yet; we will use this path to write to).
         :param chk_file: Optional chk_file to use to generate this fchk file.
         :param fchk_file: An optional file path to an existing fchk file to use. If this is given (and points to an actual file), then a new fchk will not be made and this file will be used instead.
+        :param memory: The amount of memory for formchk to use.
         """
         super().__init__(*args, input_file = chk_file, existing_file = fchk_file, **kwargs)
+        self.memory = Memory(memory)
         
     def make_files(self):
         """
@@ -53,7 +60,8 @@ class Chk_to_fchk(File_converter):
                 stdout = subprocess.PIPE,
                 stderr = subprocess.STDOUT,
                 universal_newlines = True,
-                cwd = str(self.input_file.parent)
+                cwd = str(self.input_file.parent),
+                env = dict(os.environ, GAUSS_MEMDEF = str(self.memory))
                 )
         except FileNotFoundError:
             raise File_maker_exception(self, "Could not locate formchk executable '{}'".format(self.formchk_executable))
