@@ -29,7 +29,7 @@ NAME: Long SLURM
 PARENT: [slurm]
 ALIAS: [slurm_long]
 CLASS: SLURM
-partition: Long
+partition: long
 time: 41-00:00:00
 
 ---
