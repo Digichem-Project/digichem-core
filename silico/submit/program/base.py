@@ -122,8 +122,9 @@ class Program_target(Configurable_target):
                 # Finished normally.
                 self.end(True)
                 
-            # Post calc (write result files etc).
-            self.post()
+            # If we got an error during the calc, re-raise it now.
+            if self.error is not None:
+                raise self.error
     
         @property
         def success(self):
@@ -183,12 +184,28 @@ class Program_target(Configurable_target):
                 self.duration = datetime.timedelta(seconds = self.end_timer - self.start_timer)
                 getLogger(silico.logger_name).info("Calculation duration: {} ({} total seconds)".format(misc.timedelta_to_string(self.duration), self.duration.total_seconds()))
                 
+                # Unset our running flag.
+                self.method.calc_dir.del_flag(Flag.RUNNING)
+                
+                ########
+                # Post #
+                ########
+                # We perform post prior to cleanup to save potentially copying large files (.rwf, .chk) from scratch to output.
+                # Set Flag.
+                self.method.calc_dir.set_flag(Flag.POST)
+                
+                try:
+                    self.post()
+                except Exception as e:
+                    # Save so we can do cleanup.
+                    self.error = e
+                
+                # Delete Flag.
+                self.method.calc_dir.del_flag(Flag.POST)
+            
                 ###########
                 # Cleanup #
                 ###########
-                
-                # Unset our running flag.
-                self.method.calc_dir.del_flag(Flag.RUNNING)
                 # Set our cleanup flag.
                 self.method.calc_dir.set_flag(Flag.CLEANUP)
             
@@ -292,11 +309,18 @@ class Program_target(Configurable_target):
             """
             pass
         
+        def get_result(self):
+            """
+            Get a result set from this calculation.
+            """
+            return parse_calculation(self.calc_output_file_path)
+        
         def get_report(self):
             """
             Get a report suitable for parsing this type of calculation.
             """
             return PDF_report(self.results, options = self.calculation.silico_options)
+            
             
         def parse_results(self):
             """
@@ -305,11 +329,10 @@ class Program_target(Configurable_target):
             Certain flags will be set depending on the status of the calculation. Additionally, a PDF_report object will be stored to self.result
             """
             # Try and load our results.
-            # We'll actually load a report object because it is the same as a Result_set but with some extra methods which we might need to write a report. Saves us loading results twice.
             # We need to know whether the calculation was successful or not, so we make no effort to catch exceptions here.
             try:
                 try:
-                    self.result = parse_calculation(self.calc_output_file_path)
+                    self.result = self.get_result()
                 except Exception as e:
                     raise Submission_error(self, "failed to process completed calculation results") from e
                 
@@ -338,9 +361,7 @@ class Program_target(Configurable_target):
         def post(self):
             """
             Perform post analysis and cleanup, this method is called after a calculation has finished.
-            """
-            # Set Flag.
-            self.method.calc_dir.set_flag(Flag.POST)                        
+            """                
             
             # First, make our result directory.
             try:
@@ -384,12 +405,8 @@ class Program_target(Configurable_target):
             else:
                 getLogger(silico.logger_name).info("Skipping report generation because calculation did not finish successfully")
                 
-            # Delete Flag.
-            self.method.calc_dir.del_flag(Flag.POST)
                 
-            # If we got an error during the calc, re-raise it now.
-            if self.error is not None:
-                raise self.error
+
         
         def write_summary_files(self):
             """
