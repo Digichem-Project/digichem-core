@@ -43,7 +43,6 @@ modules:
 # Optimisation @ SCS-CC2.
 TYPE: calculation
 
-#NAME: SCS CC2 Opt (cc-pVDZ)
 GROUP: [Opt, CC2-SCS]
 PARENT: [Turbomole-CC2-defaults]
 
@@ -51,11 +50,22 @@ PARENT: [Turbomole-CC2-defaults]
 modules:
     - jobex -level cc2 -c 100 -keep
     
-# Turn on CC2.
-ricc2:
-    model: cc2
-    scs: scs
-    
 # Turn on optimisation.
 cc_geoopt:
     wavefunction: cc2
+    
+    
+---
+# Optimisation @ SCS-ADC(2).
+TYPE: calculation
+
+GROUP: [Opt, ADC(2)-SCS]
+PARENT: [Turbomole-ADC2-defaults]
+
+# This is an opt.
+modules:
+    - jobex -level cc2 -c 100 -keep
+    
+# Turn on optimisation.
+cc_geoopt:
+    wavefunction: ADC(2)

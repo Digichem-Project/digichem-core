@@ -8,10 +8,6 @@ PARENT: [prog-defaults]
 # The name of the program this config is for. These are pre-built into silico.
 CLASS: Turbomole
 
-# Setup locations.
-#root: /gpfs1/apps/software/TURBOMOLE/
-#init_file: /gpfs1/apps/software/TURBOMOLE/Config_turbo_env
-
 root: /home/oliver/Software/TmoleX19/TURBOMOLE
 init_file: /home/oliver/Software/TmoleX19/TURBOMOLE/Config_turbo_env
 

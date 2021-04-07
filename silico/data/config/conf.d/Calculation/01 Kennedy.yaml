@@ -1,0 +1,12 @@
+# Global calc defaults.
+TYPE: calculation
+
+# Our reference name.
+ALIAS: [calc-defaults]
+
+scratch_options:
+    # We use a different scratch location on Kennedy.
+    path: /scratch/tmp
+    
+    # Whether to copy everything from scratch to output on failure. True is safer as there is not risk of an important file being lost, but can involve copying huge files that aren't needed.
+    rescue: True

@@ -15,7 +15,7 @@ num_CPUs: 8
 # Set scratch_structure: None to disable scatch.
 scratch_options:
     # Path to the directory to use for scratch. For each calculation, a unique subdirectory will be created under this root directory.
-    path: /scratch/tmp
+    path: /scratch
     
     # If True, directories created in the scratch directory will be contained in a subdirectory for each user (so the path would become eg, /scratch/<USERNAME>/<CALC_ID>).
     use_username: True
@@ -24,7 +24,7 @@ scratch_options:
     keep: False
     
     # Whether to copy everything from scratch to output on failure. True is safer as there is not risk of an important file being lost, but can involve copying huge files that aren't needed.
-    rescue: True
+    rescue: False
     
     # If True, the scratch directory is always deleted after the calculation has completed, even if the calculation failed or if the results could not be copied back to the output directory.
     # This is normally unsafe, but on Kennedy we can't easily get access to the scratch anyway, so we might as well cleanup after ourselves.
