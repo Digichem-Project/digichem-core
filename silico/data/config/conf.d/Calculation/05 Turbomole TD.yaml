@@ -133,7 +133,7 @@ modules:
 TYPE: calculation
 
 PARENT: [Turbomole-ADC2-defaults]
-GROUP: ["Excited States", "ADC2-SCS", "S(1) & S(2)"]
+GROUP: ["Excited States", "ADC(2)-SCS", "S(1) & S(2)"]
     
 # Specify excited states.
 ricc2_exci:
@@ -151,7 +151,7 @@ modules:
 TYPE: calculation
 
 PARENT: [Turbomole-ADC2-defaults]
-GROUP: ["Excited States", "ADC2-SCS", "T(1) & T(2)"]
+GROUP: ["Excited States", "ADC(2)-SCS", "T(1) & T(2)"]
     
 # Specify excited states.
 ricc2_exci:
