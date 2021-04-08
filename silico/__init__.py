@@ -15,7 +15,7 @@ name = "silico"
 # Brief description.
 description = "Silico Computational Chemistry Package"
 # Whether this is a development version.
-development = False
+development = True
 # Version information.
 major_version = 0
 minor_version = 18
