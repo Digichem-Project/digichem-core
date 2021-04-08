@@ -64,8 +64,26 @@ class Program_target(Configurable_target):
             self.end_time = None
             self.duration = None
             
-            # An exception caught during the calculation. This will be re-raised once cleanup and analysis has been finished (attempted).
-            self.error = None
+            # A list of exceptions caught during the calculation. This will be re-raised once cleanup and analysis has been finished (attempted).
+            self.errors = []
+            
+        @property
+        def error(self):
+            """
+            Returns the first error caught in self.errors.
+            If there are no errors, returns None.
+            """
+            try:
+                return self.errors[0]
+            except IndexError:
+                return None
+            
+        @error.setter
+        def error(self, error):
+            """
+            Add a new caught exception to the list of internal exceptions.
+            """
+            self.errors.append(error)
             
         @property
         def scratch_output(self):

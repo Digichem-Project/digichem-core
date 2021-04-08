@@ -92,16 +92,11 @@ modules:
     - jobex -level scf -c 100 -keep -ex 
 
 ---
-# CC2 excited states.
+# CC2 singlet excited states.
 TYPE: calculation
 
 PARENT: [Turbomole-CC2-defaults]
 GROUP: ["Excited States", "CC2-SCS", "S(1) & S(2)"]
-
-# Turn on CC2.
-ricc2:
-    model: cc2
-    scs: scs
     
 # Specify excited states.
 ricc2_exci:
@@ -115,16 +110,11 @@ modules:
     - ricc2
     
 ---
-# CC2 excited states.
+# CC2 triplet excited states.
 TYPE: calculation
 
 PARENT: [Turbomole-CC2-defaults]
 GROUP: ["Excited States", "CC2-SCS", "T(1) & T(2)"]
-
-# Turn on CC2.
-ricc2:
-    model: cc2
-    scs: scs
     
 # Specify excited states.
 ricc2_exci:
@@ -138,3 +128,39 @@ modules:
     - dscf
     - ricc2
     
+---
+# ADC2 singlet excited states.
+TYPE: calculation
+
+PARENT: [Turbomole-ADC2-defaults]
+GROUP: ["Excited States", "ADC(2)-SCS", "S(1) & S(2)"]
+    
+# Specify excited states.
+ricc2_exci:
+    multiplicity: 1
+    nexc: 2
+    oscillator_strengths: diplen
+    
+# This is a single point.
+modules:
+    - dscf
+    - ricc2
+    
+---
+# ADC2 tripet excited states.
+TYPE: calculation
+
+PARENT: [Turbomole-ADC2-defaults]
+GROUP: ["Excited States", "ADC(2)-SCS", "T(1) & T(2)"]
+    
+# Specify excited states.
+ricc2_exci:
+    multiplicity: 3
+    nexc: 2
+    # Can't calculate oscillator strengths for triplets.
+    oscillator_strengths: null
+    
+# This is a single point.
+modules:
+    - dscf
+    - ricc2

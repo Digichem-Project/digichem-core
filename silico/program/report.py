@@ -57,6 +57,11 @@ def arguments(subparsers):
     image_group.add_argument("-O", "--overwrite_existing_images", help = "force overwriting and re-rendering of all image files", action = "store_true", default = None)
     image_group.add_argument("--dont_auto_crop", help = "disable automatic cropping of excess whitespace around the border of images. If given, rendered images will have the same resolution, but molecules may only occupy a small portion of the true image", action = "store_false", default = None)
     
+
+def main(args):
+    """
+    Main entry point for the report program.
+    """
     # 'Temporary' function that maps our custom command-line arguments to our config object.
     def arg_to_config(args, config):
         # Add our report specific command line arguments to our config dictionary.
@@ -71,12 +76,8 @@ def arguments(subparsers):
             }
         })
     
+    silico.program.main_wrapper(_main, args = args, arg_to_config = arg_to_config)
 
-def main(args):
-    """
-    Main entry point for the resume program.
-    """
-    silico.program.main_wrapper(_main, args = args)
 
 def _main(args, config, logger):
     """

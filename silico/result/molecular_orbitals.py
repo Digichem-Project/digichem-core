@@ -3,14 +3,13 @@
 # General imports.
 from itertools import filterfalse, zip_longest, chain
 import warnings
+import math
 
 # Silico imports.
 from silico.result import Result_container
 from silico.result import Result_object
 from silico.exception import Result_unavailable_error
 from silico.result.base import Floatable_mixin
-import math
-import traceback
 
 
 class Molecular_orbital_list(Result_container):
@@ -385,6 +384,11 @@ class Molecular_orbital(Result_object, Floatable_mixin):
                 
             # Don't catch this exception; if we don't have MO energies there's nothing we can do.
             energy = parser.data.moenergies[self.ccdata_index]
+            
+            # Check we don't have more symmetries than we do energies.
+            if len(energy) < len(symmetry):
+                warnings.warn("Parsed more MO symmetries than MO energies; cannot continue parsing orbitals ('{}' symmetries, '{}' energies)".format(len(symmetry), len(energy)))
+                return []
             
             # Keep a track of all the symmetries we've seen.
             symmetries = {}

@@ -5,6 +5,8 @@ from pathlib import Path
 import subprocess
 from logging import getLogger
 import tempfile
+import shutil
+import os
 
 # Silico imports.
 from silico.exception.base import File_maker_exception
@@ -14,7 +16,7 @@ import silico
 from silico.submit.method.local import Series
 from silico.submit.calculation.turbomole import get_orbital_calc, Turbomole_memory
 from silico.file.base import File_maker
-import shutil
+from silico.submit import Memory
 
 class Fchk_to_cube(File_converter):
     """
@@ -37,7 +39,7 @@ class Fchk_to_cube(File_converter):
     # Text description of our output file type, used for error messages etc.
     output_file_type = file_types.gaussian_cube_file
     
-    def __init__(self, *args, fchk_file = None, cubegen_type = "MO", orbital = "HOMO", npts = 0, cube_file = None, **kwargs):
+    def __init__(self, *args, fchk_file = None, cubegen_type = "MO", orbital = "HOMO", npts = 0, cube_file = None, memory = "3 GB", **kwargs):
         """
         Constructor for Fchk_to_cube objects.
         
@@ -49,11 +51,13 @@ class Fchk_to_cube(File_converter):
         :param orbital: The orbital to be included in the cube file when we make it. Possible values are 'HOMO', 'LUMO' or the integer level of the desired orbital.
         :param npts: The 'npts' option of cubegen, controls how detailed the resulting file is. Common options are 0 (default), -2 ('low' quality), -3 (medium quality), -4 (very high quality).
         :param cube_file: An optional file path to an existing cube file to use. If this is given (and points to an actual file), then a new cube will not be made and this file will be used instead.
+        :param memory: The amount of memory for cubegen to use.
         """
         super().__init__(*args, input_file = fchk_file, existing_file = cube_file, **kwargs)
         self.cubegen_type = cubegen_type
         self.orbital = orbital
         self.npts = npts
+        self.memory = Memory(memory)
         
     @classmethod
     def from_options(self, output, *, fchk_file = None, cubegen_type = "MO", orbital = "HOMO", options, **kwargs):
@@ -92,6 +96,7 @@ class Fchk_to_cube(File_converter):
                 stdout = subprocess.PIPE,
                 stderr = subprocess.STDOUT,
                 universal_newlines = True,
+                env = dict(os.environ, GAUSS_MEMDEF = str(self.memory))
                 )
         except FileNotFoundError:
             raise File_maker_exception(self, "Could not locate cubegen executable '{}'".format(self.cubegen_executable))

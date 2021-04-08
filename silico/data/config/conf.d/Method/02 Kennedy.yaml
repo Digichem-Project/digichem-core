@@ -1,0 +1,35 @@
+---
+TYPE: method
+
+# Config for a SLURM submission.
+NAME: Singlenode SLURM
+ALIAS: [slurm]
+PARENT: [slurm-defaults]
+partition: singlenode
+
+---
+TYPE: method
+NAME: BigMem SLURM
+PARENT: [slurm-defaults]
+ALIAS: [slurm-bigmem]
+partition: bigmem
+warning: You have selected the high memory capacity partition. This memory capacity is not normally required for DFT calculations; please make sure you know what you are doing.
+
+---
+TYPE: method
+NAME: Debug SLURM
+PARENT: [slurm-defaults]
+ALIAS: [slurm-debug]
+HIDDEN: True
+partition: debug
+warning: You have selected the debug partition. This partition is for testing purposes only; please make sure you know what you are doing.
+
+---
+TYPE: method
+NAME: Multi Node SLURM
+PARENT: [slurm-defaults]
+ALIAS: [slurm-multi]
+HIDDEN: True
+partition: parallel
+warning: You have selected the high-performance parallel partition. This partition MUST NOT be used for DFT; please make sure you know what you are doing.
+

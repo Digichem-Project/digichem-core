@@ -9,6 +9,3 @@ methods:
     - series
     - parallel
     - slurm
-    - slurm_big_mem
-    - slurm_multi
-    - slurm_debug

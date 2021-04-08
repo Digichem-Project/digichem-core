@@ -1,0 +1,18 @@
+---
+TYPE: method
+
+# Config for a SLURM submission.
+NAME: Normal SLURM
+ALIAS: [slurm]
+PARENT: [slurm-defaults]
+partition: batch
+time: 5-00:00:00
+
+---
+TYPE: method
+NAME: Long SLURM
+ALIAS: [slurm-long]
+PARENT: [slurm-defaults]
+partition: long
+time: 21-00:00:00
+

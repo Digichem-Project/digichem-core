@@ -2,12 +2,9 @@
 TYPE: method
 
 # Config for a SLURM submission.
-NAME: Normal SLURM
-ALIAS: [slurm]
+ALIAS: [slurm-defaults]
 
 CLASS: SLURM
-partition: batch
-time: 5-00:00:00
 
 # The command used to run sbatch (incase this has been renamed or wrapped in some way).
 sbatch_command: sbatch
@@ -22,31 +19,4 @@ CPUs_per_task: auto
 # The amount of memory to allocate per CPU.
 # The default is to use the same amount of memory as the calculation uses.
 mem_per_CPU: auto
-
----
-TYPE: method
-NAME: Long SLURM
-PARENT: [slurm]
-ALIAS: [slurm_long]
-CLASS: SLURM
-partition: Long
-time: 41-00:00:00
-
----
-TYPE: method
-
-# Config for a local submission
-NAME: Local (series)
-ALIAS: [series]
-
-CLASS: series
-
----
-TYPE: method
-
-# Config for a local submission
-NAME: Local (parallel)
-ALIAS: [parallel]
-
-CLASS: parallel
 
