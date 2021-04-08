@@ -61,7 +61,7 @@ class Report():
         self.image_setters = []
         for index, metadata in enumerate(reversed(self.result.metadatas)):
             # Only request orbitals from the main result (first, but remember we are travelling backwards thro metadatas).
-            do_orbitals = index == len(self.result.metadatas)
+            do_orbitals = index == len(self.result.metadatas) -1
             # Only request spin images if available.
             do_spin = metadata.multiplicity != 1 and metadata.orbital_spin_type == "unrestricted"
             
