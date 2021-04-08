@@ -50,7 +50,25 @@ class Report():
         )            
         
         # Get image makers for each metadata.
-        self.image_setters = [silico.report.image.from_metadata(self, metadata, options, calculation) for metadata in reversed(self.result.metadatas)]
+        # We need to be careful with what we request from each image maker, especially for Turbomole
+        # eg, We can't just ask for orbitals from all Turbomole makers because this is wasteful if 
+        # we only need spin images from one of the makers; Turbomole will still render the orbital images
+        # which we won't use. Worse, if this image maker is unrestricted but the main result is restricted,
+        # the image maker will fail because it will expect restricted file names for orbital cubes from turbomole
+        # (we can't control what turbomole names cube files), but these won't be there.
+        #
+        # We also move backwards through our results, this ensures that earlier calculations have precedence.
+        self.image_setters = []
+        for index, metadata in enumerate(reversed(self.result.metadatas)):
+            # Only request orbitals from the main result (first, but remember we are travelling backwards thro metadatas).
+            do_orbitals = index == len(self.result.metadatas)
+            # Only request spin images if available.
+            do_spin = metadata.multiplicity != 1 and metadata.orbital_spin_type == "unrestricted"
+            
+            # Setup.
+            self.image_setters.append(
+                silico.report.image.from_metadata(self, metadata = metadata, do_orbitals = do_orbitals, do_spin = do_spin, options = options, calculation = calculation)
+            )
             
         
     @property

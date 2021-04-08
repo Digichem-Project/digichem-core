@@ -13,10 +13,16 @@ class Gaussian_setup(Image_setup):
     Class for setting up Gaussian images.
     """
     
-    def __init__(self, report, metadata, options, calculation = None):
+    def __init__(self, report, *, metadata, do_orbitals, do_spin, options, calculation = None):
         """
+        :param report: The report object we will setup images for.
+        :param metadata: The metadata corresponding to the (sub) calculation we will make images from.
+        :param do_orbitals: Whether to generate orbitals.
+        :param do_spin: Whether to generate spin density plots.
+        :param options: Dictionary of config options.
+        :param calculation: Optional calculation which will be used as a template for new calculations to generate new images.
         """
-        super().__init__(report, metadata, options, calculation = calculation)
+        super().__init__(report, metadata = metadata, options = options, calculation = calculation)
         
         # Get the chk and fchk files we'll be using.        
         self.chk_file_paths = {"structure": None, "spin": None}
@@ -24,17 +30,17 @@ class Gaussian_setup(Image_setup):
         
         # First look for general 'structure' files.
         if "chk_file" in metadata.auxiliary_files:
-            self.chk_file_paths['structure'] = metadata.auxiliary_files['chk_file']
+            if do_orbitals:
+                self.chk_file_paths['structure'] = metadata.auxiliary_files['chk_file']
             
-            # If this metadata also has spin data, this will do for our spin chk too.
-            if metadata.multiplicity != 1 and metadata.orbital_spin_type == "unrestricted":
+            if do_spin:
                 self.chk_file_paths['spin'] = metadata.auxiliary_files['chk_file']
             
         if "fchk_file" in metadata.auxiliary_files:
-            self.fchk_file_paths['structure'] = metadata.auxiliary_files['fchk_file']
+            if do_orbitals:
+                self.fchk_file_paths['structure'] = metadata.auxiliary_files['fchk_file']
             
-            # If this metadata also has spin data, this will do for our spin fchk too.
-            if metadata.multiplicity != 1 and metadata.orbital_spin_type == "unrestricted":
+            if do_spin:
                 self.fchk_file_paths['spin'] = metadata.auxiliary_files['fchk_file']
         
         # Actual fchk file maker objects.

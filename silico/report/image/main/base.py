@@ -5,13 +5,15 @@ class Image_setup():
     Top-level class for classes that setup images for report objects.
     """
     
-    def __init__(self, report, metadata, options, calculation = None):
+    def __init__(self, report, *, metadata, do_orbitals = None, do_spin = None, options, calculation = None):
         """
         Constructor for Image_setup objects.
         
-        :param report: The Report object we'll create images for.
-        :param metadata: The metadata object to use to setup images.
-        :param options: Options to use to create images.
+        :param report: The report object we will setup images for.
+        :param metadata: The metadata corresponding to the (sub) calculation we will make images from.
+        :param do_orbitals: Whether to generate orbitals.
+        :param do_spin: Whether to generate spin density plots.
+        :param options: Dictionary of config options.
         :param calculation: Optional calculation which will be used as a template for new calculations to generate new images.
         """
         self.report = report

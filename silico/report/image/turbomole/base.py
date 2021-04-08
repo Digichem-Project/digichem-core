@@ -12,22 +12,28 @@ class Turbomole_setup(Image_setup):
     Class for setting up Turbomole images.
     """
     
-    def __init__(self, report, metadata, options, orbitals, spin, calculation = None):
+    def __init__(self, report, *, metadata, do_orbitals, do_spin, options, calculation = None):
         """
+        :param report: The report object we will setup images for.
+        :param metadata: The metadata corresponding to the (sub) calculation we will make images from.
+        :param do_orbitals: Whether to generate orbitals.
+        :param do_spin: Whether to generate spin density plots.
+        :param options: Dictionary of config options.
+        :param calculation: Optional calculation which will be used as a template for new calculations to generate new images.
         """
-        super().__init__(report, metadata, options, calculation = calculation)
+        super().__init__(report, metadata = metadata, options = options, calculation = calculation)
         
         # Find which turbomole directories we can use to generate cubes.
         self.calculation_directories = {'structure': None, 'spin': None}
         
         try:
-            self.calculation_directories['structure'] = metadata.log_files[0].parent
+            if do_orbitals:
+                self.calculation_directories['structure'] = metadata.log_files[0].parent
             
-            # See if this will also do for our spin calc.
-            if metadata.multiplicity != 1 and metadata.orbital_spin_type == "unrestricted":
+            if do_spin:
                 self.calculation_directories['spin'] = metadata.log_files[0].parent
             
-        except (IndexError, KeyError):
+        except (IndexError, AttributeError):
             # Either no log files or empty list of log files.
             pass
             
