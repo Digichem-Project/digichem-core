@@ -119,9 +119,11 @@ def _main(args, config, logger):
     
     # The filename (excluding parent directories) we'll write to if the user doesn't give us one.
     if args.type == "full":
-        default_base_name = input_name.with_suffix(".pdf").name
+        #default_base_name = input_name.with_suffix(".pdf").name
+        default_base_name = result.metadata.name + ".pdf"
     else:
-        default_base_name = input_name.with_suffix(".atoms.pdf").name
+        #default_base_name = input_name.with_suffix(".atoms.pdf").name
+        default_base_name = result.metadata.name + ".atoms.pdf"
     
     # Decide on our output file.
     if args.pdf_file is not None:

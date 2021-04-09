@@ -69,7 +69,8 @@ class Parser(Result_set):
         found_log_files = [found_log.resolve() for given_log_file in given_log_files for found_log in self.find_log_files(given_log_file)]
         
         # Make sure we only have unique log files.
-        log_files = list(dict.fromkeys(found_log_files))
+        # We also now reverse our ordering, so that files given earlier by the user have priority.
+        log_files = list(reversed(dict.fromkeys(found_log_files)))
         
         # Next, have a look for aux. files.
         aux_files = {}
