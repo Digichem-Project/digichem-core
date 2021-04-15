@@ -47,8 +47,6 @@ class Result_set(Result_object):
         :param molecular_orbitals: Optional Molecular_orbital_list object.
         :param beta_orbitals: Optional Beta MOs. If this is not None, then molecular_orbitals is assumed to refer to the Alpha MOs.
         :param excited_states: Optional Excited_state_list object.
-        :param vertical_emission: A Relaxed_excited_state object representing the vertical emission energy.
-        :param adiabatic_emission: A Relaxed_excited_state object representing the adiabatic emission energy.
         :param vibrations: Optional molecular Vibrations object.
         :param spin_orbit_coupling: A list of spin_orbit_coupling.
         """
@@ -67,8 +65,8 @@ class Result_set(Result_object):
         self.excited_states = excited_states
         self.energy_states = energy_states
         self.vibrations = vibrations
-        self.vertical_emission = None
-        self.adiabatic_emission = None
+        self.vertical_emission = {}
+        self.adiabatic_emission = {}
         self.spin_orbit_coupling = spin_orbit_coupling
     
     
