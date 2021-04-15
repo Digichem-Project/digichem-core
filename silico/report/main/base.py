@@ -299,22 +299,23 @@ class Report():
         #################################
         # Vertical & adiabatic emission #
         #################################
-        for emission in (self.result.vertical_emission, self.result.adiabatic_emission):
-            # Skip if None.
-            if emission is not None:
+        for emission_type in (self.result.vertical_emission, self.result.adiabatic_emission):
+            for emission_multiplicity in emission_type:
+                emission = emission_type[emission_multiplicity]
+                
                 # First our states diagram.
-                self.images['{}_emission_energies'.format(emission.transition_type)] = Excited_states_diagram_maker.from_options(
-                    Path(output_dir, output_name + ".{}_emission_states.png".format(emission.transition_type)),
+                self.images['{}_{}_emission_energies'.format(emission.transition_type, emission.state_symbol)] = Excited_states_diagram_maker.from_options(
+                    Path(output_dir, output_name + ".{}_{}_emission_states.png".format(emission.transition_type, emission.state_symbol)),
                     excited_states = Excited_state_list([emission]),
                     ground_state = self.result.ground_state,
                     options = self.options)
                 
                 # Now emission spectrum.
-                self.images['simulated_{}_emission_graph'.format(emission.transition_type)] = Emission_graph_maker.from_options(
-                    Path(output_dir, output_name + ".simulated_{}_emission_spectrum.png".format(emission.transition_type)),
+                self.images['simulated_{}_{}_emission_graph'.format(emission.transition_type, emission.state_symbol)] = Emission_graph_maker.from_options(
+                    Path(output_dir, output_name + ".simulated_{}_{}_emission_spectrum.png".format(emission.transition_type, emission.state_symbol)),
                     excited_states = Excited_state_list([emission]),
                     options = self.options)
-                
+                    
         
         
         #############################

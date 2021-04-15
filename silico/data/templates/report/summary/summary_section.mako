@@ -54,12 +54,12 @@
     %if len(result.vibrations) > 0:
         <%include file="/vibrations/vibrations_results.mako" args="vibrations = result.vibrations"/>
     %endif
-    %if result.vertical_emission is not None:
-        <%include file="/emission/emission_results.mako" args="relaxed_excited_state = result.vertical_emission"/><span></span>
-    %endif
-    %if result.adiabatic_emission is not None:
-        <%include file="/emission/emission_results.mako" args="relaxed_excited_state = result.adiabatic_emission"/><span></span>
-    %endif
+    %for multiplicity, vertical_emission in result.vertical_emission.items():
+        <%include file="/emission/emission_results.mako" args="emission = vertical_emission"/><span></span>
+    %endfor
+    %for multiplicity, adiabatic_emission in result.adiabatic_emission.items():
+        <%include file="/emission/emission_results.mako" args="emission = adiabatic_emission"/><span></span>
+    %endfor
     %if len(result.excited_states) > 0 and len(result.spin_orbit_coupling) > 0:
         <%include file="/spin_orbit_coupling/SOC_results.mako" args="spin_orbit_coupling = result.spin_orbit_coupling, excited_states = result.excited_states"/>
     %endif

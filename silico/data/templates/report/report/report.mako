@@ -83,12 +83,16 @@
         %if len(post_LUMO_orbitals) > 0:
             <%include file="/orbitals/orbitals_section.mako" args="molecular_orbitals = post_LUMO_orbitals, report = report"/>
         %endif
-        %if report.result.vertical_emission is not None:
-            <%include file="/emission/emission_section.mako" args="relaxed_excited_state = report.result.vertical_emission, report = report, energies_image_name = 'vertical_emission_energies', graph_image_name = 'simulated_vertical_emission_graph'"/>
-        %endif
-        %if report.result.adiabatic_emission is not None:
-            <%include file="/emission/emission_section.mako" args="relaxed_excited_state = report.result.adiabatic_emission, report = report, energies_image_name = 'adiabatic_emission_energies', graph_image_name = 'simulated_adiabatic_emission_graph'"/>
-        %endif
+        
+        
+        %for multiplicity, vertical_emission in report.result.vertical_emission.items():
+        	<%include file="/emission/emission_section.mako" args="emission = vertical_emission, report = report"/>
+        %endfor
+        %for multiplicity, adiabatic_emission in report.result.adiabatic_emission.items():
+        	<%include file="/emission/emission_section.mako" args="emission = adiabatic_emission, report = report"/>
+        %endfor
+        
+        
         %if len(report.result.excited_states) > 0:
             <%include file="/excited_states/excited_states_section.mako" args="excited_states = report.result.excited_states, report = report"/>
         %endif
