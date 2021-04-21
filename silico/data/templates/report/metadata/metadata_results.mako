@@ -67,6 +67,12 @@
             <td class="results__value">${metadata.basis_set}</td>
         </tr>
         %endif
+        %if len(metadata.calculations) > 0:
+        <tr>
+            <td class="results__name">Calculations:</td>
+            <td class="results__value">${metadata.calculations_string}</td>
+        </tr>
+        %endif
         %if metadata.orbital_spin_type is not None:
         <tr>
             <td class="results__name">Orbital spin:</td>
