@@ -64,7 +64,7 @@ class Relaxed_excited_state(Excited_state):
         for excited_state_result in reversed(opt_results):
             # See if we can use this calc type as an excited state.
             # The easiest situation is if we have excited states in the calc (and it is an opt).
-            if len(result.excited_states) > 0:
+            if len(excited_state_result.excited_states) > 0:
                 # This will do fine for vertical.
                 vertical.update(self.for_each_multiplicity(excited_state_result, excited_state_result, "vertical"))
                 
