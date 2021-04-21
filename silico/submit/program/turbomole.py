@@ -15,6 +15,7 @@ from silico.misc.directory import copytree
 import silico.report
 from silico.report.main.pdf import PDF_report
 from silico.parser.base import parse_calculation
+from itertools import chain
 
 
 class Turbomole(Program_target):
@@ -248,14 +249,18 @@ class Turbomole(Program_target):
                 copytree(self.calculation.input, self.method.calc_dir.prep_directory)
                 
                 # Clean up some old files which may be left by the previous calc if run with silico.
-                for delete_file in (self.define_output_path.name, self.method.calc_dir.log_file.name):
-                    delete_path = Path(self.method.calc_dir.prep_directory, delete_file)
+                for delete_file in chain(
+                    (Path(self.method.calc_dir.prep_directory, self.define_output_path.name), Path(self.method.calc_dir.prep_directory, self.method.calc_dir.log_file.name)),
+                    self.method.calc_dir.prep_directory.glob("*.log"),
+                    self.method.calc_dir.prep_directory.glob("job.*"),
+                ):
                     
                     try:
-                        delete_path.unlink()
+                        delete_file.unlink()
                     except FileNotFoundError:
                         # This is ok.
                         pass
+                    
                     
             else:
                 # Our calc is not a directory calc, write our input file to our calculation Input directory.
