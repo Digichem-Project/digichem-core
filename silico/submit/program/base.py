@@ -21,9 +21,11 @@ from silico.extract.long import Atoms_long_extractor, Orbitals_long_extractor,\
     IR_spectrum_long_extractor, SOC_long_extractor
 from silico.submit import Configurable_target
 from silico.misc.directory import copytree
+import silico.misc.io
 import silico.report
 from silico.parser import parse_calculation
 from silico.report.main.pdf import PDF_report
+import textwrap
 
 class Program_target(Configurable_target):
     """
@@ -359,8 +361,16 @@ class Program_target(Configurable_target):
                     self.method.calc_dir.set_flag(Flag.SUCCESS)
                 else:
                     # No good.
-                    #self.method.calc_dir.set_flag(Flag.ERROR)
-                    raise Submission_error(self, "an error occurred during the calculation; check calculation output for what went wrong")
+                    # We'll try and take a snippet from the main calculation log and attach to our error message for the user.
+                    try:
+                        with open(self.calc_output_file_path, "rt") as log_file:
+                            snippet = "\n".join(silico.misc.io.tail(log_file))
+                    except FileNotFoundError:
+                            snippet = "[No log file available]"
+                    # Indent for easy reading.
+                    snippet = textwrap.indent(snippet, "  ")
+                    
+                    raise Submission_error(self, "an error occurred during the calculation; check calculation output for what went wrong.\n Last lines of calculation output were:\n{}".format(snippet))
                     
                 # Also check optimisation convergence.
                 if self.result.metadata.optimisation_converged is not None and "Optimisation" in self.result.metadata.calculations:
