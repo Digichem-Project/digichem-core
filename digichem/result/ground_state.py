@@ -52,8 +52,6 @@ class Ground_state(Energy_state):
         """
         Create a ground state object selecting from various lists of energies.
         
-        At least one of CC_energies, MP_energies or SCF_energies should not be empty.
-        
         :param charge: Charge of the ground state.
         :param multiplicity: Multiplicity of the ground state.
         :param CC_energies: List of coupled-cluster energies.
@@ -68,7 +66,7 @@ class Ground_state(Energy_state):
             energy = SCF_energies.final
         else:
             # We have no energies that we can understand. Give up.
-            raise Result_unavailable_error("Ground_state", "No ground state energies that we understand are available")
+            return None
         # Return our constructed object.
         return self(charge, multiplicity, energy)
     
