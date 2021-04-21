@@ -44,6 +44,10 @@ class Parser(Result_set):
         # Set our name.
         self.log_file_paths = [Path(log_file) for log_file in log_files if log_file is not None]
         
+        # Panic if we have no logs.
+        if len(self.log_file_paths) == 0:
+            raise Silico_exception("Cannot parse calculation output; no available log files. Are you sure the given path is a log file or directory containing log files?")
+        
         # Also save our aux files, stripping None.
         self.aux_files = {name: aux_file for name,aux_file in aux_files.items() if aux_file is not None}
         
