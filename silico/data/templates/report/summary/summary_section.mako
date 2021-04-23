@@ -16,7 +16,7 @@
         transition_dipole_moment = None
 %>
 
-<div class="section section--summary">
+<div class="section section--summary section--fullPage">
     <h2 class="section__header">Summary of Results</h2>
     <div class="section__body section__body--summary">
     %if result.metadata is not None:
