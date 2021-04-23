@@ -3,6 +3,7 @@ from logging import getLogger
 from timeit import default_timer as timer
 import datetime
 import shutil
+import textwrap
 
 from silico import misc
 from silico.submit.structure.flag import Flag
@@ -22,10 +23,8 @@ from silico.extract.long import Atoms_long_extractor, Orbitals_long_extractor,\
 from silico.submit import Configurable_target
 from silico.misc.directory import copytree
 import silico.misc.io
-import silico.report
 from silico.parser import parse_calculation
 from silico.report.main.pdf import PDF_report
-import textwrap
 
 class Program_target(Configurable_target):
     """
