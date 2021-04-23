@@ -200,9 +200,9 @@ class Report():
             # Next set combined images and graphs.
             try:
                 # Now get our spin type.
-                if orbital.spin_type == "alpha":
+                if orbital_list.spin_type == "alpha":
                     spin_type = "alpha_"
-                elif orbital.spin_type == "beta":
+                elif orbital_list.spin_type == "beta":
                     spin_type = "beta_"
                 else:
                     spin_type = ""
