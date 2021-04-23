@@ -370,7 +370,7 @@ class Program_target(Configurable_target):
                     # Indent for easy reading.
                     snippet = textwrap.indent(snippet, "  ")
                     
-                    raise Submission_error(self, "an error occurred during the calculation; check calculation output for what went wrong.\n Last lines of calculation output were:\n{}".format(snippet))
+                    raise Submission_error(self, "an error occurred during the calculation; check calculation output for what went wrong.\nLast lines of calculation output were:\n{}".format(snippet))
                     
                 # Also check optimisation convergence.
                 if self.result.metadata.optimisation_converged is not None and "Optimisation" in self.result.metadata.calculations:
