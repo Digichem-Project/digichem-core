@@ -67,7 +67,7 @@ class Method_target(Configurable_target):
             try:
                 self.calc_dir.create_structure(True)
             except Exception:
-                raise Submission_error(self, "could not create directory structure; try setting a different output directory ('-o')")
+                raise Submission_error(self, "could not create directory structure; try setting a different output directory ('-O')")
             
     
     
