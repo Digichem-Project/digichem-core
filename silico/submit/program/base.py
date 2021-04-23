@@ -422,15 +422,11 @@ class Program_target(Configurable_target):
                 getLogger(silico.logger_name).warning("Failed to write silico (.si) result file", exc_info = True)
                 
             # Similarly, if we've been asked to write a report, do that.
-            # TEMP: Don't write reports if we fail, see issue #29.
-            if self.error is None:
-                try:
-                    if self.calculation.write_report:
-                        self.write_report_files()
-                except Exception:
-                    getLogger(silico.logger_name).warning("Failed to write calculation report", exc_info = True)
-            else:
-                getLogger(silico.logger_name).info("Skipping report generation because calculation did not finish successfully")
+            try:
+                if self.calculation.write_report:
+                    self.write_report_files()
+            except Exception:
+                getLogger(silico.logger_name).warning("Failed to write calculation report", exc_info = True)
                 
                 
 
