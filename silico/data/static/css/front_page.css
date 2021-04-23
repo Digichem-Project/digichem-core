@@ -42,6 +42,10 @@
     font-size: 30px;
 }
 
+.title__superTitle--bad {
+    color: #de2d00;
+}
+
 /* The central title of the block and the second most important element. */
 .title__mainTitle {
     display: block;
