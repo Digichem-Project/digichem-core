@@ -17,7 +17,8 @@ class Excited_states_diagram_maker(OneD_graph_image_maker):
         self.ground_state = ground_state
                         
         # Each multiplicity will be plotted as a separate column, so first we need to organise our data.
-        self.grouped_states = (type(self.excited_states)(sorted(chain(self.excited_states, [self.ground_state]), key = lambda state: state.energy))).group()
+        states = chain(self.excited_states, [self.ground_state]) if self.ground_state is not None else self.excited_states
+        self.grouped_states = (type(self.excited_states)(sorted(states, key = lambda state: state.energy))).group()
         # We'll also keep hold of just our excited states (so no ground).
         self.grouped_excited_states = self.excited_states.group()
         
