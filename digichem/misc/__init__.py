@@ -4,4 +4,4 @@ from .directory import cd
 from .file_wrapper import Multi_file_wrapper
 from .time import date_to_string
 from .time import timedelta_to_string
-from .io import tail
+from .io import tail, smkdir
