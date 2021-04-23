@@ -236,31 +236,32 @@ class Report():
                 pass
         
         
-        #############
-        # Structure #
-        #############
-        # We'll save both the aligned and unaligned structure.
-        self.images['structure'] = Structure_image_maker.from_options(
-            Path(output_dir, "Structure", output_name + ".structure.jpg"),
-            cube_file = self.cubes['structure'],
-            options = self.options)
+        if 'structure' in self.cubes:
+            #############
+            # Structure #
+            #############
+            # We'll save both the aligned and unaligned structure.
+            self.images['structure'] = Structure_image_maker.from_options(
+                Path(output_dir, "Structure", output_name + ".structure.jpg"),
+                cube_file = self.cubes['structure'],
+                options = self.options)
+            
+            self.images['aligned_structure'] = Structure_image_maker.from_options(
+                Path(output_dir, "Structure", output_name + ".structure.jpg"),
+                cube_file = self.cubes['structure'],
+                rotations = self.rotations,
+                options = self.options)
         
-        self.images['aligned_structure'] = Structure_image_maker.from_options(
-            Path(output_dir, "Structure", output_name + ".structure.jpg"),
-            cube_file = self.cubes['structure'],
-            rotations = self.rotations,
-            options = self.options)
         
-        
-        #######################
-        # Dipole moment (PDM) #
-        #######################
-        self.images['dipole_moment'] = Dipole_image_maker.from_options(
-            Path(output_dir, "Dipole Moment", output_name + ".dipole.jpg"),
-            cube_file = self.cubes['structure'],
-            dipole_moment = self.result.dipole_moment,
-            rotations = self.rotations,
-            options = self.options)
+            #######################
+            # Dipole moment (PDM) #
+            #######################
+            self.images['dipole_moment'] = Dipole_image_maker.from_options(
+                Path(output_dir, "Dipole Moment", output_name + ".dipole.jpg"),
+                cube_file = self.cubes['structure'],
+                dipole_moment = self.result.dipole_moment,
+                rotations = self.rotations,
+                options = self.options)
         
         
         ####################################################
@@ -273,12 +274,13 @@ class Report():
             sub_dir_name = "{} Transition Dipole Moment".format(excited_state.state_symbol)
                 
             # Get our image.
-            self.images[file_name] = Dipole_image_maker.from_options(
-                Path(output_dir, sub_dir_name, output_name + ".{}.jpg".format(file_name)),
-                cube_file = self.cubes['structure'],
-                dipole_moment = excited_state.transition_dipole_moment,
-            rotations = self.rotations,
-                options = self.options)
+            if "structure" in self.cubes:
+                self.images[file_name] = Dipole_image_maker.from_options(
+                    Path(output_dir, sub_dir_name, output_name + ".{}.jpg".format(file_name)),
+                    cube_file = self.cubes['structure'],
+                    dipole_moment = excited_state.transition_dipole_moment,
+                    rotations = self.rotations,
+                    options = self.options)
             
         # Also set our states diagram.
         self.images['excited_state_energies'] = Excited_states_diagram_maker.from_options(
