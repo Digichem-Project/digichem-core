@@ -335,5 +335,5 @@ class Turbomole(Program_target):
             """
             Get a report suitable for parsing this type of calculation.
             """
-            return PDF_report(self.results, options = self.calculation.silico_options, calculation = self.calculation)    
+            return PDF_report(self.result, options = self.calculation.silico_options, calculation = self.calculation)    
             

@@ -338,7 +338,7 @@ class Program_target(Configurable_target):
             """
             Get a report suitable for parsing this type of calculation.
             """
-            return PDF_report(self.results, options = self.calculation.silico_options)
+            return PDF_report(self.result, options = self.calculation.silico_options)
             
             
         def parse_results(self):
@@ -428,8 +428,6 @@ class Program_target(Configurable_target):
             except Exception:
                 getLogger(silico.logger_name).warning("Failed to write calculation report", exc_info = True)
                 
-                
-
         
         def write_summary_files(self):
             """
