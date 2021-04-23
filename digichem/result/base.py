@@ -134,6 +134,51 @@ class Floatable_mixin():
         """
         return float(self) > float(other)
     
+
+class Unmergeable_container_mixin():
+    """
+    Mixin for Result_containers that cannot be merged.
+    
+    Classes which inherit from this mixin should also set a class attribute with the name MERGE_WARNING, which should be a message to be displayed when attempting to merge this container with another.
+    """
+    
+    @classmethod
+    def false_merge(self, *multiple_lists, **kwargs):
+        """
+        'Merge' a number of containers of the same type.
+        
+        As Unmergeable_container objects cannot be merged, this method will instead check that all given containers are equivalent, issuing warnings if this is not the case.
+        
+        :param multiple_lists: A number of container objects to 'merge'.
+        :param kwargs: Key-word arguments to pass to the returned container.
+        """
+        items = self(multiple_lists[0], **kwargs)
+        
+        # Check all other lists are the same.
+        for item_list in multiple_lists[1:]:
+            # If this list has atoms and our current doesn't, use this as our base list.
+            if len(item_list) > 0 and len(items) == 0:
+                items = item_list
+            else:
+                for index, item in enumerate(item_list):
+                    try:
+                        other_item = items[index]
+                        if not self.are_items_equal(item, other_item):
+                            warnings.warn(self.MERGE_WARNING)
+                    except IndexError:
+                        warnings.warn(self.MERGE_WARNING)
+                
+        # Return the 'merged' list.
+        return items
+    
+    @classmethod
+    def are_items_equal(self, item, other_item):
+        """
+        A method which determines whether two items are the same for the purposes of merging.
+        
+        This default implementation simply checks for equivalence between the two items.
+        """
+        return item == other_item
         
 class Result_container(list, Result_object):
     """
@@ -159,14 +204,12 @@ class Result_container(list, Result_object):
             state.level = total_level
             
     @classmethod
-    def merge(self, *multiple_lists):
+    def merge_default(self, *multiple_lists, **kwargs):
         """
-        Merge multiple lists of of the same type into a single, ordered list.
-        
-        Note that this method will return a new list object, but will modify the contained objects (eg, object.level) in place.
+        The default implementation of the merge method.
         """
         # First, get a new list containing all objects.
-        merged_list = self(itertools.chain(*multiple_lists))
+        merged_list = self(itertools.chain(*multiple_lists), **kwargs)
         
         # Now sort.
         # This works because the contained objects are all Floatables (see Floatable_mixin) and therefore have well-defined sort mechanics,
@@ -178,6 +221,19 @@ class Result_container(list, Result_object):
         
         # All done.
         return merged_list
+            
+    @classmethod
+    def merge(self, *multiple_lists, **kwargs):
+        """
+        Merge multiple lists of of the same type into a single, ordered list.
+        
+        Note that this method will return a new list object, but will modify the contained objects (eg, object.level) in place.
+        Inheriting classes may safely override this method.
+        """
+        if hasattr(self, "false_merge"):
+            return self.false_merge(*multiple_lists, **kwargs)
+        else:
+            return self.merge_default(*multiple_lists, **kwargs)
     
     # TODO: Redundant?
     def __getitem__(self, key):
