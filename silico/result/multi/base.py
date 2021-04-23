@@ -7,6 +7,7 @@ from silico.result.atoms import Atom_list
 from silico.result.ground_state import Ground_state
 from silico.result.excited_states import Excited_state_list
 from silico.result.emission import Relaxed_excited_state
+from silico.result.molecular_orbitals import Molecular_orbital_list
 
 
 class Merged(Result_set):
@@ -42,9 +43,12 @@ class Merged(Result_set):
         # And alignment.
         alignment = alignment_class(atoms, charge = merged_metadata.charge)
         
+        # Use special method for merging orbitals.
+        molecular_orbitals, beta_orbitals = Molecular_orbital_list.merge_orbitals([result.molecular_orbitals for result in results], [result.beta_orbitals for result in results])
+        
         # Merge remaining attributes.
         attrs = {}
-        for attr in ["CC_energies", "MP_energies", "SCF_energies", "dipole_moment", "molecular_orbitals", "beta_orbitals", "excited_states", "vibrations", "spin_orbit_coupling"]:
+        for attr in ["CC_energies", "MP_energies", "SCF_energies", "dipole_moment", "excited_states", "vibrations", "spin_orbit_coupling"]:
             attrs[attr] = type(getattr(results[0], attr)).merge(*[getattr(result, attr) for result in results])
         
         # Get a new ground state.
@@ -62,6 +66,8 @@ class Merged(Result_set):
             atoms = atoms,
             alignment = alignment,
             energy_states = energy_states,
+            molecular_orbitals = molecular_orbitals,
+            beta_orbitals = beta_orbitals,
             **attrs
             )
         

@@ -104,9 +104,10 @@ class Calculation_target(Configurable_target):
                 if first is None:
                     first = calc
                                     
-                # Add to the chain.
+                # Link (doubly)
                 if previous is not None:
                     previous.next = calc
+                    calc.previous = previous
                     
                 previous = calc
         
@@ -201,6 +202,7 @@ class Concrete_calculation(Calculation_target):
             """    
             # Next is a linked list of Calculation_targets. We will call submit() on next once this object has been submitted.
             self.next = None
+            self.previous = None
             self.output = None
             self.input_coords = None
             self.program = program

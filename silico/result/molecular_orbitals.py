@@ -9,7 +9,7 @@ import math
 from silico.result import Result_container
 from silico.result import Result_object
 from silico.exception import Result_unavailable_error
-from silico.result.base import Floatable_mixin
+from silico.result import Floatable_mixin
 
 
 class Molecular_orbital_list(Result_container):
@@ -237,25 +237,59 @@ class Molecular_orbital_list(Result_container):
             orbital.total_level = index +1
             
     @classmethod
+    def merge_orbitals(self, molecular_orbital_lists, beta_orbital_lists):
+        """
+        """
+        if len(molecular_orbital_lists) != len(beta_orbital_lists):
+            # Panic.
+            raise TypeError("molecular_orbital_lists and beta_orbital_lists must be of the same length")
+        
+        MOs = molecular_orbital_lists[0]
+        betas = beta_orbital_lists[0]
+        
+        # Check all other lists are the same.
+        for MO_list, beta_list in zip(molecular_orbital_lists[1:], beta_orbital_lists[1:]):
+            # If this list has atoms and our current doesn't, use this as our base list.
+            # We only do this if both lists are empty, so we don't have alpha and beta orbitals from two different results.
+            if len(MOs) == 0 and len(betas) == 0:
+                if len(MO_list) > 0:
+                    MOs = MO_list
+                if len(beta_list) > 0:
+                    betas = beta_list
+                
+            else:
+                MOs.check_equivalent(MOs, MO_list)
+                betas.check_equivalent(betas, beta_list)
+                
+        return (MOs, betas)
+    
+    @classmethod
+    def check_equivalent(self, MOs, other_MO_list):
+        """
+        Check that two MO lists are equivalent, issuing merge warnings if not.
+        """
+        for index, MO in enumerate(other_MO_list):
+            try:
+                other_MO = MOs[index]
+                if not self.are_items_equal(MO, other_MO):
+                    warnings.warn(self.MERGE_WARNING)
+            except IndexError:
+                warnings.warn(self.MERGE_WARNING)
+        
+            
+    @classmethod
     def merge(self, *multiple_lists):
         """
         Merge multiple lists of MOs into a single list.
         """
-        MOs = multiple_lists[0]
-        
-        # Check all other lists are the same.
-        for MO_list in multiple_lists[1:]:
-            for index, MO in enumerate(MO_list):
-                try:
-                    other_MO = MOs[index]
-                    if not math.isclose(MO.energy,other_MO.energy) or MO.level != other_MO.level or MO.spin_type != other_MO.spin_type:
-                    #if MO.energy != other_MO.energy or MO.level != other_MO.level or MO.spin_type != other_MO.spin_type:
-                        warnings.warn(self.MERGE_WARNING)
-                except IndexError:
-                    warnings.warn(self.MERGE_WARNING)
-                
-        # Return the 'merged' list.
-        return MOs
+        raise NotImplementedError("Molecular orbital lists do not implement the merge() method; use merge_orbitals() instead")
+    
+    @classmethod
+    def are_items_equal(self, MO, other_MO):
+        """
+        A method which determines whether two items are the same for the purposes of merging.
+        """
+        return math.isclose(MO.energy, other_MO.energy) and MO.level == other_MO.level and MO.spin_type == other_MO.spin_type
     
 
 class Molecular_orbital(Result_object, Floatable_mixin):

@@ -4,12 +4,14 @@ from itertools import zip_longest
 # Silico imports.
 from silico.result import Result_container
 from silico.result import Result_object
-from silico.result.base import Floatable_mixin
+from silico.result import Floatable_mixin, Unmergeable_container_mixin
 
-class Vibrations_list(Result_container):
+class Vibrations_list(Result_container, Unmergeable_container_mixin):
     """
     Class for representing a group of molecular vibrations.
     """
+    
+    MERGE_WARNING = "Attempting to merge lists of vibrations that are not identical; non-equivalent vibrations will be ignored"
         
     @property
     def negative_frequencies(self):

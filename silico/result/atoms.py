@@ -2,15 +2,15 @@
 import math
 import periodictable
 from itertools import zip_longest
-import warnings
 
 # Silico imports
 from silico.result import Result_container
 from silico.result import Result_object
+from silico.result import Unmergeable_container_mixin
 from silico.exception.base import Result_unavailable_error
 
 
-class Atom_list(Result_container):
+class Atom_list(Result_container, Unmergeable_container_mixin):
     """
     Class for representing a group of atoms.
     """
@@ -185,31 +185,45 @@ class Atom_list(Result_container):
         :return: A list of TDM objects.
         """
         return self(Atom.list_from_parser(parser), charge = parser.results.metadata.charge)
-        
+    
     @classmethod
     def merge(self, *multiple_lists, charge):
         """
         Merge multiple lists of atoms into a single list.
-        
-        Note that it does not make logical sense to combine different list of atoms into one; hence the method only ensures that all given lists are the same and then returns the first given.
+         
+        Note that it does not make logical sense to combine different list of atoms into one; hence the method only ensures that all given lists (which are not empty) are the same and then returns the first (non empty) given.
         If the atom lists are not equivalent, a warning will be issued.
         """
-        atoms = self(multiple_lists[0], charge = charge)
+        return super().merge(*multiple_lists, charge = charge)
         
-        # Check all other lists are the same.
-        for atom_list in multiple_lists[1:]:
-            for index, atom in enumerate(atom_list):
-                try:
-                    other_atom = atoms[index]
-                    if atom != other_atom:
-                        #raise Silico_exception("Cannot merge lists of atoms that are not identical; '{} is not equal to '{}'".format(atom, other_atom))
-                        warnings.warn(self.MERGE_WARNING)
-                except IndexError:
-                    #raise Silico_exception("Cannot merge lists of atoms that are not identical; these atom lists contain different numbers of atoms")
-                    warnings.warn(self.MERGE_WARNING)
-                
-        # Return the 'merged' list.
-        return atoms
+#     @classmethod
+#     def merge(self, *multiple_lists, charge):
+#         """
+#         Merge multiple lists of atoms into a single list.
+#         
+#         Note that it does not make logical sense to combine different list of atoms into one; hence the method only ensures that all given lists (which are not empty) are the same and then returns the first (non empty) given.
+#         If the atom lists are not equivalent, a warning will be issued.
+#         """
+#         atoms = self(multiple_lists[0], charge = charge)
+#         
+#         # Check all other lists are the same.
+#         for atom_list in multiple_lists[1:]:
+#             # If this list has atoms and our current doesn't, use this as our base list.
+#             if len(atom_list) > 0 and len(atoms) == 0:
+#                 atoms = atom_list
+#             else:
+#                 for index, atom in enumerate(atom_list):
+#                     try:
+#                         other_atom = atoms[index]
+#                         if atom != other_atom:
+#                             #raise Silico_exception("Cannot merge lists of atoms that are not identical; '{} is not equal to '{}'".format(atom, other_atom))
+#                             warnings.warn(self.MERGE_WARNING)
+#                     except IndexError:
+#                         #raise Silico_exception("Cannot merge lists of atoms that are not identical; these atom lists contain different numbers of atoms")
+#                         warnings.warn(self.MERGE_WARNING)
+#                 
+#         # Return the 'merged' list.
+#         return atoms
 
 class Atom(Result_object):
     """
