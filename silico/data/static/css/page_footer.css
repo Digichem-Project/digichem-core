@@ -26,6 +26,10 @@ footer {
     align-items: center;
 }
 
+.footer--bad {
+	border-color: #de2d00
+}
+
 .footer__name {
 }
 
