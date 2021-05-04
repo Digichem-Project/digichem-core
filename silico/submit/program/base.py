@@ -338,7 +338,7 @@ class Program_target(Configurable_target):
             """
             Get a report suitable for parsing this type of calculation.
             """
-            return PDF_report(self.result, options = self.calculation.silico_options)
+            return PDF_report(self.result, options = self.calculation.silico_options, calculation = self.calculation)
             
             
         def parse_results(self):

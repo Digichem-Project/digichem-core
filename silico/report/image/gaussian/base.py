@@ -24,6 +24,9 @@ class Gaussian_setup(Image_setup):
         """
         super().__init__(report, metadata = metadata, options = options, calculation = calculation)
         
+        # The memory we'll use for formchk and cubegen.
+        self.memory = calculation.memory if calculation is not None else None
+        
         # Get the chk and fchk files we'll be using.        
         self.chk_file_paths = {"structure": None, "spin": None}
         self.fchk_file_paths = {"structure": None, "spin": None}
@@ -72,6 +75,7 @@ class Gaussian_setup(Image_setup):
                 Path(output_dir, output_name + ".fchk"),
                 chk_file = self.chk_file_paths['structure'],
                 fchk_file = self.fchk_file_paths['structure'],
+                memory = self.memory
             )
         }
         
@@ -82,6 +86,7 @@ class Gaussian_setup(Image_setup):
                     Path(output_dir, output_name + ".spin.fchk"),
                     chk_file = self.chk_file_paths['spin'],
                     fchk_file = self.fchk_file_paths['spin'],
+                    memory = self.memory
                 )
             }
         
@@ -101,7 +106,8 @@ class Gaussian_setup(Image_setup):
                 Path(output_dir, "Spin Density", output_name + ".spin.cube"),
                 fchk_file = self.fchk_files['spin'],
                 spin_density = "SCF",
-                options = self.options
+                options = self.options,
+                memory = self.memory
             )
         
         #################
@@ -112,7 +118,8 @@ class Gaussian_setup(Image_setup):
                 Path(output_dir, "Density", output_name + ".SCF.cube"),
                 fchk_file = self.fchk_files['structure'],
                 density_type = "SCF",
-                options = self.options
+                options = self.options,
+                memory = self.memory
             )
         
         
@@ -137,7 +144,9 @@ class Gaussian_setup(Image_setup):
                         fchk_file = self.fchk_files['structure'],
                         cubegen_type = cubegen_type,
                         orbital = orbital.level,
-                        options = self.options)
+                        options = self.options,
+                        memory = self.memory
+                    )
         
         
         #############
@@ -156,7 +165,9 @@ class Gaussian_setup(Image_setup):
                 fchk_file = self.fchk_files['structure'],
                 cubegen_type = "MO",
                 orbital = "HOMO",
-                options = self.options)
+                options = self.options,
+                memory = self.memory
+            )
     
     def cleanup(self):
         """

@@ -137,7 +137,7 @@ class Gaussian(Program_target):
             try:
                 # Create an fchk file if asked.
                 if self.calculation.convert_chk:
-                    fchk_file = Chk_to_fchk(self.fchk_file_path, chk_file = self.chk_file_path)
+                    fchk_file = Chk_to_fchk(self.fchk_file_path, chk_file = self.chk_file_path, memory = self.calculation.memory)
                     fchk_file.get_file()
             except Exception:
                 getLogger(silico.logger_name).error("Failed to create fchk file", exc_info = True)

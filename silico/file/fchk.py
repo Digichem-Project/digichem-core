@@ -25,7 +25,7 @@ class Chk_to_fchk(File_converter):
     #output_file_type = "fchk"
     output_file_type = file_types.gaussian_fchk_file
     
-    def __init__(self, *args, chk_file = None, fchk_file = None, memory = "3 GB", **kwargs):
+    def __init__(self, *args, chk_file = None, fchk_file = None, memory = None, **kwargs):
         """
         Constructor for Chk_to_fchk objects.
         
@@ -37,6 +37,7 @@ class Chk_to_fchk(File_converter):
         :param memory: The amount of memory for formchk to use.
         """
         super().__init__(*args, input_file = chk_file, existing_file = fchk_file, **kwargs)
+        memory = memory if memory is not None else "3 GB"
         self.memory = Memory(memory)
         
     def make_files(self):
