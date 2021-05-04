@@ -103,6 +103,10 @@ class Parser(Result_set):
             # Look for all .log files.
             parent = hint
             log_files = [Path(found_log_file) for found_log_file in iglob(str(Path(parent, "*.log")))]
+            # Remove any 'silico.log' files as we know these are not calc log files.
+            # We don't actually write 'silico.log' files anymore either (we use silico.out instead),
+            # but older versions did...
+            log_files = [log_file for log_file in log_files if log_file.name != "silico.log"]
         else:
             parent = hint.parent
             log_files = [hint]
