@@ -391,21 +391,6 @@ class Directory_calculation_mixin():
             
             self.input = None
         
-#         @property
-#         def molecule_name(self):
-#             """
-#             The name of the molecule under study.
-#             
-#             This name is 'safe' for Gaussian and other sensitive programs.
-#             """
-#             return self.safe_name(self._molecule_name)
-#         
-#         @molecule_name.setter
-#         def molecule_name(self, value):
-#             """
-#             Set the name of the molecule under study.
-#             """
-#             self._molecule_name = value
         
         def prepare(self, output, input, input_coords):
             """
