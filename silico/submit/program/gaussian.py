@@ -180,5 +180,5 @@ class Gaussian(Program_target):
             Get a result set from this calculation.
             """
             # We provide paths to aux files as well as the main output.
-            return parse_calculation(self.calc_output_file_path, self.chk_file_path, self.fchk_file_path, self.rwf_file_path)
+            return parse_calculation(self.calc_output_file_path, chk_file = self.chk_file_path, fchk_file = self.fchk_file_path, rwf_file = self.rwf_file_path)
         
