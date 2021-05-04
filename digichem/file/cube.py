@@ -39,7 +39,7 @@ class Fchk_to_cube(File_converter):
     # Text description of our output file type, used for error messages etc.
     output_file_type = file_types.gaussian_cube_file
     
-    def __init__(self, *args, fchk_file = None, cubegen_type = "MO", orbital = "HOMO", npts = 0, cube_file = None, memory = "3 GB", **kwargs):
+    def __init__(self, *args, fchk_file = None, cubegen_type = "MO", orbital = "HOMO", npts = 0, cube_file = None, memory = None, **kwargs):
         """
         Constructor for Fchk_to_cube objects.
         
@@ -57,6 +57,7 @@ class Fchk_to_cube(File_converter):
         self.cubegen_type = cubegen_type
         self.orbital = orbital
         self.npts = npts
+        memory = memory if memory is not None else "3 GB"
         self.memory = Memory(memory)
         
     @classmethod
