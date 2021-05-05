@@ -9,6 +9,7 @@ from silico.parser.turbomole import Turbomole_parser
 from silico.misc.base import is_iter
 from silico.result.multi.base import Merged
 from silico.result.alignment import Minimal
+from silico.result.result import Result_set
 
 def class_from_log_files(*log_files):
     """
@@ -50,7 +51,7 @@ def parse_calculation(*log_files, alignment_class = None, **aux_files):
             
     return from_log_files(*log_files, **aux_files).process(alignment_class)
     
-def parse_calculations(*log_files, alignment_class = None, aux_files = None):
+def parse_calculations(*results, alignment_class = None, aux_files = None):
     """
     Get a single result object by parsing a number of computational log files.
     
@@ -73,33 +74,38 @@ def parse_calculations(*log_files, alignment_class = None, aux_files = None):
         aux_files = []
     
     # Process our given log files.
-    results = []   
-    for index, log_file_or_list in enumerate(log_files):
-        # First decide if this is a real log file path or is actually a list.
-        if not isinstance(log_file_or_list, str) and is_iter(log_file_or_list):
-            # Multiple paths.
-            logs = log_file_or_list
+    parsed_results = []   
+    for index, log_result_or_list in enumerate(results):
+        if isinstance(log_result_or_list, Result_set):
+            # Nothing we need to do.
+            result = log_result_or_list
         else:
-            # Single path.
-            logs = (log_file_or_list,)
-            
-        # See if we have some aux files we can use.
-        try:
-            aux = aux_files[index]
-        except IndexError:
-            aux = {}
-            
-        # Parse this calculation output.
-        result = parse_calculation(*logs, alignment_class = alignment_class, **aux)
+            # First check if this is an already parsed result.
+            # Next, decide if this is a real log file path or is actually a list.
+            if not isinstance(log_result_or_list, str) and is_iter(log_result_or_list):
+                # Multiple paths.
+                logs = log_result_or_list
+            else:
+                # Single path.
+                logs = (log_result_or_list,)
+                
+            # See if we have some aux files we can use.
+            try:
+                aux = aux_files[index]
+            except IndexError:
+                aux = {}
+                
+            # Parse this calculation output.
+            result = parse_calculation(*logs, alignment_class = alignment_class, **aux)
         
         # Add to our list.
-        results.append(result)
+        parsed_results.append(result)
     
     # If we have more than one result, merge them together.
-    if len(results) > 1:
-        return Merged.from_results(*results, alignment_class = alignment_class)
+    if len(parsed_results) > 1:
+        return Merged.from_results(*parsed_results, alignment_class = alignment_class)
     else:
-        return results[0]
+        return parsed_results[0]
             
         
         
