@@ -25,6 +25,9 @@ from silico.misc.directory import copytree
 import silico.misc.io
 from silico.parser import parse_calculation
 from silico.report.main.pdf import PDF_report
+from silico.parser.base import parse_calculations
+from silico.misc.io import smkdir
+from silico.submit.structure.directory import Silico_directory
 
 class Program_target(Configurable_target):
     """
@@ -334,18 +337,46 @@ class Program_target(Configurable_target):
             """
             return parse_calculation(self.calc_output_file_path)
         
-        def get_report(self):
+        def get_combi_results(self):
+            """
+            Get a merged Result_set object containing results from all calculations in this chain that have the same series_name.
+            
+            :return: A merged result set of the calculation results, or None if this calc is not part of an appropriate chain.
+            """
+            # First build a list of results.
+            # We will add in the same order as the calculations were performed, so the first has precedence.
+            # For the last calculation (THIS calc), we already have results parsed. For all others, we need to
+            # parse again because certain auxiliary files will have moved (and indeed may no longer be available).
+            results = [self.result]
+            calc = self.calculation
+            
+            # Move backwards thro the linked list, stopping once we hit a calc from a different series. We'll reverse our true list later.
+            while calc.previous != None and calc.previous.series_name == self.calculation.series_name:
+                calc = calc.previous
+                results.append(calc.program.calc_output_file_path)
+                
+            # Reverse.
+            results = list(reversed(results))
+            
+            # Don't waste time parsing if we only have one result.
+            if len(results) < 2:
+                return None
+            else:
+                # Done.
+                return parse_calculations(*results)
+        
+        def get_report(self, result):
             """
             Get a report suitable for parsing this type of calculation.
             """
-            return PDF_report(self.result, options = self.calculation.silico_options, calculation = self.calculation)
+            return PDF_report(result, options = self.calculation.silico_options, calculation = self.calculation)
             
             
         def parse_results(self):
             """
             Parse the finished calculation result file(s).
             
-            Certain flags will be set depending on the status of the calculation. Additionally, a PDF_report object will be stored to self.result
+            Certain flags will be set depending on the status of the calculation.
             """
             # Try and load our results.
             # We need to know whether the calculation was successful or not, so we make no effort to catch exceptions here.
@@ -403,11 +434,11 @@ class Program_target(Configurable_target):
                 self.error = e
             
             # If we've been asked to write result files, do so.
-            try:
-                if self.calculation.write_summary:
+            if self.calculation.write_summary:
+                try:
                     self.write_summary_files()
-            except Exception:
-                getLogger(silico.logger_name).warning("Failed to write calculation result summary files", exc_info = True)
+                except Exception:
+                    getLogger(silico.logger_name).warning("Failed to write calculation result summary files", exc_info = True)
                 
             # Write XYZ file.
             try:
@@ -422,11 +453,19 @@ class Program_target(Configurable_target):
                 getLogger(silico.logger_name).warning("Failed to write silico (.si) result file", exc_info = True)
                 
             # Similarly, if we've been asked to write a report, do that.
-            try:
-                if self.calculation.write_report:
+            if self.calculation.write_report:
+                # First our personal report.
+                try:
                     self.write_report_files()
-            except Exception:
-                getLogger(silico.logger_name).warning("Failed to write calculation report", exc_info = True)
+                except Exception:
+                    getLogger(silico.logger_name).warning("Failed to write calculation report", exc_info = True)
+                
+                # Additionally, if we're the last calculation of a series, write a combined report.
+                # write_combi_report_files() will do nothing if we are not the last in series.
+                try:
+                    self.write_combi_report_files()
+                except Exception:
+                    getLogger(silico.logger_name).warning("Failed to write combined calculation report", exc_info = True)
                 
         
         def write_summary_files(self):
@@ -466,11 +505,38 @@ class Program_target(Configurable_target):
             Write report files for this calculation.
             """
             # Load report.
-            report = self.get_report()
+            report = self.get_report(self.result)
             # The full report.
             report.write(Path(self.method.calc_dir.report_directory, self.calculation.molecule_name + ".pdf"))
             # And atoms.
             report.write(Path(self.method.calc_dir.report_directory, self.calculation.molecule_name + ".atoms.pdf"), report_type = "atoms")
+            
+        def write_combi_report_files(self):
+            """
+            Write a combined report for all the calculations in this series.
+            """
+            # First determine if we should write a combi report.
+            # There are two types of combi reports we could write (but we'll only write a max of one):
+            #  - A series report, if this calculation was chosen as part of an in-series meta calc (in which case series_name will not == None).
+            #  - A general combi report, if more than one calculation was selected to run in series by the user (and not as part of a meta calc).
+            
+            # First see if we are the last calc of a chain.
+            if (self.calculation.next is None or self.calculation.next.series_name != self.calculation.series_name):
+                # Now try and get a combi result.
+                combi_result = self.get_combi_results()
+                
+                # If we dont have a combi result, give up now.
+                if combi_result is None:
+                    return
+                
+                # Load combi report.
+                report = self.get_report(combi_result)
+                # Next get a safe dir to write to.
+                base_name = Silico_directory.safe_name(self.calculation.series_name if self.calculation.series_name is not None else report.result.metadata.identity_string)
+                combi_report_dir = smkdir(Path(str(self.method.calc_dir.molecule_directory), "Combined Report: {}".format(base_name)))
+            
+                # And write.
+                report.write(Path(combi_report_dir, self.calculation.molecule_name + ".pdf"))
             
         def write_xyz_file(self):
             """

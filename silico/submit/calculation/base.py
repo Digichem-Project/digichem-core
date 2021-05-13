@@ -100,6 +100,10 @@ class Calculation_target(Configurable_target):
                 prog = program_t(method)
                 calc = expanded_calculation_t(prog)
                 
+                # If the calc was part of a series, set the series name.
+                if "Series" in calculation_t.CLASS_HANDLE:
+                    calc.series_name = calculation_t.NAME
+                
                 # Keep track of the first.
                 if first is None:
                     first = calc
@@ -208,6 +212,9 @@ class Concrete_calculation(Calculation_target):
             self.program = program
             self.validate_parent(program)
             self.program.calculation = self
+            # If this calculation was chosen as part of a series (meta-calc), this is the name of that series.
+            # If this calc was chosen as an individual, this will be None.
+            self.series_name = None
         
         @property
         def scratch_directory(self):

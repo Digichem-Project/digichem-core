@@ -12,10 +12,10 @@ from silico.submit.program.base import Program_target
 from silico.config.configurable.option import Option
 from silico.exception.base import Submission_error
 from silico.misc.directory import copytree
-import silico.report
 from silico.report.main.pdf import PDF_report
 from silico.parser.base import parse_calculation
 from itertools import chain
+import silico
 
 
 class Turbomole(Program_target):
@@ -329,11 +329,5 @@ class Turbomole(Program_target):
             Get a result set from this calculation.
             """
             # For turbomole, we provide both the main log file and the calculation dir, because these might be in different locations.
-            return parse_calculation(self.calc_output_file_path, self.working_directory)
-                
-        def get_report(self):
-            """
-            Get a report suitable for parsing this type of calculation.
-            """
-            return PDF_report(self.result, options = self.calculation.silico_options, calculation = self.calculation)    
+            return parse_calculation(self.calc_output_file_path, self.working_directory)    
             
