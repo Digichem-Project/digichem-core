@@ -106,15 +106,23 @@ class Metadata(Result_object):
         A dictionary of critical attributes that identify a calculation.
         """
         # Get our list of methods, replacing 'DFT' with the functional used if available.
-        methods = [method if method != "DFT" and self.functional is not None else self.functional for method in self.methods]
+        methods = [self.functional if method == "DFT" and self.functional is not None else method for method in self.methods if method is not None]
         return {
-            "package": self.package_string,
-            "calculations": self.calculations,
-            "methods": methods,
+            "package": self.package,
+            "calculations": self.calculations_string,
+            "methods": ", ".join(methods) if len(methods) > 0 else None,
             "basis": self.basis_set,
-            "multiplicity": self.multiplicity,
-            "charge": self.charge
+            #"multiplicity": self.multiplicity,
+            #"charge": self.charge
         }
+        
+    @property
+    def identity_string(self):
+        """
+        A string that identifies this calculation.
+        """
+        return " ".join([value for value in self.identity.values() if value is not None])
+        
     
     @classmethod
     def sorted_methods(self, methods):
