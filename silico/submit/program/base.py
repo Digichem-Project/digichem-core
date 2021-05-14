@@ -533,7 +533,8 @@ class Program_target(Configurable_target):
                 report = self.get_report(combi_result)
                 # Next get a safe dir to write to.
                 base_name = Silico_directory.safe_name(self.calculation.series_name if self.calculation.series_name is not None else report.result.metadata.identity_string)
-                combi_report_dir = smkdir(Path(str(self.method.calc_dir.molecule_directory), "Combined Report: {}".format(base_name)))
+                #combi_report_dir = smkdir(Path(str(self.method.calc_dir.molecule_directory), "Combined Report: {}".format(base_name)))
+                combi_report_dir = smkdir(Path(str(self.method.calc_dir.molecule_directory), "Combined Reports", base_name))
             
                 # And write.
                 report.write(Path(combi_report_dir, self.calculation.molecule_name + ".pdf"))
