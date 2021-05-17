@@ -5,7 +5,6 @@ import os
 import sys
 import silico.base
 import PIL.Image
-
 from .base import init_obabel
 
 PIL.Image.MAX_IMAGE_PIXELS = None
@@ -14,19 +13,19 @@ PIL.Image.MAX_IMAGE_PIXELS = None
 name = "silico"
 # Brief description.
 description = "Silico Computational Chemistry Package"
-# Whether this is a development version.
-development = True
 # Version information.
-major_version = 0
-minor_version = 19
-revision = 2
-version_number = "{}.{}.{}".format(major_version, minor_version, revision)
+major_version = 1
+minor_version = 0
+revision = 0
+prerelease = 1
+# Whether this is a development version.
+development = prerelease is not None
 # The full version number of this package.
-version = "{}{}".format(version_number, "-dev" if development else "")
+version = "{}.{}.{}{}".format(major_version, minor_version, revision, "-dev.{}".format(prerelease) if development else "")
 # The bloke who wrote this.
 author = "Oliver Lee"
 # Program date (when we were last updated).
-_last_updated_string = "11/02/2021"
+_last_updated_string = "14/05/2021"
 last_updated = datetime.strptime(_last_updated_string, "%d/%m/%Y")
 
 # The name of the command to launch new instances of silico.
