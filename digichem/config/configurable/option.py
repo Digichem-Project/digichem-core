@@ -1,4 +1,5 @@
-from silico.exception.configurable import Configurable_exception
+from silico.exception.configurable import Configurable_option_exception,\
+    Missing_option_exception
 
 class Option():
     """
@@ -7,7 +8,7 @@ class Option():
     Options are descriptors that perform type checking and other functionality for Configurables; they expose the options that a certain configurable expects.
     """
     
-    def __init__(self, name = None, *, default = None, help = None, choices = None, validate = None, type = None, rawtype = None, exclude = None, required = False, configure = None, no_edit = False):
+    def __init__(self, name = None, *, default = None, help = None, choices = None, validate = None, type = None, rawtype = None, exclude = None, required = False, no_edit = False):
         """
         Constructor for Configurable Option objects.
         
@@ -19,7 +20,6 @@ class Option():
         :param type: A callable that is used to set the type of value.
         :param exclude: A list of strings of the names of attributes that this option is mutually exclusive with.
         :param required: Whether this option is required or not.
-        :param configure: Callable that will be called with 3 arguments: this Option object, the owning Configurable object and the current value after type conversion and should return the configured value.
         :param no_edit: Flag to indicate that this option shouldn't be edited.
         """
         self.name = name
@@ -28,151 +28,155 @@ class Option():
         self.rawtype = type if rawtype is None else rawtype
         self.help = help
         self._choices = choices
-        self.validate = validate if validate is not None else lambda option, configurable, value: True
+        self._validate = validate if validate is not None else lambda option, configurable, value: True
         self.exclude = exclude if exclude is not None else []
         self.required = required
-        self._configure = configure if configure is not None else self.default_configure
         self.no_edit = no_edit
         
-    @classmethod
-    def default_configure(self, option, configurable, value):
-        """
-        The default configure method, does nothing.
-        """
-        return value
-        
-    def choices(self, obj):
+        # By definition, Options that are required can have no default, so we'll delete this attribute.
+        if self.required:
+            del(self._default)
+
+
+    def choices(self, owning_obj):
         """
         Get the list of allowed options for this option.
         
         This property will evaluate self._choices if it is a callable.
         
+        :param owning_obj: The owning object on which this Option object is set as a class attribute.
         :return: The list of choices, or None if no choices.
         """
         if not callable(self._choices):
             return self._choices
         else:
-            return self._choices(self, obj)
-        
+            return self._choices(self, owning_obj)
+
+
     def __set_name__(self, cls, name):
         """
         Called automatically during class creation, allows us to know the attribute name we are stored under.
         """
         self.name = name if self.name is None else self.name
-    
-    def default(self, obj):
+
+
+    def __get__(self, owning_obj, cls = None):
+        """
+        Compute/retrieve the value of this option.
+        """
+        if owning_obj is None:
+            return self
+        
+        return self.get_from_dict(owning_obj, owning_obj._configurable_options)
+
+
+    def get_from_dict(self, owning_obj, dict_obj):
+        """
+        Compute/retrieve the value of this option which is stored in a given dictionary.
+        
+        :param owning_obj: The owning object on which this Option object is set as a class attribute.
+        :param dict_obj: The dict in which the value of this Option is stored. In most cases, the value of this option is evaluated simply as dict_obj[self.name]
+        """
+        try:            
+            return dict_obj[self.name]
+        except KeyError:
+            # No value set, return our default value (if we have one).
+            try:
+                return self.default(owning_obj)
+            except AttributeError:
+                # No value set and no default, panic.
+                raise Missing_option_exception(owning_obj, self.name)
+
+
+    def __set__(self, owning_obj, value):
+        """
+        Set the value of this option.
+        
+        :param owning_obj: The owning object on which this Option object is set as a class attribute.
+        :param value: The new value to set.
+        """
+        self.set_into_dict(owning_obj, owning_obj._configurable_options, value)
+
+
+    def set_into_dict(self, owning_obj, dict_obj, value):
+        """
+        Set the value of this option into a specified dict object.
+        
+        :param owning_obj: The owning object on which this Option object is set as a class attribute.
+        :param dict_obj: The dict in which the value of this Option is stored. In most cases, the value of this option is evaluated simply as dict_obj[self.name]
+        :param value: The new value to set.
+        """
+        dict_obj[self.name] = value
+
+
+    def __delete__(self, owning_obj):
+        """
+        Delete the explicit value of this option, resorting to the default (if one is given).
+        
+        :param owning_obj: The owning object on which this Option object is set as a class attribute.
+        """
+        self.set_default(owning_obj, owning_obj._configurable_options)
+
+
+    def set_default(self, owning_obj, dict_obj):
+        """
+        Reset this option to default.
+        
+        Note that this method is an alias for calling del() on this attribute.
+        
+        :param owning_obj: The owning object on which this Option object is set as a class attribute.
+        :param dict_obj: The dict in which the value of this Option is stored. In most cases, the value of this option is evaluated simply as dict_obj[self.name]
+        """
+        dict_obj.pop(self.name, None)
+
+
+    def default(self, owning_obj):
         """
         Get the default value of this Option.
+        
+        :raises AttributeError: If this Option object is required.
+        :param owning_obj: The owning object on which this Option object is set as a class attribute.
         """
         if not callable(self._default):
             return self._default
         else:
-            return self._default(self, obj)
-        
-    def is_default(self, obj):
+            return self._default(self, owning_obj)
+
+
+    def is_default(self, dict_obj):
         """
         Whether the value of this option is currently the default or not.
-        """
-        return not self.name in obj
-    
-#     def set_default(self, obj):
-#         """
-#         Reset this option to default.
-#         """
-#         obj.pop(self.name)
-    
-    def getraw(self, obj, dictobj = None):
-        """
-        Get the 'raw' value of this Option.
         
-        The raw value is that which would appear in the corresponding config file; option.getraw(obj) is roughly equivalent to obj[option.name].
+        :param dict_obj: The dict in which the value of this Option is stored. In most cases, the value of this option is evaluated simply as dict_obj[self.name]
         """
-        dictobj = dictobj if dictobj is not None else obj
-        
-        if not self.required:
-            return dictobj.get(self.name, self.default(obj))
-        else:
-            try:
-                return dictobj[self.name]
-            except KeyError:
-                raise Configurable_exception(obj, "missing required option '{}'".format(self.name))
-            
-    def setraw(self, obj, value, dictobj = None):
+        return not self.name in dict_obj
+
+
+    def validate(self, owning_obj, dict_obj = None):
         """
-        Set the 'raw' value of this Option.
+        Validate the value of this option.
+        
+        :param owning_obj: The owning object on which this Option object is set as a class attribute.
+        :param dict_obj: The dict in which the value of this Option is stored. In most cases, the value of this option is evaluated simply as dict_obj[self.name]
         """
-        dictobj = dictobj if dictobj is not None else obj
+        if dict_obj is None:
+            dict_obj = owning_obj._configurable_options
         
-        dictobj[self.name] = value
+        value = self.get_from_dict(owning_obj, dict_obj)
         
-        
-    def __get__(self, obj, cls):
-        """
-        Get the 'real' value of this Option.
-        """
-        if obj is None:
-            return self
-        # TODO: There is lots of room for improvement here; the whole Configurables inheriting from dicts can probably be scrapped...
-        try:            
-            return obj._configurable_options[self.name]
-        except KeyError:
-            # We haven't been configured yet.
-            #return obj.get(self.name, self.default)
-            return self.getraw(obj)
-        
-    def __set__(self, obj, value, dictobj = None):
-        """
-        Set the value of this option.
-        
-        This method will update the underlying raw value (so changes can be preserved) and will also call configure(); validating the value given.
-        """
-        old = self.getraw(obj, dictobj = dictobj)
-        old_def = self.is_default(obj)
-        
-        self.setraw(obj, value, dictobj = dictobj)
-        try:
-            self.configure(obj)
-        except Exception:
-            if old_def:
-                # Pretty sure this is wrong.. (should be dictobj?)
-                obj.pop(self.name)
-            else:
-                self.setraw(obj, old, dictobj = dictobj)
-            raise
-        
-    def __delete__(self, obj):
-        """
-        Delete the explicit value of this option, resorting to the default (if one is given).
-        
-        If this option is required; attempting to delete it will raise a Configurable_exception().
-        """
-        del(obj[self.name])
-        self.configure(obj)
-        
-            
-    def pre_configure(self, obj, dictobj = None):
-        """
-        Set the value of this Option.
-        
-        :param obj: The Configurable object that is being set.
-        :param dictobj: The dictionary object from where the raw value is being retrieved. In most cases this is the same as obj (and this is the default).
-        """
-        dictobj = dictobj if dictobj is not None else obj
-        value = self.getraw(dictobj)
-        
-        # Try and cast to our type (if not default).
-        #if not self.is_default(dictobj):
-        if not self.is_default(dictobj) and value is not None:
+        # Try and set the type.
+        if not self.is_default(dict_obj) and value is not None:
             try:
                 value = self.type(value) if self.type is not None else value
-            except (TypeError, ValueError):
-                raise Configurable_exception(obj, "value '{}' of type '{}' is invalid for configurable option '{}'".format(value, type(value).__name__, self.name))
+                self.set_into_dict(owning_obj, dict_obj, value)
+            except (TypeError, ValueError) as e:
+                raise Configurable_option_exception(owning_obj, self, "value '{}' of type '{}' is of invalid type".format(value, type(value).__name__)) from e
         
         # If we have a list of options, check we chose one.
-        choices = self.choices(obj)
+        choices = self.choices(owning_obj)
         
         if choices is not None:
-            # If we a are a list type, we'll check each item in value (rather than value itself).
+            # If we are a list type, we'll check each item in value (rather than value itself).
             try:
                 if issubclass(self.type, list) or issubclass(self.type, tuple):
                     values = value
@@ -184,19 +188,10 @@ class Option():
             
             for subvalue in values:
                 if subvalue not in choices:
-                    raise Configurable_exception(obj, "value '{}' is not one of the allowed choices for option '{}': {}".format(subvalue, self.name, choices))
+                    raise Configurable_option_exception(owning_obj, self, "value '{}' is not one of the allowed choices".format(subvalue))
             
         # Check the value is valid.
-        if not self.validate(self, obj, value):
+        if not self._validate(self, owning_obj, value):
             # Invalid.
-            raise Configurable_exception(obj, "value '{}' of type '{}' is invalid for configurable option '{}'".format(value, type(value).__name__, self.name))
-        
-        return self._configure(self, obj, value)
-    
-    def configure(self, obj):
-        """
-        Configure this Option.
-        """
-        # All good.
-        obj._configurable_options[self.name] = self.pre_configure(obj)
-        
+            raise Configurable_option_exception(owning_obj, self, "value '{}' of type '{}' is invalid".format(value, type(value).__name__))
+            
