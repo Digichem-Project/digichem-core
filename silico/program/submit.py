@@ -153,7 +153,7 @@ def _main(args, config, logger):
     
     try:
         # Arrange our calcs into a linked list.
-        first = Calculation_target.link(calculations)
+        first = Calculation_target.link(calculations, global_silico_options = config)
     except Exception:
         raise Silico_exception("Error processing calculations to submit")
     

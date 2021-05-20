@@ -3,9 +3,7 @@ from mako.lookup import TemplateLookup
 import silico
 from silico.exception import Configurable_exception
 from silico.config.configurable.option import Option
-from silico.misc.base import is_int
 from silico.submit.calculation import Concrete_calculation
-from silico.config.configurable.options import Options
 
 class Gaussian(Concrete_calculation):
     """
@@ -29,14 +27,14 @@ class Gaussian(Concrete_calculation):
     _external_basis_sets = Option(
         "external_basis_sets",
         help = "A list of external basis sets to use. The order given here is the order the basis sets will be appended to the input file",
-        choices = lambda option, configurable: [name for basis_set in configurable.available_basis_sets for name in basis_set.NAMES],
+#        choices = lambda option, configurable: [name for basis_set in configurable.available_basis_sets for name in basis_set.NAMES],
         type = tuple,
         default = ()
     )
     _external_ECPs = Option(
         "external_ECPs",
         help = "A list of external ECPs (effective core potentials) to use",
-        choices = lambda option, configurable: [name for basis_set in configurable.available_ECPs for name in basis_set.NAMES],
+#        choices = lambda option, configurable: [name for basis_set in configurable.available_ECPs for name in basis_set.NAMES],
         type = tuple,
         default = ()
     )
@@ -74,18 +72,12 @@ class Gaussian(Concrete_calculation):
         
         This property will translate the names of the basis sets, under self._extended_ECPs, to the actual objects.
         """
+        known_ECPs = self.silico_options.effective_core_potentials
         try:
-            return [self.available_basis_sets.get_config(extended_ECP) for extended_ECP in self._external_ECPs]
+            return [known_ECPs.get_config(ECP) for ECP in self._external_ECPs]
         except Exception:
             raise Configurable_exception(self, "could not load external ECP")
-    
-    @property
-    def available_ECPs(self):
-        """
-        A list of available external basis sets with ECPs.
-        """
-        return [ECP for ECP in self.available_basis_sets if ECP.ECP is not None]
-    
+        
     @property
     def external_basis_sets(self):
         """
@@ -94,7 +86,7 @@ class Gaussian(Concrete_calculation):
         This property will translate the names of the basis sets, under self._extended_basis_sets, to the actual objects.
         """
         try:
-            return [self.available_basis_sets.get_config(extended_basis_set) for extended_basis_set in self._external_basis_sets]
+            return [self.silico_options.basis_sets.get_config(basis_set) for basis_set in self._external_basis_sets]
         except Exception:
             raise Configurable_exception(self, "could not load external basis set")
         

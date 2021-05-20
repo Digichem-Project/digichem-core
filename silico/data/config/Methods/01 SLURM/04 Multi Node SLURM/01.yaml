@@ -1,0 +1,5 @@
+ALIASES:
+  - slurm-multi
+hidden: True
+partition: parallel
+warning: You have selected the high-performance parallel partition. This partition MUST NOT be used for DFT; please make sure you know what you are doing.

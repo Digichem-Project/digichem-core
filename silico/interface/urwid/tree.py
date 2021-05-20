@@ -150,7 +150,7 @@ class Configurable_node(Tree_node):
         self.configurable = configurable
         
         # Decide on which attribute to use.
-        #if self.configurable.HIDDEN:
+        #if self.configurable.hidden:
         #    attr = "hiddennode"
         if self.configurable.warning is not None:
             attr = "warningnode"
@@ -158,7 +158,7 @@ class Configurable_node(Tree_node):
         # Add exclamation if we have a warning.
         #if self.configurable.warning is not None:
         #    name += " (!)"
-        #if self.configurable.HIDDEN:
+        #if self.configurable.hidden:
         #    name += " (hidden)"
         
         try:            

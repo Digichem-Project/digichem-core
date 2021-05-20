@@ -1,0 +1,6 @@
+# Specify excited states.
+ricc2_exci:
+    multiplicity: 3
+    nexc: 2
+    # Can't calculate oscillator strengths for triplets.
+    oscillator_strengths: null

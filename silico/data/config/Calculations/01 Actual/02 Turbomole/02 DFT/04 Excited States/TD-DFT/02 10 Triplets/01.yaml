@@ -1,0 +1,9 @@
+# Specify excited states.
+dft_exci:
+    multiplicity: 3
+    nexc: 10
+    
+# This is a singlepoint.
+modules:
+    - dscf
+    - escf

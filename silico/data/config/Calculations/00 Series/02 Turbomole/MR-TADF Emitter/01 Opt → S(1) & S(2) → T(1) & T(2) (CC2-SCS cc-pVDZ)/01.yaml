@@ -1,0 +1,4 @@
+calculations:
+    - Opt CC2-SCS cc-pVDZ
+    - Excited States CC2-SCS S(1) & S(2) cc-pVDZ
+    - Excited States CC2-SCS T(1) & T(2) cc-pVDZ

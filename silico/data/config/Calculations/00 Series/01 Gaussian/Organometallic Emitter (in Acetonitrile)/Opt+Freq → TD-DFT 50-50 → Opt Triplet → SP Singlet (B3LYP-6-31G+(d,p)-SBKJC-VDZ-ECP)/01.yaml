@@ -1,0 +1,5 @@
+calculations:
+    - "Opt Freq Acetonitrile (SCRF-PCM) B3LYP (GD3BJ) 6-31+G(d,p)/SBKJC-VDZ (ECP)"
+    - "Excited States TD-DFT 10 Singlets 10 Triplets Acetonitrile (SCRF-PCM) B3LYP (GD3BJ) 6-31+G(d,p)/SBKJC-VDZ (ECP)"
+    - "Opt Freq Unrestricted Triplet Acetonitrile (SCRF-PCM) uB3LYP (GD3BJ) 6-31+G(d,p)/SBKJC-VDZ (ECP)"
+    - "Single Point Singlet Acetonitrile (SCRF-PCM) B3LYP (GD3BJ) 6-31+G(d,p)/SBKJC-VDZ (ECP)"

@@ -1,0 +1,11 @@
+# The type of calculation to perform.
+calculation_keywords:
+    - Opt=(MaxCycles=100)
+    - Freq
+
+# Freq requires more mem than usual.
+memory: 30GB
+
+# For Opt, we ask for more output so we can visualise in Chemissian.
+options:
+    Population: Full

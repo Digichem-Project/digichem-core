@@ -1,0 +1,4 @@
+# This is an opt.
+modules:
+    - jobex -level scf -c 100 -keep
+    - aoforce

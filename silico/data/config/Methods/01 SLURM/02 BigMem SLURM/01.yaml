@@ -1,0 +1,5 @@
+ALIASES:
+  - slurm-bigmem
+partition: bigmem
+warning: You have selected the high memory capacity partition. This memory capacity is not normally required for DFT calculations; please make sure you know what you are doing.
+

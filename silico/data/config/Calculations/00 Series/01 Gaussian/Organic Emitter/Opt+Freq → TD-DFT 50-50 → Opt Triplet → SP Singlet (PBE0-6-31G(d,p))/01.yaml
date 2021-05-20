@@ -1,0 +1,5 @@
+calculations:
+    - Opt Freq Gas Phase PBE1PBE (GD3BJ) 6-31G(d,p)
+    - Excited States TD-DFT 10 Singlets 10 Triplets Gas Phase PBE1PBE (GD3BJ) 6-31G(d,p)
+    - Opt Freq Unrestricted Triplet Gas Phase uPBE1PBE (GD3BJ) 6-31G(d,p)
+    - Single Point Singlet Gas Phase PBE1PBE (GD3BJ) 6-31G(d,p)

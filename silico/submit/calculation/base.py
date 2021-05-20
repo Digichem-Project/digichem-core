@@ -9,18 +9,6 @@ from silico.config.configurable.option import Option
 from silico.config.configurable.options import Options
 from silico.file.convert import Silico_input
 
-def _merge_silico_options(option, configurable, silico_options):
-    """
-    Helper function, called to merge specific silico options with the global set.
-    """
-    # Deep copy silico_options (because we're going to merge it).
-    combined_silico_options = copy.deepcopy(configurable.global_silico_options)
-    
-    # Merge silico_options with the global options.
-    combined_silico_options = configurable.merge_dict(silico_options, combined_silico_options)
-                
-    return combined_silico_options
-
 class Calculation_target(Configurable_target):
     """
     Abstract top-level class for calculation targets.
@@ -34,18 +22,7 @@ class Calculation_target(Configurable_target):
         help = "A list of programs that this calculation is compatible with",
         required = True,
         type = list)
-    
-    def configure(self, available_basis_sets, silico_options, **kwargs):
-        """
-        Configure this calculation.
         
-        :param available_basis_sets: List (possibly empty) of known external basis sets.
-        :param silico_options: Global Silico options (note that this is not the per-calculation Option of the same name, but the actual global Silico options with which the former will be merged).
-        """
-        self.available_basis_sets = available_basis_sets
-        self.global_silico_options = silico_options
-        super().configure(**kwargs)
-    
     @classmethod
     def safe_name(self, file_name):
         """
@@ -71,11 +48,12 @@ class Calculation_target(Configurable_target):
         raise NotImplementedError()
 
     @classmethod
-    def link(self, calculation_list):
+    def link(self, calculation_list, *, global_silico_options):
         """
         Prepare a number of Calculation_target objects for submission by creating an ordered, linked list.
         
-        :param calculation_list: A list of 3-membered tuples (method, program, calculation) that are to be prepared. 
+        :param calculation_list: A list of 3-membered tuples (method, program, calculation) that are to be prepared.
+        :param global_silico_options: A dict like object of default options to use for the calculations that will be linked. Note that the options given here can be overridden by specific options given to each calculation...
         :return: A 3-membered tuple of (method, program, calculation) that is to be submitted first.
         """
         first = None
@@ -98,7 +76,7 @@ class Calculation_target(Configurable_target):
                 # This also links the three together.
                 method = method_t()
                 prog = program_t(method)
-                calc = expanded_calculation_t(prog)
+                calc = expanded_calculation_t(prog, global_silico_options = global_silico_options)
                 
                 # If the calc was part of a series, set the series name.
                 if "Series" in calculation_t.CLASS_HANDLE:
@@ -156,25 +134,6 @@ class Concrete_calculation(Calculation_target):
         default = {},
         type = dict
     )
-
-    @property
-    def silico_options(self):
-        """
-        Get the specific silico options to this calculation.
-        
-        This property is a speed-hack; it combines global and specific silico_options the first time it is called and caches the results.
-        """
-        try:
-            return self._silico_options
-        except AttributeError:
-            # First time.
-            # Deep copy silico_options (because we're going to merge it).
-            self._silico_options = copy.deepcopy(self.global_silico_options)
-            
-            # Merge silico_options with the global options.
-            self._silico_options = self.merge_dict(self.custom_silico_options, self._silico_options)
-                        
-            return self._silico_options
     
     def expand(self):
         """
@@ -198,11 +157,12 @@ class Concrete_calculation(Calculation_target):
         Inner class for calculations.
         """
         
-        def __init__(self, program):
+        def __init__(self, program, *, global_silico_options):
             """
             Constructor for calculation objects.
             
             :param program: A Program_target_actual object to submit to.
+            :param global_silico_options: A dict like object of options to use for this calculation. Note that the options given here can be overridden by specific options given to this calculation...
             """    
             # Next is a linked list of Calculation_targets. We will call submit() on next once this object has been submitted.
             self.next = None
@@ -211,10 +171,30 @@ class Concrete_calculation(Calculation_target):
             self.input_coords = None
             self.program = program
             self.validate_parent(program)
+            self.global_silico_options = global_silico_options
             self.program.calculation = self
             # If this calculation was chosen as part of a series (meta-calc), this is the name of that series.
             # If this calc was chosen as an individual, this will be None.
             self.series_name = None
+
+        @property
+        def silico_options(self):
+            """
+            Get the specific silico options to this calculation.
+            
+            This property is a speed-hack; it combines global and specific silico_options the first time it is called and caches the result.
+            """
+            try:
+                return self._silico_options
+            except AttributeError:
+                # First time.
+                # Deep copy silico_options (because we're going to merge it).
+                self._silico_options = copy.deepcopy(self.global_silico_options)
+                
+                # Merge silico_options with the global options.
+                self._silico_options = self.merge_dict(self.custom_silico_options, self._silico_options)
+                            
+                return self._silico_options
         
         @property
         def scratch_directory(self):

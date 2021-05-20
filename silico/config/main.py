@@ -1,85 +1,43 @@
+# General imports.
+from copy import deepcopy
 
+# Silico imports.
 from silico.config.base import Config
 from silico.config.configurable import Configurable_list
-from silico.exception.configurable import Configurable_exception
-from copy import deepcopy
+
 
 class Silico_options(Config):
     """
     Class for holding main Silico options from various sources.
     """
     
-    def __init__(self, configs = []):
+    def __init__(self, options, *, methods = None, programs = None, calculations = None, basis_sets = None):
         """
         Constructor for Silico_options objects.
         """
-        super().__init__()
+        super().__init__(options)
             
         # Set Configurable lists.
-        self.methods = Configurable_list()
-        self.programs = Configurable_list()
-        self.calculations = Configurable_list()
-        self.basis_sets = Configurable_list()
+        self.methods = Configurable_list() if methods is None else methods
+        self.programs = Configurable_list() if programs is None else programs
+        self.calculations = Configurable_list() if calculations is None else calculations
+        self.basis_sets = Configurable_list() if basis_sets is None else basis_sets
+        
+    @property
+    def effective_core_potentials(self):
+        """
+        A list of known ECPs.
+        """
+        return [basis_set for basis_set in self.basis_sets if basis_set.ECP is not None]
             
-        # Add our list.
-        for config in configs:
-            self.add_config(config)
-            
-    def resolve(self):
+    def validate(self):
         """
-        Resolve all Configurables which we contain.
-        
-        NOTE: This method can be (and is) quite expensive.
+        Validate the configurable list that we contain.
         """
-        # First, resolve each list.
-        self.methods = self.methods.resolve()
-        self.programs = self.programs.resolve()
-        self.calculations = self.calculations.resolve()
-        self.basis_sets = self.basis_sets.resolve()
-        
-        # Now init.
-        self.methods.configure()
-        self.programs.configure()
-        self.basis_sets.configure()
-        self.calculations.configure(silico_options = self, available_basis_sets = self.basis_sets)
-
-    def add_config(self, config):
-        """
-        Add a set of options to this config object.
-        
-        The functioning of this method is controlled by the 'TYPE' key in config. If this key is None (or is missing entirely), then config is taken to contain normal config options which are added to this object so that later options will override earlier ones.
-        If 'TYPE' is not 'None' or missing, then 'TYPE' specifies the name of a key in this Config object to which the given config is appended as a whole object.
-        
-        :param config: The new config to add; a dict of options. For convenience, a list of dicts can also be given, and they will be added in order. Further, higher-order lists (lists of lists of dicts etc) can also be given and will be fully traversed and added in order. 
-        :return: self, for convenience.
-        """
-        # If config is a list, we'll recursively call ourself.
-        if isinstance(config, list):
-            for sub_config in config:
-                self.add_config(sub_config)
-            # Done.
-            return
-        
-        # Either merge or append, depending on what sort of config we have.
-        if not hasattr(config, 'TYPE'):
-            # Normal config, merge with ourself.
-            #self.merge_configs(config, self)
-            self.merge(config, none_to_old = True)
-        else:
-            # Configurable, add to the correct list.
-            try:
-                getattr(self, config.TYPE + "s").append(config)
-            except AttributeError:
-                # Possibly because TYPE is invalid; see if we have an attribute called TYPE.
-                if hasattr(self, config.TYPE + "s"):
-                    # Something else went wrong, don't handle it here.
-                    raise
-                else:
-                    # Bad TYPE.
-                    raise Configurable_exception(config, "configurable TYPE '{}' is not recognised".format(config.TYPE)) from None
-        
-        # Give our self back.
-        return self
+        self.methods.validate()
+        self.programs.validate()
+        self.calculations.validate()
+        self.basis_sets.validate()
     
     def set_log_level(self, logger):
         """

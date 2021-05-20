@@ -1,0 +1,11 @@
+# Local methods are visible on dragon
+---
+TYPE: method
+ALIAS: [series]
+hidden: False
+
+
+---
+TYPE: method
+ALIAS: [parallel]
+hidden: False

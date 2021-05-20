@@ -4,12 +4,13 @@ import sys
 import signal
 import itertools
 import argparse
+import deepmerge
 
 # Hidden import.
 import silico.reference
 from silico.exception.uncatchable import Signal_caught
 from silico.exception import Silico_exception
-from silico.config.loader import Config_loader
+from silico.config.loader import Config_loader, Config_file_loader
 import silico.image.vmd
 import silico.file.cube
 import silico.file.fchk
@@ -76,7 +77,9 @@ def init_program(*, args, arg_to_config = None, logger):
     :return: A tuple of the argparse namespace object, silico config object and logging logger object as (args, config, logger). The logger object can of course also be obtained via logging.getLogger(logger_name).
     """
     # Next, load all our config files.
-    config = Config_loader.silico()
+    config = Config_file_loader.silico_options()
+    
+    print("Done loading")
     
     # Add any settings set on the command line to this merged config 'file'
     process_standard_args(config, args)
@@ -93,6 +96,12 @@ def init_program(*, args, arg_to_config = None, logger):
     
     # Add our signal exception handler.
     init_signals(logger)
+    
+    
+    config.validate()
+    
+    print("Done validating")
+    exit()
     
     # Give back our command line arguments and config options.
     return (args, config, logger)
@@ -142,8 +151,6 @@ standard_args = argparse.ArgumentParser(add_help=False)
 group = standard_args.add_argument_group("general options", "general options that control various aspects of silico")
 group.add_argument("-V", "--verbose", help = "increase verbosity, stack with itself to further increase verbosity (this option overrides log_level)",  action='count', default = None)
 group.add_argument("--log_level", choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL', 'OFF'], help = "the level of messages to print", default = None)
-group.add_argument("-K", "--alignment", choices=['MIN', 'FAP', 'AA', 'AAA'], help = "the alignment method to use to align atoms and calculate geometry data. Options are MIN: Minimal, FAP: Furthest Atom Pair, also known as Kebab, AA: Average Angle, also known as Kebab+, AAA: Adjusted Average Angle", default = None)
-group.add_argument("-A", "--angle_units", help = "the units to use to print angles. Options are deg: degrees or rad: radians", default = None)
 group.add_argument("-S", "--setting", help = "set a config option to a value. Options of this type are parsed as if they were a config file (in yaml format) and are then used to set corresponding options, eg -S \"absorption_graph: {fwhm: 100}\"", nargs = "*", default = [], action = "append")
 group.add_argument("--config_files", help = "an additional config file to read from. See the master config file for possible config options. Note that the master config file (at silico/data/config/silico.yaml) and user config file (at ~/.config/silico/silico.yaml) are always read automatically and do not need to be specified here. Multiple files may be given and will be processed in the order specified (the last having highest priority)", nargs = "*", default = [])
 
@@ -153,26 +160,18 @@ def process_standard_args(config, args):
     
     :param config: The Silico_options object to add to.
     :param args: An argparse Namespace object.
-    """
-    # Build a dictionary of options as they would appear in the config file.
-    arg_configs = {
-        'logging': {
-                'log_level': args.log_level,
-                'verbose': args.verbose
-            },
-        'alignment': args.alignment,
-        'angle_units': args.angle_units
-        }
-    
-    # Now merge this new dictionary with ourself.
-    config.add_config(arg_configs)
+    """    
+    # Set log level and/or verbosity.
+    if args.log_level is not None:
+        config['logging']['log_level'] = args.log_level
+        
+    if args.verbose is not None:
+        config['logging']['verbose'] = args.verbose
     
     # We will also process any additional config files given on the command line, and add them in order.
     for config_file_name in args.config_files:
-        # Load the file.
-        config = Config_loader.from_file(config_file_name)
-        # And add to ourself.
-        config.add_config(config)
+        # Load the file and merge.
+        config.merge(Config_file_loader(config_file_name).load())
         
     # Finally, we set any config options.
     # We do this last so that they'll have highest priority.
@@ -180,9 +179,10 @@ def process_standard_args(config, args):
     for config_file in itertools.chain(*args.setting):
         # Now we'll parse it as YAML.
         try:
-            #self.add_config(list(yaml.safe_load_all(config_file)))
-            config.add_config(silico.config.loader.Config_loader(config_file))
+            config.merge(Config_loader(config_file).load())
+            
         except Exception:
             raise Silico_exception("failed to parse command-line config options")
+        
     # All done.
 

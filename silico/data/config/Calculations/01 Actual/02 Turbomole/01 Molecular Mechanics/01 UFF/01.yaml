@@ -1,0 +1,22 @@
+# This is a turbomole calc.
+CLASS: Turbomole-UFF
+
+# Memory and CPU.
+memory: 1GB
+num_CPUs: 1
+
+# The programs that this calculation is compatible with.
+programs: [Turbomole]
+
+# No need to use scratch for UFF.
+scratch_options:
+    use_scratch: False
+    
+# No need for reports.
+write_report: False
+write_summary: False
+
+# Convergence criteria.
+econv: 0.10D-10
+gconv: 0.10D-10
+maxcycle: 500

@@ -1,0 +1,8 @@
+calculation_keywords:
+    - TDA=(NStates=5,Triplets)
+    
+options:
+    # Options required for PySOC
+    6D: ""
+    10F: ""
+    GFInput: ""

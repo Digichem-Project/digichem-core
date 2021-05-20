@@ -1,0 +1,4 @@
+methods:
+    - series
+    - parallel
+    - slurm

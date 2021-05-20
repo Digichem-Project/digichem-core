@@ -1,0 +1,4 @@
+# This is a single point.
+modules:
+    - dscf
+    - ricc2
