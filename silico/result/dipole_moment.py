@@ -25,7 +25,8 @@ class Dipole_moment(Result_object):
         """
         The dipole moment in debye.
         """
-        return math.sqrt( (self.vector_coords[0] - self.origin_coords[0]) ** 2 + (self.vector_coords[1] - self.origin_coords[1]) ** 2 + (self.vector_coords[2] - self.origin_coords[2]) ** 2)
+        #return math.sqrt( (self.vector_coords[0] - self.origin_coords[0]) ** 2 + (self.vector_coords[1] - self.origin_coords[1]) ** 2 + (self.vector_coords[2] - self.origin_coords[2]) ** 2)
+        return math.sqrt( self.vector_coords[0] ** 2 + self.vector_coords[1] ** 2 + self.vector_coords[2] ** 2)
     
     
     def __init__(self, origin_coords, vector_coords, atoms = None):
