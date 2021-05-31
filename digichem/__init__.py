@@ -18,12 +18,10 @@ name = "silico"
 # Brief description.
 description = "Silico Computational Chemistry Package"
 # Version information.
-major_version = 1
-minor_version = 0
-revision = 0
-prerelease = 3
-# Whether this is a development version.
-development = prerelease is not None
+major_version = 0
+minor_version = 19
+revision = 3
+version_number = "{}.{}.{}".format(major_version, minor_version, revision)
 # The full version number of this package.
 version = "{}.{}.{}{}".format(major_version, minor_version, revision, "-pre.{}".format(prerelease) if development else "")
 # The bloke who wrote this.
