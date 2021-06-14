@@ -22,11 +22,11 @@ SPLIT:
         - GROUP_NAME: "{basis_set}"
           basis_set:
             - 6-31G(d,p)
-            - 6-31G+(d,p)
-            - 6-31G++(d,p)
+            - 6-31+G(d,p)
+            - 6-31++G(d,p)
             - 6-311G(d,p)
-            - 6-311G+(d,p)
-            - 6-311G++(d,p)
+            - 6-311+G(d,p)
+            - 6-311++G(d,p)
             - cc-pVDZ
             - cc-pVTZ
             - cc-pVQZ
@@ -58,11 +58,11 @@ SPLIT:
         - GROUP_NAME: "{basis_set}"
           basis_set:
             - 6-31G(d,p)
-            - 6-31G+(d,p)
-            - 6-31G++(d,p)
+            - 6-31+G(d,p)
+            - 6-31++G(d,p)
             - 6-311G(d,p)
-            - 6-311G+(d,p)
-            - 6-311G++(d,p)
+            - 6-311+G(d,p)
+            - 6-311++G(d,p)
             - cc-pVDZ
             - cc-pVTZ
             - cc-pVQZ
@@ -103,11 +103,11 @@ SPLIT:
             - GROUP_NAME: "{basis_set}"
               basis_set:
                 - 6-31G(d,p)
-                - 6-31G+(d,p)
-                - 6-31G++(d,p)
+                - 6-31+G(d,p)
+                - 6-31++G(d,p)
                 - 6-311G(d,p)
-                - 6-311G+(d,p)
-                - 6-311G++(d,p)
+                - 6-311+G(d,p)
+                - 6-311++G(d,p)
                 - cc-pVDZ
                 - cc-pVTZ
                 - cc-pVQZ
@@ -139,11 +139,11 @@ SPLIT:
             - GROUP_NAME: "{basis_set}"
               basis_set:
                 - 6-31G(d,p)
-                - 6-31G+(d,p)
-                - 6-31G++(d,p)
+                - 6-31+G(d,p)
+                - 6-31++G(d,p)
                 - 6-311G(d,p)
-                - 6-311G+(d,p)
-                - 6-311G++(d,p)
+                - 6-311+G(d,p)
+                - 6-311++G(d,p)
                 - cc-pVDZ
                 - cc-pVTZ
                 - cc-pVQZ
