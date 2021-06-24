@@ -1,6 +1,9 @@
-# General imports.
+from openbabel import pybel
 from copy import deepcopy
-import yaml
+
+from silico.config.base import Config
+from silico.config.configurable import Configurable_list
+from silico.exception.configurable import Configurable_exception
 
 # Silico imports.
 from silico.config.base import Auto_type
@@ -285,27 +288,15 @@ Example:
         """
         A list of known methods which have been loaded from config files.
         
-        This is a configurable list of destinations, which can be traversed to also find programs and then calculations.
-        """
-        return self.destinations
-    
-    @property
-    def urwid_palette(self):
-        """
-        A shortcut for accessing the urwid palette (in a format that can be passed directly to urwid).
-        """
-        return self.yaml_to_palette(self.palette)
-    
-    @property
-    def effective_core_potentials(self):
-        """
-        A list of known ECPs.
-        """
-        return [basis_set for basis_set in self.basis_sets if basis_set.ECP is not None]
-    
-    def save(self):
-        """
-        Save the current value of these options to file, so that they will be reloaded on next program start.
+        :param logger: The logger to set (from logging.getLogger()).
+        """        
+        # Set from log_level first.
+        if self['logging']['log_level'] == "OFF":
+            logger.setLevel(60)
+            # Also disable obabel logging.
+            pybel.ob.obErrorLog.StopLogging()
+        else:
+            logger.setLevel(self['logging']['log_level'])
         
         Changed settings are always saved to the user's config file.
         """
@@ -337,6 +328,10 @@ Example:
         
         # Done.
         return palette
+            
+        # Unless we are in DEBUG, hide warnings from openbabel.
+        if logger.level!= 10:
+            pybel.ob.obErrorLog.SetOutputLevel(0)
             
     def __deepcopy__(self, memo):
         """
