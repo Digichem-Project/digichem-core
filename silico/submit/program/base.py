@@ -124,21 +124,16 @@ class Program_target(Configurable_target):
                 # Go.
                 self.calculate()
                 
-            except (Signal_caught, KeyboardInterrupt):
+            except (Signal_caught, KeyboardInterrupt, Exception) as e:
                 # We've been told to stop (probably by SLURM because we went over time etc).
-                self.end(False)
+                # or something else went wrong.
                 
-                # Continue stopping.
-                raise
-                
-            except Exception as e:
-                # Something went wrong.
-                self.end(False)
-                
-                # Raise.
-                # Store for later so we can try and generate PDFs and results.
+                # Store the error for later so we can perform cleanup and write reports etc.
                 self.error = Submission_error(self, "Error executing calculation program")
                 self.error.__cause__ = e
+                
+                # Now perform cleanup.
+                self.end(False)
                 
             else:
                 # Finished normally.
