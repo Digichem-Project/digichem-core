@@ -1,4 +1,4 @@
-<%page args="prog_version, page_number, pages"/>
+<%page args="prog_version, page_number, pages, error"/>
 
 <html>
     <head>
@@ -6,8 +6,7 @@
 ##        <link rel="stylesheet" type="text/css" href="static/css/font.css">
         <link rel="stylesheet" type="text/css" href="static/css/page_footer.css">
     </head>
-    <footer class="footer">
-        ##<div class="footer__name">${Path(result.metadata.name).name} - ${", ".join(result.metadata.calculations)}</div>
+    <footer class="footer ${"footer--bad" if error else ""}">
         <div class="footer__name">Silico ${prog_version}</div>
         <div class="footer__calcs"></div>
         %if pages > 1:

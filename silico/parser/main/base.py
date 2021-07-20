@@ -1,12 +1,15 @@
+# General imports.
 from logging import getLogger
 from pathlib import Path
 import cclib.io
 from glob import iglob
 import itertools
 
+# Silico imports
 from silico.result.molecular_orbitals import Molecular_orbital_list,\
     Beta_orbital
-from silico.result.result import Metadata, Result_set
+from silico.result.metadata import Metadata
+from silico.result.result import Result_set
 from silico.result.atoms import Atom_list
 from silico.result.transition_dipole_moment import Transition_dipole_moment
 from silico.result.excited_states import Excited_state_list
@@ -14,7 +17,7 @@ from silico.result.energy import CC_energy_list, MP_energy_list, SCF_energy_list
 from silico.result.ground_state import Ground_state
 from silico.result.spin_orbit_coupling import SOC_list
 from silico.result.dipole_moment import Dipole_moment
-from silico.result.vibrations import Vibration_list
+from silico.result.vibrations import Vibrations_list
 from silico.exception.base import Silico_exception
 import silico
 
@@ -28,14 +31,25 @@ class Parser(Result_set):
     Top-level abstract class for calculation result parsers.
     """
     
-    def __init__(self, *log_files):
+    # A dictionary of recognised auxiliary file types.
+    INPUT_FILE_TYPES = {}
+    
+    def __init__(self, *log_files, **aux_files):
         """
         Top level constructor for calculation parsers.
         
         :param log_files: A list of output file to analyse/parse. The first log_file given will be used for naming purposes.
+        :param aux_files: A dictionary of auxiliary input files related to the calculation.
         """
         # Set our name.
         self.log_file_paths = [Path(log_file) for log_file in log_files if log_file is not None]
+        
+        # Panic if we have no logs.
+        if len(self.log_file_paths) == 0:
+            raise Silico_exception("Cannot parse calculation output; no available log files. Are you sure the given path is a log file or directory containing log files?")
+        
+        # Also save our aux files, stripping None.
+        self.aux_files = {name: aux_file for name,aux_file in aux_files.items() if aux_file is not None}
         
         # An object that we will populate with raw results.
         self.data = None
@@ -50,37 +64,52 @@ class Parser(Result_set):
             raise Silico_exception("Error parsing calculation result '{}'".format(self.description))
         
     @classmethod
-    def from_log(self, log_file, **kwargs):
+    def from_logs(self, *given_log_files, **kwargs):
         """
-        Intelligent constructor that will attempt to guess the location of files from a given log file.
+        Intelligent constructor that will attempt to guess the location of files from a given log file(s).
         
         :param log_file: Output file to parse or a directory of output files to parse.
         """
-        log_files, parent, kwfiles = self.find_logs(log_file)
+        found_log_files = [found_log.resolve() for given_log_file in given_log_files for found_log in self.find_log_files(given_log_file)]
         
         # Make sure we only have unique log files.
-        log_files = list(set(log_file.resolve() for log_file in log_files))
+        # We also now reverse our ordering, so that files given earlier by the user have priority.
+        log_files = list(reversed(list(dict.fromkeys(found_log_files))))
         
-        return self(*log_files, **kwargs)
+        # Next, have a look for aux. files.
+        aux_files = {}
+        
+        for found_log_file in found_log_files:
+            aux_files.update(self.find_aux_files(found_log_file))
+            
+        # Finally, update our aux_files with kwargs, so any user specified aux files take precedence.
+        aux_files.update(kwargs)
+        
+        return self(*log_files, **aux_files)
     
     @classmethod
-    def find_logs(self, log_file):
+    def find_log_files(self, hint):
         """
         Find output (log) files from a given hint.
         
-        :param log_file: A path to a file to use as a hint to find additional log files. log_file can be a directory, in which case files inside this directory will be found.
+        :param hint: A path to a file to use as a hint to find additional log files. hint can optionally be a directory, in which case files inside this directory will be found.
+        :returns: A list of found log files.
         """
-        log_file = Path(log_file)
+        hint = Path(hint)
         
         # First, find our parent dir.
-        # Log file may actually be a dir.
-        if log_file.is_dir():
+        # hint may actually be a dir.
+        if hint.is_dir():
             # Look for all .log files.
-            parent = log_file
+            parent = hint
             log_files = [Path(found_log_file) for found_log_file in iglob(str(Path(parent, "*.log")))]
+            # Remove any 'silico.log' files as we know these are not calc log files.
+            # We don't actually write 'silico.log' files anymore either (we use silico.out instead),
+            # but older versions did...
+            log_files = [log_file for log_file in log_files if log_file.name != "silico.log"]
         else:
-            parent = log_file.parent
-            log_files = [log_file]
+            parent = hint.parent
+            log_files = [hint]
                             
         # Try and find job files.
         # These files have names like 'job.0', 'job.1' etc, ending in 'job.last'.
@@ -104,10 +133,26 @@ class Parser(Result_set):
                 # Found it.
                 log_files.append(maybe_file_path)
         
-        # Some parsers recognise other (non-log) files.
-        kwfiles = {}
+        return log_files
+    
+    @classmethod
+    def find_aux_files(self, hint):
+        """
+        Find auxiliary files from a given hint.
         
-        return log_files, parent, kwfiles
+        :param hint: A path to a file to use as a hint to find additional files.
+        :returns: A dictionary of found aux files.
+        """
+        hint = Path(hint)
+        
+        # Now have a look for aux. input files, which are defined by each parser's INPUT_FILE_TYPES
+        aux_files = {}
+        for file_type in self.INPUT_FILE_TYPES:
+            for extension in file_type.extensions:
+                if hint.with_suffix(extension).exists():
+                    aux_files[self.INPUT_FILE_TYPES[file_type]] = hint.with_suffix(extension)
+        
+        return aux_files
         
     
     @property
@@ -126,8 +171,7 @@ class Parser(Result_set):
         """
         Short name to describe this calculation result.
         """
-        #return self.log_file_path.with_suffix("").name
-        return self.log_file_path
+        return self.log_file_path.with_suffix("").name
     
     @property
     def description(self):
@@ -161,17 +205,24 @@ class Parser(Result_set):
         """
         Parse additional calculation metadata.
         """
-        pass
+        # Add our name.
+        if self.name is not None:
+            self.data.metadata['name'] = self.name
+        
+        # Set our file paths.
+        self.data.metadata['log_files'] = self.log_file_paths
+        self.data.metadata['aux_files'] = self.aux_files
         
     def process(self, alignment_class):
         """
         Get a Result set object from this parser.
         
-        :param: alignment_class: An alignment class object to use to reorientate atoms.
+        :param: alignment_class: An alignment class object to use to reorientate atoms. If not specified the Minimal alignment method will be used by default.
         :return: The populated result set.
         """
+        
         # Get our result set.
-        self.results = Result_set()
+        self.results = Result_set(metadata = Metadata.from_parser(self))
         
         # First get our list of MOs (because we need them for excited states too.)
         self.results.molecular_orbitals = Molecular_orbital_list.from_parser(self)
@@ -181,7 +232,7 @@ class Parser(Result_set):
         self.results.molecular_orbitals.assign_total_level(self.results.beta_orbitals)
         
         # Metadata.
-        self.results.metadata = Metadata.from_parser(self)
+#         self.results.metadata = Metadata.from_parser(self)
         
         # Our alignment orientation data.
         self.results.alignment = alignment_class.from_parser(self)
@@ -214,7 +265,7 @@ class Parser(Result_set):
         self.results.dipole_moment = Dipole_moment.from_parser(self)
         
         # Finally, frequencies.
-        self.results.vibrations = Vibration_list.from_parser(self)
+        self.results.vibrations = Vibrations_list.from_parser(self)
         
         # Return the populated result set for convenience.
         return self.results
@@ -233,24 +284,4 @@ class Parser(Result_set):
         Convert a length in bohr to angstrom.
         """
         return bohr_distance * 0.529177210903
-    
-                
-class Sub_parser():
-    """
-    Top-level class for sub-parsers.
-    """
-    
-    def __init__(self, parser):
-        """
-        :param parser: The top-level parser.
-        """
-        self.parser = parser
-        
-        
-    def finalize(self):
-        """
-        Finalize this sub parser.
-        """
-        pass
-    
     

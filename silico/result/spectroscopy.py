@@ -27,7 +27,7 @@ class Spectroscopy_graph():
     @classmethod
     def from_vibrations(self, vibrations):
         """
-        Alternative constructor from a Vibration_list object.
+        Alternative constructor from a Vibrations_list object.
         """
         return self([(vibration.frequency, vibration.intensity) for vibration in vibrations if vibration.intensity != 0])
     

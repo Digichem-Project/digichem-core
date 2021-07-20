@@ -156,16 +156,16 @@ class Metadata_summary_extractor(Summary_extractor):
             'Package': result.safe_get('metadata', 'package'),
             'Package version': result.safe_get('metadata', 'package_version'),
             'Calculations': result.safe_get('metadata', 'calculations_string'),
-            'Method': result.safe_get('metadata', 'calc_methods_string'),
-            'Functional': result.safe_get('metadata', 'calc_functional'),
-            'Basis set': result.safe_get('metadata', 'calc_basis_set'),
-            'Success': result.safe_get('metadata', 'calc_success'),
+            'Method': result.safe_get('metadata', 'methods_string'),
+            'Functional': result.safe_get('metadata', 'functional'),
+            'Basis set': result.safe_get('metadata', 'basis_set'),
+            'Success': result.safe_get('metadata', 'success'),
             'Optimisation converged': result.safe_get('metadata', 'optimisation_converged'),
-            'Calculation temperature /K': result.safe_get('metadata', 'calc_temperature'),
-            'Calculation pressure /atm': result.safe_get('metadata', 'calc_pressure'),
+            'Calculation temperature /K': result.safe_get('metadata', 'temperature'),
+            'Calculation pressure /atm': result.safe_get('metadata', 'pressure'),
             #'Formula': result.safe_get('alignment', 'formula_string'),
             'Charge': result.safe_get('alignment', 'charge'),
-            'Multiplicity': result.safe_get('metadata', 'system_multiplicity')
+            'Multiplicity': result.safe_get('metadata', 'multiplicity')
         })
         
 class Geometry_summary_extractor(Summary_extractor):

@@ -1,10 +1,13 @@
-from silico.report.base import Report
+# General imports.
 from mako.lookup import TemplateLookup
 from pathlib import Path
 import pkg_resources
 import silico
 import shutil
-import subprocess
+
+# Silico imports.
+from silico.report.main import Report
+from silico.misc.directory import copytree
 
 class HTML_report(Report):
     """
@@ -78,14 +81,15 @@ class HTML_report(Report):
         
         # Because the in-built python copytree functions appears to be broken, we'll just use cp for now.
         # This is a work around for #21.
-        subprocess.run([
-                "cp", "-R",
-                str(self.src_static_dir),
-                str(self.static_dir)
-            ],
-            universal_newlines = True,
-            check = True
-        )
+#         subprocess.run([
+#                 "cp", "-R",
+#                 str(self.src_static_dir),
+#                 str(self.static_dir)
+#             ],
+#             universal_newlines = True,
+#             check = True
+#         )
+        copytree(str(self.src_static_dir), str(self.static_dir))
         
         # Done.
         

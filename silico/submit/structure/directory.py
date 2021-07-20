@@ -1,5 +1,7 @@
 from pathlib import Path
 from datetime import datetime
+from silico.misc.io import smkdir
+import math
 
 class Silico_directory():
     """
@@ -124,6 +126,12 @@ class Calculation_directory(Silico_directory):
             return Path(str(self.molecule_directory), self.program, self.name)
         else:
             return Path(str(self.molecule_directory), self.name)
+        
+    @path.setter
+    def path(self, value):
+        """
+        """
+        self.name = value.name
     
     @property
     def input_directory(self):
@@ -247,19 +255,21 @@ class Calculation_directory(Silico_directory):
         """
         retval = 0
         
-        # First try and make our base directory.
-        counter = 1
-        dir_name = self.name
-        while True:
-            try:
-                self.name = dir_name + " {}".format(str(counter).zfill(2)) if counter != 1 else dir_name
-                self.path.mkdir(parents = True)
-                break
-            except FileExistsError:
-                if adjust:
-                    counter +=1
-                else:
-                    raise
+#         # First try and make our base directory.
+#         counter = 1
+#         dir_name = self.name
+#         while True:
+#             try:
+#                 self.name = dir_name + " {}".format(str(counter).zfill(2)) if counter != 1 else dir_name
+#                 self.path.mkdir(parents = True)
+#                 break
+#             except FileExistsError:
+#                 if adjust:
+#                     counter +=1
+#                 else:
+#                     raise
+
+        self.name = smkdir(self.path, 1 if not adjust else math.inf).name
         
         
         for sub_dir in [self.input_directory, self.output_directory, self.flag_directory]:

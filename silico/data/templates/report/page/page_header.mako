@@ -1,4 +1,4 @@
-<%page args="report" />
+<%page args="report, error" />
 
 <%!
     from pathlib import Path
@@ -10,11 +10,12 @@
 ##        <link rel="stylesheet" type="text/css" href="static/css/font.css">
         <link rel="stylesheet" type="text/css" href="static/css/page_header.css">
     </head>
-    <header class="header">
+    <header class="header ${"header--bad" if error else ""}">
         <div class=header__title>
             ##Calculation Report
             ##${Path(result.metadata.name).name} - ${", ".join(result.metadata.calculations)}
-            ${Path(report.result.metadata.name).name} - ${report.result.title}
+            ##${Path(report.result.metadata.name).name} - ${report.result.title}
+            ${report.result.metadata.name} - ${report.result.title}
         </div>
     </header>
 </html>

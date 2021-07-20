@@ -6,8 +6,10 @@ import math
 
 # Silico imports.
 from silico.result import Result_container
-from silico.result.base import Result_object
+from silico.result import Result_object
 from silico.exception.base import Result_unavailable_error
+from silico.result.base import Floatable_mixin
+import itertools
 
 class Excited_state_list(Result_container):
     """
@@ -131,6 +133,31 @@ class Excited_state_list(Result_container):
         :return: The populated Excited_state_list object.
         """
         return self(Excited_state.list_from_parser(parser))
+    
+    def assign_levels(self):
+        """
+        (Re)assign total and multiplicity levels of the excited states in this list.
+        
+        The contents of this list will be modified in place.
+        """
+        # A dictionary of multiplicities that we've seen so far.
+        multiplicities = {}
+        total_level = 0
+        
+        for state in self:
+            # (try) and add this state's multiplicity to our dict (if we get a key error that just means it's the first time we've seen this mult).
+            try:
+                multiplicities[state.multiplicity] += 1
+            except KeyError:
+                # First time we've seen this mult, set to 1.
+                multiplicities[state.multiplicity] = 1
+            
+            # Increment total level.
+            total_level += 1
+                
+            # Set mult and total level.
+            state.multiplicity_level = multiplicities[state.multiplicity]
+            state.level = total_level
             
 
 class Excited_state_transition(Result_object):
@@ -203,7 +230,7 @@ class Excited_state_transition(Result_object):
             # No data.
             return []
 
-class Energy_state(Result_object):
+class Energy_state(Result_object, Floatable_mixin):
     """
     Class for representing different energy states of the same system.
     """
@@ -251,7 +278,7 @@ class Energy_state(Result_object):
         """
         Float of this class.
         """
-        return self.energy
+        return float(self.energy)
     
     @classmethod
     def multiplicity_number_to_string(self, multiplicity):
@@ -310,11 +337,12 @@ class Excited_state(Energy_state):
     Class for representing an excited state.
     """
     
-    def __init__(self, level, multiplicity_level, symmetry, energy, oscillator_strength, transitions, transition_dipole_moment = None):
+    def __init__(self, level, multiplicity, multiplicity_level, symmetry, energy, oscillator_strength, transitions, transition_dipole_moment = None):
         """
         Constructor for excited state objects.
         
         :param level: The 'level' of this excited state (essentially an index), where the lowest state has a level of 1, increasing by 1 for each higher state.
+        :param multiplicity: The multiplicity of this excited state (as an integer or float).
         :param multiplicity_level: The 'level' of this state within the excited states that have the same multiplicity.
         :param symmetry: The symmetry of this excited state; a complicated term that contains our multiplicity among other things.
         :param energy: The energy of this excited state (in eV).
@@ -322,7 +350,7 @@ class Excited_state(Energy_state):
         :param transitions: The singly excited transitions which make up this transition.
         :param transition_dipole_moment: Optional transition dipole of the excited state.
         """
-        super().__init__(level, self.get_multiplicity_from_symmetry(symmetry), multiplicity_level, energy)
+        super().__init__(level, multiplicity, multiplicity_level, energy)
         self.symmetry = symmetry
         # Oscillator strength is a dimensionless float that describes the probability of the transition from the reference state (normally ground) to this excited state.
         self.oscillator_strength = oscillator_strength
@@ -370,7 +398,6 @@ class Excited_state(Energy_state):
         """
         try:
         # λ = (c * h) / e
-        #return ((self.speed_of_light * self.plancks_constant) / (self.energy * self.electron_volt)) * 1000000000
             return self.energy_to_wavelength(self.energy)
         except FloatingPointError:
             # Our energy is zero.
@@ -439,8 +466,6 @@ class Excited_state(Energy_state):
         try:
             # List of excited states.
             excited_states = []
-            # Dictionary of each of our multiplicities (singlets, triplets etc) so we know our multiplicities.
-            multiplicities = {}
             
             # Assemble cclib's various arrays into a single list.
             # If we're missing etoscs, that's ok.
@@ -451,19 +476,7 @@ class Excited_state(Energy_state):
             transitions = Excited_state_transition.list_from_parser(parser)
             
             # Loop through our data.
-            for index, (symmetry, energy, oscillator_strength) in enumerate(excited_states_data):
-                # Get our multiplicity.
-                mult = Excited_state.get_multiplicity_from_symmetry(symmetry)
-                # Try and see if we've already got some states of this mult.
-                mult_level = 1
-                try:
-                    # Add one to the level.
-                    multiplicities[mult] += 1
-                    mult_level = multiplicities[mult]
-                except KeyError:
-                    # We haven't seen this mult before.
-                    multiplicities[mult] = 1
-                    
+            for index, (symmetry, energy, oscillator_strength) in enumerate(excited_states_data):                    
                 # Relevant transition dipole moments.
                 try:
                     tdm = parser.results.transition_dipole_moments[index]
@@ -471,10 +484,12 @@ class Excited_state(Energy_state):
                     tdm = None
                     
                 # Get and append our object.
+                # We'll set level and mult level once we've got all our objects, so just use None for now.
                 excited_states.append(
                     self(
-                        level = index +1,
-                        multiplicity_level = mult_level,
+                        level = None,
+                        multiplicity = Excited_state.get_multiplicity_from_symmetry(symmetry),
+                        multiplicity_level = None,
                         symmetry = symmetry,
                         energy = self.wavenumbers_to_energy(energy),
                         oscillator_strength = oscillator_strength,
@@ -482,6 +497,9 @@ class Excited_state(Energy_state):
                         transition_dipole_moment = tdm
                     )
                 )
+            
+            # Now assign total and multiplicity levels which we skipped earlier.
+            Excited_state_list.assign_levels(excited_states)
             
             # All done, return our list.
             return excited_states

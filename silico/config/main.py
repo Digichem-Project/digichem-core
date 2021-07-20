@@ -1,8 +1,9 @@
+from openbabel import pybel
+from copy import deepcopy
 
 from silico.config.base import Config
 from silico.config.configurable import Configurable_list
 from silico.exception.configurable import Configurable_exception
-from copy import deepcopy
 
 class Silico_options(Config):
     """
@@ -90,6 +91,8 @@ class Silico_options(Config):
         # Set from log_level first.
         if self['logging']['log_level'] == "OFF":
             logger.setLevel(60)
+            # Also disable obabel logging.
+            pybel.ob.obErrorLog.StopLogging()
         else:
             logger.setLevel(self['logging']['log_level'])
         
@@ -105,6 +108,10 @@ class Silico_options(Config):
             
             # And set.
             logger.setLevel(new_level)
+            
+        # Unless we are in DEBUG, hide warnings from openbabel.
+        if logger.level!= 10:
+            pybel.ob.obErrorLog.SetOutputLevel(0)
             
     def __deepcopy__(self, memo):
         """

@@ -6,6 +6,7 @@ from mako.lookup import TemplateLookup
 from logging import getLogger
 from silico.file.fchk import Chk_to_fchk
 from silico.config.configurable.option import Option
+from silico.parser.base import parse_calculation
 
 class Gaussian(Program_target):
     """
@@ -67,19 +68,19 @@ class Gaussian(Program_target):
             return self.log_file_path
     
     
-        @property
-        def chk_file_path(self):
-            """
-            Path to the Gaussian checkpoint .chk file written to by Gaussian.
-            """
-            return Path(self.method.calc_dir.output_directory, self.calculation.chk_file_name)
-        
-        @property
-        def rwf_file_path(self):
-            """
-            Path to the Gaussian read-write .rwf file written to by Gaussian.
-            """
-            return Path(self.method.calc_dir.output_directory, self.calculation.rwf_file_name)
+#         @property
+#         def chk_file_path(self):
+#             """
+#             Path to the Gaussian checkpoint .chk file written to by Gaussian.
+#             """
+#             return Path(self.method.calc_dir.output_directory, self.calculation.chk_file_name)
+#         
+#         @property
+#         def rwf_file_path(self):
+#             """
+#             Path to the Gaussian read-write .rwf file written to by Gaussian.
+#             """
+#             return Path(self.method.calc_dir.output_directory, self.calculation.rwf_file_name)
             
         @property
         def fchk_file_path(self):
@@ -95,18 +96,19 @@ class Gaussian(Program_target):
             # Call parent for setup first.
             super().pre()
             
-#             # Set locations.
-#             if self.calculation.scratch_directory is not None:            
-#                 # Set our chk location.
-#                 self.chk_file_path = Path(self.calculation.scratch_directory, self.calculation.chk_file_name)
-#                 
-#                 # If we're writing everything to scratch, set our log file there too.
-#                 if self.calculation.scratch_options['all_output']:
-#                     self.log_file_path = Path(self.calculation.scratch_directory, self.calculation.com_file_name).with_suffix(".log")
-            
             # Write our input file to our calculation Input directory.
             with open(self.com_file_path, "wt") as com_file:
                 com_file.write(self.calculation.com_file_body)
+                
+            # Set some file locations based on whether we're using scratch output or not.
+            if self.scratch_output is not None:
+                # We're using scratch output, the .chk and .rwf files will be in the scratch dir.
+                self.chk_file_path = Path(self.scratch_output, self.calculation.chk_file_name)
+                self.rwf_file_path = Path(self.scratch_output, self.calculation.rwf_file_name)
+            else:
+                # Not using scratch output, .rwf and .chk will be in normal output dir.
+                self.chk_file_path = Path(self.method.calc_dir.output_directory, self.calculation.chk_file_name)
+                self.rwf_file_path = Path(self.method.calc_dir.output_directory, self.calculation.rwf_file_name)
     
         def calculate(self):
             """
@@ -127,31 +129,6 @@ class Gaussian(Program_target):
                 stderr = subprocess.STDOUT
                 )
         
-        def cleanup(self, success):
-            """
-            Cleanup files and directory once the calculation has finished (successfully or otherwise).
-            
-            :param success: True if the calculation finished normally, false otherwise.
-            """
-#             # Check to see if our main output files are in their proper (default) locations or not. Move them if necessary.
-#             for out_file, default_location in [
-#                     ('log_file_path', 'default_log_file_path'),
-#                     ('chk_file_path', 'default_chk_file_path')
-#                 ]:
-#                 # Check to see if the file is in scratch or not.
-#                 if getattr(self, out_file).resolve() != getattr(self, default_location).resolve():
-#                     # Try and move.
-#                     try:
-#                         # Smart move.
-#                         shutil.move(getattr(self, out_file), getattr(self, default_location))
-#                     except FileNotFoundError:
-#                         # This is safe to ignore, the file simply wasn't written.
-#                         pass
-#                         # We halt on other errors so we don't do something dangerous. Perhaps the most common reason why this copying might fail is because dst is out of file space, in such an instance it would a shame to contine and delete the (possibly comopleted) calc files.
-#                     
-#                     # And update (reset) our attribute.
-#                     setattr(self, out_file, None)
-        
         def post(self):
             """
             Post submission method.
@@ -160,7 +137,7 @@ class Gaussian(Program_target):
             try:
                 # Create an fchk file if asked.
                 if self.calculation.convert_chk:
-                    fchk_file = Chk_to_fchk(self.fchk_file_path, chk_file = self.chk_file_path)
+                    fchk_file = Chk_to_fchk(self.fchk_file_path, chk_file = self.chk_file_path, memory = self.calculation.memory)
                     fchk_file.get_file()
             except Exception:
                 getLogger(silico.logger_name).error("Failed to create fchk file", exc_info = True)
@@ -187,4 +164,21 @@ class Gaussian(Program_target):
                 pass
             except Exception:
                 getLogger(silico.logger_name).error("Failed to delete rwf file", exc_info = True)
+                
+        def cleanup(self, success):
+            """
+            """
+            super().cleanup(success)
+            
+            # Update file locations.
+            # Regardless of whether we were using scratch output or not, all files should now be in the normal output dir (or have been deleted).
+            self.chk_file_path = Path(self.method.calc_dir.output_directory, self.calculation.chk_file_name)
+            self.rwf_file_path = Path(self.method.calc_dir.output_directory, self.calculation.rwf_file_name)
+            
+        def get_result(self):
+            """
+            Get a result set from this calculation.
+            """
+            # We provide paths to aux files as well as the main output.
+            return parse_calculation(self.calc_output_file_path, chk_file = self.chk_file_path, fchk_file = self.fchk_file_path, rwf_file = self.rwf_file_path)
         

@@ -14,15 +14,14 @@ from silico.image.spectroscopy import Absorption_graph_maker,\
 from silico.result.excited_states import Excited_state_list
 from silico.image.graph import Convergence_graph_maker
 from silico.result.molecular_orbitals import Molecular_orbital_list
+import silico.report.image
 
 class Report():
     """
     An enhanced report set object that contains graphics and other objects for building graphical reports.
     """
     
-    INPUT_FILES = {}
-    
-    def __init__(self, result, *, log_file_path = None, options):
+    def __init__(self, result, *, options, calculation = None):
         """
         Constructor for Report objects.
         
@@ -41,7 +40,6 @@ class Report():
         # Path to the directory in which the current report is being written.
         self.report_directory = None
         
-        
         # Decide which extra orbitals we want.
         self._init_get_orbitals_to_render(
             orbital_distances = options['report']['orbital_image']['orbital_distances'],
@@ -49,46 +47,29 @@ class Report():
             orbital_levels = options['report']['orbital_image']['orbital_levels'],
             beta_levels = options['report']['orbital_image']['beta_levels'],
             excited_state_transition_threshold = options['report']['orbital_image']['et_transition_threshold']
-        )
-    
-    @classmethod
-    def from_result(self, result, *, log_file_path = None, options, named_input_files, **kwargs):
-        """
-        Create a report object from a loaded result file, optionally searching for additional files.
+        )            
         
-        :param result: A result set.
-        :param log_file_path: Path to the log file from which result was loaded. If given, the directory containing log_file_path will be searched for additional files.
-        :param options: A silico Config dictionary which contains various options that control the appearance of this report.
-        :param named_input_files: A dictionary of additional input files.
-        """
-        # If we're allowed to, have a look for other files we could add.
-        if log_file_path is not None:
-            for input_type, key_name in self.INPUT_FILES.items():
-                if named_input_files.get(key_name) is None:
-                    # This file was not given explicitly, see if we can find it.
-                    named_input_files[key_name] = self.find_additional_inputs(log_file_path, input_type)
-                    
-        # Continue as normal.
-        return self(result, options = options, log_file_path = log_file_path, **named_input_files, **kwargs)
+        # Get image makers for each metadata.
+        # We need to be careful with what we request from each image maker, especially for Turbomole
+        # eg, We can't just ask for orbitals from all Turbomole makers because this is wasteful if 
+        # we only need spin images from one of the makers; Turbomole will still render the orbital images
+        # which we won't use. Worse, if this image maker is unrestricted but the main result is restricted,
+        # the image maker will fail because it will expect restricted file names for orbital cubes from turbomole
+        # (we can't control what turbomole names cube files), but these won't be there.
+        #
+        # We also move backwards through our results, this ensures that earlier calculations have precedence.
+        self.image_setters = []
+        for index, metadata in enumerate(reversed(self.result.metadatas)):
+            # Only request orbitals from the main result (first, but remember we are travelling backwards thro metadatas).
+            do_orbitals = index == len(self.result.metadatas) -1
+            # Only request spin images if available.
+            do_spin = metadata.multiplicity != 1 and metadata.orbital_spin_type == "unrestricted"
             
-                            
-    @classmethod
-    def find_additional_inputs(self, given_file, additional_file_type):
-        """
-        Search the directory of an input_file for additional input files of a given type.
-        
-        :param given_file: The path to a known file. The directory in which this file resides will be searched.
-        :param additional_file_type: A File_type object describing what file type to search for.
-        """
-        # Loop through each possible suffix of the given file type (most only have 1...)
-        for suffix in additional_file_type.extensions:
-            aux_path = Path(given_file).with_suffix(suffix)
-            # See if this file exists.
-            if aux_path.exists():
-                return aux_path
-    
-        # Nothing good found.
-        return None
+            # Setup.
+            self.image_setters.append(
+                silico.report.image.from_metadata(self, metadata = metadata, do_orbitals = do_orbitals, do_spin = do_spin, options = options, calculation = calculation)
+            )
+            
         
     @property
     def rotations(self):
@@ -148,7 +129,8 @@ class Report():
         :param output_dir: A pathlib Path object to the directory within which our files should be created.
         :param output_name: A string that will be used as the start of the file name of the files we create.
         """
-        raise NotImplementedError()
+        for image_setup in self.image_setters:
+            image_setup.setup(output_dir, output_name)
     
     def relative_image(self, image, sub_image = 'file'):
         """
@@ -169,26 +151,28 @@ class Report():
         ################
         # Spin density #
         ################
-        self.images['positive_spin_density'] = Spin_density_image_maker.from_options(
-            Path(output_dir, "Spin Density", output_name + ".spin_pos.jpg"),
-            cube_file = self.cubes['spin_density'],
-            rotations = self.rotations,
-            spin = "positive",
-            options = self.options)
-        
-        self.images['negative_spin_density'] = Spin_density_image_maker.from_options(
-            Path(output_dir, "Spin Density", output_name + ".spin_neg.jpg"),
-            cube_file = self.cubes['spin_density'],
-            rotations = self.rotations,
-            spin = "negative",
-            options = self.options)
-        
-        self.images['spin_density'] = Spin_density_image_maker.from_options(
-            Path(output_dir, "Spin Density", output_name + ".spin_both.jpg"),
-            cube_file = self.cubes['spin_density'],
-            rotations = self.rotations,
-            spin = "both",
-            options = self.options)
+        # Only set spin image maker objects if we have a cube we can use.
+        if "spin_density" in self.cubes:
+            self.images['positive_spin_density'] = Spin_density_image_maker.from_options(
+                Path(output_dir, "Spin Density", output_name + ".spin_pos.jpg"),
+                cube_file = self.cubes['spin_density'],
+                rotations = self.rotations,
+                spin = "positive",
+                options = self.options)
+            
+            self.images['negative_spin_density'] = Spin_density_image_maker.from_options(
+                Path(output_dir, "Spin Density", output_name + ".spin_neg.jpg"),
+                cube_file = self.cubes['spin_density'],
+                rotations = self.rotations,
+                spin = "negative",
+                options = self.options)
+            
+            self.images['spin_density'] = Spin_density_image_maker.from_options(
+                Path(output_dir, "Spin Density", output_name + ".spin_both.jpg"),
+                cube_file = self.cubes['spin_density'],
+                rotations = self.rotations,
+                spin = "both",
+                options = self.options)
         
         #################
         # Total density #
@@ -216,9 +200,9 @@ class Report():
             # Next set combined images and graphs.
             try:
                 # Now get our spin type.
-                if orbital.spin_type == "alpha":
+                if orbital_list.spin_type == "alpha":
                     spin_type = "alpha_"
-                elif orbital.spin_type == "beta":
+                elif orbital_list.spin_type == "beta":
                     spin_type = "beta_"
                 else:
                     spin_type = ""
@@ -252,31 +236,32 @@ class Report():
                 pass
         
         
-        #############
-        # Structure #
-        #############
-        # We'll save both the aligned and unaligned structure.
-        self.images['structure'] = Structure_image_maker.from_options(
-            Path(output_dir, "Structure", output_name + ".structure.jpg"),
-            cube_file = self.cubes['structure'],
-            options = self.options)
+        if 'structure' in self.cubes:
+            #############
+            # Structure #
+            #############
+            # We'll save both the aligned and unaligned structure.
+            self.images['structure'] = Structure_image_maker.from_options(
+                Path(output_dir, "Structure", output_name + ".structure.jpg"),
+                cube_file = self.cubes['structure'],
+                options = self.options)
+            
+            self.images['aligned_structure'] = Structure_image_maker.from_options(
+                Path(output_dir, "Structure", output_name + ".structure.jpg"),
+                cube_file = self.cubes['structure'],
+                rotations = self.rotations,
+                options = self.options)
         
-        self.images['aligned_structure'] = Structure_image_maker.from_options(
-            Path(output_dir, "Structure", output_name + ".structure.jpg"),
-            cube_file = self.cubes['structure'],
-            rotations = self.rotations,
-            options = self.options)
         
-        
-        #######################
-        # Dipole moment (PDM) #
-        #######################
-        self.images['dipole_moment'] = Dipole_image_maker.from_options(
-            Path(output_dir, "Dipole Moment", output_name + ".dipole.jpg"),
-            cube_file = self.cubes['structure'],
-            dipole_moment = self.result.dipole_moment,
-            rotations = self.rotations,
-            options = self.options)
+            #######################
+            # Dipole moment (PDM) #
+            #######################
+            self.images['dipole_moment'] = Dipole_image_maker.from_options(
+                Path(output_dir, "Dipole Moment", output_name + ".dipole.jpg"),
+                cube_file = self.cubes['structure'],
+                dipole_moment = self.result.dipole_moment,
+                rotations = self.rotations,
+                options = self.options)
         
         
         ####################################################
@@ -289,12 +274,13 @@ class Report():
             sub_dir_name = "{} Transition Dipole Moment".format(excited_state.state_symbol)
                 
             # Get our image.
-            self.images[file_name] = Dipole_image_maker.from_options(
-                Path(output_dir, sub_dir_name, output_name + ".{}.jpg".format(file_name)),
-                cube_file = self.cubes['structure'],
-                dipole_moment = excited_state.transition_dipole_moment,
-            rotations = self.rotations,
-                options = self.options)
+            if "structure" in self.cubes:
+                self.images[file_name] = Dipole_image_maker.from_options(
+                    Path(output_dir, sub_dir_name, output_name + ".{}.jpg".format(file_name)),
+                    cube_file = self.cubes['structure'],
+                    dipole_moment = excited_state.transition_dipole_moment,
+                    rotations = self.rotations,
+                    options = self.options)
             
         # Also set our states diagram.
         self.images['excited_state_energies'] = Excited_states_diagram_maker.from_options(
@@ -315,22 +301,23 @@ class Report():
         #################################
         # Vertical & adiabatic emission #
         #################################
-        for emission in (self.result.vertical_emission, self.result.adiabatic_emission):
-            # Skip if None.
-            if emission is not None:
+        for emission_type in (self.result.vertical_emission, self.result.adiabatic_emission):
+            for emission_multiplicity in emission_type:
+                emission = emission_type[emission_multiplicity]
+                
                 # First our states diagram.
-                self.images['{}_emission_energies'.format(emission.transition_type)] = Excited_states_diagram_maker.from_options(
-                    Path(output_dir, output_name + ".{}_emission_states.png".format(emission.transition_type)),
+                self.images['{}_{}_emission_energies'.format(emission.transition_type, emission.state_symbol)] = Excited_states_diagram_maker.from_options(
+                    Path(output_dir, output_name + ".{}_{}_emission_states.png".format(emission.transition_type, emission.state_symbol)),
                     excited_states = Excited_state_list([emission]),
                     ground_state = self.result.ground_state,
                     options = self.options)
                 
                 # Now emission spectrum.
-                self.images['simulated_{}_emission_graph'.format(emission.transition_type)] = Emission_graph_maker.from_options(
-                    Path(output_dir, output_name + ".simulated_{}_emission_spectrum.png".format(emission.transition_type)),
+                self.images['simulated_{}_{}_emission_graph'.format(emission.transition_type, emission.state_symbol)] = Emission_graph_maker.from_options(
+                    Path(output_dir, output_name + ".simulated_{}_{}_emission_spectrum.png".format(emission.transition_type, emission.state_symbol)),
                     excited_states = Excited_state_list([emission]),
                     options = self.options)
-                
+                    
         
         
         #############################
@@ -362,19 +349,23 @@ class Report():
         for name, cube in self.cubes.items():
             if cube is not None:
                 cube.delete(lazy = True)
+                
+        # Cleanup image setup.
+        for image_setup in self.image_setters:
+            image_setup.cleanup()
     
     def _write(self, output, **kwargs):
         """
         Write the various elements of this report to file.
         
         :param output: Path to a directory in which the report will be written.
-        
         """
         self.report_directory = output
         # Base directory for our images.
         image_dir = Path(self.report_directory, "image")
         # The base name for our images.
-        image_base_name = Path(self.result.metadata.name).with_suffix("").name
+        #image_base_name = Path(self.result.metadata.name).with_suffix("").name
+        image_base_name = self.result.metadata.name
         
         # Make our output directory.
         try:

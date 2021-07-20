@@ -1,10 +1,20 @@
-from silico.exception.base import Result_unavailable_error
+# General imports.
 import scipy.constants
+import warnings
+
+# Silico imports.
+from silico.exception.base import Result_unavailable_error
+import itertools
+import math
+
 
 class Result_object():
     """
     Top level class for objects that are designed to hold calculation results.
     """
+    
+    # A warning issued when attempting to merge non-equivalent objects
+    MERGE_WARNING = "Attempting to merge lists of results that are not identical; non-equivalent results will be ignored"
     
     def safe_get(self, *attr_names, default = None):
         """
@@ -40,7 +50,6 @@ class Result_object():
         Convert a wavelength (in nm) to energy (in eV).
         """
         # e = (c * h) / λ
-        #return ((self.speed_of_light * self.plancks_constant) / (emission_wavelength / 1000000000)) / self.electron_volt
         return ((scipy.constants.speed_of_light * scipy.constants.Planck) / (wavelength / 1000000000)) / scipy.constants.eV
     
     @classmethod
@@ -58,6 +67,118 @@ class Result_object():
         """
         return self.wavelength_to_energy((1 / wavenumbers) * 10000000)
     
+    @classmethod
+    def merged_attr(self, name, objects):
+        """
+        Merge a number of str like attributes.
+        
+        :param name: The name of the attribute to merge.
+        :param objects: A list of objects to merge from.
+        :return: A single string containing the merged attributes.
+        """
+        attributes = list(dict.fromkeys([getattr(obj, name) for obj in objects]))
+        attributes = [attribute for attribute in attributes if attribute is not None]
+        return ", ".join(attributes) if len(attributes) > 0 else None
+    
+    
+    @classmethod
+    def merge(self, *multiple_objects):
+        """
+        Merge multiple Result objects of the same type into a single Result object.
+        
+        Note that this default implementation is intended for objects that cannot actually be merged;
+        truly mergable objects should implement their own merge() method.
+        """
+        # Check all items are the same.
+        if not all(obj == multiple_objects[0] for obj in multiple_objects):
+            warnings.warn(self.MERGE_WARNING)
+            
+        return multiple_objects[0]
+        
+
+class Floatable_mixin():
+    """
+    A mixin class for result objects that have an unambigious numerical representation.
+    
+    This mixin class expects the implementing class to define __float__().
+    """
+    
+    def __lt__(self, other):
+        """
+        Is this class less than another?
+        """
+        return float(self) < float(other)
+    
+    def __le__(self, other):
+        """
+        Is this class equal or less than another?
+        """
+        return math.isclose(float(self), float(other)) or float(self) < float(other)
+    
+    def __eq__(self, other):
+        """
+        Is this class equal to another?
+        """
+        #return float(self) == float(other)
+        return math.isclose(float(self), float(other))
+    
+    def __ge__(self, other):
+        """
+        Is this class greater or equal to another?
+        """
+        return math.isclose(float(self), float(other)) or float(self) > float(other)
+    
+    def __gt__(self, other):
+        """
+        Is this class greater than another?
+        """
+        return float(self) > float(other)
+    
+
+class Unmergeable_container_mixin():
+    """
+    Mixin for Result_containers that cannot be merged.
+    
+    Classes which inherit from this mixin should also set a class attribute with the name MERGE_WARNING, which should be a message to be displayed when attempting to merge this container with another.
+    """
+    
+    @classmethod
+    def false_merge(self, *multiple_lists, **kwargs):
+        """
+        'Merge' a number of containers of the same type.
+        
+        As Unmergeable_container objects cannot be merged, this method will instead check that all given containers are equivalent, issuing warnings if this is not the case.
+        
+        :param multiple_lists: A number of container objects to 'merge'.
+        :param kwargs: Key-word arguments to pass to the returned container.
+        """
+        items = self(multiple_lists[0], **kwargs)
+        
+        # Check all other lists are the same.
+        for item_list in multiple_lists[1:]:
+            # If this list has atoms and our current doesn't, use this as our base list.
+            if len(item_list) > 0 and len(items) == 0:
+                items = item_list
+            else:
+                for index, item in enumerate(item_list):
+                    try:
+                        other_item = items[index]
+                        if not self.are_items_equal(item, other_item):
+                            warnings.warn(self.MERGE_WARNING)
+                    except IndexError:
+                        warnings.warn(self.MERGE_WARNING)
+                
+        # Return the 'merged' list.
+        return items
+    
+    @classmethod
+    def are_items_equal(self, item, other_item):
+        """
+        A method which determines whether two items are the same for the purposes of merging.
+        
+        This default implementation simply checks for equivalence between the two items.
+        """
+        return item == other_item
         
 class Result_container(list, Result_object):
     """
@@ -66,13 +187,59 @@ class Result_container(list, Result_object):
     def __init__(self, *args, **kwargs):
         list.__init__(self, *args, **kwargs)
         Result_object.__init__(self)
-        
     
+    def assign_levels(self):
+        """
+        (Re)assign total levels of the objects in this list.
+        
+        The contents of this list will be modified in place.
+        """
+        total_level = 0
+        
+        for state in self:            
+            # Increment total level.
+            total_level += 1
+                
+            # Set level
+            state.level = total_level
+            
+    @classmethod
+    def merge_default(self, *multiple_lists, **kwargs):
+        """
+        The default implementation of the merge method.
+        """
+        # First, get a new list containing all objects.
+        merged_list = self(itertools.chain(*multiple_lists), **kwargs)
+        
+        # Now sort.
+        # This works because the contained objects are all Floatables (see Floatable_mixin) and therefore have well-defined sort mechanics,
+        # or otherwise define their own __eq__ and related methods.
+        merged_list.sort()
+        
+        # Next, we need to reassign levels of the contained objects.
+        merged_list.assign_levels()
+        
+        # All done.
+        return merged_list
+            
+    @classmethod
+    def merge(self, *multiple_lists, **kwargs):
+        """
+        Merge multiple lists of of the same type into a single, ordered list.
+        
+        Note that this method will return a new list object, but will modify the contained objects (eg, object.level) in place.
+        Inheriting classes may safely override this method.
+        """
+        if hasattr(self, "false_merge"):
+            return self.false_merge(*multiple_lists, **kwargs)
+        else:
+            return self.merge_default(*multiple_lists, **kwargs)
+    
+    # TODO: Redundant?
     def __getitem__(self, key):
         try:
             return list.__getitem__(self, key)
         except IndexError:
             raise
-            #raise Result_unavailable_error(type(self).__name__, "there is no item at index {}".format(key))
     
         

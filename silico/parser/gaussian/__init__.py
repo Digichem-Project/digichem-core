@@ -1,2 +1,2 @@
 # Gaussian parser objects.
-from .main import Gaussian_parser
+from .base import Gaussian_parser

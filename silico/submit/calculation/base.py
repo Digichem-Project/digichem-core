@@ -100,13 +100,18 @@ class Calculation_target(Configurable_target):
                 prog = program_t(method)
                 calc = expanded_calculation_t(prog)
                 
+                # If the calc was part of a series, set the series name.
+                if "Series" in calculation_t.CLASS_HANDLE:
+                    calc.series_name = calculation_t.NAME
+                
                 # Keep track of the first.
                 if first is None:
                     first = calc
                                     
-                # Add to the chain.
+                # Link (doubly)
                 if previous is not None:
                     previous.next = calc
+                    calc.previous = previous
                     
                 previous = calc
         
@@ -201,11 +206,15 @@ class Concrete_calculation(Calculation_target):
             """    
             # Next is a linked list of Calculation_targets. We will call submit() on next once this object has been submitted.
             self.next = None
+            self.previous = None
             self.output = None
             self.input_coords = None
             self.program = program
             self.validate_parent(program)
             self.program.calculation = self
+            # If this calculation was chosen as part of a series (meta-calc), this is the name of that series.
+            # If this calc was chosen as an individual, this will be None.
+            self.series_name = None
         
         @property
         def scratch_directory(self):
@@ -389,21 +398,6 @@ class Directory_calculation_mixin():
             
             self.input = None
         
-#         @property
-#         def molecule_name(self):
-#             """
-#             The name of the molecule under study.
-#             
-#             This name is 'safe' for Gaussian and other sensitive programs.
-#             """
-#             return self.safe_name(self._molecule_name)
-#         
-#         @molecule_name.setter
-#         def molecule_name(self, value):
-#             """
-#             Set the name of the molecule under study.
-#             """
-#             self._molecule_name = value
         
         def prepare(self, output, input, input_coords):
             """

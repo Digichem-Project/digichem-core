@@ -3,31 +3,35 @@ from itertools import zip_longest
 
 # Silico imports.
 from silico.result import Result_container
-from silico.result.base import Result_object
+from silico.result import Result_object
+from silico.result import Floatable_mixin, Unmergeable_container_mixin
 
-class Vibration_list(Result_container):
+class Vibrations_list(Result_container, Unmergeable_container_mixin):
     """
     Class for representing a group of molecular vibrations.
     """
+    
+    MERGE_WARNING = "Attempting to merge lists of vibrations that are not identical; non-equivalent vibrations will be ignored"
         
     @property
     def negative_frequencies(self):
         """
-        Get a Vibration_list object of the vibrations in this list that have negative frequencies (they are imaginary).
+        Get a Vibrations_list object of the vibrations in this list that have negative frequencies (they are imaginary).
         """
         return type(self)([vibration for vibration in self if vibration.frequency < 0])
     
     @classmethod
     def from_parser(self, parser):
         """
-        Get an Vibration_list object from an output file parser.
+        Get an Vibrations_list object from an output file parser.
         
         :param parser: An output file parser.
-        :return: An Vibration_list object. The list will be empty if no vibration frequency data is available.
+        :return: An Vibrations_list object. The list will be empty if no vibration frequency data is available.
         """
         return self(Vibration.list_from_parser(parser))
+
     
-class Vibration(Result_object):
+class Vibration(Result_object, Floatable_mixin):
     """
     Class for representing vibrational frequencies.
     """
@@ -46,6 +50,11 @@ class Vibration(Result_object):
         self.frequency = frequency
         self.intensity = intensity
         
+    def __float__(self):
+        """
+        A float representation of this object.
+        """
+        return float(self.frequency)
         
     @classmethod
     def list_from_parser(self, parser):

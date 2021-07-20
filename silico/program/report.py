@@ -2,18 +2,19 @@
 
 # General imports.
 from pathlib import Path
+import itertools
 
 # Silico imports.
 import silico.program
 from silico.exception.base import Silico_exception
-import silico.report
-
+from silico.parser import parse_calculations
+from silico.report.main.pdf import PDF_report
 
 # Printable name of this program.
 NAME = "Calculation Report Generator"
 DESCRIPTION = "generate PDF reports from finished Gaussian calculations"
 EPILOG = "{} V{}. Written by {}. Last updated {}.".format(NAME, silico.version, silico.author, silico.last_updated.strftime("%d/%m/%Y"))
-USAGE = "%(prog)s [options] file.log [file.chk] [file.fchk] [-o report.pdf]"
+USAGE = "%(prog)s [options] file.log [file2.log] [-O report.pdf]"
 
 def arguments(subparsers):
     """
@@ -29,30 +30,23 @@ def arguments(subparsers):
     # Set main function.
     parser.set_defaults(func = main)
     
-    parser.add_argument("log_file", help = "a calculation result file (.log) to extract results from")
-
-    
-    emission_group = parser.add_argument_group("emission energy", "options for specifying additional input files that allow for the calculation of relaxed emission energy")
-    emission_group.add_argument("--adiabatic_ground", help = "path to a secondary result file that contains results for the ground state to be used to calculate the adiabatic emission energy", default = None)
-    emission_group.add_argument("--vertical_ground", help = "same as --adiabatic_ground, but for vertical emission", default = None)
-    emission_group.add_argument("--emission", help = "path to a secondary result file that contains results for the excited state to be used to calculate adiabatic and/or vertical emission energy", default = None)
-    emission_group.add_argument("--emission_state", help = "the excited state in 'emission' to use, either a number indicating the state (eg, '1' for lowest state) or the state label (eg, 'S(1)', 'T(1)').", default = None)
+    parser.add_argument("log_files", help = "a (number of) calculation result file(s) (.log) to extract results from", nargs = "+")
                             
     output_group = parser.add_mutually_exclusive_group()
     output_group.add_argument("--pdf_file", help = "a filename/path to a pdf file to write to (this is an alternative to the 'output' option). Other output files will placed in the same directory as the 'pdf_file'", nargs = "?", default = None)
-    output_group.add_argument("-o", "--output", help = "a filename/path to write to. If this filename ends in a .pdf extension, this is taken as the filename of the pdf file to write to. Otherwise, output is assumed to be the name of a directory and the pdf file is written inside this directory", nargs = "?", type = Path, default = None)
+    output_group.add_argument("-O", "--output", help = "a filename/path to write to. If this filename ends in a .pdf extension, this is taken as the filename of the pdf file to write to. Otherwise, output is assumed to be the name of a directory and the pdf file is written inside this directory", nargs = "?", type = Path, default = None)
     
     parser.add_argument("--name", help = "name of the molecule/system to use in the report", default = None)
     parser.add_argument("--type", help = "the type of report to make", choices = ["full", "atoms"], default = "full")
     
-    aux_input_group = parser.add_argument_group("additional input", "options for specifying additional input files used to generate the report. These options are all optional. Note that these input files can be given as positional arguments, in which case their file type is determined automatically. Use these named arguments to explicitly set the file type")
-    aux_input_group.add_argument("--chk_file", help = "a Gaussian chk file that will be used to generate all image files required. Note that this option requires Gaussian to be installed and formchk & cubegen to be in your path", nargs = "?", default = None)
-    aux_input_group.add_argument("--fchk_file", help = "a Gaussian fchk file that will be used to generate all image files required. Note that this option requires Gaussian to be installed and cubegen to be in your path", nargs = "?", default = None)
+    aux_input_group = parser.add_argument_group("auxiliary input", "options for specifying additional input files. These options are all optional, but if given the ordering should match that of the given log files")
+    aux_input_group.add_argument("--chk", help = "a (number of) Gaussian chk file(s) that will be used to generate all image files required. Note that this option requires Gaussian to be installed and formchk & cubegen to be in your path", nargs = "*", default = [])
+    aux_input_group.add_argument("--fchk", help = "a (number of) Gaussian fchk file(s) that will be used to generate all image files required. Note that this option requires Gaussian to be installed and cubegen to be in your path", nargs = "*", default = [])
     
     image_group = parser.add_argument_group("image options", "advanced options for altering the appearance of images in the report")
     image_group.add_argument("--render_style", help = "change the style used to render molecules and orbitals", choices=['pastel', 'light-pastel', 'dark-pastel','sharp', 'gaussian', 'vesta'], default = None)
-    image_group.add_argument("-D", "--dont_create_new_images", help = "don't attempt to create any new image files. If existing image files can be found, they will still be included in the report", action = "store_true", default = None)
-    image_group.add_argument("-O", "--overwrite_existing_images", help = "force overwriting and re-rendering of all image files", action = "store_true", default = None)
+    image_group.add_argument("-d", "--dont_create_new_images", help = "don't attempt to create any new image files. If existing image files can be found, they will still be included in the report", action = "store_true", default = None)
+    image_group.add_argument("-o", "--overwrite_existing_images", help = "force overwriting and re-rendering of all image files", action = "store_true", default = None)
     image_group.add_argument("--dont_auto_crop", help = "disable automatic cropping of excess whitespace around the border of images. If given, rendered images will have the same resolution, but molecules may only occupy a small portion of the true image", action = "store_false", default = None)
     
 
@@ -85,27 +79,23 @@ def _main(args, config, logger):
     
     if args.alignment is not None and not args.overwrite_existing_images:
         logger.warning("Alignment method has been changed but not overwriting existing images; use '-OK method' to ensure molecule images are re-rendered to reflect this change")
-    
-    named_input_files = {
-        "chk_file_path": args.chk_file,
-        "fchk_file_path": args.fchk_file,
-        "adiabatic_emission_ground_result": args.adiabatic_ground,
-        "vertical_emission_ground_result": args.vertical_ground,
-        "emission_excited_result": args.emission
-    }
-    
+        
     try:
-        report = silico.report.from_files(
-            args.log_file,
-            options = config,
-            named_input_files = named_input_files,
-            emission_excited_state = args.emission_state
-        )
+        # Transpose our lists of aux inputs.
+        aux_files = [{"chk_file":chk_file, "fchk_file":fchk_file} for chk_file, fchk_file in list(itertools.zip_longest(args.chk, args.fchk))]
+        
+        # First, load results.
+        result = parse_calculations(*args.log_files, aux_files = aux_files)
+        
+        # Then get a report.
+        report = PDF_report(result, options = config)
+        
     except Exception as e:
         raise Silico_exception("Failed to load results")
     
-    if args.log_file is not None:
-        input_name = Path(args.log_file)
+    log_file = args.log_files[0]
+    if log_file is not None:
+        input_name = Path(log_file)
     elif len(args.calculation_files) > 0:
         input_name = Path(args.calculation_files[0])
     else:
@@ -113,9 +103,11 @@ def _main(args, config, logger):
     
     # The filename (excluding parent directories) we'll write to if the user doesn't give us one.
     if args.type == "full":
-        default_base_name = input_name.with_suffix(".pdf").name
+        #default_base_name = input_name.with_suffix(".pdf").name
+        default_base_name = result.metadata.name + ".pdf"
     else:
-        default_base_name = input_name.with_suffix(".atoms.pdf").name
+        #default_base_name = input_name.with_suffix(".atoms.pdf").name
+        default_base_name = result.metadata.name + ".atoms.pdf"
     
     # Decide on our output file.
     if args.pdf_file is not None:

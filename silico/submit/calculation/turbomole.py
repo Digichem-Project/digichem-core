@@ -235,6 +235,9 @@ def get_orbital_calc(*, name, memory, num_CPUs, orbitals = [], density = False, 
     """
     if modules is None:
         modules = ["dscf"]
+        
+    # Append -proper flag to skip recalc.
+    modules = ["{} -proper".format(module) for module in modules]
     
     # First generate our calculation.
     calc_t = Turbomole_restart({

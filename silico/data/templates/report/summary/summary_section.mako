@@ -16,11 +16,16 @@
         transition_dipole_moment = None
 %>
 
-<div class="section section--summary">
+<div class="section section--summary section--fullPage">
     <h2 class="section__header">Summary of Results</h2>
     <div class="section__body section__body--summary">
     %if result.metadata is not None:
         <%include file="/metadata/metadata_results.mako" args="metadata = result.metadata"/>
+    %endif
+    %if len(result.metadatas) > 1:
+    	%for index,sub_metadata in enumerate(result.metadatas):
+    		<%include file="/metadata/metadata_results.mako" args="metadata = sub_metadata, title = 'Calculation {}'.format(index +1)"/>
+    	%endfor
     %endif
     %if len(result.SCF_energies) > 0:
         <%include file="/energy/energy_results.mako" args="energies = result.SCF_energies"/>
@@ -49,12 +54,12 @@
     %if len(result.vibrations) > 0:
         <%include file="/vibrations/vibrations_results.mako" args="vibrations = result.vibrations"/>
     %endif
-    %if result.vertical_emission is not None:
-        <%include file="/emission/emission_results.mako" args="relaxed_excited_state = result.vertical_emission"/><span></span>
-    %endif
-    %if result.adiabatic_emission is not None:
-        <%include file="/emission/emission_results.mako" args="relaxed_excited_state = result.adiabatic_emission"/><span></span>
-    %endif
+    %for multiplicity, vertical_emission in result.vertical_emission.items():
+        <%include file="/emission/emission_results.mako" args="emission = vertical_emission"/><span></span>
+    %endfor
+    %for multiplicity, adiabatic_emission in result.adiabatic_emission.items():
+        <%include file="/emission/emission_results.mako" args="emission = adiabatic_emission"/><span></span>
+    %endfor
     %if len(result.excited_states) > 0 and len(result.spin_orbit_coupling) > 0:
         <%include file="/spin_orbit_coupling/SOC_results.mako" args="spin_orbit_coupling = result.spin_orbit_coupling, excited_states = result.excited_states"/>
     %endif

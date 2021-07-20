@@ -24,6 +24,10 @@ header {
     align-items: center;
 }
 
+.header--bad {
+	background: #de2d00
+}
+
 .header__title {
     color: white;
     font-style: italic;

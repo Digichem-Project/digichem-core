@@ -1,8 +1,11 @@
+# General imports.
 from weasyprint import HTML
 from mako.lookup import TemplateLookup
-from silico.report.base.html import HTML_report
 import shutil
 import silico
+
+# Silico imports.
+from silico.report.main import HTML_report
 
 class PDF_report(HTML_report):
     """
@@ -93,9 +96,12 @@ class PDF_report(HTML_report):
         for page_number, page in enumerate(main_doc.pages):
             page_body = self.get_element(page._page_box.all_children(), 'body')
             
+            # Should we display error colors?
+            error = not self.result.metadata.success or self.result.metadata.optimisation_converged == False
+            
             # Get our header and footer.
-            header_body = self._compute_overlay_element('/page/page_header.mako')
-            footer_body = self._compute_overlay_element('/page/page_footer.mako', prog_version = self.prog_version, page_number = page_number +1, pages = len(main_doc.pages))
+            header_body = self._compute_overlay_element('/page/page_header.mako', error = error)
+            footer_body = self._compute_overlay_element('/page/page_footer.mako', prog_version = self.prog_version, page_number = page_number +1, pages = len(main_doc.pages), error = error)
             
             # Disable header and footer fot atoms mini-reports (for now).
             

@@ -8,14 +8,26 @@ class Variable_formatter(logging.Formatter):
     The logging formatter used by silico, the format changes depending on a logger's log_level.
     """
     
-    default_format = '%(name)s: %(levelname)s: %(message)s'
+    default_format = 'silico: %(levelname)s: %(message)s'
     
-    def __init__(self, logger, fmt=None, datefmt=None, style='%'):
+    def __init__(self, logger, fmt=None, datefmt=None, style='%', *, default_warning_formatter):
         if fmt is None:
             fmt = self.default_format
         super().__init__(fmt, datefmt, style)
         # Save our logger.
         self.logger = logger
+        self.default_warning_formatter = default_warning_formatter
+        
+    def formatWarning(self, message, category, filename, lineno, line=None):
+        """
+        Format a warning (from the warnings module).
+        
+        :return: The formatted warning message.
+        """
+        if self.logger.getEffectiveLevel() > logging.DEBUG:
+            return "{}: {}".format(category.__name__, message)
+        else:
+            return self.default_warning_formatter(message, category, filename, lineno, line=None)
                 
     def formatException(self, exc_info):
         """

@@ -3,6 +3,7 @@ import numpy
 import sys
 import signal
 import itertools
+import argparse
 
 # Hidden import.
 import silico.reference
@@ -15,7 +16,6 @@ import silico.file.fchk
 import silico.result.angle
 import silico.config
 import silico.logging
-import argparse
 
 def main_wrapper(inner_func, *, args, arg_to_config = None, logger_name = None, **kwargs):
     """
@@ -146,24 +146,6 @@ group.add_argument("-K", "--alignment", choices=['MIN', 'FAP', 'AA', 'AAA'], hel
 group.add_argument("-A", "--angle_units", help = "the units to use to print angles. Options are deg: degrees or rad: radians", default = None)
 group.add_argument("-S", "--setting", help = "set a config option to a value. Options of this type are parsed as if they were a config file (in yaml format) and are then used to set corresponding options, eg -S \"absorption_graph: {fwhm: 100}\"", nargs = "*", default = [], action = "append")
 group.add_argument("--config_files", help = "an additional config file to read from. See the master config file for possible config options. Note that the master config file (at silico/data/config/silico.yaml) and user config file (at ~/.config/silico/silico.yaml) are always read automatically and do not need to be specified here. Multiple files may be given and will be processed in the order specified (the last having highest priority)", nargs = "*", default = [])
-
-# def get_standard_args(argparser):
-#     """
-#     Add standard silico arguments to an argparse ArgumentParser object.
-#     
-#     The standard arguments are added as a group called 'general options'.
-#     
-#     :param argparser: An argparse ArgumentParser object
-#     :return: The group is returned for convenience.
-#     """
-#     group = argparser.add_argument_group("general options", "general options that control various aspects of silico")
-#     group.add_argument("-V", "--verbose", help = "increase verbosity, stack with itself to further increase verbosity (this option overrides log_level)",  action='count', default = None)
-#     group.add_argument("--log_level", choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL', 'OFF'], help = "the level of messages to print", default = None)
-#     group.add_argument("-K", "--alignment", choices=['MIN', 'FAP', 'AA', 'AAA'], help = "the alignment method to use to align atoms and calculate geometry data. Options are MIN: Minimal, FAP: Furthest Atom Pair, also known as Kebab, AA: Average Angle, also known as Kebab+, AAA: Adjusted Average Angle", default = None)
-#     group.add_argument("-A", "--angle_units", help = "the units to use to print angles. Options are deg: degrees or rad: radians", default = None)
-#     group.add_argument("-S", "--setting", help = "set a config option to a value. Options of this type are parsed as if they were a config file (in yaml format) and are then used to set corresponding options, eg -S \"absorption_graph: {fwhm: 100}\"", nargs = "*", default = [], action = "append")
-#     group.add_argument("--config_files", help = "an additional config file to read from. See the master config file for possible config options. Note that the master config file (at silico/data/config/silico.yaml) and user config file (at ~/.config/silico/silico.yaml) are always read automatically and do not need to be specified here. Multiple files may be given and will be processed in the order specified (the last having highest priority)", nargs = "*", default = [])
-#     return group
 
 def process_standard_args(config, args):
     """

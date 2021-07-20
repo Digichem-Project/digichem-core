@@ -3,6 +3,7 @@ from logging import getLogger
 from timeit import default_timer as timer
 import datetime
 import shutil
+import textwrap
 
 from silico import misc
 from silico.submit.structure.flag import Flag
@@ -21,7 +22,12 @@ from silico.extract.long import Atoms_long_extractor, Orbitals_long_extractor,\
     IR_spectrum_long_extractor, SOC_long_extractor
 from silico.submit import Configurable_target
 from silico.misc.directory import copytree
-import silico.report
+import silico.misc.io
+from silico.parser import parse_calculation
+from silico.report.main.pdf import PDF_report
+from silico.parser.base import parse_calculations
+from silico.misc.io import smkdir
+from silico.submit.structure.directory import Silico_directory
 
 class Program_target(Configurable_target):
     """
@@ -118,28 +124,24 @@ class Program_target(Configurable_target):
                 # Go.
                 self.calculate()
                 
-            except (Signal_caught, KeyboardInterrupt):
+            except (Signal_caught, KeyboardInterrupt, Exception) as e:
                 # We've been told to stop (probably by SLURM because we went over time etc).
-                self.end(False)
+                # or something else went wrong.
                 
-                # Continue stopping.
-                raise
-                
-            except Exception as e:
-                # Something went wrong.
-                self.end(False)
-                
-                # Raise.
-                # Store for later so we can try and generate PDFs and results.
+                # Store the error for later so we can perform cleanup and write reports etc.
                 self.error = Submission_error(self, "Error executing calculation program")
                 self.error.__cause__ = e
+                
+                # Now perform cleanup.
+                self.end(False)
                 
             else:
                 # Finished normally.
                 self.end(True)
                 
-            # Post calc (write result files etc).
-            self.post()
+            # If we got an error during the calc, re-raise it now.
+            if self.error is not None:
+                raise self.error
     
         @property
         def success(self):
@@ -154,7 +156,7 @@ class Program_target(Configurable_target):
             if self.result is None:
                 return None
             else:
-                return self.result.safe_get('metadata', 'calc_success')
+                return self.result.safe_get('metadata', 'success')
                         
             
         def start(self):
@@ -199,12 +201,28 @@ class Program_target(Configurable_target):
                 self.duration = datetime.timedelta(seconds = self.end_timer - self.start_timer)
                 getLogger(silico.logger_name).info("Calculation duration: {} ({} total seconds)".format(misc.timedelta_to_string(self.duration), self.duration.total_seconds()))
                 
+                # Unset our running flag.
+                self.method.calc_dir.del_flag(Flag.RUNNING)
+                
+                ########
+                # Post #
+                ########
+                # We perform post prior to cleanup to save potentially copying large files (.rwf, .chk) from scratch to output.
+                # Set Flag.
+                self.method.calc_dir.set_flag(Flag.POST)
+                
+                try:
+                    self.post()
+                except Exception as e:
+                    # Save so we can do cleanup.
+                    self.error = e
+                
+                # Delete Flag.
+                self.method.calc_dir.del_flag(Flag.POST)
+            
                 ###########
                 # Cleanup #
                 ###########
-                
-                # Unset our running flag.
-                self.method.calc_dir.del_flag(Flag.RUNNING)
                 # Set our cleanup flag.
                 self.method.calc_dir.set_flag(Flag.CLEANUP)
             
@@ -308,38 +326,76 @@ class Program_target(Configurable_target):
             """
             pass
         
-        def get_report(self):
+        def get_result(self):
+            """
+            Get a result set from this calculation.
+            """
+            return parse_calculation(self.calc_output_file_path)
+        
+        def get_combi_results(self):
+            """
+            Get a merged Result_set object containing results from all calculations in this chain that have the same series_name.
+            
+            :return: A merged result set of the calculation results, or None if this calc is not part of an appropriate chain.
+            """
+            # First build a list of results.
+            # We will add in the same order as the calculations were performed, so the first has precedence.
+            # For the last calculation (THIS calc), we already have results parsed. For all others, we need to
+            # parse again because certain auxiliary files will have moved (and indeed may no longer be available).
+            results = [self.result]
+            calc = self.calculation
+            
+            # Move backwards thro the linked list, stopping once we hit a calc from a different series. We'll reverse our true list later.
+            while calc.previous != None and calc.previous.series_name == self.calculation.series_name:
+                calc = calc.previous
+                results.append(calc.program.calc_output_file_path)
+                
+            # Reverse.
+            results = list(reversed(results))
+            
+            # Don't waste time parsing if we only have one result.
+            if len(results) < 2:
+                return None
+            else:
+                # Done.
+                return parse_calculations(*results)
+        
+        def get_report(self, result):
             """
             Get a report suitable for parsing this type of calculation.
             """
-            return silico.report.from_files(
-                self.calc_output_file_path,
-                options = self.calculation.silico_options
-            )
-        
+            return PDF_report(result, options = self.calculation.silico_options, calculation = self.calculation)
+            
+            
         def parse_results(self):
             """
             Parse the finished calculation result file(s).
             
-            Certain flags will be set depending on the status of the calculation. Additionally, a PDF_report object will be stored to self.result
+            Certain flags will be set depending on the status of the calculation.
             """
             # Try and load our results.
-            # We'll actually load a report object because it is the same as a Result_set but with some extra methods which we might need to write a report. Saves us loading results twice.
             # We need to know whether the calculation was successful or not, so we make no effort to catch exceptions here.
             try:
                 try:
-                    self.report = self.get_report()
-                    self.result = self.report.result
+                    self.result = self.get_result()
                 except Exception as e:
                     raise Submission_error(self, "failed to process completed calculation results") from e
                 
                 # See if our calculation was successful or not.
-                if self.result.metadata.calc_success and self.error is None:
+                if self.result.metadata.success and self.error is None:
                     self.method.calc_dir.set_flag(Flag.SUCCESS)
                 else:
                     # No good.
-                    #self.method.calc_dir.set_flag(Flag.ERROR)
-                    raise Submission_error(self, "an error occurred during the calculation; check calculation output for what went wrong")
+                    # We'll try and take a snippet from the main calculation log and attach to our error message for the user.
+                    try:
+                        with open(self.calc_output_file_path, "rt") as log_file:
+                            snippet = "\n".join(silico.misc.io.tail(log_file))
+                    except FileNotFoundError:
+                            snippet = "[No log file available]"
+                    # Indent for easy reading.
+                    snippet = textwrap.indent(snippet, "  ")
+                    
+                    raise Submission_error(self, "an error occurred during the calculation; check calculation output for what went wrong.\nLast lines of calculation output were:\n{}".format(snippet))
                     
                 # Also check optimisation convergence.
                 if self.result.metadata.optimisation_converged is not None and "Optimisation" in self.result.metadata.calculations:
@@ -358,9 +414,7 @@ class Program_target(Configurable_target):
         def post(self):
             """
             Perform post analysis and cleanup, this method is called after a calculation has finished.
-            """
-            # Set Flag.
-            self.method.calc_dir.set_flag(Flag.POST)                        
+            """                
             
             # First, make our result directory.
             try:
@@ -375,11 +429,11 @@ class Program_target(Configurable_target):
                 self.error = e
             
             # If we've been asked to write result files, do so.
-            try:
-                if self.calculation.write_summary:
+            if self.calculation.write_summary:
+                try:
                     self.write_summary_files()
-            except Exception:
-                getLogger(silico.logger_name).warning("Failed to write calculation result summary files", exc_info = True)
+                except Exception:
+                    getLogger(silico.logger_name).warning("Failed to write calculation result summary files", exc_info = True)
                 
             # Write XYZ file.
             try:
@@ -394,22 +448,20 @@ class Program_target(Configurable_target):
                 getLogger(silico.logger_name).warning("Failed to write silico (.si) result file", exc_info = True)
                 
             # Similarly, if we've been asked to write a report, do that.
-            # TEMP: Don't write reports if we fail, see issue #29.
-            if self.error is None:
+            if self.calculation.write_report:
+                # First our personal report.
                 try:
-                    if self.calculation.write_report:
-                        self.write_report_files()
+                    self.write_report_files()
                 except Exception:
                     getLogger(silico.logger_name).warning("Failed to write calculation report", exc_info = True)
-            else:
-                getLogger(silico.logger_name).info("Skipping report generation because calculation did not finish successfully")
                 
-            # Delete Flag.
-            self.method.calc_dir.del_flag(Flag.POST)
+                # Additionally, if we're the last calculation of a series, write a combined report.
+                # write_combi_report_files() will do nothing if we are not the last in series.
+                try:
+                    self.write_combi_report_files()
+                except Exception:
+                    getLogger(silico.logger_name).warning("Failed to write combined calculation report", exc_info = True)
                 
-            # If we got an error during the calc, re-raise it now.
-            if self.error is not None:
-                raise self.error
         
         def write_summary_files(self):
             """
@@ -445,12 +497,42 @@ class Program_target(Configurable_target):
             
         def write_report_files(self):
             """
-            Write report files (like with creport) from this calculation.
+            Write report files for this calculation.
             """
+            # Load report.
+            report = self.get_report(self.result)
             # The full report.
-            self.report.write(Path(self.method.calc_dir.report_directory, self.calculation.molecule_name + ".pdf"))
+            report.write(Path(self.method.calc_dir.report_directory, self.calculation.molecule_name + ".pdf"))
             # And atoms.
-            self.report.write(Path(self.method.calc_dir.report_directory, self.calculation.molecule_name + ".atoms.pdf"), report_type = "atoms")
+            report.write(Path(self.method.calc_dir.report_directory, self.calculation.molecule_name + ".atoms.pdf"), report_type = "atoms")
+            
+        def write_combi_report_files(self):
+            """
+            Write a combined report for all the calculations in this series.
+            """
+            # First determine if we should write a combi report.
+            # There are two types of combi reports we could write (but we'll only write a max of one):
+            #  - A series report, if this calculation was chosen as part of an in-series meta calc (in which case series_name will not == None).
+            #  - A general combi report, if more than one calculation was selected to run in series by the user (and not as part of a meta calc).
+            
+            # First see if we are the last calc of a chain.
+            if (self.calculation.next is None or self.calculation.next.series_name != self.calculation.series_name):
+                # Now try and get a combi result.
+                combi_result = self.get_combi_results()
+                
+                # If we dont have a combi result, give up now.
+                if combi_result is None:
+                    return
+                
+                # Load combi report.
+                report = self.get_report(combi_result)
+                # Next get a safe dir to write to.
+                base_name = Silico_directory.safe_name(self.calculation.series_name if self.calculation.series_name is not None else report.result.metadata.identity_string)
+                #combi_report_dir = smkdir(Path(str(self.method.calc_dir.molecule_directory), "Combined Report: {}".format(base_name)))
+                combi_report_dir = smkdir(Path(str(self.method.calc_dir.molecule_directory), "Combined Reports", base_name))
+            
+                # And write.
+                report.write(Path(combi_report_dir, self.calculation.molecule_name + ".pdf"))
             
         def write_xyz_file(self):
             """

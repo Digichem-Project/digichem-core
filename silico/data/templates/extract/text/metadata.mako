@@ -27,19 +27,19 @@ Duration: ${misc.timedelta_to_string(metadata.duration)}
 %endif
 Computational package: ${metadata.package_string}
 Calculations: ${metadata.calculations_string}
-Methods: ${metadata.calc_methods_string}
-Functional: ${metadata.calc_functional}
-Basis set: ${metadata.calc_basis_set}
-Multiplicity: ${Energy_state.multiplicity_number_to_string(metadata.system_multiplicity).capitalize() if metadata.system_multiplicity is not None else None}
-Charge: ${metadata.system_charge}
+Methods: ${metadata.methods_string}
+Functional: ${metadata.functional}
+Basis set: ${metadata.basis_set}
+Multiplicity: ${Energy_state.multiplicity_number_to_string(metadata.multiplicity).capitalize() if metadata.multiplicity is not None else None}
+Charge: ${metadata.charge}
 Orbital spin: ${metadata.orbital_spin_type}
-Success: ${metadata.calc_success}
+Success: ${metadata.success}
 %if metadata.optimisation_converged is not None:
 Converged: ${metadata.optimisation_converged}
 %endif
-%if metadata.calc_temperature is not None:
-Calculation temperature /K: ${"{:0.2f}".format(metadata.calc_temperature)}
+%if metadata.temperature is not None:
+Calculation temperature /K: ${"{:0.2f}".format(metadata.temperature)}
 %endif
-%if metadata.calc_pressure is not None:
-Calculation pressure /atm: ${"{:0.2f}".format(metadata.calc_pressure)}
+%if metadata.pressure is not None:
+Calculation pressure /atm: ${"{:0.2f}".format(metadata.pressure)}
 %endif
