@@ -36,6 +36,7 @@ import silico.program.report
 import silico.program.resume
 import silico.program.status
 import silico.program.convert
+import silico.program.config.main
 
 # Make configurables available
 from silico.submit.method import *
@@ -63,28 +64,29 @@ def main():
         description = DESCRIPTION,
         epilog = EPILOG)
     parser.add_argument("-v", "--version", action = "version", version = str(silico.version))
-    subparsers = parser.add_subparsers(dest="prog")
+    subparser = parser.add_subparsers(dest="prog")
     
     # Create sub parsers for each sub-program. Each will define its own parser.
-    silico.program.submit.arguments(subparsers)
-    silico.program.convert.arguments(subparsers)
-    silico.program.result.arguments(subparsers)
-    silico.program.report.arguments(subparsers)
-    #silico.program.spreadsheet.arguments(subparsers)
-    silico.program.status.arguments(subparsers)
-    silico.program.resume.arguments(subparsers)
+    silico.program.submit.arguments(subparser)
+    silico.program.convert.arguments(subparser)
+    silico.program.result.arguments(subparser)
+    silico.program.report.arguments(subparser)
+    #silico.program.spreadsheet.arguments(subparser)
+    silico.program.status.arguments(subparser)
+    silico.program.config.main.arguments(subparser)
+    silico.program.resume.arguments(subparser)
     
-    # Before we call parse_args(), we check to see if a sub command has been chosen.
-    # If not, we'll add 'submit' as the default.
-    # This is a bit hacky, but works ok.
-    if len(sys.argv) <= 1 or (
-        sys.argv[1] not in ["submit", "result", "report", "resume", "status", "convert"]
-        and "-h" not in sys.argv
-        and "--help" not in sys.argv
-        and "-v" not in sys.argv
-        and "--version" not in sys.argv
-    ):
-        sys.argv.insert(1, "submit")
+#     # Before we call parse_args(), we check to see if a sub command has been chosen.
+#     # If not, we'll add 'submit' as the default.
+#     # This is a bit hacky, but works ok.
+#     if len(sys.argv) <= 1 or (
+#         sys.argv[1] not in ["submit", "result", "report", "resume", "status", "convert"]
+#         and "-h" not in sys.argv
+#         and "--help" not in sys.argv
+#         and "-v" not in sys.argv
+#         and "--version" not in sys.argv
+#     ):
+#         sys.argv.insert(1, "submit")
     
     # Process command line arguments.
     args = parser.parse_args()
