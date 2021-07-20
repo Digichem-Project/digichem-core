@@ -1,8 +1,4 @@
 import deepmerge
-#import deepmerge.merger
-
-# A deepmerging object suitable for combining config objects.
-#dict_merger = deepmerge.merger.Merger([(dict, "merge")], ["override"], ["override"])
 
 class Config(dict):
     """
