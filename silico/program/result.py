@@ -1,5 +1,5 @@
-# The cresult (Result Extraction) program.
-# This program is designed to extract results from gaussian calculations and display/save them as more convenient formats.
+# The result extraction program.
+# This program is designed to extract results from completed calculations and display/save them as more convenient formats.
 
 # General imports.
 from multiprocessing import Pool
