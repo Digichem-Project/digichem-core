@@ -1,3 +1,7 @@
+#
+# Code for loading/reading/parsing config files and configurable files.
+#
+
 import pkg_resources
 from pathlib import Path
 import yaml
