@@ -4,6 +4,7 @@
 
 # Silico imports.
 import silico.program
+from silico.config.file.split import Splitter
 
 # Printable name of this program.
 NAME = "Silico config splitter"
@@ -25,7 +26,7 @@ def arguments(subparsers):
     
     parser.add_argument("configurables", help = "a (number of) config files to split into multiple children", nargs = "+")
     parser.add_argument("-o,", "--option", help = "the name of the option to split on", required = True)
-    parser.add_argument("-v,", "--values", help = "a list of values to split", nargs = "*", default = [])
+    parser.add_argument("-v,", "--values", help = "a list of values to split", nargs = "*", required = True)
     
 def main(args):
     """
@@ -37,3 +38,13 @@ def _main(args, config, logger):
     """
     Inner portion of main (wrapped by a try-catch-log hacky boi).
     """
+    for parent in args.configurables:
+        try:
+            # Get a splitter object.
+            splitter = Splitter(parent)
+            
+            # Split based on the given option and values.
+            splitter.split(args.option, args.values)
+            
+        except NotADirectoryError:
+            logger.warning("Skipping non-directory file", exc_info = True)

@@ -77,6 +77,7 @@ def init_program(*, args, arg_to_config = None, logger):
     :return: A tuple of the argparse namespace object, silico config object and logging logger object as (args, config, logger). The logger object can of course also be obtained via logging.getLogger(logger_name).
     """
     # Next, load all our config files.
+    print("Started loading")
     config = Config_file_loader.silico_options()
     
     print("Done loading")
