@@ -10,7 +10,7 @@ import deepmerge
 import silico.reference
 from silico.exception.uncatchable import Signal_caught
 from silico.exception import Silico_exception
-from silico.config.loader import Config_loader, Config_file_loader
+from silico.config.file.loader import Config_loader, Config_file_loader
 import silico.image.vmd
 import silico.file.cube
 import silico.file.fchk
