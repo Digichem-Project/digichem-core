@@ -1,13 +1,13 @@
 from collections import OrderedDict
 import deepmerge
+import re
 
 from silico.exception import Configurable_exception
 from silico.misc import Dynamic_parent
 from silico.exception.base import Silico_exception
 from silico.config.configurable.option import Option
-import re
 
-class Configurable_list(OrderedDict):
+class Configurable_list_old(OrderedDict):
     """
     A collection of configurables.
     """
@@ -164,7 +164,7 @@ class Configurable(Dynamic_parent, Options_mixin):
     Each Option object maps a certain attribute on the owning configurable object and defines, for example, an allowed type, a default value, a help string, a list of allowed values etc.
     """
     
-    def __init__(self, file_name = None, relative_file_path = None, validate_now = False, **kwargs):
+    def __init__(self, file_name = None, validate_now = False, **kwargs):
         """
         Constructor for Configurable objects.
         
@@ -175,7 +175,6 @@ class Configurable(Dynamic_parent, Options_mixin):
         self._configurable_options = {}
         self.inner_cls = None
         self.file_name = file_name
-        self.relative_file_path = relative_file_path
         
         # Set all our configurable options.
         # Setting like this might be unsafe because we're not deep copying...
@@ -188,6 +187,7 @@ class Configurable(Dynamic_parent, Options_mixin):
     # Configurable options.
     NAME = Option(help = "The unique name of this Configurable", type = str, required = True)
     ALIASES = Option(help = "A list of alternative names for this Configurable", default = [], type = list, no_edit = True)
+    TAG_HIERARCHY = Option(help = "A hierarchical list of tags that were combined to form this configurable", default = [], type = list, no_edit = True)
     CATEGORY = Option(help = "A hierarchical list of categories that this configurable belongs to", default = [], type = list)
     AUTO_CATEGORY = Option(help = "If no category is explicitly set and this option is true, the category will be automatically set from the path from which this configurable was loaded", type = bool, default = True)
     UPDATE_CATEGORY = Option(help = "The name of a category to update. If given, this configurable will be used to override the options set by all other configurable that have UPDATE_CATEGORY as one of their categories", type = str, default = None, no_edit = True)
@@ -218,24 +218,22 @@ class Configurable(Dynamic_parent, Options_mixin):
     def configure_auto_name(self):
         """
         Setup automatic names for this configurable.
-        
+         
         Automatic names are ones that are generated automatically from some other information about the configurable.
         Currently, this includes the CATEGORY and NAME attributes, which can be set automatically based on the file path from which the configurable was loaded. 
         """
         # First, set CATEGORY, as we may need this later for our NAME.
-        if len(self.CATEGORY) == 0 and self.AUTO_CATEGORY and self.relative_file_path is not None:
+        if len(self.CATEGORY) == 0 and self.AUTO_CATEGORY and self.TAG_HIERARCHY is not None:
             # No category and we're able to set one.
             # We will modify the folder names we're going to use to build our category in the following ways:
             # - Numerical characters from the start of each category name will be stripped (as these are often used to set ordering).
-            
-            
-            self.CATEGORY = [self.dir_name_to_category(category_name) for category_name in self.relative_file_path.parts]
-            
+            #self.CATEGORY = [self.dir_name_to_category(category_name) for category_name in self.relative_file_path.parts]
+            self.CATEGORY = self.TAG_HIERARCHY
+             
         # Now set our NAME if empty.
         if not hasattr(self, "NAME") and len(self.CATEGORY) > 0:
             # No NAME, set from the category.
             self.NAME = " ".join(self.CATEGORY)
-
 
     def validate(self):
         """

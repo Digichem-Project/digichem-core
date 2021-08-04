@@ -3,7 +3,7 @@ from copy import deepcopy
 
 # Silico imports.
 from silico.config.base import Config
-from silico.config.configurable import Configurable_list
+from silico.config.configurable.loader import Configurable_list
 
 
 class Silico_options(Config):
@@ -18,10 +18,10 @@ class Silico_options(Config):
         super().__init__(options)
             
         # Set Configurable lists.
-        self.methods = Configurable_list() if methods is None else methods
-        self.programs = Configurable_list() if programs is None else programs
-        self.calculations = Configurable_list() if calculations is None else calculations
-        self.basis_sets = Configurable_list() if basis_sets is None else basis_sets
+        self.methods = Configurable_list([], "method") if methods is None else methods
+        self.programs = Configurable_list([], "program") if programs is None else programs
+        self.calculations = Configurable_list([], "calculation") if calculations is None else calculations
+        self.basis_sets = Configurable_list([], "basis_set") if basis_sets is None else basis_sets
         
     @property
     def effective_core_potentials(self):
