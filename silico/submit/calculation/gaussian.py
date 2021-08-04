@@ -4,6 +4,7 @@ import silico
 from silico.exception import Configurable_exception
 from silico.config.configurable.option import Option
 from silico.submit.calculation import Concrete_calculation
+from silico.config.configurable.options import Options
 
 class Gaussian(Concrete_calculation):
     """
@@ -46,6 +47,23 @@ class Gaussian(Concrete_calculation):
     keep_chk = Option(help = "Whether to keep the .chk file at the end of the calculation. If False, the .chk file will be automatically deleted, but not before it is converted to an .fchk file (if convert_chk is True)", default = False, type = bool)
     keep_rwf = Option(help = "Whether to keep the .rwf file at the end of the calculation. If False, the .rwf file will be automatically deleted", default = False, type = bool)
     
+    DFT_excited_states = Options(
+        help = "Options for calculation of excited states with DFT (TDA or TD-DFT)",
+        multiplicity = Option(help = "Multiplicity of the excited states to calculate.", default = None, choices = (None, "Singlet", "Triplet", "50-50")),
+        nstates = Option(help = "The number of excited states to calculate. If 50-50 is given as the multiplicity, this is the number of each multiplicity to calculate. If 0 is given, no excited states will be calculated", type = int, default = 0),
+        root = Option(help = "The 'state of interest', the meaning of which changes depending on what type of calculation is being performed. For example, if an optimisation is being performed, this is the excited state to optimise", type = int, default = None),
+        TDA = Option(help = "Whether to use the Tamm–Dancoff approximation.", type = bool, default = False)
+    )
+    optimisation = Options(
+        help = "Options that control optimisations.",
+        on = Option(help = "Whether to perform an optimisation. If excited states are also being calculated, then the excited state given by 'root' will be optimised", default = False, type = bool),
+        options = Option(help = "Additional options to specify.", type = dict, default = {})
+    )
+    frequency = Options(
+        help = "Options that control calculation of vibrational frequencies.",
+        on = Option(help = "Whether to calculation vibrational frequencies.", default = False, type = bool),
+        options = Option(help = "Additional options to specify.", type = dict, default = {})
+    )
     
     @property
     def charge(self):
@@ -113,6 +131,7 @@ class Gaussian(Concrete_calculation):
         """
         Get a Gaussian input file route section from this calculation target.
         """
+        raise NotImplementedError("WIP: Need to take into account DFT_excited_states etc...")
         # Assemble our route line.
         # Add calc keywords.
         route_parts = list(self.calculation_keywords)
