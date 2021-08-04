@@ -220,7 +220,7 @@ class Options(Option, Options_mixin):
 
     def validate(self, owning_obj, dict_obj = None):
         """
-        Validate the options contained with this Options object.
+        Validate the options contained within this Options object.
         
         :param owning_obj: The owning object on which this Option object is set as a class attribute.
         :param dict_obj: The dict in which the value of this Option is stored.
@@ -229,7 +229,13 @@ class Options(Option, Options_mixin):
             dict_obj = owning_obj._configurable_options
         
         # Our children will find their values in a different dict to where we find ourself.
-        sub_dict_obj = dict_obj[self.name]
+        sub_dict_obj = dict_obj.get(self.name, {})
+#         try:
+#             sub_dict_obj = dict_obj[self.name]
+#             
+#         except KeyError:
+#             print("blagh")
+#             raise   
         
         # Validate each of our sub options.
         self.validate_children(owning_obj, sub_dict_obj)        

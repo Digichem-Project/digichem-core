@@ -7,16 +7,18 @@ from pathlib import Path
 import yaml
 import os
 import himl
+import glob
 
 from silico.config.base import Config
 from silico.config.main import Silico_options
 from silico.config.configurable import Configurable
-from silico.config.configurable.base import Configurable_list
 import silico.misc.directory
 from silico.exception.base import Silico_exception
+from silico.config.configurable.loader import Partial_loader, Configurable_list
+from silico.config.configurable.loader import Single_loader
 
 
-class Config_loader():
+class Config_parser():
     """
     Class for loading standard silico options.
     """
@@ -92,7 +94,7 @@ class Config_loader():
         return Config(config, FILE_NAME = self.config_path)
     
         
-class Config_file_loader(Config_loader):
+class Config_file_parser(Config_parser):
     """
     Class for loading config files.
     """
@@ -149,12 +151,128 @@ class Config_file_loader(Config_loader):
         options = Silico_options(config)
         
         # Add configurables.
-        Configurable_loader.silico_options(options)
+        Configurables_parser.add_default_configurables(options)
         
         # And return.
         return options
+    
+    
+    
+    
+class Configurables_parser():
+    """
+    Reads and parsers all configurable files from a location.
+    """
+    
+    def __init__(self, path, TYPE):
+        """
+        Constructor for Configurables_loader object.
+        
+        :param path: Path to a directory to load .yaml files from. All *.yaml files under this directory will be loaded and processed.
+        :param TYPE: The TYPE of the configurables we are loading; this is a string which identifies the type of the configurables (eg, Method, Calculation etc).
+        """
+        self.root_directory = path
+        # A type to set for all configurables we load (if not None). Individual configurables can also set this themselves.
+        self.TYPE = TYPE
+        # A list of the configurable loaders we have parsed.
+        self.loaders = []
+        
+    def load(self):
+        """
+        Read, parse and process all configs at our location.
+        
+        :returns: A Configurable_list of loaded configs.
+        """
+        self.parse()
+        
+        return self.process()
+    
+    
+    def parse(self):
+        """
+        Read and parse all .yaml files within our directory.
+        """
+        # Get our file list; all files within our top directory which end in .yaml.
+        file_list = sorted(glob.glob(glob.escape(self.root_directory) + "/**/*.yaml", recursive = True))
+        
+        # Now parse them.
+        for file_name in file_list:
+            try:
+                with open(file_name, "rt") as file:
+                    self.loaders.extend(self.pre_process(config, file_name) for config in yaml.safe_load_all(file))
+                    
+            except FileNotFoundError:
+                # This should be ok to ignore, just means a file was moved inbetween us looking how many files there are and reading them.
+                # Possibly no need to worry about this?
+                pass
+            
+    def process(self):
+        """
+        Process the config dicts that we have parsed.
+        """
+        # We need to link any partial loaders together.
+        for loader in self.loaders:
+            loader.link(self.loaders)
+            
+        # Next we need to purge partial configurables from the top level list.
+        conf_list = Configurable_list([loader for loader in self.loaders if loader.TOP], self.TYPE)
+        return conf_list
+            
+        
+    def pre_process(self, config, config_path):
+        """
+        Convert loaded config dicts to appropriate objects
+        """
+        config['TYPE'] = self.TYPE
+        
+        # If we have a sub type set, use that to get the name of the class.
+        if 'SUB_TYPE' in config:
+            if config['SUB_TYPE'] == "pseudo" or config['SUB_TYPE'] == "partial":
+                return Partial_loader(config_path, self.TYPE, config, pseudo = config['SUB_TYPE'] == "pseudo")
+            
+            else:
+                # Panic, we don't recognise this sub type.
+                raise Silico_exception("Error loading configurable of type '{}' from file '{}'; SUB_TYPE '{}' is not recognised".format(self.TYPE, config_path, config['SUB_TYPE']))
+            
+        else:
+            # Use a single loader.
+            return Single_loader(config_path, self.TYPE, config)        
+        
+    
+    @classmethod
+    def add_default_configurables(self, options):
+        """
+        Load configurables from all silico locations and add to a silico options object.
+        
+        :param options: A Silico_options object to populate with configurables.
+        """
+        # Load each of our locations in turn.
+        for location in (Config_parser.MASTER_CONFIG_PATH().parent, Config_parser.SYSTEM_CONFIG_LOCATION().parent, Config_parser.USER_CONFIG_LOCATION().parent):
+            # And each configurable type:
+            for configurable_name, configurable_type, TYPE in (
+                ("Basis Sets", "basis_sets", "basis_set"),
+                ("Calculations", "calculations", "calculation"),
+                ("Programs", "programs", "program"),
+                ("Methods", "methods", "method")
+            ):
+                root_directory = Path(location, configurable_name)
+                
+                # Load from the location and add to our silico_options object.
+                # The name of the attribute we add to is the same as the location we read from, but in lower case...
+                try:
+                    getattr(options, configurable_type).NEXT.append(self(root_directory, TYPE = TYPE).load())
+                    
+                except FileNotFoundError:
+                    # No need to panic.
+                    pass
+        
+        
+        
+    
+    
+    
 
-class Hierarchy_loader():
+class Hierarchy_loader_old():
     """
     Class for loading hierarchical yaml config files.
     """
@@ -205,7 +323,7 @@ class Hierarchy_loader():
         return nodes
 
 
-class Configurable_loader(Hierarchy_loader):
+class Configurable_loader_old(Hierarchy_loader_old):
     """
     Class for loading hierarchical configurables.
     """

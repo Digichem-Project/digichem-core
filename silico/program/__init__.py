@@ -10,13 +10,13 @@ import deepmerge
 import silico.reference
 from silico.exception.uncatchable import Signal_caught
 from silico.exception import Silico_exception
-from silico.config.file.loader import Config_loader, Config_file_loader
 import silico.image.vmd
 import silico.file.cube
 import silico.file.fchk
 import silico.result.angle
 import silico.config
 import silico.logging
+from silico.config.file.parser import Config_file_parser
 
 def main_wrapper(inner_func, *, args, arg_to_config = None, logger_name = None, **kwargs):
     """
@@ -77,10 +77,7 @@ def init_program(*, args, arg_to_config = None, logger):
     :return: A tuple of the argparse namespace object, silico config object and logging logger object as (args, config, logger). The logger object can of course also be obtained via logging.getLogger(logger_name).
     """
     # Next, load all our config files.
-    print("Started loading")
-    config = Config_file_loader.silico_options()
-    
-    print("Done loading")
+    config = Config_file_parser.silico_options()
     
     # Add any settings set on the command line to this merged config 'file'
     process_standard_args(config, args)
@@ -97,13 +94,7 @@ def init_program(*, args, arg_to_config = None, logger):
     
     # Add our signal exception handler.
     init_signals(logger)
-    
-    
-    config.validate()
-    
-    print("Done validating")
-    exit()
-    
+        
     # Give back our command line arguments and config options.
     return (args, config, logger)
 
