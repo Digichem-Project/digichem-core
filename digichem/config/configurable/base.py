@@ -1,5 +1,3 @@
-import re
-
 from silico.exception import Configurable_exception
 from silico.misc import Dynamic_parent
 from silico.config.configurable.option import Option
@@ -69,12 +67,7 @@ class Configurable(Dynamic_parent, Options_mixin):
             self.validate()
         
     # Configurable options.
-    NAME = Option(help = "The unique name of this Configurable", type = str, required = True)
-    ALIASES = Option(help = "A list of alternative names for this Configurable", default = [], type = list, no_edit = True)
     TAG_HIERARCHY = Option(help = "A hierarchical list of tags that were combined to form this configurable", default = [], type = list, no_edit = True)
-    CATEGORY = Option(help = "A hierarchical list of categories that this configurable belongs to", default = [], type = list)
-    AUTO_CATEGORY = Option(help = "If no category is explicitly set and this option is true, the category will be automatically set from the path from which this configurable was loaded", type = bool, default = True)
-    UPDATE_CATEGORY = Option(help = "The name of a category to update. If given, this configurable will be used to override the options set by all other configurable that have UPDATE_CATEGORY as one of their categories", type = str, default = None, no_edit = True)
     TYPE = Option(help = "The type of this Configurable", choices = ('method', 'program', 'calculation', 'basis_set'), required = True, default = 'calculation', type = str, no_edit = True)
     CLASS = Option(
         help = "The specific sub-type of this Configurable",
@@ -82,42 +75,33 @@ class Configurable(Dynamic_parent, Options_mixin):
         required = True,
         no_edit = True
     )
+
+    name = Option(help = "The unique name of this Configurable", type = str, required = True)
+    categories = Option(help = "A hierarchical list of categories that this configurable belongs to", default = [], type = list)
     hidden = Option(help = "If True, this configurable will not appear in lists (but can still be specified by the user). Useful for configurables that should not be used naively", type = bool, default = False)
     warning = Option(help = "A warning message to display when this configurable is chosen", default = None, type = str)
 
-    # A regex used to extract useful parts of a directory name.
-    DIR_TO_CATEGORY_REGEX = re.compile(r"[0-9]* (.*)")
-
-    @classmethod
-    def dir_name_to_category(self, dir_name):
-        """
-        Convert a directory name to an appropriate category name.
-        """
-        match = self.DIR_TO_CATEGORY_REGEX.match(dir_name)
-        if match:
-            return match.group(1)
-        else:
-            return dir_name
     
     def configure_auto_name(self):
         """
         Setup automatic names for this configurable.
          
         Automatic names are ones that are generated automatically from some other information about the configurable.
-        Currently, this includes the CATEGORY and NAME attributes, which can be set automatically based on the file path from which the configurable was loaded. 
+        Currently, this includes the categories and NAME attributes, which can be set automatically based on the file path from which the configurable was loaded. 
         """
-        # First, set CATEGORY, as we may need this later for our NAME.
-        if len(self.CATEGORY) == 0 and self.AUTO_CATEGORY and self.TAG_HIERARCHY is not None:
+        # First, resolve our category if we have one (which can contain formatting chars).
+        for index, category in self.categories:
+            self.categories[index] = category.format(self)
+        
+        # Next, set categories, as we may need this later for our name.
+        if len(self.categories) == 0 and self.TAG_HIERARCHY is not None:
             # No category and we're able to set one.
-            # We will modify the folder names we're going to use to build our category in the following ways:
-            # - Numerical characters from the start of each category name will be stripped (as these are often used to set ordering).
-            #self.CATEGORY = [self.dir_name_to_category(category_name) for category_name in self.relative_file_path.parts]
-            self.CATEGORY = self.TAG_HIERARCHY
+            self.categories = self.TAG_HIERARCHY
              
         # Now set our NAME if empty.
-        if not hasattr(self, "NAME") and len(self.CATEGORY) > 0:
-            # No NAME, set from the category.
-            self.NAME = " ".join(self.CATEGORY)
+        if not hasattr(self, "name") and len(self.categories) > 0:
+            # No name, set from the category.
+            self.name = " ".join(self.categories)
 
     def validate(self):
         """
@@ -128,34 +112,6 @@ class Configurable(Dynamic_parent, Options_mixin):
         self.validate_children(self, self._configurable_options)
 
     
-    def match(self, identifier):
-        """
-        Determine whether a given identifier matches this Configurable object.
-        
-        Identifiers match (case insensitively) to either NAME or any of ALIASES.
-        
-        :param identifier: A string to match against.
-        :returns: True or False
-        """
-        return identifier.lower() in [name.lower() for name in self.NAMES]
-            
-    @property
-    def NAMES(self):
-        """
-        A list of all the unique names this Configurable is known by (NAME + ALIASES).
-        """
-        names = []
-        
-        # Add NAME if we have one.
-        if self.NAME is not None:
-            names.append(self.NAME)
-        
-        # Add any ALIAS.
-        names.extend(self.ALIASES)
-        
-        # Done
-        return names
-    
     @property
     def description(self):
         """
@@ -163,43 +119,13 @@ class Configurable(Dynamic_parent, Options_mixin):
         """
         # Start with the name.
         try:
-            desc = self.NAME
+            desc = self.name
         except AttributeError:
             # No name set, this is pretty unusual but try and continue.
             desc = "NO-NAME"
-        
-        # Add alias if present.
-        if len(self.ALIASES) > 0:
-            desc += " ({})".format(" ,".join(self.ALIASES))
             
         return desc
-                    
-    def grouped(self, grouped_dict, *, names = None, number):
-        # TODO: Unused?
-        names = self.GROUP if names is None else names
-        
-        # This is the name we will be adding to in grouped_dict.
-        # If it is None, we will be adding to a list (we have no more names to go through).
-        curname = names[0] if len(names) > 0 else None
-            
-        if curname is None:
-            # Create a new list if one doesn't exist.
-            if curname not in grouped_dict:
-                grouped_dict[curname] = []
-            
-            # Add to list
-            grouped_dict[curname].append((number, self))
-        else:
-            # We have more names to work through.
-            # Create an empty dict under the name if not existing.
-            if curname not in grouped_dict:
-                grouped_dict[curname] = {}
-                
-            # Recurse.
-            self.group(grouped_dict[curname], names[1:])
-            
-        return grouped_dict
-        
+                            
     
     ############################
     # Class creation mechanism #
