@@ -65,7 +65,7 @@ class Configurable_loader():
     
     def resolve(self, index, *, parent_offset = 0, parent_config = None):
         """
-        Resolve (one of) the configurable we represent, given by the unique ID/offest/index index.
+        Resolve (one of) the configurable we represent, given by the unique ID/offset/index index.
         
         :param index: The index of the configurable to resolve. This value may be out of bounds, in which case an IndexException should be raised.
         :param parent_offset: The index of this loader in the parent loader, used when called recursively from hierarchical loaders.
@@ -101,9 +101,10 @@ class Configurable_loader():
         """
         config['TYPE'] = self.TYPE
         # These options have no meaning anymore.
-        config.pop('SUB_TYPE')
-        config.pop('TAG')
-        config.pop('NEXT')
+        config.pop('SUB_TYPE', None)
+        config.pop('TAG', None)
+        config.pop('NEXT', None)
+        config.pop('TOP', None)
         
         # Try and get the configurable class.
         try:
