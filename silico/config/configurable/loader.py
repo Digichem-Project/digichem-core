@@ -205,7 +205,7 @@ class Partial_loader(Configurable_loader):
                 # Unset the default TOP value.
                 match.TOP = False
                 self.NEXT.append(match)
-            
+
 
 class Configurable_list(Partial_loader):
     """
@@ -220,9 +220,6 @@ class Configurable_list(Partial_loader):
         super().__init__(file_name = None, TYPE = TYPE, config = {}, pseudo = False)        
         
         self.NEXT = configs
-        
-    
-        
 
 
 class Single_loader(Configurable_loader):
@@ -255,10 +252,3 @@ class Single_loader(Configurable_loader):
         
         return self.configure(parent_config)
         
-        
-        
-        
-# class Pseudo_configurable():
-#     """
-#     A configurable that is a placeholder for a number of other configurables.
-#     """
