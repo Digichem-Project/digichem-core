@@ -8,7 +8,7 @@ import deepmerge
 
 # Silico imports.
 from silico.config.configurable import Configurable
-from silico.exception import Silico_exception
+from silico.exception.configurable import Configurable_loader_exception
 
 class Configurable_loader():
     """
@@ -109,7 +109,7 @@ class Configurable_loader():
         try:
             cls = self.type_class.from_class_handle(config['CLASS'])
         except ValueError:
-            raise Silico_exception("Error loading configurable of type '{}' from file '{}'; CLASS '{}' is not recognised".format(self.TYPE, self.file_name, config['CLASS'])) from None
+            raise Configurable_loader_exception(config, self.TYPE, self.file_name, "CLASS '{}' is not recognised".format(config['CLASS'])) from None
         except KeyError:
             #raise Silico_exception("Error loading configurable of type '{}' from file '{}'; no CLASS set".format(self.TYPE, config_path)) from None
             # If no class set, use the top level class.
@@ -198,7 +198,7 @@ class Partial_loader(Configurable_loader):
             
             # Panic if we couldn't find any.
             if len(matching) == 0:
-                raise Silico_exception("Error loading configurable of type '{}' from file '{}'; TAG '{}' could not be found".format(self.TYPE, self.file_name, tag))
+                raise Configurable_loader_exception(self.config, self.TYPE, self.file_name, "next TAG '{}' could not be found".format(tag))
             
             # Add all matching to our NEXT.
             for match in matching:

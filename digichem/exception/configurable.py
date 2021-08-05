@@ -31,6 +31,7 @@ class Configurable_option_exception(Configurable_exception):
         """
         super().__init__(configurable, "error in option '{}'; {}".format(option.name, reason))
 
+
 class Configurable_class_exception(Configurable_exception):
     """
     Exceptions occurring on the class of a Configurable (not the object).
@@ -48,6 +49,44 @@ class Configurable_class_exception(Configurable_exception):
         Get a string description of this error.
         """
         return "Error in '{}'; {}".format(self.configurable_desc, self.reason)
+    
+
+class Configurable_loader_exception(Silico_exception):
+    """
+    Exceptions raised when reading and parsing configurable files.
+    """
+    
+    def __init__(self, config, TYPE, file_name, reason = None):
+        """
+        :param config: The config dict loaded.
+        :param TYPE: The TYPE of the configurable.
+        :param file_name: The file name (if any) from which the config was loaded.
+        :param reason: The reason the exception was raised.
+        """
+        self.config = config
+        self.TYPE = TYPE
+        self.file_name = file_name
+        self.reason = reason
+        
+    def __str__(self):
+        """
+        Get a string description of this error.
+        """
+        message = "Error loading configurable"
+        
+        if self.config.get("TAG", None) is not None:
+            message += " '{}'".format(self.config['TAG'])
+            
+        message += " of type '{}'".format(self.TYPE)
+        
+        if self.file_name is not None:
+            message += " from file '{}'".format(self.file_name)
+            
+        if self.reason is not None:
+            message += "; {}".format(self.reason)
+        
+        return message
+
 
 class Missing_option_exception(AttributeError, Configurable_option_exception):
     """
