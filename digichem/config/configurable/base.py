@@ -90,8 +90,10 @@ class Configurable(Dynamic_parent, Options_mixin):
         Currently, this includes the categories and NAME attributes, which can be set automatically based on the file path from which the configurable was loaded. 
         """
         # First, resolve our category if we have one (which can contain formatting chars).
-        for index, category in self.categories:
-            self.categories[index] = category.format(self)
+        for index, category in enumerate(self.categories):
+            #TODO: This might be dangerous?
+            self.categories[index] = category.format(self, conf = self)
+            
         
         # Next, set categories, as we may need this later for our name.
         if len(self.categories) == 0 and self.TAG_HIERARCHY is not None:
