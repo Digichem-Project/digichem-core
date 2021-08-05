@@ -5,15 +5,10 @@
 import pkg_resources
 from pathlib import Path
 import yaml
-import os
-import himl
 import glob
 
 from silico.config.base import Config
 from silico.config.main import Silico_options
-from silico.config.configurable import Configurable
-import silico.misc.directory
-from silico.exception.base import Silico_exception
 from silico.config.configurable.loader import Partial_loader, Configurable_list
 from silico.config.configurable.loader import Single_loader
 from silico.exception.configurable import Configurable_loader_exception
@@ -156,9 +151,7 @@ class Config_file_parser(Config_parser):
         
         # And return.
         return options
-    
-    
-    
+
     
 class Configurables_parser():
     """
@@ -266,138 +259,3 @@ class Configurables_parser():
                 except FileNotFoundError:
                     # No need to panic.
                     pass
-        
-        
-        
-    
-    
-    
-
-class Hierarchy_loader_old():
-    """
-    Class for loading hierarchical yaml config files.
-    """
-    
-    def __init__(self, path):
-        """
-        Constructor for Hierarchy_loader objects.
-        :param: Path to a directory to load yaml files from. All *.yaml files, but not *.inc.yaml files, that reside under this directory will be loaded.
-        """
-        self.root_directory = path
-        # This is one above the root directory, as we'll include the root_directory in the path we load from.
-        self.top_directory = Path(self.root_directory, "..").resolve()
-        
-    def load(self):
-        """
-        Load the config files.
-        """        
-        config_paths = self.leaf_nodes(self.root_directory)
-        
-        processor = himl.ConfigProcessor()
-        
-        # Load each yaml file in turn.
-        with silico.misc.directory.cd(self.top_directory):
-            # Our loader.
-            configs = [self.pre_process(processor.process(path = str(Path(config_path).relative_to(self.top_directory))), config_path, Path(config_path).relative_to(self.root_directory)) for config_path in config_paths]
-        
-        return configs
-    
-    def pre_process(self, config, config_path, relative_path):
-        """
-        Peform some pre-processing on a just-loaded config.
-        
-        :param config: Dictionary of config options.
-        :param config_path: Path to the file from which this config was loaded.
-        """
-        # Do nothing.
-        return config
-
-    @classmethod
-    def leaf_nodes(self, root_directory):
-        """
-        Return a list of bottom-most directories containined within a directoty.
-        
-        Bottom-most directories are those that don't contain any other directories.
-        """
-        nodes = [root for root, directories, files in os.walk(root_directory) if len(directories) == 0 and not root_directory.samefile(root)]
-        nodes.sort()
-        return nodes
-
-
-class Configurable_loader_old(Hierarchy_loader_old):
-    """
-    Class for loading hierarchical configurables.
-    """
-    
-    def __init__(self, *args, TYPE, **kwargs):
-        """
-        Constructor for Configurable_loader objects.
-        
-        :param TYPE: The TYPE of the configurables we are loading.
-        """
-        super().__init__(*args, **kwargs)
-        self.TYPE = TYPE
-        self.type_class = Configurable.from_class_handle(self.TYPE)
-    
-    def pre_process(self, config, config_path, relative_path):
-        """
-        Peform some pre-processing on a just-loaded config.
-        
-        :param config: Dictionary of config options.
-        :param config_path: Path to the file from which this config was loaded.
-        :param relative_path: Path to the file relative to the base directory.
-        :param TYPE: The TYPE of the configurable.
-        """
-        config['TYPE'] = self.TYPE
-        
-        # Try and get the configurable class.
-        try:
-            cls = self.type_class.from_class_handle(config['CLASS'])
-        except ValueError:
-            raise Silico_exception("Error loading configurable of type '{}' from file '{}'; CLASS '{}' is not recognised".format(self.TYPE, config_path, config['CLASS'])) from None
-        except KeyError:
-            #raise Silico_exception("Error loading configurable of type '{}' from file '{}'; no CLASS set".format(self.TYPE, config_path)) from None
-            # If no class set, use the top level class.
-            cls = self.type_class
-        
-        configurable = cls(config_path, relative_path, False, **config) 
-        configurable.configure_auto_name()
-        return configurable
-    
-    def load(self, configurable_list = None):
-        """
-        Load the config files.
-        
-        :param configurable_list: Optional Configurable_list object to which the new configs will be added. If not given a new empty list will be used.
-        """
-        configurable_list = configurable_list if configurable_list is not None else Configurable_list()
-        return configurable_list.update_from_list(super().load())
-    
-    @classmethod
-    def silico_options(self, options):
-        """
-        Load configurables from all silico locations and add to a silico options object.
-        
-        :param options: A Silico_options object to populate with configurables.
-        """
-        # Load each of our locations in turn.
-        for location in (Config_loader.MASTER_CONFIG_PATH().parent, Config_loader.SYSTEM_CONFIG_LOCATION().parent, Config_loader.USER_CONFIG_LOCATION().parent):
-            # And each configurable type:
-            for configurable_name, configurable_type, TYPE in (
-                ("Basis Sets", "basis_sets", "basis_set"),
-                ("Calculations", "calculations", "calculation"),
-                ("Programs", "programs", "program"),
-                ("Methods", "methods", "method")
-            ):
-                root_directory = Path(location, configurable_name)
-                
-                # Load from the location and add to our silico_options object.
-                # The name of the attribute we add to is the same as the location we read from, but in lower case...
-                try:
-                    self(root_directory, TYPE = TYPE).load(getattr(options, configurable_type))
-                except FileNotFoundError:
-                    # No need to panic.
-                    pass
-            
-        
-    
