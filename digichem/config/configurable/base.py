@@ -1,10 +1,7 @@
-from collections import OrderedDict
-import deepmerge
 import re
 
 from silico.exception import Configurable_exception
 from silico.misc import Dynamic_parent
-from silico.exception.base import Silico_exception
 from silico.config.configurable.option import Option
 
 
