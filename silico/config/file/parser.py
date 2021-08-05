@@ -16,6 +16,7 @@ import silico.misc.directory
 from silico.exception.base import Silico_exception
 from silico.config.configurable.loader import Partial_loader, Configurable_list
 from silico.config.configurable.loader import Single_loader
+from silico.exception.configurable import Configurable_loader_exception
 
 
 class Config_parser():
@@ -232,7 +233,7 @@ class Configurables_parser():
             
             else:
                 # Panic, we don't recognise this sub type.
-                raise Silico_exception("Error loading configurable of type '{}' from file '{}'; SUB_TYPE '{}' is not recognised".format(self.TYPE, config_path, config['SUB_TYPE']))
+                raise Configurable_loader_exception(config, self.TYPE, config_path, "SUB_TYPE '{}' is not recognised".format(config['SUB_TYPE']))
             
         else:
             # Use a single loader.
