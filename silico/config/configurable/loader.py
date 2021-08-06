@@ -62,6 +62,22 @@ class Configurable_loader():
         
         self._TOP = True
         self.pseudo = pseudo
+        
+        
+    def __iter__(self):
+        """
+        Iteration magic method
+        """
+        pos = 1
+        while True:
+            try:
+                yield self.resolve(pos)
+                
+            except IndexError:
+                # We're all done.
+                return
+            
+            pos +=1
     
     def resolve(self, index, *, parent_offset = 0, parent_config = None):
         """
