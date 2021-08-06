@@ -1,5 +1,0 @@
-Welcome to the Silico config directory.
-
-All files ending in '.yaml' in this directory (and any subdirectories) will be loaded in alphabetical order (by filename).
-
-Note that the subdirectories here are for organisational purposes only; any config file can go in any subdirectory (a basis set could go in the Calculation directory for example).
