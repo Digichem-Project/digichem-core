@@ -3,7 +3,7 @@
 # General imports.
 
 # Silico imports.
-import silico.program.config.split
+import silico.program.config.validate
 
 # Printable name of this program.
 NAME = "Silico config helper"
@@ -22,4 +22,4 @@ def arguments(subparser):
     subparsers = parser.add_subparsers(dest="prog")
     
     # Create sub parsers for each sub-program. Each will define its own parser.
-    silico.program.config.split.arguments(subparsers)
+    silico.program.config.validate.arguments(subparsers)
