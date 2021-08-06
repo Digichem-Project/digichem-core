@@ -6,10 +6,12 @@ import pkg_resources
 from pathlib import Path
 import yaml
 import glob
+import itertools
 
 from silico.config.base import Config
 from silico.config.main import Silico_options
-from silico.config.configurable.loader import Partial_loader, Configurable_list
+from silico.config.configurable.loader import Partial_loader, Configurable_list,\
+    Update_loader
 from silico.config.configurable.loader import Single_loader
 from silico.exception.configurable import Configurable_loader_exception
 
@@ -158,18 +160,20 @@ class Configurables_parser():
     Reads and parsers all configurable files from a location.
     """
     
-    def __init__(self, path, TYPE):
+    def __init__(self, *paths, TYPE):
         """
         Constructor for Configurables_loader object.
         
-        :param path: Path to a directory to load .yaml files from. All *.yaml files under this directory will be loaded and processed.
+        :param paths: Paths to  directories to load .yaml files from. All *.yaml files under each directory will be loaded and processed.
         :param TYPE: The TYPE of the configurables we are loading; this is a string which identifies the type of the configurables (eg, Method, Calculation etc).
         """
-        self.root_directory = path
-        # A type to set for all configurables we load (if not None). Individual configurables can also set this themselves.
+        self.root_directories = paths
+        # A type to set for all configurables we load.
         self.TYPE = TYPE
         # A list of the configurable loaders we have parsed.
         self.loaders = []
+        # Configs that update other configs.
+        self.updates = []
         
     def load(self):
         """
@@ -187,13 +191,22 @@ class Configurables_parser():
         Read and parse all .yaml files within our directory.
         """
         # Get our file list; all files within our top directory which end in .yaml.
-        file_list = sorted(glob.glob(glob.escape(self.root_directory) + "/**/*.yaml", recursive = True))
+        file_list = itertools.chain( *(sorted(glob.glob(glob.escape(root_directory) + "/**/*.yaml", recursive = True)) for root_directory in self.root_directories) )
         
         # Now parse them.
         for file_name in file_list:
             try:
                 with open(file_name, "rt") as file:
-                    self.loaders.extend(self.pre_process(config, file_name) for config in yaml.safe_load_all(file))
+                    # Parse each.
+                    for config in yaml.safe_load_all(file):
+                        # If the config has its SUB_TYPE set to update, file it away separately.
+                        if config.get('SUB_TYPE') == "update":
+                            # An update, no need to pre process.
+                            self.updates.append(Update_loader(file_name, self.TYPE, config))
+                        
+                        else:
+                            # Normal config, pre process and add.
+                            self.loaders.append(self.pre_process(config, file_name))
                     
             except FileNotFoundError:
                 # This should be ok to ignore, just means a file was moved inbetween us looking how many files there are and reading them.
@@ -204,15 +217,18 @@ class Configurables_parser():
         """
         Process the config dicts that we have parsed.
         """
+        # First, apply any updates.
+        for update in self.updates:
+            update.update(self.loaders)
+        
         # We need to link any partial loaders together.
         for loader in self.loaders:
             loader.link(self.loaders)
             
         # Next we need to purge partial configurables from the top level list.
         conf_list = Configurable_list([loader for loader in self.loaders if loader.TOP], self.TYPE)
-        return conf_list
-            
-        
+        return conf_list       
+    
     def pre_process(self, config, config_path):
         """
         Convert loaded config dicts to appropriate objects
@@ -239,23 +255,21 @@ class Configurables_parser():
         Load configurables from all silico locations and add to a silico options object.
         
         :param options: A Silico_options object to populate with configurables.
-        """
-        # Load each of our locations in turn.
-        for location in (Config_parser.MASTER_CONFIG_PATH().parent, Config_parser.SYSTEM_CONFIG_LOCATION().parent, Config_parser.USER_CONFIG_LOCATION().parent):
-            # And each configurable type:
-            for configurable_name, configurable_type, TYPE in (
-                ("Basis Sets", "basis_sets", "basis_set"),
-                ("Calculations", "calculations", "calculation"),
-                ("Programs", "programs", "program"),
-                ("Methods", "methods", "method")
-            ):
-                root_directory = Path(location, configurable_name)
+        """            
+        # Iterate through each configurable type.
+        for configurable_name, configurable_type, TYPE in (
+            ("Basis Sets", "basis_sets", "basis_set"),
+            ("Calculations", "calculations", "calculation"),
+            ("Programs", "programs", "program"),
+            ("Methods", "methods", "method")
+        ):
+            root_directories = [Path(location, configurable_name) for location in (Config_parser.MASTER_CONFIG_PATH().parent, Config_parser.SYSTEM_CONFIG_LOCATION().parent, Config_parser.USER_CONFIG_LOCATION().parent)]
+            
+            # Load from the location and add to our silico_options object.
+            # The name of the attribute we add to is the same as the location we read from, but in lower case...
+            try:
+                getattr(options, configurable_type).NEXT.append(self(*root_directories, TYPE = TYPE).load())
                 
-                # Load from the location and add to our silico_options object.
-                # The name of the attribute we add to is the same as the location we read from, but in lower case...
-                try:
-                    getattr(options, configurable_type).NEXT.append(self(root_directory, TYPE = TYPE).load())
-                    
-                except FileNotFoundError:
-                    # No need to panic.
-                    pass
+            except FileNotFoundError:
+                # No need to panic.
+                pass

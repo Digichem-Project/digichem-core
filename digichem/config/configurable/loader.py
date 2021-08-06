@@ -192,20 +192,30 @@ class Partial_loader(Configurable_loader):
         
         This method will resolve the NEXT configs at this node.
         """
-        for tag in self.config['NEXT']:
-            # Look for a loader with this tag and add.
-            # TODO: Should watch out for infinite recursion here.
-            matching = [loader for loader in loaders if loader.TAG == tag]
-            
-            # Panic if we couldn't find any.
-            if len(matching) == 0:
-                raise Configurable_loader_exception(self.config, self.TYPE, self.file_name, "next TAG '{}' could not be found".format(tag))
-            
-            # Add all matching to our NEXT.
-            for match in matching:
-                # Unset the default TOP value.
-                match.TOP = False
-                self.NEXT.append(match)
+        try:
+            for tag in self.config['NEXT']:
+                # Look for a loader with this tag and add.
+                # TODO: Should watch out for infinite recursion here.
+                matching = [loader for loader in loaders if loader.TAG == tag]
+                
+                # Panic if we couldn't find any.
+                if len(matching) == 0:
+                    raise Configurable_loader_exception(self.config, self.TYPE, self.file_name, "next TAG '{}' could not be found".format(tag))
+                
+                # Add all matching to our NEXT.
+                for match in matching:
+                    # Unset the default TOP value.
+                    match.TOP = False
+                    self.NEXT.append(match)
+                    
+        except KeyError:
+            if 'NEXT' not in self.config:
+                # Missing required NEXT
+                raise Configurable_loader_exception(self.config, self.TYPE, self.file_name, "missing required option NEXT") from None
+                
+            else:
+                # Something else went wrong.
+                raise
 
 
 class Configurable_list(Partial_loader):
@@ -221,6 +231,9 @@ class Configurable_list(Partial_loader):
         super().__init__(file_name = None, TYPE = TYPE, config = {}, pseudo = False)        
         
         self.NEXT = configs
+        
+        # A flat version of all our child loaders.
+        self.loaders = configs
 
 
 class Single_loader(Configurable_loader):
@@ -252,4 +265,36 @@ class Single_loader(Configurable_loader):
         self.merge_with_parent(parent_config)
         
         return self.configure(parent_config)
+    
+class Update_loader(Single_loader):
+    """
+    A configurable loader that updates/overwrites another loader.
+    """
+    
+    def resolve(self, *args, **kwargs):
+        raise NotImplementedError("resolve() has no meaning for Update_loader objects")
+    
+    
+    def update(self, loaders):
+        """
+        Update a number of other loaders with this loader.
+        """
+        # Find matching.
+        try:
+            matching = [loader for loader in loaders if loader.TAG == self.config['TAG']]
+            
+            if len(matching) == 0:
+                # No matching, panic.
+                raise Configurable_loader_exception(self.config, self.TYPE, self.file_name, "update TAG '{}' could not be found".format(self.config['TAG']))
+            
+            for match in matching:
+                # Merge.
+                deepmerge.always_merger.merge(match.config, self.config)
+            
+        except KeyError:
+            if 'TAG' not in self.config:
+                raise Configurable_loader_exception(self.config, self.TYPE, self.file_name, "missing required option TAG; don't know what to update") from None
+            
+            else:
+                raise
         
