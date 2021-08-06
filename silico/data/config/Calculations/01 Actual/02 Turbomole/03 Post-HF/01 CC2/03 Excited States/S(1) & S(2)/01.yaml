@@ -1,5 +1,0 @@
-# Specify excited states.
-ricc2_exci:
-    multiplicity: 1
-    nexc: 2
-    oscillator_strengths: diplen

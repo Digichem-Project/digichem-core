@@ -1,7 +1,0 @@
-# This is an opt.
-modules:
-    - jobex -level cc2 -c 100 -keep
-    
-# Turn on optimisation.
-cc_geoopt:
-    wavefunction: ADC(2)

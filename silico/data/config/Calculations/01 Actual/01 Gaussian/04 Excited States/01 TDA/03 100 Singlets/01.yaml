@@ -1,7 +1,0 @@
-calculation_keywords:
-    - TDA=(NStates=100,Singlets)
-
-# Adjust excited states diagram.
-silico_options:
-    excited_states_diagram:
-        y_limits: auto

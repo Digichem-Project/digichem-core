@@ -1,0 +1,254 @@
+TAG: Gaussian Solvents
+SUB_TYPE: pseudo
+
+NEXT:
+    - Gaussian Gas Phase
+    - Gaussian Real Solvents
+
+
+---
+
+
+TAG: Gaussian Real Solvents
+SUB_TYPE: pseudo
+
+categories:
+    - "{.solvent}"
+
+NEXT:
+    - Gaussian Gas Phase
+    - Gaussian 1,4-Dioxane
+    - Gaussian 2-Propanol
+    - Gaussian Acetone
+    - Gaussian Acetonitrile
+    - Gaussian Benzene
+    - Gaussian CycloHexane
+    - Gaussian DiethylEther
+    - Gaussian DiMethylSulfoxide
+    - Gaussian Dichloromethane
+    - Gaussian Ethanol
+    - Gaussian EthylEthanoate
+    - Gaussian Methanol
+    - Gaussian Heptane
+    - Gaussian n-Hexane
+    - Gaussian TetraHydroFuran
+    - Gaussian Toluene
+    - Gaussian Water
+
+
+---
+
+
+SUB_TYPE: partial
+TAG: Gaussian Gas Phase
+
+categories:
+    - Gas Phase
+
+NEXT:
+    - Gaussian Functionals
+
+
+---
+
+
+SUB_TYPE: partial
+TAG: Gaussian 1,4-Dioxane
+
+solvent: 1,4-Dioxane
+
+NEXT:
+    - Gaussian Functionals
+
+
+---
+
+
+SUB_TYPE: partial
+TAG: Gaussian 2-Propanol
+
+solvent: 2-Propanol
+
+NEXT:
+    - Gaussian Functionals
+
+
+---
+
+
+SUB_TYPE: partial
+TAG: Gaussian Acetone
+
+solvent: Acetone
+
+NEXT:
+    - Gaussian Functionals
+
+
+---
+
+
+SUB_TYPE: partial
+TAG: Gaussian Acetonitrile
+
+solvent: Acetonitrile
+
+NEXT:
+    - Gaussian Functionals
+
+
+---
+
+
+SUB_TYPE: partial
+TAG: Gaussian Benzene
+
+solvent: Benzene
+
+NEXT:
+    - Gaussian Functionals
+
+
+---
+
+
+SUB_TYPE: partial
+TAG: Gaussian CycloHexane
+
+solvent: CycloHexane
+
+NEXT:
+    - Gaussian Functionals
+
+
+---
+
+
+SUB_TYPE: partial
+TAG: Gaussian DiethylEther
+
+solvent: DiethylEther
+
+NEXT:
+    - Gaussian Functionals
+
+
+---
+
+
+SUB_TYPE: partial
+TAG: Gaussian DiMethylSulfoxide
+
+solvent: DiMethylSulfoxide
+
+NEXT:
+    - Gaussian Functionals
+
+
+---
+
+
+SUB_TYPE: partial
+TAG: Gaussian Dichloromethane
+
+solvent: Dichloromethane
+
+NEXT:
+    - Gaussian Functionals
+
+
+---
+
+
+SUB_TYPE: partial
+TAG: Gaussian Ethanol
+
+solvent: Ethanol
+
+NEXT:
+    - Gaussian Functionals
+
+
+---
+
+
+SUB_TYPE: partial
+# Ethyl Acetate
+TAG: Gaussian EthylEthanoate
+
+solvent: EthylEthanoate
+
+NEXT:
+    - Gaussian Functionals
+
+
+---
+
+
+SUB_TYPE: partial
+TAG: Gaussian Methanol
+
+solvent: Methanol
+
+NEXT:
+    - Gaussian Functionals
+
+
+---
+
+
+SUB_TYPE: partial
+TAG: Gaussian Heptane
+
+solvent: Heptane
+
+NEXT:
+    - Gaussian Functionals
+
+
+---
+
+
+SUB_TYPE: partial
+TAG: Gaussian n-Hexane
+
+solvent: n-Hexane
+
+NEXT:
+    - Gaussian Functionals
+
+
+---
+
+
+SUB_TYPE: partial
+TAG: Gaussian TetraHydroFuran
+
+solvent: TetraHydroFuran
+
+NEXT:
+    - Gaussian Functionals
+
+
+---
+
+
+SUB_TYPE: partial
+TAG: Gaussian Toluene
+
+solvent: Toluene
+
+NEXT:
+    - Gaussian Functionals
+
+
+---
+
+
+SUB_TYPE: partial
+TAG: Gaussian Water
+
+solvent: Water
+
+NEXT:
+    - Gaussian Functionals

@@ -1,6 +1,0 @@
-calculation_keywords:
-    - TD=(NStates=100,Singlets)
-
-silico_options:
-    excited_states_diagram:
-        y_limits: auto

@@ -1,0 +1,102 @@
+##########################
+#           CC2          #
+##########################
+TAG: Turbomole CC2 Excited States
+SUB_TYPE: partial
+
+categories:
+    - "CC(2)"
+modules:
+    - dscf
+    - ricc2
+
+NEXT:
+    - Turbomole CC2 Singlets
+    - Turbomole CC2 Triplets
+
+
+---
+
+
+TAG: Turbomole CC2 Singlets
+SUB_TYPE: partial
+
+categories:
+    - "S(1) and S(2)"
+ricc2_exci:
+    multiplicity: 1
+    nexc: 2
+    oscillator_strengths: diplen
+
+NEXT:
+    - Turbomole CC2
+
+
+---
+
+
+TAG: Turbomole CC2 Triplets
+SUB_TYPE: partial
+
+categories:
+    - "T(1) and T(2)"
+ricc2_exci:
+    multiplicity: 3
+    nexc: 2
+    oscillator_strengths: null
+
+NEXT:
+    - Turbomole CC2
+
+
+---
+
+##########################
+#         ADC(2)         #
+##########################
+TAG: Turbomole ADC(2) Excited States
+SUB_TYPE: partial
+
+categories:
+    - "ADC(2)"
+modules:
+    - dscf
+    - ricc2
+
+NEXT:
+    - Turbomole ADC(2) Singlets
+    - Turbomole ADC(2) Triplets
+
+
+---
+
+
+TAG: Turbomole ADC(2) Singlets
+SUB_TYPE: partial
+    
+categories:
+    - "S(1) and S(2)"
+ricc2_exci:
+    multiplicity: 1
+    nexc: 2
+    oscillator_strengths: diplen
+
+NEXT:
+    - Turbomole ADC(2)
+
+
+---
+
+
+TAG: Turbomole ADC(2) Triplets
+SUB_TYPE: partial
+
+categories:
+    - "T(1) and T(2)"
+ricc2_exci:
+    multiplicity: 3
+    nexc: 2
+    oscillator_strengths: null
+
+NEXT:
+    - Turbomole ADC(2)

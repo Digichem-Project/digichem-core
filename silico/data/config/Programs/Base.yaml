@@ -1,0 +1,13 @@
+TAG: Base
+SUB_TYPE: pseudo
+
+# The list of methods that our programs are compatible with.
+methods:
+    - series
+    - parallel
+    - slurm
+
+NEXT:
+    - Gaussian 09
+    - Gaussian 16
+    - Turbomole

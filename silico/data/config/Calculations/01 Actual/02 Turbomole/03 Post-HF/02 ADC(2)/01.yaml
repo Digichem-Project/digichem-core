@@ -1,9 +1,0 @@
-num_CPUs: 6
-
-# Turn on CC2.
-ricc2:
-    model: adc(2)
-    scs: scs
-      
-# Increase required memory for CC2.
-memory: 80GB

@@ -1,0 +1,132 @@
+SUB_TYPE: partial
+TAG: Turbomole TDA
+NEXT:
+    - Turbomole 10 Singlets
+    - Turbomole 10 Triplets
+    - Turbomole 100 Singlets
+    - Turbomole Optimised S(1)
+    - Turbomole Optimised T(1)
+
+categories:
+    - TDA
+dft_exci:
+    TDA: True
+
+
+---
+
+
+SUB_TYPE: partial
+TAG: Turbomole TD-DFT
+NEXT:
+    - Turbomole 10 Singlets
+    - Turbomole 10 Triplets
+    - Turbomole 100 Singlets
+    - Turbomole Optimised S(1)
+    - Turbomole Optimised T(1)
+
+categories:
+    - TD-DFT
+dft_exci:
+    TDA: False
+
+
+---
+
+
+TAG: Turbomole 10 Singlets
+SUB_TYPE: partial
+
+categories:
+    - 10 Singlets
+dft_exci:
+    multiplicity: 1
+    nexc: 10
+    
+modules:
+    - dscf
+    - escf
+
+NEXT:
+    - Turbomole Functionals
+
+---
+
+
+TAG: Turbomole 10 Triplets
+SUB_TYPE: partial
+
+
+categories:
+    - 10 Triplets
+dft_exci:
+    multiplicity: 3
+    nexc: 10
+    
+modules:
+    - dscf
+    - escf
+
+NEXT:
+    - Turbomole Functionals
+
+
+---
+
+
+TAG: Turbomole 100 Singlets
+SUB_TYPE: partial
+
+
+categories:
+    - 100 Singlets
+dft_exci:
+    multiplicity: 1
+    nexc: 100
+    
+modules:
+    - dscf
+    - escf
+
+NEXT:
+    - Turbomole Functionals
+
+
+---
+
+
+TAG: Turbomole Optimised S(1)
+SUB_TYPE: partial
+
+
+categories:
+    - Optimised S(1)
+dft_exci:
+    multiplicity: 1
+    nexc: 10
+
+modules:
+    - jobex -level scf -c 100 -keep -ex
+
+NEXT:
+    - Turbomole Functionals
+
+
+---
+
+
+TAG: Turbomole Optimised T(1)
+SUB_TYPE: partial
+
+categories:
+    - Optimised T(1)
+dft_exci:
+    multiplicity: 3
+    nexc: 10
+
+modules:
+    - jobex -level scf -c 100 -keep -ex
+
+NEXT:
+    - Turbomole Functionals
+

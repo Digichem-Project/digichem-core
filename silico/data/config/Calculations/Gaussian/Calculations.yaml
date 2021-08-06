@@ -1,0 +1,72 @@
+SUB_TYPE: partial
+TAG: Gaussian Single Point Singlet
+
+categories:
+    - Single Point Singlet
+multiplicity: 1
+
+NEXT:
+    - Gaussian Solvents
+
+
+---
+
+
+SUB_TYPE: partial
+TAG: Gaussian Optimisation
+
+categories:
+    - Optimisation
+optimisation:
+    on: True
+
+NEXT:
+    - Gaussian Solvents
+
+
+---
+
+
+SUB_TYPE: partial
+TAG: Gaussian Optimisation Frequencies
+
+categories:
+    - Optimisation Frequencies
+optimisation:
+    on: True
+frequency:
+    on: True
+
+NEXT:
+    - Gaussian Solvents
+
+
+---
+
+
+SUB_TYPE: partial
+TAG: Gaussian Frequencies
+
+
+categories:
+    - Frequencies
+frequency:
+    on: True
+
+NEXT:
+    - Gaussian Solvents
+
+
+---
+
+
+SUB_TYPE: partial
+TAG: Gaussian Excited States
+
+
+categories:
+    - Excited States
+NEXT:
+    - Gaussian TDA
+    - Gaussian TD-DFT
+

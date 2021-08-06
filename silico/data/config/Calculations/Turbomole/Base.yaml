@@ -1,0 +1,18 @@
+TAG: Turbomole
+CLASS: Turbomole
+SUB_TYPE: pseudo
+
+# Increase number of SCF iterations.
+scf:
+    iter: 100
+    
+# The programs that this calculation is compatible with.
+programs: [Turbomole]
+
+# Options that control use of the scratch directory.
+scratch_options:
+    all_output: False
+
+NEXT:
+    - Turbomole Calculations
+

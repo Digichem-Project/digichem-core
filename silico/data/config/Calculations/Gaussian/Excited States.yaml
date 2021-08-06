@@ -1,0 +1,120 @@
+SUB_TYPE: partial
+TAG: Gaussian TDA
+
+categories:
+    - TDA
+DFT_excited_states:
+    TDA: True
+
+NEXT:
+    - Gaussian 10 Singlets 10 Triplets
+    - Gaussian 5 Triplets
+    - Gaussian 100 Singlets
+    - Gaussian Optimised S(1)
+    - Gaussian Optimised T(1)
+
+
+---
+
+
+SUB_TYPE: partial
+TAG: Gaussian TD-DFT
+
+categories:
+    - TD-DFT
+DFT_excited_states:
+    TDA: False
+
+NEXT:
+    - Gaussian 10 Singlets 10 Triplets
+    - Gaussian 5 Triplets
+    - Gaussian 100 Singlets
+    - Gaussian Optimised S(1)
+    - Gaussian Optimised T(1)
+
+
+---
+
+
+SUB_TYPE: partial
+TAG: Gaussian 10 Singlets 10 Triplets
+
+categories:
+    - 10 Singlets 10 Triplets
+DFT_excited_states:
+    multiplicity: 50-50
+    nstates: 10
+
+NEXT:
+    - Gaussian Solvents
+
+
+---
+
+
+SUB_TYPE: partial
+TAG: Gaussian 5 Triplets
+
+categories:
+    - 5 Triplets
+DFT_excited_states:
+    multiplicity: triplets
+    nstates: 5
+
+NEXT:
+    - Gaussian Solvents
+
+---
+
+
+SUB_TYPE: partial
+TAG: Gaussian 100 Singlets
+
+categories:
+    - 100 Singlets
+DFT_excited_states:
+    multiplicity: singlets
+    nstates: 100
+
+NEXT:
+    - Gaussian Solvents
+
+
+---
+
+
+SUB_TYPE: partial
+TAG: Gaussian Optimised S(1)
+
+categories:
+    - Optimised S(1)
+DFT_excited_states:
+    multiplicity: singlets
+    nstates: 10
+    root: 1
+
+optimisation:
+    on: True
+
+NEXT:
+    - Gaussian Solvents
+
+
+---
+
+
+SUB_TYPE: partial
+TAG: Gaussian Optimised T(1)
+
+categories:
+    - Optimised T(1)
+DFT_excited_states:
+    multiplicity: triplets
+    nstates: 10
+    root: 1
+
+optimisation:
+    on: True
+
+NEXT:
+    - Gaussian Solvents

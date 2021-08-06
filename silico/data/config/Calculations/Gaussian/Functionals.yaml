@@ -1,0 +1,81 @@
+SUB_TYPE: pseudo
+TAG: Gaussian Functionals
+categories:
+    - "{conf.functional} ({conf.options[EmpiricalDispersion]})"
+
+NEXT:
+    - Gaussian PBE1PBE (GD3BJ)
+    - Gaussian B3LYP (GD3BJ)
+    - Gaussian CAM-B3LYP (GD3BJ)
+    - Gaussian M062X (GD3)
+    - Gaussian wB97XD (GD3BJ)
+
+
+---
+
+
+SUB_TYPE: partial
+TAG: Gaussian PBE1PBE (GD3BJ)
+
+functional: PBE1PBE
+options:
+    EmpiricalDispersion: GD3BJ
+
+NEXT:
+    - Gaussian Basis Sets
+
+
+---
+
+
+SUB_TYPE: partial
+TAG: Gaussian CAM-B3LYP (GD3BJ)
+
+functional: CAM-B3LYP
+options:
+    EmpiricalDispersion: GD3BJ
+
+NEXT:
+    - Gaussian Basis Sets
+
+
+---
+
+
+SUB_TYPE: partial
+TAG: Gaussian B3LYP (GD3BJ)
+
+functional: B3LYP
+options:
+    EmpiricalDispersion: GD3BJ
+
+NEXT:
+    - Gaussian Basis Sets
+
+
+---
+
+
+SUB_TYPE: partial
+TAG: Gaussian M062X (GD3)
+
+functional: M062X
+options:
+    EmpiricalDispersion: GD3
+
+NEXT:
+    - Gaussian Basis Sets
+
+
+---
+
+
+SUB_TYPE: partial
+TAG: Gaussian wB97XD (GD3BJ)
+
+functional: wB97XD
+options:
+    EmpiricalDispersion: GD3BJ
+
+NEXT:
+    - Gaussian Basis Sets

@@ -1,0 +1,106 @@
+SUB_TYPE: pseudo
+TAG: Gaussian Basis Sets
+NEXT:
+    - Gaussian Simple Basis Sets
+    - Gaussian External Basis Sets
+
+
+---
+
+
+SUB_TYPE: pseudo
+TAG: Gaussian Simple Basis Sets
+
+categories:
+    - "{.basis_set}"
+
+NEXT:
+    - Gaussian 6-31G(d,p)
+    - Gaussian 6-31+G(d,p)
+    - Gaussian 6-31++G(d,p)
+    - Gaussian 6-311G(d,p)
+    - Gaussian 6-311+G(d,p)
+    - Gaussian 6-311++G(d,p)
+    - Gaussian cc-pVDZ
+    - Gaussian cc-pVTZ
+    - Gaussian cc-pVQZ
+    - Gaussian cc-pV5Z
+    - Gaussian cc-pV6Z
+
+
+---
+
+
+TAG: Gaussian 6-31G(d,p)
+basis_set: 6-31G(d,p)
+
+
+---
+
+
+TAG: Gaussian 6-31+G(d,p)
+basis_set: 6-31+G(d,p)
+
+
+---
+
+
+TAG: Gaussian 6-31++G(d,p)
+basis_set: 6-31++G(d,p)
+
+
+---
+
+
+TAG: Gaussian 6-311G(d,p)
+basis_set: 6-311G(d,p)
+
+
+---
+
+
+TAG: Gaussian 6-311+G(d,p)
+basis_set: 6-311+G(d,p)
+
+
+---
+
+
+TAG: Gaussian 6-311++G(d,p)
+basis_set: 6-311++G(d,p)
+
+
+---
+
+
+TAG: Gaussian cc-pVDZ
+basis_set: cc-pVDZ
+
+
+---
+
+
+TAG: Gaussian cc-pVTZ
+basis_set: cc-pVTZ
+
+
+---
+
+
+TAG: Gaussian cc-pVQZ
+basis_set: cc-pVQZ
+
+
+---
+
+
+TAG: Gaussian cc-pV5Z
+basis_set: cc-pV5Z
+
+
+---
+
+
+TAG: Gaussian cc-pV6Z
+basis_set: cc-pV6Z
+

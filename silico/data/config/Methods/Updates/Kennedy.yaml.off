@@ -1,0 +1,44 @@
+TAG: SLURM Base
+SUB_TYPE: update
+NEXT:
+    - Single Node SLURM
+    - Big Mem SLURM
+    - Debug SLURM
+    - Multi Node SLURM
+
+
+---
+
+
+TAG: Single Node SLURM
+partition: singlenode
+
+
+---
+
+
+TAG: Big Mem SLURM
+
+partition: bigmem
+warning: You have selected the high memory capacity partition. This memory capacity is not normally required for DFT calculations; please make sure you know what you are doing.
+
+
+---
+
+
+TAG: Debug SLURM
+
+hidden: True
+partition: debug
+warning: You have selected the debug partition. This partition is for testing purposes only; please make sure you know what you are doing.
+
+
+---
+
+
+TAG: Multi Node SLURM
+
+hidden: True
+partition: parallel
+warning: You have selected the high-performance parallel partition. This partition MUST NOT be used for DFT; please make sure you know what you are doing.
+

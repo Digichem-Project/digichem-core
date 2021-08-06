@@ -1,5 +1,0 @@
-ALIASES:
-  - slurm-debug
-hidden: True
-partition: debug
-warning: You have selected the debug partition. This partition is for testing purposes only; please make sure you know what you are doing.

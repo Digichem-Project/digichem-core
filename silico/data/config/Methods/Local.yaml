@@ -1,0 +1,19 @@
+TAG: Series
+categories:
+    - Local (series)
+
+hidden: True
+
+CLASS: series
+
+
+---
+
+
+TAG: Parallel
+categories:
+    - Local (parallel)
+
+hidden: True
+
+CLASS: parallel

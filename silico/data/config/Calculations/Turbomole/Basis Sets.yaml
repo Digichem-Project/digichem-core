@@ -1,0 +1,96 @@
+TAG: Turbomole Basis Sets
+SUB_TYPE: pseudo
+
+categories:
+    - "{.basis_set}"
+
+NEXT:
+    - Turbomole 6-31G**
+    - Turbomole 6-311G
+    - Turbomole 6-311G*
+    - Turbomole 6-311G**
+    - Turbomole 6-311++G**
+    - Turbomole Correlation Consistent Basis Sets
+
+
+---
+
+
+TAG: Turbomole Correlation Consistent Basis Sets
+SUB_TYPE: pseudo
+NEXT:
+    - Turbomole cc-pVDZ
+    - Turbomole cc-pVTZ
+    - Turbomole cc-pVQZ
+    - Turbomole cc-pV5Z
+    - Turbomole cc-pV6Z
+
+
+---
+
+
+TAG: Turbomole 6-31G**
+basis_set: 6-31G**
+
+
+---
+
+
+TAG: Turbomole 6-311G
+basis_set: 6-311G
+
+
+---
+
+
+TAG: Turbomole 6-311G*
+basis_set: 6-311G*
+
+
+---
+
+
+TAG: Turbomole 6-311G**
+basis_set: 6-311G**
+
+
+---
+
+
+TAG: Turbomole 6-311++G**
+basis_set: 6-311++G**
+
+
+---
+
+
+TAG: Turbomole cc-pVDZ
+basis_set: cc-pVDZ
+
+
+---
+
+
+TAG: Turbomole cc-pVTZ
+basis_set: cc-pVTZ
+
+
+---
+
+
+TAG: Turbomole cc-pVQZ
+basis_set: cc-pVQZ
+
+
+---
+
+
+TAG: Turbomole cc-pV5Z
+basis_set: cc-pV5Z
+
+
+---
+
+
+TAG: Turbomole cc-pV6Z
+basis_set: cc-pV6Z

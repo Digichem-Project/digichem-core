@@ -1,8 +1,0 @@
-calculation_keywords:
-    - TDA=(NStates=10,50-50)
-    
-options:
-    # Options required for PySOC
-    6D: ""
-    10F: ""
-    GFInput: ""
