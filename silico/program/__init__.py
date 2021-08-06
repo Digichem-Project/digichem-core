@@ -16,7 +16,7 @@ import silico.file.fchk
 import silico.result.angle
 import silico.config
 import silico.logging
-from silico.config.file.parser import Config_file_parser
+from silico.config.file.parser import Config_file_parser, Config_parser
 
 def main_wrapper(inner_func, *, args, arg_to_config = None, logger_name = None, **kwargs):
     """
@@ -163,7 +163,7 @@ def process_standard_args(config, args):
     # We will also process any additional config files given on the command line, and add them in order.
     for config_file_name in args.config_files:
         # Load the file and merge.
-        config.merge(Config_file_loader(config_file_name).load())
+        config.merge(Config_file_parser(config_file_name).load())
         
     # Finally, we set any config options.
     # We do this last so that they'll have highest priority.
@@ -171,7 +171,7 @@ def process_standard_args(config, args):
     for config_file in itertools.chain(*args.setting):
         # Now we'll parse it as YAML.
         try:
-            config.merge(Config_loader(config_file).load())
+            config.merge(Config_parser(config_file).load())
             
         except Exception:
             raise Silico_exception("failed to parse command-line config options")
