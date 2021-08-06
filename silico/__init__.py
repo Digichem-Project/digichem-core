@@ -25,7 +25,7 @@ version = "{}.{}.{}{}".format(major_version, minor_version, revision, "-dev.{}".
 # The bloke who wrote this.
 author = "Oliver Lee"
 # Program date (when we were last updated).
-_last_updated_string = "14/05/2021"
+_last_updated_string = "06/08/2021"
 last_updated = datetime.strptime(_last_updated_string, "%d/%m/%Y")
 
 # The name of the command to launch new instances of silico.
