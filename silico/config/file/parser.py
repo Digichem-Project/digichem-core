@@ -105,7 +105,7 @@ class Config_file_parser(Config_parser):
         """
         self.config_path = path
         
-    def load(self, not_exists_ok = True):
+    def load(self, not_exists_ok = False):
         """
         Load the config file.
         
@@ -136,14 +136,14 @@ class Config_file_parser(Config_parser):
         :return: A Silico_options object (a fancy dict).
         """
         # First, we always load the default config object.
-        config = self(self.DEFAULT_CONFIG_PATH()).load()
+        config = self(self.DEFAULT_CONFIG_PATH()).load(True)
         
         # Next the 'master' (located in the silico install directory).
-        config.merge(self(self.MASTER_CONFIG_PATH()).load())
+        config.merge(self(self.MASTER_CONFIG_PATH()).load(True))
         # Next the system (located at /etc/silico)
-        config.merge(self(self.SYSTEM_CONFIG_LOCATION()).load())
+        config.merge(self(self.SYSTEM_CONFIG_LOCATION()).load(True))
         # Finally the user specific (located at ~/.config/silico)
-        config.merge(self(self.USER_CONFIG_LOCATION()).load())
+        config.merge(self(self.USER_CONFIG_LOCATION()).load(True))
         
         # Get a merged version.
         options = Silico_options(config)
