@@ -24,7 +24,7 @@ def arguments(subparsers):
     # Set main function.
     parser.set_defaults(func = main)
     
-    parser.add_argument("type", help = "the type of configurables to validate. If none are given, all will be validated.", nargs = "*", choices = ["basis_sets", "methods", "programs", "calculations"], default = ["basis_sets", "methods", "programs", "calculations"])
+    parser.add_argument("type", help = "the type of configurables to validate. If none are given, all will be validated.", nargs = "*", choices = ("basis_sets", "methods", "programs", "calculations", "all"), default = "all")
     
 def main(args):
     """
@@ -36,12 +36,15 @@ def _main(args, config, logger):
     """
     Inner portion of main (wrapped by a try-catch-log hacky boi).
     """
+    if args.type == "all":
+        args.type = ("basis_sets", "methods", "programs", "calculations")
+    
     for configurable_type in args.type:
         configurable_list = getattr(config, configurable_type)
         logger.debug("Validating {} {}; this may take some time".format(configurable_list.size(), configurable_type))
         
         # Loading a configurable will validate it automatically.
-        for configurable in configurable_list:
-            logger.debug("Validating: {}".format(configurable.name))
+        for number, configurable in enumerate(configurable_list):
+            logger.debug("Validating: {}) {}".format(number+1, configurable.name))
             
     logger.debug("All configs validated")
