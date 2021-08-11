@@ -174,24 +174,74 @@ class Option():
             except (TypeError, ValueError) as e:
                 raise Configurable_option_exception(owning_obj, self, "value '{}' of type '{}' is of invalid type".format(value, type(value).__name__)) from e
         
+#         if len(self.choices) != 0:
+#             # If we are a list type, we'll check each item in value (rather than value itself).
+#             try:
+#                 if issubclass(self.type, list) or issubclass(self.type, tuple):
+#                     values = value
+#                 else:
+#                     values = [value]
+#             except TypeError:
+#                 # issubclass raises this all the time...
+#                 values = [value]
+#             
+#             for subvalue in values:                    
+#                 if subvalue not in self.choices:
+#                     raise Disallowed_choice_exception(owning_obj, self, subvalue)
         if len(self.choices) != 0:
+            # We have some choices to validate.
             # If we are a list type, we'll check each item in value (rather than value itself).
+            list_type = False
             try:
                 if issubclass(self.type, list) or issubclass(self.type, tuple):
-                    values = value
-                else:
-                    values = [value]
+                    list_type = True
+                
             except TypeError:
                 # issubclass raises this all the time...
-                values = [value]
+                pass
             
-            for subvalue in values:
-                if subvalue not in self.choices:
-                    #raise Configurable_option_exception(owning_obj, self, "value '{}' is not one of the allowed choices".format(subvalue))
-                    raise Disallowed_choice_exception(owning_obj, self, subvalue)
-            
+            if list_type:
+                # Check each of our values, storing each in a new list in case they get changed.
+                values = value
+                new_values = []
+                
+                for sub_value in values:
+                    new_values.append(self.validate_choices(sub_value, owning_obj, dict_obj))
+                    
+                value = new_values
+                    
+            else:
+                # Not a list type, only a single value.
+                value = self.validate_choices(value, owning_obj, dict_obj)
+                
+            # Now we need to set our value again incase it changed from validation.
+            self.set_into_dict(owning_obj, dict_obj, value)
+                
         # Check the value is valid.
         if not self._validate(self, owning_obj, value):
             # Invalid.
             raise Configurable_option_exception(owning_obj, self, "value '{}' of type '{}' is invalid".format(value, type(value).__name__))
+        
+    def validate_choices(self, value, owning_obj, dict_obj = None):
+        """
+        Check whether the value of this option is one of the allowed choices.
+        
+        This method is called automatically by validate()
+        
+        :param value: The value of this option.
+        :param owning_obj: The owning object on which this Option object is set as a class attribute.
+        :param dict_obj: The dict in which the value of this Option is stored. In most cases, the value of this option is evaluated simply as dict_obj[self.name]
+        """
+        for choice in self.choices:
+            if value == choice:
+                # Found a match, all ok.
+                return value
+            
+            elif isinstance(value, str) and isinstance(choice, str) and value.lower() == choice.lower():
+                # Found a match, but with different cAsInG, convert to the correct case.
+                return choice
+            
+        # If we get here, there was no match.
+        raise Disallowed_choice_exception(owning_obj, self, value)
+        
             
