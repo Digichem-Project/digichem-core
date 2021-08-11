@@ -94,7 +94,7 @@ DFT_excited_states:
     root: 1
 
 optimisation:
-    on: True
+    "on": True
 
 NEXT:
     - Gaussian Solvents
@@ -114,7 +114,7 @@ DFT_excited_states:
     root: 1
 
 optimisation:
-    on: True
+    "on": True
 
 NEXT:
     - Gaussian Solvents
