@@ -1,5 +1,5 @@
 from silico.exception.configurable import Configurable_option_exception,\
-    Missing_option_exception
+    Missing_option_exception, Disallowed_choice_exception
 
 class Option():
     """
@@ -15,7 +15,7 @@ class Option():
         :param name: The name of this option. If None is given this will be determined automatically from the name of the attribute this option is stored under.
         :param default: Default value for this option. Alternatively, default can be a callable which will be called with 2 arguments: this Option object and the owning Configurable object and should return the default value.
         :param help: Descriptive help string
-        :param choices: An iterable of valid choices for this option. Alternatively, choices can be a callable which will be called with 2 arguments: this Option object and the owning Configurable object and should return the list of options.
+        :param choices: An optional iterable of valid choices for this option.
         :param validate: Function called to check that the given value is valid. The function will be called with 3 arguments: this Option object, the owning Configurable object and the value being set, and should return True or False as appropriate.
         :param type: A callable that is used to set the type of value.
         :param exclude: A list of strings of the names of attributes that this option is mutually exclusive with.
@@ -27,7 +27,7 @@ class Option():
         self.type = type
         self.rawtype = type if rawtype is None else rawtype
         self.help = help
-        self._choices = choices
+        self.choices = choices if choices is not None else []
         self._validate = validate if validate is not None else lambda option, configurable, value: True
         self.exclude = exclude if exclude is not None else []
         self.required = required
@@ -54,22 +54,6 @@ class Option():
         This method is called by the parent Options object when this Option is added to it.
         """
         self.parents.insert(0, parent)
-
-
-    def choices(self, owning_obj):
-        """
-        Get the list of allowed options for this option.
-        
-        This property will evaluate self._choices if it is a callable.
-        
-        :param owning_obj: The owning object on which this Option object is set as a class attribute.
-        :return: The list of choices, or None if no choices.
-        """
-        if not callable(self._choices):
-            return self._choices
-        else:
-            return self._choices(self, owning_obj)
-
 
     def __set_name__(self, cls, name):
         """
@@ -190,10 +174,7 @@ class Option():
             except (TypeError, ValueError) as e:
                 raise Configurable_option_exception(owning_obj, self, "value '{}' of type '{}' is of invalid type".format(value, type(value).__name__)) from e
         
-        # If we have a list of options, check we chose one.
-        choices = self.choices(owning_obj)
-        
-        if choices is not None:
+        if len(self.choices) != 0:
             # If we are a list type, we'll check each item in value (rather than value itself).
             try:
                 if issubclass(self.type, list) or issubclass(self.type, tuple):
@@ -205,8 +186,9 @@ class Option():
                 values = [value]
             
             for subvalue in values:
-                if subvalue not in choices:
-                    raise Configurable_option_exception(owning_obj, self, "value '{}' is not one of the allowed choices".format(subvalue))
+                if subvalue not in self.choices:
+                    #raise Configurable_option_exception(owning_obj, self, "value '{}' is not one of the allowed choices".format(subvalue))
+                    raise Disallowed_choice_exception(owning_obj, self, subvalue)
             
         # Check the value is valid.
         if not self._validate(self, owning_obj, value):

@@ -55,6 +55,22 @@ class Configurable_option_exception(Configurable_exception):
         Constructor for Configurable_option_exception objects.
         """
         super().__init__(configurable, "error in option '{}'; {}".format(option.full_name, reason))
+        
+
+class Disallowed_choice_exception(Configurable_option_exception):
+    """
+    Exception raised when an value has been set for a configurable option that is not one of the allowed choices.
+    """
+    
+    def __init__(self, configurable, option, value):
+        """
+        Constructor.
+        
+        :param configurable: The configurable where the error has occured.
+        :param option: The option with the disallowed choice.
+        :param value: The disallowed value.
+        """
+        super().__init__(configurable, option, "value '{}' is not one of the allowed choices: {}".format(value, ", ".join(str(choice) for choice in option.choices)))
 
 
 class Configurable_class_exception(Configurable_exception):

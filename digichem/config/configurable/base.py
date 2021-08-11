@@ -91,7 +91,7 @@ class Configurable(Dynamic_parent, Options_mixin):
     TYPE = Option(help = "The type of this Configurable", choices = ('method', 'program', 'calculation', 'basis_set'), required = True, default = 'calculation', type = str, no_edit = True)
     CLASS = Option(
         help = "The specific sub-type of this Configurable",
-        choices = lambda option, configurable: [handle for cls in Configurable.from_class_handle(configurable.TYPE).recursive_subclasses() if hasattr(cls, 'CLASS_HANDLE') for handle in cls.CLASS_HANDLE],
+        #choices = lambda option, configurable: [handle for cls in Configurable.from_class_handle(configurable.TYPE).recursive_subclasses() if hasattr(cls, 'CLASS_HANDLE') for handle in cls.CLASS_HANDLE],
         required = True,
         no_edit = True
     )
