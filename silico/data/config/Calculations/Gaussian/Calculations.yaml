@@ -18,7 +18,7 @@ TAG: Gaussian Optimisation
 categories:
     - Optimisation
 optimisation:
-    on: True
+    "on": True
 
 NEXT:
     - Gaussian Solvents
@@ -33,9 +33,9 @@ TAG: Gaussian Optimisation Frequencies
 categories:
     - Optimisation Frequencies
 optimisation:
-    on: True
+    "on": True
 frequency:
-    on: True
+    "on": True
 
 NEXT:
     - Gaussian Solvents
@@ -51,7 +51,7 @@ TAG: Gaussian Frequencies
 categories:
     - Frequencies
 frequency:
-    on: True
+    "on": True
 
 NEXT:
     - Gaussian Solvents
