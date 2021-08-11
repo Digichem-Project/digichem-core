@@ -16,7 +16,6 @@ categories:
     - "{.solvent}"
 
 NEXT:
-    - Gaussian Gas Phase
     - Gaussian 1,4-Dioxane
     - Gaussian 2-Propanol
     - Gaussian Acetone
