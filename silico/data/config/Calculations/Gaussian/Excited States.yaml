@@ -58,7 +58,7 @@ TAG: Gaussian 5 Triplets
 categories:
     - 5 Triplets
 DFT_excited_states:
-    multiplicity: triplets
+    multiplicity: triplet
     nstates: 5
 
 NEXT:
@@ -73,7 +73,7 @@ TAG: Gaussian 100 Singlets
 categories:
     - 100 Singlets
 DFT_excited_states:
-    multiplicity: singlets
+    multiplicity: singlet
     nstates: 100
 
 NEXT:
@@ -89,7 +89,7 @@ TAG: Gaussian Optimised S(1)
 categories:
     - Optimised S(1)
 DFT_excited_states:
-    multiplicity: singlets
+    multiplicity: singlet
     nstates: 10
     root: 1
 
@@ -109,7 +109,7 @@ TAG: Gaussian Optimised T(1)
 categories:
     - Optimised T(1)
 DFT_excited_states:
-    multiplicity: triplets
+    multiplicity: triplet
     nstates: 10
     root: 1
 
