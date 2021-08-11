@@ -110,6 +110,18 @@ class Options(Option, Options_mixin):
         for argname in kwargs:
             kwargs[argname].name = argname
             self.OPTIONS[argname] = kwargs[argname]
+            
+            # Set ourselves as parent.
+            kwargs[argname].add_parent(self)
+            
+    def add_parent(self, parent):
+        """
+        Add an owning parent Options object to this Option object.
+        
+        This method is called by the parent Options object when this Option is added to it.
+        """
+        for child in self.OPTIONS:
+            child.add_parent(parent)
 
             
     @property

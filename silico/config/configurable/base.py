@@ -46,17 +46,16 @@ class Configurable(Dynamic_parent, Options_mixin):
     Each Option object maps a certain attribute on the owning configurable object and defines, for example, an allowed type, a default value, a help string, a list of allowed values etc.
     """
     
-    def __init__(self, file_name = None, validate_now = False, **kwargs):
+    def __init__(self, file_hierarchy = None, validate_now = False, **kwargs):
         """
         Constructor for Configurable objects.
         
-        :param file_name: If this configurable was loaded from a file, the full file path to that file.
-        :param relative_file_name: If this configurable was loaded from a file, the file path to that file relative to the top directory for storing config files.
+        :param file_hierarchy: If this configurable was loaded from a (number of) files, an ordered list of 2-membered tuples of the form (TAG, FILE), where FILE is one of the files from which this configurable was loaded, and TAG is the TAG of the config in that file. 
         :param validate_now: If True, the given options will be validated before this constructor returns. Validation can also be performed at any time by calling validate(). 
         """
         self._configurable_options = {}
         self.inner_cls = None
-        self.file_name = file_name
+        self.file_hierarchy = file_hierarchy if file_hierarchy is not None else []
         
         # Set all our configurable options.
         # Setting like this might be unsafe because we're not deep copying...
@@ -65,6 +64,27 @@ class Configurable(Dynamic_parent, Options_mixin):
         # If we've been asked to, validate.
         if validate_now:
             self.validate()
+    
+    @property
+    def file_names(self):
+        """
+        A list of files from which this configurable was loaded.
+        """
+        return [file_name for tag, file_name in self.file_hierarchy]
+        
+    
+    @property
+    def file_name(self):
+        """
+        """
+        if len(self.file_names) == 0:
+            return None
+        
+        elif len(self.file_names) == 1:
+            return self.file_names[0]
+        
+        else:
+            return "\n".join(self.file_names)
         
     # Configurable options.
     TAG_HIERARCHY = Option(help = "A hierarchical list of tags that were combined to form this configurable", default = [], type = list, no_edit = True)

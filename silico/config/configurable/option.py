@@ -33,9 +33,27 @@ class Option():
         self.required = required
         self.no_edit = no_edit
         
+        # If we are a sub-object (ie, part of a dict), this is a hierarchy of names of the Options object we are owned by.
+        self.parents = []
+        
         # By definition, Options that are required can have no default, so we'll delete this attribute.
         if self.required:
             del(self._default)
+    
+    @property
+    def full_name(self):
+        """
+        The full name/path of this option, including any parents.
+        """
+        return ": ".join(parent.name for parent in self.parents) + ": {}".format(self.name)
+            
+    def add_parent(self, parent):
+        """
+        Add an owning parent Options object to this Option object.
+        
+        This method is called by the parent Options object when this Option is added to it.
+        """
+        self.parents.insert(0, parent)
 
 
     def choices(self, owning_obj):

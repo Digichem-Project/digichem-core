@@ -106,6 +106,16 @@ class Configurable_loader():
             except KeyError:
                 parent_config['TAG_HIERARCHY'] = [self.TAG]
                 
+        # Add our filename to the file hierarchy (unless it's None).
+        if self.file_name is not None and self.TAG is not None:
+            try:
+                parent_config['FILE_HIERARCHY'].append((self.TAG, self.file_name))
+                
+            except KeyError:
+                parent_config['FILE_HIERARCHY'] = [(self.TAG, self.file_name)]
+                
+            
+                
     
     def configure(self, config):
         """
@@ -121,6 +131,7 @@ class Configurable_loader():
         config.pop('TAG', None)
         config.pop('NEXT', None)
         config.pop('TOP', None)
+        file_hierarchy = config.pop('FILE_HIERARCHY', None)
         
         # Try and get the configurable class.
         try:
@@ -132,7 +143,7 @@ class Configurable_loader():
             # If no class set, use the top level class.
             cls = self.type_class
         
-        configurable = cls(self.file_name, False, **config) 
+        configurable = cls(file_hierarchy, False, **config) 
         configurable.configure_auto_name()
         configurable.validate()
         return configurable
