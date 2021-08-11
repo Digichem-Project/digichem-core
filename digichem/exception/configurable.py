@@ -20,7 +20,32 @@ class Configurable_exception(Silico_exception):
         """
         Get a string description of this error.
         """
-        return "Error in configurable '{}' from file '{}'; {}".format(self.configurable.description, self.configurable.file_name, self.reason)
+        hierarchy = self.get_file_hierarchy()
+        
+        message = "Error in configurable '{}'".format(self.configurable.description)
+        
+        if hierarchy is not None:
+            message += " from file(s): {}".format(hierarchy)
+            
+        message += ";\n{}".format(self.reason)
+        return message
+    
+    def get_file_hierarchy(self):
+        """
+        Get the file hierarchy from which this configurable was loaded.
+        
+        Each configurable can be loaded from more than one file, because later files can overwrite certain options given in earlier files etc.
+        """
+        hierarchy = self.configurable.file_hierarchy
+        
+        if len(hierarchy) == 0:
+            return None
+        
+        elif len(hierarchy) == 1:
+            return "{}: {}".format(hierarchy[0][0], hierarchy[0][1])
+        
+        else:
+            return "\n" + "\n".join("{}: {}".format(tag, file) for tag, file in hierarchy)
 
 
 class Configurable_option_exception(Configurable_exception):
@@ -29,7 +54,7 @@ class Configurable_option_exception(Configurable_exception):
         """
         Constructor for Configurable_option_exception objects.
         """
-        super().__init__(configurable, "error in option '{}'; {}".format(option.name, reason))
+        super().__init__(configurable, "error in option '{}'; {}".format(option.full_name, reason))
 
 
 class Configurable_class_exception(Configurable_exception):
