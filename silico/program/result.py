@@ -17,6 +17,7 @@ from silico.extract.table import Table_summary_group_extractor, Long_table_group
 from silico.exception.base import Silico_exception
 import silico.parser
 from silico.result.alignment.base import Alignment
+from silico.program import subprocess_init
 
 # Printable name of this program.
 NAME = "Calculation Result Extractor"
@@ -141,13 +142,6 @@ def main(args):
     """
     silico.program.main_wrapper(_main, args = args)
 
-def _subprocess_init(*args, **kwargs):
-    """
-    Init function for subprocess workers.
-    """
-    # We unset the silico signal handler for SIGTERM because subprocess.pool appears to use this for communication.
-    # Perhaps we should unset all silico signal handlers in children?
-    signal.signal(signal.SIGTERM, signal.SIG_DFL)
 
 def _main(args, config, logger):
     """
@@ -204,7 +198,7 @@ def _main(args, config, logger):
     
     # Get our list of results. Do this in parallel.
     try:
-        with Pool(initializer = _subprocess_init) as pool:
+        with Pool(initializer = subprocess_init) as pool:
             results = list(
                 filterfalse(lambda x: x is None,
                     pool.map(

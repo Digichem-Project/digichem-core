@@ -178,3 +178,12 @@ def process_standard_args(config, args):
         
     # All done.
 
+
+def subprocess_init(*args, **kwargs):
+    """
+    Init function for subprocess workers.
+    This functin disables a signal handler that silico normally monitors as this signal appears to be used by multiprocessing.pool for communication.
+    """
+    # We unset the silico signal handler for SIGTERM because multiprocessing.pool appears to use this for communication.
+    # Perhaps we should unset all silico signal handlers in children?
+    signal.signal(signal.SIGTERM, signal.SIG_DFL)
