@@ -1,5 +1,6 @@
 from silico.exception.configurable import Configurable_option_exception,\
     Missing_option_exception, Disallowed_choice_exception
+import itertools
 
 class Option():
     """
@@ -45,7 +46,7 @@ class Option():
         """
         The full name/path of this option, including any parents.
         """
-        return ": ".join(parent.name for parent in self.parents) + ": {}".format(self.name)
+        return ": ".join(itertools.chain([parent.name for parent in self.parents], (self.name,)))
             
     def add_parent(self, parent):
         """
@@ -87,7 +88,7 @@ class Option():
                 return self.default(owning_obj)
             except AttributeError:
                 # No value set and no default, panic.
-                raise Missing_option_exception(owning_obj, self.name)
+                raise Missing_option_exception(owning_obj, self)
 
 
     def __set__(self, owning_obj, value):
