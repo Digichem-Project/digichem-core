@@ -29,7 +29,7 @@ class Option():
         self.rawtype = type if rawtype is None else rawtype
         self.help = help
         self.choices = choices if choices is not None else []
-        self._validate = validate if validate is not None else lambda option, configurable, value: True
+        self._validate = validate if validate is not None else self.default_validate
         self.exclude = exclude if exclude is not None else []
         self.required = required
         self.no_edit = no_edit
@@ -40,6 +40,12 @@ class Option():
         # By definition, Options that are required can have no default, so we'll delete this attribute.
         if self.required:
             del(self._default)
+    
+    def default_validate(self, option, configurable, value):
+        """
+        A function used as the default for _validate; always returns True
+        """
+        return True
     
     @property
     def full_name(self):
