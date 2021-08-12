@@ -71,7 +71,7 @@ class Configurable_loader():
         pos = 1
         while True:
             try:
-                yield self.resolve(pos)
+                yield self.resolve(pos, validate = False)
                 
             except IndexError:
                 # We're all done.
@@ -112,17 +112,15 @@ class Configurable_loader():
                 parent_config['FILE_HIERARCHY'].append((self.TAG, self.file_name))
                 
             except KeyError:
-                parent_config['FILE_HIERARCHY'] = [(self.TAG, self.file_name)]
-                
-            
-                
+                parent_config['FILE_HIERARCHY'] = [(self.TAG, self.file_name)]                
     
-    def configure(self, config):
+    def configure(self, config, validate = True):
         """
         Convert (or attempt to) a config dict to an appropriate configurable object.
         
         :raises Silico_exception: If the CLASS of the configurable is not set or cannot be found.
         :param config: The config dict.
+        :param validate: Whether to validate the configured object.
         :returns: A loaded Configurable object.
         """
         config['TYPE'] = self.TYPE
@@ -145,7 +143,8 @@ class Configurable_loader():
         
         configurable = cls(file_hierarchy, False, **config) 
         configurable.configure_auto_name()
-        configurable.validate()
+        if validate:
+            configurable.validate()
         return configurable
     
     def size(self):
@@ -182,7 +181,7 @@ class Partial_loader(Configurable_loader):
         """
         return  sum(child.size() for child in self.NEXT)
         
-    def resolve(self, index, *, parent_offset = 0, parent_config = None):
+    def resolve(self, index, *, parent_offset = 0, parent_config = None, validate = True):
         """
         Get a child configurable based on a unique index.
         
@@ -192,6 +191,7 @@ class Partial_loader(Configurable_loader):
         :param index: The index to fetch.
         :param parent_offset: The index of this partial configurable in the parent configurable, used when called recursively.
         :param parent_config: The partially resolved dict from the parent configurable, used when called recursively.
+        :param validate: Whether to validate the resolved configurable to check the given values.
         :returns: The resolved Configurable object.
         """
         parent_config = {} if parent_config is None else parent_config
@@ -205,7 +205,7 @@ class Partial_loader(Configurable_loader):
             child_size = child.size()
             if index < parent_offset + child_offset + child_size:
                 # The config we want is in this child.
-                return child.resolve(index, parent_offset = parent_offset + child_offset, parent_config = parent_config)
+                return child.resolve(index, parent_offset = parent_offset + child_offset, parent_config = parent_config, validate = validate)
             
             # Add this child's size to the offset.
             child_offset += child_size
@@ -282,7 +282,7 @@ class Single_loader(Configurable_loader):
         """
         return 1
     
-    def resolve(self, index, *, parent_offset = 0, parent_config = None):
+    def resolve(self, index, *, parent_offset = 0, parent_config = None, validate = True):
         """
         Get the configurable object that this loader represents.
         """
@@ -291,7 +291,7 @@ class Single_loader(Configurable_loader):
         # First, merge our current parent object with ourself.
         self.merge_with_parent(parent_config)
         
-        return self.configure(parent_config)
+        return self.configure(parent_config, validate = validate)
     
 class Update_loader(Single_loader):
     """
