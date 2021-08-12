@@ -1,6 +1,7 @@
 # Exceptions relating to Configurable objects.
 
 from silico.exception import Silico_exception
+import textwrap
 
 
 class Configurable_exception(Silico_exception):
@@ -22,12 +23,11 @@ class Configurable_exception(Silico_exception):
         """
         hierarchy = self.get_file_hierarchy()
         
-        message = "Error in configurable '{}'".format(self.configurable.description)
+        message = "Error in {} '{}'; {}".format(self.configurable.TYPE, self.configurable.description, self.reason)
         
         if hierarchy is not None:
-            message += " from file(s): {}".format(hierarchy)
-            
-        message += ";\n{}".format(self.reason)
+            message += "; loaded from file(s): {}".format(hierarchy)
+        
         return message
     
     def get_file_hierarchy(self):
@@ -45,7 +45,7 @@ class Configurable_exception(Silico_exception):
             return "{}: {}".format(hierarchy[0][0], hierarchy[0][1])
         
         else:
-            return "\n" + "\n".join("{}: {}".format(tag, file) for tag, file in hierarchy)
+            return "\n" + textwrap.indent("\n".join("{}: {}".format(tag, file) for tag, file in hierarchy), "\t")
 
 
 class Configurable_option_exception(Configurable_exception):
