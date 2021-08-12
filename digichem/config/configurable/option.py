@@ -88,7 +88,7 @@ class Option():
                 return self.default(owning_obj)
             except AttributeError:
                 # No value set and no default, panic.
-                raise Missing_option_exception(owning_obj, self)
+                raise Missing_option_exception(owning_obj, self) from None
 
 
     def __set__(self, owning_obj, value):
