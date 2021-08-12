@@ -73,7 +73,7 @@ class Disallowed_choice_exception(Configurable_option_exception):
         super().__init__(configurable, option, "value '{}' is not one of the allowed choices: {}".format(value, ", ".join(str(choice) for choice in option.choices)))
 
 
-class Missing_option_exception(AttributeError, Configurable_option_exception):
+class Missing_option_exception(Configurable_option_exception, AttributeError):
     """
     Exception raised when a required option is not set in a Configurable object.
     """
@@ -85,8 +85,8 @@ class Missing_option_exception(AttributeError, Configurable_option_exception):
         :param configurable: The Configurable object in which the error occurred.
         :param option: The option with the missing value.
         """
-        super().__init__()
-        Configurable_option_exception.__init__(self, configurable, option, "a value is required but has not been set")
+        super().__init__(configurable, option, "a value is required but has not been set")
+        AttributeError.__init__(self)
     
 
 class Configurable_loader_exception(Silico_exception):
