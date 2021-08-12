@@ -73,25 +73,6 @@ class Disallowed_choice_exception(Configurable_option_exception):
         super().__init__(configurable, option, "value '{}' is not one of the allowed choices: {}".format(value, ", ".join(str(choice) for choice in option.choices)))
 
 
-class Configurable_class_exception(Configurable_exception):
-    """
-    Exceptions occurring on the class of a Configurable (not the object).
-    """
-    
-    @property
-    def configurable_desc(self):
-        """
-        A string that describes the Configurable class that threw this error.
-        """
-        return self.configurable.__name__
-    
-    def __str__(self):
-        """
-        Get a string description of this error.
-        """
-        return "Error in '{}'; {}".format(self.configurable_desc, self.reason)
-
-
 class Missing_option_exception(AttributeError, Configurable_option_exception):
     """
     Exception raised when a required option is not set in a Configurable object.
