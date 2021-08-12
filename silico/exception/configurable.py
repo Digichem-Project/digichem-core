@@ -90,6 +90,22 @@ class Configurable_class_exception(Configurable_exception):
         Get a string description of this error.
         """
         return "Error in '{}'; {}".format(self.configurable_desc, self.reason)
+
+
+class Missing_option_exception(AttributeError, Configurable_option_exception):
+    """
+    Exception raised when a required option is not set in a Configurable object.
+    """
+    
+    def __init__(self, configurable, option):
+        """
+        Constructor for Missing_option_exceptions.
+        
+        :param configurable: The Configurable object in which the error occurred.
+        :param option: The option with the missing value.
+        """
+        super().__init__()
+        Configurable_option_exception.__init__(self, configurable, option, "a value is required but has not been set")
     
 
 class Configurable_loader_exception(Silico_exception):
@@ -127,27 +143,4 @@ class Configurable_loader_exception(Silico_exception):
             message += "; {}".format(self.reason)
         
         return message
-
-
-class Missing_option_exception(AttributeError, Configurable_option_exception):
-    """
-    Exception raised when a required option is not set in a Configurable object.
-    """
-    
-    def __init__(self, configurable, option_name):
-        """
-        Constructor for Missing_option_exceptions.
-        
-        :param configurable: The Configurable object in which the error occurred.
-        :param option: The name of the option which is missing.
-        """
-        super().__init__()
-        self.configurable = configurable
-        self.option_name = option_name
-        
-    def __str__(self):
-        """
-        Get a string description of this error.
-        """
-        return "Error in configurable '{}' from file '{}'; {}".format(self.configurable.description, self.configurable.file_name, "option '{}' is required but is not set".format(self.option_name))
         
