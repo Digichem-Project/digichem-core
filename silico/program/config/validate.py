@@ -4,7 +4,6 @@
 
 # Silico imports.
 import silico.program
-from silico.config import configurable
 
 # Printable name of this program.
 NAME = "Silico config validator"
@@ -31,20 +30,17 @@ def main(args):
     Main entry point for the resume program.
     """
     silico.program.main_wrapper(_main, args = args)
-    
+        
 def _main(args, config, logger):
     """
     Inner portion of main (wrapped by a try-catch-log hacky boi).
     """
     if args.type == "all":
         args.type = ("basis_sets", "methods", "programs", "calculations")
-    
+
     for configurable_type in args.type:
-        configurable_list = getattr(config, configurable_type)
-        logger.debug("Validating {} {}; this may take some time".format(configurable_list.size(), configurable_type))
-        
-        # Loading a configurable will validate it automatically.
-        for number, configurable in enumerate(configurable_list):
-            logger.debug("Validating: {}) {}".format(number+1, configurable.name))
+        for index, configurable in enumerate(getattr(config, configurable_type)):
+            configurable.validate()
+            logger.info("Validated: {}) {}".format(index+1, configurable.name))
             
-    logger.debug("All configs validated")
+    logger.info("All configs validated")
