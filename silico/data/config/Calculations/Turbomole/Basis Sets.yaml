@@ -1,6 +1,17 @@
 TAG: Turbomole Basis Sets
 SUB_TYPE: pseudo
 
+NEXT:
+    - Turbomole Pople Basis Sets
+    - Turbomole Correlation Consistent Basis Sets
+
+
+---
+
+
+TAG: Turbomole Pople Basis Sets
+SUB_TYPE: pseudo
+
 categories:
     - "{.basis_set}"
 
@@ -10,14 +21,16 @@ NEXT:
     - Turbomole 6-311G*
     - Turbomole 6-311G**
     - Turbomole 6-311++G**
-    - Turbomole Correlation Consistent Basis Sets
-
 
 ---
 
 
 TAG: Turbomole Correlation Consistent Basis Sets
 SUB_TYPE: pseudo
+
+categories:
+    - "{.basis_set}"
+    
 NEXT:
     - Turbomole cc-pVDZ
     - Turbomole cc-pVTZ

@@ -12,9 +12,13 @@ NEXT:
 
 
 TAG: Turbomole UFF
+CLASS: Turbomole-UFF
 
 categories:
     - UFF
+    
+# UFF has no concept of SCF
+scf: null
 
 # Memory and CPU.
 memory: 1GB
@@ -38,7 +42,7 @@ maxcycle: 500
 
 
 TAG: Turbomole DFT Opt
-TYPE: pseudo
+SUB_TYPE: pseudo
 
 modules:
     - jobex -level scf -c 100 -keep
@@ -51,7 +55,7 @@ NEXT:
 
 
 TAG: Turbomole CC2 Opt
-TYPE: pseudo
+SUB_TYPE: pseudo
 
 modules:
     - jobex -level scf -c 100 -keep
@@ -68,7 +72,7 @@ NEXT:
 
 
 TAG: Turbomole ADC(2) Opt
-TYPE: pseudo
+SUB_TYPE: pseudo
 
 modules:
     - jobex -level cc2 -c 100 -keep
