@@ -1,4 +1,5 @@
 SUB_TYPE: partial
+TAG: Calculations Base
 
 # Global calc defaults.
 TYPE: calculation
@@ -53,5 +54,5 @@ write_summary: True
 write_report: True
 
 NEXT:
-    - Gaussian
+#    - Gaussian
     - Turbomole
