@@ -107,7 +107,7 @@ class Configurable_loader():
                 parent_config['TAG_HIERARCHY'] = [self.TAG]
                 
         # Add our filename to the file hierarchy (unless it's None).
-        if self.file_name is not None and self.TAG is not None:
+        if self.file_name is not None:
             try:
                 parent_config['FILE_HIERARCHY'].append((self.TAG, self.file_name))
                 
