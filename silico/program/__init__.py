@@ -94,7 +94,7 @@ def init_program(*, args, arg_to_config = None, logger):
     
     # Add our signal exception handler.
     init_signals(logger)
-        
+    
     # Give back our command line arguments and config options.
     return (args, config, logger)
 
