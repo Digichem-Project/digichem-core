@@ -15,6 +15,25 @@ class Options_mixin():
         """
         return {getattr(type(self), attr).name: getattr(type(self), attr) for attr in dir(type(self)) if isinstance(getattr(type(self), attr), Option)}
     
+    def prune(self, owning_obj, dict_obj):
+        """
+        Prune none and empty values, removing them.
+        """
+        for key, value in tuple(dict_obj.items()):
+            # First, if the value is another dict, prune that.
+            if isinstance(value, dict):
+                self.prune(owning_obj, value)
+                
+                # Once we've pruned, check the length of the dict.
+                if len(value) == 0:
+                    # This dict is empty and can be removed.
+                    del(dict_obj[key])
+                    
+            # If None, delete.
+            if value is None:
+                del(dict_obj[key])
+            
+    
     def validate_children(self, owning_obj, dict_obj):
         """
         Validate the child Options of this object.
@@ -22,7 +41,10 @@ class Options_mixin():
         :param owning_obj: The owning object which contains these Options.
         :param dict_obj: The dict in which the values of the child Options are stored.
         """
-        # First, validate each of our known options.
+        # First, prune empty values.
+        self.prune(owning_obj, dict_obj)
+        
+        # Next, validate each of our known options.
         for option in self.OPTIONS.values():
             option.validate(owning_obj, dict_obj)
             
