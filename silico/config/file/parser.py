@@ -179,7 +179,7 @@ class Configurables_parser():
         """
         Read, parse and process all configs at our location.
         
-        :returns: A Configurable_list of loaded configs.
+        :returns: A list of configurable loaders
         """
         self.parse()
         
@@ -226,7 +226,8 @@ class Configurables_parser():
             loader.link(self.loaders)
             
         # Next we need to purge partial configurables from the top level list.
-        conf_list = Configurable_list([loader for loader in self.loaders if loader.TOP], self.TYPE)
+        #conf_list = Configurable_list([loader for loader in self.loaders if loader.TOP], self.TYPE)
+        conf_list = [loader for loader in self.loaders if loader.TOP]
         return conf_list       
     
     def pre_process(self, config, config_path):
@@ -234,6 +235,10 @@ class Configurables_parser():
         Convert loaded config dicts to appropriate objects
         """
         config['TYPE'] = self.TYPE
+        
+        # First, panic if no TAG is set.
+        if "TAG" not in config:
+            raise Configurable_loader_exception(config, self.TYPE, config_path, "missing required option 'TAG'")
         
         # If we have a sub type set, use that to get the name of the class.
         if 'SUB_TYPE' in config:
@@ -268,7 +273,7 @@ class Configurables_parser():
             # Load from the location and add to our silico_options object.
             # The name of the attribute we add to is the same as the location we read from, but in lower case...
             try:
-                getattr(options, configurable_type).NEXT.append(self(*root_directories, TYPE = TYPE).load())
+                getattr(options, configurable_type).NEXT.extend(self(*root_directories, TYPE = TYPE).load())
                 
             except FileNotFoundError:
                 # No need to panic.
