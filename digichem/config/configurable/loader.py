@@ -9,6 +9,8 @@ import deepmerge
 # Silico imports.
 from silico.config.configurable import Configurable
 from silico.exception.configurable import Configurable_loader_exception
+from silico.exception.base import Silico_exception
+import textwrap
 
 class Configurable_loader():
     """
@@ -161,6 +163,60 @@ class Configurable_loader():
         """
         pass
     
+    def find(self, tag):
+        """
+        Search through our child loaders (iteratively) for the first one with a given TAG.
+        
+        :param tag: The TAG to search for.
+        """
+        # A list of found configurables.
+        found = self.search_for_tag(tag)
+        
+        # Panic if we've got nothing.
+        if len(found) == 0:
+            raise Silico_exception("Could not find a configurable with TAG '{}' that is a child of '{}'".format(tag, self.TAG))
+        
+        # We want the match that is closest to us (fewest path steps away).
+        shortest = min((len(loader_path) for loader_path in found))
+        
+        # Prune all paths that are longer than our min.
+        found = [loader_path for loader_path in found if len(loader_path) == shortest]
+                
+        # If we have more than one match, panic.
+        if len(found) > 1:
+            msg = "Could not uniquely identify configurable by TAG: '{}'; there are multiple possible configurables that match:\n".format(tag)
+            msg += textwrap.indent(
+                "\n".join(
+                    ["; ".join(loader.TAG) for loader in found]
+                ),
+                "\t"
+            )
+            raise Silico_exception(msg)
+        
+        else:
+            return found[0]
+        
+    def search_for_tag(self, tag):
+        """
+        """
+        # A list of found configurables.
+        found = []
+        
+        if self.TAG == tag:
+            # It's us!
+            found.append([self])
+            
+        else:
+            # None at this level, we need to ask our children if they match the tag.
+            for child in self.NEXT:
+                
+                # Add the loaders our child found to our list, adding ourself to the start.
+                for loader_list in child.search_for_tag(tag):
+                    loader_list.insert(0, self)
+                    found.append(loader_list)
+            
+        return found
+    
 
 class Partial_loader(Configurable_loader):
     """
@@ -212,6 +268,56 @@ class Partial_loader(Configurable_loader):
             
         # If we get this far, index is out of range.
         raise IndexError("Configurable index '{}' is out of range".format(index))
+    
+    def resolve_by_tags(self, tag_list, *, parent_config = None, validate = True):
+        """
+        Get a child configurable based on a list of TAG names.
+        
+        :param tag_list: A list of ordered tags indicating which configurable to resolve.
+        :param parent_config: The partially resolved dict from the parent configurable, used when called recursively.
+        :param validate: Whether to validate the resolved configurable to check the given values.
+        :returns: The resolved Configurable object.
+        """
+        if parent_config is None:
+            # This is the first iteration.
+            # Get an empty dic to merge with
+            parent_config = {}
+            
+        # First, check we've actually got a tag to search for.
+        try:
+            tag = tag_list[0]
+        
+        except IndexError:
+            raise Silico_exception("could not resolve TAG list '{}', too few TAG names given") from None
+
+        # Search through our children for the next tag.
+        # This function returns a list of loaders that lead to the tag we're looking for (like a path).
+        # The first item is ourself, the last is the next child we'll call resolve_by_tags() on.
+        next_children = self.find(tag)
+        
+        # Merge each of the next children, but not the last (because the child will do that itself).
+        for next_child in next_children[:-1]:
+            next_child.merge_with_parent(parent_config)
+        
+        # Shorten our tag list.
+        new_tag_list = tag_list[1:]
+        
+        # Now continue in the last child.
+        return next_children[-1].resolve_by_tags(new_tag_list, parent_config = parent_config, validate = validate)
+        
+        # Merge each of the children 
+        
+#        # Merge our current parent object with ourself.
+#        self.merge_with_parent(parent_config)
+#        
+#         # Search through our children, looking for a child that matches the given TAG.
+#         for child in self.NEXT:
+#             if child.TAG == tag_list[0]:
+#                 # It's a match, continue down the road.
+#                 return child.resolve_by_tags(tag_list[1:], parent_config = parent_config, validate = validate)
+#                
+#        # If we get this far, TAG isn't recognised.
+#        raise Configurable_loader_exception(self.config, self.TYPE, self.file_name, "couldn't resolve TAG list '{}'; couldn't find TAG '{}'".format(tag_list, tag_list[0]))
 
     def link(self, loaders):
         """
@@ -291,6 +397,22 @@ class Single_loader(Configurable_loader):
         # First, merge our current parent object with ourself.
         self.merge_with_parent(parent_config)
         
+        return self.configure(parent_config, validate = validate)
+    
+    def resolve_by_tags(self, tag_list, *, parent_config = None, validate = True):
+        """
+        Get a child configurable based on a list of TAG names.
+        
+        :param tag_list: A list of ordered tags indicating which configurable to resolve.
+        :param parent_config: The partially resolved dict from the parent configurable, used when called recursively.
+        :param validate: Whether to validate the resolved configurable to check the given values.
+        :returns: The resolved Configurable object.
+        """
+        parent_config = {} if parent_config is None else parent_config
+        
+        # First, merge our current parent object with ourself.
+        self.merge_with_parent(parent_config)
+                
         return self.configure(parent_config, validate = validate)
     
 class Update_loader(Single_loader):
