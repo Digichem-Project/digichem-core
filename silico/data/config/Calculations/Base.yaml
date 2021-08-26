@@ -54,5 +54,5 @@ write_summary: True
 write_report: True
 
 NEXT:
-#    - Gaussian
+    - Gaussian
     - Turbomole
