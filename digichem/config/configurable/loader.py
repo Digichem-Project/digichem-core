@@ -152,7 +152,7 @@ class Configurable_loader():
     
     def size(self):
         """
-        The recursive total number of child leaf nodes under this loader. For loaders than only represent one real configurable, size() == 1.
+        The recursive total number of child leaf nodes under this loader. For loaders that only represent one real configurable, size() == 1.
         """
         raise NotImplementedError()
     
