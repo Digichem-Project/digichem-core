@@ -124,4 +124,53 @@ class Configurable_loader_exception(Silico_exception):
             message += "; {}".format(self.reason)
         
         return message
+    
+class Tag_path_length_error(Silico_exception):
+    """
+    A given TAG path was too short.
+    """
+    
+    def __init__(self, tag_path):
+        """
+        Constructor for Tag_path_length_error
+        
+        :param tag_path: A list of TAG names that is too short.
+        """
+        self.tag_path = tag_path
+        
+    def __str__(self):
+        """
+        Get a string description of this error.
+        """
+        return "could not resolve TAG list '{}', too few TAG names given".format(self.tag_path)
+    
+class Unresolvable_tag_path_error(Silico_exception):
+    """
+    A given TAG path is not resolvable (because it could refer to more than one configurable).
+    """ 
+    
+    def __init__(self, tag, possible_loaders):
+        """
+        Constructor for Unresolvable_tag_path_error.
+        
+        :param tag: The duplicated TAG name.
+        :param possible_paths: A list of configurable loaders that could match the given TAG.
+        """
+        self.tag = tag
+        self.possible_loaders = possible_loaders
+
+    def __str__(self):
+        """
+        Get a string description of this error.
+        """
+        msg = "Could not uniquely identify configurable by TAG: '{}'; there are multiple possible configurables that match:\n".format(self.tag)
+        
+        matching = ""
+        for loader_path in self.possible_loaders:
+            matching += "; ".join([loader.TAG for loader in loader_path]) + "\n"
+        
+        msg += textwrap.indent(matching, "\t")
+            
+        return msg
+
         
