@@ -8,7 +8,8 @@ import deepmerge
 
 # Silico imports.
 from silico.config.configurable import Configurable
-from silico.exception.configurable import Configurable_loader_exception
+from silico.exception.configurable import Configurable_loader_exception,\
+    Tag_path_length_error, Unresolvable_tag_path_error
 from silico.exception.base import Silico_exception
 import textwrap
 
@@ -184,14 +185,7 @@ class Configurable_loader():
                 
         # If we have more than one match, panic.
         if len(found) > 1:
-            msg = "Could not uniquely identify configurable by TAG: '{}'; there are multiple possible configurables that match:\n".format(tag)
-            msg += textwrap.indent(
-                "\n".join(
-                    ["; ".join(loader.TAG) for loader in found]
-                ),
-                "\t"
-            )
-            raise Silico_exception(msg)
+            raise Unresolvable_tag_path_error(tag, found)
         
         else:
             return found[0]
@@ -288,7 +282,7 @@ class Partial_loader(Configurable_loader):
             tag = tag_list[0]
         
         except IndexError:
-            raise Silico_exception("could not resolve TAG list '{}', too few TAG names given") from None
+            raise Tag_path_length_error(tag_list) from None
 
         # Search through our children for the next tag.
         # This function returns a list of loaders that lead to the tag we're looking for (like a path).
@@ -303,7 +297,11 @@ class Partial_loader(Configurable_loader):
         new_tag_list = tag_list[1:]
         
         # Now continue in the last child.
-        return next_children[-1].resolve_by_tags(new_tag_list, parent_config = parent_config, validate = validate)
+        try:
+            return next_children[-1].resolve_by_tags(new_tag_list, parent_config = parent_config, validate = validate)
+        
+        except Tag_path_length_error:
+            raise Tag_path_length_error(tag_list) from None
         
         # Merge each of the children 
         
