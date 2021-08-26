@@ -40,6 +40,24 @@ frequency:
 NEXT:
     - Gaussian Solvents
 
+---
+
+
+SUB_TYPE: partial
+TAG: Gaussian Optimisation Frequencies Unrestricted Triplet
+
+categories:
+    - Optimisation Frequencies
+optimisation:
+    "on": True
+frequency:
+    "on": True
+multiplicity: 3
+unrestricted: True
+
+NEXT:
+    - Gaussian Solvents
+
 
 ---
 
