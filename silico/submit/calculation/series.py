@@ -1,5 +1,6 @@
 from silico.submit.calculation import Calculation_target
 from silico.config.configurable.option import Option
+from silico.exception.configurable import Configurable_exception
 
 class Calculation_series(Calculation_target):
     """
@@ -15,14 +16,7 @@ class Calculation_series(Calculation_target):
         required = True,
         type = tuple
     )
-    
-    def configure(self, CONFIGS, **kwargs):
-        """
-        Configure this Series calculation.
-        """
-        self.calculations = CONFIGS
-        super().configure(CONFIGS = CONFIGS, **kwargs)
-        
+            
     def expand(self):
         """
         Expand this calculation target if it represents multiple real calcs.
@@ -31,5 +25,13 @@ class Calculation_series(Calculation_target):
         
         :return: A list of ready-to-go calculation targets.
         """
-        #self.calculations = [Calculation_target.from_name_in_configs(calculation_name, configs, silico_options = silico_options, available_basis_sets = available_basis_sets) for calculation_name in calculations]
-        return [self.calculations.get_config(ID) for ID in self.calculation_IDs]
+        calcs = []
+        
+        for tag_path in self.calculation_IDs:
+            try:
+                self.global_silico_options.calculations.resolve_by_tags(tag_path)
+                
+            except Exception as e:
+                raise Configurable_exception(self, "Could not expand to real calculation with TAG path '{}'".format(tag_path)) from e
+        
+        return calcs
