@@ -12,7 +12,6 @@ class Calculation_series(Calculation_target):
     calculation_IDs = Option(
         "calculations",
         help = "A list of calculations to perform in series",
-        #choices = lambda option, configurable: [name for calc in configurable.calculations for name in calc.NAMES],
         required = True,
         type = tuple
     )
