@@ -1,0 +1,39 @@
+TAG: Turbomole Auto
+SUB_TYPE: partial
+CLASS: Series
+
+categories:
+    - Auto Characterisation
+
+programs:
+    - Turbomole
+    
+NEXT:
+    - Gaussian Auto CC2
+    - Turbomole Auto ADC(2)
+
+
+---
+
+
+TAG: Turbomole Auto CC2
+categories:
+    - MR-TADF Emitter Opt → S(1) & S(2) → T(1) & T(2) (CC2-SCS/cc-pVDZ)
+
+calculations:
+    - [Turbomole CC2 Opt, Turbomole cc-pVDZ]
+    - [Turbomole CC2 Singlets, Turbomole cc-pVDZ]
+    - [Turbomole CC2 Triplets, Turbomole cc-pVDZ]
+
+
+---
+
+
+TAG: Turbomole Auto ADC(2)
+categories:
+    - MR-TADF Emitter Opt → S(1) & S(2) → T(1) & T(2) (ADC(2)-SCS/cc-pVDZ)
+
+calculations:
+    - [Turbomole ADC(2) Opt, Turbomole cc-pVDZ]
+    - [Turbomole ADC(2) Singlets, Turbomole cc-pVDZ]
+    - [Turbomole ADC(2) Triplets, Turbomole cc-pVDZ]
