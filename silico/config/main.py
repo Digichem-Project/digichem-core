@@ -11,17 +11,17 @@ class Silico_options(Config):
     Class for holding main Silico options from various sources.
     """
     
-    def __init__(self, options, *, methods = None, programs = None, calculations = None, basis_sets = None):
+    def __init__(self, options):
         """
         Constructor for Silico_options objects.
         """
         super().__init__(options)
             
         # Set Configurable lists.
-        self.methods = Configurable_list([], "method") if methods is None else methods
-        self.programs = Configurable_list([], "program") if programs is None else programs
-        self.calculations = Configurable_list([], "calculation") if calculations is None else calculations
-        self.basis_sets = Configurable_list([], "basis_set") if basis_sets is None else basis_sets
+        self.methods = Configurable_list([], "method")
+        self.programs = Configurable_list([], "program")
+        self.calculations = Configurable_list([], "calculation")
+        self.basis_sets = Configurable_list([], "basis_set")
         
     @property
     def effective_core_potentials(self):
