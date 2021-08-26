@@ -12,6 +12,8 @@ programs:
 NEXT:
     - Gaussian Auto Organic TDA
     - Gaussian Auto Organic TD-DFT
+    - Gaussian Auto Organometallic TDA
+    - Gaussian Auto Organometallic TD-DFT
     
 ---
 
