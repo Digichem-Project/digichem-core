@@ -9,7 +9,7 @@ programs:
     - Turbomole
     
 NEXT:
-    - Gaussian Auto CC2
+    - Turbomole Auto CC2
     - Turbomole Auto ADC(2)
 
 
