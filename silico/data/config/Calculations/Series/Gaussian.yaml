@@ -1,5 +1,73 @@
-#CLASS: Series
+TAG: Gaussian Auto
+SUB_TYPE: partial
+CLASS: Series
 
-#programs: [g09, g16]
+categories:
+    - Auto Characterisation
+
+programs:
+    - Gaussian 09
+    - Gaussian 16
+    
+NEXT:
+    - Gaussian Auto Organic TDA
+    - Gaussian Auto Organic TD-DFT
+    
+---
 
 
+TAG: Gaussian Auto Organic TDA
+categories:
+    - Organic Emitter
+    - Opt+Freq → TDA 50/50 (PBE0/6-31G(d,p))
+
+calculations:
+    - [Gaussian Optimisation Frequencies, Gaussian Gas Phase, Gaussian PBE1PBE (GD3BJ), Gaussian 6-31G(d,p)]
+    - [Gaussian TDA, Gaussian 10 Singlets 10 Triplets, Gaussian Gas Phase, Gaussian PBE1PBE (GD3BJ), Gaussian 6-31G(d,p)]
+    
+ 
+---
+ 
+ 
+TAG: Gaussian Auto Organic TD-DFT
+categories:
+    - Organic Emitter
+    - Opt+Freq → TD-DFT 50/50 → Opt Triplet → SP Singlet (PBE0/6-31G(d,p))
+    
+calculations:
+    - [Gaussian Optimisation Frequencies, Gaussian Gas Phase, Gaussian PBE1PBE (GD3BJ), Gaussian 6-31G(d,p)]
+    - [Gaussian TD-DFT, Gaussian 10 Singlets 10 Triplets, Gaussian Gas Phase, Gaussian PBE1PBE (GD3BJ), Gaussian 6-31G(d,p)]
+    - [Gaussian Optimisation Frequencies Unrestricted Triplet, Gaussian Gas Phase, Gaussian PBE1PBE (GD3BJ), Gaussian 6-31G(d,p)]
+    - [Gaussian Single Point Singlet, Gaussian Gas Phase, Gaussian PBE1PBE (GD3BJ), Gaussian 6-31G(d,p)]
+
+
+---
+
+
+TAG: Gaussian Auto Organometallic TDA
+categories:
+    - Organometallic Emitter (in Acetonitrile)
+    - Opt+Freq → TDA 50/50 (B3LYP/6-31G+(d,p)/SBKJC-VDZ-ECP)
+
+calculations:
+    - [Gaussian Optimisation Frequencies, Gaussian Acetonitrile, Gaussian B3LYP (GD3BJ), Gaussian 6-31+G(d,p)/SBKJC-VDZ (ECP)]
+    - [Gaussian TDA, Gaussian 10 Singlets 10 Triplets, Gaussian Acetonitrile, Gaussian B3LYP (GD3BJ), Gaussian 6-31+G(d,p)/SBKJC-VDZ (ECP)]
+
+
+---
+
+
+TAG: Gaussian Auto Organometallic TD-DFT
+categories:
+    - Organometallic Emitter (in Acetonitrile)
+    - Opt+Freq → TD-DFT 50/50 → Opt Triplet → SP Singlet (B3LYP/6-31G+(d,p)/SBKJC-VDZ-ECP)
+
+calculations:
+    - [Gaussian Optimisation Frequencies, Gaussian Acetonitrile, Gaussian B3LYP (GD3BJ), Gaussian 6-31+G(d,p)/SBKJC-VDZ (ECP)]
+    - [Gaussian TD-DFT, Gaussian 10 Singlets 10 Triplets, Gaussian Acetonitrile, Gaussian B3LYP (GD3BJ), Gaussian 6-31+G(d,p)/SBKJC-VDZ (ECP)]
+    - [Gaussian Optimisation Frequencies Unrestricted Triplet, Gaussian Acetonitrile, Gaussian B3LYP (GD3BJ), Gaussian 6-31+G(d,p)/SBKJC-VDZ (ECP)]
+    - [Gaussian Single Point Singlet, Gaussian Acetonitrile, Gaussian B3LYP (GD3BJ), Gaussian 6-31+G(d,p)/SBKJC-VDZ (ECP)]
+
+
+
+    
