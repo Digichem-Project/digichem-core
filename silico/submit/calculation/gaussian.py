@@ -28,14 +28,12 @@ class Gaussian(Concrete_calculation):
     _external_basis_sets = Option(
         "external_basis_sets",
         help = "A list of external basis sets to use. The order given here is the order the basis sets will be appended to the input file",
-#        choices = lambda option, configurable: [name for basis_set in configurable.available_basis_sets for name in basis_set.NAMES],
         type = tuple,
         default = ()
     )
     _external_ECPs = Option(
         "external_ECPs",
         help = "A list of external ECPs (effective core potentials) to use",
-#        choices = lambda option, configurable: [name for basis_set in configurable.available_ECPs for name in basis_set.NAMES],
         type = tuple,
         default = ()
     )
