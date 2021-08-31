@@ -60,17 +60,9 @@ class Calculation_target(Configurable_target):
         previous = None
         
         # These objects are class templates.
-        for method_t, program_t, calculation_t in calculation_list:
-            # Finalize the method and program.
-            # We don't force here.
-            # TODO: We shouldn't be finalizing here...
-            method_t.finalize(False)
-            program_t.finalize(False)
-            
+        for method_t, program_t, calculation_t in calculation_list:            
             # Expand calculation (because the 'calculation' could actually be a meta-calc representing multiple real calcs.
             for expanded_calculation_t in calculation_t.expand():
-                # Finalize the calc.
-                expanded_calculation_t.finalize(False)
                 
                 # Init the method, prog and calc.
                 # This also links the three together.
