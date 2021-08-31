@@ -158,6 +158,7 @@ class Configurable_loader():
         configurable.configure_auto_name()
         if validate:
             configurable.validate()
+        configurable.finalize()
         return configurable
     
     def size(self):
