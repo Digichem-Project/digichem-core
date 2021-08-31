@@ -62,7 +62,7 @@ class Calculation_target(Configurable_target):
         # These objects are class templates.
         for method_t, program_t, calculation_t in calculation_list:            
             # Expand calculation (because the 'calculation' could actually be a meta-calc representing multiple real calcs.
-            for expanded_calculation_t in calculation_t.expand():
+            for expanded_calculation_t in calculation_t.expand(global_silico_options.calculations):
                 
                 # Init the method, prog and calc.
                 # This also links the three together.
@@ -127,7 +127,7 @@ class Concrete_calculation(Calculation_target):
         type = dict
     )
     
-    def expand(self):
+    def expand(self, calculations):
         """
         Expand this calculation target if it represents multiple real calcs.
         
@@ -135,6 +135,7 @@ class Concrete_calculation(Calculation_target):
         
         This default implementation simply returns the same object.
         
+        :param calculations: A Configurable_list of other calculations that this calculation could expand into.
         :return: A list of ready-to-go calculation targets.
         """
         return (self,)

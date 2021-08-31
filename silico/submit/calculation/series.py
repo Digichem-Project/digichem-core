@@ -17,7 +17,7 @@ class Calculation_series(Calculation_target):
         type = tuple
     )
             
-    def expand(self):
+    def expand(self, calculations):
         """
         Expand this calculation target if it represents multiple real calcs.
         
@@ -29,7 +29,7 @@ class Calculation_series(Calculation_target):
         
         for tag_path in self.calculation_IDs:
             try:
-                self.global_silico_options.calculations.resolve_by_tags(tag_path)
+                calculations.resolve_by_tags(tag_path)
                 
             except Exception as e:
                 raise Configurable_exception(self, "Could not expand to real calculation with TAG path '{}'".format(tag_path)) from e
