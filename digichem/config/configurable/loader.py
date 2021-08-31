@@ -91,6 +91,17 @@ class Configurable_loader():
         """
         raise NotImplementedError()
     
+    def resolve_by_tags(self, tag_list, *, parent_config = None, validate = True):
+        """
+        Get a child configurable based on a list of TAG names.
+        
+        :param tag_list: A list of ordered tags indicating which configurable to resolve.
+        :param parent_config: The partially resolved dict from the parent configurable, used when called recursively.
+        :param validate: Whether to validate the resolved configurable to check the given values.
+        :returns: The resolved Configurable object.
+        """
+        raise NotImplementedError()
+    
     def merge_with_parent(self, parent_config):
         """
         Merge the config options of this node with the config options of the parent node.
