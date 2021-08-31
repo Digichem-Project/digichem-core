@@ -11,7 +11,6 @@ from silico.config.configurable import Configurable
 from silico.exception.configurable import Configurable_loader_exception,\
     Tag_path_length_error, Unresolvable_tag_path_error
 from silico.exception.base import Silico_exception
-import textwrap
 
 class Configurable_loader():
     """
