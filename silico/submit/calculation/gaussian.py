@@ -1,4 +1,5 @@
 from mako.lookup import TemplateLookup
+import deepmerge
 
 import silico
 from silico.exception import Configurable_exception
@@ -22,10 +23,20 @@ class Keyword():
         Constructor for Gaussian Keyword objects.
         
         :param keyword: The Gaussian keyword.
-        :param options: An optional number of dicts which contain options for the keyword. 
+        :param options: An optional number of options for the keyword. If a dict is given, name: value will be converted to keyword=(name=value) (unless value is None, in which case the option is ignored), otherwise each option will be converted to keyword=(name)
         """
         self.keyword = keyword
-        self.options = options
+        self.options = {}
+        
+        # Deal with options, which could contain several different types.
+        for option in options:
+            if isinstance(option, dict):
+                # Dictionary, merge.
+                deepmerge.always_merger(self.options, option)
+                
+            else:
+                # Convert to string, assume this is an option without a value.
+                self.options[str(option)] = ""
         
     def __str__(self):
         """
@@ -34,15 +45,15 @@ class Keyword():
         The returned string is suitable for inclusion in a Gaussian input file.
         """
         options_strings = []
-        for option in self.options:
-            for option_name, option_value in option:
-                if option_value == "":
-                    # 'Blank' option value, just add the option name.
-                    options_strings.append(option_name)
-                
-                elif option_value != None:
-                    # Add the name and the value, unless the value is None (in which case we add neither).
-                    options_strings.append("{}={}".format(option_name, option_value))
+        for option_name, option_value in self.options:
+            if option_value == "":
+                # 'Blank' option value, just add the option name.
+                options_strings.append(option_name)
+            
+            # TODO: This check may be unnecessary.
+            elif option_value != None:
+                # Add the name and the value, unless the value is None (in which case we add neither).
+                options_strings.append("{}={}".format(option_name, option_value))
         
         if len(options_strings) == 0:
             return self.keyword
@@ -106,7 +117,7 @@ class Gaussian(Concrete_calculation):
         TDA = Option(help = "Whether to use the Tamm–Dancoff approximation.", type = bool, default = False),
         options = Option(help = "Additional options to specify.", type = dict, default = {})
     )
-    keywords = Option(help = "Additional Gaussian route keywords. These are written to the input file with only minor modification ('keyword : value' becomes 'keyword=value'), so any option valid to Gaussian can be given here", default = {'Population': 'Regular', 'Density': 'Current'}, type = dict)            
+    keywords = Option(help = "Additional Gaussian route keywords. These are written to the input file with only minor modification ('keyword: option' becomes 'keyword=(option)' and 'keyword: {option: value}' becomes 'keyword=(option=value)'), so any option valid to Gaussian can be given here", default = {'Population': 'Regular', 'Density': 'Current'}, type = dict)            
     
     @property
     def charge(self):
@@ -217,14 +228,7 @@ class Gaussian(Concrete_calculation):
         
         # Finally, add any free-form options.
         for keyword in self.keywords:
-            if self.options[option] == "":
-                # Blank option, just add the keyword.
-                route_parts.append(option)
-            
-            # Skip None options.
-            elif self.options[option] is not None: 
-                # Option with options, add both.
-                route_parts.append("{}={}".format(option, self.options[option]))
+            route_parts.append(str(keyword(keyword, self.keywords[keyword])))
                 
         # Convert to string and return.
         return " ".join(route_parts)
