@@ -18,7 +18,7 @@ class Silico_options(Config):
         super().__init__(options)
             
         # Set Configurable lists.
-        self.methods = Configurable_list([], "method")
+        self.destinations = Configurable_list([], "destination")
         self.programs = Configurable_list([], "program")
         self.calculations = Configurable_list([], "calculation")
         self.basis_sets = Configurable_list([], "basis_set")
@@ -34,7 +34,7 @@ class Silico_options(Config):
         """
         Validate the configurable list that we contain.
         """
-        self.methods.validate()
+        self.destinations.validate()
         self.programs.validate()
         self.calculations.validate()
         self.basis_sets.validate()
@@ -72,8 +72,8 @@ class Silico_options(Config):
         We overcome this by excluding these lists.
         """
         # TODO: Might be a better way to do this...
-        methods = self.methods
-        self.methods = []
+        destinations = self.destinations
+        self.destinations = []
         programs = self.programs
         self.programs = []
         calculations = self.calculations
@@ -88,8 +88,8 @@ class Silico_options(Config):
 
         
         # Restore.
-        self.methods = methods
-        new.methods = methods
+        self.destinations = destinations
+        new.destinations = destinations
         self.programs = programs
         new.programs = programs
         self.calculations = calculations
