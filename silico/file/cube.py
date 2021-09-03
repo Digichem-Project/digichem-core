@@ -13,7 +13,7 @@ from silico.exception.base import File_maker_exception
 from silico.file import File_converter
 import silico.file.types as file_types
 import silico
-from silico.submit.method.local import Series
+from silico.submit.destination.local import Series
 from silico.submit.calculation.turbomole import get_orbital_calc, Turbomole_memory
 from silico.file.base import File_maker
 from silico.submit import Memory
@@ -326,19 +326,19 @@ class Turbomole_to_cube(File_converter):
             # Total density.
             self.file_path['SCF'] = Path(self.output, "td.cub")
         
-        # Save our calculation, program and method templates.
-        # We use an in series method so we will block while the calc runs.
-        self.method_t = Series({
-            "TYPE": "method",
+        # Save our calculation, program and destination templates.
+        # We use an in series destination so we will block while the calc runs.
+        self.destination_t = Series({
+            "TYPE": "destination",
             "CLASS": "series",
             "NAME": "Orbital cubes"
         })
-        self.method_t.configure(ID = None)
-        self.method_t.finalize()
+        self.destination_t.configure(ID = None)
+        self.destination_t.finalize()
             
         # Given calc program.
         self.prog_t = prog_t
-        self.prog_t.parents = [self.method_t.NAME]
+        self.prog_t.parents = [self.destination_t.NAME]
         
         # Given calc.
         self.calc_t = calc_t
@@ -391,7 +391,7 @@ class Turbomole_to_cube(File_converter):
         
         return self(
             *args,
-            calculation_directory = calculation_directory if calculation_directory is not None else turbomole_calculation.program.method.calc_dir.output_directory,
+            calculation_directory = calculation_directory if calculation_directory is not None else turbomole_calculation.program.destination.calc_dir.output_directory,
             calc_t = calc_t.inner_cls,
             prog_t = type(turbomole_calculation.program),
             orbitals = orbitals,
@@ -413,8 +413,8 @@ class Turbomole_to_cube(File_converter):
         # To generate cubes, we need to run the dscf Turbomole module after setting some control options.
         
         # Link.
-        method = self.method_t()
-        prog = self.prog_t(method)
+        destination = self.destination_t()
+        prog = self.prog_t(destination)
         calc = self.calc_t(prog)
         
         # We'll write our calc to a tempdir.
@@ -435,7 +435,7 @@ class Turbomole_to_cube(File_converter):
             
             # Move created cube files to our output dir.
             for file, file_path in self.file_path.items():
-                src = Path(method.calc_dir.output_directory, file_path.name)
+                src = Path(destination.calc_dir.output_directory, file_path.name)
                 dst = file_path
                  
                 # Can't use src.rename() because tmp may be on a different device.

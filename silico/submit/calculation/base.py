@@ -52,22 +52,22 @@ class Calculation_target(Configurable_target):
         """
         Prepare a number of Calculation_target objects for submission by creating an ordered, linked list.
         
-        :param calculation_list: A list of 3-membered tuples (method, program, calculation) that are to be prepared.
+        :param calculation_list: A list of 3-membered tuples (destination, program, calculation) that are to be prepared.
         :param global_silico_options: A dict like object of default options to use for the calculations that will be linked. Note that the options given here can be overridden by specific options given to each calculation...
-        :return: A 3-membered tuple of (method, program, calculation) that is to be submitted first.
+        :return: A 3-membered tuple of (destination, program, calculation) that is to be submitted first.
         """
         first = None
         previous = None
         
         # These objects are class templates.
-        for method_t, program_t, calculation_t in calculation_list:            
+        for destination_t, program_t, calculation_t in calculation_list:            
             # Expand calculation (because the 'calculation' could actually be a meta-calc representing multiple real calcs.
             for expanded_calculation_t in calculation_t.expand(global_silico_options.calculations):
                 
-                # Init the method, prog and calc.
+                # Init the destination, prog and calc.
                 # This also links the three together.
-                method = method_t()
-                prog = program_t(method)
+                destination = destination_t()
+                prog = program_t(destination)
                 calc = expanded_calculation_t(prog, global_silico_options = global_silico_options)
                 
                 # If the calc was part of a series, set the series name.
@@ -206,7 +206,7 @@ class Concrete_calculation(Calculation_target):
                 directory += "/" + getpass.getuser()
             
             # Make a path and return.
-            return Path(directory, self.program.method.unique_name)
+            return Path(directory, self.program.destination.unique_name)
         
         @property
         def molecule_name(self):
@@ -314,12 +314,12 @@ class Concrete_calculation(Calculation_target):
                 
             except Exception:
                 # Something went wrong, set the error flag.
-                self.program.method.calc_dir.set_flag(Flag.ERROR)
-                self.program.method.calc_dir.set_flag(Flag.DONE)
+                self.program.destination.calc_dir.set_flag(Flag.ERROR)
+                self.program.destination.calc_dir.set_flag(Flag.DONE)
                 raise
             
             # Can't put this in finally because it will catch Submission_paused...
-            self.program.method.calc_dir.set_flag(Flag.DONE)
+            self.program.destination.calc_dir.set_flag(Flag.DONE)
             
             # We don't wrap our own submit_post() in flags because this method submits the next calculation; any errors that occur relate to the new submission, not this one which has just finished.        
             self.post()
@@ -409,7 +409,7 @@ class Directory_calculation_mixin():
             """
             self.prepare_from_file(
                 output,
-                calculation.program.method.calc_dir.output_directory,
+                calculation.program.destination.calc_dir.output_directory,
                 molecule_name = calculation.molecule_name
             )
     

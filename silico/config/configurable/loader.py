@@ -43,7 +43,7 @@ class Configurable_loader():
         Default constructor for Configurable_loader objects.
         
         :param file_name: The path to the file from which we were parsed from. If not parsed from a file, file_name should be None.
-        :param TYPE: The TYPE of the configurables we represent, a string identifying a class that is a parent to all the configurables we represent. Typically, Method, Program, Calculation or Basis_set.
+        :param TYPE: The TYPE of the configurables we represent, a string identifying a class that is a parent to all the configurables we represent. Typically, Destination, Program, Calculation or Basis_set.
         :param config: The config dict associated with this loader.
         :param pseudo: Whether this partial is a pseudo configurable. Pseudo configs act as placeholders only and won't appear as separate options in list etc (instead, the configurables in NEXT will).
         """

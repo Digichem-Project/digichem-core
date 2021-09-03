@@ -3,14 +3,14 @@ import dill
 #import pickle as dill
 from pathlib import Path
 from silico.submit.structure.flag import Flag
-from silico.submit.method import Method_target
+from silico.submit.destination import Destination_target
 
-class Resumable_method(Method_target):
+class Resumable_destination(Destination_target):
     """
-    Mixin class for method that are resumable.
+    Mixin class for destination that are resumable.
     
     Resumable here means that program execution stops during the submission process. Submission is then 'resumed' in a new process immediately before the calculation proper begins.
-    This mechanism is required by several methods, for example SLURM (calculation has to occur from the SLURM node) and SSH (calculation occurs on a different machine entirely).
+    This mechanism is required by several destinations, for example SLURM (calculation has to occur from the SLURM node) and SSH (calculation occurs on a different machine entirely).
     
     The 'resume' is achieved via pickle, so your class should be picklable.
     """
@@ -21,13 +21,13 @@ class Resumable_method(Method_target):
     # Class creation mechanism #
     ############################
     
-    class _actual(Method_target._actual):
+    class _actual(Destination_target._actual):
         """
         Inner class for SLURM.
         """
         def __init__(self, *args, **kwargs):
             """
-            Constructor for Resumable_method objects.
+            Constructor for Resumable_destination objects.
             
             :param output: Path to the file that we will write to resume from.
             """
@@ -53,9 +53,9 @@ class Resumable_method(Method_target):
             
         def submit(self):
             """
-            Submit to this resumable method.
+            Submit to this resumable destination.
             
-            In resumable methods, this method will get called twice (automatically) during the submission process.
+            In resumable destinations, this method will get called twice (automatically) during the submission process.
             This method can raise Submission_paused exceptions as part of this process,
             you should not go out of you way to catch these exceptions unless you know what you are doing
             (and you should almost certainly be re-raising once you are done).

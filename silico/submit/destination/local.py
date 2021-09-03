@@ -1,23 +1,23 @@
-from silico.submit.method import Method_target
-from silico.submit.method.resume import Resumable_method
+from silico.submit.destination import Destination_target
+from silico.submit.destination.resume import Resumable_destination
 import subprocess
 from subprocess import CalledProcessError
 from silico.exception.base import Submission_error
 
-class Series(Method_target):
+class Series(Destination_target):
     """
     Implementation to allow local submission.
     
     'Local' here indicates that the calculation is to be performed right-here, right-now, in the current-process.
     Local is useful if an external scheduling manager is being used etc.
     
-    Note this this method is blocking (not resumable), and will carry out each calculation in series, one after another.
+    Note this this destination is blocking (not resumable), and will carry out each calculation in series, one after another.
     """
     
     CLASS_HANDLE = ("series",)
     
     
-class Parallel(Resumable_method):
+class Parallel(Resumable_destination):
     """
     Implementation to allow local submission.
     
@@ -34,7 +34,7 @@ class Parallel(Resumable_method):
     # Class creation mechanism #
     ############################
     
-    class _actual(Resumable_method._actual):
+    class _actual(Resumable_destination._actual):
         """
         Inner class for Parallel.
         """

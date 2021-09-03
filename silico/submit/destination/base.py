@@ -3,22 +3,22 @@ from silico.submit.structure.directory import Calculation_directory
 from uuid import uuid4
 from silico.exception import Submission_error
 
-class Method_target(Configurable_target):
+class Destination_target(Configurable_target):
     """
-    Top-level class for classes that implement a method of submitting calculations.
+    Top-level class for classes that implement a destination to where calculations can be submitted.
     
-    'Methods' define how and where a calculation is run, but don't manage the calculation software itself (see silico.submit.program for those definitions).
-    Methods, for example, handle submission to a scheduling software (SLURM, TORQUE etc), running as a daemon, submission to a networked server etc.
+    'Destinations' define how and where a calculation is run, but don't manage the calculation software itself (see silico.submit.program for those definitions).
+    Destinations, for example, handle submission to a scheduling software (SLURM, TORQUE etc), running as a daemon, submission to a networked server etc.
     """
     
-    CLASS_HANDLE = ("method",)
+    CLASS_HANDLE = ("destination",)
         
     @property
     def unique_name(self):
         """
         Get a name that is unique for this calculation instance.
         
-        Some methods may provide their own get_unique_name() methods; this default implementation returns a random string with a very low collision chance.
+        Some destinations may provide their own get_unique_name() methods; this default implementation returns a random string with a very low collision chance.
         """
         if getattr(self, "_unique_name", None) is None:
             self._unique_name = uuid4().hex
@@ -28,9 +28,9 @@ class Method_target(Configurable_target):
     @property
     def status(self):
         """
-        This method is called to get 'status' about this method.
+        This method is called to get 'status' about this destination.
         
-        Status is always a string, but what it contains depends entirely on the Method_target.
+        Status is always a string, but what it contains depends entirely on the Destination_target.
         It is used, for example, to report the number of free nodes for SLURM.
         
         This default implementation raises NotImplementedError.
@@ -44,19 +44,19 @@ class Method_target(Configurable_target):
     
     class _actual(Configurable_target._actual):
         """
-        Inner class for methods.
+        Inner class for destinations.
         """
         
         def __init__(self):
             """
-            Constructor for method objects.
+            Constructor for destination objects.
             """
             self.program = None
             self.calc_dir = None
 
         def submit(self):
             """
-            Submit this method.
+            Submit this destination.
             
             This default implementation creates the required directory structure.
             """

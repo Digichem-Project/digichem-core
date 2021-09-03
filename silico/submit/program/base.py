@@ -37,7 +37,7 @@ class Program_target(Configurable_target):
     CLASS_HANDLE = ("program",)
     
     # Configurable options.
-    parents = Option("methods", help = "A list of methods that this program is compatible with", required = True, type = list)
+    parents = Option("destinations", help = "A list of destinations that this program is compatible with", required = True, type = list)
     
     ############################
     # Class creation mechanism #
@@ -48,17 +48,17 @@ class Program_target(Configurable_target):
         Inner class for programs.
         """
         
-        def __init__(self, method):
+        def __init__(self, destination):
             """
             Constructor for program objects.
             
-            :param method: A Method_target_actual object that is going to be submitted to.
+            :param destination: A Destination_target_actual object that is going to be submitted to.
             """
-            # Set our method.
-            self.method = method
-            self.validate_parent(method)
-            # Let our method know who we are.
-            self.method.program = self
+            # Set our destination.
+            self.destination = destination
+            self.validate_parent(destination)
+            # Let our destination know who we are.
+            self.destination.program = self
             # We don't have a calculation yet.
             self.calculation = None
         
@@ -110,8 +110,8 @@ class Program_target(Configurable_target):
             
             :param calculation: A Calculation_target_actual object that is going to be submitted.
             """
-            # Call method submit first to setup the environment.
-            self.method.submit()
+            # Call destination submit first to setup the environment.
+            self.destination.submit()
             
             # Pre-calc (write input files etc).
             self.pre()
@@ -169,8 +169,8 @@ class Program_target(Configurable_target):
             Signals the start of a calculation, this method is called automatically by submit().
             """
             # Set the start and running flags.
-            self.method.calc_dir.set_flag(Flag.STARTED)
-            self.method.calc_dir.set_flag(Flag.RUNNING)
+            self.destination.calc_dir.set_flag(Flag.STARTED)
+            self.destination.calc_dir.set_flag(Flag.RUNNING)
             
             # Save our start time.
             self.start_timer = timer()
@@ -188,7 +188,7 @@ class Program_target(Configurable_target):
             try:        
                 # Set our error flag if something went wrong
                 if not success:
-                    self.method.calc_dir.set_flag(Flag.ERROR)
+                    self.destination.calc_dir.set_flag(Flag.ERROR)
                 
                 self.end_timer = timer()
                 self.end_date = datetime.datetime.now()
@@ -207,14 +207,14 @@ class Program_target(Configurable_target):
                 getLogger(silico.logger_name).info("Calculation duration: {} ({} total seconds)".format(misc.timedelta_to_string(self.duration), self.duration.total_seconds()))
                 
                 # Unset our running flag.
-                self.method.calc_dir.del_flag(Flag.RUNNING)
+                self.destination.calc_dir.del_flag(Flag.RUNNING)
                 
                 ########
                 # Post #
                 ########
                 # We perform post prior to cleanup to save potentially copying large files (.rwf, .chk) from scratch to output.
                 # Set Flag.
-                self.method.calc_dir.set_flag(Flag.POST)
+                self.destination.calc_dir.set_flag(Flag.POST)
                 
                 try:
                     self.post()
@@ -223,13 +223,13 @@ class Program_target(Configurable_target):
                     self.error = e
                 
                 # Delete Flag.
-                self.method.calc_dir.del_flag(Flag.POST)
+                self.destination.calc_dir.del_flag(Flag.POST)
             
                 ###########
                 # Cleanup #
                 ###########
                 # Set our cleanup flag.
-                self.method.calc_dir.set_flag(Flag.CLEANUP)
+                self.destination.calc_dir.set_flag(Flag.CLEANUP)
             
                 # Call user specified cleanup.
                 self.cleanup(success)
@@ -238,7 +238,7 @@ class Program_target(Configurable_target):
                 if self.scratch_output is not None:
                     
                     # Copy.
-                    copytree(self.scratch_output, self.method.calc_dir.output_directory)
+                    copytree(self.scratch_output, self.destination.calc_dir.output_directory)
                     
                     # Delete the scratch output.
                     shutil.rmtree(self.scratch_output)
@@ -252,7 +252,7 @@ class Program_target(Configurable_target):
                     finally:
                         # Move our scratch dir (or at least try to) if it's not empty (or we couldn't determine if it's empty).
                         if scratch_content != 0:
-                            shutil.move(str(self.calculation.scratch_directory), str(self.method.calc_dir.scratch_directory))
+                            shutil.move(str(self.calculation.scratch_directory), str(self.destination.calc_dir.scratch_directory))
                     
             finally:
                 # Remove the scratch directory, forcibly if need be.
@@ -268,7 +268,7 @@ class Program_target(Configurable_target):
                         getLogger(silico.logger_name).warning("Failed to delete scratch directory '{}'".format(self.calculation.scratch_directory), exc_info = True)
                     
                 # Done cleanup.
-                self.method.calc_dir.del_flag(Flag.CLEANUP)
+                self.destination.calc_dir.del_flag(Flag.CLEANUP)
         
         @property
         def calc_output_file_path(self):
@@ -286,7 +286,7 @@ class Program_target(Configurable_target):
             if self.scratch_output is not None:
                 return self.scratch_output
             else:
-                return self.method.calc_dir.output_directory
+                return self.destination.calc_dir.output_directory
         
         def pre(self):
             """
@@ -314,7 +314,7 @@ class Program_target(Configurable_target):
             
             # Write our input file in .si format for easy reuse.
             if hasattr(self.calculation, "input_coords"):
-                with open(Path(self.method.calc_dir.input_directory, self.calculation.molecule_name).with_suffix(".si"), "wt") as input_file:
+                with open(Path(self.destination.calc_dir.input_directory, self.calculation.molecule_name).with_suffix(".si"), "wt") as input_file:
                     self.calculation.input_coords.to_file(input_file)
     
         def calculate(self):
@@ -388,7 +388,7 @@ class Program_target(Configurable_target):
                 
                 # See if our calculation was successful or not.
                 if self.result.metadata.success and self.error is None:
-                    self.method.calc_dir.set_flag(Flag.SUCCESS)
+                    self.destination.calc_dir.set_flag(Flag.SUCCESS)
                 else:
                     # No good.
                     # We'll try and take a snippet from the main calculation log and attach to our error message for the user.
@@ -406,14 +406,14 @@ class Program_target(Configurable_target):
                 if self.result.metadata.optimisation_converged is not None and "Optimisation" in self.result.metadata.calculations:
                     if self.result.metadata.optimisation_converged:
                         # Converged.
-                        self.method.calc_dir.set_flag(Flag.CONVERGED)
+                        self.destination.calc_dir.set_flag(Flag.CONVERGED)
                     else:
-                        self.method.calc_dir.set_flag(Flag.NOT_CONVERGED)
+                        self.destination.calc_dir.set_flag(Flag.NOT_CONVERGED)
                         raise Submission_error(self, "the optimisation did not converge")
                         
             except Exception:
                 # No good.
-                self.method.calc_dir.set_flag(Flag.ERROR)
+                self.destination.calc_dir.set_flag(Flag.ERROR)
                 raise
         
         def post(self):
@@ -423,7 +423,7 @@ class Program_target(Configurable_target):
             
             # First, make our result directory.
             try:
-                self.method.calc_dir.result_directory.mkdir()
+                self.destination.calc_dir.result_directory.mkdir()
             except FileExistsError:
                 pass
             
@@ -473,32 +473,32 @@ class Program_target(Configurable_target):
             Write text result files (like with cresult) from this calculation.
             """
             # First, write a text summary.
-            Text_summary_group_extractor(ignore = True, config = self.calculation.silico_options).write_single(self.result, Path(self.method.calc_dir.result_directory, self.calculation.molecule_name +".summary"))
+            Text_summary_group_extractor(ignore = True, config = self.calculation.silico_options).write_single(self.result, Path(self.destination.calc_dir.result_directory, self.calculation.molecule_name +".summary"))
             
             # Atoms.
-            Long_CSV_group_extractor(Atoms_long_extractor(ignore = True, config = self.calculation.silico_options)).write_single(self.result, Path(self.method.calc_dir.result_directory, self.calculation.molecule_name + ".atoms.csv"))
+            Long_CSV_group_extractor(Atoms_long_extractor(ignore = True, config = self.calculation.silico_options)).write_single(self.result, Path(self.destination.calc_dir.result_directory, self.calculation.molecule_name + ".atoms.csv"))
             
             # Alpha. We'll use a different file name depending on whether we are restricted or unrestricted.
-            Long_CSV_group_extractor(Orbitals_long_extractor(ignore = True, config = self.calculation.silico_options)).write_single(self.result, Path(self.method.calc_dir.result_directory, self.calculation.molecule_name + ".{}.csv".format("orbitals" if self.result.metadata.orbital_spin_type == "restricted" else "alpha")))
+            Long_CSV_group_extractor(Orbitals_long_extractor(ignore = True, config = self.calculation.silico_options)).write_single(self.result, Path(self.destination.calc_dir.result_directory, self.calculation.molecule_name + ".{}.csv".format("orbitals" if self.result.metadata.orbital_spin_type == "restricted" else "alpha")))
             # And beta (which can only be for unrestricted.
-            Long_CSV_group_extractor(Beta_long_extractor(ignore = True, config = self.calculation.silico_options)).write_single(self.result, Path(self.method.calc_dir.result_directory, self.calculation.molecule_name + ".beta.csv"))
+            Long_CSV_group_extractor(Beta_long_extractor(ignore = True, config = self.calculation.silico_options)).write_single(self.result, Path(self.destination.calc_dir.result_directory, self.calculation.molecule_name + ".beta.csv"))
             
             # Energies.
-            Long_CSV_group_extractor(SCF_long_extractor(ignore = True, config = self.calculation.silico_options)).write_single(self.result, Path(self.method.calc_dir.result_directory, self.calculation.molecule_name + ".SCF.csv"))
-            Long_CSV_group_extractor(MP_long_extractor(ignore = True, config = self.calculation.silico_options)).write_single(self.result, Path(self.method.calc_dir.result_directory, self.calculation.molecule_name + ".MP.csv"))
-            Long_CSV_group_extractor(CC_long_extractor(ignore = True, config = self.calculation.silico_options)).write_single(self.result, Path(self.method.calc_dir.result_directory, self.calculation.molecule_name + ".CC.csv"))
+            Long_CSV_group_extractor(SCF_long_extractor(ignore = True, config = self.calculation.silico_options)).write_single(self.result, Path(self.destination.calc_dir.result_directory, self.calculation.molecule_name + ".SCF.csv"))
+            Long_CSV_group_extractor(MP_long_extractor(ignore = True, config = self.calculation.silico_options)).write_single(self.result, Path(self.destination.calc_dir.result_directory, self.calculation.molecule_name + ".MP.csv"))
+            Long_CSV_group_extractor(CC_long_extractor(ignore = True, config = self.calculation.silico_options)).write_single(self.result, Path(self.destination.calc_dir.result_directory, self.calculation.molecule_name + ".CC.csv"))
             
             # Excited states.
-            Long_CSV_group_extractor(Excited_state_long_extractor(ignore = True, config = self.calculation.silico_options)).write_single(self.result, Path(self.method.calc_dir.result_directory, self.calculation.molecule_name + ".ES.csv"))
-            Long_CSV_group_extractor(Excited_state_transitions_long_extractor(ignore = True, config = self.calculation.silico_options)).write_single(self.result, Path(self.method.calc_dir.result_directory, self.calculation.molecule_name + ".transitions.csv"))
-            Long_CSV_group_extractor(TDM_long_extractor(ignore = True, config = self.calculation.silico_options)).write_single(self.result, Path(self.method.calc_dir.result_directory, self.calculation.molecule_name + ".TDM.csv"))
-            Long_CSV_group_extractor(Absorption_spectrum_long_extractor(ignore = True, config = self.calculation.silico_options)).write_single(self.result, Path(self.method.calc_dir.result_directory, self.calculation.molecule_name + ".UV-Vis.csv"))
-            Long_CSV_group_extractor(Absorption_energy_spectrum_long_extractor(ignore = True, config = self.calculation.silico_options)).write_single(self.result, Path(self.method.calc_dir.result_directory, self.calculation.molecule_name + ".absorptions.csv"))
-            Long_CSV_group_extractor(SOC_long_extractor(ignore = True, config = self.calculation.silico_options)).write_single(self.result, Path(self.method.calc_dir.result_directory, self.calculation.molecule_name + ".SOC.csv"))
+            Long_CSV_group_extractor(Excited_state_long_extractor(ignore = True, config = self.calculation.silico_options)).write_single(self.result, Path(self.destination.calc_dir.result_directory, self.calculation.molecule_name + ".ES.csv"))
+            Long_CSV_group_extractor(Excited_state_transitions_long_extractor(ignore = True, config = self.calculation.silico_options)).write_single(self.result, Path(self.destination.calc_dir.result_directory, self.calculation.molecule_name + ".transitions.csv"))
+            Long_CSV_group_extractor(TDM_long_extractor(ignore = True, config = self.calculation.silico_options)).write_single(self.result, Path(self.destination.calc_dir.result_directory, self.calculation.molecule_name + ".TDM.csv"))
+            Long_CSV_group_extractor(Absorption_spectrum_long_extractor(ignore = True, config = self.calculation.silico_options)).write_single(self.result, Path(self.destination.calc_dir.result_directory, self.calculation.molecule_name + ".UV-Vis.csv"))
+            Long_CSV_group_extractor(Absorption_energy_spectrum_long_extractor(ignore = True, config = self.calculation.silico_options)).write_single(self.result, Path(self.destination.calc_dir.result_directory, self.calculation.molecule_name + ".absorptions.csv"))
+            Long_CSV_group_extractor(SOC_long_extractor(ignore = True, config = self.calculation.silico_options)).write_single(self.result, Path(self.destination.calc_dir.result_directory, self.calculation.molecule_name + ".SOC.csv"))
             
             # And vibrations.
-            Long_CSV_group_extractor(Vibrations_long_extractor(ignore = True, config = self.calculation.silico_options)).write_single(self.result, Path(self.method.calc_dir.result_directory, self.calculation.molecule_name + ".vibrations.csv"))
-            Long_CSV_group_extractor(IR_spectrum_long_extractor(ignore = True, config = self.calculation.silico_options)).write_single(self.result, Path(self.method.calc_dir.result_directory, self.calculation.molecule_name + ".IR.csv"))
+            Long_CSV_group_extractor(Vibrations_long_extractor(ignore = True, config = self.calculation.silico_options)).write_single(self.result, Path(self.destination.calc_dir.result_directory, self.calculation.molecule_name + ".vibrations.csv"))
+            Long_CSV_group_extractor(IR_spectrum_long_extractor(ignore = True, config = self.calculation.silico_options)).write_single(self.result, Path(self.destination.calc_dir.result_directory, self.calculation.molecule_name + ".IR.csv"))
             
         def write_report_files(self):
             """
@@ -507,9 +507,9 @@ class Program_target(Configurable_target):
             # Load report.
             report = self.get_report(self.result)
             # The full report.
-            report.write(Path(self.method.calc_dir.report_directory, self.calculation.molecule_name + ".pdf"))
+            report.write(Path(self.destination.calc_dir.report_directory, self.calculation.molecule_name + ".pdf"))
             # And atoms.
-            report.write(Path(self.method.calc_dir.report_directory, self.calculation.molecule_name + ".atoms.pdf"), report_type = "atoms")
+            report.write(Path(self.destination.calc_dir.report_directory, self.calculation.molecule_name + ".atoms.pdf"), report_type = "atoms")
             
         def write_combi_report_files(self):
             """
@@ -533,8 +533,8 @@ class Program_target(Configurable_target):
                 report = self.get_report(combi_result)
                 # Next get a safe dir to write to.
                 base_name = Silico_directory.safe_name(self.calculation.series_name if self.calculation.series_name is not None else report.result.metadata.identity_string)
-                #combi_report_dir = smkdir(Path(str(self.method.calc_dir.molecule_directory), "Combined Report: {}".format(base_name)))
-                combi_report_dir = smkdir(Path(str(self.method.calc_dir.molecule_directory), "Combined Reports", base_name))
+                #combi_report_dir = smkdir(Path(str(self.destination.calc_dir.molecule_directory), "Combined Report: {}".format(base_name)))
+                combi_report_dir = smkdir(Path(str(self.destination.calc_dir.molecule_directory), "Combined Reports", base_name))
             
                 # And write.
                 report.write(Path(combi_report_dir, self.calculation.molecule_name + ".pdf"))
@@ -547,7 +547,7 @@ class Program_target(Configurable_target):
             conv = Openbabel_converter.from_file(self.next_coords, input_file_type = self.calculation.OUTPUT_COORD_TYPE)
             
             # Open output file.
-            with open(Path(self.method.calc_dir.result_directory, self.calculation.molecule_name + ".xyz"), "wt") as xyz_file:
+            with open(Path(self.destination.calc_dir.result_directory, self.calculation.molecule_name + ".xyz"), "wt") as xyz_file:
                 # Write.
                 xyz_file.write(conv.convert("xyz"))
                 
@@ -559,7 +559,7 @@ class Program_target(Configurable_target):
             conv = Silico_input.from_file(self.next_coords, file_type = self.calculation.OUTPUT_COORD_TYPE, name = self.calculation.input_coords.name, charge = self.calculation.input_coords.charge, multiplicity = self.calculation.input_coords.multiplicity)
             
             # Write new file.
-            with open(Path(self.method.calc_dir.result_directory, self.calculation.molecule_name + ".si"), "wt") as si_file:
+            with open(Path(self.destination.calc_dir.result_directory, self.calculation.molecule_name + ".si"), "wt") as si_file:
                 # Write.
                 conv.to_file(si_file)
             

@@ -42,14 +42,14 @@ class Gaussian(Program_target):
             """
             Path to the (ready-to-go) input file. Note that although this is known as the com file, it may infact have any extension (.com and .gjf are most common).
             """
-            return Path(self.method.calc_dir.input_directory, self.calculation.com_file_name)
+            return Path(self.destination.calc_dir.input_directory, self.calculation.com_file_name)
     
         @property
         def log_file_path(self):
             """
             Default path to the .log output file written to by Gaussian, see log_file_path for where the log file is currently.
             """
-            return Path(self.method.calc_dir.output_directory, self.calculation.com_file_name).with_suffix(".log")
+            return Path(self.destination.calc_dir.output_directory, self.calculation.com_file_name).with_suffix(".log")
     
         @property
         def calc_output_file_path(self):
@@ -73,21 +73,21 @@ class Gaussian(Program_target):
 #             """
 #             Path to the Gaussian checkpoint .chk file written to by Gaussian.
 #             """
-#             return Path(self.method.calc_dir.output_directory, self.calculation.chk_file_name)
+#             return Path(self.destination.calc_dir.output_directory, self.calculation.chk_file_name)
 #         
 #         @property
 #         def rwf_file_path(self):
 #             """
 #             Path to the Gaussian read-write .rwf file written to by Gaussian.
 #             """
-#             return Path(self.method.calc_dir.output_directory, self.calculation.rwf_file_name)
+#             return Path(self.destination.calc_dir.output_directory, self.calculation.rwf_file_name)
             
         @property
         def fchk_file_path(self):
             """
             Path to the formatted checkpoint .fchk file.
             """
-            return Path(self.method.calc_dir.output_directory, self.calculation.chk_file_name).with_suffix(".fchk")
+            return Path(self.destination.calc_dir.output_directory, self.calculation.chk_file_name).with_suffix(".fchk")
     
         def pre(self):
             """
@@ -107,8 +107,8 @@ class Gaussian(Program_target):
                 self.rwf_file_path = Path(self.scratch_output, self.calculation.rwf_file_name)
             else:
                 # Not using scratch output, .rwf and .chk will be in normal output dir.
-                self.chk_file_path = Path(self.method.calc_dir.output_directory, self.calculation.chk_file_name)
-                self.rwf_file_path = Path(self.method.calc_dir.output_directory, self.calculation.rwf_file_name)
+                self.chk_file_path = Path(self.destination.calc_dir.output_directory, self.calculation.chk_file_name)
+                self.rwf_file_path = Path(self.destination.calc_dir.output_directory, self.calculation.rwf_file_name)
     
         def calculate(self):
             """
@@ -172,8 +172,8 @@ class Gaussian(Program_target):
             
             # Update file locations.
             # Regardless of whether we were using scratch output or not, all files should now be in the normal output dir (or have been deleted).
-            self.chk_file_path = Path(self.method.calc_dir.output_directory, self.calculation.chk_file_name)
-            self.rwf_file_path = Path(self.method.calc_dir.output_directory, self.calculation.rwf_file_name)
+            self.chk_file_path = Path(self.destination.calc_dir.output_directory, self.calculation.chk_file_name)
+            self.rwf_file_path = Path(self.destination.calc_dir.output_directory, self.calculation.rwf_file_name)
             
         def get_result(self):
             """

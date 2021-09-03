@@ -1,8 +1,8 @@
 TAG: Program Base
 SUB_TYPE: update
 
-# These are the methods that this program is compatible with.
-methods:
+# These are the destinations that this program is compatible with.
+destinations:
     - slurm-long
 
 

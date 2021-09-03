@@ -40,7 +40,7 @@ def main(args):
         
     # Load the pickled class.
     with open(args.resume_file, "rb") as pickle_file:
-        method = dill.load(pickle_file)
+        destination = dill.load(pickle_file)
 
     # Delete the pickled file to clean up (also prevents us running twice on the same file, which would be bad. Maybe we should do some file locking anyway?)
     try:
@@ -49,22 +49,22 @@ def main(args):
         getLogger(silico.logger_name).error("Failed to delete pickle file", exc_info = True)
         
     # Set program stuff.
-    silico.program.init_from_config(getLogger(silico.logger_name), method.program.calculation.silico_options)
+    silico.program.init_from_config(getLogger(silico.logger_name), destination.program.calculation.silico_options)
     silico.program.init_signals(getLogger(silico.logger_name))
     
     # Set numpy errors (not sure why this isn't the default...)
     numpy.seterr(invalid = 'raise', divide = 'raise')
     
-    return silico.program.run(_main, method = method)
+    return silico.program.run(_main, destination = destination)
 
 
-def _main(method):
+def _main(destination):
     """
     Main entry point for the resume program.
     """
     # And resume.
     try:
-        method.resume()
+        destination.resume()
     except Submission_paused:
         # This is fine.
         pass

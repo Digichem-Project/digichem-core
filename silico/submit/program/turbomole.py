@@ -57,28 +57,28 @@ class Turbomole(Program_target):
             """
             Path to the input coord file.
             """
-            return Path(self.method.calc_dir.input_directory, "coord")
+            return Path(self.destination.calc_dir.input_directory, "coord")
         
         @property
         def control_file_path(self):
             """
             Path to the input control file.
             """
-            return Path(self.method.calc_dir.input_directory, "control")
+            return Path(self.destination.calc_dir.input_directory, "control")
         
         @property
         def define_output_path(self):
             """
             Path to the file in which define output is written.
             """
-            return Path(self.method.calc_dir.output_directory, "define.out")
+            return Path(self.destination.calc_dir.output_directory, "define.out")
         
         @property
         def turbomole_output_path(self):
             """
             Path to the file in which turbomole output is written.
             """
-            return Path(self.method.calc_dir.output_directory, self.calculation.molecule_name).with_suffix(".log")
+            return Path(self.destination.calc_dir.output_directory, self.calculation.molecule_name).with_suffix(".log")
         
         @property
         def calc_output_file_path(self):
@@ -92,7 +92,7 @@ class Turbomole(Program_target):
             """
             Path to the output coordinate file that should be used for any subsequent calculations.
             """
-            return Path(self.method.calc_dir.output_directory, "coord")
+            return Path(self.destination.calc_dir.output_directory, "coord")
         
         @property
         def scratch_base(self):
@@ -114,7 +114,7 @@ class Turbomole(Program_target):
             """
             Path to the input file used to power the define input generator.
             """
-            return Path(self.method.calc_dir.input_directory, "define.in")
+            return Path(self.destination.calc_dir.input_directory, "define.in")
         
         def define(self):
             """
@@ -138,7 +138,7 @@ class Turbomole(Program_target):
                     stderr = subprocess.STDOUT,
                     universal_newlines = True,
                     timeout = self.calculation.define_timeout,
-                    cwd = self.method.calc_dir.prep_directory,
+                    cwd = self.destination.calc_dir.prep_directory,
                     check = True
                 )
                 
@@ -165,8 +165,8 @@ class Turbomole(Program_target):
             
             The control file should already exist before this method is called.
             """
-            control_name = Path(self.method.calc_dir.prep_directory, "control")
-            tmp_control_name = Path(self.method.calc_dir.prep_directory, "control.tmp")
+            control_name = Path(self.destination.calc_dir.prep_directory, "control")
+            tmp_control_name = Path(self.destination.calc_dir.prep_directory, "control.tmp")
             done = False
             
             with open(control_name, "r") as control_file_in, open(tmp_control_name, "w") as control_file_out:
@@ -191,7 +191,7 @@ class Turbomole(Program_target):
             wrapper_body = TemplateLookup(directories = str(silico.default_template_directory())).get_template("/submit/turbomole/turbomole_wrapper.mako").render_unicode(program = self)
             
             # Copy atoms to prep dir.
-            shutil.copy2(self.coord_file_path, self.method.calc_dir.prep_directory)
+            shutil.copy2(self.coord_file_path, self.destination.calc_dir.prep_directory)
             
             # Run control to generate input.
             # We check for errors, but sadly uff doesn't seem to raise any?
@@ -202,7 +202,7 @@ class Turbomole(Program_target):
                     stdout = subprocess.PIPE,
                     stderr = subprocess.STDOUT,
                     universal_newlines = True,
-                    cwd = self.method.calc_dir.prep_directory,
+                    cwd = self.destination.calc_dir.prep_directory,
                     check = True
                 )
                 
@@ -220,7 +220,7 @@ class Turbomole(Program_target):
             
             # We now need to manually alter some options in control (sigh...).
             # Open control.
-            with open(Path(self.method.calc_dir.prep_directory, "control"), "r+") as control_file:
+            with open(Path(self.destination.calc_dir.prep_directory, "control"), "r+") as control_file:
                 # Read in existing control.
                 control = control_file.read()
                 
@@ -246,13 +246,13 @@ class Turbomole(Program_target):
             
             # If we have a directory calc, copy the old directory to our new Prep directory.
             if self.calculation.DIRECTORY_CALCULATION:
-                copytree(self.calculation.input, self.method.calc_dir.prep_directory)
+                copytree(self.calculation.input, self.destination.calc_dir.prep_directory)
                 
                 # Clean up some old files which may be left by the previous calc if run with silico.
                 for delete_file in chain(
-                    (Path(self.method.calc_dir.prep_directory, self.define_output_path.name), Path(self.method.calc_dir.prep_directory, self.method.calc_dir.log_file.name)),
-                    self.method.calc_dir.prep_directory.glob("*.log"),
-                    self.method.calc_dir.prep_directory.glob("job.*"),
+                    (Path(self.destination.calc_dir.prep_directory, self.define_output_path.name), Path(self.destination.calc_dir.prep_directory, self.destination.calc_dir.log_file.name)),
+                    self.destination.calc_dir.prep_directory.glob("*.log"),
+                    self.destination.calc_dir.prep_directory.glob("job.*"),
                 ):
                     
                     try:
@@ -268,7 +268,7 @@ class Turbomole(Program_target):
                     coord_file.write(self.calculation.input_coords.to_format("tmol"))
                     
                 # Create our prep dir.
-                self.method.calc_dir.prep_directory.mkdir()
+                self.destination.calc_dir.prep_directory.mkdir()
                             
             # Run define.
             if "Turbomole-UFF" in self.calculation.CLASS_HANDLE:
@@ -282,17 +282,17 @@ class Turbomole(Program_target):
             if self.scratch_output is not None:
                 try:        
                     # Copy our input dir to the scratch version.
-                    copytree(self.method.calc_dir.prep_directory, self.scratch_output)
+                    copytree(self.destination.calc_dir.prep_directory, self.scratch_output)
                 except Exception as e:
                     raise Submission_error(self, "Failed to copy input to scratch subdirectory") from e
                 
             else:
                 # Copy input to normal output folder.
-                copytree(self.method.calc_dir.prep_directory, self.method.calc_dir.output_directory)
+                copytree(self.destination.calc_dir.prep_directory, self.destination.calc_dir.output_directory)
                 
             # Copy prep dir to input dir and delete.
-            copytree(self.method.calc_dir.prep_directory, self.method.calc_dir.input_directory)
-            shutil.rmtree(self.method.calc_dir.prep_directory)
+            copytree(self.destination.calc_dir.prep_directory, self.destination.calc_dir.input_directory)
+            shutil.rmtree(self.destination.calc_dir.prep_directory)
             
         def calculate(self):
             """

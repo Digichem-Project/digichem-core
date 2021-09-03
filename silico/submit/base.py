@@ -6,7 +6,7 @@ from silico.exception.configurable import Configurable_exception
 
 class Configurable_target(Configurable):
     """
-    Top level class for user-configurable submit targets (Calculation types, program types, method types etc.)
+    Top level class for user-configurable submit targets (Calculation types, program types, destination types etc.)
     """
     
     def get_children(self, target_list):

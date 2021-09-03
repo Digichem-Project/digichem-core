@@ -20,7 +20,7 @@ DESCRIPTION = "submit calculation files"
 EPILOG = "{} V{}. Written by {}. Last updated {}.".format(NAME, silico.version, silico.author, silico.last_updated.strftime("%d/%m/%Y"))
 USAGE = """%(prog)s [options]
    or: %(prog)s [options] file.com [file2.com ...]
-   or: %(prog)s [options] file.com [file2.com ...] -c method/program/calc [method2/program2/calc2 ...]"""
+   or: %(prog)s [options] file.com [file2.com ...] -c destination/program/calc [destination2/program2/calc2 ...]"""
 
 def _get_input(prompt):
     """
@@ -28,12 +28,12 @@ def _get_input(prompt):
     """
     return input(prompt)
     
-def _parse_calc_string(calc_string, methods, programs, calculations):
+def _parse_calc_string(calc_string, destinations, programs, calculations):
     """
     Parse a calculation request string, of the format M/P/C, P/C or C.
     
     :raises IndexError: If the calculation string is invalid.
-    :return: The relevant method, program and calculation.
+    :return: The relevant destination, program and calculation.
     """
     split_string = calc_string.split("/")
     
@@ -53,15 +53,15 @@ def _parse_calc_string(calc_string, methods, programs, calculations):
             raise Configurable_exception(calculation, "calculation has no programs set")
         
     if len(split_string) > 2:
-        method = methods.get_config(split_string[-3])
+        destination = destinations.get_config(split_string[-3])
     else:
         try:
-            method = methods.get_config(program.methods[0])
+            destination = destinations.get_config(program.destinations[0])
         except IndexError:
-            raise Configurable_exception(program, "program has no methods set")
+            raise Configurable_exception(program, "program has no destinations set")
     
     # We need to deepcopy our configurables in case we re-use one of them.
-    return (copy.deepcopy(method), copy.deepcopy(program), copy.deepcopy(calculation))
+    return (copy.deepcopy(destination), copy.deepcopy(program), copy.deepcopy(calculation))
 
 
 def arguments(subparsers):
@@ -80,7 +80,7 @@ def arguments(subparsers):
     
     parser.add_argument("calculation_files", help = "Gaussian input files to submit", nargs = "*", type = Path)
     parser.add_argument("-o", "--output", help = "Base directory to perform calculations in. Defaults to the current directory", default = Path("./"))
-    parser.add_argument("-c", "--calculations", help = "Calculations to perform, identified either by name or by ID. To use a method and/or program other than the default, use the format M/P/C (eg, 2/1/1)", nargs = "*", default = [])
+    parser.add_argument("-c", "--calculations", help = "Calculations to perform, identified either by name or by ID. To use a destination and/or program other than the default, use the format M/P/C (eg, 2/1/1)", nargs = "*", default = [])
     parser.add_argument("-C", "--charge", help = "Set the molecular charge of all input files. Note that certain calculations will override this value", default = None, type = float)
     parser.add_argument("-M", "--multiplicity", help = "Set the multiplicity of all input files. Note that certain calculations will override this value", default = None, type = int)
     parser.add_argument("--gen3D", help = "Whether to generate 3D coordinates (this will scramble existing atom coordinates). The default is yes, but only if it can be safely determined that the loaded coordinates are not already in 3D)", type = to_bool, default = None)
@@ -101,15 +101,15 @@ def _main(args, config, logger):
     # Load our calculation definitions.
     try:
         config.resolve()
-        known_methods = config.methods
+        known_destinations = config.destinations
         known_programs = config.programs
         known_calculations = config.calculations
     except Exception:
         raise Silico_exception("Failed to load calculations")
     
-    logger.debug("Loaded {} methods, {} programs and {} calculations".format(len(known_methods), len(known_programs), len(known_calculations)))
-    if len(known_methods) == 0 or len(known_programs) == 0 or len(known_calculations) == 0:
-        raise Silico_exception("Missing at least one method, program and/or calculation")
+    logger.debug("Loaded {} destinations, {} programs and {} calculations".format(len(known_destinations), len(known_programs), len(known_calculations)))
+    if len(known_destinations) == 0 or len(known_programs) == 0 or len(known_calculations) == 0:
+        raise Silico_exception("Missing at least one destination, program and/or calculation")
     
     # Check to see if we've got any files to submit (and prompt if we can).
     while len(args.calculation_files) == 0:
@@ -126,7 +126,7 @@ def _main(args, config, logger):
     while True:
         try:
             # Parse our calculation strings, getting the actual calculation objects.
-            calculations = [_parse_calc_string(calc_string, known_methods, known_programs, known_calculations) for calc_string in args.calculations]
+            calculations = [_parse_calc_string(calc_string, known_destinations, known_programs, known_calculations) for calc_string in args.calculations]
         except:
             raise Silico_exception("Failed to parse calculations to submit")
                             
@@ -135,7 +135,7 @@ def _main(args, config, logger):
             break
         
         # Ask the user for calcs.
-        args.calculations = shlex.split(Calculation_browser.run(known_methods, known_programs, known_calculations, Calculation_browser.yaml_to_palette(config['palette'])))
+        args.calculations = shlex.split(Calculation_browser.run(known_destinations, known_programs, known_calculations, Calculation_browser.yaml_to_palette(config['palette'])))
         if len(args.calculations) == 0:
             break
         

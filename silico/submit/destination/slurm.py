@@ -5,13 +5,13 @@ import silico
 import os
 import stat
 from silico.submit import Memory
-from silico.submit.method.resume import Resumable_method
+from silico.submit.destination.resume import Resumable_destination
 import subprocess
 from subprocess import CalledProcessError
 from silico.config.configurable.option import Option
 from silico.misc.base import is_int
 
-class SLURM(Resumable_method):
+class SLURM(Resumable_destination):
     """
     Implementation to allow submission to SLURM, a popular scheduling system.
     """
@@ -101,7 +101,7 @@ class SLURM(Resumable_method):
     @property
     def status(self):
         """
-        This method is called to get 'status' about this method.
+        This method is called to get 'status' about this destination.
         
         For SLURM, we use sinfo to get the number of free nodes for this partition.
         
@@ -133,7 +133,7 @@ class SLURM(Resumable_method):
     # Class creation mechanism #
     ############################
     
-    class _actual(Resumable_method._actual):
+    class _actual(Resumable_destination._actual):
         """
         Inner class for SLURM.
         """

@@ -165,7 +165,7 @@ class Configurables_parser():
         Constructor for Configurables_loader object.
         
         :param paths: Paths to  directories to load .yaml files from. All *.yaml files under each directory will be loaded and processed.
-        :param TYPE: The TYPE of the configurables we are loading; this is a string which identifies the type of the configurables (eg, Method, Calculation etc).
+        :param TYPE: The TYPE of the configurables we are loading; this is a string which identifies the type of the configurables (eg, Destination, Calculation etc).
         """
         self.root_directories = paths
         # A type to set for all configurables we load.
@@ -266,7 +266,7 @@ class Configurables_parser():
             ("Basis Sets", "basis_sets", "basis_set"),
             ("Calculations", "calculations", "calculation"),
             ("Programs", "programs", "program"),
-            ("Methods", "methods", "method")
+            ("Destinations", "destinations", "destination")
         ):
             root_directories = [Path(location, configurable_name) for location in (Config_parser.MASTER_CONFIG_PATH().parent, Config_parser.SYSTEM_CONFIG_LOCATION().parent, Config_parser.USER_CONFIG_LOCATION().parent)]
             
