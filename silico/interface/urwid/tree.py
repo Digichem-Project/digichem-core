@@ -73,7 +73,7 @@ class Tree_node(urwid.WidgetWrap):
         """
         Create a Tree_node object (with children) from a list of Configurable_list objects.
         
-        :param configurable_lists: A 3-membered list/tuple of Configurable_list objects (methods, programs, calculations).
+        :param configurable_lists: A 3-membered list/tuple of Configurable_list objects (destinations, programs, calculations).
         :param top_name: The name of the top-most node.
         :return: A 2 membered tuple of (node, children).
         """
@@ -176,13 +176,13 @@ class Calculation_tree(TreeBox):
     Modified TreeBox.
     """
     
-    def __init__(self, methods, programs, calculations, *, show_hidden = False, include_top = False, calcbox, top, **kwargs):
+    def __init__(self, destinations, programs, calculations, *, show_hidden = False, include_top = False, calcbox, top, **kwargs):
         """
         :param calcbox: Editable widget that will be populated with selected options.
         :param top: The outer containing Top widget.
         """
         # Save our configurables.
-        self.methods = methods
+        self.destinations = destinations
         self.programs = programs
         self.calculations = calculations
         
@@ -192,9 +192,9 @@ class Calculation_tree(TreeBox):
         
         # Get our top node.
         if self.show_hidden:
-            top_node = Tree_node.from_configurable_lists((self.methods, self.programs, self.calculations))
+            top_node = Tree_node.from_configurable_lists((self.destinations, self.programs, self.calculations))
         else:
-            top_node = Tree_node.from_configurable_lists((self.methods.visible(), self.programs.visible(), self.calculations.visible()))
+            top_node = Tree_node.from_configurable_lists((self.destinations.visible(), self.programs.visible(), self.calculations.visible()))
         
         # Now update our forest accordingly.
         forest = (top_node,) if self.include_top else top_node[1]
@@ -327,11 +327,11 @@ class Calculation_browser(Tab_pile):
     Urwid box widget that allows selecting calculations.
     """
     
-    def __init__(self, methods, programs, calculations, *, show_hidden = False, confirm_text = "Confirm", calcbox_attr = "body", calcbox_inner_attr = "editable", confirm_attr = "good_button", top, **kwargs):
+    def __init__(self, destinations, programs, calculations, *, show_hidden = False, confirm_text = "Confirm", calcbox_attr = "body", calcbox_inner_attr = "editable", confirm_attr = "good_button", top, **kwargs):
         """
         Constructor for Calculation_browser widgets.
         """
-        self.methods = methods
+        self.destinations = destinations
         self.programs = programs
         self.calculations = calculations
         self.show_hidden = show_hidden
@@ -345,14 +345,6 @@ class Calculation_browser(Tab_pile):
         # Each browser is made up of 3 main child widgets; the browser itself, a text field (calcbox) and the confirm button.
         self.calcbox = Calcbox((calcbox_attr, 'Selected calculations: '))
         self.confirm = urwid.Button(confirm_text, self.stop)
-#         self.browser = Calculation_tree(
-#             methods,
-#             programs,
-#             calculations,
-#             show_hidden = self.show_hidden,
-#             calcbox = self.calcbox,
-#             top = top,
-#         )
         
         # Call our parent constructor to make the pile.
         super().__init__([
@@ -382,16 +374,16 @@ class Calculation_browser(Tab_pile):
         """
         # First, get the configurables we're going to display. This depends on whether we are showing hidden items or not.
         if self.show_hidden:
-            methods = self.methods
+            destinations = self.destinations
             programs = self.programs
             calculations = self.calculations
         else:
-            methods = self.methods.visible()
+            destinations = self.destinations.visible()
             programs = self.programs.visible()
             calculations = self.calculations.visible()
             
         self.browser = Calculation_tree(
-            methods,
+            destinations,
             programs,
             calculations,
             show_hidden = self.show_hidden,
@@ -407,13 +399,11 @@ class Calculation_browser(Tab_pile):
         """
         This method is called when the user clicks the confirm button.
         """
-        print(self.confirmed)
         self.confirmed = True
-        print(self.confirmed)
         raise urwid.ExitMainLoop() 
         
     @classmethod
-    def run(self, methods, programs, calculations, palette, include_top = False):
+    def run(self, destinations, programs, calculations, palette, include_top = False):
         """
         Interactively run urwid, using a Calculation_browser as the top-most widget.
         
@@ -423,7 +413,7 @@ class Calculation_browser(Tab_pile):
         """
         
         top = Top(urwid.SolidFill())
-        browser = Calculation_browser(methods, programs, calculations, include_top = include_top, top = top)
+        browser = Calculation_browser(destinations, programs, calculations, include_top = include_top, top = top)
         top.original_widget = Window(
             urwid.AttrMap(browser, 'body'),
             title = 'Silico {} Calculation Browser'.format(silico.version),
@@ -441,7 +431,7 @@ class Calculation_browser(Tab_pile):
     @classmethod
     def yaml_to_palette(self, yaml_palette):
         """
-        Convert a palette loaded from a YAML config file to a format understoof by urwid.
+        Convert a palette loaded from a YAML config file to a format understood by urwid.
         """
         # The palette (a list of tuples)
         palette = []
