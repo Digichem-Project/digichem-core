@@ -22,7 +22,6 @@ class Gaussian(Concrete_calculation):
     # Configurable options.
     CPU_list = Option(help = "A list of integers specifying specific CPUs to use for the calculation, starting at 0. CPU_list and num_CPUs are mutually exclusive", exclude = ("num_CPUs",), default = (), type = tuple)
     num_CPUs = Option(help = "An integer specifying the number of CPUs to use for this calculation. CPU_list and num_CPUs are mutually exclusive", exclude = ("CPU_list",), default = 1, type = int)
-    calculation_keywords = Option(help = "A list of Gaussian keywords specifying the calculation(s) to perform. Options, where appropriate, can also be included (eg, TDA=(NStates=10) )", default = (), type = tuple)
     functional = Option(help = "The DFT functional to use", type = str)
     basis_set = Option(help = "The basis set to use. 'Gen' or 'GenECP' should be given here if an external basis set is to be used", type = str)
     _external_basis_sets = Option(
@@ -40,18 +39,11 @@ class Gaussian(Concrete_calculation):
     _multiplicity = Option("multiplicity", help = "Forcibly set the molecule multiplicity. Leave blank to use the multiplicity given in the input file", default = None, type = int)
     _charge = Option("charge", help = "Forcibly set the molecule charge. Leave blank to use the charge given in the input file", default = None, type = float)
     solvent = Option(help = "Name of the solvent to use for the calculation (the model used is SCRF-PCM)", default = None, type = str)
-    options = Option(help = "Additional Gaussian route options. These are written to the input file with only minor modification ('name : value' becomes 'name=value'), so any option valid to Gaussian can be given here", default = {'Population': 'Regular', 'Density': 'Current'}, type = dict)
+    options = Option(help = "Additional Gaussian route keywords. These are written to the input file with only minor modification ('keyword : value' becomes 'keyword=value'), so any option valid to Gaussian can be given here", default = {'Population': 'Regular', 'Density': 'Current'}, type = dict)
     convert_chk = Option(help = "Whether to create an .fchk file at the end of the calculation", default = True, type = bool)
     keep_chk = Option(help = "Whether to keep the .chk file at the end of the calculation. If False, the .chk file will be automatically deleted, but not before it is converted to an .fchk file (if convert_chk is True)", default = False, type = bool)
     keep_rwf = Option(help = "Whether to keep the .rwf file at the end of the calculation. If False, the .rwf file will be automatically deleted", default = False, type = bool)
     
-    DFT_excited_states = Options(
-        help = "Options for calculation of excited states with DFT (TDA or TD-DFT)",
-        multiplicity = Option(help = "Multiplicity of the excited states to calculate.", default = None, choices = (None, "Singlet", "Triplet", "50-50")),
-        nstates = Option(help = "The number of excited states to calculate. If 50-50 is given as the multiplicity, this is the number of each multiplicity to calculate. If 0 is given, no excited states will be calculated", type = int, default = 0),
-        root = Option(help = "The 'state of interest', the meaning of which changes depending on what type of calculation is being performed. For example, if an optimisation is being performed, this is the excited state to optimise", type = int, default = None),
-        TDA = Option(help = "Whether to use the Tamm–Dancoff approximation.", type = bool, default = False)
-    )
     optimisation = Options(
         help = "Options that control optimisations.",
         on = Option(help = "Whether to perform an optimisation. If excited states are also being calculated, then the excited state given by 'root' will be optimised", default = False, type = bool),
@@ -62,6 +54,43 @@ class Gaussian(Concrete_calculation):
         on = Option(help = "Whether to calculation vibrational frequencies.", default = False, type = bool),
         options = Option(help = "Additional options to specify.", type = dict, default = {})
     )
+    DFT_excited_states = Options(
+        help = "Options for calculation of excited states with DFT (TDA or TD-DFT)",
+        multiplicity = Option(help = "Multiplicity of the excited states to calculate.", default = None, choices = (None, "Singlet", "Triplet", "50-50")),
+        nstates = Option(help = "The number of excited states to calculate. If 50-50 is given as the multiplicity, this is the number of each multiplicity to calculate. If 0 is given, no excited states will be calculated", type = int, default = 0),
+        root = Option(help = "The 'state of interest', the meaning of which changes depending on what type of calculation is being performed. For example, if an optimisation is being performed, this is the excited state to optimise", type = int, default = None),
+        TDA = Option(help = "Whether to use the Tamm–Dancoff approximation.", type = bool, default = False),
+        options = Option(help = "Additional options to specify.", type = dict, default = {})
+    )
+    
+    @classmethod
+    def keyword_to_string(self, keyword, *options):
+        """
+        Convert a Gaussian keyword and options to a string appropriate for a Gaussian input file.
+        
+        Gaussian keywords have the following syntax: keyword=(Option=Value, Option)
+        
+        :param keyword: The Gaussian keyword.
+        :param options: A (number of) dictionary of option=value options for the keyword.
+        :returns: A string.
+        """
+        options_strings = []
+        for option in options:
+            for option_name, option_value in option:
+                if option_value == "":
+                    # 'Blank' option value, just add the option name.
+                    options_strings.append(option_name)
+                
+                elif option_value != None:
+                    # Add the name and the value, unless the value is None (in which case we add neither).
+                    options_strings.append("{}={}".format(option_name, option_value))
+        
+        if len(options_strings) == 0:
+            return keyword
+        
+        else:
+            return "{}=({})".format(option_name, ", ".join(options_strings))
+            
     
     @property
     def charge(self):
@@ -123,13 +152,42 @@ class Gaussian(Concrete_calculation):
             model += self.basis_set
             
         return model
+    
+    @property
+    def calculation_keywords(self):
+        """
+        Get a string containing the Gaussian keywords and associated options for this calculation.
+        """
+        keyword_sections = []
+        
+        # Optimisations.
+        if self.optimisation['on']:
+            keyword_sections.append(self.keyword_to_string("Opt", self.optimisation['options']))
             
+        # Frequencies.
+        if self.frequency['on']:
+            keyword_sections.append(self.keyword_to_string("Freq", self.frequency['options']))
+            
+        # Excited states.
+        if self.DFT_excited_states['nstates'] != 0:
+            # First, build our options.
+            options = {
+                'nstates': self.DFT_excited_states['nstates'],
+                'multiplicity': self.DFT_excited_states['multiplicity'],
+                'root': self.DFT_excited_states['root']
+            }
+                
+            # Add our keyword, which changes base on whether we're using TDA or TD-DFT.
+            keyword_sections.append(self.keyword_to_string("TDA" if self.DFT_excited_states['TDA'] else "TD", options, self.DFT_excited_states['options']))
+            
+        # Merge and return.
+        return " ".join(keyword_sections)
+
     @property
     def route_section(self):
         """
         Get a Gaussian input file route section from this calculation target.
         """
-        raise NotImplementedError("WIP: Need to take into account DFT_excited_states etc...")
         # Assemble our route line.
         # Add calc keywords.
         route_parts = list(self.calculation_keywords)
@@ -139,7 +197,7 @@ class Gaussian(Concrete_calculation):
         
         # Solvent.
         if self.solvent is not None:
-            route_parts.append("SCRF=(Solvent={})".format(self.solvent))
+            route_parts.append(self.keyword_to_string("SCRF", {"Solvent": self.solvent}))
         
         # Finally, add any free-form options.
         for option in self.options:
