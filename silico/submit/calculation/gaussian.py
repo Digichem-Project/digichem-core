@@ -6,6 +6,51 @@ from silico.config.configurable.option import Option
 from silico.submit.calculation import Concrete_calculation
 from silico.config.configurable.options import Options
 
+class Keyword():
+    """
+    A class that represents a Gaussian keyword.
+    
+    Keywords appear in the route section of a Gaussian input file and instruct Gaussian which calculation to perform. They have any of the following general syntax:
+        keyword
+        keyword=option
+        keyword=(option=value)
+        keyword=(option1, option2=value)
+    """
+    
+    def __init__(self, keyword, *options):
+        """
+        Constructor for Gaussian Keyword objects.
+        
+        :param keyword: The Gaussian keyword.
+        :param options: An optional number of dicts which contain options for the keyword. 
+        """
+        self.keyword = keyword
+        self.options = options
+        
+    def __str__(self):
+        """
+        Stringify this Keyword.
+        
+        The returned string is suitable for inclusion in a Gaussian input file.
+        """
+        options_strings = []
+        for option in self.options:
+            for option_name, option_value in option:
+                if option_value == "":
+                    # 'Blank' option value, just add the option name.
+                    options_strings.append(option_name)
+                
+                elif option_value != None:
+                    # Add the name and the value, unless the value is None (in which case we add neither).
+                    options_strings.append("{}={}".format(option_name, option_value))
+        
+        if len(options_strings) == 0:
+            return self.keyword
+        
+        else:
+            return "{}=({})".format(self.keyword, ", ".join(options_strings))
+        
+
 class Gaussian(Concrete_calculation):
     """
     DFT (density functional theory) calculations with Gaussian.
@@ -39,7 +84,6 @@ class Gaussian(Concrete_calculation):
     _multiplicity = Option("multiplicity", help = "Forcibly set the molecule multiplicity. Leave blank to use the multiplicity given in the input file", default = None, type = int)
     _charge = Option("charge", help = "Forcibly set the molecule charge. Leave blank to use the charge given in the input file", default = None, type = float)
     solvent = Option(help = "Name of the solvent to use for the calculation (the model used is SCRF-PCM)", default = None, type = str)
-    options = Option(help = "Additional Gaussian route keywords. These are written to the input file with only minor modification ('keyword : value' becomes 'keyword=value'), so any option valid to Gaussian can be given here", default = {'Population': 'Regular', 'Density': 'Current'}, type = dict)
     convert_chk = Option(help = "Whether to create an .fchk file at the end of the calculation", default = True, type = bool)
     keep_chk = Option(help = "Whether to keep the .chk file at the end of the calculation. If False, the .chk file will be automatically deleted, but not before it is converted to an .fchk file (if convert_chk is True)", default = False, type = bool)
     keep_rwf = Option(help = "Whether to keep the .rwf file at the end of the calculation. If False, the .rwf file will be automatically deleted", default = False, type = bool)
@@ -62,35 +106,7 @@ class Gaussian(Concrete_calculation):
         TDA = Option(help = "Whether to use the Tamm–Dancoff approximation.", type = bool, default = False),
         options = Option(help = "Additional options to specify.", type = dict, default = {})
     )
-    
-    @classmethod
-    def keyword_to_string(self, keyword, *options):
-        """
-        Convert a Gaussian keyword and options to a string appropriate for a Gaussian input file.
-        
-        Gaussian keywords have the following syntax: keyword=(Option=Value, Option)
-        
-        :param keyword: The Gaussian keyword.
-        :param options: A (number of) dictionary of option=value options for the keyword.
-        :returns: A string.
-        """
-        options_strings = []
-        for option in options:
-            for option_name, option_value in option:
-                if option_value == "":
-                    # 'Blank' option value, just add the option name.
-                    options_strings.append(option_name)
-                
-                elif option_value != None:
-                    # Add the name and the value, unless the value is None (in which case we add neither).
-                    options_strings.append("{}={}".format(option_name, option_value))
-        
-        if len(options_strings) == 0:
-            return keyword
-        
-        else:
-            return "{}=({})".format(option_name, ", ".join(options_strings))
-            
+    keywords = Option(help = "Additional Gaussian route keywords. These are written to the input file with only minor modification ('keyword : value' becomes 'keyword=value'), so any option valid to Gaussian can be given here", default = {'Population': 'Regular', 'Density': 'Current'}, type = dict)            
     
     @property
     def charge(self):
@@ -156,17 +172,17 @@ class Gaussian(Concrete_calculation):
     @property
     def calculation_keywords(self):
         """
-        Get a string containing the Gaussian keywords and associated options for this calculation.
+        Get a string containing the Gaussian calculation keywords and associated options for this calculation.
         """
         keyword_sections = []
         
         # Optimisations.
         if self.optimisation['on']:
-            keyword_sections.append(self.keyword_to_string("Opt", self.optimisation['options']))
+            keyword_sections.append(str(Keyword("Opt", self.optimisation['options'])))
             
         # Frequencies.
         if self.frequency['on']:
-            keyword_sections.append(self.keyword_to_string("Freq", self.frequency['options']))
+            keyword_sections.append(str(Keyword("Freq", self.frequency['options'])))
             
         # Excited states.
         if self.DFT_excited_states['nstates'] != 0:
@@ -178,7 +194,7 @@ class Gaussian(Concrete_calculation):
             }
                 
             # Add our keyword, which changes base on whether we're using TDA or TD-DFT.
-            keyword_sections.append(self.keyword_to_string("TDA" if self.DFT_excited_states['TDA'] else "TD", options, self.DFT_excited_states['options']))
+            keyword_sections.append(str(Keyword("TDA" if self.DFT_excited_states['TDA'] else "TD", options, self.DFT_excited_states['options'])))
             
         # Merge and return.
         return " ".join(keyword_sections)
@@ -200,7 +216,7 @@ class Gaussian(Concrete_calculation):
             route_parts.append(self.keyword_to_string("SCRF", {"Solvent": self.solvent}))
         
         # Finally, add any free-form options.
-        for option in self.options:
+        for keyword in self.keywords:
             if self.options[option] == "":
                 # Blank option, just add the keyword.
                 route_parts.append(option)
