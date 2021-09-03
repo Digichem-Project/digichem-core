@@ -28,21 +28,21 @@ def _get_input(prompt):
     """
     return input(prompt)
     
-def _parse_calc_string(calc_string, destinations, programs, calculations):
+def _parse_calc_string(method_string, destinations, programs, calculations):
     """
     Parse a calculation request string, of the format M/P/C, P/C or C.
     
     :raises IndexError: If the calculation string is invalid.
     :return: The relevant destination, program and calculation.
     """
-    split_string = calc_string.split("/")
+    split_string = method_string.split("/")
     
     # We parse backwards.
     # The final part is the calculation.
     if len(split_string) > 0:
         calculation = calculations.get_config(split_string[-1])
     else:
-        raise Silico_exception("'{}' is not a valid calculation identifier".format(calc_string))
+        raise Silico_exception("'{}' is not a valid calculation identifier".format(method_string))
     
     if len(split_string) > 1:
         program = programs.get_config(split_string[-2])
@@ -80,7 +80,7 @@ def arguments(subparsers):
     
     parser.add_argument("calculation_files", help = "Gaussian input files to submit", nargs = "*", type = Path)
     parser.add_argument("-o", "--output", help = "Base directory to perform calculations in. Defaults to the current directory", default = Path("./"))
-    parser.add_argument("-c", "--calculations", help = "Calculations to perform, identified either by name or by ID. To use a destination and/or program other than the default, use the format M/P/C (eg, 2/1/1)", nargs = "*", default = [])
+    parser.add_argument("-m", "--methods", help = "Methods to perform, identified either by name or by ID. To use a destination and/or program other than the default, use the format M/P/C (eg, 2/1/1)", nargs = "*", default = [])
     parser.add_argument("-C", "--charge", help = "Set the molecular charge of all input files. Note that certain calculations will override this value", default = None, type = float)
     parser.add_argument("-M", "--multiplicity", help = "Set the multiplicity of all input files. Note that certain calculations will override this value", default = None, type = int)
     parser.add_argument("--gen3D", help = "Whether to generate 3D coordinates (this will scramble existing atom coordinates). The default is yes, but only if it can be safely determined that the loaded coordinates are not already in 3D)", type = to_bool, default = None)
@@ -122,26 +122,26 @@ def _main(args, config, logger):
         raise Silico_exception("No files to submit")
     
     
-    calculations = []
+    methods = []
     while True:
         try:
             # Parse our calculation strings, getting the actual calculation objects.
-            calculations = [_parse_calc_string(calc_string, known_destinations, known_programs, known_calculations) for calc_string in args.calculations]
+            methods = [_parse_calc_string(method_string, known_destinations, known_programs, known_calculations) for method_string in args.methods]
         except:
             raise Silico_exception("Failed to parse calculations to submit")
                             
-        # Quit the loop if we have some calculations or if we can't ask the user for some.
-        if len(calculations) != 0:
+        # Quit the loop if we have some methods or if we can't ask the user for some.
+        if len(methods) != 0:
             break
         
         # Ask the user for calcs.
-        args.calculations = shlex.split(Calculation_browser.run(known_destinations, known_programs, known_calculations, Calculation_browser.yaml_to_palette(config['palette'])))
-        if len(args.calculations) == 0:
+        args.methods = shlex.split(Calculation_browser.run(known_destinations, known_programs, known_calculations, Calculation_browser.yaml_to_palette(config['palette'])))
+        if len(args.methods) == 0:
             break
         
     # Print any warning messages (but only once each).
     warnings = [None]
-    for configurables in calculations:
+    for configurables in methods:
         for configurable in configurables:
                 if configurable.warning not in warnings:
                     logger.warning(configurable.warning)
@@ -153,7 +153,7 @@ def _main(args, config, logger):
     
     try:
         # Arrange our calcs into a linked list.
-        first = Calculation_target.link(calculations, global_silico_options = config)
+        first = Calculation_target.link(methods, global_silico_options = config)
     except Exception:
         raise Silico_exception("Error processing calculations to submit")
     
