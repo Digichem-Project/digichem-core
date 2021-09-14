@@ -39,10 +39,8 @@ class Turbomole_parser(Parser):
         """
         Parse additional calculation metadata.
         """
-        # Add name.
-        if self.name is not None:
-            self.data.metadata['name'] = self.name
-            
+        super().parse_metadata()
+                    
         # Look for duration information.
         self.data.metadata['walltime'] = 0.0
         self.data.metadata['cputime'] = 0.0
