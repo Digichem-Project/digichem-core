@@ -4,6 +4,8 @@ from pathlib import Path
 import cclib.io
 from glob import iglob
 import itertools
+import pwd
+import os
 
 # Silico imports
 from silico.result.molecular_orbitals import Molecular_orbital_list,\
@@ -208,10 +210,28 @@ class Parser(Result_set):
         # Add our name.
         if self.name is not None:
             self.data.metadata['name'] = self.name
+            
+        # Add current username.
+        # TODO: It would probably be better if we used the name of the user who owns the output file, rather than the current user...
+        self.data.metadata['user'] = self.get_current_username()
         
         # Set our file paths.
         self.data.metadata['log_files'] = self.log_file_paths
         self.data.metadata['aux_files'] = self.aux_files
+        
+    @classmethod
+    def get_current_username(self):
+        """
+        Get the username of the currently logged in user.
+        
+        :returns: The username as a string, or None if the username could not be determined.
+        """
+        # Based on https://stackoverflow.com/questions/842059/is-there-a-portable-way-to-get-the-current-username-in-python
+        try:
+            return pwd.getpwuid(os.getuid()).pw_name
+        
+        except Exception as e:
+            return None
         
     def process(self, alignment_class):
         """

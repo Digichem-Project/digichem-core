@@ -19,6 +19,9 @@
 ##
 ##
 Name: ${metadata.name}
+%if metadata.user is not None:
+Username: ${metadata.user}
+%endif
 %if metadata.date is not None:
 Date: ${misc.date_to_string(metadata.date)}
 %endif
