@@ -1,6 +1,9 @@
-TAG: Method Base
+TAG: Destination Base
 SUB_TYPE: pseudo
 NEXT:
     - SLURM Base
     - Series
     - Parallel
+
+programs:
+    - [Programs Base]

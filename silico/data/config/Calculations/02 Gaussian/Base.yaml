@@ -3,9 +3,6 @@ CLASS: Gaussian
 TAG: Gaussian
 SUB_TYPE: pseudo
 
-# The programs that this calculation is compatible with.
-programs: [g09, g16]
-
 # Gaussian calculation options.
 # The number of processors to use. More processors will generally shorten the overall calculation time, but this relationship may not be linear.
 # If you wish to specify the exact processors to utilise (not sure why you would, but apparently this is preferred by Gaussian), use the 'CPU_list' option instead.

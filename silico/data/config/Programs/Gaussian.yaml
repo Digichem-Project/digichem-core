@@ -18,6 +18,9 @@ gaussian_root: /home/oliver/Fake_Gauss/
 # Path to the gaussian .profile script which is run to set-up gaussian.
 gaussian_init_file: /home/oliver/Fake_Gauss/g09/bsd/g09.profile
 
+# The top config for the calculations we support.
+calculations:
+    - [Calculation Base, Gaussian]
 
 ---
 
@@ -41,4 +44,8 @@ gaussian_root: /home/oliver/Fake_Gauss/
 
 # Path to the gaussian .profile script which is run to set-up gaussian.
 gaussian_init_file: /home/oliver/Fake_Gauss/g16/bsd/g16.profile
+
+# The top config for the calculations we support.
+calculations:
+    - [Calculation Base, Gaussian]
 

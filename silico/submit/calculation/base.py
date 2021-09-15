@@ -15,13 +15,6 @@ class Calculation_target(Configurable_target):
     """
     # Top level Configurable for calculations.
     CLASS_HANDLE = ("calculation",)
-    
-    # Configurable options.
-    parents = Option(
-        "programs",
-        help = "A list of programs that this calculation is compatible with",
-        required = True,
-        type = list)
         
     @classmethod
     def safe_name(self, file_name):

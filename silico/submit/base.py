@@ -8,30 +8,7 @@ class Configurable_target(Configurable):
     """
     Top level class for user-configurable submit targets (Calculation types, program types, destination types etc.)
     """
-    
-    def get_children(self, target_list):
-        """
-        Get all the configurable target objects from a list that contain this object as a parent.
-        """
-        return [child for child in target_list if child.compatible_parent(self)]
-    
-    def compatible_parent(self, parent):
-        """
-        Determine whether a configurable is allowed to be a parent of this configurable.
-        
-        """
-        return len(set(parent.NAMES).intersection(self.parents)) != 0
-        
-    def validate_parent(self, parent):
-        """
-        Determine whether a configurable is allowed to be a parent of this configurable, raising an exception if not.
-        
-        :raises Configurable_exception: If the given parent is not valid.
-        :return: None.
-        """
-        if not self.compatible_parent(parent):
-            raise Configurable_exception(self, "{} '{}' is not compatible with {} '{}'".format(parent.TYPE, parent.NAME, self.TYPE, self.NAME))
-        
+            
     @classmethod
     def get_available_CPUs(self):
         """

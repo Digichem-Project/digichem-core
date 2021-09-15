@@ -13,25 +13,6 @@ from silico.interface.urwid.base import Top, Window
 from silico.interface.urwid.dialogue import Confirm
 from silico.exception.base import Silico_exception
 
-# Default palette for urwid.
-# palette = [
-#     ('body', 'black', 'light gray'),
-#     ('boldnode', 'black, bold', 'light gray'),
-#     ('warningnode', 'dark red', 'light gray'),
-#     ('hiddennode', 'light red, blink', 'light gray'),
-#     ('focus', 'light gray', 'dark blue', 'standout'),
-#     ('header', 'light gray,bold', 'dark blue', 'standout'),
-#     ('footer', 'light gray', 'dark blue', 'standout'),
-#     ('bars', 'dark blue', 'light gray', ''),
-#     ('arrowtip', 'light blue', 'light gray', ''),
-#     ('connectors', 'light red', 'light gray', ''),
-#     ('editable', 'dark magenta', 'light gray'),
-#     
-#     ('dialogue', 'white', 'dark blue'),
-#     ('title', 'white, bold', 'dark blue'),
-#     ('good_button', 'black', 'dark green'),
-#     ('bad_button', 'black', 'dark red')
-# ]
 
 class Tree_node(urwid.WidgetWrap):
     """

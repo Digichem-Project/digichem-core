@@ -5,10 +5,6 @@ CLASS: Series
 categories:
     - Auto Characterisation
 
-programs:
-    - Gaussian 09
-    - Gaussian 16
-    
 NEXT:
     - Gaussian Auto Organic TDA
     - Gaussian Auto Organic TD-DFT

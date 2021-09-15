@@ -9,3 +9,6 @@ CLASS: Turbomole
 root: /home/oliver/Software/TmoleX19/TURBOMOLE
 init_file: /home/oliver/Software/TmoleX19/TURBOMOLE/Config_turbo_env
 
+# The top config for the calculations we support.
+calculations:
+    - [Calculation Base, Turbomole]
