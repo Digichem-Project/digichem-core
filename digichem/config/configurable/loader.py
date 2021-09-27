@@ -314,19 +314,6 @@ class Partial_loader(Configurable_loader):
         except Tag_path_length_error:
             raise Tag_path_length_error(tag_list) from None
         
-        # Merge each of the children 
-        
-#        # Merge our current parent object with ourself.
-#        self.merge_with_parent(parent_config)
-#        
-#         # Search through our children, looking for a child that matches the given TAG.
-#         for child in self.NEXT:
-#             if child.TAG == tag_list[0]:
-#                 # It's a match, continue down the road.
-#                 return child.resolve_by_tags(tag_list[1:], parent_config = parent_config, validate = validate)
-#                
-#        # If we get this far, TAG isn't recognised.
-#        raise Configurable_loader_exception(self.config, self.TYPE, self.file_name, "couldn't resolve TAG list '{}'; couldn't find TAG '{}'".format(tag_list, tag_list[0]))
 
     def link(self, loaders):
         """
