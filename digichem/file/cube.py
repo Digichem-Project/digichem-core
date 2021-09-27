@@ -330,7 +330,7 @@ class Turbomole_to_cube(File_converter):
         # We use an in series destination so we will block while the calc runs.
         self.destination_t = Series({
             "TYPE": "destination",
-            "CLASS": "series",
+            "class_name": "series",
             "NAME": "Orbital cubes"
         })
         self.destination_t.configure(ID = None)
