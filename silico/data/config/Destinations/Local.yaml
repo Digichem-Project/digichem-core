@@ -4,7 +4,10 @@ categories:
 
 hidden: True
 
-CLASS: series
+class_name: series
+
+PROGRAMS:
+    - [Programs Base]
 
 
 ---
@@ -16,4 +19,4 @@ categories:
 
 hidden: True
 
-CLASS: parallel
+class_name: parallel

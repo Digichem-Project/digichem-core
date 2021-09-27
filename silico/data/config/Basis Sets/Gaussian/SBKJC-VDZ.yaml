@@ -2,7 +2,7 @@ name: SBKJC-VDZ for >= K
 TAG: SBKJC_VDZ
 
 # Basis set for gaussian calculation.
-CLASS: gaussian_basis
+class_name: gaussian_basis
 
 basis_set: |
     !----------------------------------------------------------------------

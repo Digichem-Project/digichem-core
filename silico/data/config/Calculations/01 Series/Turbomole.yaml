@@ -1,6 +1,6 @@
 TAG: Turbomole Auto
 SUB_TYPE: partial
-CLASS: Series
+class_name: Series
 
 categories:
     - Auto Characterisation

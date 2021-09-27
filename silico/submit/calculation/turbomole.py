@@ -241,7 +241,7 @@ def get_orbital_calc(*, name, memory, num_CPUs, orbitals = [], density = False, 
     
     # First generate our calculation.
     calc_t = Turbomole_restart({
-        "CLASS": "Turbomole-restart",
+        "class_name": "Turbomole-restart",
         "TYPE": "calculation",
         "NAME": "Orbital Cubes for {}".format(name),
         "programs": [program_name],

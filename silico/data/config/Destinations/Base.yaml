@@ -4,6 +4,3 @@ NEXT:
     - SLURM Base
     - Series
     - Parallel
-
-programs:
-    - [Programs Base]

@@ -4,7 +4,7 @@ categories:
     - Turbomole
 
 # The name of the program this config is for. These are pre-built into silico.
-CLASS: Turbomole
+class_name: Turbomole
 
 root: /home/oliver/Software/TmoleX19/TURBOMOLE
 init_file: /home/oliver/Software/TmoleX19/TURBOMOLE/Config_turbo_env

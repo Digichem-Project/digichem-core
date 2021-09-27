@@ -1,5 +1,5 @@
 # The base for gaussian calculations.
-CLASS: Gaussian
+class_name: Gaussian
 TAG: Gaussian
 SUB_TYPE: pseudo
 

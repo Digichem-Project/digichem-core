@@ -131,7 +131,7 @@ class Configurable_loader():
         """
         Convert (or attempt to) a config dict to an appropriate configurable object.
         
-        :raises Silico_exception: If the CLASS of the configurable is not set or cannot be found.
+        :raises Silico_exception: If the class_name of the configurable is not set or cannot be found.
         :param config: The config dict.
         :param validate: Whether to validate the configured object.
         :returns: A loaded Configurable object.
@@ -146,11 +146,11 @@ class Configurable_loader():
         
         # Try and get the configurable class.
         try:
-            cls = self.type_class.from_class_handle(config['CLASS'])
+            cls = self.type_class.from_class_handle(config['class_name'])
         except ValueError:
-            raise Configurable_loader_exception(config, self.TYPE, self.file_name, "CLASS '{}' is not recognised".format(config['CLASS'])) from None
+            raise Configurable_loader_exception(config, self.TYPE, self.file_name, "class_name '{}' is not recognised".format(config['class_name'])) from None
         except KeyError:
-            #raise Silico_exception("Error loading configurable of type '{}' from file '{}'; no CLASS set".format(self.TYPE, config_path)) from None
+            #raise Silico_exception("Error loading configurable of type '{}' from file '{}'; no class_name set".format(self.TYPE, config_path)) from None
             # If no class set, use the top level class.
             cls = self.type_class
         

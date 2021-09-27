@@ -111,7 +111,7 @@ class Configurable(Dynamic_parent, Options_mixin):
     # Configurable options.
     TAG_HIERARCHY = Option(help = "A hierarchical list of tags that were combined to form this configurable", default = [], type = list, no_edit = True)
     TYPE = Option(help = "The type of this Configurable", choices = ('destination', 'program', 'calculation', 'basis_set'), required = True, default = 'calculation', type = str, no_edit = True)
-    CLASS = Option(
+    class_name = Option(
         help = "The specific sub-type of this Configurable",
         #choices = lambda option, configurable: [handle for cls in Configurable.from_class_handle(configurable.TYPE).recursive_subclasses() if hasattr(cls, 'CLASS_HANDLE') for handle in cls.CLASS_HANDLE],
         required = True,

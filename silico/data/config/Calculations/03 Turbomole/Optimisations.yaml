@@ -12,7 +12,7 @@ NEXT:
 
 
 TAG: Turbomole UFF
-CLASS: Turbomole-UFF
+class_name: Turbomole-UFF
 
 categories:
     - UFF

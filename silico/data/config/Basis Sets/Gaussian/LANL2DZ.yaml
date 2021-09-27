@@ -2,7 +2,7 @@ name: LANL2DZ for >= K
 TAG: LANL2DZ
 
 # Basis set for gaussian calculation.
-CLASS: gaussian_basis
+class_name: gaussian_basis
 
 basis_set: |
     !----------------------------------------------------------------------
