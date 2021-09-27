@@ -80,6 +80,47 @@ class Configurable_loader():
                 return
             
             pos +=1
+            
+    def get_concrete_children(self, _concrete_children = None, _current_path = None):
+        """
+        Get a list of the children of this loader that are concrete.
+        
+        Concrete here means that the child would appear as a node in a list of options, ie is not pseudo or similar.
+        This method is recursive, any direct children that are not concrete (they are pseudo) will also have get_concrete_children() called.
+        
+        All parameters to this method are only used when called recursively; they should not normally be specified by the user.
+        
+        :param _concrete_children: The current list of concrete children.
+        :param _current_path: A list of pseudo loaders that have already been traversed up to this point.
+        :returns: A list of paths to concrete children. Each 'path' is itself a list of loaders which if traversed will lead to the concrete child.
+                  Only the last element in the list will be a non-pseudo loader, while all others will be a pseudo loader.
+                  If a direct child of this loader is concrete, then the 'path' will be a list containing a single element (which will be that direct child).
+                  
+        """
+        concrete_children = [] if _concrete_children is None else _concrete_children
+        if _current_path is None:
+            current_path = []
+            
+        else:
+            # We make a new list from the existing current path because it will be modified differently each time this method is called recursively.
+            current_path = list(_current_path)
+            
+            # Add ourself to current path.
+            current_path.append(self)
+        
+        # Iterate through each of our immediate children.
+        for child in self.NEXT:
+            if child.pseudo:
+                # This child is pseudo (ie, not concrete), so we want its children.
+                child.get_concrete_children(concrete_children, current_path)
+                
+            else:
+                # This child is concrete, add it to the list.
+                current_path.append(child)
+                # Add the path to our total list.
+                concrete_children.append(current_path)
+                
+        return concrete_children
     
     def resolve(self, index, *, parent_offset = 0, parent_config = None):
         """
@@ -367,7 +408,7 @@ class Configurable_list(Partial_loader):
 
 class Single_loader(Configurable_loader):
     """
-    A configurable loader that represents a single configurable.
+    A configurable loader that represents a single configurable, or the end of a chain of loaders that leads to a configurable.
     """
     
     def __init__(self, file_name, TYPE, config):
