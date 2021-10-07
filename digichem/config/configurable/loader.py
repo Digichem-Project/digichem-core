@@ -11,7 +11,6 @@ from silico.config.configurable import Configurable
 from silico.exception.configurable import Configurable_loader_exception,\
     Tag_path_length_error, Unresolvable_tag_path_error
 from silico.exception.base import Silico_exception
-from pkg_resources._vendor.pyparsing import ident
 
 class Configurable_loader():
     """
@@ -200,60 +199,68 @@ class Configurable_loader():
         """
         raise NotImplementedError()
     
-    def link(self, loaders):
+    def link(self, loaders, children):
         """
         Link this partial loader to a number of other loaders.
         
         This implementation does nothing.
+        
+        :param loaders: A flat list of the other loaders of the same type that have been parsed.
+        :param children: The top loader (probably a configurable list) for the child type for this loader.
         """
         pass
     
     def find(self, tag):
         """
-        Search through our child loaders (iteratively) for the first one with a given TAG.
+        Find the first child loader that has a given TAG.
         
         :param tag: The TAG to search for.
+        :returns: A list of loaders leading to the one with the given tag.
         """
         # A list of found configurables.
-        found = self.search_for_tag(tag)
+        loader_lists = self.search_by_tag(tag)
         
         # Panic if we've got nothing.
-        if len(found) == 0:
+        if len(loader_lists) == 0:
             raise Silico_exception("Could not find a configurable with TAG '{}' that is a child of '{}'".format(tag, self.TAG))
         
         # We want the match that is closest to us (fewest path steps away).
-        shortest = min((len(loader_path) for loader_path in found))
+        shortest = min((len(loader_path) for loader_path in loader_lists))
         
         # Prune all paths that are longer than our min.
-        found = [loader_path for loader_path in found if len(loader_path) == shortest]
+        loader_lists = [loader_path for loader_path in loader_lists if len(loader_path) == shortest]
                 
         # If we have more than one match, panic.
-        if len(found) > 1:
-            raise Unresolvable_tag_path_error(tag, found)
+        if len(loader_lists) > 1:
+            raise Unresolvable_tag_path_error(tag, loader_lists)
         
         else:
-            return found[0]
-        
-    def search_for_tag(self, tag):
+            return loader_lists[0]
+    
+    def search_by_tag(self, tag):
         """
+        Search through our child loaders (iteratively) for the first that matches a given tag.
+        
+        :param tag: The TAG to searcg for.
+        :returns: A list of loader lists (a list leading to the loader with the given tag).
         """
         # A list of found configurables.
-        found = []
+        loader_lists = []
         
         if self.TAG == tag:
             # It's us!
-            found.append([self])
+            loader_lists.append([self])
             
         else:
             # None at this level, we need to ask our children if they match the tag.
             for child in self.NEXT:
                 
                 # Add the loaders our child found to our list, adding ourself to the start.
-                for loader_list in child.search_for_tag(tag):
+                for loader_list in child.search_by_tag(tag):
                     loader_list.insert(0, self)
-                    found.append(loader_list)
+                    loader_lists.append(loader_list)
             
-        return found
+        return loader_lists
     
 
 class Partial_loader(Configurable_loader):
@@ -293,7 +300,7 @@ class Partial_loader(Configurable_loader):
         
         elif isinstance(identifier, list) or isinstance(identifier, tuple):
             # Tag list.
-            path = self.path_by_tags(identifier)
+            path = self.path_by_tags(identifier, allow_incomplete = False)
             
         else:
             # Unrecognised identifier
@@ -317,7 +324,12 @@ class Partial_loader(Configurable_loader):
         self.merge_with_parent(parent_config)
         
         # Now continue down the loader path, removing the first item (which is us).
-        return path[1].resolve_path(path[1:], parent_config = parent_config, validate = validate)
+        try:
+            return path[1].resolve_path(path[1:], parent_config = parent_config, validate = validate)
+        
+        except IndexError:
+            # We ran out of parts of our path before reaching a single loader, give up.
+            raise Tag_path_length_error([configurable.TAG for configurable in path])
         
     def path_by_index(self, index, *, parent_offset = 0, path = None):
         """
@@ -350,12 +362,13 @@ class Partial_loader(Configurable_loader):
         # If we get this far, index is out of range.
         raise IndexError("Configurable index '{}' is out of range".format(index))
     
-    def path_by_tags(self, tag_list, *, path = None):
+    def path_by_tags(self, tag_list, *, path = None, allow_incomplete = True):
         """
         Build a list of loaders based on a list of TAG names.
         
         :param tag_list: A list of ordered tags indicating which configurables to get.
         :param path: The currently built configurable path, used when called recursively.
+        :param allow_incomplete: Whether to return incomplete paths. Incomplete paths are those that do not end in a single loader. If False, a Tag_path_length_error exception will be raised if the given tag_list is not long enough. 
         :returns: The list of loaders.
         """
         path = [] if path is None else path
@@ -365,6 +378,13 @@ class Partial_loader(Configurable_loader):
             tag = tag_list[0]
         
         except IndexError:
+            # We ran out of path segments, if we're allowed to return incomplete paths do so.
+            if allow_incomplete:
+                # Add ourself as the final element.
+                path.append(self)
+                return path
+            
+            # We're not allowed incomplete paths, panic.
             raise Tag_path_length_error(tag_list) from None
 
         # Search through our children for the next tag.
@@ -386,11 +406,14 @@ class Partial_loader(Configurable_loader):
             raise Tag_path_length_error(tag_list) from None
         
 
-    def link(self, loaders):
+    def link(self, loaders, children = None):
         """
-        Link this partial loader to a number of other loaders.
+        Link this loader to a number of other loaders.
         
         This method will resolve the NEXT configs at this node.
+        
+        :param loaders: A flat list of the other loaders of the same type that have been parsed.
+        :param children: The top loader (probably a configurable list) for the child type for this loader.
         """
         try:
             for tag in self.config['NEXT']:
@@ -400,7 +423,12 @@ class Partial_loader(Configurable_loader):
                 
                 # Panic if we couldn't find any.
                 if len(matching) == 0:
-                    raise Configurable_loader_exception(self.config, self.TYPE, self.file_name, "next TAG '{}' could not be found".format(tag))
+                    # Check we weren't accidentally given a list (because lists are allowed in NEXT for single loaders, but not for partial loaders).
+                    if isinstance(tag, list):
+                        raise Configurable_loader_exception(self.config, self.TYPE, self.file_name, "next TAG '{}' is a list".format(tag))
+                    
+                    else:
+                        raise Configurable_loader_exception(self.config, self.TYPE, self.file_name, "next TAG '{}' could not be found".format(tag))
                 
                 # Add all matching to our NEXT.
                 for match in matching:
@@ -446,6 +474,11 @@ class Single_loader(Configurable_loader):
         Constructor for Single_loader objects.
         """
         super().__init__(file_name, TYPE, config)
+        
+        # A list of loaders that are children of this loader.
+        # Child loaders will have a different TYPE to the current loader.
+        # For example, loaders for destinations will have programs as child loaders, and programs will have calculations as child loaders.
+        self.CHILDREN = []
         
     def size(self):
         """
@@ -506,6 +539,28 @@ class Single_loader(Configurable_loader):
         path.append(self)
         
         return path
+    
+    def link(self, loaders, children = None):
+        """
+        Link this loader to a number of other loaders.
+        
+        :param loaders: A flat list of the other loaders of the same type that have been parsed.
+        :param children: The top loader (probably a configurable list) for the child type for this loader.
+        """
+        if children is not None:
+            # Go through our list of next children.
+            # Unlike for partial loaders, here NEXT refers to configurables of a different TYPE (they are our child configurables).
+            for tag_list in self.config.get('NEXT', []):
+                # If only a single tag has been given, wrap it in a list.
+                if isinstance(tag_list, str):
+                    tag_list = [tag_list]
+                    
+                self.CHILDREN.append(children.path_by_tags(tag_list))
+                
+        elif len(self.config.get('NEXT', [])):
+            # Panic, we have some loaders listed in NEXT but we have no children to search through.
+            raise Configurable_loader_exception(self.config, self.TYPE, self.file_name, "cannot find NEXT loaders; there are no children for TYPE '{}'".format(self.TYPE))
+            
     
 class Update_loader(Single_loader):
     """

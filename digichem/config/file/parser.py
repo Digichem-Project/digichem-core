@@ -160,12 +160,13 @@ class Configurables_parser():
     Reads and parsers all configurable files from a location.
     """
     
-    def __init__(self, *paths, TYPE):
+    def __init__(self, *paths, TYPE, children = None):
         """
         Constructor for Configurables_loader object.
         
         :param paths: Paths to  directories to load .yaml files from. All *.yaml files under each directory will be loaded and processed.
         :param TYPE: The TYPE of the configurables we are loading; this is a string which identifies the type of the configurables (eg, Destination, Calculation etc).
+        :param children: The top loader (probably a configurable list) for the child type for this loader.
         """
         self.root_directories = paths
         # A type to set for all configurables we load.
@@ -174,6 +175,8 @@ class Configurables_parser():
         self.loaders = []
         # Configs that update other configs.
         self.updates = []
+        # Top-level configurable loader for our children.
+        self.children = children
         
     def load(self):
         """
@@ -223,7 +226,7 @@ class Configurables_parser():
         
         # We need to link any partial loaders together.
         for loader in self.loaders:
-            loader.link(self.loaders)
+            loader.link(self.loaders, children = self.children)
             
         # Next we need to purge partial configurables from the top level list.
         #conf_list = Configurable_list([loader for loader in self.loaders if loader.TOP], self.TYPE)
@@ -273,7 +276,15 @@ class Configurables_parser():
             # Load from the location and add to our silico_options object.
             # The name of the attribute we add to is the same as the location we read from, but in lower case...
             try:
-                getattr(options, configurable_type).NEXT.extend(self(*root_directories, TYPE = TYPE).load())
+                # Determine which are our children of the current type.
+                children = None
+                if TYPE == "program":
+                    children = options.calculations
+                
+                elif TYPE == "destination":
+                    children = options.programs
+                
+                getattr(options, configurable_type).NEXT.extend(self(*root_directories, TYPE = TYPE, children = children).load())
                 
             except FileNotFoundError:
                 # No need to panic.
