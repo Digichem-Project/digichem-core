@@ -15,6 +15,7 @@ NEXT:
 
 
 TAG: Gaussian Auto Organic
+SUB_TYPE: partial
 ALIAS: Organic Emitter
 NEXT:
     - Gaussian Auto Organic TDA
@@ -49,6 +50,7 @@ calculations:
 
 
 TAG: Gaussian Auto Organometallic
+SUB_TYPE: partial
 ALIAS: Organometallic Emitter (in Acetonitrile)
 NEXT:
     - Gaussian Auto Organometallic TDA
