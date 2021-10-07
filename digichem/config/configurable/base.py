@@ -119,7 +119,6 @@ class Configurable(Dynamic_parent, Options_mixin):
     )
 
     name = Option(help = "The unique name of this Configurable", type = str, required = True)
-    categories = Option(help = "A hierarchical list of categories that this configurable belongs to", default = [], type = list)
     hidden = Option(help = "If True, this configurable will not appear in lists (but can still be specified by the user). Useful for configurables that should not be used naively", type = bool, default = False)
     warning = Option(help = "A warning message to display when this configurable is chosen", default = None, type = str)
 
@@ -129,23 +128,11 @@ class Configurable(Dynamic_parent, Options_mixin):
         Setup automatic names for this configurable.
          
         Automatic names are ones that are generated automatically from some other information about the configurable.
-        Currently, this includes the categories and NAME attributes, which can be set automatically based on the file path from which the configurable was loaded. 
-        """
-        # First, resolve our category if we have one (which can contain formatting chars).
-        for index, category in enumerate(self.categories):
-            #TODO: This might be dangerous?
-            self.categories[index] = category.format(self, conf = self)
-            
-        
-        # Next, set categories, as we may need this later for our name.
-        if len(self.categories) == 0 and self.TAG_HIERARCHY is not None:
-            # No category and we're able to set one.
-            self.categories = self.TAG_HIERARCHY
-             
-        # Now set our NAME if empty.
-        if not hasattr(self, "name") and len(self.categories) > 0:
+        """             
+        # If our name is empty, set from our tag hierarchy.
+        if not hasattr(self, "name") and self.TAG_HIERARCHY is not None:
             # No name, set from the category.
-            self.name = " ".join(self.categories)
+            self.name = " ".join(self.TAG_HIERARCHY)
 
     def validate(self):
         """
