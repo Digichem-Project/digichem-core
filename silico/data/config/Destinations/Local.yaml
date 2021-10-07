@@ -6,8 +6,8 @@ hidden: True
 
 class_name: series
 
-PROGRAMS:
-    - [Programs Base]
+NEXT:
+    - Programs Base
 
 
 ---
@@ -20,3 +20,6 @@ categories:
 hidden: True
 
 class_name: parallel
+
+NEXT:
+    - Programs Base

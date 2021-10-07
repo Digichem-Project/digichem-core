@@ -13,6 +13,9 @@ TAG: Normal SLURM
 partition: batch
 time: 5-00:00:00
 
+NEXT:
+    - Programs Base 
+
 
 ---
 
@@ -22,3 +25,5 @@ TAG: Long SLURM
 partition: Long
 time: 41-00:00:00
 
+NEXT:
+    - Programs Base
