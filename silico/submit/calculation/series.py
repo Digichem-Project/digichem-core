@@ -29,7 +29,7 @@ class Calculation_series(Calculation_target):
         
         for tag_path in self.calculation_IDs:
             try:
-                calculations.resolve_by_tags(tag_path)
+                calcs.append(calculations.resolve(tag_path))
                 
             except Exception as e:
                 raise Configurable_exception(self, "Could not expand to real calculation with TAG path '{}'".format(tag_path)) from e
