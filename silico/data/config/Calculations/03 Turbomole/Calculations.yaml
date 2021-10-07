@@ -13,9 +13,8 @@ NEXT:
 
 TAG: Turbomole Single Point
 SUB_TYPE: partial
+ALIAS: Single Point
 
-categories:
-    - Single Point
 modules:
     - dscf
 
@@ -30,9 +29,8 @@ NEXT:
 
 TAG: Turbomole Optimisation
 SUB_TYPE: pseudo
+ALIAS: Optimisation
 
-categories:
-    - Optimisation
 NEXT:
     - Turbomole Molecular Mechanics
     - Turbomole DFT Opt
@@ -45,9 +43,8 @@ NEXT:
 
 TAG: Turbomole Optimisation Frequency
 SUB_TYPE: partial
+ALIAS: Optimisation Frequency
 
-categories:
-    - Optimisation Frequency
 modules:
     - jobex -level scf -c 100 -keep
     - aoforce
@@ -61,9 +58,8 @@ NEXT:
 
 TAG: Turbomole Frequency
 SUB_TYPE: partial
+ALIAS: Frequency
 
-categories:
-    - Frequency
 modules:
     - dscf
     - aoforce
@@ -77,9 +73,7 @@ NEXT:
 
 TAG: Turbomole Excited States
 SUB_TYPE: partial
-
-categories:
-    - Excited States
+ALIAS: Excited States
 
 NEXT:
     - Turbomole TDA

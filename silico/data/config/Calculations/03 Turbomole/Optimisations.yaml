@@ -1,8 +1,6 @@
 TAG: Turbomole Molecular Mechanics
+ALIAS: Molecular Mechanics
 SUB_TYPE: partial
-
-categories:
-    - Molecular Mechanics
 
 NEXT:
     - Turbomole UFF
@@ -12,10 +10,8 @@ NEXT:
 
 
 TAG: Turbomole UFF
+ALIAS: UFF
 class_name: Turbomole-UFF
-
-categories:
-    - UFF
     
 # UFF has no concept of SCF
 scf: null

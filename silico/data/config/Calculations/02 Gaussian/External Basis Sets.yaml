@@ -10,9 +10,8 @@ NEXT:
 
 
 TAG: Gaussian 6-31+G(d,p)/SBKJC-VDZ (ECP)
+ALIAS: "6-31+G(d,p)/SBKJC-VDZ (ECP)"
 
-categories:
-    - "6-31+G(d,p)/SBKJC-VDZ (ECP)"
 basis_set: genECP
 external_basis_sets:
     - 6_31_plus_starstar_H_Ar
@@ -24,8 +23,8 @@ external_ECPs:
 
 
 TAG: Gaussian 6-31+G(d,p)/LANL2DZ (ECP)
-categories:
-    - "6-31+G(d,p)/LANL2DZ (ECP)"
+ALIAS: "6-31+G(d,p)/LANL2DZ (ECP)"
+
 basis_set: genECP
 external_basis_sets:
     - 6_31_plus_starstar_H_Ar

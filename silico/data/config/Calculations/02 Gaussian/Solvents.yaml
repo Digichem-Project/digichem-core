@@ -12,9 +12,6 @@ NEXT:
 TAG: Gaussian Real Solvents
 SUB_TYPE: pseudo
 
-categories:
-    - "{.solvent}"
-
 NEXT:
     - Gaussian 1,4-Dioxane
     - Gaussian 2-Propanol
@@ -40,9 +37,7 @@ NEXT:
 
 SUB_TYPE: partial
 TAG: Gaussian Gas Phase
-
-categories:
-    - Gas Phase
+ALIAS: Gas Phase
 
 NEXT:
     - Gaussian Functionals
@@ -53,6 +48,7 @@ NEXT:
 
 SUB_TYPE: partial
 TAG: Gaussian 1,4-Dioxane
+ALIAS: 1,4-Dioxane
 
 solvent: 1,4-Dioxane
 
@@ -65,6 +61,7 @@ NEXT:
 
 SUB_TYPE: partial
 TAG: Gaussian 2-Propanol
+ALIAS: 2-Propanol
 
 solvent: 2-Propanol
 
@@ -77,6 +74,7 @@ NEXT:
 
 SUB_TYPE: partial
 TAG: Gaussian Acetone
+ALIAS: Acetone
 
 solvent: Acetone
 
@@ -89,6 +87,7 @@ NEXT:
 
 SUB_TYPE: partial
 TAG: Gaussian Acetonitrile
+ALIAS: Acetonitrile
 
 solvent: Acetonitrile
 
@@ -101,6 +100,7 @@ NEXT:
 
 SUB_TYPE: partial
 TAG: Gaussian Benzene
+ALIAS: Benzene
 
 solvent: Benzene
 
@@ -113,8 +113,9 @@ NEXT:
 
 SUB_TYPE: partial
 TAG: Gaussian CycloHexane
+ALIAS: CycloHexane
 
-solvent: CycloHexane
+solvent: Cyclohexane
 
 NEXT:
     - Gaussian Functionals
@@ -125,6 +126,7 @@ NEXT:
 
 SUB_TYPE: partial
 TAG: Gaussian DiethylEther
+ALIAS: Diethylether
 
 solvent: DiethylEther
 
@@ -137,6 +139,7 @@ NEXT:
 
 SUB_TYPE: partial
 TAG: Gaussian DiMethylSulfoxide
+ALIAS: DMSO
 
 solvent: DiMethylSulfoxide
 
@@ -149,6 +152,7 @@ NEXT:
 
 SUB_TYPE: partial
 TAG: Gaussian Dichloromethane
+ALIAS: DCM
 
 solvent: Dichloromethane
 
@@ -172,8 +176,8 @@ NEXT:
 
 
 SUB_TYPE: partial
-# Ethyl Acetate
 TAG: Gaussian EthylEthanoate
+ALIAS: Ethyl acetate
 
 solvent: EthylEthanoate
 
@@ -186,6 +190,7 @@ NEXT:
 
 SUB_TYPE: partial
 TAG: Gaussian Methanol
+ALIAS: Methanol
 
 solvent: Methanol
 
@@ -198,6 +203,7 @@ NEXT:
 
 SUB_TYPE: partial
 TAG: Gaussian Heptane
+ALIAS: Heptane
 
 solvent: Heptane
 
@@ -210,6 +216,7 @@ NEXT:
 
 SUB_TYPE: partial
 TAG: Gaussian n-Hexane
+ALIAS: Hexane
 
 solvent: n-Hexane
 
@@ -222,6 +229,7 @@ NEXT:
 
 SUB_TYPE: partial
 TAG: Gaussian TetraHydroFuran
+ALIAS: THF
 
 solvent: TetraHydroFuran
 
@@ -234,6 +242,7 @@ NEXT:
 
 SUB_TYPE: partial
 TAG: Gaussian Toluene
+ALIAS: Toluene
 
 solvent: Toluene
 
@@ -246,6 +255,7 @@ NEXT:
 
 SUB_TYPE: partial
 TAG: Gaussian Water
+ALIAS: Water
 
 solvent: Water
 

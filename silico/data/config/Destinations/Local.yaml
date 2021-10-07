@@ -1,6 +1,5 @@
 TAG: Series
-categories:
-    - Local (series)
+ALIAS: Local (series)
 
 hidden: True
 
@@ -14,8 +13,7 @@ NEXT:
 
 
 TAG: Parallel
-categories:
-    - Local (parallel)
+ALIAS: Local (parallel)
 
 hidden: True
 

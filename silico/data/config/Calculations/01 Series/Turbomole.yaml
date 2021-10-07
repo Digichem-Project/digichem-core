@@ -1,9 +1,8 @@
 TAG: Turbomole Auto
 SUB_TYPE: partial
-class_name: Series
+ALIAS: Auto Characterisation
 
-categories:
-    - Auto Characterisation
+class_name: Series
 
 NEXT:
     - Turbomole Auto CC2
@@ -14,8 +13,7 @@ NEXT:
 
 
 TAG: Turbomole Auto CC2
-categories:
-    - MR-TADF Emitter Opt → S(1) & S(2) → T(1) & T(2) (CC2-SCS/cc-pVDZ)
+ALIAS: MR-TADF Emitter Opt → S(1) & S(2) → T(1) & T(2) (CC2-SCS/cc-pVDZ)
 
 calculations:
     - [Turbomole CC2 Opt, Turbomole cc-pVDZ]
@@ -27,8 +25,7 @@ calculations:
 
 
 TAG: Turbomole Auto ADC(2)
-categories:
-    - MR-TADF Emitter Opt → S(1) & S(2) → T(1) & T(2) (ADC(2)-SCS/cc-pVDZ)
+ALIAS: MR-TADF Emitter Opt → S(1) & S(2) → T(1) & T(2) (ADC(2)-SCS/cc-pVDZ)
 
 calculations:
     - [Turbomole ADC(2) Opt, Turbomole cc-pVDZ]

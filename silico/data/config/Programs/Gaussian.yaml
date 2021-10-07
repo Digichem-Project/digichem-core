@@ -1,7 +1,5 @@
 # Config for a Gaussian submission
 TAG: Gaussian 09
-categories:
-    - Gaussian 09
 
 # The name of the program this config is for. These are pre-built into silico.
 class_name: gaussian
@@ -28,8 +26,6 @@ NEXT:
 
 # Config for a Gaussian submission
 TAG: Gaussian 16
-categories:
-    - Gaussian 16
 
 # The name of the program this config is for. These are pre-built into silico.
 class_name: gaussian

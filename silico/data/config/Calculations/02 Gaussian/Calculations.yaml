@@ -1,8 +1,7 @@
 SUB_TYPE: partial
 TAG: Gaussian Single Point Singlet
+ALIAS: Single Point (Singlet)
 
-categories:
-    - Single Point Singlet
 multiplicity: 1
 
 NEXT:
@@ -14,9 +13,8 @@ NEXT:
 
 SUB_TYPE: partial
 TAG: Gaussian Optimisation
+ALIAS: Optimisation
 
-categories:
-    - Optimisation
 optimisation:
     "on": True
 
@@ -29,9 +27,8 @@ NEXT:
 
 SUB_TYPE: partial
 TAG: Gaussian Optimisation Frequencies
+ALIAS: Optimisation Frequencies
 
-categories:
-    - Optimisation Frequencies
 optimisation:
     "on": True
 frequency:
@@ -45,9 +42,8 @@ NEXT:
 
 SUB_TYPE: partial
 TAG: Gaussian Optimisation Frequencies Unrestricted Triplet
+ALIAS: Optimisation Frequencies
 
-categories:
-    - Optimisation Frequencies
 optimisation:
     "on": True
 frequency:
@@ -64,10 +60,8 @@ NEXT:
 
 SUB_TYPE: partial
 TAG: Gaussian Frequencies
+ALIAS: Frequencies
 
-
-categories:
-    - Frequencies
 frequency:
     "on": True
 
@@ -80,10 +74,7 @@ NEXT:
 
 SUB_TYPE: partial
 TAG: Gaussian Excited States
-
-
-categories:
-    - Excited States
+ALIAS: Excited States
 NEXT:
     - Gaussian TDA
     - Gaussian TD-DFT

@@ -1,8 +1,6 @@
 TAG: Turbomole CC2
 SUB_TYPE: pseudo
-
-categories:
-    - CC2
+ALIAS: CC2
 
 num_CPUs: 6
 memory: 80GB
@@ -20,9 +18,7 @@ NEXT:
 
 TAG: Turbomole ADC(2)
 SUB_TYPE: pseudo
-
-categories:
-    - ADC(2)
+ALIAS: ADC(2)
 
 num_CPUs: 6
 memory: 80GB

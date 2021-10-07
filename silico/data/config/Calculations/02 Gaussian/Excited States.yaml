@@ -1,8 +1,7 @@
 SUB_TYPE: partial
 TAG: Gaussian TDA
+ALIAS: TDA
 
-categories:
-    - TDA
 DFT_excited_states:
     TDA: True
 
@@ -19,9 +18,7 @@ NEXT:
 
 SUB_TYPE: partial
 TAG: Gaussian TD-DFT
-
-categories:
-    - TD-DFT
+ALIAS: TD-DFT
 DFT_excited_states:
     TDA: False
 
@@ -38,9 +35,7 @@ NEXT:
 
 SUB_TYPE: partial
 TAG: Gaussian 10 Singlets 10 Triplets
-
-categories:
-    - 10 Singlets 10 Triplets
+ALIAS: 10 Singlets 10 Triplets
 DFT_excited_states:
     multiplicity: 50-50
     nstates: 10
@@ -54,9 +49,7 @@ NEXT:
 
 SUB_TYPE: partial
 TAG: Gaussian 5 Triplets
-
-categories:
-    - 5 Triplets
+ALIAS: 5 Triplets
 DFT_excited_states:
     multiplicity: triplet
     nstates: 5
@@ -69,9 +62,7 @@ NEXT:
 
 SUB_TYPE: partial
 TAG: Gaussian 100 Singlets
-
-categories:
-    - 100 Singlets
+ALIAS: 100 Singlets
 DFT_excited_states:
     multiplicity: singlet
     nstates: 100
@@ -85,9 +76,7 @@ NEXT:
 
 SUB_TYPE: partial
 TAG: Gaussian Optimised S(1)
-
-categories:
-    - Optimised S(1)
+ALIAS: Optimised S(1)
 DFT_excited_states:
     multiplicity: singlet
     nstates: 10
@@ -105,9 +94,8 @@ NEXT:
 
 SUB_TYPE: partial
 TAG: Gaussian Optimised T(1)
+ALIAS: Optimised T(1)
 
-categories:
-    - Optimised T(1)
 DFT_excited_states:
     multiplicity: triplet
     nstates: 10

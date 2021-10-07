@@ -1,7 +1,5 @@
 SUB_TYPE: pseudo
 TAG: Gaussian Functionals
-categories:
-    - "{conf.functional} ({conf.options[EmpiricalDispersion]})"
 
 NEXT:
     - Gaussian PBE1PBE (GD3BJ)
@@ -16,6 +14,7 @@ NEXT:
 
 SUB_TYPE: partial
 TAG: Gaussian PBE1PBE (GD3BJ)
+ALIAS: PBE1PBE (GD3BJ)
 
 functional: PBE1PBE
 options:
@@ -30,6 +29,7 @@ NEXT:
 
 SUB_TYPE: partial
 TAG: Gaussian CAM-B3LYP (GD3BJ)
+ALIAS: CAM-B3LYP (GD3BJ)
 
 functional: CAM-B3LYP
 options:
@@ -44,6 +44,7 @@ NEXT:
 
 SUB_TYPE: partial
 TAG: Gaussian B3LYP (GD3BJ)
+ALIAS: B3LYP (GD3BJ)
 
 functional: B3LYP
 options:
@@ -58,6 +59,7 @@ NEXT:
 
 SUB_TYPE: partial
 TAG: Gaussian M062X (GD3)
+ALIAS: M062X (GD3)
 
 functional: M062X
 options:
@@ -72,6 +74,7 @@ NEXT:
 
 SUB_TYPE: partial
 TAG: Gaussian wB97XD (GD3BJ)
+ALIAS: wB97XD (GD3BJ)
 
 functional: wB97XD
 options:

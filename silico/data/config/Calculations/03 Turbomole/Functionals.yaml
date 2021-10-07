@@ -1,9 +1,6 @@
 TAG: Turbomole Functionals
 SUB_TYPE: pseudo
 
-categories:
-    - "{conf.dft[functional]} ({conf.dispersion[dsp]})"
-
 NEXT:
     - Turbomole PBE0 (GD3BJ)
     - Turbomole B3-LYP (GD3BJ)
@@ -15,6 +12,7 @@ NEXT:
 
 TAG: Turbomole PBE0 (GD3BJ)
 SUB_TYPE: partial
+ALIAS: PBE0 (GD3BJ)
 
 dft:
     functional: PBE0
@@ -31,6 +29,7 @@ NEXT:
 
 TAG: Turbomole B3-LYP (GD3BJ)
 SUB_TYPE: partial
+ALIAS: B3LYP (GD3BJ)
 
 dft:
     functional: B3-LYP
@@ -46,6 +45,7 @@ NEXT:
 
 
 TAG: Turbomole M06-2X (GD3)
+ALIAS: M062X (GD3)
 SUB_TYPE: partial
 
 dft:

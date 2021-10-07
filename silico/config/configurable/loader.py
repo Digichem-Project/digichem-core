@@ -28,6 +28,13 @@ class Configurable_loader():
         return self.config.get('TAG', None)
     
     @property
+    def ALIAS(self):
+        """
+        An identifying alias.
+        """
+        return self.config.get('ALIAS', None)
+    
+    @property
     def TOP(self):
         """
         Whether this loader is a top level loader.
@@ -158,12 +165,15 @@ class Configurable_loader():
         deepmerge.always_merger.merge(parent_config, self.config)
         
         # Add our tag to the tag hierarchy.
-        if not self.pseudo and self.TAG is not None:
-            try:
-                parent_config['TAG_HIERARCHY'].append(self.TAG)
-                
-            except KeyError:
-                parent_config['TAG_HIERARCHY'] = [self.TAG]
+        if not self.pseudo:
+            tag_name = self.TAG if self.TAG is not None else self.ALIAS
+            
+            if tag_name is not None:
+                try:
+                    parent_config['TAG_HIERARCHY'].append(tag_name)
+                    
+                except KeyError:
+                    parent_config['TAG_HIERARCHY'] = [tag_name]
                 
         # Add our filename to the file hierarchy (unless it's None).
         if self.file_name is not None:

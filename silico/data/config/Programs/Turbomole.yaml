@@ -1,7 +1,5 @@
 # Config for a Turbomole submission
 TAG: Turbomole
-categories:
-    - Turbomole
 
 # The name of the program this config is for. These are pre-built into silico.
 class_name: Turbomole
