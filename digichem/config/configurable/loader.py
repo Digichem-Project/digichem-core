@@ -32,7 +32,7 @@ class Configurable_loader():
         """
         An identifying alias.
         """
-        return self.config.get('ALIAS', None)
+        return self.config.get('ALIAS', self.config.get('TAG', None))
     
     @property
     def TOP(self):
@@ -166,14 +166,12 @@ class Configurable_loader():
         
         # Add our tag to the tag hierarchy.
         if not self.pseudo:
-            tag_name = self.TAG if self.TAG is not None else self.ALIAS
-            
-            if tag_name is not None:
+            if self.ALIAS is not None:
                 try:
-                    parent_config['TAG_HIERARCHY'].append(tag_name)
+                    parent_config['TAG_HIERARCHY'].append(self.ALIAS)
                     
                 except KeyError:
-                    parent_config['TAG_HIERARCHY'] = [tag_name]
+                    parent_config['TAG_HIERARCHY'] = [self.ALIAS]
                 
         # Add our filename to the file hierarchy (unless it's None).
         if self.file_name is not None:
