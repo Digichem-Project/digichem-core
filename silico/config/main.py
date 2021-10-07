@@ -22,7 +22,16 @@ class Silico_options(Config):
         self.programs = Configurable_list([], "program")
         self.calculations = Configurable_list([], "calculation")
         self.basis_sets = Configurable_list([], "basis_set")
+    
+    @property
+    def methods(self):
+        """
+        A list of known methods which have been loaded from config files.
         
+        This is a configurable list of destinations, which can be traversed to also find programs and then calculations.
+        """
+        return self.destinations
+    
     @property
     def effective_core_potentials(self):
         """
