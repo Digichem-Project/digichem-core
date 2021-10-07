@@ -17,6 +17,9 @@ class Configurable_loader():
     Abstract top-level class for configurable loaders.
     """
     
+    # Whether this loader is a partial loader (a partial loader is any that is not a Single Loader).
+    partial = True
+    
     @property
     def TAG(self):
         """
@@ -79,7 +82,15 @@ class Configurable_loader():
                 # We're all done.
                 return
             
-            pos +=1        
+            pos +=1
+            
+    @property
+    def sub_node_paths(self):
+        """
+        A property which maps to the paths leading to the child nodes of this loader.
+        For partial loaders this will be the NEXT attribute, while for single loaders (where NEXT is always empty) it will be the CHILDREN attribute.
+        """
+        return [[child] for child in self.NEXT]
     
     def get_concrete_children(self, _concrete_children = None, _current_path = None):
         """
@@ -102,23 +113,26 @@ class Configurable_loader():
             current_path = []
             
         else:
-            # We make a new list from the existing current path because it will be modified differently each time this method is called recursively.
+            # We need to make a new list.
             current_path = list(_current_path)
-            
-            # Add ourself to current path.
-            current_path.append(self)
         
         # Iterate through each of our immediate children.
-        for child in self.NEXT:
-            if child.pseudo:
+        for child_path in self.sub_node_paths:
+            # Make a new path so we don't add to the same one for each child.
+            new_path = list(current_path)
+            
+            # Add the child path to the new_path.    
+            new_path.extend(child_path)
+            
+            if child_path[-1].pseudo:
                 # This child is pseudo (ie, not concrete), so we want its children.
-                child.get_concrete_children(concrete_children, current_path)
+                
+                # Continue in the child.
+                child_path[-1].get_concrete_children(concrete_children, new_path)
                 
             else:
-                # This child is concrete, add it to the list.
-                current_path.append(child)
                 # Add the path to our total list.
-                concrete_children.append(current_path)
+                concrete_children.append(new_path)
                 
         return concrete_children
     
@@ -456,7 +470,7 @@ class Configurable_list(Partial_loader):
     def __init__(self, configs, TYPE = None):
         """
         """
-        super().__init__(file_name = None, TYPE = TYPE, config = {}, pseudo = False)        
+        super().__init__(file_name = None, TYPE = TYPE, config = {}, pseudo = True)
         
         self.NEXT = configs
         
@@ -468,6 +482,8 @@ class Single_loader(Configurable_loader):
     """
     A configurable loader that represents a single configurable, or the end of a chain of loaders that leads to a configurable.
     """
+    
+    partial = False
     
     def __init__(self, file_name, TYPE, config):
         """
@@ -486,7 +502,15 @@ class Single_loader(Configurable_loader):
         
         Always returns 1.
         """
-        return 1    
+        return 1
+    
+    @property
+    def sub_node_paths(self):
+        """
+        A property which maps to the child nodes of this loader.
+        For partial loaders this will be the NEXT attribute, while for single loaders (where NEXT is always empty) it will be the CHILDREN attribute,
+        """
+        return self.CHILDREN
     
     def resolve_path(self, path, parent_config = None, validate = True):
         """
@@ -560,7 +584,7 @@ class Single_loader(Configurable_loader):
         elif len(self.config.get('NEXT', [])):
             # Panic, we have some loaders listed in NEXT but we have no children to search through.
             raise Configurable_loader_exception(self.config, self.TYPE, self.file_name, "cannot find NEXT loaders; there are no children for TYPE '{}'".format(self.TYPE))
-            
+    
     
 class Update_loader(Single_loader):
     """
