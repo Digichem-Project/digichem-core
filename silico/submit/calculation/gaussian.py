@@ -79,6 +79,7 @@ class Gaussian(Concrete_calculation):
     CPU_list = Option(help = "A list of integers specifying specific CPUs to use for the calculation, starting at 0. CPU_list and num_CPUs are mutually exclusive", exclude = ("num_CPUs",), default = (), type = tuple)
     num_CPUs = Option(help = "An integer specifying the number of CPUs to use for this calculation. CPU_list and num_CPUs are mutually exclusive", exclude = ("CPU_list",), default = 1, type = int)
     functional = Option(help = "The DFT functional to use", type = str)
+    unrestricted = Option(help = "Whether to perform an unrestricted calculation", type = bool, default = False)
     basis_set = Option(help = "The basis set to use. 'Gen' or 'GenECP' should be given here if an external basis set is to be used", type = str)
     _external_basis_sets = Option(
         "external_basis_sets",
@@ -170,7 +171,7 @@ class Gaussian(Concrete_calculation):
         model = ""
         # Add the functional.
         if self.functional is not None:
-            model += self.functional
+            model += "{}{}".format("u" if self.unrestricted else "", self.functional)
         # Add a slash if we have both functional and basis set.
         if self.functional is not None and self.basis_set is not None:
             model += "/"
