@@ -33,6 +33,13 @@ class Silico_options(Config):
         return self.destinations
     
     @property
+    def urwid_palette(self):
+        """
+        A shortcut for accessing the urwid palette (in a format that can be passed directly to urwid).
+        """
+        return self.yaml_to_palette(self['palette'])
+    
+    @property
     def effective_core_potentials(self):
         """
         A list of known ECPs.
