@@ -18,6 +18,7 @@ gaussian_init_file: /home/oliver/Fake_Gauss/g09/bsd/g09.profile
 
 # The top config for the calculations we support.
 NEXT:
+    - Gaussian Auto
     - [Calculation Base, Gaussian]
 
 
@@ -44,5 +45,6 @@ gaussian_init_file: /home/oliver/Fake_Gauss/g16/bsd/g16.profile
 
 # The top config for the calculations we support.
 NEXT:
+    - Gaussian Auto
     - [Calculation Base, Gaussian]
 

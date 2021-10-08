@@ -42,7 +42,7 @@ NEXT:
 
 SUB_TYPE: partial
 TAG: Gaussian Optimisation Frequencies Unrestricted Triplet
-ALIAS: Optimisation Frequencies
+ALIAS: Optimisation Frequencies Unrestricted Triplet
 
 optimisation:
     "on": True

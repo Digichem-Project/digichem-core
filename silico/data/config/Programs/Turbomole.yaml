@@ -9,4 +9,5 @@ init_file: /home/oliver/Software/TmoleX19/TURBOMOLE/Config_turbo_env
 
 # The top config for the calculations we support.
 NEXT:
+    - Turbomole Auto
     - [Calculation Base, Turbomole]
