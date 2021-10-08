@@ -193,6 +193,7 @@ class Configurable_loader():
         # These options have no meaning anymore.
         config.pop('SUB_TYPE', None)
         config.pop('TAG', None)
+        config.pop('ALIAS', None)
         config.pop('NEXT', None)
         config.pop('TOP', None)
         file_hierarchy = config.pop('FILE_HIERARCHY', None)
