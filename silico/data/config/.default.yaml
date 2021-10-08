@@ -300,6 +300,10 @@ palette:
     boldnode:
         - black, bold
         - light gray
+
+    bold:
+        - black, bold
+        - light gray
     
     warningnode:
         - dark red
