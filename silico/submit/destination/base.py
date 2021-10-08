@@ -13,14 +13,7 @@ class Destination_target(Configurable_target):
     """
     
     CLASS_HANDLE = ("destination",)
-    
-    # Configurable options.
-    next_children = Option(
-        "programs",
-        help = "A list of programs that this destination is compatible with",
-        required = True,
-        type = list)
-        
+            
     @property
     def unique_name(self):
         """

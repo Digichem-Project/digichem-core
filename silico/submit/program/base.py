@@ -35,14 +35,7 @@ class Program_target(Configurable_target):
     """
     
     CLASS_HANDLE = ("program",)
-    
-    # Configurable options.
-    next_children = Option(
-        "calculations",
-        help = "A list of calculations that this program is compatible with",
-        required = True,
-        type = list)
-    
+        
     ############################
     # Class creation mechanism #
     ############################
