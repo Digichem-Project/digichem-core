@@ -625,8 +625,12 @@ class Single_loader(Configurable_loader):
                 # If only a single tag has been given, wrap it in a list.
                 if isinstance(tag_list, str):
                     tag_list = [tag_list]
-                    
-                self.CHILDREN.append(children.path_by_tags(tag_list))
+                
+                # Get a path leading to the child.
+                child_path = children.path_by_tags(tag_list)
+                
+                # Add to our list.
+                self.CHILDREN.append(child_path)
                 
         elif len(self.config.get('NEXT', [])):
             # Panic, we have some loaders listed in NEXT but we have no children to search through.
