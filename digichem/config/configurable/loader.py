@@ -75,7 +75,6 @@ class Configurable_loader():
         self._TOP = True
         self.pseudo = pseudo
         
-        
     def __iter__(self):
         """
         Iteration magic method
@@ -353,6 +352,34 @@ class Partial_loader(Configurable_loader):
             # We ran out of parts of our path before reaching a single loader, give up.
             raise Tag_path_length_error([configurable.TAG for configurable in path])
         
+    def index_of_path(self, path, *, parent_offset = 0):
+        """
+        Get the index of the configurable identified by a unique path.
+        
+        This method only makes sense if it is called from the top-most loader.
+        
+        :param path: A loader path, a list of configurable loaders.
+        :param parent_offset: The current index total from previous iterations, used when called recursively. This should not normally be given by the user.
+        :returns: The index.
+        """
+        # First, we need the index of the next path segment from our list of NEXT children.
+        try:
+            index = self.NEXT.index(path[1])
+        
+        except IndexError:
+            # Ran out of path segments (or couldn't find the given segment?)
+            raise Tag_path_length_error([configurable.TAG for configurable in path])
+            
+        # Next, we need the total of all the indexes we skipped (that are before our given index.
+        skipped_total = sum([loader.size() for loader in self.NEXT[:index]])
+        
+        # Add this to our total parent offset from previous iterations.
+        parent_offset += skipped_total
+        
+        # Continue in the next child.
+        return path[1].index_of_path(path[1:], parent_offset = parent_offset)
+           
+        
     def path_by_index(self, index, *, parent_offset = 0, path = None):
         """
         Build a list of loaders based on a unique index.
@@ -555,6 +582,18 @@ class Single_loader(Configurable_loader):
         path.append(self)
         
         return path
+    
+    def index_of_path(self, path, *, parent_offset = 0):
+        """
+        Get the index of the configurable identified by a unique path.
+        
+        This method only makes sense if it is called from the top-most loader.
+        
+        :param path: A loader path, a list of configurable loaders.
+        :param parent_offset: The current index total from previous iterations, used when called recursively. This should not normally be given by the user.
+        :returns: The index.
+        """
+        return parent_offset + 1
     
     def path_by_tags(self, tag_list, *, path = None):
         """
