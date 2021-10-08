@@ -23,7 +23,7 @@ keep_chk: False
 #       Options of the form 'Foo: ""'  will become 'Foo'
 #   Options of the form 'Foo: null' will be deleted (useful for unsetting something from a default).
 # You can add any option here that you like (though if the option is not recognised by Gaussian then the calculation will not complete successfully.
-options:
+keywords:
     # The integration grid size to use. Choice of grid size is a reasonably advanced topic that is not discussed here, but know that larger grid size increases both computational accuracy and cost (and not necessarily in a linear fashion).
     # Gaussian recommends at least the ultrafine grid, see the manual for other options.
     
