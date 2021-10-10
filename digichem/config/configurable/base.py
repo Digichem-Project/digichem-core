@@ -68,16 +68,16 @@ class Configurable(Dynamic_parent, Options_mixin):
     Each Option object maps a certain attribute on the owning configurable object and defines, for example, an allowed type, a default value, a help string, a list of allowed values etc.
     """
     
-    def __init__(self, file_hierarchy = None, validate_now = False, **kwargs):
+    def __init__(self, loader_list = None, validate_now = False, **kwargs):
         """
         Constructor for Configurable objects.
         
-        :param file_hierarchy: If this configurable was loaded from a (number of) files, an ordered list of 2-membered tuples of the form (TAG, FILE), where FILE is one of the files from which this configurable was loaded, and TAG is the TAG of the config in that file. 
+        :param loader_list: If this configurable was loaded from a (number of) configurable loaders, an ordered list of those loaders. 
         :param validate_now: If True, the given options will be validated before this constructor returns. Validation can also be performed at any time by calling validate(). 
         """
         self._configurable_options = {}
         self.inner_cls = None
-        self.file_hierarchy = file_hierarchy if file_hierarchy is not None else []
+        self.loader_list = loader_list if loader_list is not None else []
         
         # Set all our configurable options.
         # Setting like this might be unsafe because we're not deep copying...
@@ -92,7 +92,7 @@ class Configurable(Dynamic_parent, Options_mixin):
         """
         A list of files from which this configurable was loaded.
         """
-        return [file_name for tag, file_name in self.file_hierarchy]
+        return [loader.file_name for loader in self.loader_list if loader.file_name is not None]
         
     
     @property
@@ -109,7 +109,6 @@ class Configurable(Dynamic_parent, Options_mixin):
             return "\n".join(self.file_names)
         
     # Configurable options.
-    TAG_HIERARCHY = Option(help = "A hierarchical list of tags that were combined to form this configurable", default = [], type = list, no_edit = True)
     TYPE = Option(help = "The type of this Configurable", choices = ('destination', 'program', 'calculation', 'basis_set'), required = True, default = 'calculation', type = str, no_edit = True)
     class_name = Option(
         help = "The specific sub-type of this Configurable",
@@ -122,17 +121,25 @@ class Configurable(Dynamic_parent, Options_mixin):
     hidden = Option(help = "If True, this configurable will not appear in lists (but can still be specified by the user). Useful for configurables that should not be used naively", type = bool, default = False)
     warning = Option(help = "A warning message to display when this configurable is chosen", default = None, type = str)
 
+
+    @property
+    def tag_hierarchy(self):
+        """
+        An ordered list of the TAGs of each of the configurable loaders that were combined to generate this configurable.
+        """
+        return [loader.ALIAS for loader in self.loader_list if not loader.pseudo and loader.ALIAS is not None]
     
     def configure_auto_name(self):
         """
         Setup automatic names for this configurable.
          
         Automatic names are ones that are generated automatically from some other information about the configurable.
-        """             
+        """
+        tag_hierarchy = self.tag_hierarchy
         # If our name is empty, set from our tag hierarchy.
-        if not hasattr(self, "name") and self.TAG_HIERARCHY is not None:
+        if not hasattr(self, "name") and len(tag_hierarchy) > 0:
             # No name, set from the category.
-            self.name = " ".join(self.TAG_HIERARCHY)
+            self.name = " ".join(tag_hierarchy)
 
     def validate(self):
         """
