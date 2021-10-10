@@ -68,6 +68,21 @@ class Configurable(Dynamic_parent, Options_mixin):
     Each Option object maps a certain attribute on the owning configurable object and defines, for example, an allowed type, a default value, a help string, a list of allowed values etc.
     """
     
+    
+    # Configurable options.
+    TYPE = Option(help = "The type of this Configurable", choices = ('destination', 'program', 'calculation', 'basis_set'), required = True, default = 'calculation', type = str, no_edit = True)
+    class_name = Option(
+        help = "The specific sub-type of this Configurable",
+        #choices = lambda option, configurable: [handle for cls in Configurable.from_class_handle(configurable.TYPE).recursive_subclasses() if hasattr(cls, 'CLASS_HANDLE') for handle in cls.CLASS_HANDLE],
+        required = True,
+        no_edit = True
+    )
+
+    name = Option(help = "The unique name of this Configurable", type = str, required = True)
+    hidden = Option(help = "If True, this configurable will not appear in lists (but can still be specified by the user). Useful for configurables that should not be used naively", type = bool, default = False)
+    warning = Option(help = "A warning message to display when this configurable is chosen", default = None, type = str)
+
+
     def __init__(self, loader_list = None, validate_now = False, **kwargs):
         """
         Constructor for Configurable objects.
@@ -108,20 +123,6 @@ class Configurable(Dynamic_parent, Options_mixin):
         else:
             return "\n".join(self.file_names)
         
-    # Configurable options.
-    TYPE = Option(help = "The type of this Configurable", choices = ('destination', 'program', 'calculation', 'basis_set'), required = True, default = 'calculation', type = str, no_edit = True)
-    class_name = Option(
-        help = "The specific sub-type of this Configurable",
-        #choices = lambda option, configurable: [handle for cls in Configurable.from_class_handle(configurable.TYPE).recursive_subclasses() if hasattr(cls, 'CLASS_HANDLE') for handle in cls.CLASS_HANDLE],
-        required = True,
-        no_edit = True
-    )
-
-    name = Option(help = "The unique name of this Configurable", type = str, required = True)
-    hidden = Option(help = "If True, this configurable will not appear in lists (but can still be specified by the user). Useful for configurables that should not be used naively", type = bool, default = False)
-    warning = Option(help = "A warning message to display when this configurable is chosen", default = None, type = str)
-
-
     @property
     def tag_hierarchy(self):
         """
