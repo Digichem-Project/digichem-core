@@ -113,6 +113,7 @@ class Configurable(Dynamic_parent, Options_mixin):
     @property
     def file_name(self):
         """
+        The file names from which this configurable was loaded from, formatted as a single string (will return None if not loaded from any files).
         """
         if len(self.file_names) == 0:
             return None
@@ -129,6 +130,14 @@ class Configurable(Dynamic_parent, Options_mixin):
         An ordered list of the TAGs of each of the configurable loaders that were combined to generate this configurable.
         """
         return [loader.ALIAS for loader in self.loader_list if not loader.pseudo and loader.ALIAS is not None]
+    
+    def index(self):
+        """
+        Get the index of this configurable.
+        
+        Note that a configurable can only have an index if it was loaded from a (number of) configurable loaders, otherwise this method will throw an index error.
+        """
+        self.loader_list[0].index_of_path(self.loader_list)
     
     def configure_auto_name(self):
         """
