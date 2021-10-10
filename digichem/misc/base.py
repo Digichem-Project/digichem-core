@@ -66,11 +66,16 @@ class Dynamic_parent():
         # Convert to lower case if we're doing a case insensitive search.
         if case_insensitive:
             handle = handle.lower()
+            
+        # Keep track of found matches.
+        found = []
         
         # Get the class we've been asked for.
         for known_class in known_classes:
-            # Get the current classes list of handles:
-            class_handles = getattr(known_class, "CLASS_HANDLE", [])
+            # Get the current class' list of handles.
+            # class handles are supposed to be unqiue to each class, hence we want to bypass normal class inheritance (so children don't inherit class names).
+            # Thus we look directly in the class's vars/__dict__.
+            class_handles = vars(known_class).get('CLASS_HANDLE', [])
             
             # If the handle is a single string, panic.
             if isinstance(class_handles, str):
@@ -83,10 +88,19 @@ class Dynamic_parent():
             # See if we have a match.    
             if handle in class_handles:
                 # Got a match.
-                return known_class
-            
-        # No class.
-        raise ValueError("No {} class with name '{}' could be found".format(self.__name__, handle))
+                found.append(known_class)
+        
+        
+        if len(found) == 0:
+            # No class.
+            raise ValueError("No {} class with name '{}' could be found".format(self.__name__, handle))
+        
+        elif len(found) > 1:
+            # Too many.
+            raise ValueError("Found multiple classes with name '{}': {}".format(handle, ", ".join(str(cls) for cls in found)))
+        
+        else:
+            return found[0]
     
     @classmethod
     def recursive_subclasses(self):
