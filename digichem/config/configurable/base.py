@@ -137,7 +137,7 @@ class Configurable(Dynamic_parent, Options_mixin):
         
         Note that a configurable can only have an index if it was loaded from a (number of) configurable loaders, otherwise this method will throw an index error.
         """
-        self.loader_list[0].index_of_path(self.loader_list)
+        return self.loader_list[0].index_of_path(self.loader_list)
     
     def configure_auto_name(self):
         """
