@@ -162,23 +162,13 @@ class Configurable_loader():
         """
         # First, merge our current parent object with ourself.
         deepmerge.always_merger.merge(parent_config, self.config)
-        
-        # Add our tag to the tag hierarchy.
-        if not self.pseudo:
-            if self.ALIAS is not None:
-                try:
-                    parent_config['TAG_HIERARCHY'].append(self.ALIAS)
-                    
-                except KeyError:
-                    parent_config['TAG_HIERARCHY'] = [self.ALIAS]
                 
-        # Add our filename to the file hierarchy (unless it's None).
-        if self.file_name is not None:
-            try:
-                parent_config['FILE_HIERARCHY'].append((self.TAG, self.file_name))
-                
-            except KeyError:
-                parent_config['FILE_HIERARCHY'] = [(self.TAG, self.file_name)]                
+        # Add ourself to the loader path.
+        try:
+            parent_config['loader_path'].append(self)
+            
+        except KeyError:
+            parent_config['loader_path'] = [self]                
     
     def configure(self, config, validate = True):
         """
@@ -196,7 +186,7 @@ class Configurable_loader():
         config.pop('ALIAS', None)
         config.pop('NEXT', None)
         config.pop('TOP', None)
-        file_hierarchy = config.pop('FILE_HIERARCHY', None)
+        loader_path = config.pop('loader_path', None)
         
         # Try and get the configurable class.
         try:
@@ -208,7 +198,7 @@ class Configurable_loader():
             # If no class set, use the top level class.
             cls = self.type_class
         
-        configurable = cls(file_hierarchy, False, **config) 
+        configurable = cls(loader_path, False, **config) 
         configurable.configure_auto_name()
         if validate:
             configurable.validate()
