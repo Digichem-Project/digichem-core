@@ -352,11 +352,19 @@ palette:
         - white, bold
         - dark blue
         
-    good_button:
+    goodButton:
         - black
         - dark green
+
+    normalButton:
+        - black, bold
+        - light gray
         
-    bad_button:
-        - black
+    badButton:
+        - white
         - dark red
+
+    badButton--small:
+        - light red, bold
+        - light gray
         
