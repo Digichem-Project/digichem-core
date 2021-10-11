@@ -29,12 +29,12 @@ class Calcbox_item(urwid.AttrMap):
         self.modify_button = urwid.Button("m")
         self.delete_button = urwid.Button("r", lambda button: self.remove())
         
-        # Keep track of our position widget (because we'll beed to update it).
-        self.position_widget
+        # Keep track of our position widget (because we'll need to update it).
+        self.position_widget = urwid.Text("***")
         
         self.view = urwid.Pile([
             urwid.Columns([
-                ('pack', urwid.AttrMap(urwid.Text(str("***")), "bold")),
+                ('pack', urwid.AttrMap(self.position_widget, "bold")),
                 ('pack', urwid.AttrMap(urwid.Text(("bold", self.get_code())), "bold")),
                 urwid.Text(self.get_text()),
                 (10, urwid.GridFlow([
@@ -117,7 +117,7 @@ class Calcbox_item(urwid.AttrMap):
         except IndexError:
             position = "***"
         
-        self.view.contents[0][0][0].base_widget.set_text(position)
+        self.position_widget.set_text(position)
     
     def get_code(self):
         """
