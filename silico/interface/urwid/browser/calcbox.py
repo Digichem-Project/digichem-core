@@ -212,6 +212,9 @@ class Calcbox(ListBox):
         # We can access our list walker at the self.body attribute.
         super().__init__(SimpleFocusListWalker([self.pointer]))
         
+        # Set our initial focus.
+        self.set_focus(0)
+        
         self.update_positions()
         
     def update_positions(self):
