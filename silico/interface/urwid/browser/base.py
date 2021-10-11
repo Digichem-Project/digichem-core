@@ -56,6 +56,8 @@ class Calculation_browser():
     def add_method(self, focus):
         """
         Add the method that currently has focus to our calc box.
+        
+        :param focus: The method that has focus currently.
         """
         # Get the method based on the focus node.
         method = focus.build_loader_path()
