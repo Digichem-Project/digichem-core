@@ -2,7 +2,7 @@ import urwid
 
 from silico.interface.urwid.browser.node import Loader_top_node
 from silico.interface.urwid.misc import Tab_pile
-from silico.interface.urwid.browser.calcbox import Calcbox, Calcbox_method
+from silico.interface.urwid.browser.calcbox import Calcbox
 
 
 
@@ -29,17 +29,7 @@ class Calculation_browser():
             #(1, urwid.AttrMap(urwid.Filler(urwid.Padding(self.confirm, 'center', 11)), confirm_attr))
         ])
 
-    def main(self):
-        """Run the program."""
-
-        self.loop = urwid.MainLoop(urwid.AttrMap(self.view, 'body'), self.palette,
-            unhandled_input=self.unhandled_input)
-        self.loop.run()
-
     def unhandled_input(self, key):
-        if key in ('q','Q'):
-            raise urwid.ExitMainLoop()
-        
         if key in ['enter', ' ']:
             # First, get the focus.
             focus_node = self.listbox.body.focus
