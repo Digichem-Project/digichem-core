@@ -43,6 +43,20 @@ class Loader_widget(TreeWidget):
         
         else:
             return str(loader.ALIAS)
+        
+    def keypress(self, size, key):
+        """Handle expand & collapse requests (non-leaf nodes)"""
+        if self.is_leaf:
+            return key
+
+        if key in ['enter', ' ']:
+            # Toggle whatever we are currently.
+            self.expanded = not self.expanded
+            self.update_expanded_icon()
+            
+        else:
+            return super().keypress(size, key)
+
 
 
 class Node_widget(urwid.WidgetWrap):
