@@ -48,7 +48,7 @@ class Configurable_editor(Options_editor):
     def title(self):
         """
         """
-        return "Editing {} '{}' with ID: {}".format(self.configurable.TYPE, self.configurable.CLASS, self.configurable.ID)
+        return "Editing {} '{}' with ID: {}".format(self.configurable.TYPE, self.configurable.class_name, self.configurable.ID)
     
     def window(self):
         """

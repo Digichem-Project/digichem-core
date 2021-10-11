@@ -409,22 +409,5 @@ class Calculation_browser(Tab_pile):
     
         return browser.calcbox.edit_text if browser.confirmed else ""
     
-    @classmethod
-    def yaml_to_palette(self, yaml_palette):
-        """
-        Convert a palette loaded from a YAML config file to a format understood by urwid.
-        """
-        # The palette (a list of tuples)
-        palette = []
-        
-        # Go through each item in the yaml_palette (a dict).
-        for name, values in yaml_palette.items():
-            # Add the name to the start of values.
-            values.insert(0, name)
-            
-            # Add as a tuple.
-            palette.append(tuple(values))
-        
-        # Done.
-        return palette
+   
     
