@@ -57,23 +57,31 @@ class Window(urwid.Frame):
     Container widget for high-level widgets that emulates a window.
     """
     
-    def __init__(self, body, title = None, header_attr = "header", help = None, footer_attr = "footer"):
+    def __init__(self, body, title = "", help = ""):
         """
         Constructor for Swappable widgets.
         
-        :param title: Optional title to display when swapped to this 
+        :param body: The body of the window.
+        :param title: Title of this window.
+        :param help: Help text to display this window.
         """
-        if title is not None:
-            header = urwid.AttrMap(urwid.Text(title, align = "center"), header_attr)
-        else:
-            header = None
-        
-        if help is not None:
-            footer = urwid.AttrMap(urwid.Text(help, align = "center"), footer_attr)
-        else:
-            footer = None
+        self.header_text = urwid.Text(title, align = "center")
+        self.footer_text = urwid.Text(help, align = "center")
             
-        super().__init__(body, header = header, footer = footer)
+        super().__init__(body, header = urwid.AttrMap(self.header_text, "header"), footer = urwid.AttrMap(self.footer_text, "footer"))
+    
+    def unhandled_input(self, key):
+        if key in ('q','Q'):
+            raise urwid.ExitMainLoop()
+    
+    def run_loop(self, palette):
+        """
+        Run an urwid loop using this Window as the top-most frame.
+        
+        :param palette: The palette to display with.
+        """
+        self.loop = urwid.MainLoop(self, palette, unhandled_input=self.unhandled_input)
+        self.loop.run()
         
         
         
