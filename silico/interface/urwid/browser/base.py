@@ -2,7 +2,7 @@ import urwid
 
 from silico.interface.urwid.browser.node import Loader_top_node
 from silico.interface.urwid.misc import Tab_pile
-from silico.interface.urwid.browser.calcbox import Calcbox, Calcbox_item
+from silico.interface.urwid.browser.calcbox import Calcbox, Calcbox_method
 
 
 
@@ -63,7 +63,5 @@ class Calculation_browser():
         method = focus.build_loader_path()
         
         # Now add the method to our calcbox.
-        calcbox_item = Calcbox_item(method, self.calcbox)
-        self.calcbox.body.append(calcbox_item)
-        self.calcbox.update_positions()
+        self.calcbox.add_method(method)
 
