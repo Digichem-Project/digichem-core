@@ -6,6 +6,9 @@ class Calcbox_item(urwid.AttrMap):
     """
     """
     
+    attr_name = "body"
+    focus_attr_name = "editable"
+    
     def __init__(self, calcbox):
         """
         Constructor for Calcbox_item objects.
@@ -30,7 +33,7 @@ class Calcbox_item(urwid.AttrMap):
         
         self.view = self.get_view()
         
-        super().__init__(self.view, "body", "editable")
+        super().__init__(self.view, self.attr_name, self.focus_attr_name)
         
     def get_view(self):
         """
@@ -116,6 +119,8 @@ class Calcbox_pointer(Calcbox_item):
     """
     A calcbox item that indicates the position at which the next method will be appended.
     """
+    
+    attr_name = "bold"
     
     def get_view(self):
         """
@@ -248,4 +253,8 @@ class Calcbox(ListBox):
         self.body.insert(index, calcbox_item)
         self.update_positions()
         
+        # Set the new method as the current focus.
+        #self.set_focus(index)
+        # Set the pointer as the current focus.
+        self.set_focus(index +1)
     
