@@ -25,6 +25,9 @@ class Calcbox_item(urwid.AttrMap):
         # Keep track of our position widget (because we'll need to update it).
         self.position_widget = urwid.Text("***")
         
+        self.divider = urwid.Divider()
+        self.divider_placeholder = urwid.WidgetPlaceholder(self.divider)
+        
         self.view = self.get_view()
         
         super().__init__(self.view, "body", "editable")
@@ -92,12 +95,21 @@ class Calcbox_item(urwid.AttrMap):
         """
         # Get our index.
         try:
-            position = str(self.position)
+            position = self.position
+            position_str = str(position)
             
         except IndexError:
-            position = "***"
+            position_str = "***"
         
-        self.position_widget.set_text(position)
+        self.position_widget.set_text(position_str)
+        
+        # If we're in the last position, hide our divider.
+        if position == len(self.calcbox.body):
+            self.divider_placeholder.original_widget = urwid.Pile([])
+            
+        else:
+            self.divider_placeholder.original_widget = self.divider
+        
 
 
 class Calcbox_pointer(Calcbox_item):
@@ -118,7 +130,7 @@ class Calcbox_pointer(Calcbox_item):
                     urwid.AttrMap(self.down_button, "normalButton")
                 ], 5, 0, 0, "center"))
             ], dividechars = 2),
-            urwid.Divider()
+            self.divider_placeholder
         ])
 
     def get_text(self):
@@ -166,7 +178,7 @@ class Calcbox_method(Calcbox_item):
                     urwid.AttrMap(self.delete_button, "badButton--small")
                 ], 5, 0, 0, "center"))
             ], dividechars = 2),
-            urwid.Divider()
+            self.divider_placeholder
         ])
     
     def remove(self):
