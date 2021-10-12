@@ -16,3 +16,14 @@ class Tab_pile(urwid.Pile):
             self.focus_position = self.focus_position -1 if self.focus_position > 0 else self.focus_position
         else:
             return super().keypress(size, key)
+        
+class Blank(urwid.Pile):
+    """
+    A placeholder widget that takes up no space and does nothing.
+    """
+    
+    
+    def __init__(self):
+        """
+        """
+        super().__init__([])
