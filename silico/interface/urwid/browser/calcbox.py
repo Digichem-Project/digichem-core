@@ -1,6 +1,7 @@
 import urwid
 from urwid import ListBox
 from urwid.listbox import SimpleFocusListWalker
+from silico.interface.urwid.misc import Blank
 
 class Calcbox_item(urwid.AttrMap):
     """
@@ -108,7 +109,7 @@ class Calcbox_item(urwid.AttrMap):
         
         # If we're in the last position, hide our divider.
         if position == len(self.calcbox.body):
-            self.divider_placeholder.original_widget = urwid.Pile([])
+            self.divider_placeholder.original_widget = Blank()
             
         else:
             self.divider_placeholder.original_widget = self.divider
