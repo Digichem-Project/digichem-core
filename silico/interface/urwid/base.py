@@ -106,7 +106,6 @@ class Section(urwid.AttrMap):
             attrs.append("focus--section")
             
         linebox = urwid.LineBox(urwid.AttrMap(body, "body"), title, title_align = "left")
-        # Linebox doesn't support focus attr for title, so we'll add it ourselves.
             
         super().__init__(linebox, *attrs)
     
