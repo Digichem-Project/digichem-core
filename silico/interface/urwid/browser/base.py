@@ -3,6 +3,7 @@ import urwid
 from silico.interface.urwid.browser.node import Loader_top_node
 from silico.interface.urwid.misc import Tab_pile
 from silico.interface.urwid.browser.calcbox import Calcbox
+from silico.interface.urwid.base import Section
 
 
 
@@ -59,8 +60,8 @@ class Method_selector(Tab_pile):
         
         # Construct our display widgets.
         super().__init__([
-            ('weight', 2, urwid.LineBox(self.listbox, title = "Methods Browser", title_align = "left", title_attr = "bold")),
-            ('weight', 1.5, urwid.LineBox(self.calcbox, title = "Selected Methods", title_align = "left", title_attr = "bold")),
+            ('weight', 2, Section(self.listbox, "Methods Browser")),
+            ('weight', 1.5, Section(self.calcbox, title = "Selected Methods")),
             #(1, urwid.AttrMap(urwid.Filler(urwid.Padding(self.confirm, 'center', 11)), confirm_attr))
         ])
             
