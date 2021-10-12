@@ -61,14 +61,17 @@ class Window(urwid.Frame):
         """
         Constructor for Swappable widgets.
         
-        :param body: The body of the window.
+        :param body: The body of the window, must be a Swappable class.
         :param title: Title of this window.
         :param help: Help text to display this window.
         """
         self.header_text = urwid.Text(title, align = "center")
         self.footer_text = urwid.Text(help, align = "center")
+        
+        self.swappable_top = Top(body)
+        body.top = self.swappable_top
             
-        super().__init__(body, header = urwid.AttrMap(self.header_text, "header"), footer = urwid.AttrMap(self.footer_text, "footer"))
+        super().__init__(urwid.AttrMap(self.swappable_top, "body"), header = urwid.AttrMap(self.header_text, "header"), footer = urwid.AttrMap(self.footer_text, "footer"))
     
     def unhandled_input(self, key):
         if key in ('q','Q'):
