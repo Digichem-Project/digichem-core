@@ -36,10 +36,10 @@ class Method_browser(urwid.TreeListBox):
             
             else:
                 # Do nothing.
-                super().keypress(size, key)
+                return super().keypress(size, key)
         else:
             # Do nothing.
-            super().keypress(size, key)
+            return super().keypress(size, key)
     
     
 
