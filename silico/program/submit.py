@@ -11,8 +11,12 @@ import silico.program
 from silico.submit.calculation import Calculation_target
 from silico.exception import Silico_exception, Configurable_exception
 from silico.exception.uncatchable import Submission_paused
-from silico.interface.urwid.tree import Calculation_browser
+#from silico.interface.urwid.tree import Calculation_browser
 from silico.misc.base import to_bool
+from silico.interface.urwid.base import Window
+from silico.interface.urwid.submit.base import Calculation_submitter
+
+
 
 # Printable name of this program.
 NAME = "Silico Calculation Submitter"
@@ -98,19 +102,6 @@ def _main(args, config, logger):
     # Set tab completion to on.
     readline.parse_and_bind("tab: complete")
     
-    # Load our calculation definitions.
-    try:
-        config.resolve()
-        known_destinations = config.destinations
-        known_programs = config.programs
-        known_calculations = config.calculations
-    except Exception:
-        raise Silico_exception("Failed to load calculations")
-    
-    logger.debug("Loaded {} destinations, {} programs and {} calculations".format(len(known_destinations), len(known_programs), len(known_calculations)))
-    if len(known_destinations) == 0 or len(known_programs) == 0 or len(known_calculations) == 0:
-        raise Silico_exception("Missing at least one destination, program and/or calculation")
-    
     # Check to see if we've got any files to submit (and prompt if we can).
     while len(args.calculation_files) == 0:
         # Prompt for some files.
@@ -121,6 +112,10 @@ def _main(args, config, logger):
     if len(args.calculation_files) == 0:
         raise Silico_exception("No files to submit")
     
+    
+    window = Window(Calculation_submitter(config.methods), title = "Silico {}".format(silico.version))
+    window.run_loop(config.urwid_palette)
+    exit()
     
     methods = []
     while True:
@@ -135,7 +130,8 @@ def _main(args, config, logger):
             break
         
         # Ask the user for calcs.
-        args.methods = shlex.split(Calculation_browser.run(known_destinations, known_programs, known_calculations, Calculation_browser.yaml_to_palette(config['palette'])))
+        Calculation_browser(config.methods, config.urwid_palette).main()
+        # args.methods = shlex.split(Calculation_browser.run(known_destinations, known_programs, known_calculations, Calculation_browser.yaml_to_palette(config['palette'])))
         if len(args.methods) == 0:
             break
         

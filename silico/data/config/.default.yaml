@@ -296,6 +296,10 @@ palette:
         - black
         # Background.
         - light gray
+
+    section:
+        - black, bold
+        - light gray
     
     boldnode:
         - black, bold
@@ -317,6 +321,23 @@ palette:
         - light gray
         - dark blue
         - standout
+
+    node--focus:
+        - light gray
+        - dark blue
+        - standout
+
+    node--flagged:
+        - white
+        - black
+
+    node--flagged--focus:
+        - dark cyan
+        - black
+
+    focus--section:
+        - dark blue
+        - light gray
         
     header:
         - light gray, bold
