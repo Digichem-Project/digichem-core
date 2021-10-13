@@ -48,7 +48,11 @@ class Gaussian_input_parser():
         
         None and empty string values are translated to a single whitespace character (because otherwise they will be interpreted wrong).
         """
-        return self._title if self._title is not None and self._title != "" else " "
+        if self._title is not None and len(self._title.trim()) != 0:
+            return self._title
+        
+        else:
+            return "(title)"
     
     @title.setter
     def title(self, value):
@@ -116,6 +120,14 @@ class Gaussian_input_parser():
         
         self.geometry = geometry_section[1]
         
+        # Run a sanity check on the geometry format.
+        for geometry_line in self.geometry.split("\n"):
+            num_columns = len(geometry_line.split())
+            if num_columns > 4:
+                # We have too many columns?
+                raise Silico_exception("Gaussian input file has too many columns ({}) in its geometry section".format(num_columns))
+                
+        
         # And anything else.
         self.additional_sections = sections[3:]
         
@@ -125,6 +137,4 @@ class Gaussian_input_parser():
         Get the geometry of this gaussian input file in XYZ format.
         """
         return "{}\n\n{}".format(len(self.geometry.split("\n")), self.geometry)
-       
-       
-       
+
