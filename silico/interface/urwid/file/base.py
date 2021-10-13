@@ -1,0 +1,419 @@
+# Base classes for file browser widgets.
+# This code is adapted from the example file browser included with urwid, written by Rob Lanphier.
+
+from pathlib import Path
+
+import urwid
+from silico.interface.urwid.base import Section
+
+
+class Flag_file_widget(urwid.TreeWidget):
+    """
+    """
+    
+    unexpanded_icon = urwid.Text('+')
+    expanded_icon = urwid.Text('-')
+
+    def __init__(self, node):
+        super().__init__(node)
+        # insert an extra AttrWrap for our own use
+        self._w = urwid.AttrWrap(self._w, None)
+        self.flagged = False
+        self.update_w()
+
+    def selectable(self):
+        return True
+
+    def update_w(self):
+        """
+        Update the attributes of self.widget based on self.flagged.
+        """
+        if self.flagged:
+            self._w.attr = 'node--flagged'
+            self._w.focus_attr = 'node--flagged--focus'
+        else:
+            self._w.attr = 'body'
+            self._w.focus_attr = 'node--focus'
+            
+            
+    def keypress(self, size, key):
+        """Handle expand & collapse requests (non-leaf nodes)"""
+        if self.is_leaf:
+            return key
+ 
+        if key == 'right':
+            # Expand if we're not already expanded.
+            if not self.expanded:
+                self.expanded = True
+                self.update_expanded_icon()
+                 
+            else:
+                # Already expanded, propagate up.
+                return key
+             
+        elif key == "left":
+            # Collapse if we're not already collapsed.
+            if self.expanded:
+                self.expanded = False
+                self.update_expanded_icon()
+                 
+            else:
+                # Already collapsed, propagate up.
+                return key
+             
+        else:
+            return super().keypress(size, key)
+
+
+class File_tree_widget(Flag_file_widget):
+    """
+    Widget for individual files.
+    """
+    
+    def get_display_text(self):
+        """
+        The text we'll use for display.
+        
+        Our key is our file path, so we can just use that.
+        """
+        return self.get_node().get_key()
+
+
+class Empty_widget(urwid.TreeWidget):
+    """
+    A marker for expanded directories with no contents.
+    """
+    
+    def get_display_text(self):
+        return '(empty directory)'
+
+
+class Error_widget(urwid.TreeWidget):
+    """
+    A marker for errors reading directories.
+    """
+
+    def get_display_text(self):
+        return ('warningnode', "(error: {})".format(self.get_node().get_value()))
+
+
+class Directory_widget(Flag_file_widget):
+    """
+    Widget for a directory.
+    """
+    
+    def __init__(self, node):
+        super().__init__(node)
+        path = node.get_value()
+        
+        # Work out whether we should be expanded or not.
+        self.expanded = path in node.starting_path.parents        
+        
+        self.update_expanded_icon()        
+
+    def get_display_text(self):
+        """
+        The text we'll use for display.
+        
+        In most cases we can use our key, which is our directory path, unless we're the root directory.
+        """
+        node = self.get_node()
+        if node.get_depth() == 0:
+            return "/"
+        else:
+            return node.get_key()
+
+
+class File_node(urwid.TreeNode):
+    """
+    Metadata storage for individual files.
+    """
+
+    def __init__(self, path, starting_path, parent = None, show_hidden = False):
+        """
+        Constructor for File_node objects.
+        
+        :param path: Pathlib path of this node.
+        :param path: The pathlib Path of the path that should be started at.
+        :param parent: The parent of this node (next directory up).
+        :param show_hidden: Whether to show hidden files.
+        """
+        self.show_hidden = show_hidden
+        self.starting_path = starting_path
+        depth = len(path.parts) -1
+        key = path.name
+        super().__init__(path, key = key, parent = parent, depth = depth)
+
+    def load_parent(self):
+        """
+        Load the parent node of this node.
+        """
+        path = self.get_value()
+        parent = Directory_node(path.parent, starting_path = self.starting_path, show_hidden = self.show_hidden)
+        parent.set_child_node(self.get_key(), self)
+        return parent
+
+    def load_widget(self):
+        """
+        Load the widget we'll use for display.
+        """
+        return File_tree_widget(self)
+
+
+class Empty_node(urwid.TreeNode):
+    """
+    A logical node to represent an empty directory.
+    """
+    
+    def __init__(self, parent = None, key = None, depth = None):
+        urwid.TreeNode.__init__(self, None, parent=parent, key=key, depth=depth)
+    
+    def load_widget(self):
+        """
+        Load the widget we'll use for display.
+        """
+        return Empty_widget(self)
+
+
+class Error_node(urwid.TreeNode):
+    """
+    A logical node to represent a directory that failed to load.
+    """
+    
+    def __init__(self, exception, parent=None, key=None, depth=None):
+        """
+        Constructor for Error_node objects.
+        """
+        urwid.TreeNode.__init__(self, exception, parent=parent, key=key, depth=depth)
+    
+    def load_widget(self):
+        return Error_widget(self)
+
+
+class Directory_node(urwid.ParentNode):
+    """
+    A logical node to represent a directory.
+    """
+
+    def __init__(self, path, starting_path, parent = None, show_hidden = False):
+        """
+        Constructor for Directory_node objects.
+        
+        :param path: The pathlib Path of this node.
+        :param path: The pathlib Path of the path that should be started at.
+        :param parent: The parent node, if any.
+        :param show_hidden: Whether to show hidden files and directories.
+        """
+        self.show_hidden = show_hidden
+        self.starting_path = starting_path
+        
+        if path == Path("/"):
+            depth = 0
+            key = None
+            
+        else:
+            depth = len(path.parts) -1
+            key = path.name
+            
+        # The number of child directories we have.
+        self.num_directories = 0
+            
+        urwid.ParentNode.__init__(self, path, key = key, parent = parent, depth = depth)
+
+    def load_parent(self):
+        """
+        Load the parent node of this node.
+        """
+        path = self.get_value()
+        parent = Directory_node(path.parent, starting_path = self.starting_path, show_hidden = self.show_hidden)
+        parent.set_child_node(self.get_key(), self)
+        return parent
+
+    def load_child_keys(self):
+        """
+        Load the child keys of this node.
+        """
+        # We want to keep our files and directories separate, because we will display directories first, then files afterwards.
+        directories = []
+        files = []
+        
+        try:
+            path = self.get_value()
+            # separate dirs and files
+            for child in path.iterdir():
+                # Ignore hidden files unless we've been told not to.
+                if child.name[:1] == "." and not self.show_hidden:
+                    continue
+                
+                if child.is_dir():
+                    directories.append(child.name)
+                
+                elif child.is_file():
+                    files.append(child.name)
+                    
+                else:
+                    # A child can be neither a file nor a directory if it doesn't exist (or is a broken symlink).
+                    pass
+                
+        except Exception as error:
+            # Remove any directories or files we loaded before.
+            directories = []
+            files = []
+            files.append(error)
+
+
+        # Sort our files and directories.
+        directories.sort()
+        files.sort()
+        
+        # Keep track of how many directories we have.
+        self.num_directories = len(directories)
+        
+        # Combine our keys together.
+        keys = directories + files
+        
+        # If we've got no keys, add a single dummy key to trigger the empty node.
+        if len(keys) == 0:
+            keys = [None]
+        
+        return keys
+
+    def load_child_node(self, key):
+        """
+        Load a Node for a given child key.
+        
+        :param key: The key of the child to load a node for.
+        """
+        index = self.get_child_index(key)
+        if key is None:
+            # An empty Node.
+            return Empty_node(parent = self, key = key, depth = self.get_depth() +1)
+        
+        elif isinstance(key, Exception):
+            # An error, use an error node.
+            return Error_node(key, parent = self, key = key, depth = self.get_depth() +1)
+            
+        else:
+            path = Path(self.get_value(), key)
+            if index < self.num_directories:
+                return Directory_node(path, self.starting_path, parent = self, show_hidden = self.show_hidden)
+            
+            else:
+                return File_node(path, self.starting_path, parent = self, show_hidden = self.show_hidden)
+
+    def load_widget(self):
+        """
+        Load the inner widget we'll use for display.
+        """
+        return Directory_widget(self)
+
+
+class File_browser(urwid.TreeListBox):
+    """
+    Inner widget for displaying a tree of files and directories.
+    """
+    
+    def __init__(self, starting_dir, show_hidden = False, can_choose_folders = False, can_choose_multiple = True):
+        """
+        Constructor for File_browser objects.
+        
+        :param starting_dir: The pathlib Path of the directory to start from.
+        :param show_hidden: Whether to show hidden files (those starting with a .)
+        """
+        starting_dir = starting_dir.resolve()
+        super().__init__(urwid.TreeWalker(Directory_node(starting_dir, starting_path = starting_dir, show_hidden = show_hidden)))
+        
+        self.can_choose_folders = can_choose_folders
+        self.can_choose_multiple = can_choose_multiple
+        
+        # The files that have been selected.
+        self.selected_files = []
+        
+    def keypress(self, size, key):
+        """
+        Handle keypress events.
+        """
+        if key in [' ', 'enter']:
+            # The user wants to select a file, see if we can.
+            focus_node = self.body.focus
+            focus_widget = focus_node.get_widget()
+            
+            if not hasattr(focus_node, 'has_children') or self.can_choose_folders:
+                self.select(focus_node, focus_widget)
+                
+        elif key == "right":
+            # Check to see if the widget is expanded.
+            if self.body.focus.get_widget().expanded:
+                # Move to child.
+                self.move_focus_to_child()
+            
+            else:
+                return super().keypress(size, key)
+            
+        elif key == "left":
+            # Check to see if the widget is collapsed.
+            if not self.body.focus.get_widget().expanded:
+                # Move to parent.
+                self.move_focus_to_parent(size)
+                
+            else:
+                return super().keypress(size, key)
+
+        else:
+            return super().keypress(size, key)
+
+    def move_focus_to_child(self):
+        """
+        Move focus to the first child of the widget in focus.
+        """
+
+        focus_node = self.body.focus
+
+        # Try and get the first child of the node in focus.
+        # This could fail because: 1) The node is a leaf, 2) the node is a parent with no children.
+        try:
+            child_node = focus_node.get_first_child()
+            
+        except Exception:
+            return
+        
+        if child_node.get_widget().selectable():
+            self.set_focus(child_node, "above")
+
+    def select(self, focus_node, focus_widget):
+        """
+        Select (or deselect) the node currently in focus.
+        """
+        # Check if the file is in our list.
+        path = focus_node.get_value()
+        
+        if path not in self.selected_files:
+            # Append to our list.
+            self.selected_files.append(path)
+            focus_widget.flagged = True
+            
+        else:
+            # Already in our list, remove it.
+            self.selected_files.pop(self.selected_files.index(path))
+            focus_widget.flagged = False
+            
+        # Toggle the attribute for the child.
+        focus_widget.update_w()
+
+
+class File_selector(Section):
+    """
+    A tree list box widget used to browse and select files.
+    """
+
+    def __init__(self, starting_dir):
+        """
+        Constructor for File_selector objects.
+        
+        :param starting_dir: The starting directory that will be shown expanded.
+        """
+        self.listbox = File_browser(starting_dir)
+        self.listbox.offset_rows = 1
+        
+        super().__init__(self.listbox, "File Browser")
+
