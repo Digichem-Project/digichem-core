@@ -11,12 +11,16 @@ class Row_widget(urwid.WidgetPlaceholder):
     A widget used for displaying a Row_item object.
     """
     
+    attr_name = "body"
+    focus_attr_name = "editable"
+    
     def __init__(self, row_item):
         """
         Constructor for Row_widget objects.
         
         :param item: The Row_item we represent.
         """
+        self._inner = None
         self._widget = None
         self._controls = None
         self.row_item = row_item
@@ -28,7 +32,7 @@ class Row_widget(urwid.WidgetPlaceholder):
         self.divider = urwid.Divider()
         self.divider_placeholder = urwid.WidgetPlaceholder(self.divider)
         
-        super().__init__(self.get_widget())
+        super().__init__(urwid.AttrMap(self.get_widget(), self.attr_name, self.focus_attr_name))
         
     @property
     def movable(self):
@@ -48,7 +52,7 @@ class Row_widget(urwid.WidgetPlaceholder):
     
     def load_widget(self):
         """
-        Load our body widget that we'll use for display.
+        Load our inner widget that we'll use for display.
         """
         row_items = []
         
@@ -57,7 +61,7 @@ class Row_widget(urwid.WidgetPlaceholder):
             row_items.append(('pack', urwid.AttrMap(self.position_widget, "bold")))
             
         # Add our body.
-        row_items.append(self.get_body())
+        row_items.append(self.get_inner())
         
         # Add our controls.
         control_box = urwid.GridFlow(self.get_controls(), 5, 0, 0, "center")
@@ -67,12 +71,22 @@ class Row_widget(urwid.WidgetPlaceholder):
             urwid.Columns(row_items, dividechars = 2),
             self.divider_placeholder
         ])
-        
-    def get_body(self):
+    
+    def get_inner(self, reload = False):
         """
-        Get the widget used to display the body of this Row.
+        Get the widget we'll use to display our main body.
+        """
+        if self._inner is None or reload:
+            self._inner = self.load_inner()
+            
+        return self._inner
+    
+    def load_inner(self):
+        """
+        Load the widget we'll use to display our main body.
         """
         return urwid.Text(self.row_item.value)
+        
     
     def get_controls(self, reload = False):
         """
@@ -91,16 +105,16 @@ class Row_widget(urwid.WidgetPlaceholder):
         
         :returns: A list of control buttons.
         """
-        up_button = urwid.Button("↑", lambda button: self.move_up())
-        down_button = urwid.Button("↓", lambda button: self.move_down())
-        delete_button = urwid.Button("r", lambda button: self.remove())
+        up_button = urwid.Button("↑", lambda button: self.row_item.move_up())
+        down_button = urwid.Button("↓", lambda button: self.row_item.move_down())
+        delete_button = urwid.Button("r", lambda button: self.row_item.remove())
         
         controls = []
         if self.movable:
             controls.append(urwid.AttrMap(up_button, "button--normal"))
             controls.append(urwid.AttrMap(down_button, "button--normal"))
             
-        controls.append(urwid.AttrMap(delete_button, "button--bad"))
+        controls.append(urwid.AttrMap(delete_button, "button--bad--small"))
         return controls
         
     def update_position(self):
@@ -129,6 +143,12 @@ class Row_pointer_widget(Row_widget):
     """
     A widget used for displaying the row pointer.
     """
+    
+    def load_inner(self):
+        """
+        Load the widget we'll use to display our main body.
+        """
+        return urwid.Button(self.row_item.value, lambda button: self.add_func)
     
     def load_controls(self):
         """
@@ -242,14 +262,16 @@ class Row_pointer(Row_item):
     A dummy row item that indicates where the next item will be inserted.
     """
     
-    def __init__(self,  row_list, movable = False, widget_text = "Add new here"):
+    def __init__(self,  row_list, add_func, movable = True, widget_text = "Add new here"):
         """
         Constructor for Row_pointer objects.
         
         :param value: 
         """
         Row_item.__init__(self, widget_text, row_list, movable)
-
+        # A function we'll call when out button is pressed.
+        self.add_func = add_func
+        
     def load_widget(self):
         """
         Load a widget that represents this Row_item().
@@ -294,11 +316,11 @@ class Row_walker(urwid.SimpleFocusListWalker):
         
         :returns: A tuple (widget, position) of the current focus.
         """
-        #try:
-        focus = self.focus
-        return self[focus].get_widget(), focus
-        #except (IndexError, KeyError, TypeError):
-        #    return None, None
+        try:
+            focus = self.focus
+            return self[focus].get_widget(), focus
+        except (IndexError, KeyError, TypeError):
+            return None, None
 
 
 class Row_list(urwid.ListBox):
@@ -312,7 +334,7 @@ class Row_list(urwid.ListBox):
         :param rearrangeable: Whether the rows of this Row_list can be rearranged.
         """
         # Keep track of our pointer
-        self.pointer = Row_pointer(self, rearrangeable)
+        self.pointer = Row_pointer(self, None, rearrangeable)
         super().__init__(Row_walker([self.pointer]))
         
         # Set our initial focus.
