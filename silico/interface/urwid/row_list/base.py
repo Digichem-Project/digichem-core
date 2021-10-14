@@ -148,7 +148,7 @@ class Row_pointer_widget(Row_widget):
         """
         Load the widget we'll use to display our main body.
         """
-        return urwid.Button(self.row_item.value, lambda button: self.add_func)
+        return urwid.Button(self.row_item.value, lambda button: self.row_item.add_func())
     
     def load_controls(self):
         """
@@ -328,13 +328,14 @@ class Row_list(urwid.ListBox):
     A custom ListBox that displays data in (movable) rows.
     """
     
-    def __init__(self, rearrangeable = True):
+    def __init__(self, add_func, rearrangeable = True):
         """
         
+        :param add_func: A function to call when a new item is to be added.
         :param rearrangeable: Whether the rows of this Row_list can be rearranged.
         """
         # Keep track of our pointer
-        self.pointer = Row_pointer(self, None, rearrangeable)
+        self.pointer = Row_pointer(self, add_func, rearrangeable)
         super().__init__(Row_walker([self.pointer]))
         
         # Set our initial focus.
