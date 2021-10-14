@@ -111,10 +111,10 @@ class Row_widget(urwid.WidgetPlaceholder):
         
         controls = []
         if self.movable:
-            controls.append(urwid.AttrMap(up_button, "button--normal"))
-            controls.append(urwid.AttrMap(down_button, "button--normal"))
+            controls.append(urwid.AttrMap(up_button, "button--normal", "button--focus"))
+            controls.append(urwid.AttrMap(down_button, "button--normal", "button--focus"))
             
-        controls.append(urwid.AttrMap(delete_button, "button--bad--small"))
+        controls.append(urwid.AttrMap(delete_button, "button--bad--small", "button--focus"))
         return controls
         
     def update_position(self):
