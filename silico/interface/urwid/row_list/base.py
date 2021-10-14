@@ -269,7 +269,7 @@ class Row_pointer(Row_item):
         :param value: 
         """
         Row_item.__init__(self, widget_text, row_list, movable)
-        # A function we'll call when out button is pressed.
+        # A function we'll call when our button is pressed.
         self.add_func = add_func
         
     def load_widget(self):
