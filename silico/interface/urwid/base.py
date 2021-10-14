@@ -81,8 +81,14 @@ class Swapping_window(Tab_pile):
         self.retval = None
         
         controls = urwid.Columns([
-            urwid.AttrMap(urwid.Button("Back", lambda button: self.cancel()), "button--normal", "button--focus"),
-            urwid.AttrMap(urwid.Button("Submit", lambda button: self.submit()), "button--good", "button--focus")
+            urwid.AttrMap(urwid.Button("Back", lambda button: self.cancel()), "button", "button--focus"),
+            urwid.AttrMap(urwid.Button("Submit", lambda button: self.submit()), "button--good", "button--good--focus")
+        ])
+        
+        super().__init__([
+            self.body,
+            #('pack', urwid.Filler(controls))
+            ('pack', controls)
         ])
         
     def keypress(self, size, key):
