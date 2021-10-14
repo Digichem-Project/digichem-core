@@ -14,14 +14,23 @@ class Top(urwid.WidgetPlaceholder):
         """
         super().__init__(original_widget)
         self.stack = []
-        
+
     def swap(self, original_widget):
         """
         Set a new widget as the top-most.
         """
         self.stack.append(self.original_widget)
         self.original_widget = original_widget
+
+    def swap_into_window(self, original_widget, cancel_callback = None, submit_callback = None):
+        """
+        Wrap a widget with cancel and submit buttons and then set it as the top-most widget.
         
+        :param cancel_callback: A function to call when the cancel button is pressed.
+        :param submit_callback: A function to call when the submit button is pressed.
+        """
+        self.swap(Swapping_window(original_widget, top = self, cancel_callback = cancel_callback, submit_callback = submit_callback))
+
     def back(self):
         """
         Remove the current top-most widget and set the last in its place.
@@ -53,6 +62,46 @@ class Swappable():
     def __init__(self):
         self.top = None
         
+class Swapping_window(urwid.Pile):
+    """
+    A window used when swapping widgets, provides controls to return to the previous window.
+    """
+    
+    def __init__(self, body, top, cancel_callback = None, submit_callback = None):
+        self.body = body
+        self.top = top
+        self.submit_callback = submit_callback
+        self.cancel_callback = cancel_callback
+        
+        # A value indicating which of our two buttons was pressed.
+        self.retval = None
+        
+        controls = urwid.Columns([
+            urwid.AttrMap(urwid.Button("Back", lambda button: self.cancel()), "button--normal", "button--focus"),
+            urwid.AttrMap(urwid.Button("Submit", lambda button: self.submit()), "button--good", "button--focus")
+        ])
+        
+        super().__init__([self.body, controls])
+        
+    def cancel(self):
+        """
+        Function called when the back button is pressed.
+        """
+        self.retval = False
+        if self.cancel_callback is not None:
+            self.cancel_callback()
+        self.top.back()
+        
+    def submit(self):
+        """
+        Function called when the submit button is pressed.
+        """
+        self.retval = True
+        if self.submit_callback is not None:
+            self.submit_callback()
+        self.top.back()
+
+
 class Window(urwid.Frame):
     """
     Container widget for high-level widgets that emulates a window.
