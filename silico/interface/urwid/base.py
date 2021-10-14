@@ -50,10 +50,13 @@ class Top(urwid.WidgetPlaceholder):
         """
         Handler for keypress events.
         """
+        # Allow children to intercept first.
+        key = super().keypress(size, key)
+        
         if key == "esc":
             self.back()
-        else:
-            return super().keypress(size, key)
+        
+        return key
         
 class Swappable():
     """
@@ -82,7 +85,17 @@ class Swapping_window(Tab_pile):
             urwid.AttrMap(urwid.Button("Submit", lambda button: self.submit()), "button--good", "button--focus")
         ])
         
-        super().__init__([self.body, controls])
+    def keypress(self, size, key):
+        """
+        Handler for keypress events.
+        """
+        # Allow children to intercept first.
+        key = super().keypress(size, key)
+        
+        if key == "esc":
+            self.cancel()
+        
+        return key
         
     def cancel(self):
         """
