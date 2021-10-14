@@ -1,5 +1,6 @@
 import urwid
 from urwid.graphics import LineBox
+from silico.interface.urwid.misc import Tab_pile
 
 class Top(urwid.WidgetPlaceholder):
     """
@@ -62,7 +63,7 @@ class Swappable():
     def __init__(self):
         self.top = None
         
-class Swapping_window(urwid.Pile):
+class Swapping_window(Tab_pile):
     """
     A window used when swapping widgets, provides controls to return to the previous window.
     """
