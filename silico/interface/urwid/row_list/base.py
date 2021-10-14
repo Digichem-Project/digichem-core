@@ -64,8 +64,10 @@ class Row_widget(urwid.WidgetPlaceholder):
         row_items.append(self.get_inner())
         
         # Add our controls.
-        control_box = urwid.GridFlow(self.get_controls(), 5, 0, 0, "center")
-        row_items.append((10, control_box))
+        controls = self.get_controls()
+        if len(controls) > 0:
+            control_box = urwid.GridFlow(controls, 5, 0, 0, "center")
+            row_items.append((10, control_box))
         
         return urwid.Pile([
             urwid.Columns(row_items, dividechars = 2),
@@ -111,8 +113,8 @@ class Row_widget(urwid.WidgetPlaceholder):
         
         controls = []
         if self.movable:
-            controls.append(urwid.AttrMap(up_button, "button--normal", "button--focus"))
-            controls.append(urwid.AttrMap(down_button, "button--normal", "button--focus"))
+            controls.append(urwid.AttrMap(up_button, "button--small", "button--small--focus"))
+            controls.append(urwid.AttrMap(down_button, "button--small", "button--small--focus"))
             
         controls.append(urwid.AttrMap(delete_button, "button--bad--small", "button--focus"))
         return controls
@@ -321,6 +323,30 @@ class Row_walker(urwid.SimpleFocusListWalker):
             return self[focus].get_widget(), focus
         except (IndexError, KeyError, TypeError):
             return None, None
+        
+    def get_next(self, position):
+        """
+        Get the next.
+        
+        :returns: A tuple (widget, position) of position.
+        """
+        try:
+            position = self.next_position(position)
+            return self[position].get_widget(), position
+        except (IndexError, KeyError):
+            return None, None
+
+    def get_prev(self, position):
+        """
+        Get the previous.
+        
+        :returns: A tuple (widget, position) of position.
+        """
+        try:
+            position = self.prev_position(position)
+            return self[position].get_widget(), position
+        except (IndexError, KeyError):
+            return None, None
 
 
 class Row_list(urwid.ListBox):
@@ -336,7 +362,9 @@ class Row_list(urwid.ListBox):
         """
         # Keep track of our pointer
         self.pointer = Row_pointer(self, add_func, rearrangeable)
-        super().__init__(Row_walker([self.pointer]))
+        super().__init__(Row_walker([self.pointer, self.pointer]))
+        
+        self.rearrangeable = rearrangeable
         
         # Set our initial focus.
         self.set_focus(0)
@@ -357,7 +385,7 @@ class Row_list(urwid.ListBox):
         :param value: The value of the new row.
         :returns: The Row_item object.
         """
-        return Row_item(value)
+        return Row_item(value, self, self.rearrangeable)
             
     def add_row(self, value):
         """
