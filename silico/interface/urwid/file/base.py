@@ -1,5 +1,5 @@
 # Base classes for file browser widgets.
-# This code is adapted from the example file browser included with urwid, written by Rob Lanphier.
+# This code is adapted from the example file browser included with urwid, originally written by Rob Lanphier.
 
 from pathlib import Path
 
@@ -327,7 +327,7 @@ class File_browser(urwid.TreeListBox):
         self.can_choose_multiple = can_choose_multiple
         
         # The files that have been selected.
-        self.selected_files = []
+        self.selected_nodes = []
         
     def keypress(self, size, key):
         """
@@ -384,21 +384,32 @@ class File_browser(urwid.TreeListBox):
         """
         Select (or deselect) the node currently in focus.
         """
-        # Check if the file is in our list.
-        path = focus_node.get_value()
-        
-        if path not in self.selected_files:
+        # Check if the file is in our list.        
+        if focus_node not in self.selected_nodes:
             # Append to our list.
-            self.selected_files.append(path)
+            self.selected_nodes.append(focus_node)
             focus_widget.flagged = True
             
         else:
             # Already in our list, remove it.
-            self.selected_files.pop(self.selected_files.index(path))
+            self.selected_nodes.pop(self.selected_nodes.index(focus_node))
             focus_widget.flagged = False
             
         # Toggle the attribute for the child.
         focus_widget.update_w()
+        
+    def reset(self):
+        """
+        Unselect any files that have already been selected.
+        """        
+        for node in self.selected_nodes:
+            # Remove the flagged status.
+            node.get_widget().flagged = False
+            node.get_widget().update_w()
+            
+            
+        self.selected_nodes = []
+            
 
 
 class File_selector(Section):
@@ -412,8 +423,8 @@ class File_selector(Section):
         
         :param starting_dir: The starting directory that will be shown expanded.
         """
-        self.listbox = File_browser(starting_dir)
-        self.listbox.offset_rows = 1
+        self.browser = File_browser(starting_dir)
+        self.browser.offset_rows = 1
         
-        super().__init__(self.listbox, "File Browser")
+        super().__init__(self.browser, "File Browser")
 
