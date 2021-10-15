@@ -373,7 +373,7 @@ class Row_list(urwid.ListBox):
         """
         # Keep track of our pointer
         self.pointer = Row_pointer(self, add_func, rearrangeable)
-        super().__init__(Row_walker([self.pointer, self.pointer]))
+        super().__init__(Row_walker([self.pointer]))
         
         self.rearrangeable = rearrangeable
         
