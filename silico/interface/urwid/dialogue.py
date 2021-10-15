@@ -27,20 +27,30 @@ class Confirm_or_cancel_dialogue(Dialogue):
     A dialogue box with two buttons.
     """
     
-    def __init__(self, title, message, top, cancel_callback = None, submit_callback = None):
+    def __init__(self, title, message, top, error = False, cancel_callback = None, submit_callback = None):
         """
         Constructor for Confirm dialogue boxes.
         
         :param title: Text markup to use as the title.
         :param message: Text markup to use as the message body.
         :param top: The top widget used for display.
+        :param error: Whether to use alternative formatting to indicate an error.
         :param cancel_callback: Function to call when the cancel button is clicked.
         :param submit_callback: Function to call when the submit button is clicked.
         """
         self.title = title
         self.message = message
         
-        body = urwid.AttrMap(Confirm_or_cancel(self.get_inner(), top, cancel_callback = cancel_callback, submit_callback = submit_callback), {"body": "dialogue", "section": "section--dialogue"})
+        # Decide on formatting.
+        if error:
+            # Error formatting.
+            attrs = {"body": "dialogue", "section": "section--dialogue"}
+        
+        else:
+            # Normal formatting.
+            attrs = {"body": "dialogue", "section": "section--dialogue--error"}
+        
+        body = urwid.AttrMap(Confirm_or_cancel(self.get_inner(), top, cancel_callback = cancel_callback, submit_callback = submit_callback), attrs)
         
         # Call parent.
         super().__init__(
