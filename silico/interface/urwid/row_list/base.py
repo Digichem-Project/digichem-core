@@ -66,7 +66,7 @@ class Row_widget(urwid.WidgetPlaceholder):
         # Add our controls.
         controls = self.get_controls()
         if len(controls) > 0:
-            control_box = urwid.GridFlow(controls, 5, 0, 0, "center")
+            control_box = urwid.GridFlow(controls, 5, 0, 0, "left")
             row_items.append((10, control_box))
         
         return urwid.Pile([
@@ -116,7 +116,7 @@ class Row_widget(urwid.WidgetPlaceholder):
             controls.append(urwid.AttrMap(up_button, "button--small", "button--small--focus"))
             controls.append(urwid.AttrMap(down_button, "button--small", "button--small--focus"))
             
-        controls.append(urwid.AttrMap(delete_button, "button--bad--small", "button--focus"))
+        controls.append(urwid.AttrMap(delete_button, "button--bad--small", "button--small--focus"))
         return controls
         
     def update_position(self):
