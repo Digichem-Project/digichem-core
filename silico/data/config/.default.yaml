@@ -300,6 +300,14 @@ palette:
     section:
         - black, bold
         - light gray
+
+    section--dialogue:
+        - white, bold
+        - dark blue
+
+    section--dialogue--error:
+        - yellow, bold
+        - dark blue
     
     boldnode:
         - black, bold
@@ -364,7 +372,7 @@ palette:
     editable:
         - dark blue
         - light gray
-        
+
     dialogue:
         - white
         - dark blue
@@ -372,20 +380,42 @@ palette:
     title:
         - white, bold
         - dark blue
-        
-    goodButton:
-        - black
+
+
+    # Buttons.        
+    button--good:
+        - white
         - dark green
 
-    normalButton:
+    button--good--focus:
+        - white, bold
+        - dark green
+
+    button:
+        - white
+        - dark gray
+
+    button--focus:
+        - white, bold
+        - dark gray
+
+    button--small:
         - black, bold
+        - light gray    
+
+    button--small--focus:
+        - dark blue
         - light gray
         
-    badButton:
+    button--bad:
         - white
         - dark red
 
-    badButton--small:
+    button--bad--focus:
+        - white, bold
+        - dark red
+
+    button--bad--small:
         - light red, bold
         - light gray
         
