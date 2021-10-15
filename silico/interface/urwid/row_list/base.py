@@ -243,10 +243,7 @@ class Row_item():
         
         # We need to insert and pop to move.
         self.row_list.body.insert(new_index, self.row_list.body.pop(cur_index))
-        
-        # Update.
-        self.row_list.update_positions()
-        
+                
         # Set ourself as the focus.
         self.row_list.body.set_focus(new_index if new_index < len(self.row_list.body) else len(self.row_list.body) -1)
         
@@ -256,7 +253,6 @@ class Row_item():
         """
         index = self.index
         self.row_list.body.pop(index)
-        self.row_list.update_positions()
 
 
 class Row_pointer(Row_item):
@@ -297,6 +293,21 @@ class Row_walker(urwid.SimpleFocusListWalker):
         :param data: List of data (Row_items) to display.
         """
         super().__init__(data)
+        
+    
+    def _modified(self):
+        """
+        Function called whenever our list is changed.
+        """
+        super()._modified()
+        self.update_positions()
+        
+    def update_positions(self):
+        """
+        Tell each child to look up their positions again.
+        """
+        for row in self:
+            row.get_widget().update_position()
         
     @property
     def focus_row(self):
@@ -369,14 +380,7 @@ class Row_list(urwid.ListBox):
         # Set our initial focus.
         self.set_focus(0)
         
-        self.update_positions()
-        
-    def update_positions(self):
-        """
-        Tell each child to look up their positions again.
-        """
-        for row in self.body:
-            row.get_widget().update_position()
+        self.body.update_positions()
             
     def load_row(self, value):
         """
@@ -399,7 +403,6 @@ class Row_list(urwid.ListBox):
         index = self.body.index(self.pointer)
         
         self.body.insert(index, row_item)
-        self.update_positions()
         
         # Set the pointer as the current focus.
         self.set_focus(index +1)
