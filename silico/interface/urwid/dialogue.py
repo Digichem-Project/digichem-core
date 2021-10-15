@@ -1,60 +1,94 @@
+# General imports.
 import urwid
 
-class Confirm(urwid.Overlay):
+# Silico imports.
+from silico.interface.urwid.base import Section
+from silico.interface.urwid.wrapper import Confirm_or_cancel, Confirm
+
+
+class Dialogue(urwid.Overlay):
     """
-    A confirmation box, designed to be used as a pop-up. Presents the user with a message and two buttons.
+    A confirmation box, designed to be used as a pop-up. Presents the user with a message and buttons.
     """
     
-    def __init__(self, title, message, confirm_action, top, title_attr = "title", message_attr = "dialogue"):
+                
+    def get_inner(self):
+        """
+        Get the inner widget we'll use for display.
+        """
+        return Section(
+            urwid.ListBox(urwid.SimpleListWalker([urwid.Text(self.message, wrap="any")])),
+            title = self.title,
+            focusable = False
+        )
+        
+class Confirm_or_cancel_dialogue(Dialogue):
+    """
+    A dialogue box with two buttons.
+    """
+    
+    def __init__(self, title, message, top, cancel_callback = None, submit_callback = None):
         """
         Constructor for Confirm dialogue boxes.
         
         :param title: Text markup to use as the title.
         :param message: Text markup to use as the message body.
-        :param confirm_action: Callback to execute when the user chooses confirm.
+        :param top: The top widget used for display.
+        :param cancel_callback: Function to call when the cancel button is clicked.
+        :param submit_callback: Function to call when the submit button is clicked.
         """
-        self.tOp = top
-        self.confirm_action = confirm_action
+        self.title = title
+        self.message = message
         
-        # Buttons.
-        cancel = urwid.Button("Cancel", self.cancel)
-        confirm = urwid.Button("Confirm", self.confirm)
-        
-        # Get our pile.
-        pile = urwid.Pile([
-            ('pack', urwid.Divider()),
-            ('pack', urwid.Text((title_attr, title), align = "center")),
-            ('pack', urwid.Divider()),
-            ('pack', urwid.Padding(urwid.Text((message_attr, message), align = "center"), align = "center", width = "pack", left = 1, right = 1)),
-            ('pack', urwid.Divider()),
-            ('pack', urwid.Columns([
-                urwid.AttrMap(urwid.Padding(cancel, align = "center", width = 10), 'bad_button'),
-                urwid.AttrMap(urwid.Padding(confirm, align = "center", width = 11), 'good_button')
-            ]))
-        ])
+        body = urwid.AttrMap(Confirm_or_cancel(self.get_inner(), top, cancel_callback = cancel_callback, submit_callback = submit_callback), {"body": "dialogue", "section": "section--dialogue"})
         
         # Call parent.
         super().__init__(
-            #urwid.LineBox(urwid.Filler(pile)),
-            urwid.AttrMap(urwid.LineBox(pile), message_attr),
-            self.tOp.original_widget,
+            body,
+            top.original_widget,
             align = "center",
             width = ('relative', 80),
-            #width = 'pack',
             valign = "middle",
-            height = 'pack',
-            #height = ('relative', 80)
+            height = ('relative', 80),
         )
+
+
+class Confirm_dialogue(Dialogue):
+    """
+    A dialogue box with one button.
+    """
+    
+    def __init__(self, title, message, top, error = False, submit_callback = None):
+        """
+        Constructor for Confirm dialogue boxes.
         
-    def cancel(self, *args, **kwargs):
+        :param title: Text markup to use as the title.
+        :param message: Text markup to use as the message body.
+        :param top: The top widget used for display.
+        :param error: Whether to use alternative formatting to indicate an error.
+        :param submit_callback: Function to call when the button is clicked.
         """
-        Function called when the 'cancel' button is chosen.
-        """
-        self.tOp.back()
+        self.title = title
+        self.message = message
         
-    def confirm(self, *args, **kwargs):
-        """
-        Function called when the 'confirm' button is chosen.
-        """
-        self.confirm_action()
-        self.tOp.back()
+        # Decide on formatting.
+        if error:
+            # Error formatting.
+            attrs = {"body": "dialogue", "section": "section--dialogue"}
+        
+        else:
+            # Normal formatting.
+            attrs = {"body": "dialogue", "section": "section--dialogue--error"}
+            
+        
+        body = urwid.AttrMap(Confirm(self.get_inner(), top, submit_callback = submit_callback), attrs)
+                
+        # Call parent.
+        super().__init__(
+             body,
+            top.original_widget,
+            align = "center",
+            width = ('relative', 80),
+            valign = "middle",
+            height = ('relative', 80),
+        )
