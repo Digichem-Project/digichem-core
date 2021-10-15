@@ -1,4 +1,4 @@
-import urwid
+import urwid.numedit
 
 class Tab_pile(urwid.Pile):
     """
@@ -27,3 +27,12 @@ class Blank(urwid.Pile):
         """
         """
         super().__init__([])
+        
+class IntEditZero(urwid.numedit.IntegerEdit):
+    """
+    An int edit widget that allows specifying zeroes.
+    """
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.trimLeadingZeros = False
