@@ -272,7 +272,7 @@ class File_selector(Section):
     A tree list box widget used to browse and select files.
     """
 
-    def __init__(self, starting_dir):
+    def __init__(self, starting_dir, title = "File Browser"):
         """
         Constructor for File_selector objects.
         
@@ -281,5 +281,5 @@ class File_selector(Section):
         self.browser = File_browser(starting_dir)
         self.browser.offset_rows = 1
         
-        super().__init__(self.browser, "File Browser")
+        super().__init__(self.browser, title)
 
