@@ -69,6 +69,7 @@ class Control_wrapper(Tab_pile):
     def get_controls(self):
         raise NotImplementedError("Implement in subclass")
 
+
 class Confirm_or_cancel(Control_wrapper):
     """
     A widget wrapper that provides a cancel and a confirm button.
@@ -104,6 +105,50 @@ class Confirm_or_cancel(Control_wrapper):
         Function called when the submit button is pressed.
         """
         self.retval = True
+        if self.submit_callback is not None:
+            if self.submit_callback() is not False:
+                self.top.back()
+
+class Confirm_settings_cancel(Control_wrapper):
+    """
+    A widget wrapper that provides three buttons.
+    """
+    
+    def __init__(self, body, top, settings_browser, cancel_callback = None, submit_callback = None):
+        """
+        Constructor for Confirm_or_cancel objects.
+        
+        :param body: The inner widget to display.
+        :param top: The topmost widget to use for navigation.
+        :param settings_browser: A widget to set as the current top when the Settings button is selected.
+        :param cancel_callback: A function that will be called when the cancel button is pressed. If this function returns False, the top-most widget will not be swapped back.
+        :param submit_callback: A function that will be called when the submit button is pressed. If this function returns False, the top-most widget will not be swapped back.
+        """
+        self.submit_callback = self.convert_callback(submit_callback)
+        self.settings_browser = settings_browser
+                
+        super().__init__(body, top, cancel_callback = cancel_callback)
+    
+    def get_controls(self):
+        """
+        Get the buttons used to control this widget.
+        """
+        return [
+            urwid.AttrMap(urwid.Button("Back", lambda button: self.cancel()), "button", "button--focus"),
+            urwid.AttrMap(urwid.Button("Settings", lambda button: self.settings()), "button", "button--focus"),
+            urwid.AttrMap(urwid.Button("Confirm", lambda button: self.submit()), "button--good", "button--good--focus")
+        ]
+        
+    def settings(self):
+        """
+        Function called when the settings button is pressed.
+        """
+        self.top.swap_into_window(self.settings_browser, cancel_callback = self.settings_browser.discard(), submit_callback = self.convert_callback(1))
+        
+    def submit(self):
+        """
+        Function called when the submit button is pressed.
+        """
         if self.submit_callback is not None:
             if self.submit_callback() is not False:
                 self.top.back()
