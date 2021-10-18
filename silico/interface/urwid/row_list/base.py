@@ -29,7 +29,8 @@ class Row_widget(urwid.WidgetPlaceholder):
         self.position_widget = urwid.Text("***")
         
         # Widgets to give us spacing between ourself and the next row item.
-        self.divider = urwid.Divider()
+        #self.divider = urwid.Divider()
+        self.divider = Blank()
         self.divider_placeholder = urwid.WidgetPlaceholder(self.divider)
         
         super().__init__(urwid.AttrMap(self.get_widget(), self.attr_name, self.focus_attr_name))
