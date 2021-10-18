@@ -4,6 +4,7 @@ from pathlib import Path
 from silico.exception.base import Silico_exception
 from silico.file.convert.gaussian import Gaussian_input_parser
 from silico.file.convert.babel import Openbabel_converter
+from openbabel import pybel
 
 # Custom formats to allow literal strings in yaml output.
 # Adapted from https://stackoverflow.com/questions/6432605/any-yaml-libraries-in-python-that-support-dumping-of-long-strings-as-block-liter
@@ -42,7 +43,13 @@ class Silico_input():
             self.name = Path(file_name).with_suffix("").name
         else:    
             self.name = name
-        
+    
+    @property
+    def formula(self):
+        """
+        """
+        molecule = pybel.readstring("xyz", self.to_format("xyz"))
+        return molecule.formula
 
     @classmethod
     def from_xyz(self, geometry, **kwargs):
