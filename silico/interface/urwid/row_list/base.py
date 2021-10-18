@@ -410,6 +410,61 @@ class Row_list(urwid.ListBox):
         self.set_focus(index +1)
         
         
+class Row_browser(Row_list):
+    """
+    A higher level Row_list object that can show a browser to add nodes.
+    """
+    
+    def __init__(self, selector, top, rearrangeable=True):
+        """
+        Constructor for Method_list objects.
+        
+        :param selector: The selector widget to show when the user wants to add stuff.
+        :param top: The topmost widget to use for display.
+        """
+        self.top = top
+        
+        self.selector = selector
+        
+        super().__init__(self.swap_to_browser, rearrangeable=rearrangeable)
+        
+    def swap_to_browser(self):
+        """
+        Function called to open the calculation browser.
+        """
+        self.top.swap_into_window(self.selector, cancel_callback = self.cancel, submit_callback = self.submit)
+        
+    def submit(self):
+        """
+        Add selected methods to our list.
+        """
+        errors = []
+        # Go through the nodes the user selected.
+        for selected_node in self.selector.browser.selected_nodes:
+            value = self.value_from_node(selected_node)
+            try:
+                self.add_row(value)
+            
+            except Exception as error:
+                # We couldn't load the node for some reason, show an error and ignore.
+                errors.append((value, error))
+                
+        # Clear the selected nodes.
+        self.selector.browser.reset()
+        
+        # If we got any errors, show them to the user.
+        if len(errors) > 0:
+            error_title, error_text = self.get_error_text(errors)
+            
+            self.top.swap(Confirm_dialogue(error_title, error_text, self.top, submit_callback = 2))
+            # Returning False stops us swapping back before we show the dialogue.
+            return False
+        
+    def value_from_node(self, node):
+        """
+        Get a value to add from a selected node.
+        """
+        return node.get_value()
         
     def get_error_text(self, errors):
         """
