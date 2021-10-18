@@ -68,7 +68,7 @@ class Row_widget(urwid.WidgetPlaceholder):
         # Add our controls.
         controls = self.get_controls()
         if len(controls) > 0:
-            control_box = urwid.GridFlow(controls, 5, 0, 0, "left")
+            control_box = urwid.GridFlow(controls, 5, 0, 0, "right")
             row_items.append((10, control_box))
         
         return urwid.Pile([
