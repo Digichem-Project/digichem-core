@@ -1,5 +1,6 @@
 import urwid
 from silico.interface.urwid.misc import Blank
+from silico.interface.urwid.dialogue import Confirm_dialogue
 
 class Row_control():
     """
@@ -410,4 +411,18 @@ class Row_list(urwid.ListBox):
         
         
         
+    def get_error_text(self, errors):
+        """
+        Get the text to display when an error occurs adding to our List.
         
+        :param: A tuple of (title, message)
+        """
+        return ("Error", "The following {} value(s) could not be loaded and will be ignored:\n\n".format(len(errors)) + "\n\n".join(["{}".format(error) for value, error in errors]))
+    
+    def cancel(self):
+        """
+        Reset our method selector.
+        """
+        self.selector.browser.reset()    
+
+    
