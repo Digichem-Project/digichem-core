@@ -57,7 +57,6 @@ class Loader_node_mixin():
         
         else:
             return loader_paths
-        
 
 
 class Loader_leaf_node(Loader_node_mixin, urwid.TreeNode):

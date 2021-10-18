@@ -1,25 +1,22 @@
 # Widgets that control the appearance of the calculation browser.
 
+# General imports.
 import urwid
-from urwid import TreeWidget
 
-class Loader_widget(TreeWidget):
+# Silico imports.
+from silico.interface.urwid.tree.base import Flag_widget
+
+
+class Loader_widget(Flag_widget):
     """
     Mixin class for widgets that represent configurable loaders.
     """
     
-    indent_cols = 4
-    unexpanded_icon = urwid.Text('+')
-    expanded_icon = urwid.Text('-')
-    
     def load_inner_widget(self):
         """
         Load the inner widget we use for displaying text (not including the expanded icon etc).
-        """
-        node = self.get_node()
-        loader = node.get_value()[-1]
-        
-        return Node_widget(self.get_display_text(), bold = not loader.partial)
+        """        
+        return Node_widget(self.get_display_text())
     
     def get_display_text(self):
         """
@@ -43,41 +40,20 @@ class Loader_widget(TreeWidget):
         
         else:
             return str(loader.ALIAS)
-        
-    def keypress(self, size, key):
-        """Handle expand & collapse requests (non-leaf nodes)"""
-        if self.is_leaf:
-            return key
-
-        if key in ['enter', ' ']:
-            # Toggle whatever we are currently.
-            self.expanded = not self.expanded
-            self.update_expanded_icon()
-            
-        else:
-            return super().keypress(size, key)
-
 
 
 class Node_widget(urwid.WidgetWrap):
     """
     The inner widget which displays information about each node.
     """
-    
-    # The attribute we normally use for display when not in focus.
-    normal_attr = 'body'
-    # The attribute we use for display if we are a bold node.
-    bold_attr = 'boldnode'
-    # The attribute we use for display when we are in focus.
-    focus_attr = 'focus'
-    
-    def __init__(self, display_text, bold = True):
+        
+    def __init__(self, display_text):
         """
         Constructor for Node_widget objects.
         
         :param display_text: The text to display.
         """
-        super().__init__(urwid.AttrMap(urwid.Text(display_text), self.normal_attr if not bold else self.bold_attr, self.focus_attr))
+        super().__init__(urwid.Text(display_text))
     
     def selectable(self):
         """

@@ -5,67 +5,10 @@ from pathlib import Path
 
 import urwid
 from silico.interface.urwid.base import Section
+from silico.interface.urwid.tree.base import Flag_widget,\
+    Flaggable_tree_list_box
 
-
-class Flag_file_widget(urwid.TreeWidget):
-    """
-    """
-    
-    unexpanded_icon = urwid.Text('+')
-    expanded_icon = urwid.Text('-')
-
-    def __init__(self, node):
-        super().__init__(node)
-        # insert an extra AttrWrap for our own use
-        self._w = urwid.AttrWrap(self._w, None)
-        self.flagged = False
-        self.update_w()
-
-    def selectable(self):
-        return True
-
-    def update_w(self):
-        """
-        Update the attributes of self.widget based on self.flagged.
-        """
-        if self.flagged:
-            self._w.attr = 'node--flagged'
-            self._w.focus_attr = 'node--flagged--focus'
-        else:
-            self._w.attr = 'body'
-            self._w.focus_attr = 'node--focus'
-            
-            
-    def keypress(self, size, key):
-        """Handle expand & collapse requests (non-leaf nodes)"""
-        if self.is_leaf:
-            return key
- 
-        if key == 'right':
-            # Expand if we're not already expanded.
-            if not self.expanded:
-                self.expanded = True
-                self.update_expanded_icon()
-                 
-            else:
-                # Already expanded, propagate up.
-                return key
-             
-        elif key == "left":
-            # Collapse if we're not already collapsed.
-            if self.expanded:
-                self.expanded = False
-                self.update_expanded_icon()
-                 
-            else:
-                # Already collapsed, propagate up.
-                return key
-             
-        else:
-            return super().keypress(size, key)
-
-
-class File_tree_widget(Flag_file_widget):
+class File_tree_widget(Flag_widget):
     """
     Widget for individual files.
     """
@@ -97,7 +40,7 @@ class Error_widget(urwid.TreeWidget):
         return ('warningnode', "(error: {})".format(self.get_node().get_value()))
 
 
-class Directory_widget(Flag_file_widget):
+class Directory_widget(Flag_widget):
     """
     Widget for a directory.
     """
@@ -308,7 +251,7 @@ class Directory_node(urwid.ParentNode):
         return Directory_widget(self)
 
 
-class File_browser(urwid.TreeListBox):
+class File_browser(Flaggable_tree_list_box):
     """
     Inner widget for displaying a tree of files and directories.
     """
@@ -321,95 +264,7 @@ class File_browser(urwid.TreeListBox):
         :param show_hidden: Whether to show hidden files (those starting with a .)
         """
         starting_dir = starting_dir.resolve()
-        super().__init__(urwid.TreeWalker(Directory_node(starting_dir, starting_path = starting_dir, show_hidden = show_hidden)))
-        
-        self.can_choose_folders = can_choose_folders
-        self.can_choose_multiple = can_choose_multiple
-        
-        # The files that have been selected.
-        self.selected_nodes = []
-        
-    def keypress(self, size, key):
-        """
-        Handle keypress events.
-        """
-        if key in [' ', 'enter']:
-            # The user wants to select a file, see if we can.
-            focus_node = self.body.focus
-            focus_widget = focus_node.get_widget()
-            
-            if not hasattr(focus_node, 'has_children') or self.can_choose_folders:
-                self.select(focus_node, focus_widget)
-                
-        elif key == "right":
-            # Check to see if the widget is expanded.
-            if self.body.focus.get_widget().expanded:
-                # Move to child.
-                self.move_focus_to_child()
-            
-            else:
-                return super().keypress(size, key)
-            
-        elif key == "left":
-            # Check to see if the widget is collapsed.
-            if not self.body.focus.get_widget().expanded:
-                # Move to parent.
-                self.move_focus_to_parent(size)
-                
-            else:
-                return super().keypress(size, key)
-
-        else:
-            return super().keypress(size, key)
-
-    def move_focus_to_child(self):
-        """
-        Move focus to the first child of the widget in focus.
-        """
-
-        focus_node = self.body.focus
-
-        # Try and get the first child of the node in focus.
-        # This could fail because: 1) The node is a leaf, 2) the node is a parent with no children.
-        try:
-            child_node = focus_node.get_first_child()
-            
-        except Exception:
-            return
-        
-        if child_node.get_widget().selectable():
-            self.set_focus(child_node, "above")
-
-    def select(self, focus_node, focus_widget):
-        """
-        Select (or deselect) the node currently in focus.
-        """
-        # Check if the file is in our list.        
-        if focus_node not in self.selected_nodes:
-            # Append to our list.
-            self.selected_nodes.append(focus_node)
-            focus_widget.flagged = True
-            
-        else:
-            # Already in our list, remove it.
-            self.selected_nodes.pop(self.selected_nodes.index(focus_node))
-            focus_widget.flagged = False
-            
-        # Toggle the attribute for the child.
-        focus_widget.update_w()
-        
-    def reset(self):
-        """
-        Unselect any files that have already been selected.
-        """        
-        for node in self.selected_nodes:
-            # Remove the flagged status.
-            node.get_widget().flagged = False
-            node.get_widget().update_w()
-            
-            
-        self.selected_nodes = []
-            
+        super().__init__(urwid.TreeWalker(Directory_node(starting_dir, starting_path = starting_dir, show_hidden = show_hidden)), can_choose_parents = can_choose_folders, can_choose_multiple = can_choose_multiple)
 
 
 class File_selector(Section):

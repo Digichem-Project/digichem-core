@@ -1,0 +1,172 @@
+import urwid
+
+
+class Flag_widget(urwid.TreeWidget):
+    """
+    A tree widget which can be 'flagged' to show it has been selected.
+    """
+    
+    unexpanded_icon = urwid.Text('+')
+    expanded_icon = urwid.Text('-')
+
+    def __init__(self, node):
+        """
+        Constructor for Flag_widget objects.
+        
+        :param node: The logical node we are rendering.
+        """
+        super().__init__(node)
+        
+        # We'll use an attr wrap to change formatting.
+        self.wrapper = urwid.AttrWrap(self._w, None)
+        self._w = self.wrapper
+        self.flagged = False
+        self.update_attr()
+
+    def selectable(self):
+        return True
+
+    def update_attr(self):
+        """
+        Update the attributes of self.wrapper based on self.flagged.
+        """
+        if self.flagged:
+            self.wrapper.attr = 'node--flagged'
+            self.wrapper.focus_attr = 'node--flagged--focus'
+        else:
+            self.wrapper.attr = 'body'
+            self.wrapper.focus_attr = 'node--focus'
+            
+            
+    def keypress(self, size, key):
+        """
+        Handle expand & collapse requests (non-leaf nodes).
+        """
+        if self.is_leaf:
+            return key
+ 
+        if key == 'right':
+            # Expand if we're not already expanded.
+            if not self.expanded:
+                self.expanded = True
+                self.update_expanded_icon()
+                 
+            else:
+                # Already expanded, propagate up.
+                return key
+             
+        elif key == "left":
+            # Collapse if we're not already collapsed.
+            if self.expanded:
+                self.expanded = False
+                self.update_expanded_icon()
+                 
+            else:
+                # Already collapsed, propagate up.
+                return key
+             
+        else:
+            return super().keypress(size, key)
+
+
+class Flaggable_tree_list_box(urwid.TreeListBox):
+    """
+    Widget for displaying a tree that can be selected.
+    """
+    
+    def __init__(self, walker, can_choose_parents = False, can_choose_multiple = True):
+        """
+        Constructor for File_browser objects.
+        
+        :param walker: A tree walker class to use as our body.
+        :param can_choose_parents: Whether the user can select parent nodes or only children.
+        :param can_choose_multiple: Whether the user can select only one item or multiple.
+        """
+        super().__init__(walker)
+        
+        self.can_choose_parents = can_choose_parents
+        self.can_choose_multiple = can_choose_multiple
+        
+        # The nodes that have been selected.
+        self.selected_nodes = []
+        
+    def keypress(self, size, key):
+        """
+        Handle keypress events.
+        """
+        if key in [' ', 'enter']:
+            # The user wants to select a node, see if we can.
+            focus_node = self.body.focus
+            focus_widget = focus_node.get_widget()
+            
+            if not hasattr(focus_node, 'has_children') or self.can_choose_parents:
+                self.select(focus_node, focus_widget)
+                
+        elif key == "right":
+            # Check to see if the widget is expanded.
+            if self.body.focus.get_widget().expanded:
+                # Move to child.
+                self.move_focus_to_child()
+            
+            else:
+                return super().keypress(size, key)
+            
+        elif key == "left":
+            # Check to see if the widget is collapsed.
+            if not self.body.focus.get_widget().expanded:
+                # Move to parent.
+                self.move_focus_to_parent(size)
+                
+            else:
+                return super().keypress(size, key)
+
+        else:
+            return super().keypress(size, key)
+
+    def move_focus_to_child(self):
+        """
+        Move focus to the first child of the widget in focus.
+        """
+
+        focus_node = self.body.focus
+
+        # Try and get the first child of the node in focus.
+        # This could fail because: 1) The node is a leaf, 2) the node is a parent with no children.
+        try:
+            child_node = focus_node.get_first_child()
+            
+        except Exception:
+            return
+        
+        if child_node.get_widget().selectable():
+            self.set_focus(child_node, "above")
+
+    def select(self, focus_node, focus_widget):
+        """
+        Select (or deselect) the node currently in focus.
+        """
+        # Check if the node is in our list.        
+        if focus_node not in self.selected_nodes:
+            # Append to our list.
+            self.selected_nodes.append(focus_node)
+            focus_widget.flagged = True
+            
+        else:
+            # Already in our list, remove it.
+            self.selected_nodes.pop(self.selected_nodes.index(focus_node))
+            focus_widget.flagged = False
+            
+        # Toggle the attribute for the child.
+        focus_widget.update_attr()
+        
+    def reset(self):
+        """
+        Unselect any nodes that have already been selected.
+        """        
+        for node in self.selected_nodes:
+            # Remove the flagged status.
+            node.get_widget().flagged = False
+            node.get_widget().update_attr()
+            
+        self.selected_nodes = []
+
