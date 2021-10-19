@@ -61,10 +61,13 @@ class Control_wrapper(Tab_pile):
         """
         Function called when the back button is pressed.
         """
-        self.retval = False
         if self.cancel_callback is not None:
             if self.cancel_callback() is not False:
                 self.top.back()
+        
+        else:
+            # Go back by default.
+            self.top.back()
         
     def get_controls(self):
         raise NotImplementedError("Implement in subclass")
@@ -86,9 +89,6 @@ class Confirm_or_cancel(Control_wrapper):
         """
         self.submit_callback = self.convert_callback(submit_callback)
         
-        # A value indicating which of our two buttons was pressed.
-        self.retval = None
-        
         super().__init__(body, top, cancel_callback = cancel_callback)
 
     def get_controls(self):
@@ -104,7 +104,6 @@ class Confirm_or_cancel(Control_wrapper):
         """
         Function called when the submit button is pressed.
         """
-        self.retval = True
         if self.submit_callback is not None:
             if self.submit_callback() is not False:
                 self.top.back()
