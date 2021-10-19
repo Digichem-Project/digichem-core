@@ -58,4 +58,4 @@ class Section(urwid.AttrMap):
         linebox = urwid.LineBox(urwid.AttrMap(body, "body"), title, title_align = "left")
             
         super().__init__(linebox, *attrs)
-    
+        
