@@ -183,6 +183,11 @@ class Setedit_browser(urwid.ListBox):
         for setedit in self.body:
             setedit.get_widget().reset()
             
+    def save(self):
+        """
+        Save the changes made.
+        """
+        # This default implementation does nothing.
 
 
 class Settings_editor(Section):
