@@ -114,18 +114,18 @@ class Confirm_settings_cancel(Control_wrapper):
     A widget wrapper that provides three buttons.
     """
     
-    def __init__(self, body, top, settings_browser, cancel_callback = None, submit_callback = None):
+    def __init__(self, body, top, settings_editor, cancel_callback = None, submit_callback = None):
         """
         Constructor for Confirm_or_cancel objects.
         
         :param body: The inner widget to display.
         :param top: The topmost widget to use for navigation.
-        :param settings_browser: A widget to set as the current top when the Settings button is selected.
+        :param settings_editor: A widget to set as the current top when the Settings button is selected.
         :param cancel_callback: A function that will be called when the cancel button is pressed. If this function returns False, the top-most widget will not be swapped back.
         :param submit_callback: A function that will be called when the submit button is pressed. If this function returns False, the top-most widget will not be swapped back.
         """
         self.submit_callback = self.convert_callback(submit_callback)
-        self.settings_browser = settings_browser
+        self.settings_editor = settings_editor
                 
         super().__init__(body, top, cancel_callback = cancel_callback)
     
@@ -143,7 +143,7 @@ class Confirm_settings_cancel(Control_wrapper):
         """
         Function called when the settings button is pressed.
         """
-        self.top.swap_into_window(self.settings_browser, cancel_callback = self.settings_browser.discard(), submit_callback = self.convert_callback(1))
+        self.top.swap_into_window(self.settings_editor, cancel_callback = self.settings_editor.browser.discard, submit_callback = self.convert_callback(1))
         
     def submit(self):
         """
