@@ -64,6 +64,9 @@ class Setedit():
         :param option: The configurable option.
         :returns: The value type (a string).
         """
+        if hasattr(option, "OPTIONS"):
+            return "Options"
+        
         try:
             return option.type.__name__
         
@@ -71,24 +74,24 @@ class Setedit():
             return "str"
     
     @classmethod
-    def value_from_configurable_options(self, owning_obj, option):
+    def value_from_configurable_option(self, owning_obj, option):
         """
         Get a dictionary of values from a Configurable options object.
         
         :param owning_obj: The owning object on which the Option object is set as a class attribute.
         :param option: The configurable option.
         """
-        values = {}
-        for sub_option in option.OPTIONS.values():
-            # If this sub option also has options, recurse.
-            if hasattr(sub_option, "OPTIONS"):
-                values[sub_option.name] = (self.value_from_options(owning_obj, sub_option), "Options", sub_option.help)
-                
-            else:
-                # A 'normal' option, get the value.
-                values[sub_option.name] = (sub_option.__get__(owning_obj), self.vtype_from_configurable_option(sub_option), sub_option.help)
-                
-        return values
+        # First, keep an eye out for nested options.
+        if hasattr(option, "OPTIONS"):
+            values = {}
+            for sub_option in option.OPTIONS.values():
+                values[sub_option.name] = (self.value_from_configurable_option(owning_obj, sub_option), self.vtype_from_configurable_option(sub_option), sub_option.help)    
+                    
+            return values
+        
+        else:
+            # A normal option, just get the value.
+            return option.__get__(owning_obj)
     
     @classmethod
     def from_configurable_option(self, owning_obj, option):
@@ -99,12 +102,7 @@ class Setedit():
         :param option: The configurable option.
         :returns: The Setedit object.
         """
-        # First, keep an eye out for nested options.
-        if hasattr(option, "OPTIONS"):
-            # This option has options of its own.
-            return self(option.name, self.value_from_configurable_options(owning_obj, option), "Options", option.help)
-        
-        return self(option.name, option.__get__(owning_obj), self.vtype_from_configurable_option(option), option.help)    
+        return self(option.name, self.value_from_configurable_option(owning_obj, option), self.vtype_from_configurable_option(option), option.help)    
 
 
 class Setedit_walker(urwid.SimpleFocusListWalker):
