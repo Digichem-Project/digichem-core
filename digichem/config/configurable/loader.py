@@ -98,7 +98,7 @@ class Configurable_loader():
         """
         return [[child] for child in self.NEXT]
     
-    def get_concrete_children(self, _concrete_children = None, _current_path = None):
+    def get_concrete_children(self, show_hidden = False, _concrete_children = None, _current_path = None):
         """
         Get a list of the children of this loader that are concrete.
         
@@ -107,6 +107,7 @@ class Configurable_loader():
         
         All parameters to this method are only used when called recursively; they should not normally be specified by the user.
         
+        :param show_hidden: Whether to include hidden loaders.
         :param _concrete_children: The current list of concrete children.
         :param _current_path: A list of pseudo loaders that have already been traversed up to this point.
         :returns: A list of paths to concrete children. Each 'path' is itself a list of loaders which if traversed will lead to the concrete child.
@@ -124,6 +125,16 @@ class Configurable_loader():
         
         # Iterate through each of our immediate children.
         for child_path in self.sub_node_paths:
+            # If any of the items in the child path are hidden, and we've been asked to ignore hidden items, do so.
+            if not show_hidden:
+                skip = False
+                for child_path_item in child_path:
+                    if child_path_item.config.get("hidden", False):
+                        skip = True
+                        
+                if skip:
+                    continue
+            
             # Make a new path so we don't add to the same one for each child.
             new_path = list(current_path)
             
@@ -134,7 +145,7 @@ class Configurable_loader():
                 # This child is pseudo (ie, not concrete), so we want its children.
                 
                 # Continue in the child.
-                child_path[-1].get_concrete_children(concrete_children, new_path)
+                child_path[-1].get_concrete_children(show_hidden = show_hidden, _concrete_children = concrete_children, _current_path = new_path)
                 
             else:
                 # Add the path to our total list.
