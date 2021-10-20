@@ -135,7 +135,7 @@ class Confirm_settings_cancel(Control_wrapper):
         """
         return [
             urwid.AttrMap(urwid.Button("Back", lambda button: self.cancel()), "button", "button--focus"),
-            urwid.AttrMap(urwid.Button("Settings", lambda button: self.settings()), "button", "button--focus"),
+            urwid.AttrMap(urwid.Button("Settings", lambda button: self.settings()), "button--settings", "button--settings--focus"),
             urwid.AttrMap(urwid.Button("Confirm", lambda button: self.submit()), "button--good", "button--good--focus")
         ]
         

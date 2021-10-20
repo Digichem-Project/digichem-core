@@ -406,6 +406,14 @@ palette:
     button--small--focus:
         - dark blue
         - light gray
+
+    button--settings:
+        - white
+        - brown
+
+    button--settings--focus:
+        - white, bold
+        - brown
         
     button--bad:
         - white
