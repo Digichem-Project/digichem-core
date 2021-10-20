@@ -1,8 +1,11 @@
 # Silico imports.
-from silico.interface.urwid.wrapper import Confirm_or_cancel
+from silico.interface.urwid.wrapper import Confirm_or_cancel, Confirm_settings_cancel, Control_wrapper
 
 # General imports.
 import urwid
+from silico.interface.urwid.base import Section
+from silico.config.configurable.base import Configurable
+from silico.interface.urwid.configurable import Configurable_editor
 
 
 class Top(urwid.WidgetPlaceholder):
@@ -28,12 +31,23 @@ class Top(urwid.WidgetPlaceholder):
 
     def swap_into_window(self, original_widget, cancel_callback = None, submit_callback = None):
         """
-        Wrap a widget with cancel and submit buttons and then set it as the top-most widget.
+        Wrap a widget buttons and then set it as the top-most widget.
         
         :param cancel_callback: A function to call when the cancel button is pressed.
         :param submit_callback: A function to call when the submit button is pressed.
         """
-        self.swap(Swapping_window(original_widget, top = self, cancel_callback = cancel_callback, submit_callback = submit_callback))
+        # First decide which kind of wrapper to use.
+        # If we have options, use a Confirm_settings_cancel.
+        if isinstance(original_widget, View) and original_widget.has_settings:
+            window = Confirm_settings_cancel(original_widget, top = self, settings_editor = original_widget.get_settings_editor(), cancel_callback = cancel_callback, submit_callback = submit_callback)
+            
+        elif submit_callback is not None:
+            window = Confirm_or_cancel(original_widget, top = self, cancel_callback = cancel_callback, submit_callback = submit_callback)
+            
+        else:
+            window = Control_wrapper(original_widget, top = self, cancel_callback = cancel_callback)
+        
+        self.swap(window)
 
     def back(self, number = 1):
         """
@@ -62,16 +76,37 @@ class Top(urwid.WidgetPlaceholder):
             self.back()
         
         return key
-        
-class Swappable():
+
+
+class View(Section, Configurable):
     """
-    Mix-in class for widgets that can be swapped with Top.
+    A widget designed to be shown inside a swapping window.
     """
     
-    def __init__(self):
-        self.top = None
-        
-class Swapping_window(Confirm_or_cancel):
-    """
-    A window used when swapping widgets, provides controls to return to the previous window.
-    """
+    def __init__(self, body, title, focusable = True):
+        self._settings_editor = None
+        Section.__init__(self, body, title, focusable = focusable)
+        Configurable.__init__(self, True)
+    
+    @property
+    def has_settings(self):
+        """
+        Does this View have any configurable options set on it?
+        """
+        return len(self.OPTIONS) != 0
+    
+    def get_settings_editor(self, reload = False):
+        """
+        Return the widget we use to change our settings.
+        """
+        if self._settings_editor is None or reload:
+            self._settings_editor = self.load_settings_editor()
+            
+        return self._settings_editor
+    
+    def load_settings_editor(self):
+        """
+        Load the browser widget we'll use to change our settings.
+        """
+        return Configurable_editor(self, "Settings")
+    
