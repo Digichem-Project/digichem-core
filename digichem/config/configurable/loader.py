@@ -1,16 +1,17 @@
 #
-# Classes that represent one or more configurables. Loaders construct real configurable objects from one or more dict objects on demand.
-# Loaders are essentially a speed hack that means we don't have to construct 1000s of configurable objects each time we start up.
+# Classes that represent one or more configurables. Loaders construct real Configurable_class_target objects from one or more dict objects on demand.
+# Loaders are essentially a speed hack that means we don't have to construct 1000s of objects each time we start up.
 #
 
 # General imports.
 import deepmerge
 
 # Silico imports.
-from silico.config.configurable import Configurable
 from silico.exception.configurable import Configurable_loader_exception,\
     Tag_path_length_error, Unresolvable_tag_path_error
 from silico.exception.base import Silico_exception
+from silico.config.configurable.base import Configurable_class_target
+
 
 class Configurable_loader():
     """
@@ -67,7 +68,7 @@ class Configurable_loader():
         self.config = config
         
         # Get our TYPE class.
-        self.type_class = Configurable.from_class_handle(self.TYPE)
+        self.type_class = Configurable_class_target.from_class_handle(self.TYPE)
         
         # A list of the next loaders in the chain. For single loaders, len(self.NEXT) == 0.
         self.NEXT = []
