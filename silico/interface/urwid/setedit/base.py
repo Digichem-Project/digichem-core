@@ -13,7 +13,7 @@ class Setedit():
     Logical storage for setting editors.
     """
     
-    def __init__(self, title, value, vtype, help = None):
+    def __init__(self, title, default_value, vtype, help = None):
         """
         
         :param title: The title/name of this setedit.
@@ -22,10 +22,18 @@ class Setedit():
         :param help: Optional help text to display.
         """
         self.title = title
-        self.value = value
+        self.default_value = default_value
         self.vtype = vtype
         self.help = help
         self._widget = None
+        
+    def get_children(self):
+        """
+        Get child setedits of this setedit.
+        
+        This method should only be called if self.default_value contains values of the form (default_value, vtype, help). This is likely on to be the case if self.vtype == "Options".
+        """
+        return [type(self)(name, default_value, vtype, help) for name, (default_value, vtype, help) in self.default_value.items()]
     
     def get_widget(self, reload = False):
         """
@@ -40,7 +48,7 @@ class Setedit():
         """
         Load the widget we'll use for display.
         """
-        return Setedit_widget.class_from_type(self.vtype)(self.title, self.value, self.help)
+        return Setedit_widget.class_from_type(self.vtype)(self)
     
     def get_value(self):
         """
@@ -167,7 +175,7 @@ class Setedit_browser(urwid.ListBox):
         :param configurable: A configurable object to construct from.
         :returns: A setedit_browser object.
         """        
-        setedits = [Setedit.from_configurable_option(configurable, option) for option in configurable.OPTIONS.values()]
+        setedits = [Setedit.from_configurable_option(configurable, option) for option in configurable.OPTIONS.values() if option.no_edit is False]
         return self(setedits)
 
 

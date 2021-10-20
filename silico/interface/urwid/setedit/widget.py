@@ -1,8 +1,8 @@
 # General imports.
 import urwid
-from silico.interface.urwid.misc import Blank
 
 # Silico imports.
+
 
 class Min_edit(urwid.Edit):
     """
@@ -17,6 +17,7 @@ class Min_edit(urwid.Edit):
         # Always make sure we have enough space for our cursor.
         return (packed[0] +1, packed[1])
 
+
 class Setedit_widget(urwid.Pile):
     """
     Top class for widgets that handle display of Setedit objects.
@@ -26,19 +27,35 @@ class Setedit_widget(urwid.Pile):
     edit_attr = "editable"
     help_attr = "body"
     
-    def __init__(self, widget_list, has_divider = True):
+    def __init__(self, setedit, has_divider = True):
         """
         Constructor for Setedit_widget objects.
         
         :param widget_list: List of widgets to stack vertically.
         :param has_divider: Whether to show a divider after this widget.
         """
+        self.setedit = setedit
         self.divider = urwid.Divider()
+        
+        widget_list = self.get_widgets()
         
         if has_divider:
             widget_list.append(self.divider)
             
         urwid.Pile.__init__(self, widget_list)
+        
+    def load_widgets(self):
+        """
+        Load the list of inner widgets we'll use for display.
+        """
+        raise NotImplementedError("Implement in subclass")
+    
+    def get_widgets(self, reload = False):
+        """
+        Get the list of inner widgets we'll use for display.
+        """
+        # No need to cache?
+        return self.load_widgets()
     
     @property
     def value(self):
@@ -100,7 +117,7 @@ class Single_editor(Setedit_widget):
     A Setedit_widget for changing a single value.
     """
     
-    def __init__(self, edit_widget, help = None, has_divider = True):
+    def __init__(self, setedit, has_divider = True):
         """
         Constructor for Setedit_widger objects.
         
@@ -108,29 +125,30 @@ class Single_editor(Setedit_widget):
         :param help: Help text to display for this editor.
         :param has_divider: Whether to show a divider after this widget.
         """
-        self.edit_widget = edit_widget
+        self.edit_widget = None
+        super().__init__(setedit, has_divider)
         
-        super().__init__([
-            urwid.AttrMap(self.edit_widget, self.edit_attr),
-            self.get_help_widget(help)
-        ], has_divider = has_divider)
+    def load_widgets(self, edit_widget):
+        """
+        Load the list of inner widgets we'll use for display.
+        """
+        self.edit_widget = edit_widget
+        return [
+            urwid.AttrMap(edit_widget, self.edit_attr),
+            self.get_help_widget(self.setedit.help)
+        ]
 
 
 class Text_editor(Single_editor):
     """
-    Editer widget for generic text types.
+    Editor widget for generic text types.
     """
-    
-    def __init__(self, title, value, help = None, has_divider = True):
-        """
-        Constructor for Text_editor widgets.
         
-        :param title: The title of this editor.
-        :param value: Default value of this editor.
-        :param help: Help text to display for this editor.
-        :param has_divider: Whether to show a divider after this widget.
+    def load_widgets(self):
         """
-        super().__init__(urwid.Edit((self.title_attr, title + ": "), self.value_to_str(value)), help = help, has_divider = has_divider)
+        Load the list of inner widgets we'll use for display.
+        """
+        return super().load_widgets(urwid.Edit((self.title_attr, self.setedit.title + ": "), self.value_to_str(self.setedit.default_value)))
     
     @property
     def value(self):
@@ -146,26 +164,23 @@ class Bool_editor(Single_editor):
     Editer widget for bool values.
     """
     
-    def __init__(self, title, value, help = None, has_divider = True):
+    def load_widgets(self):
         """
-        Constructor for Bool_editor widgets.
+        Load the list of inner widgets we'll use for display.
+        """
+        checkbox = urwid.CheckBox((self.title_attr, self.setedit.title + ": "), self.setedit.default_value)
         
-        :param title: The title of this editor.
-        :param value: Default value of this editor.
-        :param help: Help text to display for this editor.
-        :param has_divider: Whether to show a divider after this widget.
-        """
-        super().__init__(urwid.CheckBox((self.title_attr, title + ": "), value), help = help, has_divider = has_divider)
+        return super().load_widgets(checkbox)
     
     @property
     def value(self):
         """
         The current, possible edited, value of this widget.
         """
-        return self.checkbox.get_state()
+        return self.edit_widget.get_state()
 
 
-class Text_list_editor(urwid.Edit):
+class Text_list_editor(Min_edit):
     """
     Text editor that appears as part of a list.
     """
@@ -194,15 +209,7 @@ class Text_list_editor(urwid.Edit):
         Tell this widget where it appears in the list.
         """
         self.set_caption((self.position_attr, "{}) ".format(position)))
-    
-    def pack(self, *args, **kwargs):
-        """
-        Modified pack method to fix an urwid bug
-        """
-        packed = super().pack(*args, **kwargs)
-        # Always make sure we have enough space for our cursor.
-        return (packed[0] +1, packed[1])
-    
+        
     @property
     def value(self):
         """
@@ -217,7 +224,7 @@ class List_editor(Setedit_widget):
     Editor widget for list values.
     """
     
-    def __init__(self, title, values, help = None, has_divider = True, strip_empty = True):
+    def __init__(self, setedit, has_divider = True, strip_empty = True):
         """
         Constructor for Bool_editor widgets.
         
@@ -229,17 +236,24 @@ class List_editor(Setedit_widget):
         """
         self.strip_empty = strip_empty
         
-        # An inner pile we'll use for adding/removing values.
-        self.inner_pile = urwid.Pile(self.get_fields(values))
+        super().__init__(setedit, has_divider)
         
-        super().__init__([
+    def load_widgets(self):
+        """
+        Load the list of inner widgets we'll use for display.
+        """
+        # An inner pile we'll use for adding/removing values.
+        self.inner_pile = urwid.Pile(self.get_fields(self.setedit.default_value))
+        
+        return [
             # Widget for our title.
-            urwid.Text((self.title_attr, title)),
+            urwid.Text((self.title_attr, self.setedit.title)),
             # Help text.
-            self.get_help_widget(help),
+            self.get_help_widget(self.setedit.help),
             # Actual contents.
             self.inner_pile
-        ], has_divider = has_divider)
+        ]
+        
                 
     def get_fields(self, values):
         """
@@ -396,34 +410,32 @@ class Sub_setedit(Setedit_widget):
     A Setedit object for editing sub options.
     """
     
-    def __init__(self, title, values, help = None, has_divider = True):
-        """
-        Constructor for Sub_setedit objects.
         
-        :param title: The title of this editor.
-        :param values: A dictionary of values. The key for each item is the name of that sub option, while the value is a tuple of (value, type, help), where type indicates the type of that sub option.
-        :param help: Help text to display for this editor.
-        :param has_divider: Whether to show a divider after this widget.
+    def load_widgets(self):
         """
-        self.inner_pile = urwid.Pile(self.get_fields(values))
+        Load the list of inner widgets we'll use for display.
+        """
+        self.inner_pile = urwid.Pile(self.get_fields())
         
-        super().__init__([
+        return [
             # Widget for our title.
-            urwid.Text((self.title_attr, title)),
+            urwid.Text((self.title_attr, self.setedit.title)),
             # Help text.
-            self.get_help_widget(help),
+            self.get_help_widget(self.setedit.help),
             # Actual contents.
             urwid.Padding(self.inner_pile, left = 2)
-        ], has_divider = has_divider)
+        ]
         
-    def get_fields(self, values):
+    def get_fields(self):
         """
-        :param values: A dictionary of values. The key for each item is the name of that sub option, while the value is a tuple of (value, type, help), where type indicates the type of that sub option.
+        Get the child widgets to display.
         """
         fields = []
         
-        for key, (value, vtype, help) in values.items():
-            fields.append(self.class_from_type(vtype)(key, value, help, has_divider = len(fields) != len(values)-1))
+        # Ask our setedit for its children.
+        children = self.setedit.get_children()
+        for child_setedit in children:
+            fields.append(self.class_from_type(child_setedit.vtype)(child_setedit, has_divider = len(fields) != len(children)-1))
             
         return fields
     
