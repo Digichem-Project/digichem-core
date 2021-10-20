@@ -133,8 +133,7 @@ class Loader_top_widget(Loader_widget):
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # We start unexpanded so we don't have to generate the entire tree at the start.
-        self.expanded = False
+        self.expanded = True
         self.update_expanded_icon()
     
     def get_display_text(self):
