@@ -1,2 +1,2 @@
-from .base import Configurable_target
+from .base import Method_target
 from .base import Memory

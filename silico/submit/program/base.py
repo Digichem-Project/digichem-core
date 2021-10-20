@@ -1,3 +1,4 @@
+# General imports.
 from pathlib import Path
 from logging import getLogger
 from timeit import default_timer as timer
@@ -5,9 +6,9 @@ import datetime
 import shutil
 import textwrap
 
+# Silico imports.
 from silico import misc
 from silico.submit.structure.flag import Flag
-from silico.config.configurable.option import Option
 from silico.file.convert.babel import Openbabel_converter
 from silico.exception.base import Submission_error
 from silico.exception.uncatchable import Signal_caught
@@ -20,7 +21,6 @@ from silico.extract.long import Atoms_long_extractor, Orbitals_long_extractor,\
     TDM_long_extractor, Vibrations_long_extractor,\
     Absorption_spectrum_long_extractor, Absorption_energy_spectrum_long_extractor,\
     IR_spectrum_long_extractor, SOC_long_extractor
-from silico.submit import Configurable_target
 from silico.misc.directory import copytree
 import silico.misc.io
 from silico.parser import parse_calculation
@@ -28,8 +28,10 @@ from silico.report.main.pdf import PDF_report
 from silico.parser.base import parse_calculations
 from silico.misc.io import smkdir
 from silico.submit.structure.directory import Silico_directory
+from silico.submit.base import Method_target
 
-class Program_target(Configurable_target):
+
+class Program_target(Method_target):
     """
     Top-level class for classes that implement submission to a calculation program.
     """
@@ -40,7 +42,7 @@ class Program_target(Configurable_target):
     # Class creation mechanism #
     ############################
     
-    class _actual(Configurable_target._actual):
+    class _actual(Method_target._actual):
         """
         Inner class for programs.
         """

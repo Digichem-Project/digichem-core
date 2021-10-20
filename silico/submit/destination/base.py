@@ -1,10 +1,11 @@
-from silico.submit import Configurable_target
-from silico.submit.structure.directory import Calculation_directory
 from uuid import uuid4
-from silico.exception import Submission_error
-from silico.config.configurable.option import Option
 
-class Destination_target(Configurable_target):
+# Silico imports.
+from silico.submit.structure.directory import Calculation_directory
+from silico.exception import Submission_error
+from silico.submit.base import Method_target
+
+class Destination_target(Method_target):
     """
     Top-level class for classes that implement a destination to where calculations can be submitted.
     
@@ -43,7 +44,7 @@ class Destination_target(Configurable_target):
     # Class creation mechanism. #
     #############################
     
-    class _actual(Configurable_target._actual):
+    class _actual(Method_target._actual):
         """
         Inner class for destinations.
         """

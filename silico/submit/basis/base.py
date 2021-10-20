@@ -1,8 +1,8 @@
-from silico.submit import Configurable_target
 from silico.config.configurable.option import Option
+from silico.submit.base import Method_target
 
 
-class Extended_basis_set(Configurable_target):
+class Extended_basis_set(Method_target):
     """
     Top-level class for basis set targets.
     """

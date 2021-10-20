@@ -1,13 +1,19 @@
+# General imports.
 import os
 import numpy
 
-from silico.config.configurable import Configurable
-from silico.exception.configurable import Configurable_exception
+# Silico imports.
+from silico.config.configurable.option import Option
+from silico.config.configurable.base import Configurable_class_target
 
-class Configurable_target(Configurable):
+
+class Method_target(Configurable_class_target):
     """
-    Top level class for user-configurable submit targets (Calculation types, program types, destination types etc.)
+    Top level class for user-configurable method targets (Calculation types, program types, destination types etc.)
     """
+    
+    hidden = Option(help = "If True, this method will not appear in lists (but can still be specified by the user). Useful for methods that should not be used naively.", type = bool, default = False)
+    warning = Option(help = "A warning message to display when this method is chosen.", default = None, type = str)
             
     @classmethod
     def get_available_CPUs(self):
