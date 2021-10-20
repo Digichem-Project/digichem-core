@@ -17,7 +17,7 @@ class Setedit():
         """
         
         :param title: The title/name of this setedit.
-        :param value: The default value.
+        :param default_value: The default value.
         :param vtype: The type of value.
         :param help: Optional help text to display.
         """
@@ -31,7 +31,7 @@ class Setedit():
         """
         Get child setedits of this setedit.
         
-        This method should only be called if self.default_value contains values of the form (default_value, vtype, help). This is likely on to be the case if self.vtype == "Options".
+        This method should only be called if self.default_value contains values of the form (default_value, vtype, help). This is likely only to be the case if self.vtype == "Options".
         """
         return [type(self)(name, default_value, vtype, help) for name, (default_value, vtype, help) in self.default_value.items()]
     
