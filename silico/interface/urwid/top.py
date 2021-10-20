@@ -1,5 +1,5 @@
 # Silico imports.
-from silico.interface.urwid.wrapper import Confirm_or_cancel, Confirm_settings_cancel, Control_wrapper
+from silico.interface.urwid.wrapper import Confirm_or_cancel, Confirm_settings_cancel, Confirm
 
 # General imports.
 import urwid
@@ -45,7 +45,7 @@ class Top(urwid.WidgetPlaceholder):
             window = Confirm_or_cancel(original_widget, top = self, cancel_callback = cancel_callback, submit_callback = submit_callback)
             
         else:
-            window = Control_wrapper(original_widget, top = self, cancel_callback = cancel_callback)
+            window = Confirm(original_widget, top = self, submit_callback = cancel_callback)
         
         self.swap(window)
 
