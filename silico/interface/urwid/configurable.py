@@ -3,8 +3,38 @@
 # General imports.
 
 # Silico imports.
-from silico.interface.urwid.setedit.base import Settings_editor, Setedit_browser
+from silico.interface.urwid.setedit.base import Settings_editor, Setedit_browser,\
+    Setedit
 from silico.interface.urwid.pages import Pages
+
+
+class Configurable_browser(Setedit_browser):
+    """
+    A widget that permits viewing and editing lists of options.
+    """
+            
+    def __init__(self, configurable):
+        """
+        Construct a Setedit_browser from a configurable object.
+        
+        :param configurable: A configurable object to construct from.
+        """
+        self.configurable = configurable
+        setedits = [Setedit.from_configurable_option(configurable, option) for option in configurable.OPTIONS.values() if option.no_edit is False]
+        super().__init__(setedits)
+        
+    def save(self):
+        """
+        Update the configurable we are editing with the current values.
+        """
+        options = self.configurable.OPTIONS
+        
+        for setedit in self.body:
+            value = setedit.get_value()
+            options[setedit.title].__set__(self.configurable, value)
+            
+            # Also update the 'default' value of the setedit.
+            setedit.default_value = setedit.value_from_configurable_option(self.configurable, options[setedit.title])
 
 
 class Configurable_editor(Settings_editor):
@@ -14,7 +44,7 @@ class Configurable_editor(Settings_editor):
     
     def __init__(self, configurable, title):
         self.configurable = configurable
-        super().__init__(Setedit_browser.from_configurable(configurable), title)
+        super().__init__(Configurable_browser(configurable), title)
     
 
 class Method_editor(Pages):
