@@ -36,7 +36,7 @@ class Destination_target(Configurable_target):
         
         This default implementation raises NotImplementedError.
         """
-        raise NotImplementedError
+        raise NotImplementedError()
     
     
     #############################
