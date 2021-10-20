@@ -55,7 +55,8 @@ class Control_wrapper(Tab_pile):
         if key == "esc":
             self.cancel()
         
-        return key
+        else:
+            return key
         
     def cancel(self):
         """
