@@ -7,6 +7,8 @@ import urwid
 from silico.interface.urwid.base import Section
 from silico.interface.urwid.tree.base import Flag_widget,\
     Flaggable_tree_list_box
+from silico.interface.urwid.top import View
+from silico.config.configurable.option import Option
 
 class File_tree_widget(Flag_widget):
     """
@@ -267,7 +269,7 @@ class File_browser(Flaggable_tree_list_box):
         super().__init__(urwid.TreeWalker(Directory_node(starting_dir, starting_path = starting_dir, show_hidden = show_hidden)), can_choose_parents = can_choose_folders, can_choose_multiple = can_choose_multiple)
 
 
-class File_selector(Section):
+class File_selector(View):
     """
     A tree list box widget used to browse and select files.
     """
@@ -282,4 +284,10 @@ class File_selector(Section):
         self.browser.offset_rows = 1
         
         super().__init__(self.browser, title)
+        
+class Coord_selector(File_selector):
+    """
+    A file selector for loading coordinate files.
+    """
 
+    generate_3D = Option(help = "Whether to convert 2D coordinates to 3D by performing a rapid optimisation with molecular mechanics. Even if True, 3D coordinates will only be generated if it can be safely determined that the coordinates are not already in 3D.", type = bool, default = True)
