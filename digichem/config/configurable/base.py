@@ -32,7 +32,6 @@ class Options_mixin():
             # If None, delete.
             if value is None:
                 del(dict_obj[key])
-            
     
     def validate_children(self, owning_obj, dict_obj):
         """
@@ -85,6 +84,14 @@ class Configurable(Options_mixin):
         # If we've been asked to, validate.
         if validate_now:
             self.validate()
+
+    def validate(self):
+        """
+        Check that all the configurable options of this configurable have been set appropriately.
+        
+        :raises Exception: If one of the Options of this configurable is invalid.
+        """
+        self.validate_children(self, self._configurable_options)
 
 
 class Configurable_class_target(Dynamic_parent, Configurable):
@@ -158,15 +165,6 @@ class Configurable_class_target(Dynamic_parent, Configurable):
         if not hasattr(self, "name") and len(tag_hierarchy) > 0:
             # No name, set from the category.
             self.name = " ".join(tag_hierarchy)
-
-    def validate(self):
-        """
-        Check that all the configurable options of this configurable have been set appropriately.
-        
-        :raises Exception: If one of the Options of this configurable is invalid.
-        """
-        self.validate_children(self, self._configurable_options)
-
     
     @property
     def description(self):
