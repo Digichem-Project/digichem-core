@@ -12,18 +12,33 @@ class Loader_widget(Flag_widget):
     Mixin class for widgets that represent configurable loaders.
     """
     
+    def __init__(self, node):
+        self._text = None
+        super().__init__(node)
+        
+        
+    
     def load_inner_widget(self):
         """
         Load the inner widget we use for displaying text (not including the expanded icon etc).
         """        
         return Node_widget(self.get_display_text())
     
-    def get_display_text(self):
+    def get_display_text(self, reload = False):
         """
         Get the text to display at this node.
         
         For leaf/half-leaf nodes, we show both the index of the leaf and the TAG/ALIAS of this loader.
         For parent nodes, we just show the alias.
+        """
+        if self._text is None or reload:
+            self._text = self.load_display_text()
+            
+        return self._text
+        
+    def load_display_text(self):
+        """
+        Load the text to display at this node.
         """
         node = self.get_node()
         loader = node.get_value()[-1]
@@ -36,7 +51,26 @@ class Loader_widget(Flag_widget):
             
             # Now get the index of that path.
             index = path[0].index_of_path(path)
-            return str("[{}] {}".format(index, loader.ALIAS))
+            
+            # If we are also a destination, we will resolve ourself so we can get our status.
+            if loader.TYPE == "destination":
+                destination = node.resolve()
+                
+                try:
+                    status = destination.status()
+                    
+                except Exception:
+                    # Could be because we couldn't retrieve status, or because this destination doesn't support status.
+                    status = None
+            
+            else:
+                status = None
+                
+            text = "[{}] {}".format(index, loader.ALIAS)
+            if status is not None:
+                text += " ({})".format(status)
+            
+            return text
         
         else:
             return str(loader.ALIAS)
