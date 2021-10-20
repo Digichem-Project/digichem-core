@@ -177,6 +177,14 @@ class Setedit_browser(urwid.ListBox):
         """        
         setedits = [Setedit.from_configurable_option(configurable, option) for option in configurable.OPTIONS.values() if option.no_edit is False]
         return self(setedits)
+    
+    def discard(self):
+        """
+        Discard any changes made without saving.
+        """
+        for setedit in self.body:
+            setedit.get_widget().reset()
+            
 
 
 class Settings_editor(Section):

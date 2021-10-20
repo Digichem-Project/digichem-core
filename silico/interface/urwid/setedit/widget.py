@@ -44,6 +44,12 @@ class Setedit_widget(urwid.Pile):
             
         urwid.Pile.__init__(self, widget_list)
         
+    def reset(self):
+        """
+        Reset the current value back to the default value.
+        """
+        raise NotImplementedError("Implement in subclass")
+        
     def load_widgets(self):
         """
         Load the list of inner widgets we'll use for display.
@@ -150,6 +156,12 @@ class Text_editor(Single_editor):
         """
         return super().load_widgets(urwid.Edit((self.title_attr, self.setedit.title + ": "), self.value_to_str(self.setedit.default_value)))
     
+    def reset(self):
+        """
+        Reset the current value back to the default value.
+        """
+        self.edit_widget.set_edit_text(self.setedit.default_value)
+    
     @property
     def value(self):
         """
@@ -171,6 +183,12 @@ class Bool_editor(Single_editor):
         checkbox = urwid.CheckBox((self.title_attr, self.setedit.title + ": "), self.setedit.default_value)
         
         return super().load_widgets(checkbox)
+    
+    def reset(self):
+        """
+        Reset the current value back to the default value.
+        """
+        self.edit_widget.set_state(self.setedit.default_value)
     
     @property
     def value(self):
@@ -237,6 +255,12 @@ class List_editor(Setedit_widget):
         self.strip_empty = strip_empty
         
         super().__init__(setedit, has_divider)
+        
+    def reset(self):
+        """
+        Reset the current value back to the default value.
+        """
+        self.inner_pile.contents = [(field, self.inner_pile.options()) for field in self.get_fields(self.setedit.default_value)]
         
     def load_widgets(self):
         """
@@ -410,6 +434,12 @@ class Sub_setedit(Setedit_widget):
     A Setedit object for editing sub options.
     """
     
+    
+    def reset(self):
+        """
+        Reset the current value back to the default value.
+        """
+        self.inner_pile.contents = [(field, self.inner_pile.options()) for field in self.get_fields()]
         
     def load_widgets(self):
         """
