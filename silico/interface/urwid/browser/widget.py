@@ -12,11 +12,41 @@ class Loader_widget(Flag_widget):
     Mixin class for widgets that represent configurable loaders.
     """
     
+    # Attributes to use for display.
+    warning_normal_attr = "node--warning"
+    warning_focus_attr = "node--warning--focus"
+    
+    
     def __init__(self, node):
         self._text = None
         super().__init__(node)
         
+    @property
+    def warnings(self):
+        """
+        A list of warnings specified for the loaders that we represent.
+        """
+        warnings = []
+        for loader in self.get_node().get_value():
+            warning = loader.config.get("warning", None) 
+            if warning is not None:
+                warnings.append(warning) 
+        return warnings
         
+    def update_attr(self):
+        """
+        Update the attributes of self.wrapper based on self.flagged.
+        """
+        if self.flagged:
+            self.wrapper.attr = self.flagged_attr
+            self.wrapper.focus_attr = self.flagged_focus_attr
+        else:
+            if len(self.warnings) > 0:
+                self.wrapper.attr = self.warning_normal_attr
+                self.wrapper.focus_attr = self.warning_focus_attr
+            else:
+                self.wrapper.attr = self.normal_attr
+                self.wrapper.focus_attr = self.focus_attr
     
     def load_inner_widget(self):
         """
@@ -80,7 +110,7 @@ class Node_widget(urwid.WidgetWrap):
     """
     The inner widget which displays information about each node.
     """
-        
+            
     def __init__(self, display_text):
         """
         Constructor for Node_widget objects.
@@ -133,7 +163,7 @@ class Loader_top_widget(Loader_widget):
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.expanded = True
+        self.expanded = False
         self.update_expanded_icon()
     
     def get_display_text(self):
