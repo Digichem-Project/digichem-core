@@ -81,14 +81,12 @@ class Gaussian_setup(Image_setup):
         
         # Only get our spin fchk if we have a calc with spin density available.
         if self.chk_file_paths['spin'] != None or self.fchk_file_paths['spin'] != None:
-            self.fchk_files = {
-                "spin": Chk_to_fchk(
-                    Path(output_dir, output_name + ".spin.fchk"),
-                    chk_file = self.chk_file_paths['spin'],
-                    fchk_file = self.fchk_file_paths['spin'],
-                    memory = self.memory
-                )
-            }
+            self.fchk_files['spin'] = Chk_to_fchk(
+                Path(output_dir, output_name + ".spin.fchk"),
+                chk_file = self.chk_file_paths['spin'],
+                fchk_file = self.fchk_file_paths['spin'],
+                memory = self.memory
+            )
         
         
     def setup_cubes(self, output_dir, output_name):
