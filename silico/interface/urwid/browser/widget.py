@@ -163,7 +163,7 @@ class Loader_top_widget(Loader_widget):
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.expanded = False
+        self.expanded = True
         self.update_expanded_icon()
     
     def get_display_text(self):
