@@ -8,6 +8,11 @@ class Flag_widget(urwid.TreeWidget):
     
     unexpanded_icon = urwid.Text('+')
     expanded_icon = urwid.Text('-')
+    # Attributes to use for display.
+    flagged_attr = "node--flagged"
+    flagged_focus_attr = "node--flagged--focus"
+    normal_attr = "body"
+    focus_attr = "node--focus"
 
     def __init__(self, node):
         """
@@ -31,11 +36,11 @@ class Flag_widget(urwid.TreeWidget):
         Update the attributes of self.wrapper based on self.flagged.
         """
         if self.flagged:
-            self.wrapper.attr = 'node--flagged'
-            self.wrapper.focus_attr = 'node--flagged--focus'
+            self.wrapper.attr = self.flagged_attr
+            self.wrapper.focus_attr = self.flagged_focus_attr
         else:
-            self.wrapper.attr = 'body'
-            self.wrapper.focus_attr = 'node--focus'
+            self.wrapper.attr = self.normal_attr
+            self.wrapper.focus_attr = self.focus_attr
             
             
     def keypress(self, size, key):
