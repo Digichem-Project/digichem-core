@@ -13,16 +13,16 @@ class Setedit():
     Logical storage for setting editors.
     """
     
-    def __init__(self, title, default_value, vtype, help = None):
+    def __init__(self, title, starting_value, vtype, help = None):
         """
         
         :param title: The title/name of this setedit.
-        :param default_value: The default value.
+        :param starting_value: The default value.
         :param vtype: The type of value.
         :param help: Optional help text to display.
         """
         self.title = title
-        self.default_value = default_value
+        self.starting_value = starting_value
         self.vtype = vtype
         self.help = help
         self._widget = None
@@ -31,9 +31,9 @@ class Setedit():
         """
         Get child setedits of this setedit.
         
-        This method should only be called if self.default_value contains values of the form (default_value, vtype, help). This is likely only to be the case if self.vtype == "Options".
+        This method should only be called if self.starting_value contains values of the form (starting_value, vtype, help). This is likely only to be the case if self.vtype == "Options".
         """
-        return [type(self)(name, default_value, vtype, help) for name, (default_value, vtype, help) in self.default_value.items()]
+        return [type(self)(name, starting_value, vtype, help) for name, (starting_value, vtype, help) in self.starting_value.items()]
     
     def get_widget(self, reload = False):
         """
@@ -91,7 +91,55 @@ class Setedit():
         
         else:
             # A normal option, just get the value.
+            # This doesn't work if option is a sub option.
             return option.__get__(owning_obj)
+    
+    @classmethod
+    def from_configurable_optiono(self, owning_obj, option):
+        """
+        Construct a new Setedit object from a configurable option.
+        
+        :param owning_obj: The owning object on which the Option object is set as a class attribute.
+        :param option: The configurable option.
+        :returns: The Setedit object.
+        """
+        if option.name == "DFT_excited_states":
+            raise Exception(str(self.value_from_configurable_option(owning_obj, option)))
+        return self(option.name, self.value_from_configurable_option(owning_obj, option), self.vtype_from_configurable_option(option), option.help)    
+
+
+class Option_setedit(Setedit):
+    """
+    A setedit for editing a Configurable Option.
+    """
+    
+    def __init__(self, owning_obj, dict_obj, option):
+        """
+        :param owning_obj: The owning object on which the Option object is set as a class attribute.
+        :param dict_obj: The dict in which the value of this Option is stored.
+        :param value: The new value to set.
+        """
+        self.owning_obj = owning_obj
+        self.dict_obj = dict_obj
+        self.option = option
+        self._widget = None
+        
+        self.title = option.name
+        self.vtype = self.vtype_from_configurable_option(option)
+        self.help = option.help
+        
+    @property
+    def starting_value(self):
+        """
+        Return the initial value of this option (before editing).
+        """
+        return self.option.get_from_dict(self.owning_obj, self.dict_obj)
+    
+    def get_children(self, reload = False):
+        """
+        Get a list of Option_setedit object that represent the options that are children of this option.
+        """
+        raise NotImplementedError("Option objects don't have children")
     
     @classmethod
     def from_configurable_option(self, owning_obj, option):
@@ -102,7 +150,55 @@ class Setedit():
         :param option: The configurable option.
         :returns: The Setedit object.
         """
-        return self(option.name, self.value_from_configurable_option(owning_obj, option), self.vtype_from_configurable_option(option), option.help)    
+        if hasattr(option, "OPTIONS"):
+            cls = Options_setedit
+            
+        else:
+            cls = self
+            
+        return cls(owning_obj, owning_obj._configurable_options, option)
+
+
+class Options_setedit(Option_setedit):
+    """
+    A setedit for editing a group of Configurable Options.
+    """
+    
+    def __init__(self, owning_obj, dict_obj, option):
+        super().__init__(owning_obj, dict_obj, option)
+        self._children = None
+    
+    @property
+    def starting_value(self):
+        raise NotImplementedError("Options_setedit does not contain values")
+    
+    def load_children(self):
+        """
+        Load the child setedits of this one.
+        """
+        mapping = self.option.get_from_dict(self.owning_obj, self.dict_obj)
+        
+        children = []
+        
+        for sub_option in self.option.OPTIONS.values():
+            if hasattr(sub_option, "OPTIONS"):
+                # This sub option has sub options of its own.
+                children.append(Options_setedit(self.owning_obj, mapping, sub_option))
+                
+            else:
+                children.append(Option_setedit(self.owning_obj, mapping, sub_option))
+                
+        return children
+    
+    def get_children(self, reload = False):
+        """
+        Get a list of Option_setedit object that represent the options that are children of this option.
+        """
+        if self._children is None or reload:
+            self._children = self.load_children()
+        
+        return self._children
+                
 
 
 class Setedit_walker(urwid.SimpleFocusListWalker):
@@ -162,19 +258,16 @@ class Setedit_browser(urwid.ListBox):
     A widget that permits viewing and editing lists of options.
     """
     
-    def __init__(self, setedits):
-        super().__init__(Setedit_walker(setedits))
-        
-    @classmethod
-    def from_configurable(self, configurable):
+    def __init__(self, setedits, on_change_callback = None):
         """
-        Construct a Setedit_browser from a configurable object.
+        Constructor for Setedit_browser objects.
         
-        :param configurable: A configurable object to construct from.
-        :returns: A setedit_browser object.
-        """        
-        setedits = [Setedit.from_configurable_option(configurable, option) for option in configurable.OPTIONS.values() if option.no_edit is False]
-        return self(setedits)
+        :param setedits: A list of  Setedit objects to browse through.
+        :param on_change_callback: A function to call (with no arguments) when new settings are saved.
+        """
+        super().__init__(Setedit_walker(setedits))
+        self.on_change_callback = on_change_callback
+        
     
     def discard(self):
         """
@@ -188,6 +281,15 @@ class Setedit_browser(urwid.ListBox):
         Save the changes made.
         """
         # This default implementation does nothing.
+        
+    def _save(self):
+        """
+        Wrapper for save. This method should not be modified in child classes.
+        """
+        retval = self.save()
+        if self.on_change_callback is not None:
+            self.on_change_callback()
+        return retval
 
 
 class Settings_editor(Section):

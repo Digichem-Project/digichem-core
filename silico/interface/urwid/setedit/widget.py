@@ -154,13 +154,13 @@ class Text_editor(Single_editor):
         """
         Load the list of inner widgets we'll use for display.
         """
-        return super().load_widgets(urwid.Edit((self.title_attr, self.setedit.title + ": "), self.value_to_str(self.setedit.default_value)))
+        return super().load_widgets(urwid.Edit((self.title_attr, self.setedit.title + ": "), self.value_to_str(self.setedit.starting_value)))
     
     def reset(self):
         """
         Reset the current value back to the default value.
         """
-        self.edit_widget.set_edit_text(self.setedit.default_value)
+        self.edit_widget.set_edit_text(self.value_to_str(self.setedit.starting_value))
     
     @property
     def value(self):
@@ -180,7 +180,7 @@ class Bool_editor(Single_editor):
         """
         Load the list of inner widgets we'll use for display.
         """
-        checkbox = urwid.CheckBox((self.title_attr, self.setedit.title + ": "), self.setedit.default_value)
+        checkbox = urwid.CheckBox((self.title_attr, self.setedit.title + ": "), self.setedit.starting_value)
         
         return super().load_widgets(checkbox)
     
@@ -188,7 +188,7 @@ class Bool_editor(Single_editor):
         """
         Reset the current value back to the default value.
         """
-        self.edit_widget.set_state(self.setedit.default_value)
+        self.edit_widget.set_state(self.setedit.starting_value)
     
     @property
     def value(self):
@@ -260,14 +260,14 @@ class List_editor(Setedit_widget):
         """
         Reset the current value back to the default value.
         """
-        self.inner_pile.contents = [(field, self.inner_pile.options()) for field in self.get_fields(self.setedit.default_value)]
+        self.inner_pile.contents = [(field, self.inner_pile.options()) for field in self.get_fields(self.setedit.starting_value)]
         
     def load_widgets(self):
         """
         Load the list of inner widgets we'll use for display.
         """
         # An inner pile we'll use for adding/removing values.
-        self.inner_pile = urwid.Pile(self.get_fields(self.setedit.default_value))
+        self.inner_pile = urwid.Pile(self.get_fields(self.setedit.starting_value))
         
         return [
             # Widget for our title.
