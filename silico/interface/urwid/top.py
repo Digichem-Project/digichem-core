@@ -1,11 +1,12 @@
 # Silico imports.
 from silico.interface.urwid.wrapper import Confirm_or_cancel, Confirm_settings_cancel, Confirm
+from silico.interface.urwid.base import Section
+from silico.config.configurable.base import Configurable
+from silico.interface.urwid.setedit.base import Settings_editor
+from silico.interface.urwid.setedit.view import View_browser
 
 # General imports.
 import urwid
-from silico.interface.urwid.base import Section
-from silico.config.configurable.base import Configurable
-from silico.interface.urwid.configurable import Configurable_editor
 
 
 class Top(urwid.WidgetPlaceholder):
