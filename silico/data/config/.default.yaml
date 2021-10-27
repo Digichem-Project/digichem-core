@@ -335,6 +335,14 @@ palette:
         - dark blue
         - standout
 
+    node--warning:
+        - dark red
+        - light gray
+
+    node--warning--focus:
+        - dark red
+        - dark blue
+
     node--flagged:
         - white
         - black
