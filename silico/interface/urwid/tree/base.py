@@ -95,6 +95,12 @@ class Flaggable_tree_list_box(urwid.TreeListBox):
         # The nodes that have been selected.
         self.selected_nodes = []
         
+    def is_selectable(self, node):
+        """
+        Determine whether a given node is selectable.
+        """
+        return not hasattr(node, 'has_children') or self.can_choose_parents
+        
     def keypress(self, size, key):
         """
         Handle keypress events.
@@ -104,7 +110,7 @@ class Flaggable_tree_list_box(urwid.TreeListBox):
             focus_node = self.body.focus
             focus_widget = focus_node.get_widget()
             
-            if not hasattr(focus_node, 'has_children') or self.can_choose_parents:
+            if self.is_selectable(focus_node):
                 self.select(focus_node, focus_widget)
                 
         elif key == "right":
