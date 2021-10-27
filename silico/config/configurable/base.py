@@ -107,6 +107,12 @@ class Configurable(Options_mixin):
         :raises Exception: If one of the Options of this configurable is invalid.
         """
         self.validate_children(self, self._configurable_options)
+    
+    @property    
+    def description(self):
+        """
+        """
+        return str(type(self))
 
 
 class Configurable_class_target(Dynamic_parent, Configurable):
@@ -192,6 +198,9 @@ class Configurable_class_target(Dynamic_parent, Configurable):
         except AttributeError:
             # No name set, this is pretty unusual but try and continue.
             desc = "NO-NAME"
+            
+        # Add our type.
+        desc += " ({})".format(self.TYPE)
             
         return desc
                             
