@@ -97,6 +97,12 @@ class View(Section, Configurable):
         """
         return len(self.OPTIONS) != 0
     
+    def on_settings_change(self):
+        """
+        A method that will be called when settings have been changed.
+        """
+        # This default implementation does nothing.
+    
     def get_settings_editor(self, reload = False):
         """
         Return the widget we use to change our settings.
