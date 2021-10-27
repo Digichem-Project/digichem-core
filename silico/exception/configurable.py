@@ -23,7 +23,7 @@ class Configurable_exception(Silico_exception):
         """
         hierarchy = self.get_file_hierarchy()
         
-        message = "Error in {} '{}'; {}".format(self.configurable.TYPE, self.configurable.description, self.reason)
+        message = "Error in '{}'; {}".format(self.configurable.description, self.reason)
         
         if hierarchy is not None:
             message += "; loaded from file(s): {}".format(hierarchy)
@@ -36,7 +36,12 @@ class Configurable_exception(Silico_exception):
         
         Each configurable can be loaded from more than one file, because later files can overwrite certain options given in earlier files etc.
         """
-        hierarchy = self.configurable.file_hierarchy
+        try:
+            hierarchy = self.configurable.file_hierarchy
+            
+        except AttributeError:
+            # We have no file list.
+            return None
         
         if len(hierarchy) == 0:
             return None
