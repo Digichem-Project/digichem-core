@@ -9,7 +9,7 @@ class Section(urwid.AttrMap):
     A possibly selectable sub-section.
     """
     
-    def __init__(self, body, title, focusable = True):
+    def __init__(self, body, title = "", focusable = True):
         """
         Constructor for urwid sections.
         
@@ -20,9 +20,23 @@ class Section(urwid.AttrMap):
         attrs = ["section"]
         if focusable:
             attrs.append("focus--section")
-            
-        linebox = urwid.LineBox(urwid.AttrMap(body, "body"), title, title_align = "left")
+        
+        
+        self._inner = urwid.AttrMap(body, "body")
+        linebox = urwid.LineBox(self._inner, title, title_align = "left")
             
         super().__init__(linebox, *attrs)
-
         
+    @property
+    def inner_body(self):
+        """
+        Get the inner widget that we are wrapping.
+        """
+        return self.base_widget
+    
+    @inner_body.setter
+    def inner_body(self, value):
+        """
+        Change the inner widget that we are wrapping.
+        """
+        self._inner.original_widget = value

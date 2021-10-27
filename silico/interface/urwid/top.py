@@ -84,10 +84,11 @@ class View(Section, Configurable):
     A widget designed to be shown inside a swapping window.
     """
     
-    def __init__(self, body, title, focusable = True):
+    def __init__(self, body, title = "", focusable = True):
         self._settings_editor = None
         Section.__init__(self, body, title, focusable = focusable)
         Configurable.__init__(self, True)
+        
     
     @property
     def has_settings(self):
