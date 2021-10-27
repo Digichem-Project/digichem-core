@@ -143,7 +143,7 @@ class Confirm_settings_cancel(Control_wrapper):
         """
         Function called when the settings button is pressed.
         """
-        self.top.swap_into_window(self.settings_editor, cancel_callback = self.settings_editor.browser.discard, submit_callback = self.settings_editor.browser.save)
+        self.top.swap_into_window(self.settings_editor, cancel_callback = self.settings_editor.browser.discard, submit_callback = self.settings_editor.browser._save)
         
     def submit(self):
         """
