@@ -58,6 +58,26 @@ class Loader_node_mixin():
         else:
             return loader_paths
 
+    def get_top_parent(self):
+        """
+        Get the highest ancestor in our parent chain.
+        """
+        parent = self
+        while True:
+            new_parent = parent.get_parent()
+            if new_parent is not None:
+                parent = new_parent
+            else:
+                break
+            
+        return parent
+    
+    def refresh(self):
+        """
+        Recursively update our list of child keys.
+        """
+        # This does nothing in children.
+        
 
 class Loader_leaf_node(Loader_node_mixin, urwid.TreeNode):
     """
@@ -86,6 +106,15 @@ class Loader_parent_node(Loader_node_mixin, urwid.ParentNode):
         urwid.ParentNode.__init__(self, loader_list, *args, **kwargs)
         self.concrete_children = []
     
+    def refresh(self):
+        """
+        Recursively update our list of child keys.
+        """
+        self.get_child_keys(True)
+        if hasattr(self, "_children"):
+            for child in self._children.values():
+                child.refresh()
+    
     def load_widget(self):
         return Loader_parent_widget(self)
 
@@ -107,22 +136,32 @@ class Loader_parent_node(Loader_node_mixin, urwid.ParentNode):
         
         return child_class(child_loader_list, parent=self, key=key, depth=child_depth)
     
+    @property
+    def show_hidden(self):
+        """
+        Determine whether we should show hidden child nodes.
+        
+        This property depends on the _show_hidden attribute of the top-most node.
+        """
+        return self.get_top_parent()._show_hidden
+    
     def load_child_keys(self):
         """
         Get child keys, which uniquely identify each child.
         """
         loader_list = self.get_value()
-        self.concrete_children = loader_list[-1].get_concrete_children()
+        self.concrete_children = loader_list[-1].get_concrete_children(show_hidden = self.show_hidden)
         return range(len(self.concrete_children))
 
 
 class Loader_top_node(Loader_parent_node):
     """
-    The top-most node in the tree
+    The top-most node in the tree.
     """
     
-    def __init__(self, methods, *args, **kwargs):
+    def __init__(self, methods, *args, show_hidden, **kwargs):
         super().__init__([methods])
+        self._show_hidden = show_hidden
     
     def load_widget(self):
         return Loader_top_widget(self)
