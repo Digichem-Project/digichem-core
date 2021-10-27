@@ -116,5 +116,6 @@ class View(Section, Configurable):
         """
         Load the browser widget we'll use to change our settings.
         """
-        return Configurable_editor(self, "Settings")
+        #return Settings_editor(View_browser(self), "Settings for {}".format(self.original_widget._title))
+        return Settings_editor(View_browser(self), "Settings")
     
