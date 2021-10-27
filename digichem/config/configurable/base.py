@@ -67,6 +67,28 @@ class Configurable(Options_mixin):
     Each Option object maps a certain attribute on the owning configurable object and defines, for example, an allowed type, a default value, a help string, a list of allowed values etc.
     """
     
+    def __new__(cls, *args, validate_now = False, **kwargs):
+        instance = super().__new__(cls)
+        
+        # This is where the actual values for configurable options are stored.
+        # We set this here so configurable options can be used in __init__ (particularly by subclasses).
+        instance._configurable_options = {}
+        
+        # Set all our configurable options.
+        # Look through kwargs for options that we recognise.
+        values = {}
+        for option in instance.OPTIONS.values():
+            try:
+                values[option.name] = kwargs[option.name]
+            
+            except KeyError:
+                pass
+            
+        # Setting like this might be unsafe because we're not deep copying...
+        instance._configurable_options = values
+        
+        return instance
+    
     def __init__(self, validate_now = False, **kwargs):
         """
         Constructor for Configurable objects.
@@ -74,13 +96,6 @@ class Configurable(Options_mixin):
         :param validate_now: If True, the given options will be validated before this constructor returns. Validation can also be performed at any time by calling validate().
         :param **kwargs: Initial values for the Options of this configurable.
         """
-        # This is where the actual values 
-        self._configurable_options = {}
-        
-        # Set all our configurable options.
-        # Setting like this might be unsafe because we're not deep copying...
-        self._configurable_options = kwargs
-        
         # If we've been asked to, validate.
         if validate_now:
             self.validate()
