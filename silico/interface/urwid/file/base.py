@@ -1,14 +1,16 @@
 # Base classes for file browser widgets.
 # This code is adapted from the example file browser included with urwid, originally written by Rob Lanphier.
 
+# General imports.
 from pathlib import Path
-
 import urwid
-from silico.interface.urwid.base import Section
+
+# Silico imports.
 from silico.interface.urwid.tree.base import Flag_widget,\
     Flaggable_tree_list_box
 from silico.interface.urwid.top import View
 from silico.config.configurable.option import Option
+
 
 class File_tree_widget(Flag_widget):
     """
@@ -279,6 +281,7 @@ class File_selector(View):
         Constructor for File_selector objects.
         
         :param starting_dir: The starting directory that will be shown expanded.
+        :param title: A title to display around this selector.
         """
         self.browser = File_browser(starting_dir)
         self.browser.offset_rows = 1
@@ -290,4 +293,6 @@ class Coord_selector(File_selector):
     A file selector for loading coordinate files.
     """
 
+    charge = Option(help = "Forcibly set the molecular charge (an integer) of newly loaded files. If blank, the charge will be determined from each loaded file.", type = int, default = None)
+    multiplicity = Option(help = "Forcibly set the molecular multiplicity (an integer) of newly loaded files. If blank, the multiplicity will be determined from each loaded file.", type = int, default = None)
     generate_3D = Option(help = "Whether to convert 2D coordinates to 3D by performing a rapid optimisation with molecular mechanics. Even if True, 3D coordinates will only be generated if it can be safely determined that the coordinates are not already in 3D.", type = bool, default = True)
