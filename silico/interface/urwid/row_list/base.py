@@ -367,17 +367,27 @@ class Row_list(urwid.ListBox):
     A custom ListBox that displays data in (movable) rows.
     """
     
-    def __init__(self, add_func, rearrangeable = True):
+    def __init__(self, add_func, rearrangeable = True, initial = None):
         """
         
         :param add_func: A function to call when a new item is to be added.
         :param rearrangeable: Whether the rows of this Row_list can be rearranged.
+        :param initial: An optional list of initial values to populate the list with.
         """
-        # Keep track of our pointer
-        self.pointer = Row_pointer(self, add_func, rearrangeable)
-        super().__init__(Row_walker([self.pointer]))
+        initial = [] if initial is None else initial
         
         self.rearrangeable = rearrangeable
+        
+        # Convert our initial values into actual rows.
+        initial = [self.load_row(value) for value in initial]
+        
+        # Keep track of our pointer
+        self.pointer = Row_pointer(self, add_func, rearrangeable)
+        # Add to our list of starting items.
+        initial.append(self.pointer)
+        
+        # Construct.
+        super().__init__(Row_walker(initial))
         
         # Set our initial focus.
         self.set_focus(0)
@@ -415,7 +425,7 @@ class Row_browser(Row_list):
     A higher level Row_list object that can show a browser to add nodes.
     """
     
-    def __init__(self, selector, top, rearrangeable=True):
+    def __init__(self, selector, top, rearrangeable=True, initial = None):
         """
         Constructor for Method_list objects.
         
@@ -426,7 +436,7 @@ class Row_browser(Row_list):
         
         self.selector = selector
         
-        super().__init__(self.swap_to_browser, rearrangeable=rearrangeable)
+        super().__init__(self.swap_to_browser, rearrangeable=rearrangeable, initial=initial)
         
     def swap_to_browser(self):
         """
