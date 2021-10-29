@@ -1,10 +1,10 @@
 # General imports.
 import urwid
+import functools
 
 # Silico imports.
 from silico.interface.urwid.misc import Tab_pile
-import functools
-from silico.interface.urwid.base import Section
+from silico.interface.urwid.section import Section
 
 
 class Pages(Tab_pile):
