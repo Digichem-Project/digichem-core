@@ -42,19 +42,19 @@ class Calculation_target(Method_target):
         raise NotImplementedError()
 
     @classmethod
-    def link(self, calculation_list, *, global_silico_options):
+    def link(self, methods, *, global_silico_options):
         """
         Prepare a number of Calculation_target objects for submission by creating an ordered, linked list.
         
-        :param calculation_list: A list of 3-membered tuples (destination, program, calculation) that are to be prepared.
+        :param methods: A list of 3-membered tuples (destination, program, calculation) that are to be prepared.
         :param global_silico_options: A dict like object of default options to use for the calculations that will be linked. Note that the options given here can be overridden by specific options given to each calculation...
-        :return: A 3-membered tuple of (destination, program, calculation) that is to be submitted first.
+        :return: The method (a 3-membered tuple of (destination, program, calculation)) that is to be submitted first.
         """
         first = None
         previous = None
         
         # These objects are class templates.
-        for destination_t, program_t, calculation_t in calculation_list:            
+        for destination_t, program_t, calculation_t in methods:
             # Expand calculation (because the 'calculation' could actually be a meta-calc representing multiple real calcs.
             for expanded_calculation_t in calculation_t.expand(global_silico_options.calculations):
                 
