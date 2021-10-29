@@ -1,12 +1,13 @@
 # Silico imports.
 from silico.interface.urwid.wrapper import Confirm_or_cancel, Confirm_settings_cancel, Confirm
-from silico.interface.urwid.base import Section
+from silico.interface.urwid.section import Section, Sub_section
 from silico.config.configurable.base import Configurable
 from silico.interface.urwid.setedit.base import Settings_editor
 from silico.interface.urwid.setedit.view import View_browser
 
 # General imports.
 import urwid
+from urwid.widget import WidgetWrap
 
 
 class Top(urwid.WidgetPlaceholder):
@@ -79,14 +80,17 @@ class Top(urwid.WidgetPlaceholder):
         return key
 
 
-class View(Section, Configurable):
+class View(WidgetWrap, Configurable):
     """
     A widget designed to be shown inside a swapping window.
     """
     
-    def __init__(self, body, title = "", focusable = True):
+    def __init__(self, body, title = "", border = True, focusable = True):
         self._settings_editor = None
-        Section.__init__(self, body, title, focusable = focusable)
+        inner_cls = Section if border else Sub_section
+        self.inner_body = inner_cls(body, title, focusable)
+        
+        WidgetWrap.__init__(self, self.inner_body)
         Configurable.__init__(self, True)
         
     
