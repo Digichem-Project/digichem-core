@@ -1,14 +1,15 @@
 
-# Silico imports.
-from silico.interface.urwid.row_list.base import Row_list, Row_item, Row_widget
-from silico.interface.urwid.file.base import File_selector
-from silico.file.convert.main import Silico_input
-from silico.interface.urwid.dialogue import Confirm_dialogue
-from silico.interface.urwid.misc import IntEditZero
-
 # General imports.
 import pathlib
 import urwid
+
+# Silico imports.
+from silico.interface.urwid.row_list.base import Row_list, Row_item, Row_widget
+from silico.interface.urwid.file.base import Coord_selector
+from silico.file.convert.main import Silico_input
+from silico.interface.urwid.dialogue import Confirm_dialogue
+from silico.interface.urwid.misc import IntEditZero, FloatEditZero
+
 
 class Coordinate_widget(Row_widget):
     """
@@ -41,14 +42,21 @@ class Coordinate_item(Row_item):
     An item that appears in a Coordinate_list, represents a loaded coordinates file.
     """
     
-    def __init__(self, path, row_list, movable=True):
+    def __init__(self, path, row_list, movable = True, initial_charge = None, initial_mult = None, gen3D = True):
         """
         Constructor for Coordinate_item objects.
+        
+        :param path: The path to the coordinate file we represent.
+        :param row_list: Our parent row_list object.
+        :param movable: Whether we should show rearranging buttons.
+        :param initial_charge: The initial charge.
+        :param initial_mult: The initial multiplicity.
+        :param gen3D: Whether to try and convert 2D formats to 3D coords.
         """
-        super().__init__(str(path), row_list, movable=movable)
+        super().__init__(path, row_list, movable = movable)
         
         # Load the coordinates from file.
-        self.coords = Silico_input.from_file(path)
+        self.coords = Silico_input.from_file(path, charge = initial_charge, multiplicity = initial_mult, gen3D = gen3D)
         
     def load_widget(self):
         """
@@ -62,15 +70,29 @@ class Coordinate_list(Row_list):
     A widget for displaying a list of loaded coordinates.
     """
     
-    def __init__(self, top, rearrangeable=True):
+    def __init__(self, top, start_dir = None, rearrangeable = True, initial_files = None, initial_charge = None, initial_mult = None):
         """
+        Constructor for Coordinate_list objects.
+        
+        :param top: A top-most widget to use for display.
+        :param start_dir: The directory to show when first opening the file selector.
+        :param rearrangeable: Whether the list of loaded files can be rearranged by the user.
+        :param initial_files: A list of files to show by default.
+        :param initial_charge: An optional integer charge to set for initial_files.
+        :param initial_mult: An optional integer multiplicity to set for initial_files.
         """
+        start_dir = start_dir if start_dir is not None else pathlib.Path.cwd()
         self.top = top
         
         # Widget for choosing files.
-        self.file_selector = File_selector(pathlib.Path.cwd())
+        self.file_selector = Coord_selector(start_dir, title = "Select Input Coordinates")
+        self.file_selector.charge = initial_charge
+        self.file_selector.multiplicity = initial_mult
         
-        Row_list.__init__(self, self.swap_to_selector, rearrangeable = rearrangeable)
+        # Add our starting files.
+        initial_files = [] if initial_files is None else initial_files
+        
+        super().__init__(self.swap_to_selector, rearrangeable = rearrangeable, initial = initial_files)
         
     def swap_to_selector(self):
         """
@@ -110,7 +132,7 @@ class Coordinate_list(Row_list):
         self.file_selector.browser.reset()
     
     def load_row(self, value):
-        return Coordinate_item(value, self, self.rearrangeable)
+        return Coordinate_item(value, self, self.rearrangeable, gen3D = self.file_selector.generate_3D, initial_charge = self.file_selector.charge, initial_mult = self.file_selector.multiplicity)
     
     
     

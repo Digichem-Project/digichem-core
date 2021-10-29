@@ -1,63 +1,43 @@
 # Main urwid interface for submitting calculations.
 
 # General imports.
-import urwid
 
 # Silico imports.
 from silico.interface.urwid.misc import Tab_pile
 from silico.interface.urwid.submit.coord import Coordinate_list
-from silico.interface.urwid.base import Swappable, Section
-from silico.interface.urwid.browser.base import Method_selector
-from silico.interface.urwid.file.base import File_selector
-import pathlib
+from silico.interface.urwid.section import Section
+from silico.interface.urwid.submit.method import Method_list
+from silico.interface.urwid.top import View
+from silico.config.configurable.option import Option
 
 
-
-class Calculation_submitter(Tab_pile, Swappable):
+class Calculation_submitter(View):
     """
     Class for controlling interface to calculation submission.
     """
     
-    def __init__(self, methods):
+    output = Option(help = "Base directory to which output will be written.", type = str, default = "./")
+    
+    def __init__(self, top, methods, initial_files = None, initial_charge = None, initial_mult = None, initial_methods = None):
         """
         Constructor for calculation submitter objects.
         
+        :param top: The topmost widget used for display.
         :param methods: A configurable list of known methods (starting with the topmost destination).
+        :param initial_files: A list of file paths to initially populate with.
+        :param initial_methods: A list of methods (tuples of destination, program, calculation) to initially populate with.
         """
-        Swappable.__init__(self)
+        self.top = top
         self.methods = methods
         
         # Keep track of our individual widgets.
-        self.coordinate_list = Coordinate_list()
-        #self.method_list = File_list()
-        self.confirm = urwid.Button("Submit")
+        self.coordinate_list = Coordinate_list(top, initial_charge = initial_charge, initial_mult = initial_mult, initial_files = initial_files)
+        self.method_list = Method_list(top, self.methods, initial_methods = initial_methods)
         
-        # Make some browser windows to use.
-        # We'll reuse these to keep focus.
-        self.file_selector = File_selector(pathlib.Path.cwd())
-        self.method_selector = Method_selector(self.methods)
-                
-        super().__init__([
+        self.pile = Tab_pile([
             Section(self.coordinate_list, "Input Coordinates"),
-            #Section(self.method_list, "Selected Methods"),
-            (1, urwid.AttrMap(urwid.Filler(urwid.Padding(self.confirm, 'center', 11)), "goodButton"))
+            Section(self.method_list, "Calculation Methods"),
         ])
         
+        super().__init__(self.pile, "Calculation Submission", border = False)
         
-    def keypress(self, size, key):
-        """
-        Handler for keypress events.
-        """
-        if key in [' ', 'enter']:
-            # Get the item in focus.
-            if self.focus.base_widget == self.file_list:
-                self.top.swap(self.file_selector)
-                
-            elif self.focus.base_widget == self.method_list:
-                self.top.swap(self.method_selector)
-                
-            else:
-                super().keypress(size, key)
-            
-        else:
-            return super().keypress(size, key)
