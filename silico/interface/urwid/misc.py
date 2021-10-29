@@ -36,3 +36,12 @@ class IntEditZero(urwid.numedit.IntegerEdit):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.trimLeadingZeros = False
+        
+class FloatEditZero(urwid.numedit.FloatEdit):
+    """
+    An int edit widget that allows specifying zeroes.
+    """
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.trimLeadingZeros = False
