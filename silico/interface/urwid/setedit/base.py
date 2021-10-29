@@ -5,7 +5,7 @@ import urwid
 
 # Silico imports.
 from silico.interface.urwid.setedit.widget import Setedit_widget
-from silico.interface.urwid.base import Section
+from silico.interface.urwid.section import Section
 
 
 class Setedit():
