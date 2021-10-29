@@ -4,6 +4,7 @@
 
 # This should suppress a matplotlib warning when we compile with pyinstaller.
 import warnings
+import logging
 warnings.filterwarnings("ignore", "(?s).*MATPLOTLIBDATA.*", category = UserWarning)
 # This one is caused by some minor bug when plotting graphs.
 warnings.filterwarnings("ignore", "(?s).*Source ID .* was not found when attempting to remove it.*")
@@ -17,7 +18,7 @@ warnings.filterwarnings("ignore", '(?s).*got unexpected keyword argument "dpi"*'
 
 
 import sys
-# These    two suppress weasyprint warnings about incompatible libraries (which we ignore when freezing).
+# These two suppress weasyprint warnings about incompatible libraries (which we ignore when freezing).
 if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
     warnings.filterwarnings("ignore", "(?s).*@font-face support needs Pango >= 1.38*", category = UserWarning)
     warnings.filterwarnings("ignore", "(?s).*There are known rendering problems and missing features with cairo < 1.15.4*", category = UserWarning)
@@ -30,19 +31,32 @@ silico.init_obabel()
 import argparse
 
 # Silico imports.
-import silico.program.submit
-import silico.program.result
-import silico.program.report
-import silico.program.resume
-import silico.program.status
-import silico.program.convert
-import silico.program.config.main
+from silico.program.config.main import Config_program
+from silico.program.convert import Convert_program
+from silico.program.interactive import Interactive_program
+from silico.program.report import Report_program
+from silico.program.result import Result_program
+from silico.program.resume import Resume_program
+from silico.program.status import Status_program
+from silico.program.submit import Submit_program
+
 
 # Make configurables available
 from silico.submit.method import *
 from silico.submit.program import *
 from silico.submit.calculation import *
 from silico.submit.basis import *
+
+# A list of each of the sub programs we know about.
+PROGRAMS = [
+    Config_program,
+    Convert_program,
+    Interactive_program,
+    Report_program,
+    Result_program,
+    Resume_program,
+    Status_program,
+    Submit_program]
 
 # Printable name of this program.
 NAME = "Silico"
@@ -67,14 +81,19 @@ def main():
     subparser = parser.add_subparsers(dest="prog")
     
     # Create sub parsers for each sub-program. Each will define its own parser.
-    silico.program.submit.arguments(subparser)
-    silico.program.convert.arguments(subparser)
-    silico.program.result.arguments(subparser)
-    silico.program.report.arguments(subparser)
-    #silico.program.spreadsheet.arguments(subparser)
-    silico.program.status.arguments(subparser)
-    silico.program.config.main.arguments(subparser)
-    silico.program.resume.arguments(subparser)
+    #     silico.program.interactive.arguments(subparser)
+    #     silico.program.submit.arguments(subparser)
+    #     silico.program.convert.arguments(subparser)
+    #     silico.program.result.arguments(subparser)
+    #     silico.program.report.arguments(subparser)
+    #     #silico.program_new.spreadsheet.arguments(subparser)
+    #     silico.program.status.arguments(subparser)
+    #     silico.program.config.main.arguments(subparser)
+    #     silico.program.resume.arguments(subparser)
+    
+    # Create sub parsers for each sub-program. Each will define its own parser.
+    for sub_program in PROGRAMS:
+        sub_program.arguments(subparser)
     
 #     # Before we call parse_args(), we check to see if a sub command has been chosen.
 #     # If not, we'll add 'submit' as the default.
@@ -90,10 +109,44 @@ def main():
     
     # Process command line arguments.
     args = parser.parse_args()
+    
+    logger = logging.getLogger(silico.logger_name)
+    
+    try:
+        # First, get our chosen subprogram.
+        inner_program = args.prog_cls.from_argparse(args)
+        outer_program = inner_program
+        
+        inner_program.program_init()
+        
+        inner_program.logger.debug("Startup completed")
+    
+    except Exception:
+        # Couldn't start.
+        logger.error("failed to start program", exc_info = True)
+        return -2
+    
+    # What we do next depends on whether we're running interactively or not.
+    if args.interactive:
+        # Check we have an interface.
+        try:
+            #inner_program.get_interface()
+            pass
+            
+        except NotImplementedError:
+            # This program does not have an interface.
+            inner_program.logger.error("this subprogram cannot be run interactively", exc_info = False)
+            return -2
+        
+        # Because we're running interactively, we'll actually use the interactive program rather than the chosen program.
+        outer_program = Interactive_program(inner_program.args, inner_program.config, inner_program.logger, initial = inner_program)
+
+    return outer_program.main_wrapper()
         
     # Go.
     # args.func is defined by each subprogram.
-    return args.func(args)
+    #return args.func(args)
+
 
     
 # If we've been invoked as a program, call main().    
