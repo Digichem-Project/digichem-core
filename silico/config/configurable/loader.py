@@ -11,6 +11,8 @@ from silico.exception.configurable import Configurable_loader_exception,\
     Tag_path_length_error, Unresolvable_tag_path_error
 from silico.exception.base import Silico_exception
 from silico.config.configurable.base import Configurable_class_target
+from silico.config.configurable.identifier import ID_splitter
+from silico.misc.base import is_int
 
 
 class Configurable_loader():
@@ -305,6 +307,62 @@ class Partial_loader(Configurable_loader):
         The (recursive) total number of child leaf nodes. 
         """
         return  sum(child.size() for child in self.NEXT)
+    
+    def split_identifier_string(self, identifier, check_length = True):
+        """
+        Split a string identifying a number of method components (destination/program/calculation) into its constituent parts.
+        
+        :param identifier: The identifier to split, a string like.
+        :param check_length: If True, raise an exception if an incorrect number of components are in identifier.
+        :returns: The split parts (a list).
+        """
+        try:
+            tokens = ID_splitter(identifier)
+            
+        except Exception as e:
+            raise ValueError("Could not split identifier string '{}'".format(identifier)) from e
+        
+        if check_length and len(tokens) != 3:
+            raise ValueError("The identifier string '{}' contains {} components but must contain exactly 3 components".format(identifier, len(tokens)))
+        
+        new_tokens = []
+        for token in tokens:
+            if is_int(token):
+                new_tokens.append(int(token))
+                
+            else:
+                new_tokens.append(token)
+        
+        return new_tokens
+    
+    def resolve_method(self, *identifiers, validate = True):
+        """
+        Resolve a set of identifiers into a tuple representing a method.
+        
+        :param identifiers: A number of identifiers to resolve.
+        :param validate: Whether to call validate() on each of the final resolved configurables.
+        """
+        parts = []
+        previous = self
+        
+        for identifier in identifiers:
+            new = previous.resolve(identifier, validate = validate)
+            previous = new
+            parts.append(new)
+            
+        return tuple(parts)
+    
+    def resolve_method_string(self, identifier, validate = True):
+        """
+        Resolve a string which identfies a complete method (consisting of a destination, a program and a calculation).
+        
+        Each part of the method is separated by a forward slash (/), and each part can identify the relevant configurable by index (number) or tag list.
+        
+        :param identifier: The identifier string.
+        :param validate: Whether to call validate() on each of the final resolved configurables.
+        """
+        parts = self.split_identifier_string(identifier, check_length = True)
+        return self.resolve_method(*parts, validate = validate)
     
     def resolve(self, identifier, validate = True):
         """
