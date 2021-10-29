@@ -2,7 +2,7 @@
 import urwid
 
 # Silico imports.
-from silico.interface.urwid.base import Section
+from silico.interface.urwid.section import Section
 from silico.interface.urwid.wrapper import Confirm_or_cancel, Confirm
 
 
