@@ -1,10 +1,12 @@
+# General imports.
 import yaml
 from pathlib import Path
+from openbabel import pybel
 
+# Silico imports.
 from silico.exception.base import Silico_exception
 from silico.file.convert.gaussian import Gaussian_input_parser
 from silico.file.convert.babel import Openbabel_converter
-from openbabel import pybel
 
 # Custom formats to allow literal strings in yaml output.
 # Adapted from https://stackoverflow.com/questions/6432605/any-yaml-libraries-in-python-that-support-dumping-of-long-strings-as-block-liter
