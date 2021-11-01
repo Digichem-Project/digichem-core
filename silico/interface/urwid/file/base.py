@@ -4,13 +4,13 @@
 # General imports.
 from pathlib import Path
 import urwid
+import itertools
 
 # Silico imports.
 from silico.interface.urwid.tree.base import Flag_widget,\
     Flaggable_tree_list_box
 from silico.interface.urwid.top import View
 from silico.config.configurable.option import Option
-import itertools
 
 
 class File_tree_widget(Flag_widget):
