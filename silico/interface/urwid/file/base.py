@@ -10,6 +10,7 @@ from silico.interface.urwid.tree.base import Flag_widget,\
     Flaggable_tree_list_box
 from silico.interface.urwid.top import View
 from silico.config.configurable.option import Option
+import itertools
 
 
 class File_tree_widget(Flag_widget):
@@ -54,7 +55,7 @@ class Directory_widget(Flag_widget):
         path = node.get_value()
         
         # Work out whether we should be expanded or not.
-        self.expanded = path in node.starting_path.parents        
+        self.expanded = path in itertools.chain(node.starting_path.parents, [node.starting_path])
         
         self.update_expanded_icon()        
 
