@@ -38,6 +38,10 @@ class Top(urwid.WidgetPlaceholder):
         :param cancel_callback: A function to call when the cancel button is pressed.
         :param submit_callback: A function to call when the submit button is pressed.
         """
+        # If our widget is a View and a submit_callback has not been given, we can use a default.
+        if isinstance(original_widget, View) and submit_callback is None:
+            submit_callback = original_widget.submit
+        
         # First decide which kind of wrapper to use.
         # If we have options, use a Confirm_settings_cancel.
         if isinstance(original_widget, View) and original_widget.has_settings:
@@ -93,6 +97,11 @@ class View(WidgetWrap, Configurable):
         WidgetWrap.__init__(self, self.inner_body)
         Configurable.__init__(self, True)
         
+    def submit(self):
+        """
+        A method to call when this View's submit button is pressed.
+        """
+        raise NotImplementedError("This view does not have a default submit() defined.")
     
     @property
     def has_settings(self):
