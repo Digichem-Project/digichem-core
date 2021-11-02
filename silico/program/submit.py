@@ -8,6 +8,7 @@ from silico.interface.urwid.submit.base import Calculation_submitter
 from silico.exception.base import Silico_exception
 from silico.submit.calculation.base import Calculation_target
 from silico.exception.uncatchable import Submission_paused
+from silico.file.convert.main import Silico_input
 
 
 class Submit_program(Program):
@@ -38,40 +39,61 @@ class Submit_program(Program):
         sub_parser.add_argument("-m", "--methods", help = "Methods to perform, identified either by name or by ID", nargs = "*", default = [])
         sub_parser.add_argument("-C", "--charge", help = "Set the molecular charge of all input files. Note that certain calculations will override this value", default = None, type = int)
         sub_parser.add_argument("-M", "--multiplicity", help = "Set the multiplicity of all input files. Note that certain calculations will override this value", default = None, type = int)
-        sub_parser.add_argument("--gen3D", help = "Whether to generate 3D coordinates (this will scramble existing atom coordinates). The default is yes, but only if it can be safely determined that the loaded coordinates are not already in 3D)", type = to_bool, default = None)
+        sub_parser.add_argument("--gen3D", help = "Whether to generate 3D coordinates (this will scramble existing atom coordinates). The default is yes, but only if it can be safely determined that the loaded coordinates are not already in 3D)", type = to_bool, default = True)
         
         return sub_parser
     
-    def get_methods(self):
+    def __init__(self, output, coords, methods, args, config, logger):
         """
-        Get a list of methods that we've been asked to submit to.
+        Constructor for submit programs.
+        
+        :param output: A pathlib Path to a directory to write output to. Each submitted molecule will have a subdirectory under the output directory.
+        :param coords: A list of Silico_input objects representing coordinates to submit.
+        :param methods: A list of method tuples to submit to.
         """
-        return [self.config.methods.resolve_method_string(method_string) for method_string in getattr(self.args, 'methods', [])]
+        super().__init__(args = args, config = config, logger = logger)
+        self.output = output
+        self.coords = coords
+        self.methods = methods
+        
+    @classmethod
+    def load_from_argparse(self, args, config, logger):
+        """
+        Create a Program object from the data provided by argparse.
+        
+        :param args: The command-line arguments the program was started with.
+        :param config: A loaded Silico config object.
+        :param logger: The logger to use for output.
+        """
+        # First get our list of methods.
+        methods = [config.methods.resolve_method_string(method_string) for method_string in getattr(args, 'methods', [])]
+        
+        # Load coordinates.
+        coords = [Silico_input.from_file(file, gen3D = args.gen3D, charge = args.charge, multiplicity = args.multiplicity) for file in args.calculation_files]
+                
+        return self(args.output, coords, methods, args = args, config = config, logger = logger)
     
     def main(self):
         """
         """
         # Get upset if we have no files.
-        if len(self.args.calculation_files) == 0:
-            raise Silico_exception("No files to submit")
+        if len(self.coords) == 0:
+            raise Silico_exception("No files specified")
                         
         # Get upset if we have no methods.
-        if len(self.args.methods) == 0:
-            raise Silico_exception("No methods to submit")
-        
-        # Resolve our methods.
-        methods = self.get_methods()
+        if len(self.methods) == 0:
+            raise Silico_exception("No methods specified")
         
         try:
             # Arrange our calcs into a linked list.
-            first = Calculation_target.link(methods, global_silico_options = self.config)
+            first = Calculation_target.link(self.methods, global_silico_options = self.config)
             
         except Exception:
             raise Silico_exception("Error processing methods to submit")
             
         # Print any warning messages (but only once each).
         warnings = [None]
-        for configurables in methods:
+        for configurables in self.methods:
             for configurable in configurables:
                     if configurable.warning not in warnings:
                         self.logger.warning(configurable.warning)
@@ -79,10 +101,10 @@ class Submit_program(Program):
         # The number of calcs we successfully submitted.
         done = 0
         
-        for input_file_path in self.args.calculation_files:
+        for coord in self.coords:
             try:
                 # Prepare.
-                first.prepare_from_file(self.args.output, input_file_path, molecule_charge = self.args.charge, molecule_multiplicity = self.args.multiplicity, gen3D = self.args.gen3D)
+                first.prepare(self.args.output, coord)
                 
                 # Go.
                 first.submit()
@@ -96,7 +118,7 @@ class Submit_program(Program):
             except Exception:
                 # Something went wrong.
                 # We don't stop here though, we might have more calcs we can submit.
-                self.logger.error("Failed to submit file '{}'".format(input_file_path), exc_info = True)
+                self.logger.error("Failed to submit file '{}'".format(coord.file_name), exc_info = True)
         
         return done
         
@@ -104,16 +126,6 @@ class Submit_program(Program):
         """
         Function called to get an urwid widget to display for when this subprogram is called interactively.
         """
-        # First, resolve any methods we've been given.
-        initial_methods = self.get_methods()
-        
-        return Calculation_submitter(
-            window.top,
-            self.config.methods,
-            initial_files = getattr(self.args, 'calculation_files', []),
-            initial_charge = getattr(self.args, 'charge', None),
-            initial_mult = getattr(self.args, 'multiplicity', None),
-            initial_methods = initial_methods
-        )
+        return Calculation_submitter(window, self)
         
         

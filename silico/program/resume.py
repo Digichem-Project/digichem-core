@@ -21,38 +21,62 @@ class Resume_program(Program):
     help = "Resume submission (used automatically by part of the submission mechanism)"
     
     
-    def __init__(self, args, logger):
+    def __init__(self, destination, *, args, config, logger):
         """
-        Unlike normal programs, we do not load our local config option.
+        Constructor for resume programs.
         
-        Instead, we use the config loaded by our original calculation.
+        :param destination: A destination_target object from which submission will resume.
+        :param args: The command-line arguments the program was started with.
+        :param config: A loaded Silico config object.
+        :param logger: The logger to use for output.
         """
-        # Load the pickled class.
-        with open(args.resume_file, "rb") as pickle_file:
-            self.destination = dill.load(pickle_file)
-    
+        super().__init__(args = args, config = config, logger = logger)
+        self.destination = destination
+        
         # Delete the pickled file to clean up (also prevents us running twice on the same file, which would be bad. Maybe we should do some file locking anyway?)
         try:
             args.resume_file.unlink()
         except Exception:
             logger.error("Failed to delete pickle file", exc_info = True)
-            
-        super().__init__(self, args, self.destination.program.calculation.silico_options, logger)
         
     @classmethod
-    def from_argparse(self, args, logger_name = None):
+    def init_from_argparse(self, args):
         """
-        Create an instance of this program from the data provided by argparse.
+        Perform program setup from the data provided by argparse.
         
         :param args: Argparser object.
-        :param logger_name: The name of a logger to use for this program's output.
-        :returns: An instance of this program.
+        :return: A tuple of (args, config, logger).
         """
-        logger_name = logger_name if logger_name is not None else silico.logger_name
         # First, sort out our logger.
-        logger = logging.getLogger(logger_name)
+        logger = logging.getLogger(silico.logger_name)
         
-        return self(args, logger)
+        # Load our pickled class.
+        with open(args.resume_file, "rb") as pickle_file:
+            destination = dill.load(pickle_file)
+            
+        # Setup program wide stuff.
+        self.program_init(args, destination.program.calculation.silico_options, logger)
+        
+        return (destination, args, destination.program.calculation.silico_options, logger)
+    
+    @classmethod
+    def load_from_argparse(self, destination, args, config, logger):
+        """
+        Create a program instance.
+        
+        :param args: The command-line arguments the program was started with.
+        :param config: A loaded Silico config object.
+        :param logger: The logger to use for output.
+        """
+        return self(destination, args = args, config = config, logger = logger)
+    
+    @classmethod
+    def from_argparse(self, args):
+        """
+        Create a Program object from the data provided by argparse.
+        """
+        destination, args, config, logger = self.init_from_argparse(args)
+        return self._from_argparse(destination, args, config, logger)
     
     @classmethod
     def arguments(self, sub_parsers_object):

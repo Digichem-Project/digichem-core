@@ -27,22 +27,27 @@ class Program():
     help = None
     
     def __init__(self, args, config, logger):
+        """
+        Constructor for Program objects.
+        
+        :param args: The command-line arguments the program was started with.
+        :param config: A loaded Silico config object.
+        :param logger: The logger to use for output.
+        """
         self.args = args
         self.config = config
         self.logger = logger
         
     @classmethod
-    def from_argparse(self, args, logger_name = None):
+    def init_from_argparse(self, args):
         """
-        Create an instance of this program from the data provided by argparse.
+        Perform program setup from the data provided by argparse.
         
         :param args: Argparser object.
-        :param logger_name: The name of a logger to use for this program's output.
-        :returns: An instance of this program.
+        :return: A tuple of (args, config, logger).
         """
-        logger_name = logger_name if logger_name is not None else silico.logger_name
         # First, sort out our logger.
-        logger = logging.getLogger(logger_name)
+        logger = logging.getLogger(silico.logger_name)
         
         # Next, load all our config files.
         config = self.get_silico_config(args)
@@ -53,7 +58,29 @@ class Program():
         # Call our arg_to_config function now so any other command line arguments can be added to the config object.
         self.arg_to_config(args, config)
         
-        return self(args, config, logger)
+        # Setup program wide stuff.
+        self.program_init(args, config, logger)
+        
+        return (args, config, logger)
+        
+    @classmethod
+    def load_from_argparse(self, args, config, logger):
+        """
+        Create a program instance.
+        
+        :param args: The command-line arguments the program was started with.
+        :param config: A loaded Silico config object.
+        :param logger: The logger to use for output.
+        """
+        return self(args = args, config = config, logger = logger)
+    
+    @classmethod
+    def from_argparse(self, args):
+        """
+        Create a Program object from the data provided by argparse.
+        """
+        args, config, logger = self.init_from_argparse(args)
+        return self.load_from_argparse(args, config, logger)
     
     @classmethod
     def get_silico_config(self, args):
@@ -73,31 +100,33 @@ class Program():
         # We unset the silico signal handler for SIGTERM because multiprocessing.pool appears to use this for communication.
         # Perhaps we should unset all silico signal handlers in children?
         signal.signal(signal.SIGTERM, signal.SIG_DFL)
-        
-    def program_init(self):
+    
+    @classmethod
+    def program_init(self, args, config, logger):
         """
         Perform program wide setup. This method should only be called once per invocation of the entire silico program.
         """
         # Set our log level.
-        self.config.set_log_level(self.logger)
+        config.set_log_level(logger)
         
         # Set external programs.
         # TODO: Find a better way to do this.
-        silico.image.vmd.VMD_image_maker.vmd_execuable = self.config['external']['vmd']
-        silico.image.vmd.VMD_image_maker.tachyon_executable = self.config['external']['tachyon']
-        silico.file.cube.Fchk_to_cube.cubegen_executable = self.config['external']['cubegen']
-        silico.file.fchk.Chk_to_fchk.cubegen_executable = self.config['external']['formchk']
+        silico.image.vmd.VMD_image_maker.vmd_execuable = config['external']['vmd']
+        silico.image.vmd.VMD_image_maker.tachyon_executable = config['external']['tachyon']
+        silico.file.cube.Fchk_to_cube.cubegen_executable = config['external']['cubegen']
+        silico.file.fchk.Chk_to_fchk.cubegen_executable = config['external']['formchk']
         
         # Set angles.
-        silico.result.angle.Angle.set_default_angle_units(self.config['angle_units'])
+        silico.result.angle.Angle.set_default_angle_units(config['angle_units'])
             
         # Set numpy errors (not sure why this isn't the default...)
         numpy.seterr(invalid = 'raise', divide = 'raise')
         
         # Add our signal exception handler.
-        self.init_signals()
-        
-    def init_signals(self):
+        self.init_signals(args, config, logger)
+    
+    @classmethod
+    def init_signals(self, args, config, logger):
         """
         Setup signal handling.
         """
@@ -109,9 +138,9 @@ class Program():
                     signal.signal(signalnum, Signal_caught.raise_from_signal)
                 except Exception:
                     # This signal cannot be caught, pass.
-                    self.logger.debug("Cannot handle signal {} ({}); skipping".format(signalnum, Signal_caught.signal_to_name(signalnum)))
+                    logger.debug("Cannot handle signal {} ({}); skipping".format(signalnum, Signal_caught.signal_to_name(signalnum)))
             else:
-                self.logger.debug("Signal '{}' is not supported on this system; skipping".format(signal_desc))
+                logger.debug("Signal '{}' is not supported on this system; skipping".format(signal_desc))
         
     def main_wrapper(self):
         """
@@ -137,17 +166,17 @@ class Program():
             
             return -2
     
-    def run(self):
-        """
-        Run this program.
-        
-        :returns: The return value of this program.
-        """
-        self.program_init()
-        
-        self.logger.debug("Startup completed")
-        
-        return self.main_wrapper()
+#     def run(self):
+#         """
+#         Run this program.
+#         
+#         :returns: The return value of this program.
+#         """
+#         self.program_init()
+#         
+#         self.logger.debug("Startup completed")
+#         
+#         return self.main_wrapper()
     
     @classmethod
     def arg_to_config(self, args, config):
@@ -251,4 +280,11 @@ class Program():
         
         return sub_parser
         
+    def process_arguments(self, args):
+        """
+        Method called to alter the values set for command line arguments.
+        
+        This method is useful for eg setting complex default values.
+        """
+        # This default implementation does nothing.
     

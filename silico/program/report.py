@@ -8,6 +8,8 @@ from silico.interface.urwid.submit.base import Calculation_submitter
 from silico.exception.base import Silico_exception
 from silico.parser import parse_calculations
 from silico.report.main.pdf import PDF_report
+from silico.interface.urwid.report.base import Report_generator
+from silico.config.configurable.option import Option
 
 
 class Report_program(Program):
@@ -52,6 +54,12 @@ class Report_program(Program):
     
         return sub_parser
     
+    def process_arguments(self, args):
+        """
+        Process command line arguments and set defaults.
+        """
+        
+    
     def arg_to_config(self, args, config):
         """
         A class method that will be called to add command line arguments from 'args' to the configuration object 'config'.
@@ -70,6 +78,62 @@ class Report_program(Program):
                 'dont_modify': args.dont_create_new_images
             }
         })
+        
+#     def arg_to_interface(self, arg, parent, option = None, *args, **kwargs):
+#         """
+#         Set one of the options of an interface from a command line argument.
+#         
+#         :param arg: The name of a command line argument.
+#         :param parent: The parent of the option to set; either the interface object itself or a parent Options (plural) object.
+#         :param option: The name of the option to set. If not given, assumed to be the same as arg.
+#         :param default: Optional default value to set.
+#         """
+#         has_default = False
+#         default = None
+#         
+#         if len(args) > 0:
+#             default = args.pop(0)
+#             has_default = True
+#         
+#         elif "default" in kwargs:
+#             default = kwargs['default']
+#             has_default = True
+#         
+#         if option is None:
+#             option = arg
+#         
+#         try:
+#             value = getattr(self.args, arg)
+#             
+#             # How we set depends on the type of 'interface'
+#             if not isinstance(parent, Option):
+#                 setattr(parent, option, value)
+#                 
+#             else:
+#                 parent[option] = value
+#             
+#         except AttributeError:
+#             # Not available.
+#             if has_default:
+#                 if not isinstance(parent, Option):
+#                     setattr(parent, option, default)
+#                     
+#                 else:
+#                     parent[option] = default
+            
+        
+    def load_interface(self, window):
+        """
+        Get the interface widget we'll use for display.
+        
+        :param window The parent window object.
+        """
+        interface = Report_generator(window.top, initial_files = getattr(self.args, 'log_files', []))
+        
+        # Set options.
+        self.arg_to_interface('output', interface)
+        self.arg_to_interface('name', interface)
+        self.arg_to_interface('name', interface, 'name')
     
     def main(self):
         """

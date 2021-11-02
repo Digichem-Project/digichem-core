@@ -39,6 +39,7 @@ from silico.program.result import Result_program
 from silico.program.resume import Resume_program
 from silico.program.status import Status_program
 from silico.program.submit import Submit_program
+#import pydevd;pydevd.settrace()
 
 
 # Make configurables available
@@ -79,33 +80,10 @@ def main():
         epilog = EPILOG)
     parser.add_argument("-v", "--version", action = "version", version = str(silico.version))
     subparser = parser.add_subparsers(dest="prog")
-    
-    # Create sub parsers for each sub-program. Each will define its own parser.
-    #     silico.program.interactive.arguments(subparser)
-    #     silico.program.submit.arguments(subparser)
-    #     silico.program.convert.arguments(subparser)
-    #     silico.program.result.arguments(subparser)
-    #     silico.program.report.arguments(subparser)
-    #     #silico.program_new.spreadsheet.arguments(subparser)
-    #     silico.program.status.arguments(subparser)
-    #     silico.program.config.main.arguments(subparser)
-    #     silico.program.resume.arguments(subparser)
-    
+        
     # Create sub parsers for each sub-program. Each will define its own parser.
     for sub_program in PROGRAMS:
         sub_program.arguments(subparser)
-    
-#     # Before we call parse_args(), we check to see if a sub command has been chosen.
-#     # If not, we'll add 'submit' as the default.
-#     # This is a bit hacky, but works ok.
-#     if len(sys.argv) <= 1 or (
-#         sys.argv[1] not in ["submit", "result", "report", "resume", "status", "convert"]
-#         and "-h" not in sys.argv
-#         and "--help" not in sys.argv
-#         and "-v" not in sys.argv
-#         and "--version" not in sys.argv
-#     ):
-#         sys.argv.insert(1, "submit")
     
     # Process command line arguments.
     args = parser.parse_args()
@@ -117,7 +95,7 @@ def main():
         inner_program = args.prog_cls.from_argparse(args)
         outer_program = inner_program
         
-        inner_program.program_init()
+        #inner_program.program_init()
         
         inner_program.logger.debug("Startup completed")
     
@@ -128,24 +106,10 @@ def main():
     
     # What we do next depends on whether we're running interactively or not.
     if args.interactive:
-        # Check we have an interface.
-        try:
-            #inner_program.get_interface()
-            pass
-            
-        except NotImplementedError:
-            # This program does not have an interface.
-            inner_program.logger.error("this subprogram cannot be run interactively", exc_info = False)
-            return -2
-        
         # Because we're running interactively, we'll actually use the interactive program rather than the chosen program.
         outer_program = Interactive_program(inner_program.args, inner_program.config, inner_program.logger, initial = inner_program)
 
     return outer_program.main_wrapper()
-        
-    # Go.
-    # args.func is defined by each subprogram.
-    #return args.func(args)
 
 
     

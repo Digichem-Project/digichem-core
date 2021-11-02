@@ -27,7 +27,12 @@ class Interactive_program(Program):
         super().__init__(args, config, logger)
         
         # Our list of sub programs.
-        self.programs = {prog_cls.command: prog_cls(args, config, logger) for prog_cls in [Submit_program, Report_program, Result_program, Status_program, Convert_program]}
+        self.programs = {
+            prog_cls.command: prog_cls.load_from_argparse(args, config, logger) 
+            for prog_cls 
+            in [Submit_program, Report_program, Result_program, Status_program, Convert_program]
+            if prog_cls != type(initial)
+        }
         
         self.initial = initial
         if initial is not None:
