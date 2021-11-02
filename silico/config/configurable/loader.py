@@ -280,7 +280,6 @@ class Configurable_loader():
         else:
             # None at this level, we need to ask our children if they match the tag.
             for child in self.NEXT:
-                
                 # Add the loaders our child found to our list, adding ourself to the start.
                 for loader_list in child.search_by_tag(tag):
                     loader_list.insert(0, self)
@@ -317,7 +316,7 @@ class Partial_loader(Configurable_loader):
         :returns: The split parts (a list).
         """
         try:
-            tokens = ID_splitter(identifier)
+            tokens = list(ID_splitter(identifier))
             
         except Exception as e:
             raise ValueError("Could not split identifier string '{}'".format(identifier)) from e
@@ -343,12 +342,25 @@ class Partial_loader(Configurable_loader):
         :param validate: Whether to call validate() on each of the final resolved configurables.
         """
         parts = []
-        previous = self
+        last = None
+        next_top = self
         
         for identifier in identifiers:
-            new = previous.resolve(identifier, validate = validate)
-            previous = new
-            parts.append(new)
+            # First, resolve our identifier.
+            configurable, path = next_top.resolve(identifier, validate = validate)
+            
+            # Check our new loader is a possible child of our last.
+            if last is not None:
+                if not last.valid_child_path(path):
+                    raise Silico_exception("configurable '{}' is not a valid child of '{}'".format(
+                        configurable.description,
+                        parts[-1].description
+                    ))
+
+            
+            next_top = path[-1].top_child
+            last = path[-1]
+            parts.append(configurable)
             
         return tuple(parts)
     
@@ -373,7 +385,7 @@ class Partial_loader(Configurable_loader):
         :raises TypeError: If identifier is not an integer, list or tuple.
         :param identifier: The identifier to resolve.
         :param validate: Whether to call validate() on the final resolved configurable.
-        :returns: A resolved configurable object.
+        :returns: A resolved configurable object and the path from which that object was resolved.
         """
         # First, build or loader list.
         if isinstance(identifier, int):
@@ -389,7 +401,7 @@ class Partial_loader(Configurable_loader):
             raise TypeError("identifier should be either an integer or a list-like/tuple-like")
         
         # Now resolve our path.
-        return self.resolve_path(path, validate = validate)
+        return self.resolve_path(path, validate = validate), path
     
     def resolve_path(self, path, parent_config = None, validate = True):
         """
@@ -462,7 +474,7 @@ class Partial_loader(Configurable_loader):
         child_offset = 0
         for child in self.NEXT:
             child_size = child.size()
-            if index < parent_offset + child_offset + child_size:
+            if (index -1) < parent_offset + child_offset + child_size:
                 # The config we want is in this child.
                 return child.path_by_index(index, parent_offset = parent_offset + child_offset, path = path)
             
@@ -591,6 +603,21 @@ class Single_loader(Configurable_loader):
         # Child loaders will have a different TYPE to the current loader.
         # For example, loaders for destinations will have programs as child loaders, and programs will have calculations as child loaders.
         self.CHILDREN = []
+        # The top loader (almost certainly a configurable list) of our child loaders.
+        self.top_child = None
+        
+    def valid_child_path(self, possible_child_path):
+        """
+        Determine whether another configurable could be a valid child of this configurable.
+        
+        :param possible_child_path: A loader path (a list) that might be a child of this single loader.
+        :returns: True or False.
+        """
+        for child_path in self.CHILDREN:
+            if possible_child_path[:len(child_path)] == child_path:
+                return True
+        
+        return False
         
     def size(self):
         """
@@ -599,6 +626,10 @@ class Single_loader(Configurable_loader):
         Always returns 1.
         """
         return 1
+    
+    def get_children(self):
+        """
+        """
     
     @property
     def sub_node_paths(self):
@@ -679,7 +710,11 @@ class Single_loader(Configurable_loader):
         :param loaders: A flat list of the other loaders of the same type that have been parsed.
         :param children: The top loader (probably a configurable list) for the child type for this loader.
         """
+        # TODO: We need to check that our children are actually of a valid type for us, eg disallow Gaussian calcs to be children of Turbomole programs.
         if children is not None:
+            # Save our top.
+            self.top_child = children
+            
             # Go through our list of next children.
             # Unlike for partial loaders, here NEXT refers to configurables of a different TYPE (they are our child configurables).
             for tag_list in self.config.get('NEXT', []):
@@ -713,7 +748,8 @@ class Update_loader(Single_loader):
         raise NotImplementedError("path_by_index() has no meaning for Update_loader objects")
     
     def path_by_tags(self, *args, **kwargs):
-        raise NotImplementedError("path_by_tags() has no meaning for Update_loader objects")
+        raise NotImplementedError("path_by_tags() has no meaning for Update_loader objects")    
+    
     
     def update(self, loaders):
         """
