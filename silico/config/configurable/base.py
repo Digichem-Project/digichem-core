@@ -192,12 +192,18 @@ class Configurable_class_target(Dynamic_parent, Configurable):
         """
         A string that describes this Configurable object.
         """
+        # Get our ID if we've got one.
+        try:
+            desc = "[{}] ".format(self.index())
+        except Exception:
+            desc = ""
+        
         # Start with the name.
         try:
-            desc = self.name
+            desc += self.name
         except AttributeError:
             # No name set, this is pretty unusual but try and continue.
-            desc = "NO-NAME"
+            desc += "NO-NAME"
             
         # Add our type.
         desc += " ({})".format(self.TYPE)
