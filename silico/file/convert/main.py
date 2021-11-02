@@ -39,6 +39,7 @@ class Silico_input():
         self.geometry = geometry
         self.charge = charge
         self.multiplicity = multiplicity
+        self.file_name = file_name
         
         # If a real name wasn't given, but a file name was, use it.
         if name is None and file_name is not None:
