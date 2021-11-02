@@ -3,7 +3,7 @@
 ##########################
 TAG: Turbomole CC2 Excited States
 SUB_TYPE: partial
-ALIAS: "CC(2)"
+ALIAS: "CC2"
 
 modules:
     - dscf

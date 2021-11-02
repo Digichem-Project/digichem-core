@@ -20,9 +20,30 @@ modules:
 
 NEXT:
     - Turbomole Functionals
-    - Turbomole CC2
-    - Turbomole ADC(2)
+    - Turbomole CC2 SP
+    - Turbomole ADC(2) SP
 
+
+---
+
+
+TAG: Turbomole CC2 SP
+SUB_TYPE: partial
+ALIAS: CC2
+
+NEXT:
+    - Turbomole CC2
+
+
+---
+
+
+TAG: Turbomole ADC(2) SP
+SUB_TYPE: partial
+ALIAS: ADC(2)
+
+NEXT:
+    - Turbomole ADC(2)
 
 ---
 

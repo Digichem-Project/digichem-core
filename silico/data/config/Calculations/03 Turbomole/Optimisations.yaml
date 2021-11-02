@@ -55,7 +55,7 @@ ALIAS: CC2
 SUB_TYPE: partial
 
 modules:
-    - jobex -level scf -c 100 -keep
+    - jobex -level cc2 -c 100 -keep
     
 # Turn on optimisation.
 cc_geoopt:
