@@ -157,7 +157,6 @@ class Concrete_calculation(Calculation_target):
             self.output = None
             self.input_coords = None
             self.program = program
-            self.validate_parent(program)
             self.global_silico_options = global_silico_options
             self.program.calculation = self
             # If this calculation was chosen as part of a series (meta-calc), this is the name of that series.

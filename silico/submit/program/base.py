@@ -55,7 +55,6 @@ class Program_target(Method_target):
             """
             # Set our destination.
             self.destination = destination
-            self.validate_parent(destination)
             # Let our destination know who we are.
             self.destination.program = self
             # We don't have a calculation yet.
