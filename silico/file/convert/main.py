@@ -40,12 +40,8 @@ class Silico_input():
         self.charge = charge
         self.multiplicity = multiplicity
         self.file_name = file_name
+        self.name = name
         
-        # If a real name wasn't given, but a file name was, use it.
-        if name is None and file_name is not None:
-            self.name = Path(file_name).with_suffix("").name
-        else:    
-            self.name = name
     
     @property
     def formula(self):
@@ -53,6 +49,19 @@ class Silico_input():
         """
         molecule = pybel.readstring("xyz", self.to_format("xyz"))
         return molecule.formula
+    
+    @property
+    def auto_name(self):
+        """
+        A more intelligent name for this molecule, taking into account our old file name if necessary.
+        """
+        # If a real name wasn't given, but a file name was, use it.
+        if self.name is None and self.file_name is not None:
+            name = Path(self.file_name).with_suffix("").name
+        else:    
+            name = self.name
+            
+        return name
 
     @classmethod
     def from_xyz(self, geometry, **kwargs):
@@ -178,7 +187,7 @@ class Silico_input():
             # Convert.
             charge = int(self.charge) if self.charge is not None else None
             multiplicity = int(self.multiplicity) if self.multiplicity is not None else None
-            return Openbabel_converter.get_cls("xyz")(input_file = self.xyz, input_file_path = self.name, input_file_type = "xyz").convert(file_type, charge = charge, multiplicity = multiplicity)
+            return Openbabel_converter.get_cls("xyz")(input_file = self.xyz, input_file_path = self.auto_name, input_file_type = "xyz").convert(file_type, charge = charge, multiplicity = multiplicity)
 
     @property
     def implicit_charge(self):
