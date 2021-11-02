@@ -41,7 +41,7 @@ class Setedit():
         """
         if self._widget is None or reload:
             self._widget = self.load_widget()
-            
+        
         return self._widget
     
     def load_widget(self):
