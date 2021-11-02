@@ -148,7 +148,7 @@ class Directory_node(urwid.ParentNode):
         Constructor for Directory_node objects.
         
         :param path: The pathlib Path of this node.
-        :param path: The pathlib Path of the path that should be started at.
+        :param starting_path: The pathlib Path of the path that should be started at.
         :param parent: The parent node, if any.
         :param show_hidden: Whether to show hidden files and directories.
         """
