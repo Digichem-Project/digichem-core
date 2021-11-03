@@ -33,7 +33,7 @@ class Silico_input():
         :param geometry: The molecular geometry in .si format. Use from_xyz() instead if your format is in xyz.
         :param charge: The molecular charge.
         :param multiplicity: The molecular multiplicity (as an integer).
-        :param name: Name of the system/molecule
+        :param name: Name of the system/molecule.
         :param file_name: The name of the file which was loaded. This can be used as a back-up file name.
         """
         self.geometry = geometry
@@ -58,8 +58,12 @@ class Silico_input():
         # If a real name wasn't given, but a file name was, use it.
         if self.name is None and self.file_name is not None:
             name = Path(self.file_name).with_suffix("").name
-        else:    
+            
+        elif self.name is not None:
             name = self.name
+        
+        else:
+            name = "molecule"
             
         return name
 
