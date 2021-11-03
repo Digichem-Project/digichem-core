@@ -8,6 +8,7 @@ class Extended_basis_set(Method_target):
     """
     
     CLASS_HANDLE = ("basis_set",)
+    TYPE = Option(default = "basis_set")
     
     basis_set = Option(help = "Basis set data", required = True, type = lambda data: str(data).strip())
     

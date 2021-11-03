@@ -4,6 +4,7 @@ from uuid import uuid4
 from silico.submit.structure.directory import Calculation_directory
 from silico.exception import Submission_error
 from silico.submit.base import Method_target
+from silico.config.configurable.option import Option
 
 class Destination_target(Method_target):
     """
@@ -14,6 +15,7 @@ class Destination_target(Method_target):
     """
     
     CLASS_HANDLE = ("destination",)
+    TYPE = Option(default = "destination")
             
     @property
     def unique_name(self):

@@ -29,6 +29,7 @@ from silico.parser.base import parse_calculations
 from silico.misc.io import smkdir
 from silico.submit.structure.directory import Silico_directory
 from silico.submit.base import Method_target
+from silico.config.configurable.option import Option
 
 
 class Program_target(Method_target):
@@ -37,6 +38,7 @@ class Program_target(Method_target):
     """
     
     CLASS_HANDLE = ("program",)
+    TYPE = Option(default = "program")
         
     ############################
     # Class creation mechanism #
