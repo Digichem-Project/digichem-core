@@ -295,7 +295,7 @@ class Turbomole_to_cube(File_converter):
     # Text description of our output file type, used for error messages etc.
     output_file_type = file_types.gaussian_cube_file
     
-    def __init__(self, *args, calculation_directory = None, calc_t, prog_t, orbitals = [], density, spin, **kwargs):
+    def __init__(self, *args, calculation_directory = None, calc_t, prog_t, orbitals = [], density, spin, silico_options, **kwargs):
         """
         Constructor for Turbomole_to_cube objects.
         
@@ -307,6 +307,9 @@ class Turbomole_to_cube(File_converter):
         :param restricted: Whether the calculation is restricted or unrestricted HF.
         """
         super().__init__(*args, **kwargs)
+        
+        # Save our global silico options (we'll need it when creating our calcs).
+        self.silico_options = silico_options
         
         # Save our input calc dir.
         self.input_file = Path(calculation_directory) if calculation_directory is not None else None
@@ -328,17 +331,15 @@ class Turbomole_to_cube(File_converter):
         
         # Save our calculation, program and destination templates.
         # We use an in series destination so we will block while the calc runs.
-        self.destination_t = Series({
-            "TYPE": "destination",
-            "class_name": "series",
-            "NAME": "Orbital cubes"
-        })
-        self.destination_t.configure(ID = None)
+        self.destination_t = Series(
+            #"TYPE": "destination",
+            #"class_name": "series",
+            name = "Orbital cubes"
+        )
         self.destination_t.finalize()
             
         # Given calc program.
         self.prog_t = prog_t
-        self.prog_t.parents = [self.destination_t.NAME]
         
         # Given calc.
         self.calc_t = calc_t
@@ -349,7 +350,7 @@ class Turbomole_to_cube(File_converter):
         Constructor that takes a dictionary of config like options.
         """
         # First, get our program.
-        prog_t = options.programs.get_config(options['report']['turbomole']['program'])
+        prog_t = options.programs.resolve(options['report']['turbomole']['program'])
         
         calculation_directory = calculation_directory.resolve() if calculation_directory is not None else None
         
@@ -360,13 +361,12 @@ class Turbomole_to_cube(File_converter):
             num_CPUs = options['report']['turbomole']['num_CPUs'],
             orbitals = [orbital.total_level for orbital in orbitals],
             density = density or spin,
-            program_name = prog_t.NAME,
             options = options
            )
         
         # Make them ready.
-        calc_t.finalize()
-        prog_t.finalize()
+        #calc_t.finalize()
+        #prog_t.finalize()
         
         # And continue.
         return self(
@@ -378,6 +378,7 @@ class Turbomole_to_cube(File_converter):
             density = density,
             spin = spin,
             dont_modify = options['image']['dont_modify'],
+            silico_options = options,
             **kwargs
         )
         
@@ -398,6 +399,7 @@ class Turbomole_to_cube(File_converter):
             density = density,
             spin = spin,
             dont_modify = options['image']['dont_modify'],
+            silico_options = options,
             **kwargs
         )
         
@@ -415,7 +417,8 @@ class Turbomole_to_cube(File_converter):
         # Link.
         destination = self.destination_t()
         prog = self.prog_t(destination)
-        calc = self.calc_t(prog)
+        #todo:here
+        calc = self.calc_t(prog, global_silico_options = self.silico_options)
         
         # We'll write our calc to a tempdir.
         with tempfile.TemporaryDirectory() as tempdir:
