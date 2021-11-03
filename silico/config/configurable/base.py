@@ -269,7 +269,10 @@ class Configurable_class_target(Dynamic_parent, Configurable):
         
         This default implementation does nothing.
         """
-        pass
+        
+        
+        def __new__(cls, *args, **kwargs):
+            return object.__new__(cls)
             
         
         
