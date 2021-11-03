@@ -137,6 +137,8 @@ class Configurable_class_target(Dynamic_parent, Configurable):
         self.inner_cls = None
         self.loader_list = loader_list if loader_list is not None else []
         
+        self.configure_auto_name()
+        
         Configurable.__init__(self, validate_now =validate_now, **kwargs)
     
     @property
