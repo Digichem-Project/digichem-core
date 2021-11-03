@@ -7,18 +7,18 @@ from silico.interface.urwid.misc import Tab_pile
 from silico.interface.urwid.submit.coord import Coordinate_list
 from silico.interface.urwid.section import Section
 from silico.interface.urwid.submit.method import Method_list
-from silico.interface.urwid.top import View
 from silico.config.configurable.option import Option
+from silico.interface.urwid.main.base import Program_view
 
 
-class Calculation_submitter(View):
+class Calculation_submitter(Program_view):
     """
     Class for controlling interface to calculation submission.
     """
     
     output = Option(help = "Base directory to which output will be written.", type = str, default = "./")
     
-    def __init__(self, top, methods, initial_files = None, initial_charge = None, initial_mult = None, initial_methods = None):
+    def __init__(self, window, program):
         """
         Constructor for calculation submitter objects.
         
@@ -27,17 +27,29 @@ class Calculation_submitter(View):
         :param initial_files: A list of file paths to initially populate with.
         :param initial_methods: A list of methods (tuples of destination, program, calculation) to initially populate with.
         """
-        self.top = top
-        self.methods = methods
-        
         # Keep track of our individual widgets.
-        self.coordinate_list = Coordinate_list(top, initial_charge = initial_charge, initial_mult = initial_mult, initial_files = initial_files)
-        self.method_list = Method_list(top, self.methods, initial_methods = initial_methods)
+        self.coordinate_list = Coordinate_list(window.top, initial_coords = program.coords, initial_charge = program.args.charge, initial_mult = program.args.multiplicity, gen3D = program.args.gen3D)
+        self.method_list = Method_list(window.top, program.config.methods, initial_methods = program.methods)
         
-        self.pile = Tab_pile([
+        super().__init__(window, program)
+        
+    def get_body(self):
+        """
+        Get the widget used to display the body of this program.
+        
+        :returns: An urwid widget to display.
+        """
+        return Tab_pile([
             Section(self.coordinate_list, "Input Coordinates"),
             Section(self.method_list, "Calculation Methods"),
         ])
         
-        super().__init__(self.pile, "Calculation Submission", border = False)
+    def setup(self):
+        """
+        Setup our program to ready it to be run.
+        """
+        self.program.coords = self.coordinate_list.get_values()
+        self.program.methods = self.method_list.get_values()
+        self.program.output = self.output
+        
         

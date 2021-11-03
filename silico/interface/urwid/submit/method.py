@@ -4,7 +4,7 @@ import urwid
 # Silico imports.
 from silico.interface.urwid.row_list.base import Row_item, Row_widget,\
     Row_browser
-from silico.interface.urwid.browser.base import Method_selector
+from silico.interface.urwid.method.browser import Method_selector
 from silico.interface.urwid.submit.edit import Method_editor
 
 
@@ -84,23 +84,30 @@ class Method_item(Row_item):
         """
         Constructor for Method_item objects.
         
-        :param method: The method we represent, a tuple of loader paths (destination, program, calculation).
+        :param method: The method we represent, a tuple of configurables (destination, program, calculation).
         :param row_list: The parent Row_list object.
         :param movable: Whether we are movable.
         """
         Row_item.__init__(self, method, row_list, movable=movable)
         # Also resolve and store each of our method parts.
         # Each method consists of 3 parts: 1) destination, 2) program, 3) calculation.
-        destination_path, program_path, calculation_path = method
-        self.destination = destination_path[0].resolve_path(destination_path)
-        self.program = program_path[0].resolve_path(program_path)
-        self.calculation = calculation_path[0].resolve_path(calculation_path)
+        #destination_path, program_path, calculation_path = method
+        #self.destination = destination_path[0].resolve_path(destination_path)
+        #self.program = program_path[0].resolve_path(program_path)
+        #self.calculation = calculation_path[0].resolve_path(calculation_path)
+        self.destination, self.program, self.calculation = method
         
     def load_widget(self):
         """
         Load the widget we'll use for display.
         """
         return Method_widget(self)
+    
+    def get_value(self):
+        """
+        Get the current value of this coordinate item object.
+        """
+        return (self.destination, self.program, self.calculation)
 
 
 class Method_list(Row_browser):
@@ -132,7 +139,13 @@ class Method_list(Row_browser):
         """
         Get a value to add from a selected node.
         """
-        return node.build_loader_path()
+        destination_path, program_path, calculation_path = node.build_loader_path()
+        
+        destination = destination_path[0].resolve_path(destination_path)
+        program = program_path[0].resolve_path(program_path)
+        calculation = calculation_path[0].resolve_path(calculation_path)
+        
+        return (destination, program, calculation)
     
     def load_row(self, value):
         return Method_item(value, self, self.rearrangeable)

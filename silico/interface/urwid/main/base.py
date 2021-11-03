@@ -6,6 +6,7 @@ from urwid.font import HalfBlock7x7Font
 import silico
 from silico.interface.urwid.window import Window
 from silico.interface.urwid.section import Section
+from silico.interface.urwid.top import View
 
 
 class Silico_window(Window):
@@ -32,7 +33,7 @@ class Silico_window(Window):
         ])
         self.top.original_widget = urwid.Filler(body)
         
-        # If we've got an initial widget, swap to it now,
+        # If we've got an initial program, swap to it now,
         if initial is not None:
             self.top.swap_into_window(initial.get_interface(self))
         
@@ -83,3 +84,40 @@ class Silico_window(Window):
         :param palette: The palette to display with.
         """
         super().run_loop(palette)
+        
+
+class Program_view(View):
+    """
+    A widget for running a sub-program.
+    """
+    
+    def __init__(self, window, program):
+        """
+        Constructor for Program_view objects.
+        
+        :param window: A Silico_window widget used for display.
+        :param program: A program object to run.
+        """
+        self.window = window
+        self.program = program
+        super().__init__(self.get_body(), title = program.name, border = False)
+        
+    def get_body(self):
+        """
+        Get the widget used to display the body of this program.
+        
+        :returns: An urwid widget to display.
+        """
+        raise NotImplementedError("Implement in subclass")
+    
+    def submit(self):
+        """
+        Submit this program widget, running the program it wraps.
+        """
+        self.setup()
+        self.program.main()
+        return False
+    
+    
+        
+        

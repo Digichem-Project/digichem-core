@@ -89,7 +89,7 @@ class Row_widget(urwid.WidgetPlaceholder):
         """
         Load the widget we'll use to display our main body.
         """
-        return urwid.Text(self.row_item.value)
+        return urwid.Text(self.row_item._value)
         
     
     def get_controls(self, reload = False):
@@ -152,7 +152,7 @@ class Row_pointer_widget(Row_widget):
         """
         Load the widget we'll use to display our main body.
         """
-        return urwid.Button(self.row_item.value, lambda button: self.row_item.add_func())
+        return urwid.Button(self.row_item._value, lambda button: self.row_item.add_func())
     
     def load_controls(self):
         """
@@ -180,9 +180,15 @@ class Row_item():
         :param row_list: The Row_list object we belong to.
         """
         self.movable = movable
-        self.value = value
+        self._value = value
         self.row_list = row_list
         self._widget = None
+        
+    def get_value(self):
+        """
+        Get the updated value of this row.
+        """
+        return self._value
         
     def load_widget(self):
         """
@@ -451,13 +457,14 @@ class Row_browser(Row_list):
         errors = []
         # Go through the nodes the user selected.
         for selected_node in self.selector.browser.selected_nodes:
-            value = self.value_from_node(selected_node)
+            value = None
             try:
+                value = self.value_from_node(selected_node)
                 self.add_row(value)
             
             except Exception as error:
                 # We couldn't load the node for some reason, show an error and ignore.
-                errors.append((value, error))
+                errors.append((value if value is not None else selected_node.get_value(), error))
                 
         # Clear the selected nodes.
         self.selector.browser.reset()
@@ -469,6 +476,12 @@ class Row_browser(Row_list):
             self.top.swap(Confirm_dialogue(error_title, error_text, self.top, submit_callback = 2))
             # Returning False stops us swapping back before we show the dialogue.
             return False
+        
+    def get_values(self):
+        """
+        Get a list of values currently represented by this row list.
+        """
+        return [item.get_value() for item in self.body if item != self.pointer]
         
     def value_from_node(self, node):
         """

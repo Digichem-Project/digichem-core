@@ -1,6 +1,6 @@
 import urwid
 
-from silico.interface.urwid.browser.node import Loader_top_node
+from silico.interface.urwid.method.node import Loader_top_node
 from silico.interface.urwid.tree.base import Flaggable_tree_list_box
 from silico.config.configurable.option import Option
 from silico.interface.urwid.top import View

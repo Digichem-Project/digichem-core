@@ -152,6 +152,18 @@ class Confirm_settings_cancel(Control_wrapper):
         if self.submit_callback is not None:
             if self.submit_callback() is not False:
                 self.top.back()
+    
+    def keypress(self, size, key):
+        """
+        Handler for keypress events.
+        """
+        # Allow children to intercept first.
+        key = super().keypress(size, key)
+        
+        if key in ["s", "S"]:
+            self.settings()
+        
+        return key
 
 
 class Confirm(Control_wrapper):

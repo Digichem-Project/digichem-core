@@ -2,7 +2,9 @@
 
 # General imports.
 import urwid
-from silico.interface.urwid.browser.widget import Loader_leaf_widget,\
+
+# Silico imports.
+from silico.interface.urwid.method.widget import Loader_leaf_widget,\
     Loader_parent_widget, Loader_top_widget
 
 
