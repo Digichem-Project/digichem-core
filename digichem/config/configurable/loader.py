@@ -212,7 +212,7 @@ class Configurable_loader():
             # If no class set, use the top level class.
             cls = self.type_class
 
-        configurable = cls(loader_path, False, validate_now = validate, **config) 
+        configurable = cls(loader_path, validate_now = validate, **config) 
         #configurable.configure_auto_name()
         #if validate:
         #    configurable.validate()
