@@ -70,7 +70,11 @@ class VMD_image_maker(File_converter):
         self.target_resolution = resolution
         self.also_make_png = also_make_png
         self.isovalue = isovalue        
-                
+        
+        if self.rendering_style is None:
+            # Panic time.
+            raise ValueError("rendering_style must not be None")
+        
         # The colours we will be using for rendering (depends on rendering_stype and is only for reference; the actual definition of each style is in VMD).
         if self.rendering_style == "gaussian":
             self.primary_colour = "green"
