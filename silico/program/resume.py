@@ -76,7 +76,7 @@ class Resume_program(Program):
         Create a Program object from the data provided by argparse.
         """
         destination, args, config, logger = self.init_from_argparse(args)
-        return self._from_argparse(destination, args, config, logger)
+        return self.load_from_argparse(destination, args, config, logger)
     
     @classmethod
     def arguments(self, sub_parsers_object):
@@ -92,9 +92,9 @@ class Resume_program(Program):
             help = self.help
         )
         # Set main function.
-        sub_parser.set_defaults(func = self.main)
+        sub_parser.set_defaults(prog_cls = self)
         
-        sub_parser.add_argument("resume_file", help = "Path to the file to resume from (this should be a pickled calculation class)", type = Path)
+        sub_parser.add_argument("resume_file", help = "Path to the file to resume from (this should be a pickled destination class)", type = Path)
     
         return sub_parser
     

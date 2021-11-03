@@ -4,12 +4,10 @@ import itertools
 
 # Silico imports.
 from silico.program.base import Program
-from silico.interface.urwid.submit.base import Calculation_submitter
 from silico.exception.base import Silico_exception
 from silico.parser import parse_calculations
 from silico.report.main.pdf import PDF_report
 from silico.interface.urwid.report.base import Report_generator
-from silico.config.configurable.option import Option
 
 
 class Report_program(Program):
@@ -50,7 +48,7 @@ class Report_program(Program):
         image_group.add_argument("--render_style", help = "change the style used to render molecules and orbitals", choices=['pastel', 'light-pastel', 'dark-pastel','sharp', 'gaussian', 'vesta'], default = None)
         image_group.add_argument("-d", "--dont_create_new_images", help = "don't attempt to create any new image files. If existing image files can be found, they will still be included in the report", action = "store_true", default = None)
         image_group.add_argument("-o", "--overwrite_existing_images", help = "force overwriting and re-rendering of all image files", action = "store_true", default = None)
-        image_group.add_argument("--dont_auto_crop", help = "disable automatic cropping of excess whitespace around the border of images. If given, rendered images will have the same resolution, but molecules may only occupy a small portion of the true image", action = "store_false", default = None)
+        image_group.add_argument("--dont_auto_crop", help = "disable automatic cropping of excess whitespace around the border of images. If given, rendered images will have the same resolution, but molecules may only occupy a small portion of the true image", action = "store_true", default = None)
     
         return sub_parser
     
@@ -59,7 +57,7 @@ class Report_program(Program):
         Process command line arguments and set defaults.
         """
         
-    
+    @classmethod
     def arg_to_config(self, args, config):
         """
         A class method that will be called to add command line arguments from 'args' to the configuration object 'config'.
@@ -68,59 +66,16 @@ class Report_program(Program):
         :param config: A Silico config object to add to.
         """
         # Add our report specific command line arguments to our config dictionary.
-        config.add_config({
-            'molecule_image': {
-                'rendering_style': args.render_style,
-                'auto_crop': args.dont_auto_crop,
-                'use_existing': not args.overwrite_existing_images if args.overwrite_existing_images is not None else None
-            },
-            'image': {
-                'dont_modify': args.dont_create_new_images
-            }
-        })
+        if args.render_style is not None:
+            config['molecule_image']['rendering_style'] = args.render_style
+        if args.overwrite_existing_images is not None:
+                config['molecule_image']['use_existing'] = not args.overwrite_existing_images
+        if args.dont_auto_crop is not None:
+                config['molecule_image']['auto_crop'] = not args.dont_auto_crop
         
-#     def arg_to_interface(self, arg, parent, option = None, *args, **kwargs):
-#         """
-#         Set one of the options of an interface from a command line argument.
-#         
-#         :param arg: The name of a command line argument.
-#         :param parent: The parent of the option to set; either the interface object itself or a parent Options (plural) object.
-#         :param option: The name of the option to set. If not given, assumed to be the same as arg.
-#         :param default: Optional default value to set.
-#         """
-#         has_default = False
-#         default = None
-#         
-#         if len(args) > 0:
-#             default = args.pop(0)
-#             has_default = True
-#         
-#         elif "default" in kwargs:
-#             default = kwargs['default']
-#             has_default = True
-#         
-#         if option is None:
-#             option = arg
-#         
-#         try:
-#             value = getattr(self.args, arg)
-#             
-#             # How we set depends on the type of 'interface'
-#             if not isinstance(parent, Option):
-#                 setattr(parent, option, value)
-#                 
-#             else:
-#                 parent[option] = value
-#             
-#         except AttributeError:
-#             # Not available.
-#             if has_default:
-#                 if not isinstance(parent, Option):
-#                     setattr(parent, option, default)
-#                     
-#                 else:
-#                     parent[option] = default
-            
+        if args.dont_create_new_images is not None:
+            config['image']['dont_modify'] = args.dont_create_new_images
+        
         
     def load_interface(self, window):
         """
@@ -139,11 +94,6 @@ class Report_program(Program):
         """
         Logic for our program.
         """
-        self.config.resolve()
-    
-        if self.args.alignment is not None and not self.args.overwrite_existing_images:
-            self.logger.warning("Alignment method has been changed but not overwriting existing images; use '-OK method' to ensure molecule images are re-rendered to reflect this change")
-            
         try:
             # Transpose our lists of aux inputs.
             aux_files = [{"chk_file":chk_file, "fchk_file":fchk_file} for chk_file, fchk_file in list(itertools.zip_longest(self.args.chk, self.args.fchk))]

@@ -43,7 +43,7 @@ from silico.program.submit import Submit_program
 
 
 # Make configurables available
-from silico.submit.method import *
+from silico.submit.destination import *
 from silico.submit.program import *
 from silico.submit.calculation import *
 from silico.submit.basis import *
@@ -105,7 +105,7 @@ def main():
         return -2
     
     # What we do next depends on whether we're running interactively or not.
-    if args.interactive:
+    if getattr(args, 'interactive', False):
         # Because we're running interactively, we'll actually use the interactive program rather than the chosen program.
         outer_program = Interactive_program(inner_program.args, inner_program.config, inner_program.logger, initial = inner_program)
 

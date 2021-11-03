@@ -59,10 +59,10 @@ class Status_program(Program):
                 status = "N/A (status not available)"
             except Exception:
                 status = "Error retrieving status"
-                self.logger.error("Failed to fetch status information for method '{}'".format(method.NAME), exc_info = True)
+                self.logger.error("Failed to fetch status information for method '{}'".format(method.name), exc_info = True)
                 
-            statuses.append((method.ID, method.NAME, status))
+            statuses.append((method.description, status))
                 
         # Print with tabulate.
-        print(tabulate.tabulate(statuses, ("ID", "Name", "Status")))
+        print(tabulate.tabulate(statuses, ("Description", "Status")))
         
