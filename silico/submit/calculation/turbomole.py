@@ -219,10 +219,10 @@ class Turbomole_AI(Turbomole):
             
             :param orbitals: A list of orbital irreps to make cubes for.
             """
-            return get_orbital_calc(name = self.NAME, memory = self.memory, num_CPUs = self._num_CPUs, orbitals = orbitals, density = density, program_name = self.program.NAME, options = self.silico_options)
+            return get_orbital_calc(name = self.name, memory = self.memory, num_CPUs = self._num_CPUs, orbitals = orbitals, density = density, options = self.silico_options)
             
     
-def get_orbital_calc(*, name, memory, num_CPUs, orbitals = [], density = False, modules = None, program_name, options):
+def get_orbital_calc(*, name, memory, num_CPUs, orbitals = [], density = False, modules = None, options):
     """
     Get a calculation template that can be used to create orbital objects.
     
@@ -240,27 +240,27 @@ def get_orbital_calc(*, name, memory, num_CPUs, orbitals = [], density = False, 
     modules = ["{} -proper".format(module) for module in modules]
     
     # First generate our calculation.
-    calc_t = Turbomole_restart({
-        "class_name": "Turbomole-restart",
-        "TYPE": "calculation",
-        "NAME": "Orbital Cubes for {}".format(name),
-        "programs": [program_name],
-        "memory": str(memory),
-        "num_CPUs": num_CPUs,
-        "plt": {
+    calc_t = Turbomole_restart(
+        name = "Orbital Cubes for {}".format(name),
+        #"programs": [program_name],
+        memory = str(memory),
+        num_CPUs = num_CPUs,
+        plt = {
             "density": density,
             "orbitals": orbitals,
             "format": "cub"
         },
-        "modules": modules,
+        modules = modules,
         # We don't need these.
-        "write_summary": False,
-        "write_report": False,
-        "scratch_options": {
+        write_summary = False,
+        write_report = False,
+        scratch_options = {
             "use_scratch": False
         }
-    })
-    calc_t.configure(ID = None, available_basis_sets = [], silico_options = options)
+    )
+    
+    # Prepare it for making new classes.
+    calc_t.finalize()
     
     # Done.
     return calc_t
