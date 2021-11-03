@@ -219,7 +219,7 @@ class Concrete_calculation(Calculation_target):
             
             This name is 'safe' for Gaussian and other sensitive programs.
             """
-            return self.safe_name(self.input_coords.name)
+            return self.safe_name(self.input_coords.auto_name)
         
         @property
         def descriptive_name(self):
