@@ -208,10 +208,13 @@ class Configurable_class_target(Dynamic_parent, Configurable):
             desc += "NO-NAME"
             
         # Add our type.
-        desc += " ({})".format(self.TYPE)
+        try:
+            desc += " ({})".format(self.TYPE)
+        except AttributeError:
+            pass
             
         return desc
-                            
+                                
     
     ############################
     # Class creation mechanism #
