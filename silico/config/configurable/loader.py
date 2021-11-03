@@ -347,7 +347,8 @@ class Partial_loader(Configurable_loader):
         
         for identifier in identifiers:
             # First, resolve our identifier.
-            configurable, path = next_top.resolve(identifier, validate = validate)
+            configurable = next_top.resolve(identifier, validate = validate)
+            path = configurable.loader_list
             
             # Check our new loader is a possible child of our last.
             if last is not None:
@@ -401,7 +402,7 @@ class Partial_loader(Configurable_loader):
             raise TypeError("identifier should be either an integer or a list-like/tuple-like")
         
         # Now resolve our path.
-        return self.resolve_path(path, validate = validate), path
+        return self.resolve_path(path, validate = validate)
     
     def resolve_path(self, path, parent_config = None, validate = True):
         """
