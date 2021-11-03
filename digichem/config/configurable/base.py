@@ -67,7 +67,7 @@ class Configurable(Options_mixin):
     Each Option object maps a certain attribute on the owning configurable object and defines, for example, an allowed type, a default value, a help string, a list of allowed values etc.
     """
     
-    def __new__(cls, *args, validate_now = False, **kwargs):
+    def __new__(cls, *args, validate_now = True, **kwargs):
         instance = super().__new__(cls)
         
         # This is where the actual values for configurable options are stored.
@@ -89,7 +89,7 @@ class Configurable(Options_mixin):
         
         return instance
     
-    def __init__(self, validate_now = False, **kwargs):
+    def __init__(self, validate_now = True, **kwargs):
         """
         Constructor for Configurable objects.
         
@@ -127,7 +127,7 @@ class Configurable_class_target(Dynamic_parent, Configurable):
     name = Option(help = "The unique name of this configurable target", type = str, required = True)
 
 
-    def __init__(self, loader_list = None, validate_now = False, **kwargs):
+    def __init__(self, loader_list = None, validate_now = True, **kwargs):
         """
         Constructor for Configurable objects.
         
