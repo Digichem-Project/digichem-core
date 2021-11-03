@@ -1,6 +1,7 @@
 import getpass
 from pathlib import Path
 import copy
+import deepmerge
 
 from silico.submit.structure.flag import Flag
 from silico.exception.base import Submission_error
@@ -188,7 +189,7 @@ class Concrete_calculation(Calculation_target):
                 self._silico_options = copy.deepcopy(self.global_silico_options)
                 
                 # Merge silico_options with the global options.
-                self._silico_options = self.merge_dict(self.custom_silico_options, self._silico_options)
+                self._silico_options = deepmerge.always_merger.merge(self._silico_options, self.custom_silico_options)
                             
                 return self._silico_options
         
