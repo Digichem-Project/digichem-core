@@ -66,7 +66,7 @@ class Calculation_target(Method_target):
                 
                 # If the calc was part of a series, set the series name.
                 if "Series" in calculation_t.CLASS_HANDLE:
-                    calc.series_name = calculation_t.NAME
+                    calc.series_name = calculation_t.name
                 
                 # Keep track of the first.
                 if first is None:
@@ -215,7 +215,7 @@ class Concrete_calculation(Calculation_target):
             """
             Get a name that describes the calculation and file together.
             """
-            return "{} {}".format(self.molecule_name, self.NAME)
+            return "{} {}".format(self.molecule_name, self.name)
         
         @property
         def num_CPUs(self):

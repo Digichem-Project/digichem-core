@@ -109,8 +109,8 @@ class Calculation_directory(Silico_directory):
         """
         return self(
             Molecule_directory.from_calculation(calculation),
-            calculation.program.NAME,
-            self.safe_name(calculation.NAME),
+            calculation.program.name,
+            self.safe_name(calculation.name),
             create = create,
             program_sub_folder = calculation.structure['program_sub_folder'],
             prepend_program_name = calculation.structure['prepend_program_name'],
