@@ -383,7 +383,7 @@ class Partial_loader(Configurable_loader):
         
         The configurable can be identified either with a unique index (1 - inf) or a unique list of tag names.
         
-        :raises TypeError: If identifier is not an integer, list or tuple.
+        :raises TypeError: If identifier is not an integer, str, list or tuple.
         :param identifier: The identifier to resolve.
         :param validate: Whether to call validate() on the final resolved configurable.
         :returns: A resolved configurable object and the path from which that object was resolved.
@@ -396,10 +396,14 @@ class Partial_loader(Configurable_loader):
         elif isinstance(identifier, list) or isinstance(identifier, tuple):
             # Tag list.
             path = self.path_by_tags(identifier, allow_incomplete = False)
-            
+        
+        elif isinstance(identifier, str):
+            # Single tag.
+            path = self.path_by_tags([identifier], allow_incomplete = False)
+        
         else:
             # Unrecognised identifier
-            raise TypeError("identifier should be either an integer or a list-like/tuple-like")
+            raise TypeError("identifier must be either an integer, str or a list-like/tuple-like")
         
         # Now resolve our path.
         return self.resolve_path(path, validate = validate)
