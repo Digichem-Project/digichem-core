@@ -37,7 +37,7 @@ class Configurable_exception(Silico_exception):
         Each configurable can be loaded from more than one file, because later files can overwrite certain options given in earlier files etc.
         """
         try:
-            hierarchy = self.configurable.file_hierarchy
+            hierarchy = [(loader.TAG, loader.file_name) for loader in self.configurable.loader_list if loader.TAG is not None]
             
         except AttributeError:
             # We have no file list.
