@@ -118,7 +118,7 @@ class Coordinate_list(Row_browser):
         if len(errors) > 0:
             error_text = "The following {} file(s) could not be loaded and will be ignored:\n\n".format(len(errors)) + "\n\n".join(["{}".format(error) for path, error in errors])
             
-            self.top.swap(Confirm_dialogue("Error Loading Coordinates", error_text, self.top, submit_callback = 2))
+            self.top.swap(Confirm_dialogue("Error Loading Coordinates", self.top, error_text, error = True, submit_callback = 2))
             # Returning False stops us swapping back before we show the dialogue.
             return False
         
