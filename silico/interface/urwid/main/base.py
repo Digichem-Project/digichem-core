@@ -7,6 +7,7 @@ import silico
 from silico.interface.urwid.window import Window
 from silico.interface.urwid.section import Section
 from silico.interface.urwid.top import View
+import io
 
 
 class Silico_window(Window):
@@ -116,8 +117,34 @@ class Program_view(View):
         """
         self.setup()
         self.program.main()
-        return False
+        #return False
+
+
+class Output_catcher(io.StringIO):
+    """
+    A class for catching output sent to stdout and stderr and redirecting it to an urwid widget.
+    """
     
-    
+    def __init__(self, top, error = False):
+        """
+        """
+        self.top = top
+        self.error = error
+        super().__init__()
+        
+    def write(self, *args, **kwargs):
+        retval = super().write(*args, **kwargs)
+        
+        # If the last char in our buffer is a newline, we can write to out widget.
+        curvalue = self.getvalue()
+        if curvalue[-1] == "\n":
+            # Update our top.
+            self.top.output(self.getvalue(), self.error)
+            
+            # Then empty our buffer (could be a bad idea?)
+            self.seek(0)
+            self.truncate(0)
+        
+        return retval
         
         

@@ -7,7 +7,9 @@ from silico.program.report import Report_program
 from silico.program.result import Result_program
 from silico.program.status import Status_program
 from silico.program.convert import Convert_program
-from silico.interface.urwid.main.base import Silico_window
+from silico.interface.urwid.main.base import Silico_window, Output_catcher
+import sys
+import silico.base
 
 
 class Interactive_program(Program):
@@ -44,6 +46,23 @@ class Interactive_program(Program):
         Logic for our program.
         """
         window = Silico_window(programs = self.programs.values(), initial = self.initial)
-        window.run_loop(self.config.urwid_palette)
+        
+        # Setup stdout redirection.
+        with Output_catcher(window.top, False) as stdout, Output_catcher(window.top, True) as stderr:
+            sys.stdout = stdout
+            sys.stderr = stderr
+            # Also update our logging output, which is handled separately.
+            old_log_stream = silico.base.LOGGING_HANDLER.stream
+            silico.base.LOGGING_HANDLER.stream = stderr
+            
+            try:
+                return window.run_loop(self.config.urwid_palette)
+                
+            finally:
+                # Restore stdout.
+                sys.stdout = sys.__stdout__
+                sys.stderr = sys.__stderr__
+                silico.base.LOGGING_HANDLER.stream = old_log_stream
+        
         
         

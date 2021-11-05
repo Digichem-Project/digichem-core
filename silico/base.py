@@ -7,25 +7,29 @@ from pathlib import Path
 import silico.logging
 import warnings
 
+LOGGING_HANDLER = None
+
 def init_logger(logger_name):
     """
     Init the program wide logger.
     """
+    global LOGGING_HANDLER
+    
     logging.captureWarnings(True)
     
     logger = getLogger(logger_name)
     warnings_logger = logging.getLogger("py.warnings")
     
     # The console handler, where we'll print most messages.
-    consoleHandler = logging.StreamHandler(sys.stderr)
+    LOGGING_HANDLER = logging.StreamHandler(sys.stderr)
     # Handle everything.
-    consoleHandler.setLevel(logging.DEBUG)
+    LOGGING_HANDLER.setLevel(logging.DEBUG)
     # Set its formatter.
     var_formatter = silico.logging.Variable_formatter(logger, default_warning_formatter = warnings.formatwarning)
-    consoleHandler.setFormatter(var_formatter)
+    LOGGING_HANDLER.setFormatter(var_formatter)
     # Add the handler.
-    logger.addHandler(consoleHandler)
-    warnings_logger.addHandler(consoleHandler)
+    logger.addHandler(LOGGING_HANDLER)
+    warnings_logger.addHandler(LOGGING_HANDLER)
     warnings.formatwarning = var_formatter.formatWarning
     
     
