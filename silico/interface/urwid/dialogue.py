@@ -6,7 +6,7 @@ from silico.interface.urwid.section import Section
 from silico.interface.urwid.wrapper import Confirm_or_cancel, Confirm
 
 
-class Dialogue(urwid.Overlay):
+class Dialogue(urwid.AttrMap):
     """
     A confirmation box, designed to be used as a pop-up. Presents the user with a message and buttons.
     """
@@ -34,14 +34,7 @@ class Dialogue(urwid.Overlay):
             attrs = {"body": "dialogue", "section": "section--dialogue"}
         
         # Call parent.
-        super().__init__(
-            urwid.AttrMap(self.get_body(), attrs),
-            self.topmost.current_top,
-            align = "center",
-            width = ('relative', 80),
-            valign = "middle",
-            height = ('relative', 80),
-        )
+        super().__init__(self.get_body(), attrs)
                 
     def get_inner(self):
         """
@@ -87,7 +80,6 @@ class Confirm_or_cancel_dialogue(Dialogue):
         Get the outer widget we'll use for display.
         """
         return Confirm_or_cancel(self.get_inner(), self.topmost, cancel_callback = self.cancel_callback, submit_callback = self.submit_callback)
-            
 
 
 class Confirm_dialogue(Dialogue):
