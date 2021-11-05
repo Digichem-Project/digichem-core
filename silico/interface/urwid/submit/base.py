@@ -9,6 +9,7 @@ from silico.interface.urwid.section import Section
 from silico.interface.urwid.submit.method import Method_list
 from silico.config.configurable.option import Option
 from silico.interface.urwid.main.base import Program_view
+from silico.interface.urwid.dialogue import Confirm_dialogue
 
 
 class Calculation_submitter(Program_view):
@@ -51,4 +52,10 @@ class Calculation_submitter(Program_view):
         self.program.coords = self.coordinate_list.get_values()
         self.program.methods = self.method_list.get_values()
         self.program.output = self.output
+        
+    def post(self, retval):
+        """
+        Method called once our main program has finished running.
+        """
+        self.window.top.popup(Confirm_dialogue("Submission Complete", "Successfully submitted {} calculations".format(retval), self.window.top, submit_callback = 1))
         

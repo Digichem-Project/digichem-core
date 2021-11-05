@@ -33,7 +33,8 @@ class Silico_window(Window):
             ('pack', self.get_menu())
         ])
         #self.top.original_widget = urwid.Filler(body)
-        self.top.set_top(urwid.Filler(body))
+        #self.top.set_top(urwid.Filler(body))
+        self.top.swap(urwid.Filler(body))
         
         # If we've got an initial program, swap to it now,
         if initial is not None:
@@ -110,13 +111,27 @@ class Program_view(View):
         """
         raise NotImplementedError("Implement in subclass")
     
+    def setup(self):
+        """
+        Setup our program to ready it to be run.
+        """
+        # This default implementation does nothing.
+    
     def submit(self):
         """
         Submit this program widget, running the program it wraps.
         """
         self.setup()
-        self.program.main()
-        #return False
+        retval = self.program.main()
+        self.post(retval)
+        
+        return retval
+        
+    def post(self):
+        """
+        Method called once our main program has finished running.
+        """
+        # This default implementation does nothing.
 
 
 class Output_catcher(io.StringIO):
