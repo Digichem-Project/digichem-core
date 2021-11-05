@@ -117,10 +117,7 @@ class Coordinate_list(Row_browser):
         # If we got any errors, show them to the user.
         if len(errors) > 0:
             error_text = "The following {} file(s) could not be loaded and will be ignored:\n\n".format(len(errors)) + "\n\n".join(["{}".format(error) for path, error in errors])
-            
-            self.top.swap(Confirm_dialogue("Error Loading Coordinates", self.top, error_text, error = True, submit_callback = 2))
-            # Returning False stops us swapping back before we show the dialogue.
-            return False
+            self.top.popup(Confirm_dialogue("Error Loading Coordinates", error_text, self.top, error = True))
         
     def value_from_node(self, node):
         """

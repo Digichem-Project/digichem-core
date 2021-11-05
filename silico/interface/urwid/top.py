@@ -4,11 +4,11 @@ from silico.interface.urwid.section import Section, Sub_section
 from silico.config.configurable.base import Configurable
 from silico.interface.urwid.setedit.base import Settings_editor
 from silico.interface.urwid.setedit.view import View_browser
+from silico.interface.urwid.dialogue import Output_dialogue
 
 # General imports.
 import urwid
 from urwid.widget import WidgetWrap
-from silico.interface.urwid.dialogue import Dialogue
 from urwid.decoration import WidgetPlaceholder
 
 
@@ -32,7 +32,7 @@ class Top(urwid.WidgetPlaceholder):
         self.dialogue_stack = []
         
         # A widget we'll use to popup and show program output.
-        self.output_widget = Output_widget(self)
+        self.output_widget = Output_dialogue(self)
         
     def set_top(self, original_widget):
         """
@@ -116,39 +116,62 @@ class Top(urwid.WidgetPlaceholder):
         
         self.swap(window)
 
-    def back(self, number = 1):
+    def back(self):
         """
         Remove the current top-most widget and set the last in its place.
         
         If there are no more widgets to go back to, urwid.ExitMainLoop will be raised.
         
         :param number: The number of times to go back.
-        :param force: Whether to force switching back even if the current top is the output_widget (which is normally sticky).
         :return: The widget just removed, for convenience.
         """
-        for iter in range(0, number):
-            try:
-                # Remove the top-most real widget.
-                self.stack.pop()
-                
-                # Update.
-                self.update_view()
-                
-            except IndexError:
-                # The stack is empty.
-                raise urwid.ExitMainLoop()
+        if len(self.dialogue_stack) > 0:
+            # Close the top-most dialogue.
+            self.close_popup()
             
-    def close_popup(self):
+        else:
+            # Close the top-most real widget.
+            self.close_widget()
+            
+    def close_widget(self):
+        """
+        Close the top-most currently viewable non-popup.
+        """
+        try:
+            # Remove the top-most real widget.
+            self.stack.pop()
+            
+            # Update our current_top.
+            self.current_top.original_widget = self.stack[-1]
+            
+            # Update.
+            self.update_view()
+            
+        except IndexError:
+            # The stack is empty.
+            raise urwid.ExitMainLoop()
+            
+    def close_popup(self, popup = None):
         """
         Close the top-most currently viewable popup.
         """
-        try:
-            # Remove the top-most dialogue widget.
-            self.dialogue_stack.pop()
+        # If we've been given a widget to close, close that one.
+        if popup is not None:
+            try:
+                self.dialogue_stack.pop([True if overlay.top_w == popup else False for overlay in self.dialogue_stack].index(True))
+                
+            except IndexError:
+                # Give a slightly more descriptive error.
+                raise IndexError("close_popup() called but widget '{}' is not currently visible".format(popup))
             
-        except IndexError:
-            # Give a slightly more descriptive error.
-            raise IndexError("close_popup() called but no popups are currently visible")
+        else:
+            try:
+                # Remove the top-most dialogue widget.
+                self.dialogue_stack.pop()
+                
+            except IndexError:
+                # Give a slightly more descriptive error.
+                raise IndexError("close_popup() called but no popups are currently visible")
         
         # Update our view.
         self.update_view()
@@ -168,61 +191,6 @@ class Top(urwid.WidgetPlaceholder):
                 self.back()
         
         return key
-
-
-class Output_widget(Dialogue):
-    """
-    A widget that pops up to display stdout and stderr.
-    """
-    
-    def __init__(self, top, max_length = 100):
-        """
-        Constructor for Confirm dialogue boxes.
-        
-        :param top: The top widget used for display.
-        """
-        self.max_length = max_length            
-        super().__init__(title = "Program Output", top = top)
-        
-    def output(self, message, error = False):
-        """
-        Add output text to this widget.
-        
-        :param message: The output text to add.
-        :param error: Whether to show alternative formatting to indicate an error.
-        """
-        # Decide on formatting.
-        if error:
-            # Error formatting.
-            attr = "section--dialogue--error"
-        
-        else:
-            # Normal formatting.
-            attr = "dialogue"
-        
-        # Add text.
-        for sub_message in message.splitlines():
-            new_text = urwid.Text((attr, sub_message))
-            self.list.body.append(new_text)
-        
-        # If we've gone over max, remove some.
-        while (len(self.list.body) > self.max_length):
-            self.list.body.pop(0)
-        
-        # Scroll to bottom.
-        self.list.body.focus = len(self.list.body) -1
-        
-    def close(self):
-        """
-        """
-        self.topmost.close_popup()
-        return False
-        
-    def get_body(self):
-        """
-        Get the outer widget we'll use for display.
-        """
-        return Confirm(self.get_inner(), self.topmost, submit_callback = self.close)
 
 
 class View(WidgetWrap, Configurable):

@@ -35,7 +35,9 @@ class Control_wrapper(Tab_pile):
         :returns: The possibly new callback function.
         """
         def back_callback():
-            self.top.back(callback)
+            for iter in range(0, callback):
+                self.top.close_widget(callback)
+                
             # Stop going back any further.
             return False
         
@@ -58,17 +60,25 @@ class Control_wrapper(Tab_pile):
         else:
             return key
         
+    def back(self):
+        """
+        Function called to close this wrapper.
+        
+        This method exists to be overriden by eg Dialogue widgets.
+        """
+        self.top.close_widget()
+        
     def cancel(self):
         """
         Function called when the back button is pressed.
         """
         if self.cancel_callback is not None:
             if self.cancel_callback() is not False:
-                self.top.back()
+                self.back()
         
         else:
             # Go back by default.
-            self.top.back()
+            self.back()
         
     def get_controls(self):
         raise NotImplementedError("Implement in subclass")
@@ -107,7 +117,7 @@ class Confirm_or_cancel(Control_wrapper):
         """
         if self.submit_callback is not None:
             if self.submit_callback() is not False:
-                self.top.back()
+                self.back()
 
 class Confirm_settings_cancel(Control_wrapper):
     """
@@ -151,7 +161,7 @@ class Confirm_settings_cancel(Control_wrapper):
         """
         if self.submit_callback is not None:
             if self.submit_callback() is not False:
-                self.top.back()
+                self.back()
     
     def keypress(self, size, key):
         """

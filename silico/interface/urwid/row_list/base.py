@@ -473,7 +473,7 @@ class Row_browser(Row_list):
         if len(errors) > 0:
             error_title, error_text = self.get_error_text(errors)
             
-            self.top.swap(Confirm_dialogue(error_title, self.top, error_text, error = True, submit_callback = 2))
+            self.top.popup(Confirm_dialogue(error_title, error_text, self.top, error = True, submit_callback = 2))
             # Returning False stops us swapping back before we show the dialogue.
             return False
         
