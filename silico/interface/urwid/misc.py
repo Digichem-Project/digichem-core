@@ -9,13 +9,29 @@ class Tab_pile(urwid.Pile):
         """
         Handler for keypress events.
         """
+        key = super().keypress(size, key)
+        
         # Add support for traversing between our children.
         if key == 'tab':
-            self.focus_position = self.focus_position +1 if self.focus_position+1 < len(self.contents) else self.focus_position
+            # Move down (if we can).
+            if self.focus_position +1 < len(self.contents):
+                self.focus_position = self.focus_position +1
+            
+            else:
+                # Continue.
+                return key
+            
         elif key == 'shift tab':
-            self.focus_position = self.focus_position -1 if self.focus_position > 0 else self.focus_position
+            # Move up (if we can).
+            if self.focus_position > 0:
+                self.focus_position = self.focus_position -1
+            
+            else :
+                # Continue;
+                return key
         else:
-            return super().keypress(size, key)
+            return key
+        
         
 class Blank(urwid.Pile):
     """
