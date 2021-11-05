@@ -51,8 +51,4 @@ class Calculation_submitter(Program_view):
         self.program.coords = self.coordinate_list.get_values()
         self.program.methods = self.method_list.get_values()
         self.program.output = self.output
-        self.window.top.output("some text")
-        self.window.top.output("some error", True)
-        self.window.top.output("some more text")
-        
         
