@@ -32,7 +32,8 @@ class Silico_window(Window):
             ('pack', urwid.Padding(urwid.BigText("Silico", HalfBlock7x7Font()), align = "center", width = "clip")),
             ('pack', self.get_menu())
         ])
-        self.top.original_widget = urwid.Filler(body)
+        #self.top.original_widget = urwid.Filler(body)
+        self.top.set_top(urwid.Filler(body))
         
         # If we've got an initial program, swap to it now,
         if initial is not None:
@@ -55,8 +56,6 @@ class Silico_window(Window):
         program_buttons.append(self.get_option_widget("Quit", lambda button: self.top.back()))
         
         return program_buttons
-        
-    
         
     def get_option_widget(self, name, callback):
         """
