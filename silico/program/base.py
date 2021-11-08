@@ -153,7 +153,7 @@ class Program():
             return retval if retval is not None else 0
         
         except KeyboardInterrupt:
-            self.logger.info("interrupted by user (ctrl-c)", exc_info = self.logger.level == self.logging.DEBUG)
+            self.logger.info("interrupted by user (ctrl-c)", exc_info = self.logger.level == logging.DEBUG)
             return -1
         
         except Signal_caught:
