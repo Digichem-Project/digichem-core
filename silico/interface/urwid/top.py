@@ -190,7 +190,8 @@ class Top(urwid.WidgetPlaceholder):
             else:
                 self.back()
         
-        return key
+        else:
+            return key
 
 
 class View(WidgetWrap, Configurable):
