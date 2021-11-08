@@ -39,7 +39,7 @@ from silico.program.result import Result_program
 from silico.program.resume import Resume_program
 from silico.program.status import Status_program
 from silico.program.submit import Submit_program
-import pydevd;pydevd.settrace()
+#import pydevd;pydevd.settrace()
 
 
 # Make configurables available
