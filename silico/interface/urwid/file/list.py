@@ -58,7 +58,6 @@ class File_list(Row_browser):
         :param initial_files: A list of files to show by default.
         """
         start_dir = start_dir if start_dir is not None else pathlib.Path.cwd()
-        self.top = top
         
         # Widget for choosing files.
         file_selector = File_selector(start_dir, title = "Select Calculation Files")
@@ -66,7 +65,7 @@ class File_list(Row_browser):
         # Add our starting files.
         initial_files = [] if initial_files is None else initial_files
         
-        super().__init__(file_selector, rearrangeable = rearrangeable, initial = initial_files)
+        super().__init__(file_selector, top = top, rearrangeable = rearrangeable, initial = initial_files)
     
     def load_row(self, value):
         return File_item(value, self, self.rearrangeable)
