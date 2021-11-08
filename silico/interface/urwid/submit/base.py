@@ -23,10 +23,8 @@ class Calculation_submitter(Program_view):
         """
         Constructor for calculation submitter objects.
         
-        :param top: The topmost widget used for display.
-        :param methods: A configurable list of known methods (starting with the topmost destination).
-        :param initial_files: A list of file paths to initially populate with.
-        :param initial_methods: A list of methods (tuples of destination, program, calculation) to initially populate with.
+        :param window: The program window we are being rendered in.
+        :param program: A program object.
         """
         # Keep track of our individual widgets.
         self.coordinate_list = Coordinate_list(window.top, initial_coords = program.coords, initial_charge = program.args.charge, initial_mult = program.args.multiplicity, gen3D = program.args.gen3D)

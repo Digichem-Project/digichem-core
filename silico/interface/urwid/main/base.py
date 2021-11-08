@@ -15,36 +15,52 @@ class Silico_window(Window):
     Main interactive interface for silico.
     """
     
-    def __init__(self, programs = None, initial = None):
+    def __init__(self, program):
         """
         Constructor for Interface objects.
         
-        :param programs: A list of programs that we can switch between.
-        :param initial: A program to show initially.
+        :param program: The interactive program object we represent.
         """
-        # Save our sub programs.
-        self.programs = programs
+        self.program = program
+        
+        # A dictionary of program interfaces that we can display.
+        # Each key is an instance of each sub program.
+        self._interfaces = {}
         
         # Setup our window.
         super().__init__(title = "Silico {}".format(silico.version))
         
         body = urwid.Pile([
             ('pack', urwid.Padding(urwid.BigText("Silico", HalfBlock7x7Font()), align = "center", width = "clip")),
-            ('pack', self.get_menu())
+            ('pack', urwid.Padding(self.get_menu(), align = "center", width = 40))
         ])
-        #self.top.original_widget = urwid.Filler(body)
-        #self.top.set_top(urwid.Filler(body))
+        
         self.top.swap(urwid.Filler(body))
         
         # If we've got an initial program, swap to it now,
-        if initial is not None:
-            self.top.swap_into_window(initial.get_interface(self))
+        if self.program.initial is not None:
+            self.top.swap_into_window(self.get_interface(self.program.initial))
+            
+    def get_interface(self, prog_obj):
+        """"
+        Get an instance of a sub program's interface.
+        
+        This method will first create a new instance of the program class before caching it so future calls will use the same instance.
+        Likewise the returned interface widget will also be saved to a cache, so subsequent calls will return the same interface.
+        
+        :param prog_obj: The program class to get.
+        :returns: A program instance.
+        """
+        if prog_obj not in self._interfaces:
+            self._interfaces[prog_obj] =  prog_obj.get_interface(self)
+            
+        return self._interfaces[prog_obj]
         
     def get_menu(self):
         """
         Get the main menu from which the user can select an option.
         """
-        return Section(urwid.Pile(self.get_options()), "Silico Main Menu")
+        return Section(urwid.Pile(self.get_options()), "Main Menu")
         
     def get_options(self):
         """
@@ -52,7 +68,7 @@ class Silico_window(Window):
         
         :returns: A list of widgets.
         """
-        program_buttons = [self.program_button(program) for program in self.programs]
+        program_buttons = [self.program_button(prog_cls) for prog_cls in self.program.program_classes]
         # Add our exit button.
         program_buttons.append(self.get_option_widget("Quit", lambda button: self.top.back()))
         
@@ -68,15 +84,14 @@ class Silico_window(Window):
         # width = "pack" doesn't seem to work as expected for buttons?
         return urwid.AttrMap(urwid.Padding(urwid.Button(name, callback), width = "pack"), "button--small", "button--small--focus")
     
-    def program_button(self, program):
+    def program_button(self, prog_cls):
         """
         Get an option that will populate our main menu.
         
-        :param name: The name of the option.
-        :param widget: A widget to switch to when this option is chosen.
+        
         :returns: A widget.
         """
-        return self.get_option_widget(program.command, lambda button: self.top.swap_into_window(program.get_interface(self))) 
+        return self.get_option_widget("{}: {}".format(prog_cls.command.capitalize(), prog_cls.help), lambda button: self.top.swap_into_window(self.get_interface(self.program.get_program(prog_cls)))) 
     
     def run_loop(self, palette):
         """

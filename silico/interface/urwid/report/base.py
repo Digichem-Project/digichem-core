@@ -25,23 +25,24 @@ class Report_generator(Program_view):
     auto_crop = Option(help = "Whether to automatically crop rendered images to remove excess whitespace. If false, rendered images will have the same resolution, but molecules may only occupy a small portion of the true image", type = bool, default = True)
     
     
-    def __init__(self, top, initial_files = None, ):
+    def __init__(self, window, program):
         """
         Constructor for calculation submitter objects.
         
-        :param top: The topmost widget used for display.
-        :param methods: A configurable list of known methods (starting with the topmost destination).
-        :param initial_files: A list of file paths to initially populate with.
-        :param initial_methods: A list of methods (tuples of destination, program, calculation) to initially populate with.
+        :param window: The program window we are being rendered in.
+        :param program: A program object.
         """
-        self.top = top
-        
         # Keep track of our individual widgets.
-        self.file_list = File_list(top, initial_files = initial_files)
+        self.file_list = File_list(window.top, initial_files = program.args.log_files)
         
-        self.pile = Tab_pile([
+        super.__init__(window, program)
+    
+    def get_body(self):
+        """
+        Get the widget used to display the body of this program.
+        
+        :returns: An urwid widget to display.
+        """
+        return Tab_pile([
             Section(self.file_list, "Calculation Files"),
         ])
-        
-        super().__init__(self.pile, "Calculation Submission", border = False)
-        

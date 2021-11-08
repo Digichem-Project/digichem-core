@@ -27,25 +27,36 @@ class Interactive_program(Program):
         Constructor for the interactive program.
         """
         super().__init__(args, config, logger)
+        # Save these for later.
+        self.init_args = (args, config, logger)
         
-        # Our list of sub programs.
-        self.programs = {
-            prog_cls.command: prog_cls.load_from_argparse(args, config, logger) 
-            for prog_cls 
-            in [Submit_program, Report_program, Result_program, Status_program, Convert_program]
-            if prog_cls != type(initial)
-        }
-        
+        # A list of program instances.
+        # We init this with out initial program, which has already been constructed.
         self.initial = initial
-        if initial is not None:
-            self.programs[initial.command] = initial
+        self._programs = {type(initial): initial}
         
+        # All the programs we can switch between.
+        self.program_classes = [Submit_program, Report_program, Result_program, Status_program, Convert_program]
+
+    def get_program(self, prog_cls):
+        """
+        Get an instance of a sub program.
+        
+        This method will first create a new instance of the program class before caching it so future calls will return the same instance.
+        
+        :param prog_cls: The program class to get.
+        :returns: A program instance.
+        """
+        if prog_cls not in self._programs:
+            self._programs[prog_cls] = prog_cls.load_from_argparse(*self.init_args)
+            
+        return self._programs[prog_cls]
         
     def main(self):
         """
         Logic for our program.
         """
-        window = Silico_window(programs = self.programs.values(), initial = self.initial)
+        window = Silico_window(self)
         
         # Setup stdout redirection.
         with Output_catcher(window.top, False) as stdout, Output_catcher(window.top, True) as stderr:
