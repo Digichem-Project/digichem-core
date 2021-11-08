@@ -83,12 +83,8 @@ class Report_program(Program):
         
         :param window The parent window object.
         """
-        interface = Report_generator(window.top, initial_files = getattr(self.args, 'log_files', []))
+        return Report_generator(window, self)
         
-        # Set options.
-        self.arg_to_interface('output', interface)
-        self.arg_to_interface('name', interface)
-        self.arg_to_interface('name', interface, 'name')
     
     def main(self):
         """
