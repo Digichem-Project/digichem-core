@@ -86,7 +86,7 @@ class Coordinate_list(Row_browser):
         :param initial_mult: An optional integer multiplicity to set for initial_files.
         """
         start_dir = start_dir if start_dir is not None else pathlib.Path.cwd()
-        self.top = top
+        top = top
         
         # Widget for choosing files, stored at self.selector
         file_selector = Coord_selector(start_dir, title = "Select Input Coordinates")
