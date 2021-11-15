@@ -22,6 +22,7 @@ class Window(urwid.Frame):
         self.footer_text = urwid.Text(help, align = "center")
         
         self.top = Top(body)
+        self.loop = None
             
         super().__init__(urwid.AttrMap(self.top, "body"), header = urwid.AttrMap(self.header_text, "header"), footer = urwid.AttrMap(self.footer_text, "footer"))
     
