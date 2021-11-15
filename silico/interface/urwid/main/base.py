@@ -1,13 +1,13 @@
 # General import.
 import urwid
 from urwid.font import HalfBlock7x7Font
+import io
 
 # Silico import.
 import silico
 from silico.interface.urwid.window import Window
 from silico.interface.urwid.section import Section
 from silico.interface.urwid.top import View
-import io
 
 
 class Silico_window(Window):
