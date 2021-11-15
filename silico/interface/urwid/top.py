@@ -48,6 +48,9 @@ class Top(urwid.WidgetPlaceholder):
         :param message: The text to add.
         :param error: Whether to show alternative formatting indicating an error.
         """
+        # Urwid doesn't render tab characters, so we'll replace those.
+        message = message.replace('\t', '  ')
+        
         # First, add our message to our widget.
         self.output_widget.output(message, error)
         
