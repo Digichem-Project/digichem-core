@@ -164,6 +164,7 @@ class Turbomole(Program_target):
             
             The control file should already exist before this method is called.
             """
+            # TODO: Turbomole includes the program adg (add data group, see manual) which could be used for this purpose?
             control_name = Path(self.destination.calc_dir.prep_directory, "control")
             tmp_control_name = Path(self.destination.calc_dir.prep_directory, "control.tmp")
             done = False
@@ -186,6 +187,7 @@ class Turbomole(Program_target):
             
             Unlike real turbomole calcs, UFF doesn't use define for setup (but we still take some options from the control file weirdly...)
             """
+            # The turbomole program mdprep could help here?
             # Get our wrapper script.
             wrapper_body = TemplateLookup(directories = str(silico.default_template_directory())).get_template("/submit/turbomole/turbomole_wrapper.mako").render_unicode(program = self)
             
