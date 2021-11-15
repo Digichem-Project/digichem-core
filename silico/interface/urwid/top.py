@@ -81,7 +81,8 @@ class Top(urwid.WidgetPlaceholder):
         # Update.
         self.update_view()
         
-    def popup(self, dialogue, align = "center", width = ('relative', 80), valign = "middle", height = ('relative', 80), **kwargs):
+    #def popup(self, dialogue, align = "center", width = ('relative', 80), valign = "middle", height = ('relative', 80), **kwargs):
+    def popup(self, dialogue, align = "center", width = 50, valign = "middle", height = 10, **kwargs):
         """
         Set a new dialogue popup as the top-most widget.
         
