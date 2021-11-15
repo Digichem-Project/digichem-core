@@ -1,4 +1,6 @@
 # General imports.
+from openbabel import pybel
+import sys
 
 # Silico imports.
 from silico.program.base import Program
@@ -8,7 +10,6 @@ from silico.program.result import Result_program
 from silico.program.status import Status_program
 from silico.program.convert import Convert_program
 from silico.interface.urwid.main.base import Silico_window, Output_catcher
-import sys
 import silico.base
 
 
