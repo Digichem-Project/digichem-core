@@ -63,9 +63,14 @@ class Interactive_program(Program):
         with Output_catcher(window, False) as stdout, Output_catcher(window, True) as stderr:
             sys.stdout = stdout
             sys.stderr = stderr
+            
             # Also update our logging output, which is handled separately.
             old_log_stream = silico.base.LOGGING_HANDLER.stream
             silico.base.LOGGING_HANDLER.stream = stderr
+            
+            # Turn of warnings from pybel, they're probably not useful anyway and get dumped randomly in the screen.
+            log_level = pybel.ob.obErrorLog.GetOutputLevel()
+            pybel.ob.obErrorLog.SetOutputLevel(-1)
             
             try:
                 return window.run_loop(self.config.urwid_palette)
@@ -75,6 +80,10 @@ class Interactive_program(Program):
                 sys.stdout = sys.__stdout__
                 sys.stderr = sys.__stderr__
                 silico.base.LOGGING_HANDLER.stream = old_log_stream
+                
+                # And obabel logging.
+                pybel.ob.obErrorLog.SetOutputLevel(log_level)
+                
         
         
         
