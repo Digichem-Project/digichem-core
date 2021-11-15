@@ -128,12 +128,6 @@ class Method_list(Row_browser):
         initial_methods = [] if initial_methods is None else initial_methods
         
         super().__init__(Method_selector(methods), top, rearrangeable = rearrangeable, initial = initial_methods)
-        
-    def get_error_text(self, errors):
-        """
-        Get the text to display when an error occurs adding to our List.
-        """
-        return ("Error Loading Methods", "The following {} method(s) could not be loaded and will be ignored:\n\n".format(len(errors)) + "\n\n".join(["{}".format(error) for value, error in errors]))
     
     def value_from_node(self, node):
         """

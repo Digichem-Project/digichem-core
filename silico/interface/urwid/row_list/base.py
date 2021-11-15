@@ -1,6 +1,8 @@
 import urwid
 from silico.interface.urwid.misc import Blank
 from silico.interface.urwid.dialogue import Confirm_dialogue
+import logging
+import silico
 
 class Row_control():
     """
@@ -454,7 +456,8 @@ class Row_browser(Row_list):
         """
         Add selected methods to our list.
         """
-        errors = []
+        logger = logging.getLogger(silico.logger_name)
+
         # Go through the nodes the user selected.
         for selected_node in self.selector.browser.selected_nodes:
             value = None
@@ -464,18 +467,10 @@ class Row_browser(Row_list):
             
             except Exception as error:
                 # We couldn't load the node for some reason, show an error and ignore.
-                errors.append((value if value is not None else selected_node.get_value(), error))
+                logger.warning("Failed to add item '{}': {}".format(value, error), exc_info = True)
                 
         # Clear the selected nodes.
         self.selector.browser.reset()
-        
-        # If we got any errors, show them to the user.
-        if len(errors) > 0:
-            error_title, error_text = self.get_error_text(errors)
-            
-            self.top.popup(Confirm_dialogue(error_title, error_text, self.top, error = True, submit_callback = 2))
-            # Returning False stops us swapping back before we show the dialogue.
-            return False
         
     def get_values(self):
         """
@@ -487,15 +482,7 @@ class Row_browser(Row_list):
         """
         Get a value to add from a selected node.
         """
-        return node.get_value()
-        
-    def get_error_text(self, errors):
-        """
-        Get the text to display when an error occurs adding to our List.
-        
-        :param: A tuple of (title, message)
-        """
-        return ("Error", "The following {} value(s) could not be loaded and will be ignored:\n\n".format(len(errors)) + "\n\n".join(["{}".format(error) for value, error in errors]))
+        return node.get_value()    
     
     def cancel(self):
         """

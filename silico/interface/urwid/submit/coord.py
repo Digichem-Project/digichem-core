@@ -10,6 +10,8 @@ from silico.interface.urwid.file.browser import Coord_selector
 from silico.file.convert.main import Silico_input
 from silico.interface.urwid.dialogue import Confirm_dialogue
 from silico.interface.urwid.misc import IntEditZero
+import logging
+import silico
 
 
 class Coordinate_widget(Row_widget):
@@ -101,23 +103,27 @@ class Coordinate_list(Row_browser):
         """
         Add selected files to our list.
         """
-        errors = []
+        # Get the logger item we'll use for communication.
+        logger = logging.getLogger(silico.logger_name)
+        logger.info("Loading coordinates")
+        
         # Go through the files the user selected.
         for selected_node in self.selector.browser.selected_nodes:
             try:
-                self.add_row(self.value_from_node(selected_node))
+                path = selected_node.get_value()
+                logger.info("Loading '{}".format(path))
+                coord = self.value_from_node(selected_node)
+                self.add_row(coord)
             
             except Exception as error:
                 # We couldn't load the file for some reason, show an error and ignore.
-                errors.append((selected_node.get_value(), error))
+                logger.warning("Failed to load coordinate file '{}': {}".format(path, error), exc_info = True)
+                #errors.append((selected_node.get_value(), error))
                 
         # Clear the selected files.
         self.selector.browser.reset()
         
-        # If we got any errors, show them to the user.
-        if len(errors) > 0:
-            error_text = "The following {} file(s) could not be loaded and will be ignored:\n\n".format(len(errors)) + "\n\n".join(["{}".format(error) for path, error in errors])
-            self.top.popup(Confirm_dialogue("Error Loading Coordinates", error_text, self.top, error = True))
+        logger.info("Finished loading coordinates")
         
     def value_from_node(self, node):
         """
