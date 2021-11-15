@@ -160,19 +160,6 @@ class Row_pointer_widget(Row_widget):
         Load the widget we'll use to display our main body.
         """
         return urwid.Button(self.row_item._value, lambda button: self.row_item.add_func())
-    
-    def load_controls(self):
-        """
-        Load the buttons that can be used to control this row.
-        
-        This implementation returns up and down controls (if we are movable) and a remove control.
-        
-        :returns: A list of control buttons.
-        """    
-        controls = super().load_controls()
-        # remove the delete button.
-        controls = controls[:-1]
-        return controls
 
 
 class Row_item():
@@ -292,6 +279,18 @@ class Row_pointer(Row_item):
         :returns: The loaded widget.
         """
         return Row_pointer_widget(self)
+        
+    def remove(self):
+        """
+        For the pointer, instead of removing ourself we'll remove all other items, but we'll double check the user wants to first.
+        """
+        def inner_remove():
+            # Remove all items.
+            self.row_list.body.clear()
+            # Readd ourself.
+            self.row_list.body.append(self)
+            
+        self.row_list.top.popup(Confirm_or_cancel_dialogue("Remove all", "Are you sure you want to remove all items in this list?", self.row_list.top, submit_callback = inner_remove))
 
 
 class Row_walker(urwid.SimpleFocusListWalker):
@@ -380,13 +379,15 @@ class Row_list(urwid.ListBox):
     A custom ListBox that displays data in (movable) rows.
     """
     
-    def __init__(self, add_func, rearrangeable = True, initial = None):
+    def __init__(self, top, add_func, rearrangeable = True, initial = None):
         """
         
+        :param top: The top-most widget to use for display.
         :param add_func: A function to call when a new item is to be added.
         :param rearrangeable: Whether the rows of this Row_list can be rearranged.
         :param initial: An optional list of initial values to populate the list with.
         """
+        self.top = top
         initial = [] if initial is None else initial
         
         self.rearrangeable = rearrangeable
@@ -449,7 +450,7 @@ class Row_browser(Row_list):
         
         self.selector = selector
         
-        super().__init__(self.swap_to_browser, rearrangeable=rearrangeable, initial=initial)
+        super().__init__(top, self.swap_to_browser, rearrangeable=rearrangeable, initial=initial)
         
     def swap_to_browser(self):
         """
