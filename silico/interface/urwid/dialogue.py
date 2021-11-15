@@ -141,11 +141,12 @@ class Output_dialogue(Confirm, Dialogue_mixin):
     A widget that pops up to display stdout and stderr.
     """
     
-    def __init__(self, top, max_length = 100):
+    def __init__(self, top, max_length = 500):
         """
         Constructor for Confirm dialogue boxes.
         
         :param top: The top widget used for display.
+        :param max_length: The maximum number of items to display. If this value is exceeded, older values will be deleted.
         """
         self.max_length = max_length
         self.list = urwid.ListBox(urwid.SimpleListWalker([]))
