@@ -1,13 +1,18 @@
+# General imports.
 import urwid
-from silico.interface.urwid.misc import Blank
-from silico.interface.urwid.dialogue import Confirm_dialogue
 import logging
+
+# Silico imports.
+from silico.interface.urwid.misc import Blank
 import silico
+from silico.interface.urwid.dialogue import Confirm_or_cancel_dialogue
+
 
 class Row_control():
     """
     A button to control a Row_item object.
     """
+
 
 class Row_widget(urwid.WidgetPlaceholder):
     """
