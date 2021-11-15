@@ -154,21 +154,25 @@ class Output_catcher(io.StringIO):
     A class for catching output sent to stdout and stderr and redirecting it to an urwid widget.
     """
     
-    def __init__(self, top, error = False):
+    def __init__(self, window, error = False):
         """
         """
-        self.top = top
+        self.window = window
         self.error = error
         super().__init__()
         
-    def write(self, *args, **kwargs):
-        retval = super().write(*args, **kwargs)
+    def write(self, s):
+        retval = super().write(s)
         
-        # If the last char in our buffer is a newline, we can write to out widget.
+        # If the last char in our buffer is a newline, we can write to our widget.
         curvalue = self.getvalue()
         if curvalue[-1] == "\n":
             # Update our top.
-            self.top.output(self.getvalue(), self.error)
+            # Urwid doesn't render tab characters, so we'll replace those.
+            self.window.top.output(curvalue, self.error)
+            
+            # Update our widgets (also could be a bad idea?)
+            self.window.loop.draw_screen()
             
             # Then empty our buffer (could be a bad idea?)
             self.seek(0)

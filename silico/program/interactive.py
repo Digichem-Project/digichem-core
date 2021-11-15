@@ -59,7 +59,7 @@ class Interactive_program(Program):
         window = Silico_window(self)
         
         # Setup stdout redirection.
-        with Output_catcher(window.top, False) as stdout, Output_catcher(window.top, True) as stderr:
+        with Output_catcher(window, False) as stdout, Output_catcher(window, True) as stderr:
             sys.stdout = stdout
             sys.stderr = stderr
             # Also update our logging output, which is handled separately.
