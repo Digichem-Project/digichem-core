@@ -31,21 +31,24 @@ class SLURM(Resumable_destination):
     sbatch_command = Option(help = "The name/path of the sbatch command", default = "sbatch", type = str)
     sinfo_command = Option(help = "The name/path of the sinfo command", default = "sinfo", type = str)
     
-    def get_num_free_nodes(self):
+    def get_num_nodes(self, idle = False):
         """
-        Get the current number of free nodes for this partition.
+        Get the current number of nodes for this partition.
         
         :raises Silico_exception: If the number of nodes could not be determined.
+        :param idle: Whether to get the number of idle nodes or total nodes.
         :return: The number of nodes.
         """
         # The signature we'll use to call sinfo.
         sig = [
             self.sinfo_command,
             "-p", self.partition,
-            "-t", "IDLE",
             "-o", "%D",
             "-h"
         ]
+        
+        if idle:
+            sig.extend(("-t", "IDLE",))
 
         try:
             # Call sinfo.
@@ -109,7 +112,9 @@ class SLURM(Resumable_destination):
         :return: Info string.
         """
         cpu_info = self.get_CPU_info()
-        return "{} idle nodes, {} ({:0.0f}%) idle CPUs".format(self.get_num_free_nodes(), cpu_info[1], (cpu_info[1]/cpu_info[3])*100 if cpu_info[3] != 0 else 0)
+        num_nodes = self.get_num_nodes()
+        free_nodes = self.get_num_nodes(True)
+        return "{} ({:0.0f}%) idle nodes, {} ({:0.0f}%) idle CPUs".format(free_nodes, (free_nodes/num_nodes)*100 if num_nodes != 0 else 0, cpu_info[1], (cpu_info[1]/cpu_info[3])*100 if cpu_info[3] != 0 else 0)
     
     @property
     def unique_name(self):
