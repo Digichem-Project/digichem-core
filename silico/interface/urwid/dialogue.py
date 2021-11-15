@@ -155,6 +155,8 @@ class Output_dialogue(Confirm, Dialogue_mixin):
         super().__init__(self.get_body(), top)
 
     def back(self, *args, **kwargs):
+        # Empty our text so we always display something new.
+        self.list.body.clear()
         return Dialogue_mixin.back(self, *args, **kwargs)
     
     def convert_callback(self, *args, **kwargs):
