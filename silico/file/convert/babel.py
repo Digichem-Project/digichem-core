@@ -147,55 +147,65 @@ if HAVE_BINDINGS:
             :param multiplicity: Optional multiplicity of the output format.
              :return: The converted file.
             """
-            # For Pybel, gen3D defaults to True, because we'll only use gen3d if not already in 3D.
-            gen3D = gen3D if gen3D is not None else True
-            
-            # Get upset if input_file_type is empty (because openbabel acts weird when it is).
-            if self.input_file_type is None or self.input_file_type == "":
-                raise TypeError("Cannot convert file; input_file_type '{}' is None or empty".format(self.input_file_type))
-            
-            # Read in the molecule(s) in the given file.
             try:
-                # This is a generator.
-                # Use a different func depending on whether we're reading from file or memory.
-                if self.input_file is not None:
-                    # Reading from memory.
-                    molecule = pybel.readstring(self.input_file_type, str(self.input_file))
-                else: 
-                    # Readfile gives us an iterator of molecules...
-                    molecules = pybel.readfile(self.input_file_type, str(self.input_file_path))
-                    
-                    # ...but we're only ever interested in one.
-                    # Try and get the first molecule.
-                    try:
-                        molecule = next(molecules)
-                    except StopIteration:
-                        raise Silico_exception("Cannot read file '{}'; file does not contain any molecules".format(self.input_name))
-                    
-                    
-            except Exception as e:
-                raise Silico_exception("Failed to parse file '{}'".format(self.input_name)) from e
-            
-            if charge is not None:
-                molecule.OBMol.SetTotalCharge(charge)
+                # Stop logging from pybel, we'll handle that ourselves.
+                pybel.ob.obErrorLog.StopLogging()
                 
-            if multiplicity is not None:
-                molecule.OBMol.SetTotalSpinMultiplicity(multiplicity)
-            
-            # If we got a 2D (or 1D) format, convert to 3D (but warn that we are doing so.)
-            if molecule.dim != 3 and gen3D:
-                # We're missing 3D coords.
-                getLogger(silico.logger_name).warning("Generating 3D coordinates from {}D file '{}'; this will scramble atom coordinates".format(molecule.dim, self.input_name))
-                molecule.localopt()
+                # For Pybel, gen3D defaults to True, because we'll only use gen3d if not already in 3D.
+                gen3D = gen3D if gen3D is not None else True
                 
-            if self.add_H:
-                # Add hydrogens.
-                #getLogger(silico.logger_name).info("Adding any missing hydrogens to structure loaded from file '{}'".format(self.input_name))
-                molecule.addh()
+                # Get upset if input_file_type is empty (because openbabel acts weird when it is).
+                if self.input_file_type is None or self.input_file_type == "":
+                    raise TypeError("Cannot convert file; input_file_type '{}' is None or empty".format(self.input_file_type))
+                
+                # Read in the molecule(s) in the given file.
+                try:
+                    # This is a generator.
+                    # Use a different func depending on whether we're reading from file or memory.
+                    if self.input_file is not None:
+                        # Reading from memory.
+                        molecule = pybel.readstring(self.input_file_type, str(self.input_file))
+                    else: 
+                        # Readfile gives us an iterator of molecules...
+                        molecules = pybel.readfile(self.input_file_type, str(self.input_file_path))
+                        
+                        # ...but we're only ever interested in one.
+                        # Try and get the first molecule.
+                        try:
+                            molecule = next(molecules)
+                        except StopIteration:
+                            raise Silico_exception("Cannot read file '{}'; file does not contain any molecules".format(self.input_name)) from None
+                        
+                        
+                except Exception as e:
+                    raise Silico_exception("Failed to parse file '{}'".format(self.input_name)) from e
+                
+                if charge is not None:
+                    molecule.OBMol.SetTotalCharge(charge)
+                    
+                if multiplicity is not None:
+                    molecule.OBMol.SetTotalSpinMultiplicity(multiplicity)
+                
+                # If we got a 2D (or 1D) format, convert to 3D (but warn that we are doing so.)
+                if molecule.dim != 3 and gen3D:
+                    # We're missing 3D coords.
+                    getLogger(silico.logger_name).warning("Generating 3D coordinates from {}D file '{}'; this will scramble atom coordinates".format(molecule.dim, self.input_name))
+                    molecule.localopt()
+                    
+                if self.add_H:
+                    # Add hydrogens.
+                    #getLogger(silico.logger_name).info("Adding any missing hydrogens to structure loaded from file '{}'".format(self.input_name))
+                    molecule.addh()
+                
+                # Now convert and return
+                return molecule.write(output_file_type)
             
-            # Now convert and return
-            return molecule.write(output_file_type)
-            
+            finally:
+                # Start logging again.
+                pybel.ob.obErrorLog.StartLogging()
+                #pybel.ob.obErrorLog.SetOutputLevel(log_level)
+
+
 class Obabel_converter(Openbabel_converter):
     """
     Wrapper class for openbabel.
