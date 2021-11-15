@@ -56,7 +56,7 @@ class Top(urwid.WidgetPlaceholder):
         
         # Then swap to it if it's not already the top.
         if len(self.dialogue_stack) == 0 or self.dialogue_stack[-1].top_w != self.output_widget:
-            self.popup(self.output_widget)
+            self.popup(self.output_widget, width = ('relative', 100), height = ('relative', 100), left = 1, top = 1, right = 1, bottom = 2)
             
     def update_view(self):
         """
@@ -81,13 +81,17 @@ class Top(urwid.WidgetPlaceholder):
         # Update.
         self.update_view()
         
-    def popup(self, dialogue, align = "center", width = ('relative', 80), valign = "middle", height = ('relative', 80)):
+    def popup(self, dialogue, align = "center", width = ('relative', 80), valign = "middle", height = ('relative', 80), **kwargs):
         """
         Set a new dialogue popup as the top-most widget.
-        """        
+        
+        In addition to the widget to show, this function takes the same arguments as the constructor for urwid Overlay widgets.
+        
+        :param dialogue: The widget to display as a popup.
+        """
         # First, get an overlay widget to display both our top-most normal widget and our popup.
         # We will use another placeholder widget for the underneath widget, so we can swap it out.
-        overlay = urwid.Overlay(dialogue, self.current_top, align = align, width = width, valign = valign, height = height)
+        overlay = urwid.Overlay(dialogue, self.current_top, align = align, width = width, valign = valign, height = height, **kwargs)
         
         # Add the overlay to our dialogue stack.
         self.dialogue_stack.append(overlay)
