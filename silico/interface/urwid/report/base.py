@@ -65,5 +65,5 @@ class Report_generator(Program_view):
         :returns: An urwid widget to display.
         """
         return Tab_pile([
-            Section(self.file_list, "Calculation Files"),
+            Section(self.file_list, "Calculation Log Files"),
         ])
