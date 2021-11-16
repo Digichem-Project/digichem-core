@@ -50,7 +50,23 @@ class Interactive_program(Program):
         :returns: A program instance.
         """
         if prog_cls not in self._programs:
-            self._programs[prog_cls] = prog_cls.load_from_argparse(*self.init_args)
+            # We need to build some custom arguments to start the new sub-program, because argparse only shows options for the chosen sub-program (which may not be this one).
+            argv = list(sys.argv)
+            
+            # Replace the sub-program command with this program.
+            pos = argv.index(self.init_args[0].prog)
+            argv[pos] = prog_cls.command
+            
+            # Build a new arg-parser object.
+            parser = prog_cls.top_level_arguments()
+            subparser = parser.add_subparsers(dest="prog")
+            prog_cls.arguments(subparser)
+            
+            # Parse.
+            args = parser.parse_args(argv[1:])
+            
+            # Set our program.
+            self._programs[prog_cls] = prog_cls.load_from_argparse(args, self.init_args[1], self.init_args[2])
             
         return self._programs[prog_cls]
         
