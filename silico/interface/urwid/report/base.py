@@ -35,7 +35,28 @@ class Report_generator(Program_view):
         # Keep track of our individual widgets.
         self.file_list = File_list(window.top, initial_files = program.args.log_files)
         
-        super.__init__(window, program)
+        # Set our options from our program object.
+        self.output = program.args.output
+        self.name = program.args.name
+        self.report_type = program.args.type
+        self.render_style = program.config['molecule_image']['rendering_style']
+        self.render_images = not program.config['image']['dont_modify']
+        self.overwrite = not program.config['molecule_image']['use_existing']
+        self.auto_crop = program.config['molecule_image']['auto_crop']
+        
+        super().__init__(window, program)
+        
+    def setup(self):
+        """
+        Setup our program to ready it to be run.
+        """
+        self.program.args.output = self.output
+        self.program.args.name = self.name
+        self.program.args.type = self.report_type 
+        self.program.config['molecule_image']['rendering_style'] = self.report_style 
+        self.program.config['image']['dont_modify'] = not self.render_images 
+        self.program.config['molecule_image']['use_existing'] = not self.overwrite
+        self.program.config['molecule_image']['auto_crop'] = self.auto_crop 
     
     def get_body(self):
         """
