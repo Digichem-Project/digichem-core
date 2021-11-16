@@ -4,7 +4,6 @@
 
 # This should suppress a matplotlib warning when we compile with pyinstaller.
 import warnings
-import logging
 warnings.filterwarnings("ignore", "(?s).*MATPLOTLIBDATA.*", category = UserWarning)
 # This one is caused by some minor bug when plotting graphs.
 warnings.filterwarnings("ignore", "(?s).*Source ID .* was not found when attempting to remove it.*")
@@ -29,8 +28,10 @@ silico.init_obabel()
 
 # General imports.
 import argparse
+#import pydevd;pydevd.settrace()
 
 # Silico imports.
+import logging
 from silico.program.config.main import Config_program
 from silico.program.convert import Convert_program
 from silico.program.interactive import Interactive_program
