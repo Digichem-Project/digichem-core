@@ -17,7 +17,7 @@ class Calculation_submitter(Program_view):
     Class for controlling interface to calculation submission.
     """
     
-    output = Option(help = "Base directory to which output will be written.", type = str, default = "./")
+    output = Option(help = "Base directory to which output will be written.", type = str)
     
     def __init__(self, window, program):
         """
@@ -29,6 +29,9 @@ class Calculation_submitter(Program_view):
         # Keep track of our individual widgets.
         self.coordinate_list = Coordinate_list(window.top, initial_coords = program.coords, initial_charge = program.args.charge, initial_mult = program.args.multiplicity, gen3D = program.args.gen3D)
         self.method_list = Method_list(window.top, program.config.methods, initial_methods = program.methods)
+        
+        # Set our options.
+        self.output = program.args.output
         
         super().__init__(window, program)
         
@@ -49,7 +52,7 @@ class Calculation_submitter(Program_view):
         """
         self.program.coords = self.coordinate_list.get_values()
         self.program.methods = self.method_list.get_values()
-        self.program.output = self.output
+        self.program.args.output = self.output
         
     def post(self, retval):
         """
