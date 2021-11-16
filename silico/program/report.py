@@ -31,7 +31,7 @@ class Report_program(Program):
         """
         sub_parser = super().arguments(sub_parsers_object)
         
-        sub_parser.add_argument("log_files", help = "a (number of) calculation result file(s) (.log) to extract results from", nargs = "+")
+        sub_parser.add_argument("log_files", help = "a (number of) calculation result file(s) (.log) to extract results from", nargs = "*")
                             
         output_group = sub_parser.add_mutually_exclusive_group()
         output_group.add_argument("--pdf_file", help = "a filename/path to a pdf file to write to (this is an alternative to the 'output' option). Other output files will placed in the same directory as the 'pdf_file'", nargs = "?", default = None)
@@ -90,6 +90,10 @@ class Report_program(Program):
         """
         Logic for our program.
         """
+        # Get upset if we have no log files.
+        if len(self.args.log_files) == 0:
+            raise Silico_exception("No log files specified")
+        
         try:
             # Transpose our lists of aux inputs.
             aux_files = [{"chk_file":chk_file, "fchk_file":fchk_file} for chk_file, fchk_file in list(itertools.zip_longest(self.args.chk, self.args.fchk))]
