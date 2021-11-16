@@ -22,7 +22,8 @@ class Interactive_program(Program):
     command = "interactive"
     description = "run Silico interactively with a console interface"
     help = "Run interactively"
-        
+    
+    
     def __init__(self, args, config, logger, initial = None):
         """
         Constructor for the interactive program.
@@ -32,7 +33,7 @@ class Interactive_program(Program):
         self.init_args = (args, config, logger)
         
         # A list of program instances.
-        # We init this with out initial program, which has already been constructed.
+        # We init this with our initial program, which has already been constructed.
         self.initial = initial
         self._programs = {type(initial): initial}
         
