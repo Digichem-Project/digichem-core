@@ -1,7 +1,8 @@
 import urwid
 
 from silico.interface.urwid.method.node import Loader_top_node
-from silico.interface.urwid.tree.base import Flaggable_tree_list_box
+from silico.interface.urwid.tree.base import Flaggable_tree_list_box,\
+    Flaggable_tree_walker
 from silico.config.configurable.option import Option
 from silico.interface.urwid.top import View
     
@@ -17,7 +18,7 @@ class Method_browser(Flaggable_tree_list_box):
         Constructor for calculation browser objects.
         """
         self.topnode = Loader_top_node(methods, show_hidden = show_hidden)
-        super().__init__(urwid.TreeWalker(self.topnode))
+        super().__init__(Flaggable_tree_walker(self.topnode))
         
     def is_selectable(self, node):
         """
@@ -53,6 +54,4 @@ class Method_selector(View):
         # We need to update whether we're showing hidden stuff.
         self.browser.topnode._show_hidden = self.show_hidden
         self.browser.topnode.refresh()
-        # TODO: This is in case a node was removed which was in focus, there is probably a better solution.
-        self.browser.body.set_focus(self.browser.topnode)
         

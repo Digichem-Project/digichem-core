@@ -73,6 +73,43 @@ class Flag_widget(urwid.TreeWidget):
         else:
             return super().keypress(size, key)
 
+class Flaggable_tree_walker(urwid.TreeWalker):
+    """
+    Tree walker object for Flaggable tree list boxes.
+    """
+    
+    def find_real_parent(self, node):
+        """
+        Find the first parent of a node that has not been removed.
+        
+        If the given node has not been removed, then it is returned.
+        :param node: The node to start from.
+        :returns: A node, possibly the same.
+        """        
+        while True:
+            parent = node.get_parent()
+            
+            if parent is None or node.get_key() in parent.get_child_keys():
+                # No more parents, or our focus is a real child of its parent.
+                return node
+            
+            # Go again.
+            node = parent
+    
+    def get_focus(self):
+        """
+        """
+        # Get the current focus.
+        focus = self.focus
+        
+        # Check if it's real.
+        real = self.find_real_parent(focus)
+            
+        # If the focus has changed, update.
+        if real != focus:
+            self.focus = real
+                
+        return urwid.TreeWalker.get_focus(self)
 
 class Flaggable_tree_list_box(urwid.TreeListBox):
     """
