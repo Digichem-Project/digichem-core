@@ -101,6 +101,11 @@ class Interactive_program(Program):
                 # And obabel logging.
                 pybel.ob.obErrorLog.SetOutputLevel(log_level)
                 
+                # If there's any output still in our output widget buffer, print it now.
+                buffer = "\n".join((line.text for line in window.top.output_widget.list.body))
+                if buffer != "":
+                    print(buffer)
+                
         
         
         
