@@ -19,9 +19,9 @@ class Program():
     Each program can be run either directly from the command line, or interactively in an urwid widget.
     """
     
-    name = ""
-    command = "implement in subclass"
-    description = ""
+    name = "Silico"
+    command = "(implement in subclass)"
+    description = "computational chemistry management"
     epilog = "{} V{}. Written by {}. Last updated {}.".format(name, silico.version, silico.author, silico.last_updated.strftime("%d/%m/%Y"))
     usage = None
     help = None
@@ -187,6 +187,19 @@ class Program():
         :param config: A Silico config object to add to.
         """
         # This default implementation does nothing.
+        
+    @classmethod
+    def top_level_arguments(self):
+        """
+        Get the top-level argument parser object.
+        
+        Each sub-program will add it's own possible sub-arguments to this object.
+        """
+        parser = argparse.ArgumentParser(
+        description = self.description,
+        epilog = self.epilog)
+        parser.add_argument("-v", "--version", action = "version", version = str(silico.version))
+        return parser
 
     @classmethod
     def standard_arguments(self):

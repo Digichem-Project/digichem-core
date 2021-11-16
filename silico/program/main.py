@@ -39,7 +39,7 @@ from silico.program.result import Result_program
 from silico.program.resume import Resume_program
 from silico.program.status import Status_program
 from silico.program.submit import Submit_program
-#import pydevd;pydevd.settrace()
+from silico.program.base import Program
 
 
 # Make configurables available
@@ -59,13 +59,13 @@ PROGRAMS = [
     Status_program,
     Submit_program]
 
-# Printable name of this program.
-NAME = "Silico"
-DESCRIPTION = "computational chemistry management"
-EPILOG = "{} V{}. Written by {}. Last updated {}.".format(NAME, silico.version, silico.author, silico.last_updated.strftime("%d/%m/%Y"))
-USAGE = """%(prog)s submit ...
-   or: %(prog)s result ...
-   or: %(prog)s report ..."""
+# # Printable name of this program.
+# NAME = "Silico"
+# DESCRIPTION = "computational chemistry management"
+# EPILOG = "{} V{}. Written by {}. Last updated {}.".format(NAME, silico.version, silico.author, silico.last_updated.strftime("%d/%m/%Y"))
+# USAGE = """%(prog)s submit ...
+#    or: %(prog)s result ...
+#    or: %(prog)s report ..."""
 
 def main():
     """
@@ -75,11 +75,9 @@ def main():
     
     # Configure our argument parser.
     # This is the top-level parser; each sub program will specify its own sub-parser.
-    parser = argparse.ArgumentParser(
-        description = DESCRIPTION,
-        epilog = EPILOG)
-    parser.add_argument("-v", "--version", action = "version", version = str(silico.version))
+    parser = Program.top_level_arguments()
     subparser = parser.add_subparsers(dest="prog")
+    subparser.required = True
         
     # Create sub parsers for each sub-program. Each will define its own parser.
     for sub_program in PROGRAMS:
@@ -88,6 +86,7 @@ def main():
     # Process command line arguments.
     args = parser.parse_args()
     
+    # Get our logger.
     logger = logging.getLogger(silico.logger_name)
     
     try:
