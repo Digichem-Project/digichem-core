@@ -43,7 +43,7 @@ class Submit_program(Program):
         
         return sub_parser
     
-    def __init__(self, output, coords, methods, args, config, logger):
+    def __init__(self, coords, methods, args, config, logger):
         """
         Constructor for submit programs.
         
@@ -52,7 +52,6 @@ class Submit_program(Program):
         :param methods: A list of method tuples to submit to.
         """
         super().__init__(args = args, config = config, logger = logger)
-        self.output = output
         self.coords = coords
         self.methods = methods
         
@@ -71,7 +70,7 @@ class Submit_program(Program):
         # Load coordinates.
         coords = [Silico_input.from_file(file, gen3D = args.gen3D, charge = args.charge, multiplicity = args.multiplicity) for file in args.calculation_files]
                 
-        return self(args.output, coords, methods, args = args, config = config, logger = logger)
+        return self(coords, methods, args = args, config = config, logger = logger)
     
     def main(self):
         """
