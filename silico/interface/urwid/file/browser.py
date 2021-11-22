@@ -7,9 +7,9 @@ import urwid
 # Silico imports.
 from silico.interface.urwid.tree.base import Flaggable_tree_list_box,\
     Flaggable_tree_walker
-from silico.interface.urwid.top import View
 from silico.config.configurable.option import Option
 from silico.interface.urwid.file.node import Directory_node
+from silico.interface.urwid.tree.selector import Selector
 
 
 class File_browser(Flaggable_tree_list_box):
@@ -30,24 +30,26 @@ class File_browser(Flaggable_tree_list_box):
         super().__init__(Flaggable_tree_walker(Directory_node(starting_dir, starting_path = starting_dir, options = self.options)), can_choose_parents = can_choose_folders, can_choose_multiple = can_choose_multiple)
 
 
-class File_selector(View):
+class File_selector(Selector):
     """
     A tree list box widget used to browse and select files.
     """
     
     show_hidden = Option(help = "Whether to show hidden files.", type = bool, default = False)
 
-    def __init__(self, starting_dir, title = "File Browser"):
+    def __init__(self, starting_dir, title = "File Browser", manual_widget_title = "Manual File Path"):
         """
         Constructor for File_selector objects.
         
         :param starting_dir: The starting directory that will be shown expanded.
         :param title: A title to display around this selector.
         """
-        self.browser = File_browser(starting_dir, show_hidden = self.show_hidden)
-        self.browser.offset_rows = 1
+        browser = File_browser(starting_dir, show_hidden = self.show_hidden)
+        browser.offset_rows = 1
         
-        super().__init__(self.browser, title)
+        manual_widget = urwid.Edit(("body", "File: "))
+        
+        super().__init__(browser, manual_widget, title, manual_widget_title)
         
     def on_settings_change(self):
         """

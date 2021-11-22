@@ -2,15 +2,14 @@
 # General imports.
 import pathlib
 import urwid
+import logging
 
 # Silico imports.
 from silico.interface.urwid.row_list.base import Row_item, Row_widget,\
     Row_browser
 from silico.interface.urwid.file.browser import Coord_selector
 from silico.file.convert.main import Silico_input
-from silico.interface.urwid.dialogue import Confirm_dialogue
 from silico.interface.urwid.misc import IntEditZero
-import logging
 import silico
 
 
@@ -99,7 +98,7 @@ class Coordinate_list(Row_browser):
         
         super().__init__(file_selector, top = top, rearrangeable = rearrangeable, initial = initial_coords)
         
-    def submit(self):
+    def add_to_list(self):
         """
         Add selected files to our list.
         """
@@ -108,28 +107,26 @@ class Coordinate_list(Row_browser):
         logger.info("Loading coordinates")
         
         # Go through the files the user selected.
-        for selected_node in self.selector.browser.selected_nodes:
+        for path in self.selector.selected:
             try:
-                path = selected_node.get_value()
                 logger.info("Loading '{}".format(path))
-                coord = self.value_from_node(selected_node)
+                coord = self.value_from_selected(path)
                 self.add_row(coord)
-            
-            except Exception as error:
+             
+            except Exception:
                 # We couldn't load the file for some reason, show an error and ignore.
-                logger.warning("Failed to load coordinate file '{}': {}".format(path, error), exc_info = True)
-                #errors.append((selected_node.get_value(), error))
-                
+                logger.warning("Failed to load coordinate file '{}':".format(path), exc_info = True)
+                 
         # Clear the selected files.
-        self.selector.browser.reset()
-        
+        self.selector.reset()
+         
         logger.info("Finished loading coordinates")
         
-    def value_from_node(self, node):
+    def value_from_selected(self, selected_value):
         """
-        Get a value to add from a selected node.
+        Get a value to add from a value selected by the user.
         """
-        return Silico_input.from_file(node.get_value(), charge = self.selector.charge, multiplicity = self.selector.multiplicity, gen3D = self.selector.generate_3D)
+        return Silico_input.from_file(selected_value, charge = self.selector.charge, multiplicity = self.selector.multiplicity, gen3D = self.selector.generate_3D)
         
     def load_row(self, value):
         return Coordinate_item(value, self)
