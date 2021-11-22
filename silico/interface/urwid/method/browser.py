@@ -47,9 +47,9 @@ class Method_selector(Selector):
         browser = Method_browser(methods, show_hidden = self.show_hidden)
         browser.offset_rows = 1
         
-        manual_widget = urwid.Edit(("body", "Code: "))
+        manual_widget = urwid.Edit(("body", "Codes: "))
         
-        super().__init__(browser, manual_widget, title = "Method Browser", manual_widget_title = "Method Code")
+        super().__init__(browser, manual_widget, title = "Method Browser", manual_widget_title = "Manual Method Codes")
         
     def on_settings_change(self):
         """
