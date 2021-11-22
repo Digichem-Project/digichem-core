@@ -456,11 +456,11 @@ class Row_browser(Row_list):
         """
         Function called to open the calculation browser.
         """
-        self.top.swap_into_window(self.selector, cancel_callback = self.cancel, submit_callback = self.submit)
+        self.top.swap_into_window(self.selector, cancel_callback = self.cancel, submit_callback = self.add_to_list)
         
-    def submit(self):
+    def add_to_list(self):
         """
-        Add selected methods to our list.
+        Add the items currently selected in our browser to our list.
         """
         logger = logging.getLogger(silico.logger_name)
 
@@ -482,13 +482,7 @@ class Row_browser(Row_list):
         """
         Get a list of values currently represented by this row list.
         """
-        return [item.get_value() for item in self.body if item != self.pointer]
-        
-    def value_from_node(self, node):
-        """
-        Get a value to add from a selected node.
-        """
-        return node.get_value()    
+        return [item.get_value() for item in self.body if item != self.pointer] 
     
     def cancel(self):
         """
