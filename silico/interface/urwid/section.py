@@ -17,6 +17,7 @@ class Section(urwid.AttrMap):
     rline = '│'
     bline = '─'
     brcorner = '┘'
+    title_align = "left"
     
     def __init__(self, body, title = "", focusable = True):
         """
@@ -34,7 +35,7 @@ class Section(urwid.AttrMap):
         self._inner = urwid.AttrMap(body, "body")
         linebox = urwid.LineBox(
             self._inner, title,
-            title_align = "left",
+            title_align = self.title_align,
             tlcorner = self.tlcorner,
             tline = self.tline,
             lline = self.lline,
@@ -74,4 +75,5 @@ class Sub_section(Section):
     rline = ''
     bline = ''
     brcorner = ''
+    title_align = "center"
     
