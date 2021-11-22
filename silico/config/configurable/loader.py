@@ -367,7 +367,7 @@ class Partial_loader(Configurable_loader):
     
     def resolve_method_string(self, identifier, validate = True):
         """
-        Resolve a string which identfies a complete method (consisting of a destination, a program and a calculation).
+        Resolve a string which identifies a complete method (consisting of a destination, a program and a calculation).
         
         Each part of the method is separated by a forward slash (/), and each part can identify the relevant configurable by index (number) or tag list.
         
