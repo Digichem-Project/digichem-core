@@ -132,6 +132,13 @@ class Flaggable_tree_list_box(urwid.TreeListBox):
         # The nodes that have been selected.
         self.selected_nodes = []
         
+    @property
+    def selected(self):
+        """
+        A property resolving to the values that are currently selected.
+        """
+        return [node.get_value() for node in self.selected_nodes]
+        
     def is_selectable(self, node):
         """
         Determine whether a given node is selectable.
