@@ -209,11 +209,21 @@ class View(WidgetWrap, Configurable):
     
     def __init__(self, body, title = "", border = True, focusable = True):
         self._settings_editor = None
-        inner_cls = Section if border else Sub_section
-        self.inner_body = inner_cls(body, title, focusable)
+        self.inner = body
+        self.title = title
+        self.border = border
+        self.focusable = True
         
-        WidgetWrap.__init__(self, self.inner_body)
+        WidgetWrap.__init__(self, self._get_body())
         Configurable.__init__(self, True)
+    
+    def _get_body(self):
+        """
+        Get the widget we'll use for display.
+        """
+        inner_cls = Section if self.border else Sub_section
+        inner_body = inner_cls(self.inner, self.title, self.focusable)
+        return inner_body
         
     def submit(self):
         """
