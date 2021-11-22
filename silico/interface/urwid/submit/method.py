@@ -6,6 +6,10 @@ from silico.interface.urwid.row_list.base import Row_item, Row_widget,\
     Row_browser
 from silico.interface.urwid.method.browser import Method_selector
 from silico.interface.urwid.submit.edit import Method_editor
+import shlex
+import logging
+import silico
+from silico.config.configurable.loader import Partial_loader
 
 
 class Method_widget(Row_widget):
@@ -128,6 +132,31 @@ class Method_list(Row_browser):
         initial_methods = [] if initial_methods is None else initial_methods
         
         super().__init__(Method_selector(methods), top, rearrangeable = rearrangeable, initial = initial_methods)
+        
+    def add_to_list(self):
+        """
+        Add the items currently selected in our browser to our list.
+        """
+        # Our parent will take care of adding items from the tree browser.
+        super().add_to_list()
+        
+        # Get logger for errors.
+        logger = logging.getLogger(silico.logger_name)
+        
+        # Now add the methods identified by their code.
+        method_strings = shlex.split(self.selector.manual_widget.get_edit_text())
+        
+        # Parse each string.
+        for method_string in method_strings:
+            try:
+                self.add_row(self.selector.browser.methods.resolve_method_string(method_string))
+                
+            except Exception:
+                logger.warning("Failed to add method from code '{}':".format(method_string), exc_info = True)
+                
+        # Reset our selector.
+        self.selector.reset()
+            
     
     def value_from_node(self, node):
         """

@@ -4,7 +4,7 @@ from silico.interface.urwid.method.node import Loader_top_node
 from silico.interface.urwid.tree.base import Flaggable_tree_list_box,\
     Flaggable_tree_walker
 from silico.config.configurable.option import Option
-from silico.interface.urwid.top import View
+from silico.interface.urwid.tree.selector import Selector
     
 
 class Method_browser(Flaggable_tree_list_box):
@@ -17,6 +17,7 @@ class Method_browser(Flaggable_tree_list_box):
         """
         Constructor for calculation browser objects.
         """
+        self.methods = methods
         self.topnode = Loader_top_node(methods, show_hidden = show_hidden)
         super().__init__(Flaggable_tree_walker(self.topnode))
         
@@ -30,7 +31,7 @@ class Method_browser(Flaggable_tree_list_box):
         return not loader_list[-1].partial and node.loader_type == "calculation"
 
 
-class Method_selector(View):
+class Method_selector(Selector):
     """
     A tree list box widget used to browse and select methods.
     """
@@ -43,9 +44,12 @@ class Method_selector(View):
         
         :param methods: The methods that can be selected.
         """
-        self.browser = Method_browser(methods, show_hidden = self.show_hidden)
-        self.browser.offset_rows = 1
-        super().__init__(self.browser, title = "Method Browser")
+        browser = Method_browser(methods, show_hidden = self.show_hidden)
+        browser.offset_rows = 1
+        
+        manual_widget = urwid.Edit(("body", "Code: "))
+        
+        super().__init__(browser, manual_widget, title = "Method Browser", manual_widget_title = "Method Code")
         
     def on_settings_change(self):
         """
