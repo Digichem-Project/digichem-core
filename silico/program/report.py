@@ -107,6 +107,10 @@ class Report_program(Program):
         except Exception as e:
             raise Silico_exception("Failed to load results")
         
+        # Forcibly set a name if we've been given one.
+        if self.args.name is not None:
+            result.metadata.name = self.args.name
+        
         log_file = self.args.log_files[0]
         if log_file is not None:
             input_name = Path(log_file)
