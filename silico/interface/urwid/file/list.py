@@ -18,7 +18,7 @@ class File_widget(Row_widget):
         """
         Load the widget we'll use to display our main body.
         """
-        return urwid.Text(self.row_item.value)
+        return urwid.Text(str(self.row_item.get_value()))
 
 
 class File_item(Row_item):
