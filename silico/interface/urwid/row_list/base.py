@@ -478,6 +478,12 @@ class Row_browser(Row_list):
         # Clear the selected nodes.
         self.selector.browser.reset()
         
+    def value_from_node(self, node):
+        """
+        Get the value of a node selected in the tree browser attached to this object.
+        """
+        return node.get_value()
+        
     def get_values(self):
         """
         Get a list of values currently represented by this row list.
