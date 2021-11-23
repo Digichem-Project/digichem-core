@@ -2,6 +2,7 @@
 from .base import Result_extractor
 from .base import Result_extractor_group
 
+# TODO: This whole section is overcomplicated and messy, a thorough rewrite is required.
 
 # These are the class handles for the various section extractors.
 SUMMARY_CLASS_HANDLE = ["summary", "all"]    
