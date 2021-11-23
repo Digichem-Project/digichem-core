@@ -257,7 +257,8 @@ class VMD_image_maker(File_converter):
             return subprocess.run(
                 self.VMD_signature,
                 # We normally capture and discard stdout (because VMD is VERY verbose), but if we're at a suitable log level, we'll print it.
-                # Nothing useful appears to be printed to stderr, so we'll treat it the same as stdout.
+                # Nothing useful appears to be printed to stderr, so we'll treat it the same as stdout.,
+                stdin = subprocess.DEVNULL,
                 stdout = subprocess.DEVNULL if getLogger(silico.logger_name).level > logging.DEBUG else None,
                 stderr = subprocess.STDOUT,
                 universal_newlines = True,
