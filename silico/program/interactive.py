@@ -51,11 +51,14 @@ class Interactive_program(Program):
         """
         if prog_cls not in self._programs:
             # We need to build some custom arguments to start the new sub-program, because argparse only shows options for the chosen sub-program (which may not be this one).
-            argv = list(sys.argv)
-            
-            # Replace the sub-program command with this program.
-            pos = argv.index(self.init_args[0].prog)
-            argv[pos] = prog_cls.command
+            # This functionality is cool but comes with some problems, notable if different sub-programs have options with the same name but different expectations...
+            # Hence for now we'll just clear command-line args.
+            argv = [sys.argv[0], prog_cls.command]
+            #argv = list(sys.argv)
+            #
+            ## Replace the sub-program command with this program.
+            #pos = argv.index(self.init_args[0].prog)
+            #argv[pos] = prog_cls.command
             
             # Build a new arg-parser object.
             parser = prog_cls.top_level_arguments()
