@@ -142,7 +142,7 @@ class Program_view(View):
         
         return retval
         
-    def post(self):
+    def post(self, retval):
         """
         Method called once our main program has finished running.
         """
