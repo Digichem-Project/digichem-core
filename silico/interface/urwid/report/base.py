@@ -52,11 +52,12 @@ class Report_generator(Program_view):
         """
         self.program.args.output = self.output
         self.program.args.name = self.name
-        self.program.args.type = self.report_type 
-        self.program.config['molecule_image']['rendering_style'] = self.report_style 
-        self.program.config['image']['dont_modify'] = not self.render_images 
+        self.program.args.type = self.report_type
+        self.program.config['molecule_image']['rendering_style'] = self.render_style
+        self.program.config['image']['dont_modify'] = not self.render_images
         self.program.config['molecule_image']['use_existing'] = not self.overwrite
-        self.program.config['molecule_image']['auto_crop'] = self.auto_crop 
+        self.program.config['molecule_image']['auto_crop'] = self.auto_crop
+        self.program.args.log_files = self.file_list.get_values()
     
     def get_body(self):
         """
