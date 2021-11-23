@@ -33,7 +33,7 @@ class Report_generator(Program_view):
         :param program: A program object.
         """
         # Keep track of our individual widgets.
-        self.file_list = File_list(window.top, initial_files = program.args.log_files)
+        self.file_list = File_list(window.top, initial_files = program.args.log_files, can_choose_folders = True)
         
         # Set our options from our program object.
         self.output = program.args.output
