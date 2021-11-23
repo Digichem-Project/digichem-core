@@ -54,9 +54,3 @@ class Calculation_submitter(Program_view):
         self.program.methods = self.method_list.get_values()
         self.program.args.output = self.output
         
-    def post(self, retval):
-        """
-        Method called once our main program has finished running.
-        """
-        self.window.top.popup(Confirm_dialogue("Submission Complete", "Successfully submitted {} calculations".format(retval), self.window.top, submit_callback = 1))
-        
