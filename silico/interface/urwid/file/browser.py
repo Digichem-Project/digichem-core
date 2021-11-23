@@ -37,14 +37,14 @@ class File_selector(Selector):
     
     show_hidden = Option(help = "Whether to show hidden files.", type = bool, default = False)
 
-    def __init__(self, starting_dir, title = "File Browser", manual_widget_title = "Manual File Path"):
+    def __init__(self, starting_dir, title = "File Browser", manual_widget_title = "Manual File Path", can_choose_folders = False, can_choose_multiple = True):
         """
         Constructor for File_selector objects.
         
         :param starting_dir: The starting directory that will be shown expanded.
         :param title: A title to display around this selector.
         """
-        browser = File_browser(starting_dir, show_hidden = self.show_hidden)
+        browser = File_browser(starting_dir, show_hidden = self.show_hidden, can_choose_multiple = can_choose_multiple, can_choose_folders = can_choose_folders)
         browser.offset_rows = 1
         
         manual_widget = urwid.Edit(("body", "File: "))

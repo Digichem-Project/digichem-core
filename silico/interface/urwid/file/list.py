@@ -48,7 +48,7 @@ class File_list(Row_browser):
     A widget for displaying a list of paths to files.
     """
     
-    def __init__(self, top, start_dir = None, rearrangeable = True, initial_files = None):
+    def __init__(self, top, start_dir = None, rearrangeable = True, initial_files = None, can_choose_folders = False):
         """
         Constructor for Coordinate_list objects.
         
@@ -60,7 +60,7 @@ class File_list(Row_browser):
         start_dir = start_dir if start_dir is not None else pathlib.Path.cwd()
         
         # Widget for choosing files.
-        file_selector = File_selector(start_dir, title = "Select Calculation Files")
+        file_selector = File_selector(start_dir, title = "Select Calculation Files", can_choose_folders = can_choose_folders)
         
         # Add our starting files.
         initial_files = [] if initial_files is None else initial_files
