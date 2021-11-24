@@ -84,11 +84,10 @@ class Coordinate_list(Row_browser):
         :param initial_charge: An optional integer charge to set for initial_files.
         :param initial_mult: An optional integer multiplicity to set for initial_files.
         """
-        start_dir = start_dir if start_dir is not None else pathlib.Path.cwd()
         top = top
         
         # Widget for choosing files, stored at self.selector
-        file_selector = Coord_selector(start_dir, title = "Select Input Coordinates")
+        file_selector = Coord_selector(top, start_dir, title = "Select Input Coordinates")
         file_selector.charge = initial_charge
         file_selector.multiplicity = initial_mult
         file_selector.generate_3D = gen3D

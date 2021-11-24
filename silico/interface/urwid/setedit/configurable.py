@@ -11,15 +11,16 @@ class Configurable_browser(Setedit_browser):
     A widget that permits viewing and editing lists of options.
     """
             
-    def __init__(self, configurable, on_change_callback = None):
+    def __init__(self, top, configurable, on_change_callback = None):
         """
         Construct a Setedit_browser from a configurable object.
         
+        :param top: Top-most widget being used for display.
         :param configurable: A configurable object to construct from.
         :param on_change_callback: A function to call when settings are saved.
         """
         self.configurable = configurable
-        setedits = [Option_setedit.from_configurable_option(configurable, option) for option in configurable.OPTIONS.values() if option.no_edit is False]
+        setedits = [Option_setedit.from_configurable_option(top, configurable, option) for option in configurable.OPTIONS.values() if option.no_edit is False]
         super().__init__(setedits, on_change_callback = on_change_callback)
         
     def save(self):

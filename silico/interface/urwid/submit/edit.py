@@ -8,12 +8,12 @@ class Method_editor(Pages):
     A widget for editing different parts of a method.
     """
     
-    def __init__(self, destination, program, calculation):
+    def __init__(self, top, destination, program, calculation):
         """
         """
-        self.calculation_editor = Settings_editor(Configurable_browser(calculation), self.get_title(calculation))
-        self.program_editor = Settings_editor(Configurable_browser(program), self.get_title(program))
-        self.destination_editor = Settings_editor(Configurable_browser(destination), self.get_title(destination))
+        self.calculation_editor = Settings_editor(Configurable_browser(top, calculation), self.get_title(calculation))
+        self.program_editor = Settings_editor(Configurable_browser(top, program), self.get_title(program))
+        self.destination_editor = Settings_editor(Configurable_browser(top, destination), self.get_title(destination))
         # We show in reverse order, because typically the calculation is what the user wants to change anyway.
         super().__init__([
             ("Calculation", self.calculation_editor),

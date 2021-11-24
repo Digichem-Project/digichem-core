@@ -7,6 +7,6 @@ class View_browser(Configurable_browser):
     """
     
     def __init__(self, view):
-        super().__init__(view, on_change_callback = view.on_settings_change)
+        super().__init__(view.top, view, on_change_callback = view.on_settings_change)
 
 

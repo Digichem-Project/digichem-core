@@ -1,6 +1,7 @@
 # Main urwid interface for submitting calculations.
 
 # General imports.
+import pathlib
 
 # Silico imports.
 from silico.interface.urwid.misc import Tab_pile
@@ -9,7 +10,6 @@ from silico.interface.urwid.section import Section
 from silico.interface.urwid.submit.method import Method_list
 from silico.config.configurable.option import Option
 from silico.interface.urwid.main.base import Program_view
-from silico.interface.urwid.dialogue import Confirm_dialogue
 
 
 class Calculation_submitter(Program_view):
@@ -17,7 +17,7 @@ class Calculation_submitter(Program_view):
     Class for controlling interface to calculation submission.
     """
     
-    output = Option(help = "Base directory to which output will be written.", type = str)
+    output = Option(help = "Base directory to which output will be written.", type = pathlib.Path)
     
     def __init__(self, window, program):
         """

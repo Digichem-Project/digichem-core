@@ -1,15 +1,14 @@
 # General imports.
 import urwid
+import shlex
+import logging
 
 # Silico imports.
 from silico.interface.urwid.row_list.base import Row_item, Row_widget,\
     Row_browser
 from silico.interface.urwid.method.browser import Method_selector
 from silico.interface.urwid.submit.edit import Method_editor
-import shlex
-import logging
 import silico
-from silico.config.configurable.loader import Partial_loader
 
 
 class Method_widget(Row_widget):
@@ -17,9 +16,9 @@ class Method_widget(Row_widget):
     Widget used to display a method in a Method_list.
     """
     
-    def __init__(self, row_item):
+    def __init__(self, top, row_item):
         Row_widget.__init__(self, row_item)
-        self.method_editor = Method_editor(self.row_item.destination, self.row_item.program, self.row_item.calculation)
+        self.method_editor = Method_editor(top, self.row_item.destination, self.row_item.program, self.row_item.calculation)
 
     def get_code(self):
         """
@@ -131,7 +130,7 @@ class Method_list(Row_browser):
         # Add our starting files.
         initial_methods = [] if initial_methods is None else initial_methods
         
-        super().__init__(Method_selector(methods), top, rearrangeable = rearrangeable, initial = initial_methods)
+        super().__init__(Method_selector(top, methods), top, rearrangeable = rearrangeable, initial = initial_methods)
         
     def add_to_list(self):
         """

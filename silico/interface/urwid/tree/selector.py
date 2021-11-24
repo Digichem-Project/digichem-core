@@ -4,20 +4,20 @@ from silico.interface.urwid.section import Section
 import urwid
 
 
-class Selector(View):
+class Enhanced_tree_selector(View):
     """
-    ABC for widgets that contain a tree widget for selecting something.
+    ABC for widgets that contain both a tree widget for selecting something and also a manual text-like widget
     """
     
-    def __init__(self, browser, manual_widget, title, manual_widget_title):
+    def __init__(self, top, browser, manual_widget, title, manual_widget_title):
         """
-        Constructor for Selector objects.
+        Constructor for Enhanced_tree_selector objects.
         """
         self.browser = browser
         self.manual_widget = manual_widget
         self.manual_widget_title = manual_widget_title
         
-        super().__init__(self.browser, title)
+        super().__init__(top, self.browser, title)
         
     def _get_body(self):
         """

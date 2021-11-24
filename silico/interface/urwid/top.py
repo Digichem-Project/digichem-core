@@ -99,13 +99,16 @@ class Top(urwid.WidgetPlaceholder):
         
         # Update.
         self.update_view()
-
-    def swap_into_window(self, original_widget, cancel_callback = None, submit_callback = None):
+        
+    def wrap_with_controls(self, original_widget, cancel_callback = None, submit_callback = None):
         """
-        Wrap a widget buttons and then set it as the top-most widget.
+        Wrap a widget with controls (buttons).
+        
+        The buttons that are shown depend on whether submit_callback is given and whether orginal_widget is a View that has options.
         
         :param cancel_callback: A function to call when the cancel button is pressed.
         :param submit_callback: A function to call when the submit button is pressed.
+        :returns: A wrapped widget.
         """
         # If our widget is a View and a submit_callback has not been given, we can use a default.
         if isinstance(original_widget, View) and submit_callback is None:
@@ -121,8 +124,30 @@ class Top(urwid.WidgetPlaceholder):
             
         else:
             window = Confirm(original_widget, top = self, submit_callback = cancel_callback)
+            
+        return window
+
+    def swap_into_window(self, original_widget, cancel_callback = None, submit_callback = None):
+        """
+        Wrap a widget with buttons and then set it as the top-most widget.
+        
+        :param cancel_callback: A function to call when the cancel button is pressed.
+        :param submit_callback: A function to call when the submit button is pressed.
+        """
+        window = self.wrap_with_controls(original_widget, cancel_callback, submit_callback)
         
         self.swap(window)
+        
+    def swap_into_overlayed_window(self, original_widget, cancel_callback = None, submit_callback = None, align = "center", width = ('relative', 100), valign = "middle", height = ('relative', 100), left = 1, top = 1, right = 1, bottom = 2, **kwargs):
+        """
+        Wrap a widget with control buttons and set it as the top-most widget in an overlay so that the previous top-most appears beneath it.
+        """
+        window = self.wrap_with_controls(original_widget, cancel_callback, submit_callback)
+        
+        # Don't use self.current_top here, we are about to become the new current_top so that would recurse infinitely.
+        overlay = urwid.Overlay(window, self.original_widget, align = align, width = width, valign = valign, height = height, left = left, top = top, right = right, bottom = bottom, **kwargs)
+        
+        self.swap(overlay)
 
     def back(self):
         """
@@ -207,12 +232,13 @@ class View(WidgetWrap, Configurable):
     A widget designed to be shown inside a swapping window.
     """
     
-    def __init__(self, body, title = "", border = True, focusable = True):
+    def __init__(self, top, body, title = "", border = True, focusable = True):
+        self.top = top
         self._settings_editor = None
         self.inner = body
         self.title = title
         self.border = border
-        self.focusable = True
+        self.focusable = focusable
         
         WidgetWrap.__init__(self, self._get_body())
         Configurable.__init__(self, True)

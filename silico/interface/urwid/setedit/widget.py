@@ -2,6 +2,8 @@
 import urwid
 
 # Silico imports.
+import silico.interface.urwid.file.browser
+import pathlib
 
 
 class Min_edit(urwid.Edit):
@@ -105,6 +107,9 @@ class Setedit_widget(urwid.Pile):
         if vtype == "bool":
             return Bool_editor
         
+        elif vtype == "Path":
+            return File_editor
+        
         elif vtype == "list" or vtype == "tuple":
             return List_editor
         
@@ -138,7 +143,6 @@ class Single_editor(Setedit_widget):
         """
         Load the list of inner widgets we'll use for display.
         """
-        self.edit_widget = edit_widget
         return [
             urwid.AttrMap(edit_widget, self.edit_attr),
             self.get_help_widget(self.setedit.help)
@@ -154,20 +158,21 @@ class Text_editor(Single_editor):
         """
         Load the list of inner widgets we'll use for display.
         """
-        return super().load_widgets(urwid.Edit((self.title_attr, self.setedit.title + ": "), self.value_to_str(self.setedit.starting_value)))
+        self.edit = urwid.Edit((self.title_attr, self.setedit.title + ": "), self.value_to_str(self.setedit.starting_value))
+        return super().load_widgets(self.edit)
     
     def reset(self):
         """
         Reset the current value back to the default value.
         """
-        self.edit_widget.set_edit_text(self.value_to_str(self.setedit.starting_value))
+        self.edit.set_edit_text(self.value_to_str(self.setedit.starting_value))
     
     @property
     def value(self):
         """
         The currently, possibly edited, value of this widget.
         """
-        value = self.edit_widget.get_edit_text()
+        value = self.edit.get_edit_text()
         return self.str_to_value(value)
 
 
@@ -180,22 +185,145 @@ class Bool_editor(Single_editor):
         """
         Load the list of inner widgets we'll use for display.
         """
-        checkbox = urwid.CheckBox((self.title_attr, self.setedit.title + ": "), self.setedit.starting_value)
+        self.checkbox = urwid.CheckBox((self.title_attr, self.setedit.title + ": "), self.setedit.starting_value)
         
-        return super().load_widgets(checkbox)
+        return super().load_widgets(self.checkbox)
     
     def reset(self):
         """
         Reset the current value back to the default value.
         """
-        self.edit_widget.set_state(self.setedit.starting_value)
+        self.checkbox.set_state(self.setedit.starting_value)
     
     @property
     def value(self):
         """
         The current, possible edited, value of this widget.
         """
-        return self.edit_widget.get_state()
+        return self.checkbox.get_state()
+    
+class Popup_editor(Single_editor):
+    """
+    ABC for editors that show a popup.
+    """
+    
+    def __init__(self, setedit, *args, **kwargs):
+        """
+        """
+        self._popup = None
+        self._value = setedit.starting_value
+        
+        # The button that can be used to launch our popup.
+        self.button = urwid.Button("", lambda button: self.open_popup())
+        self.update_label()
+        
+        super().__init__(setedit, *args, **kwargs)
+    
+    def load_widgets(self):
+        """
+        Load the list of inner widgets we'll use for display.
+        """
+        # We'll wrap this in a columns so we can add our title.
+        body = urwid.Columns([
+            ('pack', urwid.Text((self.title_attr, "{}: ".format(self.setedit.title)))),
+            self.button
+        ], dividechars = 1)
+        
+        return super().load_widgets(body)
+    
+    def open_popup(self):
+        """
+        Method called to show the popup the user can interactive with.
+        """
+        self.setedit.top.swap_into_overlayed_window(self.get_popup(), submit_callback = self.update)
+        
+    def get_popup(self, reload = False):
+        """
+        Get the popup widget.
+        """
+        if self._popup is None or reload:
+            self._popup = self.load_popup()
+            
+        return self._popup
+        
+    def load_popup(self):
+        """
+        Load/create the popup.
+        """
+        raise NotImplementedError("Implement in subclass")
+    
+    def reset(self):
+        """
+        Reset the current value back to the default value.
+        """
+        self._value = self.setedit.starting_value
+        self.update_label()
+        
+    def update(self):
+        """
+        Update the value of this widget.
+        """
+        raise NotImplementedError("Implement in subclass")
+        
+    def update_label(self):
+        """
+        Update the label of this widget with the current value.
+        """
+        self.button.set_label(self.value_to_str(self._value))
+    
+    @property
+    def value(self):
+        """
+        The currently, possibly edited, value of this widget.
+        """
+        return self._value
+
+
+class File_editor(Popup_editor):
+    """
+    An editor for picking files.
+    """
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.file_selector = silico.interface.urwid.file.browser.File_selector(self.setedit.top, title = "File for {}:".format(self.setedit.title), can_choose_folders = True, can_choose_multiple = False)
+    
+    def open_popup(self):
+        """
+        Method called to show the popup the user can interactive with.
+        """
+        self.setedit.top.swap_into_window(self.get_popup(), submit_callback = self.update)
+    
+    def load_popup(self):
+        return self.file_selector
+
+    def update(self):
+        """
+        Update the value of this widget.
+        """
+        selected_files = self.file_selector.selected
+        self._value = selected_files[-1] if len(selected_files) > 0 else None
+        self.file_selector.reset()
+        
+        self.update_label()
+        
+    @classmethod
+    def value_to_str(self, value):
+        """
+        Convert a value to a string.
+        
+        This function handles mapping of 'None' values.
+        """
+        return str(value) if value is not None else ""
+    
+    @classmethod
+    def str_to_value(self, value):
+        """
+        Convert a string to a real value.
+        
+        This function handles mapping of 'None' values.
+        """
+        return pathlib.Path(value) if value != "" else None
 
 
 class Text_list_editor(Min_edit):

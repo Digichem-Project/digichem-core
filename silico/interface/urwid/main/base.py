@@ -116,7 +116,7 @@ class Program_view(View):
         """
         self.window = window
         self.program = program
-        super().__init__(self.get_body(), title = program.name, border = False)
+        super().__init__(self.window.top, self.get_body(), title = program.name, border = False)
         
     def get_body(self):
         """

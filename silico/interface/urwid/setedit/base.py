@@ -13,14 +13,16 @@ class Setedit():
     Logical storage for setting editors.
     """
     
-    def __init__(self, title, starting_value, vtype, help = None):
+    def __init__(self, top, title, starting_value, vtype, help = None):
         """
         
+        :param top: Top-most widget being used for display.
         :param title: The title/name of this setedit.
         :param starting_value: The default value.
         :param vtype: The type of value.
         :param help: Optional help text to display.
         """
+        self.top = top
         self.title = title
         self.starting_value = starting_value
         self.vtype = vtype
@@ -94,18 +96,18 @@ class Setedit():
             # This doesn't work if option is a sub option.
             return option.__get__(owning_obj)
     
-    @classmethod
-    def from_configurable_optiono(self, owning_obj, option):
-        """
-        Construct a new Setedit object from a configurable option.
-        
-        :param owning_obj: The owning object on which the Option object is set as a class attribute.
-        :param option: The configurable option.
-        :returns: The Setedit object.
-        """
-        if option.name == "DFT_excited_states":
-            raise Exception(str(self.value_from_configurable_option(owning_obj, option)))
-        return self(option.name, self.value_from_configurable_option(owning_obj, option), self.vtype_from_configurable_option(option), option.help)    
+#     @classmethod
+#     def from_configurable_optiono(self, owning_obj, option):
+#         """
+#         Construct a new Setedit object from a configurable option.
+#         
+#         :param owning_obj: The owning object on which the Option object is set as a class attribute.
+#         :param option: The configurable option.
+#         :returns: The Setedit object.
+#         """
+#         if option.name == "DFT_excited_states":
+#             raise Exception(str(self.value_from_configurable_option(owning_obj, option)))
+#         return self(option.name, self.value_from_configurable_option(owning_obj, option), self.vtype_from_configurable_option(option), option.help)    
 
 
 class Option_setedit(Setedit):
@@ -113,12 +115,14 @@ class Option_setedit(Setedit):
     A setedit for editing a Configurable Option.
     """
     
-    def __init__(self, owning_obj, dict_obj, option):
+    def __init__(self, top, owning_obj, dict_obj, option):
         """
+        :param top: Top-most widget being used for display.
         :param owning_obj: The owning object on which the Option object is set as a class attribute.
         :param dict_obj: The dict in which the value of this Option is stored.
         :param value: The new value to set.
         """
+        self.top = top
         self.owning_obj = owning_obj
         self.dict_obj = dict_obj
         self.option = option
@@ -142,10 +146,11 @@ class Option_setedit(Setedit):
         raise NotImplementedError("Option objects don't have children")
     
     @classmethod
-    def from_configurable_option(self, owning_obj, option):
+    def from_configurable_option(self, top, owning_obj, option):
         """
         Construct a new Setedit object from a configurable option.
         
+        :param top: The top-most widget being used for display.
         :param owning_obj: The owning object on which the Option object is set as a class attribute.
         :param option: The configurable option.
         :returns: The Setedit object.
@@ -156,7 +161,7 @@ class Option_setedit(Setedit):
         else:
             cls = self
             
-        return cls(owning_obj, owning_obj._configurable_options, option)
+        return cls(top, owning_obj, owning_obj._configurable_options, option)
 
 
 class Options_setedit(Option_setedit):
@@ -164,8 +169,8 @@ class Options_setedit(Option_setedit):
     A setedit for editing a group of Configurable Options.
     """
     
-    def __init__(self, owning_obj, dict_obj, option):
-        super().__init__(owning_obj, dict_obj, option)
+    def __init__(self, top, owning_obj, dict_obj, option):
+        super().__init__(top, owning_obj, dict_obj, option)
         self._children = None
     
     @property
@@ -183,10 +188,10 @@ class Options_setedit(Option_setedit):
         for sub_option in self.option.OPTIONS.values():
             if hasattr(sub_option, "OPTIONS"):
                 # This sub option has sub options of its own.
-                children.append(Options_setedit(self.owning_obj, mapping, sub_option))
+                children.append(Options_setedit(self.top, self.owning_obj, mapping, sub_option))
                 
             else:
-                children.append(Option_setedit(self.owning_obj, mapping, sub_option))
+                children.append(Option_setedit(self.top, self.owning_obj, mapping, sub_option))
                 
         return children
     
