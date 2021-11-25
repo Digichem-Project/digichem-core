@@ -10,6 +10,7 @@ from silico.misc.base import is_iter
 from silico.result.multi.base import Merged
 from silico.result.alignment import Minimal
 from silico.result.result import Result_set
+from silico.exception.base import Silico_exception
 
 def class_from_log_files(*log_files):
     """
@@ -19,7 +20,12 @@ def class_from_log_files(*log_files):
     found_log_files = Parser.find_log_files(log_files[0])
     
     # We'll use cclib to guess the file type for us.
-    log_file_type = type(cclib.io.ccopen([str(found_log_file) for found_log_file in found_log_files]))
+    try:
+        log_file_type = type(cclib.io.ccopen([str(found_log_file) for found_log_file in found_log_files]))
+        
+    except Exception as e:
+        # cclib couldn't figure out the file type, it probably wasn't a .log file.
+        raise Silico_exception("Could not determine file type of file(s): '{}'; are your sure these are computational log files?".format(", ".join(log_files))) from e
     
     # Either get a more complex parser if we have one, or just return the base parser.
     if log_file_type == cclib.parser.gaussianparser.Gaussian:
