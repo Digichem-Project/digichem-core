@@ -71,11 +71,38 @@ class Dialogue_mixin():
         
         else:
             return callback
+        
+
+class Widget_dialogue(Confirm_or_cancel, Dialogue_mixin):
+    """
+    Class for dialogues that display other widgets.
+    """
+    
+    def __init__(self, title, widget, top, error = False, cancel_callback = None, submit_callback = None):
+        """
+        Constructor for Confirm dialogue boxes.
+        
+        :param title: Text markup to use as the title.
+        :param widget: The widget to wrap around, this should probably be inside a list box or similar...
+        :param top: The top widget used for display.
+        :param error: Whether to use alternative formatting to indicate an error.
+        :param cancel_callback: Function to call when the cancel button is clicked.
+        :param submit_callback: Function to call when the submit button is clicked.
+        """
+        Dialogue_mixin.setup(self, title, widget, error)
+        super().__init__(self.get_body(), top, cancel_callback, submit_callback)
+
+    def back(self, *args, **kwargs):
+        return Dialogue_mixin.back(self, *args, **kwargs)
+    
+    def convert_callback(self, *args, **kwargs):
+        return Dialogue_mixin.convert_callback(self, *args, **kwargs)
+    
     
         
 class Text_dialogue(Dialogue_mixin):
     """
-    Mixing class for dialogues that display text
+    Mixin class for dialogues that display text
     """
     
     def setup(self, title, message, error = False):
