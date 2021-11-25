@@ -146,7 +146,12 @@ class Program_view(View):
             logger = logging.getLogger(silico.logger_name)
             logger.exception("Sub-program {} stopped with error".format(self.program.command))
             return False
-
+        
+        except KeyboardInterrupt:
+            # The user wanted to stop.
+            logger = logging.getLogger(silico.logger_name)
+            logger.error("Sub-program {} interrupted by user (ctrl-c)".format(self.program.command))
+            return False
         
     def post(self, retval):
         """
