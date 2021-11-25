@@ -13,7 +13,7 @@ class Setedit():
     Logical storage for setting editors.
     """
     
-    def __init__(self, top, title, starting_value, vtype, help = None):
+    def __init__(self, top, title, starting_value, vtype, help = None, choices = None):
         """
         
         :param top: Top-most widget being used for display.
@@ -21,12 +21,14 @@ class Setedit():
         :param starting_value: The default value.
         :param vtype: The type of value.
         :param help: Optional help text to display.
+        :param choices: An optional list of choices which restricts the values this setedit can take.
         """
         self.top = top
         self.title = title
         self.starting_value = starting_value
         self.vtype = vtype
         self.help = help
+        self.choices = choices
         self._widget = None
         
     def get_children(self):
@@ -68,6 +70,10 @@ class Setedit():
         """
         if hasattr(option, "OPTIONS"):
             return "Options"
+        
+        
+        if len(option.choices) > 0:
+            return "choices"
         
         try:
             return option.type.__name__
@@ -131,6 +137,7 @@ class Option_setedit(Setedit):
         self.title = option.name
         self.vtype = self.vtype_from_configurable_option(option)
         self.help = option.help
+        self.choices = option.choices
         
     @property
     def starting_value(self):

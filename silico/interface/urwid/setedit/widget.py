@@ -1,9 +1,10 @@
 # General imports.
 import urwid
+import pathlib
 
 # Silico imports.
 import silico.interface.urwid.file.browser
-import pathlib
+from silico.interface.urwid.dialogue import Widget_dialogue
 
 
 class Min_edit(urwid.Edit):
@@ -109,6 +110,9 @@ class Setedit_widget(urwid.Pile):
         
         elif vtype == "Path":
             return File_editor
+        
+        elif vtype == "choices":
+            return Choices_editor
         
         elif vtype == "list" or vtype == "tuple":
             return List_editor
@@ -235,7 +239,13 @@ class Popup_editor(Single_editor):
         """
         Method called to show the popup the user can interactive with.
         """
-        self.setedit.top.swap_into_overlayed_window(self.get_popup(), submit_callback = self.update)
+        self.setedit.top.popup(self.get_popup())
+        
+    def close_popup(self):
+        """
+        Method called to hide the popup.
+        """
+        self.setedit.top.close_popup(self.get_popup())
         
     def get_popup(self, reload = False):
         """
@@ -276,7 +286,7 @@ class Popup_editor(Single_editor):
         """
         The currently, possibly edited, value of this widget.
         """
-        return self._value
+        return self.str_to_value(self._value)
 
 
 class File_editor(Popup_editor):
@@ -323,7 +333,109 @@ class File_editor(Popup_editor):
         
         This function handles mapping of 'None' values.
         """
-        return pathlib.Path(value) if value != "" else None
+        return pathlib.Path(value) if value != "" and value is not None else None
+
+
+class Choices_widget(urwid.AttrMap):
+    """
+    Widget used to display a choice in a choices picker object.
+    """
+    
+    body_attr = "body"
+    focus_attr = "editable"
+    
+    def __init__(self, value, picker):
+        """
+        """
+        self.button = urwid.Button("", lambda button: self.submit())
+        super().__init__(self.button, self.body_attr, self.focus_attr)
+        
+        self.value = value
+        self.picker = picker
+        
+    def submit(self):
+        """
+        Method called when our choice is chosen.
+        """
+        self.picker.editor_widget.update()
+        self.picker.editor_widget.close_popup()
+        
+    @property
+    def value(self):
+        """
+        The value of this choice.
+        """
+        return self._value
+    
+    @value.setter
+    def value(self, value):
+        """
+        Change the value of this choice.
+        """
+        self._value = value
+        self.button.set_label(value)
+
+
+class Choices_picker(urwid.ListBox):
+    """
+    Widget that allows picking from a number of choices.
+    """
+    
+    def __init__(self, editor_widget):
+        """
+        """
+        super().__init__(urwid.SimpleFocusListWalker([]))
+        
+        # Keep our widget for later.
+        self.editor_widget = editor_widget
+        
+        for choice in editor_widget.setedit.choices:
+            self.body.append(self.get_widget(choice))
+            
+        self.set_choice(self.editor_widget._value)
+        
+    def get_widget(self, value):
+        """
+        Get one of the choices widget (a button) we will display.
+        """
+        return Choices_widget(self.editor_widget.value_to_str(value), self)
+    
+    def set_choice(self, value):
+        """
+        Set a choice as focus.
+        
+        :param value: The value of the choice to set.
+        """
+        try:
+            match = [choice.value for choice in self.body].index(value)
+            self.set_focus(match)
+            
+        except ValueError:
+            # Couldn't find the given value, ignore?
+            pass
+
+
+class Choices_editor(Popup_editor):
+    """
+    An editor that allows the user to pick from a number of choices.
+    """
+    
+    def __init__(self, setedit, *args, **kwargs):
+        super().__init__(setedit, *args, **kwargs)
+        self.picker = Choices_picker(self)
+    
+    def load_popup(self):
+        return Widget_dialogue("Select option for {}".format(self.setedit.title), self.picker, self.setedit.top, submit_callback = self.update)
+        
+    def update(self):
+        """
+        Update the value of this widget.
+        """
+        self._value = self.picker.focus.value
+        self.update_label()
+        
+        # Also update out picked widget to show the currently selected as having default focus.
+        self.picker.set_choice(self._value)
 
 
 class Text_list_editor(Min_edit):
@@ -405,7 +517,6 @@ class List_editor(Setedit_widget):
             # Actual contents.
             self.inner_pile
         ]
-        
                 
     def get_fields(self, values):
         """
