@@ -16,9 +16,9 @@ class Method_widget(Row_widget):
     Widget used to display a method in a Method_list.
     """
     
-    def __init__(self, top, row_item):
+    def __init__(self, row_item):
         Row_widget.__init__(self, row_item)
-        self.method_editor = Method_editor(top, self.row_item.destination, self.row_item.program, self.row_item.calculation)
+        self.method_editor = Method_editor(self.row_item.row_list.top, self.row_item.destination, self.row_item.program, self.row_item.calculation)
 
     def get_code(self):
         """
