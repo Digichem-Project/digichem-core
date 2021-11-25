@@ -106,7 +106,7 @@ class Turbomole_setup(Image_setup):
                 # If we can use the same directory for both structure and spin, use the same cube maker.
                 if self.calculation_directories['spin'] == self.calculation_directories['structure']:
                     self.cube_makers['spin'] = self.cube_makers['structure']
-                    print("Using same")
+                    
                 else:
                     # We need to use a different directory for spin.
                     self.cube_makers['spin'] = Turbomole_to_cube.from_options(
