@@ -2,6 +2,7 @@
 import urwid
 from urwid.font import HalfBlock7x7Font
 import io
+import logging
 
 # Silico import.
 import silico
@@ -136,11 +137,16 @@ class Program_view(View):
         """
         Submit this program widget, running the program it wraps.
         """
-        self.setup()
-        retval = self.program.main()
-        self.post(retval)
-        
-        return retval
+        try:
+            self.setup()
+            retval = self.program.main()
+            self.post(retval)
+            
+        except Exception:
+            logger = logging.getLogger(silico.logger_name)
+            logger.exception("Sub-program {} stopped with error".format(self.program.command))
+            return False
+
         
     def post(self, retval):
         """
