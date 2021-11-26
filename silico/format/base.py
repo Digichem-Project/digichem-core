@@ -200,7 +200,7 @@ class Result_format_group(Result_format_ABC):
         # Get our data first.
         data = self.extract(results)
         
-        # If it's empty, don't open our file (because this would create a blank file, which is kinda weird.
+        # If it's empty, don't open our file (because this would create a blank file, which is kinda weird).
         if data != None and data != "":
             for output_file_path in output_file_paths:
                 with Multi_file_wrapper(output_file_path, "at") as output_file:
