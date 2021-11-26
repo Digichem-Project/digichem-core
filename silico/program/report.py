@@ -7,7 +7,7 @@ from silico.program.base import Program
 from silico.exception.base import Silico_exception
 from silico.parser import parse_calculations
 from silico.report.main.pdf import PDF_report
-from silico.interface.urwid.report.base import Report_generator
+from silico.interface.urwid.report.base import Report_interface
 
 
 class Report_program(Program):
@@ -83,7 +83,7 @@ class Report_program(Program):
         
         :param window The parent window object.
         """
-        return Report_generator(window, self)
+        return Report_interface(window, self)
         
     
     def main(self):

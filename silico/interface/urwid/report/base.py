@@ -11,7 +11,7 @@ from silico.interface.urwid.misc import Tab_pile
 from silico.interface.urwid.main.base import Program_view
 
 
-class Report_generator(Program_view):
+class Report_interface(Program_view):
     """
     Class for controlling interface to reports generator.
     """
