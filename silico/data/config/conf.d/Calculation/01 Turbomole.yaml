@@ -31,8 +31,10 @@ ALIAS: [Turbomole-CC2-defaults]
 PARENT: [Turbomole-defaults]
 
 # CC2 is very slow, assign more CPUs to try and compensate.
-# We no longer do this as over assigning CPUs leads to instability.
-num_CPUs: 6
+num_CPUs: 32
+
+# Fix for ricc2 crashes
+intel_AVX2_fix: True
 
 # Turn on CC2.
 ricc2:
@@ -60,7 +62,10 @@ ABSTRACT: True
 ALIAS: [Turbomole-ADC2-defaults]
 PARENT: [Turbomole-defaults]
 
-num_CPUs: 8
+num_CPUs: 32
+
+# Fix for ricc2 crashes
+intel_AVX2_fix: True
 
 # Turn on ADC(2).
 ricc2:
