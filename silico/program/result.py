@@ -86,7 +86,8 @@ class Result_program(Program):
             return Long_table_group_extractor
         else:
             raise NotImplementedError("TODO")
-        
+
+
     def _split_file_names(self, names):
         """
         Take a list of file names (as would be given on the command line) and determine which are files and which are sections.
@@ -126,7 +127,8 @@ class Result_program(Program):
                 sections.extend([{'name': section_name, 'sub_criteria': sub_criteria} for sub_criteria in criteria])
                 
         return (file_names, sections)
-    
+
+
     def main(self):
         """
         Logic for our program.
