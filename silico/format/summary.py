@@ -1,82 +1,86 @@
-# Summary extractors.
-# These extractor classes form the basis for several other extractors, they extract a summary view of a particular result (or subsection of a result).
-# Summary extractors alone are sufficient in most use cases, but they are not great for repetitive result data (atoms, vibrations and excited states). 
+# Summary formats.
+# These format classes form the basis for several other formats, they extract a summary view of a particular result (or subsection of a result).
+# Summary formats alone are sufficient in most use cases, but they are not great for repetitive result data (atoms, vibrations and excited states). 
 
+# General imports.
 from _collections import OrderedDict
+
+# Silico imports.
 from silico.exception.base import Result_unavailable_error
-from silico.extract import Result_extractor
-import silico.extract
+from silico.format import Result_format
+import silico.format
 from silico.result.angle import Angle
-from silico.extract.base import Result_extractor_group
+from silico.format.base import Result_format_group
 from silico.misc import Layered_dict
 from silico import misc
 
-class Summary_group_extractor(Result_extractor_group):
+
+class Summary_group_format(Result_format_group):
     """
     Abstract top-level class for extracting particular sections from a number of Result_set objects in summary format.    
     """
     
-    def __init__(self, *extractor_objects, ignore = False, **kwargs):
+    def __init__(self, *format_objects, ignore = False, **kwargs):
         """
-        Constructor for Summary_group_extractor objects.
+        Constructor for Summary_group_format objects.
         """        
-        # Check to see if there any DEF extractors, and replace them if there are.
-        replaced_extractors = []
-        for extractor_object in extractor_objects:
-            if isinstance(extractor_object, Default_summary_extractor):
+        # Check to see if there any DEF formats, and replace them if there are.
+        replaced_formats = []
+        for format_object in format_objects:
+            if isinstance(format_object, Default_summary_format):
                 # Replaced with defaults.
-                replaced_extractors.extend(self.get_default_extractors())
+                replaced_formats.extend(self.get_default_formats())
                 
                 # And ignore
                 ignore = True
             else:
                 # Not default, just add.
-                replaced_extractors.append(extractor_object)
-        extractor_objects = replaced_extractors
+                replaced_formats.append(format_object)
+        format_objects = replaced_formats
         
         # Check to make sure we always have either name or metadata.
-        if len(extractor_objects) != 0 and not True in [silico.extract.METADATA_CLASS_HANDLE == extractor.CLASS_HANDLE for extractor in extractor_objects]:
-            extractor_objects = list(extractor_objects)
-            extractor_objects.insert(0, Name_summary_extractor(**kwargs))
+        if len(format_objects) != 0 and not True in [silico.format.METADATA_CLASS_HANDLE == format.CLASS_HANDLE for format in format_objects]:
+            format_objects = list(format_objects)
+            format_objects.insert(0, Name_summary_format(**kwargs))
         
-        super().__init__(*extractor_objects, ignore = ignore, **kwargs)
+        super().__init__(*format_objects, ignore = ignore, **kwargs)
         self.fieldnames = []
         
     @classmethod
-    def get_default_extractors(self, **kwargs):
+    def get_default_formats(self, **kwargs):
         """
-        Get a list of default extractor objects that can be used to convert a result set to summary format.
+        Get a list of default format objects that can be used to convert a result set to summary format.
         """
         return [
-            Metadata_summary_extractor(**kwargs),
-            Vibrations_summary_extractor(**kwargs),
-            Geometry_summary_extractor(**kwargs),
-            SCF_summary_extractor(**kwargs),
-            MP_summary_extractor(**kwargs),
-            CC_summary_extractor(**kwargs),
-            Orbitals_summary_extractor("+0", **kwargs),
-            Orbitals_summary_extractor("+1", **kwargs),
-            Orbitals_summary_extractor(**kwargs),
-            Beta_summary_extractor("+0", **kwargs),
-            Beta_summary_extractor("+1", **kwargs),
-            Beta_summary_extractor(**kwargs),
-            PDM_summary_extractor(**kwargs),
-            TDM_summary_extractor(**kwargs),
-            Excited_states_summary_extractor(**kwargs),
-            Excited_states_summary_extractor((1,1), **kwargs),
-            Excited_state_transitions_summary_extractor((1,1), 1, **kwargs),
-            Excited_states_summary_extractor((3,1), **kwargs),
-            Excited_state_transitions_summary_extractor((3,1), 1, **kwargs),
-            SOC_summary_extractor("S(0)", "T(1)", **kwargs),
-            SOC_summary_extractor("S(1)", "T(1)", **kwargs)
+            Metadata_summary_format(**kwargs),
+            Vibrations_summary_format(**kwargs),
+            Geometry_summary_format(**kwargs),
+            SCF_summary_format(**kwargs),
+            MP_summary_format(**kwargs),
+            CC_summary_format(**kwargs),
+            Orbitals_summary_format("+0", **kwargs),
+            Orbitals_summary_format("+1", **kwargs),
+            Orbitals_summary_format(**kwargs),
+            Beta_summary_format("+0", **kwargs),
+            Beta_summary_format("+1", **kwargs),
+            Beta_summary_format(**kwargs),
+            PDM_summary_format(**kwargs),
+            TDM_summary_format(**kwargs),
+            Excited_states_summary_format(**kwargs),
+            Excited_states_summary_format((1,1), **kwargs),
+            Excited_state_transitions_summary_format((1,1), 1, **kwargs),
+            Excited_states_summary_format((3,1), **kwargs),
+            Excited_state_transitions_summary_format((3,1), 1, **kwargs),
+            SOC_summary_format("S(0)", "T(1)", **kwargs),
+            SOC_summary_format("S(1)", "T(1)", **kwargs)
         ]
     
     def join(self, extracted_results):
         """
-        Join together results from multiple extractor classes.
+        Join together results from multiple format classes.
         
-        :param extracted_results: A list of results extracted by this extractor group (one for each extractor). The format of each extracted result depends on the extractor group class.
-        :return: A joined representation of the results. The format will depend on the extractor group class.
+        :param extracted_results: A list of results extracted by this format group (one for each format). The format of each extracted result depends on the format group class.
+        :return: A joined representation of the results. The format will depend on the format group class.
         """
         return Layered_dict(*extracted_results)
         
@@ -91,13 +95,13 @@ class Summary_group_extractor(Result_extractor_group):
         # Return the table data.
         return result_rows
 
-class Summary_extractor(Result_extractor):
+class Summary_format(Result_format):
     """
-    Abstract, top-level class for all summary type extractor classes.
+    Abstract, top-level class for all summary type format classes.
     
-    Summary extractors return Layered_dict objects.
+    Summary formats return Layered_dict objects.
     
-    See the extractors in text, CSV or table for concrete implementations.
+    See the formats in text, CSV or table for concrete implementations.
     """
     
     def _extract(self, result, **kwargs):
@@ -111,20 +115,20 @@ class Summary_extractor(Result_extractor):
         """
         raise NotImplementedError()
     
-class Default_summary_extractor(Summary_extractor):
+class Default_summary_format(Summary_format):
     """
-    Default extractor.
+    Default format.
     
-    This dummy extractor is replaced with a list of default extractors.
+    This dummy format is replaced with a list of default formats.
     """
     
     CLASS_HANDLE = ["DEF", "default", "NORM", "normal"]
 
-class Name_summary_extractor(Summary_extractor):
+class Name_summary_format(Summary_format):
     """
-    Summary extractor for result name.
+    Summary format for result name.
     
-    This dummy extractor is used to ensure the result name is always included no matter what the user chooses.
+    This dummy format is used to ensure the result name is always included no matter what the user chooses.
     """
     
     CLASS_HANDLE = ["NAME"]
@@ -137,12 +141,12 @@ class Name_summary_extractor(Summary_extractor):
             'Name': result.safe_get('metadata', 'name')
         })
 
-class Metadata_summary_extractor(Summary_extractor):
+class Metadata_summary_format(Summary_format):
     """
-    Summary extractor for metadata.
+    Summary format for metadata.
     """
     
-    CLASS_HANDLE = silico.extract.METADATA_CLASS_HANDLE
+    CLASS_HANDLE = silico.format.METADATA_CLASS_HANDLE
     
     def _extract(self, result):
         """
@@ -168,12 +172,12 @@ class Metadata_summary_extractor(Summary_extractor):
             'Multiplicity': result.safe_get('metadata', 'multiplicity')
         })
         
-class Geometry_summary_extractor(Summary_extractor):
+class Geometry_summary_format(Summary_format):
     """
-    Summary extractor for geometry (atoms etc).
+    Summary format for geometry (atoms etc).
     """
     
-    CLASS_HANDLE = silico.extract.GEOM_CLASS_HANDLE
+    CLASS_HANDLE = silico.format.GEOM_CLASS_HANDLE
     
     def _extract(self, result):
         """
@@ -192,9 +196,9 @@ class Geometry_summary_extractor(Summary_extractor):
             'Planarity ratio': result.alignment.get_planar_ratio()
         })
 
-class _Orbitals_summary_extractor(Summary_extractor):
+class _Orbitals_summary_format(Summary_format):
     """
-    Abstract class for fetching orbitals in summary format. See Orbitals_summary_extractor and Beta_summary_extractor for concrete classes.
+    Abstract class for fetching orbitals in summary format. See Orbitals_summary_format and Beta_summary_format for concrete classes.
     """
     ORBITAL_TYPE = "molecular_orbitals"
     ALLOW_CRITERIA = True
@@ -226,25 +230,25 @@ class _Orbitals_summary_extractor(Summary_extractor):
             'No. occupied orbitals{}'.format(spin_type): len([orbital for orbital in getattr(result, self.ORBITAL_TYPE) if orbital.HOMO_difference <= 0])
         })
         
-class Orbitals_summary_extractor(_Orbitals_summary_extractor):
+class Orbitals_summary_format(_Orbitals_summary_format):
     """
-    Summary extractor for (alpha) orbitals.
+    Summary format for (alpha) orbitals.
     """
-    CLASS_HANDLE = silico.extract.ORBITALS_CLASS_HANDLE
+    CLASS_HANDLE = silico.format.ORBITALS_CLASS_HANDLE
     
-class Beta_summary_extractor(_Orbitals_summary_extractor):
+class Beta_summary_format(_Orbitals_summary_format):
     """
-    Summary extractor for (alpha) orbitals.
+    Summary format for (alpha) orbitals.
     """
     ORBITAL_TYPE = "beta_orbitals"
-    CLASS_HANDLE = silico.extract.BETA_CLASS_HANDLE
+    CLASS_HANDLE = silico.format.BETA_CLASS_HANDLE
     
-class Vibrations_summary_extractor(Summary_extractor):
+class Vibrations_summary_format(Summary_format):
     """
-    Summary extractor for vibrations.
+    Summary format for vibrations.
     """
     ALLOW_CRITERIA = True
-    CLASS_HANDLE = silico.extract.VIBRATIONS_CLASS_HANDLE
+    CLASS_HANDLE = silico.format.VIBRATIONS_CLASS_HANDLE
     
     def _extract_with_criteria(self, vibration_index, *, result):
         """
@@ -273,12 +277,12 @@ class Vibrations_summary_extractor(Summary_extractor):
             'No. negative frequencies': len(result.vibrations.negative_frequencies)
         })
         
-class Excited_states_summary_extractor(Summary_extractor):
+class Excited_states_summary_format(Summary_format):
     """
-    dict extractor for ES.
+    dict format for ES.
     """
     ALLOW_CRITERIA = True
-    CLASS_HANDLE = silico.extract.EXCITED_STATE_CLASS_HANDLE
+    CLASS_HANDLE = silico.format.EXCITED_STATE_CLASS_HANDLE
     
     def _extract_with_criteria(self, excited_state_id, *, result):
         """
@@ -311,12 +315,12 @@ class Excited_states_summary_extractor(Summary_extractor):
         })
         
         
-class SOC_summary_extractor(Summary_extractor):
+class SOC_summary_format(Summary_format):
     """
-    dict extractor for ES.
+    dict format for ES.
     """
     ALLOW_CRITERIA = True
-    CLASS_HANDLE = silico.extract.SOC_CLASS_HANDLE
+    CLASS_HANDLE = silico.format.SOC_CLASS_HANDLE
     
     def _extract_with_criteria(self, state1, state2, *, result):
         """
@@ -343,17 +347,17 @@ class SOC_summary_extractor(Summary_extractor):
 #         })
         
     
-class Excited_state_transitions_summary_extractor(Summary_extractor):
+class Excited_state_transitions_summary_format(Summary_format):
     """
-    Summary extractor for ES transitions.
+    Summary format for ES transitions.
     """
     ALLOW_CRITERIA = True
     FORCE_CRITERIA = True
-    CLASS_HANDLE = silico.extract.EXCITED_STATE_TRANSITIONS_CLASS_HANDLE
+    CLASS_HANDLE = silico.format.EXCITED_STATE_TRANSITIONS_CLASS_HANDLE
     
     def _extract_transition(self, excited_state, transition = None):
         """
-        Extractor helper function, extracts from a given state and transition.
+        Format helper function, extracts from a given state and transition.
         """
         # If we weren't given a transition, call ourself again, once for each possible transition, and combine into a single Layered_dict.
         if transition is None:
@@ -388,7 +392,7 @@ class Excited_state_transitions_summary_extractor(Summary_extractor):
         return self._extract_transition(excited_state, transition)
             
     
-class _Dipole_summary_extractor(Summary_extractor):
+class _Dipole_summary_format(Summary_format):
     """
     Abstract class for extracting dipole moments to summary format.
     """
@@ -416,12 +420,12 @@ class _Dipole_summary_extractor(Summary_extractor):
             '{} Total /D'.format(dipole_moment.name): dipole_moment.total
         })
 
-class TDM_summary_extractor(_Dipole_summary_extractor):
+class TDM_summary_format(_Dipole_summary_format):
     """
-    Summary extractor for transition dipole moments.
+    Summary format for transition dipole moments.
     """
     
-    CLASS_HANDLE = silico.extract.TDM_CLASS_HANDLE
+    CLASS_HANDLE = silico.format.TDM_CLASS_HANDLE
     
     def _extract_with_criteria(self, excited_state_id, *, result):
         """
@@ -440,12 +444,12 @@ class TDM_summary_extractor(_Dipole_summary_extractor):
         """
         return super()._extract_with_criteria(dipole_moment = result.transition_dipole_moment)
     
-class PDM_summary_extractor(_Dipole_summary_extractor):
+class PDM_summary_format(_Dipole_summary_format):
     """
-    Summary extractor for permanent dipole moments.
+    Summary format for permanent dipole moments.
     """
     ALLOW_CRITERIA = False
-    CLASS_HANDLE = silico.extract.PDM_CLASS_HANDLE
+    CLASS_HANDLE = silico.format.PDM_CLASS_HANDLE
     
     def _extract(self, result):
         """
@@ -453,7 +457,7 @@ class PDM_summary_extractor(_Dipole_summary_extractor):
         """
         return super()._extract_with_criteria(result.dipole_moment)
     
-class _Energy_summary_extractor(Summary_extractor):
+class _Energy_summary_format(Summary_format):
     """
     Abstract class for Energy_list data to summary format.
     """
@@ -481,24 +485,24 @@ class _Energy_summary_extractor(Summary_extractor):
             '{} energy /kJmol-1'.format(energies.energy_type): energies.eV_to_kJmol(energies.final)
         })
         
-class SCF_summary_extractor(_Energy_summary_extractor):
+class SCF_summary_format(_Energy_summary_format):
     """
-    Summary extractor for SCF energy.
+    Summary format for SCF energy.
     """
-    CLASS_HANDLE = silico.extract.SCF_CLASS_HANDLE
+    CLASS_HANDLE = silico.format.SCF_CLASS_HANDLE
     ENERGY_TYPE = 'SCF_energies'
         
-class MP_summary_extractor(_Energy_summary_extractor):
+class MP_summary_format(_Energy_summary_format):
     """
-    Summary extractor for MP energy.
+    Summary format for MP energy.
     """
-    CLASS_HANDLE = silico.extract.MP_CLASS_HANDLE
+    CLASS_HANDLE = silico.format.MP_CLASS_HANDLE
     ENERGY_TYPE = 'MP_energies'
     
-class CC_summary_extractor(_Energy_summary_extractor):
+class CC_summary_format(_Energy_summary_format):
     """
-    Summary extractor for CC energy.
+    Summary format for CC energy.
     """
-    CLASS_HANDLE = silico.extract.CC_CLASS_HANDLE
+    CLASS_HANDLE = silico.format.CC_CLASS_HANDLE
     ENERGY_TYPE = 'CC_energies'
         

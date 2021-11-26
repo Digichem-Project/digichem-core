@@ -1,10 +1,10 @@
-# Code for result extraction
-from .base import Result_extractor
-from .base import Result_extractor_group
+# Code for result formatting
+from .base import Result_format
+from .base import Result_format_group
 
 # TODO: This whole section is overcomplicated and messy, a thorough rewrite is required.
 
-# These are the class handles for the various section extractors.
+# These are the class handles for the various section formats.
 SUMMARY_CLASS_HANDLE = ["summary", "all"]    
 PDM_CLASS_HANDLE = ["PDM", "permanent dipole moment", "dipole moment"]
 TDM_CLASS_HANDLE = ["TDM", "transition dipole moment", "S1 dipole moment"]

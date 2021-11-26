@@ -1,10 +1,10 @@
-# Extractors for tabulating data from a single result
-# In contrast to the normal table formats (dict, CSV and table), long tables are not used for comparing different result files, but rather for tabulating data from one result file (such as orbitals, atoms, excited states etc).
+# Formats for tabulating data from a single result
+# In contrast to the normal table formats (dict, CSV and table), property tables are not used for comparing different result files, but rather for tabulating data from one result file (such as orbitals, atoms, excited states etc).
 
-from silico.extract import Result_extractor
+from silico.format import Result_format
 from collections import OrderedDict
-from silico.extract import Result_extractor_group
-import silico.extract
+from silico.format import Result_format_group
+import silico.format
 from silico.misc import Layered_dict
 from silico.exception.base import Result_unavailable_error, Silico_exception
 from silico.result.angle import Angle
@@ -12,30 +12,30 @@ from silico.result.spectroscopy import Absorption_emission_graph,\
     Spectroscopy_graph
 
 
-class Long_tabular_group_extractor(Result_extractor_group):
+class Tabular_property_group_format(Result_format_group):
     """
-    Abstract group extractor for long tables (good for reading orbitals, atoms etc in text files and terminals).
+    Abstract group format for property tables (good for reading orbitals, atoms etc in text files and terminals).
     """
     
     @classmethod
-    def get_default_extractors(self, **kwargs):
+    def get_default_formats(self, **kwargs):
         """
-        Get a list of default extractor objects that can be used to convert a result set to dict format.
+        Get a list of default format objects that can be used to convert a result set to dict format.
         
-        :param **kwargs: Keyword args that will be passed as is to each extractor class to construct.
+        :param **kwargs: Keyword args that will be passed as is to each format class to construct.
         """
         return [
-            Atoms_long_extractor(**kwargs),
-            SCF_long_extractor(**kwargs),
-            MP_long_extractor(**kwargs),
-            CC_long_extractor(**kwargs),
-            Orbitals_long_extractor(**kwargs),
-            Beta_long_extractor(**kwargs),
-            Vibrations_long_extractor(**kwargs),
-            Excited_state_long_extractor(**kwargs),
-            Excited_state_transitions_long_extractor(**kwargs),
-            SOC_long_extractor(**kwargs),
-            TDM_long_extractor(**kwargs)
+            Atoms_property_format(**kwargs),
+            SCF_property_format(**kwargs),
+            MP_property_format(**kwargs),
+            CC_property_format(**kwargs),
+            Orbitals_property_format(**kwargs),
+            Beta_property_format(**kwargs),
+            Vibrations_property_format(**kwargs),
+            Excited_state_property_format(**kwargs),
+            Excited_state_transitions_property_format(**kwargs),
+            SOC_property_format(**kwargs),
+            TDM_property_format(**kwargs)
         ]
     
     @classmethod
@@ -52,10 +52,10 @@ class Long_tabular_group_extractor(Result_extractor_group):
     
     def join(self, extracted_results):
         """
-        Join together results from multiple extractor classes.
+        Join together results from multiple format classes.
         
-        :param extracted_results: A list of results extracted by this extractor group (one for each extractor). The format of each extracted result depends on the extractor group class.
-        :return: A joined representation of the results. The format will depend on the extractor group class.
+        :param extracted_results: A list of results extracted by this format group (one for each format). The format of each extracted result depends on the format group class.
+        :return: A joined representation of the results. The format will depend on the format group class.
         """
         # We can make use of Layered_dict again to tabulate for us.
         text_tables = []
@@ -78,19 +78,19 @@ class Long_tabular_group_extractor(Result_extractor_group):
         return super().join(extracted_results)
     
 
-class Long_table_extractor(Result_extractor):
+class Property_table_format(Result_format):
     """
-    Top-level class for long table extractors.
+    Top-level class for property table formats.
     """
-    # Almost by definition, long extractors don't allow criteria (because they are for tabulating all data of a type).
+    # Almost by definition, property formats don't allow criteria (because they are for tabulating all data of a type).
     ALLOW_CRITERIA = False
     LIST_NAME = None
     
     def __init__(self, *args, **kwargs):
         """
-        Constructor for long tables.
+        Constructor for property tables.
         
-        The constructor signature can differ for each extractor; positional args are used to specify criteria (filters which instruct the extractor what data to retrieve. Some extractors take no criteria, some optionally take criteria and some require criteria. The meaning of keyword args depends entirely on the implementing class.
+        The constructor signature can differ for each format; positional args are used to specify criteria (filters which instruct the format what data to retrieve. Some formats take no criteria, some optionally take criteria and some require criteria. The meaning of keyword args depends entirely on the implementing class.
         :param *args: Possibly optional criteria. Each criterion should be a (possibly length 1) tuple, the format depends on the inheriting class.
         :param **kwargs: Possibly optional keyword arguments. See the inheriting class for meaning.
         """
@@ -129,11 +129,11 @@ class Long_table_extractor(Result_extractor):
         # Extract using _extract_item().
         return [self._extract_item(index, item) for index, item in enumerate(lst)]
         
-class Atoms_long_extractor(Long_table_extractor):
+class Atoms_property_format(Property_table_format):
     """
-    Long table extractor for atoms.
+    Property table format for atoms.
     """
-    CLASS_HANDLE = silico.extract.GEOM_CLASS_HANDLE
+    CLASS_HANDLE = silico.format.GEOM_CLASS_HANDLE
     LIST_NAME = "alignment"
     
     def _extract_item(self, index, atom):
@@ -150,9 +150,9 @@ class Atoms_long_extractor(Long_table_extractor):
             
         })
         
-class _Orbitals_long_extractor(Long_table_extractor):
+class _Orbitals_property_format(Property_table_format):
     """
-    Abstract class for fetching orbitals in long table format. See Orbitals_dict_extractor and Beta_dict_extractor for concrete classes. 
+    Abstract class for fetching orbitals in property table format. See Orbitals_dict_format and Beta_dict_format for concrete classes. 
     """
     LIST_NAME = "molecular_orbitals"
     
@@ -177,24 +177,24 @@ class _Orbitals_long_extractor(Long_table_extractor):
         orbital_list.sort(key=lambda orb: orb['Level'], reverse=True)
         return orbital_list
         
-class Orbitals_long_extractor(_Orbitals_long_extractor):
+class Orbitals_property_format(_Orbitals_property_format):
     """
-    Long table extractor for (alpha) orbitals.
+    Property table format for (alpha) orbitals.
     """
-    CLASS_HANDLE = silico.extract.ORBITALS_CLASS_HANDLE
+    CLASS_HANDLE = silico.format.ORBITALS_CLASS_HANDLE
     
-class Beta_long_extractor(_Orbitals_long_extractor):
+class Beta_property_format(_Orbitals_property_format):
     """
-    Long table extractor for (alpha) orbitals.
+    Property table format for (alpha) orbitals.
     """
     LIST_NAME = "beta_orbitals"
-    CLASS_HANDLE = silico.extract.BETA_CLASS_HANDLE
+    CLASS_HANDLE = silico.format.BETA_CLASS_HANDLE
     
-class Vibrations_long_extractor(Long_table_extractor):
+class Vibrations_property_format(Property_table_format):
     """
-    Long table extractor for vibrations.
+    Property table format for vibrations.
     """
-    CLASS_HANDLE = silico.extract.VIBRATIONS_CLASS_HANDLE
+    CLASS_HANDLE = silico.format.VIBRATIONS_CLASS_HANDLE
     LIST_NAME = "vibrations"
     
     def _extract_item(self, index, vibration):
@@ -208,9 +208,9 @@ class Vibrations_long_extractor(Long_table_extractor):
             'Intensity /km mol-1': vibration.intensity
         })
 
-class _Energy_long_extractor(Long_table_extractor):
+class _Energy_property_format(Property_table_format):
     """
-    Abstract class for energy in long format.
+    Abstract class for energy in property format.
     """
     
     def _extract_item(self, index, energy):
@@ -223,32 +223,32 @@ class _Energy_long_extractor(Long_table_extractor):
         })
 
         
-class SCF_long_extractor(_Energy_long_extractor):
+class SCF_property_format(_Energy_property_format):
     """
-    Long table extractor for SCF energy.
+    Property table format for SCF energy.
     """
-    CLASS_HANDLE = silico.extract.SCF_CLASS_HANDLE
+    CLASS_HANDLE = silico.format.SCF_CLASS_HANDLE
     LIST_NAME = 'SCF_energies'
         
-class MP_long_extractor(_Energy_long_extractor):
+class MP_property_format(_Energy_property_format):
     """
-    Long table extractor for MP energy.
+    Property table format for MP energy.
     """
-    CLASS_HANDLE = silico.extract.MP_CLASS_HANDLE
+    CLASS_HANDLE = silico.format.MP_CLASS_HANDLE
     LIST_NAME = 'MP_energies'
     
-class CC_long_extractor(_Energy_long_extractor):
+class CC_property_format(_Energy_property_format):
     """
-    Long table extractor for CC energy.
+    Property table format for CC energy.
     """
-    CLASS_HANDLE = silico.extract.CC_CLASS_HANDLE
+    CLASS_HANDLE = silico.format.CC_CLASS_HANDLE
     LIST_NAME = 'CC_energies'
     
-class Excited_state_long_extractor(Long_table_extractor):
+class Excited_state_property_format(Property_table_format):
     """
-    Long table extractor for excited states.
+    Property table format for excited states.
     """
-    CLASS_HANDLE = silico.extract.EXCITED_STATE_CLASS_HANDLE
+    CLASS_HANDLE = silico.format.EXCITED_STATE_CLASS_HANDLE
     LIST_NAME = "excited_states"
     
     def _extract_item(self, index, excited_state):
@@ -277,11 +277,11 @@ class Excited_state_long_extractor(Long_table_extractor):
             }))
         return data
     
-class SOC_long_extractor(Long_table_extractor):
+class SOC_property_format(Property_table_format):
     """
-    Long table extractor for SOC.
+    Property table format for SOC.
     """
-    CLASS_HANDLE = silico.extract.SOC_CLASS_HANDLE
+    CLASS_HANDLE = silico.format.SOC_CLASS_HANDLE
     LIST_NAME = "spin_orbit_coupling"
     
     def _extract_item(self, index, soc):
@@ -301,11 +301,11 @@ class SOC_long_extractor(Long_table_extractor):
         })
     
     
-class TDM_long_extractor(Long_table_extractor):
+class TDM_property_format(Property_table_format):
     """
-    Long table extractor for transition dipole moments.
+    Property table format for transition dipole moments.
     """
-    CLASS_HANDLE = silico.extract.TDM_CLASS_HANDLE
+    CLASS_HANDLE = silico.format.TDM_CLASS_HANDLE
     # We don't actually use LIST_NAME for this class, but we still use its name for an error message.
     LIST_NAME = "TDM"
     
@@ -334,11 +334,11 @@ class TDM_long_extractor(Long_table_extractor):
             "Total /D": dipole_moment.total
         })
         
-class Excited_state_transitions_long_extractor(Long_table_extractor):
+class Excited_state_transitions_property_format(Property_table_format):
     """
-    Long table extractor for ES transitions.
+    Property table format for ES transitions.
     """
-    CLASS_HANDLE = silico.extract.EXCITED_STATE_TRANSITIONS_CLASS_HANDLE
+    CLASS_HANDLE = silico.format.EXCITED_STATE_TRANSITIONS_CLASS_HANDLE
     LIST_NAME = "transitions"
     
     def _get_list(self, result):
@@ -363,9 +363,9 @@ class Excited_state_transitions_long_extractor(Long_table_extractor):
             "Probability": transition.probability
         })
         
-class Absorption_spectrum_long_extractor(Long_table_extractor):
+class Absorption_spectrum_property_format(Property_table_format):
     """
-    Extractor for simulated absorption graphs
+    Format for simulated absorption graphs
     """
     CLASS_HANDLE = ["ABS", "absorption", "absorption_graph"]
     LIST_NAME = "absorptions"
@@ -389,9 +389,9 @@ class Absorption_spectrum_long_extractor(Long_table_extractor):
         """
         return OrderedDict({'Wavelength /nm': coord[0], 'Intensity': coord[1]})
     
-class Absorption_energy_spectrum_long_extractor(Long_table_extractor):
+class Absorption_energy_spectrum_property_format(Property_table_format):
     """
-    Extractor for simulated absorption graphs
+    Format for simulated absorption graphs
     """
     CLASS_HANDLE = ["ABSE", "absorption_energy", "absorption_energy_graph"]
     LIST_NAME = "absorptions"
@@ -416,9 +416,9 @@ class Absorption_energy_spectrum_long_extractor(Long_table_extractor):
         return OrderedDict({'Energy /eV': coord[0], 'Oscillator Strength': coord[1]})
 
         
-class IR_spectrum_long_extractor(Long_table_extractor):
+class IR_spectrum_property_format(Property_table_format):
     """
-    Extractor for simulated IR spectra
+    Format for simulated IR spectra
     """
     CLASS_HANDLE = ["IR", "infrared"]
     LIST_NAME = "vibrations"

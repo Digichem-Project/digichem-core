@@ -1,9 +1,13 @@
+# General imports.
 from io import StringIO
 from csv import writer
-from silico.extract.summary import *
-from silico.extract.long import *
 
-class CSV_summary_group_extractor(Summary_group_extractor):
+# Silico imports.
+from silico.format.summary import *
+from silico.format.property import *
+
+
+class CSV_summary_group_format(Summary_group_format):
     """
     Class for writing calculation results to comma-separated values format (CSV).
     """
@@ -17,20 +21,20 @@ class CSV_summary_group_extractor(Summary_group_extractor):
         table_data =  super().join_results(extracted_results)
                     
         # Now convert to csv.
-        return Long_CSV_group_extractor.tabulate(self.fieldnames, table_data)
+        return CSV_property_group_format.tabulate(self.fieldnames, table_data)
         
     @classmethod
     def recursive_subclasses(self):
         """
         Recursively get all the subclasses of this class.
         
-        Note that text extractors don't actually extend from this group extractor.
+        Note that text formats don't actually extend from this group format.
         """
-        return Summary_extractor.recursive_subclasses()
+        return Summary_format.recursive_subclasses()
     
-class Long_CSV_group_extractor(Long_tabular_group_extractor):
+class CSV_property_group_format(Tabular_property_group_format):
     """
-    Group extractor for long tables in text format (good for reading orbitals, atoms etc in text files and terminals).
+    Group format for property tables in text format (good for reading orbitals, atoms etc in text files and terminals).
     """
     
     @classmethod
@@ -60,7 +64,7 @@ class Long_CSV_group_extractor(Long_tabular_group_extractor):
         """
         Recursively get all the subclasses of this class.
         """
-        return Long_table_extractor.recursive_subclasses()
+        return Property_table_format.recursive_subclasses()
     
     
     

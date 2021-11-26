@@ -1,27 +1,31 @@
+# General imports.
+import inspect
+
+# Silico imports.
 from silico.misc.base import Dynamic_parent
 from silico.exception import Result_unavailable_error, Extractor_error
 from silico.misc.file_wrapper import Multi_file_wrapper
-import inspect
 
-class _Result_extractor(Dynamic_parent):
+
+class Result_format_ABC(Dynamic_parent):
     """
-    Top-level class for all extractors.
+    ABC for all formatters.
     """
     
     def __init__(self, ignore = None):
         self.ignore = ignore if ignore is not None else False
     
 
-class Result_extractor(_Result_extractor):
+class Result_format(Result_format_ABC):
     """
-    Top-level class for classes that extract data from Result_set objects and present it in various formats.
+    Top-level class for classes that format data from Result_set objects.
     """
     FORCE_CRITERIA = False
     ALLOW_CRITERIA = False
     
     def __init__(self, *criteria, ignore = False, config):
         """
-        Constructor for Result_extractor objects.
+        Constructor for Result_format objects.
         
         :param *criteria: Parameters that act as filters to select certain subsections of data. The allowed criteria depends on the inheriting class. Some classes do not allow any criteria, and some classes require criteria.
         :param ignore: Whether to tolerate Result_unavailable_error exceptions when extracting results. If False, the exception will be propagated, if True, an appropriate empty value will be returned.
@@ -41,16 +45,16 @@ class Result_extractor(_Result_extractor):
     @property
     def criteria(self):
         """
-        The criteria, a list of variables which act a filter for this extractor, modifying the information returned.
+        The criteria, a list of variables which act a filter for this format, modifying the information returned.
         """
         return self._criteria
     
     @criteria.setter
     def criteria(self, value):
         """
-        Set the criteria, a list of variables which act a filter for this extractor, modifying the information returned.
+        Set the criteria, a list of variables which act a filter for this format, modifying the information returned.
         
-        Note that not all extractors support criteria, attempting to set criteria in such classes will result in Extractor_error.
+        Note that not all formats support criteria, attempting to set criteria in such classes will result in Extractor_error.
         """
         if not self.ALLOW_CRITERIA:
             raise Extractor_error(self, "criteria is not supported for this format")
@@ -100,45 +104,45 @@ class Result_extractor(_Result_extractor):
     
     def _extract_with_criteria(self, *criteia, result, **kwargs):
         """
-        This alternative extractor method is called to perform extraction when criteria is given.
+        This alternative format method is called to perform extraction when criteria is given.
         
         Inheriting classes that support criteria should write their own implementation.
         """
         raise NotImplementedError("_extract_with_criteria is not supported by {}".format(type(self).__name__))
         
             
-class Result_extractor_group(_Result_extractor):
+class Result_format_group(Result_format_ABC):
     """
-     Top-level class for classes that combine data from several Result_extractor objects.
+     Top-level class for classes that combine data from several Result_format objects.
      
      Groups combine data of the same format (ie, different text sections).
      
-     Result_extractor_groups can also operate on multiple result sets.
+     Result_format_groups can also operate on multiple result sets.
      """
     
-    def __init__(self, *extractor_objects, ignore = False, **kwargs):
+    def __init__(self, *format_objects, ignore = False, **kwargs):
         """
-        Constructor for Result_extractor_group objects.
+        Constructor for Result_format_group objects.
         
-        :param *extractor_objects: Result_extractor objects that define what data is extracted by this group. The order given is respected in output. If no objects are given, a default selection will be used.
+        :param *format_objects: Result_format objects that define what data is extracted by this group. The order given is respected in output. If no objects are given, a default selection will be used.
         :param ignore: Whether to tolerate Result_unavailable_error exceptions when extracting results. If False, the exception will be propagated, if True, an appropriate empty value will be returned.
         """
-        # Get a list of default extractors if none are given.
-        if len(extractor_objects) == 0:
+        # Get a list of default formats if none are given.
+        if len(format_objects) == 0:
             # Also set ignore to True if it was not already set (because we've just added all classes, who knows which ones will actually be able to get data).
             ignore = True if ignore is None else ignore
-            extractor_objects = self.get_default_extractors(ignore = ignore, **kwargs)
+            format_objects = self.get_default_formats(ignore = ignore, **kwargs)
             
         super().__init__(ignore = ignore)
         
-        self.extractor_objects = extractor_objects
+        self.format_objects = format_objects
     
     @classmethod
-    def get_default_extractors(self, **kwargs):
+    def get_default_formats(self, **kwargs):
         """
-        Get a list of default extractor objects that can be used to convert a result set to dict format.
+        Get a list of default format objects that can be used to convert a result set to dict format.
         
-        :param **kwargs: Keyword args that will be passed as is to each extractor class to construct.
+        :param **kwargs: Keyword args that will be passed as is to each format class to construct.
         """
         return []
     
@@ -149,10 +153,10 @@ class Result_extractor_group(_Result_extractor):
         data = []
         
         # The order of these two loops changes how the output is grouped...
-        for extractor in self.extractor_objects:
+        for format in self.format_objects:
             try:
                 # Add section.
-                data.append(extractor.extract(result, **kwargs))
+                data.append(format.extract(result, **kwargs))
             except Result_unavailable_error:
                 if self.ignore:
                     data.append(None)
@@ -162,10 +166,10 @@ class Result_extractor_group(_Result_extractor):
     
     def join(self, extracted_results):
         """
-        Join together results from multiple extractor classes.
+        Join together results from multiple format classes.
         
-        :param extracted_results: A list of results extracted by this extractor group (one for each extractor). The format of each extracted result depends on the extractor group class.
-        :return: A joined representation of the results. The format will depend on the extractor group class.
+        :param extracted_results: A list of results extracted by this format group (one for each format). The format of each extracted result depends on the format group class.
+        :return: A joined representation of the results. The format will depend on the format group class.
         """
         return "\n".join([result for result in extracted_results if result != None])
     

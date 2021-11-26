@@ -1,9 +1,12 @@
+# General imports.
 from tabulate import tabulate
-from silico.extract.summary import *
-from silico.extract.long import *
-#from silico.extract.long import Long_table_group_extractor
 
-class Table_summary_group_extractor(Summary_group_extractor):
+# Silico imports.
+from silico.format.summary import *
+from silico.format.property import *
+
+
+class Table_summary_group_format(Summary_group_format):
     """
     Class for writing calculation summaries to text-table format, suitable for viewing in a terminal.
     """
@@ -25,11 +28,11 @@ class Table_summary_group_extractor(Summary_group_extractor):
         """
         Recursively get all the subclasses of this class.
         """
-        return Summary_extractor.recursive_subclasses()
+        return Summary_format.recursive_subclasses()
     
-class Long_table_group_extractor(Long_tabular_group_extractor):
+class Property_table_group_format(Tabular_property_group_format):
     """
-    Group extractor for long tables in text format (good for reading orbitals, atoms etc in text files and terminals).
+    Group format for property tables in text format (good for reading orbitals, atoms etc in text files and terminals).
     """
     
     @classmethod
@@ -47,6 +50,6 @@ class Long_table_group_extractor(Long_tabular_group_extractor):
         """
         Recursively get all the subclasses of this class.
         """
-        return Long_table_extractor.recursive_subclasses()
+        return Property_table_format.recursive_subclasses()
     
     
