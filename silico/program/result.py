@@ -1,4 +1,5 @@
 # General imports.
+import os
 
 # Silico imports.
 from silico.program.base import Program
@@ -9,7 +10,6 @@ from silico.format.csv import CSV_summary_group_format,\
     CSV_property_group_format
 from silico.format.table import Table_summary_group_format,\
     Property_table_group_format
-import os
 from silico.parser.base import parse_multiple_calculations
 
 
@@ -35,8 +35,7 @@ class Result_program(Program):
         sub_parser = super().arguments(sub_parsers_object)
         
         sub_parser.add_argument("log_files", help = "a (number of) calculation result file(s) (.log) to extract results from", nargs = "*", default = [])
-        
-        # TODO: This should probably be the default? 
+         
         sub_parser.add_argument("-i", "--ignore", help = "ignore missing sections rather than stopping with an error", action = "store_true", default = None)
         sub_parser.add_argument("-C", "--num_CPUs", help = "the number of CPUs to use in parallel to parse given log_files, defaults to the number of CPUs on the system", type = int, nargs = "?", default = os.cpu_count())
         
@@ -84,50 +83,13 @@ class Result_program(Program):
             raise Silico_exception("Failed to read calculation files")
                 
         return self(results, args = args, config = config, logger = logger)
-
-
-    def _split_file_names(self, names):
-        """
-        Take a list of file names (as would be given on the command line) and determine which are files and which are sections.
-        
-        Sections are defined as starting with a '%' character and instruct the format which parts of the result set to extract.
-        Sections can include the '=' character, with string following it being interpreted as filters for that section. Multiple filters are separated by commas (',').
-        File names are everything else and are paths to files to write to. The name '-' (a single dash) is also recognised as stdout.
-        
-        :param names: The list of names to split.
-        :return: A tuple of (file_names, sections). Each section is a dict of the form {'name', 'sub_criteria'}. Sub_criteria is a list of strings.
-        """
-        # We're going to split our 'names' into those that are file names (paths) and those that represent formats (which extract/write certain parts of our result object).
-        file_names = []
-        sections = []
-        
-        # Iterate through our list.
-        for name in names:
-            # The percent % character is what to look for.
-            if name[:1] != "%":
-                # This is a file name.
-                file_names.append(name)
-            elif name[:2] == "%%":
-                # This is also a file name (double % is the escape mechanism, it means a file name that happens to start with a %).
-                file_names.append(name[1:])
-            else:
-                # This is a section name.
-                # Split on '=', the part before is the name of a section (which should match a CLASS_HANDLE), parts after are criteria to pass to that section class.
-                equals_split = name.split("=", maxsplit = 1)
-                
-                # The name is the first part (remembering to remove the starting %.
-                section_name = equals_split[0].strip()[1:]
-                
-                # The remainder are criteria, separated by commas (',').
-                criteria = [[sub_criterion.strip() for sub_criterion in criterion.split(';')] for criterion in equals_split[1].split(',')] if len(equals_split) > 1 else [[]]
-                
-                # Add to our list of sections.
-                sections.extend([{'name': section_name, 'sub_criteria': sub_criteria} for sub_criteria in criteria])
-                
-        return (file_names, sections)
     
     def process_properties(self, properties_strings):
         """
+        Process a list of properties strings, each of which identifies a formatter.
+        
+        :param properties_strings: A list of strings to process.
+        :returns: A list of dictionaries of {'name', 'sub_criteria'}
         """
         # A list of dictionaries of {'name', 'sub_criteria'}
         requested_properties = []
@@ -147,7 +109,6 @@ class Result_program(Program):
             requested_properties.extend([{'name': property_name, 'sub_criteria': sub_criteria} for sub_criteria in criteria])
             
         return requested_properties
-
 
     def main(self):
         """
