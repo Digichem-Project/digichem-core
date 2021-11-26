@@ -55,17 +55,8 @@ class Result_program(Program):
         output_formats.add_argument("-b", dest = "outputs", metavar = ("%FORMAT", "file.tbl"), help = "tabulated summary text format; the same as -d but formatted with an ASCII table", nargs = "*", action = List_grouper)
     
         return sub_parser
-    
-    def list_known_sections(self, extractor_groups):
-        """
-        Helper function, called when -l or --list is specified.
-        """
-        for extractor_group in extractor_groups:
-            # Get a list of sections.
-            for extractor_class in extractor_group.recursive_subclasses():
-                if hasattr(extractor_class, 'CLASS_HANDLE'):
-                    print(extractor_class.CLASS_HANDLE[0])
-    
+
+
     def _get_result_set(self, filename, alignment_class):
         """
         Helper function, designed to be called in parallel to read input files.
