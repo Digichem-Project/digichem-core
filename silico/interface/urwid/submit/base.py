@@ -12,7 +12,7 @@ from silico.config.configurable.option import Option
 from silico.interface.urwid.main.base import Program_view
 
 
-class Calculation_submitter(Program_view):
+class Submit_interface(Program_view):
     """
     Class for controlling interface to calculation submission.
     """

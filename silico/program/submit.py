@@ -4,7 +4,7 @@ from pathlib import Path
 # Silico imports.
 from silico.program.base import Program
 from silico.misc.base import to_bool
-from silico.interface.urwid.submit.base import Calculation_submitter
+from silico.interface.urwid.submit.base import Submit_interface
 from silico.exception.base import Silico_exception
 from silico.submit.calculation.base import Calculation_target
 from silico.exception.uncatchable import Submission_paused
@@ -127,6 +127,6 @@ class Submit_program(Program):
         """
         Function called to get an urwid widget to display for when this subprogram is called interactively.
         """
-        return Calculation_submitter(window, self)
+        return Submit_interface(window, self)
         
         
