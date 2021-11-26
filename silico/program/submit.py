@@ -35,7 +35,7 @@ class Submit_program(Program):
         sub_parser = super().arguments(sub_parsers_object)
         
         sub_parser.add_argument("calculation_files", help = "Calculation input files to submit", nargs = "*", type = Path)
-        sub_parser.add_argument("-o", "--output", help = "Base directory to perform calculations in. Defaults to the current directory", default = Path("./"))
+        sub_parser.add_argument("-O", "--output", help = "Base directory to perform calculations in. Defaults to the current directory", default = Path("./"))
         sub_parser.add_argument("-m", "--methods", help = "Methods to perform, identified either by name or by ID", nargs = "*", default = [])
         sub_parser.add_argument("-C", "--charge", help = "Set the molecular charge of all input files. Note that certain calculations will override this value", default = None, type = int)
         sub_parser.add_argument("-M", "--multiplicity", help = "Set the multiplicity of all input files. Note that certain calculations will override this value", default = None, type = int)
