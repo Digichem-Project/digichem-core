@@ -61,13 +61,14 @@ class Result_program(Program):
         """
         Helper function, designed to be called in parallel to read input files.
         """
-        logger = self.logging.getLogger(self.silico.logger_name)
+        #logger = self.logging.getLogger(self.silico.logger_name)
         # First open our file.
         try:
             return silico.parser.from_log_files(filename).process(alignment_class)
         except Exception:
-                logger.warning("Unable to parse calculation result file '{}'; skipping".format(filename), exc_info = True)
-    
+                self.logger.warning("Unable to parse calculation result file '{}'; skipping".format(filename), exc_info = True)
+
+
     def _get_extractor_group_class(self, argument_group):
         """
         Helper function, retrieves an extractor class.
