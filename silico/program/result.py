@@ -40,7 +40,7 @@ class Result_program(Program):
         """
         sub_parser = super().arguments(sub_parsers_object)
         
-        sub_parser.add_argument("calculation_files", help = "calculation result files (.log etc) to extract results from", nargs = "*", default = [])
+        sub_parser.add_argument("log_files", help = "a (number of) calculation result file(s) (.log) to extract results from", nargs = "*", default = [])
         
         sub_parser.add_argument("-i", "--ignore", help = "ignore missing sections rather than stopping with an error", action = "store_true")
         
@@ -182,7 +182,7 @@ class Result_program(Program):
             raise Silico_exception("Failed to process extraction commands")
         
         # Get upset if we've got nothing to read.
-        if len(self.args.calculation_files) == 0:
+        if len(self.args.log_files) == 0:
             raise Silico_exception("No calculation files to read (input files should appear before -a -b -c -d or -t options)")
         
         # Get our alignment class.
@@ -198,7 +198,7 @@ class Result_program(Program):
                                 self._get_result_set,
                                 alignment_class = alignment_class,
                             ),
-                            self.args.calculation_files
+                            self.args.log_files
                         )
                     )
                 )
