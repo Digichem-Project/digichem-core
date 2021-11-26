@@ -1,11 +1,16 @@
+# General imports.
 from datetime import datetime
 from pathlib import Path
 import pkg_resources
 import os
 import sys
-import silico.base
 import PIL.Image
+from logging import getLogger
+
+# Silico imports.
+import silico.base
 from .base import init_obabel
+
 
 PIL.Image.MAX_IMAGE_PIXELS = None
 
@@ -44,6 +49,18 @@ if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
     frozen = True
 else:
     frozen = False
+    
+
+########################
+# Function Definitions #
+########################
+
+def get_logger():
+    """
+    Get the logger silico uses for communication.
+    """
+    return getLogger(logger_name)
+    
 
 def default_template_directory():
     return Path(pkg_resources.resource_filename('silico', 'data/templates'))

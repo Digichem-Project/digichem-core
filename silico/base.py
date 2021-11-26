@@ -1,11 +1,13 @@
+# General imports.
 from logging import getLogger
 import logging
 import sys
 import os
 from pathlib import Path
-
-import silico.logging
 import warnings
+
+# Silico imports.
+import silico.logging
 
 LOGGING_HANDLER = None
 
@@ -31,8 +33,6 @@ def init_logger(logger_name):
     logger.addHandler(LOGGING_HANDLER)
     warnings_logger.addHandler(LOGGING_HANDLER)
     warnings.formatwarning = var_formatter.formatWarning
-    
-    
     
 def init_obabel():
     """
