@@ -102,19 +102,17 @@ class Coordinate_list(Row_browser):
         Add selected files to our list.
         """
         # Get the logger item we'll use for communication.
-        logger = logging.getLogger(silico.logger_name)
+        logger = silico.get_logger()
         logger.info("Loading coordinates")
         
         # Go through the files the user selected.
         for path in self.selector.selected:
             try:
-                logger.info("Loading '{}".format(path))
-                coord = self.value_from_selected(path)
-                self.add_row(coord)
+                self.add_row(self.value_from_selected(path))
              
             except Exception:
                 # We couldn't load the file for some reason, show an error and ignore.
-                logger.warning("Failed to load coordinate file '{}':".format(path), exc_info = True)
+                logger.error("Failed to load coordinate file '{}':".format(path), exc_info = True)
                  
         # Clear the selected files.
         self.selector.reset()
