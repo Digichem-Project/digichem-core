@@ -1,6 +1,9 @@
 # General imports.
 import cclib.parser.gaussianparser
 import cclib.parser.turbomoleparser
+import multiprocessing
+from functools import partial
+from itertools import filterfalse
 
 # Silico imports.
 from silico.parser.main import Parser
@@ -11,6 +14,7 @@ from silico.result.multi.base import Merged
 from silico.result.alignment import Minimal
 from silico.result.result import Result_set
 from silico.exception.base import Silico_exception
+import silico
 
 def class_from_log_files(*log_files):
     """
@@ -56,6 +60,50 @@ def parse_calculation(*log_files, alignment_class = None, **aux_files):
         alignment_class = Minimal
             
     return from_log_files(*log_files, **aux_files).process(alignment_class)
+
+def multi_parser(log_file, alignment_class):
+        """
+        The inner function which will be called in parallel to parse files.
+        """
+        try:
+            return parse_calculation(log_file, alignment_class = alignment_class)
+            
+        except Exception:
+            silico.get_logger().warning("Unable to parse calculation result file '{}'; skipping".format(log_file), exc_info = True)
+
+def parse_multiple_calculations(*log_files, alignment_class = None, pool = None, init_func = None, processes = 1):
+    """
+    Parse a number of separate calculation results in parallel.
+    
+    If the argument 'pool' is not given, a multiprocessing.pool object will first be created using the arguments init_func and num_CPUs.
+    
+    :param log_files: A number of calculation result files corresponding to different calculations.
+    :param alignment_class: An optional alignment class to use to reorientate the molecule.
+    :param pool: An optional subprocessing.pool object to use for parallel parsing.
+    :param init_func: An optional function to call to init each newly created process.
+    :param processes: The number of processes to create the new pool object with.
+    """
+    
+    # Sort out our pool if we need to.
+    own_pool = False
+    if pool is None:
+        own_pool = True
+        pool = multiprocessing.Pool(processes, initializer = init_func)
+    
+    # Do some parsing.
+    try:
+        results = list(
+            filterfalse(lambda x: x is None,
+                pool.map(partial(multi_parser, alignment_class = alignment_class), log_files)
+            )
+        )
+        
+        return results
+    
+    finally:
+        # Do some cleanup if we need to.
+        if own_pool:
+            pool.close()
     
 def parse_calculations(*results, alignment_class = None, aux_files = None):
     """
