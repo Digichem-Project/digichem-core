@@ -19,7 +19,7 @@ development = True
 # Version information.
 major_version = 0
 minor_version = 20
-revision = 5
+revision = 6
 version_number = "{}.{}.{}".format(major_version, minor_version, revision)
 # The full version number of this package.
 version = "{}{}".format(version_number, "-dev" if development else "")
