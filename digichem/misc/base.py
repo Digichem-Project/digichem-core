@@ -101,6 +101,20 @@ class Dynamic_parent():
         
         else:
             return found[0]
+        
+    @classmethod
+    def known_handles(self):
+        """
+        Get a list of names that can be used to identify children of this class.
+        """
+        handles = []
+        for known_class in self.recursive_subclasses():
+            class_handles = vars(known_class).get('CLASS_HANDLE', [])
+            
+            if len(class_handles) > 0:
+                handles.append(class_handles[0])
+                
+        return handles
     
     @classmethod
     def recursive_subclasses(self):
