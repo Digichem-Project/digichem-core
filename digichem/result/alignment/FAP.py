@@ -10,7 +10,7 @@ class Furthest_atom_pair(Alignment):
     """
         
     # Names that uniquely describe this alignment protocol.
-    CLASS_HANDLE = ["Furthest Atom Pair", "FAP", "Kebab"]    
+    CLASS_HANDLE = ["Furthest Atom Pair", "FAP", "Kebab"]
         
     def align_axes(self):
         """
