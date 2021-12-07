@@ -1,10 +1,13 @@
-from silico.interface.urwid.top import View
-from silico.interface.urwid.misc import Tab_pile
-from silico.interface.urwid.section import Section
+# General imports.
 import urwid
 
+# Silico imports.
+from silico.interface.urwid.misc import Tab_pile
+from silico.interface.urwid.section import Section
+from silico.interface.urwid.swap.swappable import Swappable
 
-class Enhanced_tree_selector(View):
+
+class Enhanced_tree_selector(Swappable):
     """
     ABC for widgets that contain both a tree widget for selecting something and also a manual text-like widget
     """

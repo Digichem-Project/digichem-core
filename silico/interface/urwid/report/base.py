@@ -8,7 +8,7 @@ from silico.config.configurable.option import Option
 from silico.interface.urwid.file.list import File_list
 from silico.interface.urwid.section import Section
 from silico.interface.urwid.misc import Tab_pile
-from silico.interface.urwid.main.base import Program_view
+from silico.interface.urwid.main.program import Program_view
 
 
 class Report_interface(Program_view):

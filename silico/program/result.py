@@ -11,6 +11,7 @@ from silico.format.csv import CSV_summary_group_format,\
 from silico.format.table import Table_summary_group_format,\
     Property_table_group_format
 from silico.parser.base import parse_multiple_calculations
+from silico.interface.urwid.result.main import Result_interface
 
 
 class Result_program(Program):
@@ -109,6 +110,14 @@ class Result_program(Program):
             requested_properties.extend([{'name': property_name, 'sub_criteria': sub_criteria} for sub_criteria in criteria])
             
         return requested_properties
+    
+    def load_interface(self, window):
+        """
+        Get the interface widget we'll use for display.
+        
+        :param window The parent window object.
+        """
+        return Result_interface(window, self)
 
     def main(self):
         """

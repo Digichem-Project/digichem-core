@@ -81,8 +81,14 @@ def parse_multiple_calculations(*log_files, alignment_class = None, pool = None,
     :param alignment_class: An optional alignment class to use to reorientate the molecule.
     :param pool: An optional subprocessing.pool object to use for parallel parsing.
     :param init_func: An optional function to call to init each newly created process.
-    :param processes: The number of processes to create the new pool object with.
+    :param processes: The max number of processes to create the new pool object with; if the number of given log_files is less than processes, then len(log_files) will be used instead.
     """
+    if len(log_files) == 0:
+        # Give up now.
+        return []
+    
+    if len(log_files) < processes:
+        processes = len(log_files)
     
     # Sort out our pool if we need to.
     own_pool = False

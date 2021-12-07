@@ -1,11 +1,11 @@
 # General imports.
 import scipy.constants
 import warnings
+import itertools
+import math
 
 # Silico imports.
 from silico.exception.base import Result_unavailable_error
-import itertools
-import math
 
 
 class Result_object():

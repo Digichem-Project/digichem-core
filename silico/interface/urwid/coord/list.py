@@ -1,16 +1,14 @@
 
 # General imports.
-import pathlib
 import urwid
-import logging
 
 # Silico imports.
 from silico.interface.urwid.row_list.base import Row_item, Row_widget,\
     Row_browser
-from silico.interface.urwid.file.browser import Coord_selector
 from silico.file.convert.main import Silico_input
 from silico.interface.urwid.misc import IntEditZero
 import silico
+from silico.interface.urwid.coord.browser import Coord_selector
 
 
 class Coordinate_widget(Row_widget):

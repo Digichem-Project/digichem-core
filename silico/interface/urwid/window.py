@@ -2,7 +2,7 @@
 import urwid
 
 # Silico imports.
-from silico.interface.urwid.top import Top
+from silico.interface.urwid.swap.top import Top
 
 
 class Window(urwid.Frame):

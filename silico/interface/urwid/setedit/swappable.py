@@ -1,9 +1,9 @@
 from silico.interface.urwid.setedit.configurable import Configurable_browser
 
 
-class View_browser(Configurable_browser):
+class Swappable_browser(Configurable_browser):
     """
-    A settings browser designed for View widgets.
+    A settings browser designed for Swappable widgets.
     """
     
     def __init__(self, view):

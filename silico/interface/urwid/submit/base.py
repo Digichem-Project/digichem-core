@@ -5,11 +5,11 @@ import pathlib
 
 # Silico imports.
 from silico.interface.urwid.misc import Tab_pile
-from silico.interface.urwid.submit.coord import Coordinate_list
 from silico.interface.urwid.section import Section
-from silico.interface.urwid.submit.method import Method_list
 from silico.config.configurable.option import Option
-from silico.interface.urwid.main.base import Program_view
+from silico.interface.urwid.main.program import Program_view
+from silico.interface.urwid.coord.list import Coordinate_list
+from silico.interface.urwid.method.list import Method_list
 
 
 class Submit_interface(Program_view):

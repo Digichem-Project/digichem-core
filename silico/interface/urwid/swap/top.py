@@ -1,15 +1,13 @@
-# Silico imports.
-from silico.interface.urwid.wrapper import Confirm_or_cancel, Confirm_settings_cancel, Confirm
-from silico.interface.urwid.section import Section, Sub_section
-from silico.config.configurable.base import Configurable
-from silico.interface.urwid.setedit.base import Settings_editor
-from silico.interface.urwid.setedit.view import View_browser
-from silico.interface.urwid.dialogue import Output_dialogue
-
 # General imports.
 import urwid
-from urwid.widget import WidgetWrap
-from urwid.decoration import WidgetPlaceholder
+
+# Silico imports.
+from silico.interface.urwid.dialogue import Output_dialogue
+from silico.interface.urwid.wrapper import Confirm_settings_cancel,\
+    Confirm_or_cancel, Confirm
+from silico.interface.urwid.setedit.base import Settings_editor
+from silico.interface.urwid.setedit.swappable import Swappable_browser
+from silico.interface.urwid.swap.swappable import Swappable
 
 
 class Top(urwid.WidgetPlaceholder):
@@ -25,7 +23,7 @@ class Top(urwid.WidgetPlaceholder):
         """
         super().__init__(original_widget)
         
-        self.current_top = WidgetPlaceholder(original_widget)
+        self.current_top = urwid.WidgetPlaceholder(original_widget)
         
         # We keep track of two separate widget stacks, one for normal widgets and one for dialogues (which appear on top of normal widgets).
         self.stack = []
@@ -104,20 +102,22 @@ class Top(urwid.WidgetPlaceholder):
         """
         Wrap a widget with controls (buttons).
         
-        The buttons that are shown depend on whether submit_callback is given and whether orginal_widget is a View that has options.
+        The buttons that are shown depend on whether submit_callback is given and whether orginal_widget is a Swappable that has options.
         
         :param cancel_callback: A function to call when the cancel button is pressed.
         :param submit_callback: A function to call when the submit button is pressed.
         :returns: A wrapped widget.
         """
-        # If our widget is a View and a submit_callback has not been given, we can use a default.
-        if isinstance(original_widget, View) and submit_callback is None:
+        # If our widget is a Swappable and a submit_callback has not been given, we can use a default.
+        if isinstance(original_widget, Swappable) and submit_callback is None:
             submit_callback = original_widget.submit
         
         # First decide which kind of wrapper to use.
         # If we have options, use a Confirm_settings_cancel.
-        if isinstance(original_widget, View) and original_widget.has_settings:
-            window = Confirm_settings_cancel(original_widget, top = self, settings_editor = original_widget.get_settings_editor(), cancel_callback = cancel_callback, submit_callback = submit_callback)
+        if isinstance(original_widget, Swappable) and original_widget.has_settings:
+            # Get a settings editor object; we can't ask the Swappable class to do this because of circular import nonsense (some of the edit widgets are themselves Swappable).
+            settings_editor = Settings_editor(Swappable_browser(original_widget), "Settings")
+            window = Confirm_settings_cancel(original_widget, top = self, settings_editor = settings_editor, cancel_callback = cancel_callback, submit_callback = submit_callback)
             
         elif submit_callback is not None:
             window = Confirm_or_cancel(original_widget, top = self, cancel_callback = cancel_callback, submit_callback = submit_callback)
@@ -225,64 +225,3 @@ class Top(urwid.WidgetPlaceholder):
         
         else:
             return key
-
-
-class View(WidgetWrap, Configurable):
-    """
-    A widget designed to be shown inside a swapping window.
-    """
-    
-    def __init__(self, top, body, title = "", border = True, focusable = True):
-        self.top = top
-        self._settings_editor = None
-        self.inner = body
-        self.title = title
-        self.border = border
-        self.focusable = focusable
-        
-        WidgetWrap.__init__(self, self._get_body())
-        Configurable.__init__(self, True)
-    
-    def _get_body(self):
-        """
-        Get the widget we'll use for display.
-        """
-        inner_cls = Section if self.border else Sub_section
-        inner_body = inner_cls(self.inner, self.title, self.focusable)
-        return inner_body
-        
-    def submit(self):
-        """
-        A method to call when this View's submit button is pressed.
-        """
-        raise NotImplementedError("This view does not have a default submit() defined.")
-    
-    @property
-    def has_settings(self):
-        """
-        Does this View have any configurable options set on it?
-        """
-        return len(self.OPTIONS) != 0
-    
-    def on_settings_change(self):
-        """
-        A method that will be called when settings have been changed.
-        """
-        # This default implementation does nothing.
-    
-    def get_settings_editor(self, reload = False):
-        """
-        Return the widget we use to change our settings.
-        """
-        if self._settings_editor is None or reload:
-            self._settings_editor = self.load_settings_editor()
-            
-        return self._settings_editor
-    
-    def load_settings_editor(self):
-        """
-        Load the browser widget we'll use to change our settings.
-        """
-        #return Settings_editor(View_browser(self), "Settings for {}".format(self.original_widget._title))
-        return Settings_editor(View_browser(self), "Settings")
-    
