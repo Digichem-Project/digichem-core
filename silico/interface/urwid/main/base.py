@@ -120,7 +120,6 @@ class Output_catcher(io.StringIO):
         curvalue = self.getvalue()
         if curvalue[-1] == "\n":
             # Update our top.
-            # Urwid doesn't render tab characters, so we'll replace those.
             self.window.top.output(curvalue, self.error)
             
             # Update our widgets (also could be a bad idea?)

@@ -1,13 +1,12 @@
 # General imports.
 import subprocess
-from logging import getLogger
 import os
 
 # Silico imports.
 from silico.file import File_converter
 from silico.exception.base import File_maker_exception
 import silico.file.types as file_types
-import silico
+import silico.logging
 from silico.submit import Memory
 
 class Chk_to_fchk(File_converter):
@@ -74,5 +73,5 @@ class Chk_to_fchk(File_converter):
         else:
             # Everything appeared to go ok.
             # Dump formchk output if we're in debug.
-            getLogger(silico.logger_name).debug(formchk_proc.stdout)
+            silico.logging.get_logger().debug(formchk_proc.stdout)
             

@@ -5,6 +5,7 @@ import pathlib
 # Silico imports.
 import silico.interface.urwid.file.browser
 from silico.interface.urwid.dialogue import Widget_dialogue
+from silico.exception.base import Silico_exception
 
 
 class Min_edit(urwid.Edit):
@@ -44,7 +45,6 @@ class Setedit_widget(urwid.Pile):
         
         if has_divider:
             widget_list.append(self.divider)
-            
         urwid.Pile.__init__(self, widget_list)
         
     def reset(self):
@@ -189,6 +189,10 @@ class Bool_editor(Single_editor):
         """
         Load the list of inner widgets we'll use for display.
         """
+        # Panic if our starting_value is not True or False.
+        if self.setedit.starting_value is not True and self.setedit.starting_value is not False:
+            raise Silico_exception("Only True or False are allowed values for checkboxes, not '{}'".format(self.setedit.starting_value))
+        
         self.checkbox = urwid.CheckBox((self.title_attr, self.setedit.title + ": "), self.setedit.starting_value)
         
         return super().load_widgets(self.checkbox)

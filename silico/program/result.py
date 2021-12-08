@@ -11,7 +11,8 @@ from silico.format.csv import CSV_summary_group_format,\
 from silico.format.table import Table_summary_group_format,\
     Property_table_group_format
 from silico.parser.base import parse_multiple_calculations
-from silico.interface.urwid.result.main import Result_interface
+from silico.interface.urwid.result.base import Result_interface
+import silico.logging.base
 
 
 class Result_program(Program):
@@ -37,7 +38,7 @@ class Result_program(Program):
         
         sub_parser.add_argument("log_files", help = "a (number of) calculation result file(s) (.log) to extract results from", nargs = "*", default = [])
          
-        sub_parser.add_argument("-i", "--ignore", help = "ignore missing sections rather than stopping with an error", action = "store_true", default = None)
+        sub_parser.add_argument("-i", "--ignore", help = "ignore missing sections rather than stopping with an error", action = "store_true", default = False)
         sub_parser.add_argument("-C", "--num_CPUs", help = "the number of CPUs to use in parallel to parse given log_files, defaults to the number of CPUs on the system", type = int, nargs = "?", default = os.cpu_count())
         
         output_group = sub_parser.add_argument_group("output format", "the format to write results to. Only one option from the following may be chosen")
@@ -50,7 +51,8 @@ class Result_program(Program):
         
         sub_parser.add_argument("-p", "--properties", "--prop", help = "a list of properties (SCF, MOS, atoms etc) to parse", nargs = "*", default = [])
         
-        sub_parser.add_argument("-O", "--output", help = "a (number of) filename/path to write results to. If none is give, results will be written to stdout, which can also be explicitly requested with '-'", nargs = "*", default = ("-",))
+        #sub_parser.add_argument("-O", "--output", help = "a (number of) filename/path to write results to. If none is give, results will be written to stdout, which can also be explicitly requested with '-'", nargs = "*", default = ("-",))
+        sub_parser.add_argument("-O", "--output", help = "a filename/path to write results to. If none is give, results will be written to stdout, which can also be explicitly requested with '-'", default = "-")
     
         return sub_parser
     
@@ -78,7 +80,7 @@ class Result_program(Program):
         # Parse the log files we've been given (in parallel).
         # Get our list of results. Do this in parallel.
         try:
-            results = parse_multiple_calculations(*args.log_files, alignment_class = alignment, init_func = self.subprocess_init, processes = args.num_CPUs)
+            results = parse_multiple_calculations(*args.log_files, alignment_class = alignment, init_func = self.subprocess_init, init_args = [silico.logging.base.LOGGER_LOCK], processes = args.num_CPUs)
             
         except Exception:
             raise Silico_exception("Failed to read calculation files")
@@ -138,7 +140,7 @@ class Result_program(Program):
                 
         # Now process.
         try:
-            output_format.write(self.results, self.args.output)
+            output_format.write(self.results, (self.args.output))
             
         except Exception as e:
             raise Silico_exception("Failed to parse/write results") from e

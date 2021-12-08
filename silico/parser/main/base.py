@@ -1,5 +1,4 @@
 # General imports.
-from logging import getLogger
 from pathlib import Path
 import cclib.io
 from glob import iglob
@@ -19,7 +18,7 @@ from silico.result.spin_orbit_coupling import SOC_list
 from silico.result.dipole_moment import Dipole_moment
 from silico.result.vibrations import Vibrations_list
 from silico.exception.base import Silico_exception
-import silico
+import silico.logging
 
 class Parsed_data():
     """
@@ -189,7 +188,7 @@ class Parser(Result_set):
         # We start by using cclib to get most of the data we need.
         
         # Output a message (because this is slow).
-        getLogger(silico.logger_name).info("Parsing calculation result '{}'".format(self.description))
+        silico.logging.get_logger().info("Parsing calculation result '{}'".format(self.description))
         
         # Use cclib to open our log files.
         # ccread will accept a list of log files to read, but will sometimes choke if the list contains only one entry,

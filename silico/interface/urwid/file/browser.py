@@ -9,7 +9,8 @@ from silico.interface.urwid.tree.base import Flaggable_tree_list_box,\
     Flaggable_tree_walker
 from silico.config.configurable.option import Option
 from silico.interface.urwid.file.node import Directory_node
-from silico.interface.urwid.tree.selector import Enhanced_tree_selector
+from silico.interface.urwid.tree.selector import Enhanced_tree_selector,\
+    Two_part_tree_selector
 import pathlib
 
 
@@ -35,18 +36,32 @@ class File_browser(Flaggable_tree_list_box):
         super().__init__(Flaggable_tree_walker(Directory_node(starting_dir, starting_path = starting_dir, options = self.options)), can_choose_parents = can_choose_folders, can_choose_multiple = can_choose_multiple)
 
 
-class File_selector(Enhanced_tree_selector):
+class Selector_mixin():
     """
-    A tree list box widget used to browse and select files.
+    Mixin class for various file selector's.
     """
     
     show_hidden = Option(help = "Whether to show hidden files.", type = bool, default = False)
     refresh = Option(help = "Whether to refresh the contents of a directory when it is closed.", type = bool, default = True)
+        
+    def on_settings_change(self):
+        """
+        A method that will be called when settings have been changed.
+        """
+        self.browser.options['show_hidden'] = self.show_hidden
+        self.browser.options['refresh'] = self.refresh
+
+
+class File_selector(Enhanced_tree_selector, Selector_mixin):
+    """
+    A tree list box widget used to browse and select files.
+    """
 
     def __init__(self, top, starting_dir = None, title = "File Browser", manual_widget_title = "Manual File Path", can_choose_folders = False, can_choose_multiple = True):
         """
         Constructor for File_selector objects.
         
+        :param top: Top-most widget being used for display.
         :param starting_dir: The starting directory that will be shown expanded.
         :param title: A title to display around this selector.
         """
@@ -57,10 +72,44 @@ class File_selector(Enhanced_tree_selector):
         manual_widget = urwid.Edit(("body", "File: "))
         
         super().__init__(top, browser, manual_widget, title, manual_widget_title)
+
+
+class Output_selector(Two_part_tree_selector, Selector_mixin):
+    """
+    A tree list box widget for selecting a location to save something.
+    """
+    
+    def __init__(self, top, default = None, title = "Save Location", folder = False):
+        """
+        Constructor for Output_selector objects.
         
-    def on_settings_change(self):
+        :param top: Top-most widget being used for display.
+        :param default: The save location to show by default.
+        :param title: A title to display around this selector.
+        :param folder: Whether the output location should be a directory.
         """
-        A method that will be called when settings have been changed.
-        """
-        self.browser.options['show_hidden'] = self.show_hidden
-        self.browser.options['refresh'] = self.refresh
+        # Work out our starting directory for our browser.
+        if default is None:
+            # No default.
+            starting_dir = None
+        
+        else:
+            # We'll try and resolve our path to make it real.
+            default = default.resolve()
+            
+            # If our save location is a file, we'll use the parents of default as our starting location.
+            if not folder:
+                starting_dir = default.parents
+            
+            else:
+                # Our location is a directory, use all of default as our start.
+                starting_dir = default
+                
+        super().__init__(top, body, title)
+                
+        
+    
+    
+    
+    
+    

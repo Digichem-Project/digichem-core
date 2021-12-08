@@ -1,12 +1,15 @@
+# General imports.
 import subprocess
 from subprocess import CalledProcessError
-from silico.exception.base import Silico_exception
-from logging import getLogger
-import silico
 import re
 import os
 import copy
 from pathlib import Path
+
+# Silico imports.
+from silico.exception.base import Silico_exception
+import silico.logging
+
 
 # Try and load openbabel bindings.
 HAVE_BINDINGS = False
@@ -15,10 +18,10 @@ try:
     HAVE_BINDINGS = True
 except ModuleNotFoundError:
     # No bindings, carry on.
-    getLogger(silico.logger_name).debug("Could not load python pybel bindings; falling back to obabel executable", exc_info = True)
+    silico.logging.get_logger().debug("Could not load python pybel bindings; falling back to obabel executable", exc_info = True)
 except Exception:
     # Some other error occurred; print an error but continue.
-    getLogger(silico.logger_name).error("Found but could not load python pybel bindings; falling back to obabel executable", exc_info = True)
+    silico.logging.get_logger().error("Found but could not load python pybel bindings; falling back to obabel executable", exc_info = True)
     
 
 class Openbabel_converter():
@@ -189,12 +192,12 @@ if HAVE_BINDINGS:
                 # If we got a 2D (or 1D) format, convert to 3D (but warn that we are doing so.)
                 if molecule.dim != 3 and gen3D:
                     # We're missing 3D coords.
-                    getLogger(silico.logger_name).warning("Generating 3D coordinates from {}D file '{}'; this will scramble atom coordinates".format(molecule.dim, self.input_name))
+                    silico.logging.get_logger().warning("Generating 3D coordinates from {}D file '{}'; this will scramble atom coordinates".format(molecule.dim, self.input_name))
                     molecule.localopt()
                     
                 if self.add_H:
                     # Add hydrogens.
-                    #getLogger(silico.logger_name).info("Adding any missing hydrogens to structure loaded from file '{}'".format(self.input_name))
+                    #silico.logging.get_logger().info("Adding any missing hydrogens to structure loaded from file '{}'".format(self.input_name))
                     molecule.addh()
                 
                 # Now convert and return
@@ -238,11 +241,11 @@ class Obabel_converter(Openbabel_converter):
         
         if charge is not None:
             # We can't set charge with obabel sadly.
-            getLogger(silico.logger_name).warning("Unable to set charge '{}' of molecule loaded from file '{}' with obabel converter".format(charge, self.input_name))
+            silico.logging.get_logger().warning("Unable to set charge '{}' of molecule loaded from file '{}' with obabel converter".format(charge, self.input_name))
             
         if multiplicity is not None:
             # We can't set charge with obabel sadly.
-            getLogger(silico.logger_name).warning("Unable to set multiplicity '{}' of molecule loaded from file '{}' with obabel converter".format(multiplicity, self.input_name))
+            silico.logging.get_logger().warning("Unable to set multiplicity '{}' of molecule loaded from file '{}' with obabel converter".format(multiplicity, self.input_name))
         
         # Run
         return self.run_obabel(output_file_type, gen3D = gen3D)
@@ -270,12 +273,12 @@ class Obabel_converter(Openbabel_converter):
         
         # Add gen3D command if we've been asked to.
         if gen3D:
-            getLogger(silico.logger_name).warning("Generating 3D coordinates from file '{}'; this will scramble atom coordinates".format(self.input_name))
+            silico.logging.get_logger().warning("Generating 3D coordinates from file '{}'; this will scramble atom coordinates".format(self.input_name))
             sig.append("--gen3D")
         
         # Add H if we've been asked.    
         if self.add_H:
-            #getLogger(silico.logger_name).info("Adding any missing hydrogens to structure loaded from file '{}'".format(self.input_name))
+            #silico.logging.get_logger().info("Adding any missing hydrogens to structure loaded from file '{}'".format(self.input_name))
             sig.append("-h")
         
         # There are several openbabel bugs re. the chem draw format; one of them occurs when we are frozen and have set the BABEL_LIBDIR env variable.

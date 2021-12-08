@@ -1,11 +1,10 @@
 # General imports.
 from pathlib import Path
 import dill
-import logging
 
 # Silico imports.
 from silico.program.base import Program
-import silico
+import silico.logging
 from silico.exception.uncatchable import Submission_paused
 from silico.exception.base import Silico_exception
 
@@ -48,7 +47,7 @@ class Resume_program(Program):
         :return: A tuple of (args, config, logger).
         """
         # First, sort out our logger.
-        logger = logging.getLogger(silico.logger_name)
+        logger = silico.logging.get_logger()
         
         # Load our pickled class.
         with open(args.resume_file, "rb") as pickle_file:

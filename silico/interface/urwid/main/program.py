@@ -1,9 +1,8 @@
 # General imports.
-import logging
 
 # Silico imports.
 
-import silico
+import silico.logging
 from silico.interface.urwid.swap.top import Swappable
 
 
@@ -47,13 +46,13 @@ class Program_view(Swappable):
             self.post(retval)
             
         except Exception:
-            logger = logging.getLogger(silico.logger_name)
+            logger = silico.logging.get_logger()
             logger.exception("Sub-program {} stopped with error".format(self.program.command))
             return False
         
         except KeyboardInterrupt:
             # The user wanted to stop.
-            logger = logging.getLogger(silico.logger_name)
+            logger = silico.logging.get_logger()
             logger.error("Sub-program {} interrupted by user (ctrl-c)".format(self.program.command))
             return False
         

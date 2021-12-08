@@ -7,7 +7,7 @@ from silico.interface.urwid.row_list.base import Row_item, Row_widget,\
     Row_browser
 from silico.file.convert.main import Silico_input
 from silico.interface.urwid.misc import IntEditZero
-import silico
+import silico.logging
 from silico.interface.urwid.coord.browser import Coord_selector
 
 
@@ -100,7 +100,7 @@ class Coordinate_list(Row_browser):
         Add selected files to our list.
         """
         # Get the logger item we'll use for communication.
-        logger = silico.get_logger()
+        logger = silico.logging.get_logger()
         logger.info("Loading coordinates")
         
         # Go through the files the user selected.

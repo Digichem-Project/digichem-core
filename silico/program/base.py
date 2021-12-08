@@ -10,6 +10,7 @@ from silico.exception.uncatchable import Signal_caught
 from silico.config.file.parser import Config_file_parser, Config_parser
 import silico.result.angle
 from silico.exception.base import Silico_exception
+import silico.logging
 
 
 class Program():
@@ -47,7 +48,7 @@ class Program():
         :return: A tuple of (args, config, logger).
         """
         # First, sort out our logger.
-        logger = logging.getLogger(silico.logger_name)
+        logger = silico.logging.get_logger()
         
         # Next, load all our config files.
         config = self.get_silico_config(args)
@@ -92,7 +93,7 @@ class Program():
         return Config_file_parser.silico_options()
     
     @classmethod
-    def subprocess_init(self, *args, **kwargs):
+    def subprocess_init(self):
         """
         Init function for subprocess workers.
         This function disables a signal handler that silico normally monitors as this signal appears to be used by multiprocessing.pool for communication.

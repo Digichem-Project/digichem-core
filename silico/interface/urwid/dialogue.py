@@ -51,7 +51,7 @@ class Dialogue_mixin():
         
         The interpretation is as follows:
             - int: A number of steps to call back() on the top widget.
-            - otherwise: A functiojn to call.
+            - otherwise: A function to call.
             
         :returns: The possibly new callback function.
         """

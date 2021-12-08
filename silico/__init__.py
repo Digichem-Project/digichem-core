@@ -5,10 +5,9 @@ import pkg_resources
 import os
 import sys
 import PIL.Image
-from logging import getLogger
 
 # Silico imports.
-import silico.base
+import silico.logging
 from .base import init_obabel
 
 
@@ -36,11 +35,6 @@ last_updated = datetime.strptime(_last_updated_string, "%d/%m/%Y")
 # The name of the command to launch new instances of silico.
 silico_cmd = "silico" if not development else "silico-dev"
 
-# The name of the logger that will be used by silico.
-logger_name = "silico"
-
-# Init the logger.
-silico.base.init_logger(logger_name)
 
 # Decide on whether we are frozen or not.
 # The sys attribute 'frozen' is our flag, '_MEIPASS' is the dir location.
@@ -54,13 +48,6 @@ else:
 ########################
 # Function Definitions #
 ########################
-
-def get_logger():
-    """
-    Get the logger silico uses for communication.
-    """
-    return getLogger(logger_name)
-    
 
 def default_template_directory():
     return Path(pkg_resources.resource_filename('silico', 'data/templates'))

@@ -31,7 +31,7 @@ import argparse
 #import pydevd;pydevd.settrace()
 
 # Silico imports.
-import logging
+import silico.logging
 from silico.program.config.main import Config_program
 from silico.program.convert import Convert_program
 from silico.program.interactive import Interactive_program
@@ -88,7 +88,7 @@ def main():
     args = parser.parse_args()
     
     # Get our logger.
-    logger = logging.getLogger(silico.logger_name)
+    logger = silico.logging.get_logger()
     
     try:
         # First, get our chosen subprogram.

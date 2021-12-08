@@ -3,7 +3,6 @@
 # General imports.
 from pathlib import Path
 import subprocess
-from logging import getLogger
 import tempfile
 import shutil
 import os
@@ -12,11 +11,12 @@ import os
 from silico.exception.base import File_maker_exception
 from silico.file import File_converter
 import silico.file.types as file_types
-import silico
+import silico.logging
 from silico.submit.destination.local import Series
 from silico.submit.calculation.turbomole import get_orbital_calc, Turbomole_memory
 from silico.file.base import File_maker
 from silico.submit import Memory
+
 
 class Fchk_to_cube(File_converter):
     """
@@ -109,7 +109,7 @@ class Fchk_to_cube(File_converter):
         else:
             # Everything appeared to go ok.
             # Dump cubegen output if we're in debug.
-            getLogger(silico.logger_name).debug(cubegen_proc.stdout)
+            silico.logging.get_logger().debug(cubegen_proc.stdout)
 
 
 

@@ -1,14 +1,13 @@
 # General imports.
 import urwid
 import shlex
-import logging
 
 # Silico imports.
 from silico.interface.urwid.row_list.base import Row_item, Row_widget,\
     Row_browser
 from silico.interface.urwid.method.browser import Method_selector
 from silico.interface.urwid.submit.edit import Method_editor
-import silico
+import silico.logging
 
 
 class Method_widget(Row_widget):
@@ -140,7 +139,7 @@ class Method_list(Row_browser):
         super().add_to_list()
         
         # Get logger for errors.
-        logger = logging.getLogger(silico.logger_name)
+        logger = silico.logging.get_logger()
         
         # Now add the methods identified by their code.
         method_strings = shlex.split(self.selector.manual_widget.get_edit_text())

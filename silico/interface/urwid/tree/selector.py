@@ -7,20 +7,19 @@ from silico.interface.urwid.section import Section
 from silico.interface.urwid.swap.swappable import Swappable
 
 
-class Enhanced_tree_selector(Swappable):
+class Two_part_tree_selector(Swappable):
     """
-    ABC for widgets that contain both a tree widget for selecting something and also a manual text-like widget
+    ABC for tree widgets that show an additional widget.
     """
     
-    def __init__(self, top, browser, manual_widget, title, manual_widget_title):
+    def __init__(self, top, browser, secondary_widget, browser_title, secondary_title):
         """
-        Constructor for Enhanced_tree_selector objects.
         """
         self.browser = browser
-        self.manual_widget = manual_widget
-        self.manual_widget_title = manual_widget_title
+        self.secondary_widget = secondary_widget
+        self.secondary_title = secondary_title
         
-        super().__init__(top, self.browser, title)
+        super().__init__(top, self.browser, title = browser_title)
         
     def _get_body(self):
         """
@@ -31,8 +30,28 @@ class Enhanced_tree_selector(Swappable):
         # We will wrap our body in a Pile and add our manual widget underneath in.
         return Tab_pile([
             main_body,
-            (3, Section(urwid.Filler(urwid.AttrMap(self.manual_widget, "editable")), self.manual_widget_title))
+            (3, Section(urwid.Filler(urwid.AttrMap(self.secondary_widget, "editable")), self.secondary_title))
         ])
+        
+
+class Enhanced_tree_selector(Two_part_tree_selector):
+    """
+    ABC for widgets that contain both a tree widget for selecting something and also a manual text-like widget
+    """
+        
+    @property
+    def manual_widget(self):
+        """
+        Map for manual_widget -> secondary_widget
+        """
+        return self.secondary_widget
+    
+    @manual_widget.setter
+    def manual_widget(self, value):
+        """
+        Map for manual_widget -> secondary_widget
+        """
+        self.secondary_widget = value
         
     @property
     def selected(self):

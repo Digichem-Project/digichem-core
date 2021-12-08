@@ -10,7 +10,7 @@ from silico.program.result import Result_program
 from silico.program.status import Status_program
 from silico.program.convert import Convert_program
 from silico.interface.urwid.main.base import Silico_window, Output_catcher
-import silico.base
+import silico.logging.base
 
 
 class Interactive_program(Program):
@@ -85,8 +85,8 @@ class Interactive_program(Program):
             sys.stderr = stderr
             
             # Also update our logging output, which is handled separately.
-            old_log_stream = silico.base.LOGGING_HANDLER.stream
-            silico.base.LOGGING_HANDLER.stream = stderr
+            old_log_stream = silico.logging.base.LOGGING_HANDLER.stream
+            silico.logging.base.LOGGING_HANDLER.stream = stderr
             
             # Turn of warnings from pybel, they're probably not useful anyway and get dumped randomly in the screen.
             log_level = pybel.ob.obErrorLog.GetOutputLevel()
@@ -99,7 +99,7 @@ class Interactive_program(Program):
                 # Restore stdout.
                 sys.stdout = sys.__stdout__
                 sys.stderr = sys.__stderr__
-                silico.base.LOGGING_HANDLER.stream = old_log_stream
+                silico.logging.base.LOGGING_HANDLER.stream = old_log_stream
                 
                 # And obabel logging.
                 pybel.ob.obErrorLog.SetOutputLevel(log_level)

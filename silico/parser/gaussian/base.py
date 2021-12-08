@@ -1,11 +1,10 @@
 # General imports.
 import pysoc.io.SOC
-from logging import getLogger
 from datetime import datetime, timedelta
 
 # Silico imports.
 from silico.parser.main import Parser
-import silico
+import silico.logging
 from silico.exception.base import Result_unavailable_error
 import silico.file.types as file_types
 
@@ -34,13 +33,13 @@ class Gaussian_parser(Parser):
         super().parse()
         
         # Output a message (because this is slow).
-        getLogger(silico.logger_name).debug("Secondary parsing calculation result '{}'".format(self.description))
+        silico.logging.get_logger().debug("Secondary parsing calculation result '{}'".format(self.description))
                             
         # Next try and get SOC.
         try:
             self.parse_SOC()
         except Exception:
-            getLogger(silico.logger_name).debug("Cannot parse SOC from output file '{}'".format(self.log_file_path), exc_info = True)
+            silico.logging.get_logger().debug("Cannot parse SOC from output file '{}'".format(self.log_file_path), exc_info = True)
         
         # All done.
         return self.data

@@ -1,9 +1,11 @@
-from silico.submit.program import Program_target
+# General imports.
 from pathlib import Path
 import subprocess
-import silico
 from mako.lookup import TemplateLookup
-from logging import getLogger
+
+# Silico imports.
+import silico.logging
+from silico.submit.program import Program_target
 from silico.file.fchk import Chk_to_fchk
 from silico.config.configurable.option import Option
 from silico.parser.base import parse_calculation
@@ -140,7 +142,7 @@ class Gaussian(Program_target):
                     fchk_file = Chk_to_fchk(self.fchk_file_path, chk_file = self.chk_file_path, memory = self.calculation.memory)
                     fchk_file.get_file()
             except Exception:
-                getLogger(silico.logger_name).error("Failed to create fchk file", exc_info = True)
+                silico.logging.get_logger().error("Failed to create fchk file", exc_info = True)
             else:
                 try:
                     # Now delete the chk file if we were asked to.
@@ -150,7 +152,7 @@ class Gaussian(Program_target):
                     # We can ignore not finding the file; we were trying to get rid of it anyway.
                     pass
                 except Exception:
-                    getLogger(silico.logger_name).error("Failed to delete chk file", exc_info = True)
+                    silico.logging.get_logger().error("Failed to delete chk file", exc_info = True)
             
             # Use our parent to create result and report files.
             super().post()
@@ -163,7 +165,7 @@ class Gaussian(Program_target):
                 # We can ignore not finding the file; we were trying to get rid of it anyway.
                 pass
             except Exception:
-                getLogger(silico.logger_name).error("Failed to delete rwf file", exc_info = True)
+                silico.logging.get_logger().error("Failed to delete rwf file", exc_info = True)
                 
         def cleanup(self, success):
             """

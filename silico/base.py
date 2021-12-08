@@ -1,38 +1,8 @@
 # General imports.
-from logging import getLogger
-import logging
 import sys
 import os
 from pathlib import Path
-import warnings
-
-# Silico imports.
-import silico.logging
-
-LOGGING_HANDLER = None
-
-def init_logger(logger_name):
-    """
-    Init the program wide logger.
-    """
-    global LOGGING_HANDLER
-    
-    logging.captureWarnings(True)
-    
-    logger = getLogger(logger_name)
-    warnings_logger = logging.getLogger("py.warnings")
-    
-    # The console handler, where we'll print most messages.
-    LOGGING_HANDLER = logging.StreamHandler(sys.stderr)
-    # Handle everything.
-    LOGGING_HANDLER.setLevel(logging.DEBUG)
-    # Set its formatter.
-    var_formatter = silico.logging.Variable_formatter(logger, default_warning_formatter = warnings.formatwarning)
-    LOGGING_HANDLER.setFormatter(var_formatter)
-    # Add the handler.
-    logger.addHandler(LOGGING_HANDLER)
-    warnings_logger.addHandler(LOGGING_HANDLER)
-    warnings.formatwarning = var_formatter.formatWarning
+import silico
     
 def init_obabel():
     """

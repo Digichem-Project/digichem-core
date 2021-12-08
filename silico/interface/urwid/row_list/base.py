@@ -1,10 +1,9 @@
 # General imports.
 import urwid
-import logging
 
 # Silico imports.
 from silico.interface.urwid.misc import Blank
-import silico
+import silico.logging
 from silico.interface.urwid.dialogue import Confirm_or_cancel_dialogue
 
 
@@ -462,7 +461,7 @@ class Row_browser(Row_list):
         """
         Add the items currently selected in our browser to our list.
         """
-        logger = logging.getLogger(silico.logger_name)
+        logger = silico.logging.get_logger()
 
         # Go through the nodes the user selected.
         for selected_node in self.selector.browser.selected_nodes:

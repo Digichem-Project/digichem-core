@@ -1,7 +1,10 @@
+# General imports.
 from pathlib import Path
-from logging import getLogger
+
+# Silico imports.
+import silico.logging
 from silico.exception.base import File_maker_exception, Silico_exception
-import silico
+
 
 class File_maker():
     """
@@ -27,11 +30,11 @@ class File_maker():
             
             # Force set dont_modify = True so we don't overwrite the input that the user has given us.
             dont_modify = True
-            getLogger(silico.logger_name).debug("Setting dont_modify == True to prevent overwrite of user specified {} file '{}'".format(self.output_file_type, existing_file))
+            silico.logging.get_logger().debug("Setting dont_modify == True to prevent overwrite of user specified {} file '{}'".format(self.output_file_type, existing_file))
             
             # Check
             if not existing_file.exists():
-                getLogger(silico.logger_name).warning("The given {} file '{}' does not appear to exist".format(self.output_file_type, existing_file))
+                silico.logging.get_logger().warning("The given {} file '{}' does not appear to exist".format(self.output_file_type, existing_file))
                 # Continue anyway.
             
             # Set our output appropriately, and continue as normal.
@@ -66,7 +69,7 @@ class File_maker():
         try:
             return self.get_file(name)
         except Exception:
-            getLogger(silico.logger_name).error("Unable to get file '{}'".format(self.file_path[name]), exc_info = True)
+            silico.logging.get_logger().error("Unable to get file '{}'".format(self.file_path[name]), exc_info = True)
     
     def get_file(self, name = 'file'):
         """
@@ -90,7 +93,7 @@ class File_maker():
                 # There is obviously a race condition here, but we're not making any guarantee to the calling function that the file really exists (or even what it is), we're only checking to see if we need to create a new file or not.
                 if self.file_path[name].exists():
                     # File exists, return its path.
-                    #getLogger(silico.logger_name).debug("Using existing {} file '{}'".format(self.output_file_type, self.file_path[name]))
+                    #silico.logging.get_logger().debug("Using existing {} file '{}'".format(self.output_file_type, self.file_path[name]))
                     return self.file_path[name]
             
             # There are no files we can use. If we're allowed, write new files.
@@ -136,7 +139,7 @@ class File_maker():
         self.check_can_make()
 
         # Print a debug message (because lots can go wrong next and this step an be quite slow).    
-        getLogger(silico.logger_name).info(self.creation_message)
+        silico.logging.get_logger().info(self.creation_message)
         
         # Make our parent folder(s).
         try:

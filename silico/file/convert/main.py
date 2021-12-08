@@ -7,8 +7,7 @@ from openbabel import pybel
 from silico.exception.base import Silico_exception
 from silico.file.convert.gaussian import Gaussian_input_parser
 from silico.file.convert.babel import Openbabel_converter
-import logging
-import silico
+import silico.logging
 
 # Custom formats to allow literal strings in yaml output.
 # Adapted from https://stackoverflow.com/questions/6432605/any-yaml-libraries-in-python-that-support-dumping-of-long-strings-as-block-liter
@@ -123,7 +122,7 @@ class Silico_input():
         :param name: Name of the system/molecule.
         """
         file_name = Path(file_name)
-        silico.get_logger().info("Parsing coordinate file '{}'".format(file_name))
+        silico.logging.get_logger().info("Parsing coordinate file '{}'".format(file_name))
         
         # Get the file format.
         if file_type is None:

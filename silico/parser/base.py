@@ -1,7 +1,7 @@
 # General imports.
 import cclib.parser.gaussianparser
 import cclib.parser.turbomoleparser
-import multiprocessing
+import multiprocessing.pool
 from functools import partial
 from itertools import filterfalse
 
@@ -14,7 +14,7 @@ from silico.result.multi.base import Merged
 from silico.result.alignment import Minimal
 from silico.result.result import Result_set
 from silico.exception.base import Silico_exception
-import silico
+import silico.logging
 
 def class_from_log_files(*log_files):
     """
@@ -69,9 +69,9 @@ def multi_parser(log_file, alignment_class):
             return parse_calculation(log_file, alignment_class = alignment_class)
             
         except Exception:
-            silico.get_logger().warning("Unable to parse calculation result file '{}'; skipping".format(log_file), exc_info = True)
+            silico.logging.get_logger().warning("Unable to parse calculation result file '{}'; skipping".format(log_file), exc_info = True)
 
-def parse_multiple_calculations(*log_files, alignment_class = None, pool = None, init_func = None, processes = 1):
+def parse_multiple_calculations(*log_files, alignment_class = None, pool = None, init_func = None, init_args = None, processes = 1):
     """
     Parse a number of separate calculation results in parallel.
     
@@ -94,7 +94,8 @@ def parse_multiple_calculations(*log_files, alignment_class = None, pool = None,
     own_pool = False
     if pool is None:
         own_pool = True
-        pool = multiprocessing.Pool(processes, initializer = init_func)
+        pool = multiprocessing.Pool(processes, initializer = init_func, initargs = init_args if init_args is not None else [])
+        #pool = multiprocessing.pool.ThreadPool(processes)
     
     # Do some parsing.
     try:
