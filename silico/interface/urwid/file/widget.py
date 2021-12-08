@@ -53,7 +53,19 @@ class Directory_widget(Flag_widget):
         self.expanded = path in itertools.chain(node.starting_path.parents, [node.starting_path])
         
         self.update_expanded_icon()
-        
+    
+    def keypress(self, size, key):
+        """
+        Keypress events.
+        """
+        if key == "r":
+            # Refresh.
+            self.get_node().get_child_keys(True)
+            # This triggers an update; might be a smarter way...
+            self.update_expanded_icon()
+        else:
+            return super().keypress(size, key)
+    
     @property
     def expanded(self):
         """
