@@ -52,7 +52,27 @@ class Directory_widget(Flag_widget):
         # Work out whether we should be expanded or not.
         self.expanded = path in itertools.chain(node.starting_path.parents, [node.starting_path])
         
-        self.update_expanded_icon()        
+        self.update_expanded_icon()
+        
+    @property
+    def expanded(self):
+        """
+        Whether this directory is currently expanded.
+        """
+        return self._expanded
+    
+    @expanded.setter
+    def expanded(self, expand):
+        """
+        Whether this directory is currently expanded.
+        """
+        if not expand:
+            # We are collapsing.
+            # If we've been ask to refresh when toggled, delete our child keys so we'll reload them.
+            node = self.get_node()
+            if node.options.get('refresh'):
+                node._child_keys = None
+        self._expanded = expand
 
     def get_display_text(self):
         """
