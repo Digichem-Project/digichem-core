@@ -1,5 +1,6 @@
 # General imports.
 from pathlib import Path
+import urwid
 
 # Silico imports.
 from silico.interface.urwid.main.program import Program_view
@@ -7,6 +8,7 @@ from silico.config.configurable.option import Option
 from silico.interface.urwid.misc import Tab_pile
 from silico.interface.urwid.section import Section
 from silico.interface.urwid.result.list import Result_list
+from silico.interface.urwid.setedit.base import Option_setedit
 
 
 class Result_interface(Program_view):
@@ -14,7 +16,7 @@ class Result_interface(Program_view):
     Class for controlling interface to result program.
     """
     
-    output = Option(help = "Path to the directory or file to write output to", type = Path)
+    output = Option(help = "Path to the directory or file to write output to.", type = Path)
     ignore_missing = Option(help = "Ignore missing sections rather than stopping with an error.", type = bool)
     
     def __init__(self, window, program):
@@ -25,13 +27,13 @@ class Result_interface(Program_view):
         :param program: A program object.
         """
         # Keep track of our individual widgets.
-        self.file_list = Result_list(window.top, initial_results = program.results, can_choose_folders = True)
+        self.file_list = Result_list(window.top, initial_results = program.results, subprocess_init = program.subprocess_init)
         
         # Set our options from our program object.
-        self.output = program.args.output
+        self.output = program.args.output if program.args.output != "-" else None
         self.ignore_missing = program.args.ignore
-        self.file_list.selector.alignment = self.program.config['alignment']
-        self.file_list.selector.num_CPUs = self.program.args.num_CPUs
+        self.file_list.selector.alignment = program.config['alignment']
+        self.file_list.selector.num_CPUs = program.args.num_CPUs
         
         super().__init__(window, program)
         
@@ -43,6 +45,7 @@ class Result_interface(Program_view):
         """
         return Tab_pile([
             Section(self.file_list, "Calculation Log Files"),
+            ('pack', urwid.LineBox(Option_setedit.from_configurable_option(self.window.top, self, type(self).output).get_widget()))
         ])
         
     def setup(self):
