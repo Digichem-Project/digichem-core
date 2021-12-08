@@ -3,7 +3,6 @@
 from pathlib import Path
 import subprocess
 import math
-from logging import getLogger
 from PIL import Image
 import numpy as np
 import logging
@@ -15,7 +14,7 @@ from math import fabs
 # Silico imports.
 from silico.exception.base import File_maker_exception
 from silico.file import File_converter
-import silico
+import silico.logging
 
 class VMD_image_maker(File_converter):
     """
@@ -259,7 +258,7 @@ class VMD_image_maker(File_converter):
                 # We normally capture and discard stdout (because VMD is VERY verbose), but if we're at a suitable log level, we'll print it.
                 # Nothing useful appears to be printed to stderr, so we'll treat it the same as stdout.,
                 stdin = subprocess.DEVNULL,
-                stdout = subprocess.DEVNULL if getLogger(silico.logger_name).level > logging.DEBUG else None,
+                stdout = subprocess.DEVNULL if silico.logging.get_logger().level > logging.DEBUG else None,
                 stderr = subprocess.STDOUT,
                 universal_newlines = True,
                 # VMD has a tendency to sigsegv when closing with VMDNOOPTIX set to on (even tho everything is fine) so we can't check retval sadly.
@@ -295,7 +294,7 @@ class VMD_image_maker(File_converter):
                         "-res", "{}".format(resolution), "{}".format(resolution),
                         "-o", tmpfile_name
                     ],
-                    stdout = subprocess.DEVNULL if getLogger(silico.logger_name).level > logging.DEBUG else None,
+                    stdout = subprocess.DEVNULL if silico.logging.get_logger().level > logging.DEBUG else None,
                     stderr = subprocess.STDOUT,
                     universal_newlines = True,
                     check = True,
