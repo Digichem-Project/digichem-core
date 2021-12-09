@@ -25,7 +25,7 @@ class Result_widget(Row_widget):
         Load the widget we'll use to display our main body.
         """
         return urwid.Columns([
-            ('weight', 1, urwid.Text(self.row_item._value.metadata.identity_string)),
+            ('weight', 1, urwid.Text("{} {}".format(self.row_item._value.metadata.name, self.row_item._value.metadata.identity_string))),
             # TODO: Careful, what if result has no file?
             ('weight', 2, urwid.Text(str(self.row_item._value.metadata.log_files[0])))
         ])
