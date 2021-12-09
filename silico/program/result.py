@@ -80,7 +80,7 @@ class Result_program(Program):
         # Parse the log files we've been given (in parallel).
         # Get our list of results. Do this in parallel.
         try:
-            results = parse_multiple_calculations(*args.log_files, alignment_class = alignment, init_func = self.subprocess_init, init_args = [silico.logging.base.LOGGER_LOCK], processes = args.num_CPUs)
+            results = parse_multiple_calculations(*args.log_files, alignment_class = alignment, init_func = self.subprocess_init, processes = args.num_CPUs)
             
         except Exception:
             raise Silico_exception("Failed to read calculation files")
@@ -129,6 +129,10 @@ class Result_program(Program):
         if len(self.results) == 0:
             raise Silico_exception("No result files specified/available")
         
+        # Also if we have no-where to write to.
+        if self.args.output is None:
+            raise Silico_exception("No output location specified")
+        
         # Process our given properties, splitting each into the property name and associated filters.
         requested_properties = self.process_properties(self.args.properties)
         
@@ -140,7 +144,7 @@ class Result_program(Program):
                 
         # Now process.
         try:
-            output_format.write(self.results, (self.args.output))
+            output_format.write(self.results, (self.args.output,))
             
         except Exception as e:
             raise Silico_exception("Failed to parse/write results") from e
