@@ -144,7 +144,7 @@ class Report_program(Program):
             self.args.pdf_file = Path(input_name.parent, "report", default_base_name)
             
         # Now make (compile?) and save our report.
-        self.logger.info("Generating report '{}'".format(self.args.pdf_file))
+        self.logger.info("Generating report '{}'...".format(self.args.pdf_file))
         try:
             report.write(self.args.pdf_file, report_type = self.args.type)
         except Exception as e:
