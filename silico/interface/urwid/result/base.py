@@ -48,8 +48,21 @@ class Result_interface(Program_view):
             ('pack', urwid.LineBox(Option_setedit.from_configurable_option(self.window.top, self, type(self).output).get_widget()))
         ])
         
+    def submit(self):
+        self.program.logger.info("Writing results...")
+        retval = Program_view.submit(self)
+        self.program.logger.info("Done writing results")
+        return retval
+        
     def setup(self):
         """
         Setup our program to ready it to be run.
         """
+        self.program.args.output = self.output
+        self.program.args.ignore = self.ignore_missing
+        self.program.results = self.file_list.get_values()
+        
+        
+        
+        
         
