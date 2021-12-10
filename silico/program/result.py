@@ -20,10 +20,10 @@ class Result_program(Program):
     The Silico result parsing program.
     """
     
-    name = "Calculation Result Format"
+    name = "Calculation Result Parser"
     command = "result"
     description = "extract results from calculation output files and convert them to more convenient intermediate formats"
-    help = "Extract results"
+    help = "Parse results"
 
 
     @classmethod
