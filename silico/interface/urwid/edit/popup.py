@@ -210,6 +210,17 @@ class File_edit(Popup_edit):
     
     def load_popup(self):
         return self.file_selector
+    
+    def update(self):
+        """
+        Update the value of this widget.
+        """
+        # Get whatever has been selected.
+        selected_files = self.file_selector.selected
+        self.value = selected_files[-1] if len(selected_files) > 0 else None
+        self.file_selector.reset()
+        
+        self.update_label()
 
     
     
