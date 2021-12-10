@@ -39,11 +39,14 @@ class Program_view(Swappable):
     def submit(self):
         """
         Submit this program widget, running the program it wraps.
+        
+        :returns: True if program execution was successfull, false otherwise.
         """
         try:
             self.setup()
-            retval = self.program.main()
-            self.post(retval)
+            self.program.main()
+            self.post()
+            return True
             
         except Exception:
             logger = silico.logging.get_logger()
@@ -56,7 +59,7 @@ class Program_view(Swappable):
             logger.error("Sub-program {} interrupted by user (ctrl-c)".format(self.program.command))
             return False
         
-    def post(self, retval):
+    def post(self):
         """
         Method called once our main program has finished running.
         """
