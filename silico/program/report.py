@@ -35,7 +35,7 @@ class Report_program(Program):
                             
         output_group = sub_parser.add_mutually_exclusive_group()
         output_group.add_argument("--pdf_file", help = "a filename/path to a pdf file to write to (this is an alternative to the 'output' option). Other output files will placed in the same directory as the 'pdf_file'", nargs = "?", default = None)
-        output_group.add_argument("-O", "--output", help = "a filename/path to write to. If this filename ends in a .pdf extension, this is taken as the filename of the pdf file to write to. Otherwise, output is assumed to be the name of a directory and the pdf file is written inside this directory", nargs = "?", type = Path, default = None)
+        output_group.add_argument("-O", "--output", help = "a filename/path to write to. If this filename ends in a .pdf extension, this is taken as the filename of the pdf file to write to. Otherwise, output is assumed to be the name of a directory and the pdf file is written inside this directory", nargs = "?", type = Path, default = "Report")
         
         sub_parser.add_argument("--name", help = "name of the molecule/system to use in the report", default = None)
         sub_parser.add_argument("--type", help = "the type of report to make", choices = ["full", "atoms"], default = "full")
@@ -139,9 +139,6 @@ class Report_program(Program):
             else:
                 # It's a directory. Decide on a fitting name from our input file.
                 self.args.pdf_file = Path(self.args.output, default_base_name)
-        else:
-            # No output was given, we'll use a default location (in the same place as the main input file).
-            self.args.pdf_file = Path(input_name.parent, "report", default_base_name)
             
         # Now make (compile?) and save our report.
         self.logger.info("Generating report '{}'...".format(self.args.pdf_file))
