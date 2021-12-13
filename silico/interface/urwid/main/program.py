@@ -40,24 +40,27 @@ class Program_view(Swappable):
         """
         Submit this program widget, running the program it wraps.
         
-        :returns: True if program execution was successfull, false otherwise.
+        :returns: True if program execution was successful, false otherwise.
         """
         try:
             self.setup()
             self.program.main()
             self.post()
-            return True
+            #return True
             
         except Exception:
             logger = silico.logging.get_logger()
             logger.exception("Sub-program {} stopped with error".format(self.program.command))
-            return False
+            #return False
         
         except KeyboardInterrupt:
             # The user wanted to stop.
             logger = silico.logging.get_logger()
             logger.error("Sub-program {} interrupted by user (ctrl-c)".format(self.program.command))
-            return False
+            #return False
+        
+        # Return false to prevent swapping back.
+        return False
         
     def post(self):
         """
