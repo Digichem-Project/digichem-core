@@ -22,7 +22,7 @@ class Result_interface(Program_view):
     Class for controlling interface to result program.
     """
     
-    ignore_missing = Option(help = "Ignore missing sections rather than stopping with an error.", type = bool)
+    stop_on_missing = Option(help = "Stop on missing sections rather than ignoring them.", type = bool)
     
     formats = {
         "text": Text_summary_group_format,
@@ -51,7 +51,7 @@ class Result_interface(Program_view):
         self.filters_widget = urwid.Edit("", " ".join(program.args.filters))
         
         # Set our options from our program object.
-        self.ignore_missing = program.args.ignore
+        self.stop_on_missing = program.args.stop
         self.file_list.selector.alignment = program.config['alignment']
         self.file_list.selector.num_CPUs = program.args.num_CPUs
         
@@ -97,7 +97,7 @@ class Result_interface(Program_view):
         Setup our program to ready it to be run.
         """
         self.program.args.output = self.output_widget.value
-        self.program.args.ignore = self.ignore_missing
+        self.program.args.stop = self.stop_on_missing
         self.program.results = self.file_list.get_values()
         self.program.args.format = self.formats[self.format_widget  .value]
         self.program.args.filters = shlex.split(self.filters_widget.get_edit_text()) if self.filters_widget.get_edit_text() != "" else []

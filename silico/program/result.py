@@ -37,7 +37,7 @@ class Result_program(Program):
         
         sub_parser.add_argument("log_files", help = "a (number of) calculation result file(s) (.log) to extract results from", nargs = "*", default = [])
          
-        sub_parser.add_argument("-i", "--ignore", help = "ignore missing sections rather than stopping with an error", action = "store_true", default = False)
+        sub_parser.add_argument("-x", "--stop", help = "stop on missing sections rather than ignoring them", action = "store_true", default = False)
         sub_parser.add_argument("-C", "--num_CPUs", help = "the number of CPUs to use in parallel to parse given log_files, defaults to the number of CPUs on the system", type = int, nargs = "?", default = os.cpu_count())
         
         output_group = sub_parser.add_argument_group("output format", "the format to write results to. Only one option from the following may be chosen")
@@ -136,10 +136,10 @@ class Result_program(Program):
         requested_filters = self.process_filters(self.args.filters)
         
         # First, get the individual parsers that the user asked for (these are based on the values given to the --filters option).
-        formats = [self.args.format.from_class_handle(requested_filter['name'])(*requested_filter['sub_criteria'], ignore = self.args.ignore, config = self.config) for requested_filter in requested_filters]
+        formats = [self.args.format.from_class_handle(requested_filter['name'])(*requested_filter['sub_criteria'], ignore = not self.args.stop, config = self.config) for requested_filter in requested_filters]
         
         # Now get our main formating object.
-        output_format = self.args.format(*formats, ignore = self.args.ignore, config = self.config)
+        output_format = self.args.format(*formats, ignore = not self.args.stop, config = self.config)
                 
         # Now process.
         try:
