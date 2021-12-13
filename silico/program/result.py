@@ -12,7 +12,6 @@ from silico.format.table import Table_summary_group_format,\
     Property_table_group_format
 from silico.parser.base import parse_multiple_calculations
 from silico.interface.urwid.result.base import Result_interface
-import silico.logging.base
 
 
 class Result_program(Program):
