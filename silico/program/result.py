@@ -48,7 +48,7 @@ class Result_program(Program):
         output_format.add_argument("-a", "--table", help = "tabulated text format; the same as -c but formatted with an ASCII table, recommended that output be piped to 'less -S'", dest = "format", action = "store_const", const = Table_summary_group_format)
         output_format.add_argument("-b", "--table-property", help = "tabulated property text format; the same as -d but formatted with an ASCII table", dest = "format", action = "store_const", const = Property_table_group_format)
         
-        sub_parser.add_argument("-p", "--properties", "--prop", help = "a list of properties (SCF, MOS, atoms etc) to parse", nargs = "*", default = [])
+        sub_parser.add_argument("-f", "--filters", help = "a list of filters to restrict which data is parsed (SCF, MOS, atoms etc)", nargs = "*", default = [])
         
         #sub_parser.add_argument("-O", "--output", help = "a (number of) filename/path to write results to. If none is give, results will be written to stdout, which can also be explicitly requested with '-'", nargs = "*", default = ("-",))
         sub_parser.add_argument("-O", "--output", help = "a filename/path to write results to. If none is give, results will be written to stdout, which can also be explicitly requested with '-'", default = "-")
@@ -86,31 +86,31 @@ class Result_program(Program):
                 
         return self(results, args = args, config = config, logger = logger)
     
-    def process_properties(self, properties_strings):
+    def process_filters(self, filter_strings):
         """
-        Process a list of properties strings, each of which identifies a formatter.
+        Process a list of filter strings, each of which identifies a formatter.
         
-        :param properties_strings: A list of strings to process.
+        :param filter_strings: A list of strings to process.
         :returns: A list of dictionaries of {'name', 'sub_criteria'}
         """
         # A list of dictionaries of {'name', 'sub_criteria'}
-        requested_properties = []
+        requested_filters = []
         
         # Iterate through our list.
-        for properties_string in properties_strings:
+        for filter_string in filter_strings:
             # Split on '=', the part before is the name of a section (which should match a CLASS_HANDLE), parts after are criteria to pass to that section class.
-            equals_split = properties_string.split("=", maxsplit = 1)
+            equals_split = filter_string.split("=", maxsplit = 1)
             
             # The name is the first part.
-            property_name = equals_split[0].strip()
+            filter_name = equals_split[0].strip()
             
             # The remainder are criteria, separated by commas (',').
             criteria = [[sub_criterion.strip() for sub_criterion in criterion.split(';')] for criterion in equals_split[1].split(',')] if len(equals_split) > 1 else [[]]
             
             # Add to our list of sections.
-            requested_properties.extend([{'name': property_name, 'sub_criteria': sub_criteria} for sub_criteria in criteria])
+            requested_filters.extend([{'name': filter_name, 'sub_criteria': sub_criteria} for sub_criteria in criteria])
             
-        return requested_properties
+        return requested_filters
     
     def load_interface(self, window):
         """
@@ -132,11 +132,11 @@ class Result_program(Program):
         if self.args.output is None:
             raise Silico_exception("No output location specified")
         
-        # Process our given properties, splitting each into the property name and associated filters.
-        requested_properties = self.process_properties(self.args.properties)
+        # Process our given filters, splitting each into the filter name and associated filters.
+        requested_filters = self.process_filters(self.args.filters)
         
-        # First, get the individual parsers that the user asked for (these are based on the values given to the --properties option).
-        formats = [self.args.format.from_class_handle(requested_property['name'])(*requested_property['sub_criteria'], ignore = self.args.ignore, config = self.config) for requested_property in requested_properties]
+        # First, get the individual parsers that the user asked for (these are based on the values given to the --filters option).
+        formats = [self.args.format.from_class_handle(requested_filter['name'])(*requested_filter['sub_criteria'], ignore = self.args.ignore, config = self.config) for requested_filter in requested_filters]
         
         # Now get our main formating object.
         output_format = self.args.format(*formats, ignore = self.args.ignore, config = self.config)

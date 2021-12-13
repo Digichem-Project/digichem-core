@@ -47,8 +47,8 @@ class Result_interface(Program_view):
         # The output format.
         inital = list(self.formats.keys())[list(self.formats.values()).index(program.args.format)]
         self.format_widget = Choices_edit(window.top, [desc for desc, cls in self.formats.items()], inital, "Output format")
-        # Specific properties selected by the user.
-        self.properties_widget = urwid.Edit("", " ".join(program.args.properties))
+        # Specific filters selected by the user.
+        self.filters_widget = urwid.Edit("", " ".join(program.args.filters))
         
         # Set our options from our program object.
         self.ignore_missing = program.args.ignore
@@ -72,8 +72,8 @@ class Result_interface(Program_view):
                     ], dividechars = 1),
                     
                     urwid.Columns([
-                        ('pack', urwid.Text("Properties:")),
-                        urwid.AttrMap(self.properties_widget, "editable"),
+                        ('pack', urwid.Text("Filters:")),
+                        urwid.AttrMap(self.filters_widget, "editable"),
                     ], dividechars = 1),
                     
                     urwid.Columns([
@@ -100,7 +100,7 @@ class Result_interface(Program_view):
         self.program.args.ignore = self.ignore_missing
         self.program.results = self.file_list.get_values()
         self.program.args.format = self.formats[self.format_widget  .value]
-        self.program.args.properties = shlex.split(self.properties_widget.get_edit_text()) if self.properties_widget.get_edit_text() != "" else []
+        self.program.args.filters = shlex.split(self.filters_widget.get_edit_text()) if self.filters_widget.get_edit_text() != "" else []
         
         
         
