@@ -1,5 +1,4 @@
 # General imports.
-from pathlib import Path
 import urwid
 
 # Silico imports.
