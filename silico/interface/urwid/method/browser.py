@@ -50,7 +50,7 @@ class Method_selector(Enhanced_tree_selector):
         
         manual_widget = urwid.Edit(("body", "Codes: "))
         
-        super().__init__(top, browser, manual_widget, title = "Method Browser", manual_widget_title = "Manual Method Codes")
+        super().__init__(top, browser, manual_widget, browser_title = "Method Browser", secondary_title = "Manual Method Codes")
         
     def on_settings_change(self):
         """
