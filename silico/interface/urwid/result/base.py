@@ -8,7 +8,13 @@ from silico.config.configurable.option import Option
 from silico.interface.urwid.misc import Tab_pile
 from silico.interface.urwid.section import Section
 from silico.interface.urwid.result.list import Result_list
-from silico.interface.urwid.setedit.base import Option_setedit
+from silico.interface.urwid.edit.popup import File_edit, Choices_edit
+from silico.format.text import Text_summary_group_format
+from silico.format.csv import CSV_property_group_format,\
+    CSV_summary_group_format
+from silico.format.table import Table_summary_group_format,\
+    Property_table_group_format
+import shlex
 
 
 class Result_interface(Program_view):
@@ -16,8 +22,15 @@ class Result_interface(Program_view):
     Class for controlling interface to result program.
     """
     
-    output = Option(help = "Path to the directory or file to write output to.", type = Path)
     ignore_missing = Option(help = "Ignore missing sections rather than stopping with an error.", type = bool)
+    
+    formats = {
+        "text": Text_summary_group_format,
+        "csv": CSV_summary_group_format,
+        "csv-property": CSV_property_group_format,
+        "table": Table_summary_group_format,
+        "table-property": Property_table_group_format
+    }
     
     def __init__(self, window, program):
         """
@@ -27,10 +40,17 @@ class Result_interface(Program_view):
         :param program: A program object.
         """
         # Keep track of our individual widgets.
+        # A list of results to format.
         self.file_list = Result_list(window.top, initial_results = program.results, subprocess_init = program.subprocess_init)
+        # The location to write the formatted results to.
+        self.output_widget = File_edit(window.top, program.args.output if program.args.output != "-" else None, "Output location")
+        # The output format.
+        inital = list(self.formats.keys())[list(self.formats.values()).index(program.args.format)]
+        self.format_widget = Choices_edit(window.top, [desc for desc, cls in self.formats.items()], inital, "Output format")
+        # Specific properties selected by the user.
+        self.properties_widget = urwid.Edit("", " ".join(program.args.properties))
         
         # Set our options from our program object.
-        self.output = program.args.output if program.args.output != "-" else None
         self.ignore_missing = program.args.ignore
         self.file_list.selector.alignment = program.config['alignment']
         self.file_list.selector.num_CPUs = program.args.num_CPUs
@@ -44,24 +64,43 @@ class Result_interface(Program_view):
         :returns: An urwid widget to display.
         """
         return Tab_pile([
-            Section(self.file_list, "Calculation Log Files"),
-            ('pack', urwid.LineBox(Option_setedit.from_configurable_option(self.window.top, self, type(self).output).get_widget()))
+            Section(self.file_list, "Calculation Log Files"),('pack', 
+                Section(urwid.Pile([
+                    urwid.Columns([
+                        ('pack', urwid.Text("Format:")),
+                        urwid.AttrMap(self.format_widget, "editable"),
+                    ], dividechars = 1),
+                    
+                    urwid.Columns([
+                        ('pack', urwid.Text("Properties:")),
+                        urwid.AttrMap(self.properties_widget, "editable"),
+                    ], dividechars = 1),
+                    
+                    urwid.Columns([
+                        ('pack', urwid.Text("Save location:")),
+                        urwid.AttrMap(self.output_widget, "editable"),
+                    ], dividechars = 1)
+                
+                ]), "Output Options")
+            )
         ])
         
     def submit(self):
         self.program.logger.info("Writing results...")
-        retval = Program_view.submit(self)
+        return super().submit()
+    
+    def post(self):
         self.program.logger.info("Done writing results")
-        return retval
         
     def setup(self):
         """
         Setup our program to ready it to be run.
         """
-        self.program.args.output = self.output
+        self.program.args.output = self.output_widget.value
         self.program.args.ignore = self.ignore_missing
         self.program.results = self.file_list.get_values()
-        
+        self.program.args.format = self.formats[self.format_widget  .value]
+        self.program.args.properties = shlex.split(self.properties_widget.get_edit_text()) if self.properties_widget.get_edit_text() != "" else []
         
         
         
