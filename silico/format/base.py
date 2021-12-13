@@ -1,5 +1,6 @@
 # General imports.
 import inspect
+import warnings
 
 # Silico imports.
 from silico.misc.base import Dynamic_parent
@@ -86,11 +87,15 @@ class Result_format(Result_format_ABC):
             else:
                 # No criteria.
                 data = self._extract(result, **kwargs)
-        except Result_unavailable_error:
+        except Result_unavailable_error as e:
             # Data wasn't available.
             # If we've not been told to ignore, raise an exception.
             if not self.ignore:
                 raise
+            
+            else:
+                # Log a message that we are skipping.
+                warnings.warn(str(e) + "; skipping (for at least one result)")
         
         return data
     
@@ -223,7 +228,6 @@ class Result_format_group(Result_format_ABC):
         return self.join_results(data)
         
         
-        
-        
+
         
     
