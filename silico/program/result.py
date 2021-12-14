@@ -37,7 +37,7 @@ class Result_program(Program):
         
         sub_parser.add_argument("log_files", help = "a (number of) calculation result file(s) (.log) to extract results from", nargs = "*", default = [])
          
-        sub_parser.add_argument("-x", "--stop", help = "stop on missing sections rather than ignoring them", action = "store_true", default = False)
+        sub_parser.add_argument("-x", "--stop", help = "stop on missing properties rather than ignoring them", action = "store_true", default = False)
         sub_parser.add_argument("-C", "--num_CPUs", help = "the number of CPUs to use in parallel to parse given log_files, defaults to the number of CPUs on the system", type = int, nargs = "?", default = os.cpu_count())
         
         output_group = sub_parser.add_argument_group("output format", "the format to write results to. Only one option from the following may be chosen")
