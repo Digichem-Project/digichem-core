@@ -202,6 +202,11 @@ class Flaggable_tree_list_box(urwid.TreeListBox):
         """
         # Check if the node is in our list.        
         if focus_node not in self.selected_nodes:
+            # Not in our list.
+            # If we can only select one thing, remove everything else.
+            if not self.can_choose_multiple:
+                self.reset()
+                
             # Append to our list.
             self.selected_nodes.append(focus_node)
             focus_widget.flagged = True
