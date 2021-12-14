@@ -9,7 +9,7 @@ from silico.interface.urwid.file.list import File_list
 from silico.interface.urwid.section import Section
 from silico.interface.urwid.misc import Tab_pile
 from silico.interface.urwid.main.program import Program_view
-from silico.interface.urwid.edit.popup import File_edit
+from silico.interface.urwid.edit.popup import Output_edit
 
 
 class Report_interface(Program_view):
@@ -35,7 +35,7 @@ class Report_interface(Program_view):
         # Keep track of our individual widgets.
         self.file_list = File_list(window.top, initial_files = program.args.log_files, can_choose_folders = True)
         # The location to write the formatted results to.
-        self.output_widget = File_edit(window.top, program.args.output, "Output location")
+        self.output_widget = Output_edit(window.top, program.args.output, folder = False)
         
         # Set our options from our program object.
         self.name = program.args.name

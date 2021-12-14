@@ -116,7 +116,7 @@ class Flaggable_tree_list_box(urwid.TreeListBox):
     Widget for displaying a tree that can be selected.
     """
     
-    def __init__(self, walker, can_choose_parents = False, can_choose_multiple = True):
+    def __init__(self, walker, can_choose_parents = False, can_choose_leaves = True, can_choose_multiple = True):
         """
         Constructor for File_browser objects.
         
@@ -127,6 +127,7 @@ class Flaggable_tree_list_box(urwid.TreeListBox):
         super().__init__(walker)
         
         self.can_choose_parents = can_choose_parents
+        self.can_choose_leaves = can_choose_leaves
         self.can_choose_multiple = can_choose_multiple
         
         # The nodes that have been selected.
@@ -143,7 +144,8 @@ class Flaggable_tree_list_box(urwid.TreeListBox):
         """
         Determine whether a given node is selectable.
         """
-        return not hasattr(node, 'has_children') or self.can_choose_parents
+        is_parent = hasattr(node, "has_children")
+        return (is_parent and self.can_choose_parents) or (not is_parent and self.can_choose_leaves)
         
     def keypress(self, size, key):
         """

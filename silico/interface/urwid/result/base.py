@@ -1,5 +1,6 @@
 # General imports.
 import urwid
+import shlex
 
 # Silico imports.
 from silico.interface.urwid.main.program import Program_view
@@ -7,13 +8,12 @@ from silico.config.configurable.option import Option
 from silico.interface.urwid.misc import Tab_pile
 from silico.interface.urwid.section import Section
 from silico.interface.urwid.result.list import Result_list
-from silico.interface.urwid.edit.popup import File_edit, Choices_edit
+from silico.interface.urwid.edit.popup import Choices_edit, Output_edit
 from silico.format.text import Text_summary_group_format
 from silico.format.csv import CSV_property_group_format,\
     CSV_summary_group_format
 from silico.format.table import Table_summary_group_format,\
     Property_table_group_format
-import shlex
 
 
 class Result_interface(Program_view):
@@ -42,7 +42,9 @@ class Result_interface(Program_view):
         # A list of results to format.
         self.file_list = Result_list(window.top, initial_results = program.results, subprocess_init = program.subprocess_init)
         # The location to write the formatted results to.
-        self.output_widget = File_edit(window.top, program.args.output if program.args.output != "-" else None, "Output location")
+        #self.output_widget = File_edit(window.top, program.args.output if program.args.output != "-" else None, "Output location")
+        self.output_widget = Output_edit(window.top, program.args.output if program.args.output != "-" else None)
+        
         # The output format.
         inital = list(self.formats.keys())[list(self.formats.values()).index(program.args.format)]
         self.format_widget = Choices_edit(window.top, [desc for desc, cls in self.formats.items()], inital, "Output format")

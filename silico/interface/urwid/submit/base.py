@@ -9,7 +9,7 @@ from silico.interface.urwid.section import Section
 from silico.interface.urwid.main.program import Program_view
 from silico.interface.urwid.coord.list import Coordinate_list
 from silico.interface.urwid.method.list import Method_list
-from silico.interface.urwid.edit.popup import File_edit
+from silico.interface.urwid.edit.popup import Output_edit
 
 
 class Submit_interface(Program_view):
@@ -28,7 +28,7 @@ class Submit_interface(Program_view):
         self.coordinate_list = Coordinate_list(window.top, initial_coords = program.coords, initial_charge = program.args.charge, initial_mult = program.args.multiplicity, gen3D = program.args.gen3D)
         self.method_list = Method_list(window.top, program.config.methods, initial_methods = program.methods)
         # The location to write the formatted results to.
-        self.output_widget = File_edit(window.top, program.args.output, "Output location")
+        self.output_widget = Output_edit(window.top, program.args.output, folder = True)
         
         super().__init__(window, program)
         

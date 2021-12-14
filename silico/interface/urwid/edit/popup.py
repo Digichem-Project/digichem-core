@@ -5,6 +5,7 @@ import urwid
 
 # Silico imports.
 import silico.interface.urwid.file.browser
+import silico.interface.urwid.file.output
 from silico.interface.urwid.dialogue import Widget_dialogue
 
 
@@ -221,6 +222,27 @@ class File_edit(Popup_edit):
         self.file_selector.reset()
         
         self.update_label()
+        
+        
+class Output_edit(File_edit):
+    """
+    An edit widget for picking a location to save a new file to.
+    """
+    
+    def __init__(self, top, initial = None, folder = False):
+        """
+        Constructor for File_edit widgets.
+        """
+        self.file_selector = silico.interface.urwid.file.output.Output_selector(top, default = initial, folder = folder)
+        Popup_edit.__init__(self, top, initial)
 
+    def update(self):
+        """
+        Update the value of this widget.
+        """
+        # Get whatever has been selected.
+        self.value = self.file_selector.value
+        
+        self.update_label()
     
     
