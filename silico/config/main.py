@@ -262,6 +262,19 @@ Example:
         self.palette = palette if palette is not None else []
         
         super().__init__(validate_now=validate_now, **kwargs)
+        
+    # These methods allow the main silico options object to be accessed as a dict.
+    # This is largely to provide compatibility with legacy code, where the silico options object was a dict.
+    def __getitem__(self, key):
+        return getattr(self, key)
+    
+    def __setitem__(self, key, value):
+        setattr(self, key, value)
+        
+    def __delitem__(self, key):
+        # Deleting a configurable option doesn't actually delete it (because that wouldn't make much sense),
+        # Instead it reverts that option to its default.
+        delattr(self, key)
     
     @property
     def methods(self):
