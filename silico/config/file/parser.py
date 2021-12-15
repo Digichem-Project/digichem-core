@@ -10,8 +10,7 @@ import itertools
 
 from silico.config.base import Config
 from silico.config.main import Silico_options
-from silico.config.configurable.loader import Partial_loader, Configurable_list,\
-    Update_loader
+from silico.config.configurable.loader import Partial_loader, Update_loader
 from silico.config.configurable.loader import Single_loader
 from silico.exception.configurable import Configurable_loader_exception
 
@@ -20,13 +19,6 @@ class Config_parser():
     """
     Class for loading standard silico options.
     """
-    
-    @classmethod
-    def DEFAULT_CONFIG_PATH(self):
-        """
-        Location of the config containing default config options.
-        """
-        return Path(pkg_resources.resource_filename('silico', "data/config/.default.yaml"))
 
     @classmethod
     def MASTER_CONFIG_PATH(self):
@@ -135,18 +127,16 @@ class Config_file_parser(Config_parser):
         
         :return: A Silico_options object (a fancy dict).
         """
-        # First, we always load the default config object.
-        config = self(self.DEFAULT_CONFIG_PATH()).load(True)
+        # First, we always load the 'master' (located in the silico install directory).
+        config = self(self.MASTER_CONFIG_PATH()).load(True)
         
-        # Next the 'master' (located in the silico install directory).
-        config.merge(self(self.MASTER_CONFIG_PATH()).load(True))
         # Next the system (located at /etc/silico)
         config.merge(self(self.SYSTEM_CONFIG_LOCATION()).load(True))
         # Finally the user specific (located at ~/.config/silico)
         config.merge(self(self.USER_CONFIG_LOCATION()).load(True))
         
         # Get a merged version.
-        options = Silico_options(config)
+        options = Silico_options(**config)
         
         # Add configurables.
         Configurables_parser.add_default_configurables(options)

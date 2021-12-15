@@ -120,7 +120,8 @@ class Options(Option, Options_mixin):
         
         This method is called by the parent Options object when this Option is added to it.
         """
-        for child in self.OPTIONS:
+        #for child in self.OPTIONS:
+        for child in self.OPTIONS.values():
             child.add_parent(parent)
 
             

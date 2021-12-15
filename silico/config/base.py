@@ -1,4 +1,5 @@
 import deepmerge
+import yaml
 
 class Config(dict):
     """
@@ -41,4 +42,15 @@ class Config(dict):
         :param new: A new Config to merge into the old (this Config).
         """
         return self.merge_dict(new, self)
-            
+
+
+class Auto_type():
+    """
+    A class that when called, converts a string into a more appropriate type automatically.
+    
+    The rules for deciding which type to convert to are the same as for parsing yaml using pyyaml, as that is the module that is relied on for conversion.
+    """
+    
+    def __new__(cls, value):
+        return yaml.safe_load(value)
+        
