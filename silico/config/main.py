@@ -131,7 +131,7 @@ This option has no effect when using manual x limits.""", type = float, default 
         use_jacobian = Option(help = "Whether or not to use the jacobian transformation to correctly scale the y-axis (see J. Phys. Chem. Lett. 2014, 5, 20, 3497)", type = bool, default = True),
         plot_bars = Option(help = "Whether to plot vertical bars for each excited state.", type = bool, default = True),
         plot_peaks = Option(help = "Whether to plot individual Gaussian functions for each excited state.", type = bool, default = False),
-        plot_cumulative_peaks = Option(help = "Whether to plot the sum of all Gaussian functions (most closely simulates a real spectrum).", type = bool, default = True)
+        plot_cumulative_peak = Option(help = "Whether to plot the sum of all Gaussian functions (most closely simulates a real spectrum).", type = bool, default = True)
     )
     
     emission_spectrum = Options(help = "Options for controlling the appearance of simulated emission spectra. 'emission_spectrum' and 'absorption_spectrum 'take the same options.",
@@ -164,7 +164,7 @@ This option has no effect when using manual x limits.""", type = float, default 
         use_jacobian = Option(help = "Whether or not to use the jacobian transformation to correctly scale the y-axis (see J. Phys. Chem. Lett. 2014, 5, 20, 3497)", type = bool, default = True),
         plot_bars = Option(help = "Whether to plot vertical bars for each excited state.", type = bool, default = True),
         plot_peaks = Option(help = "Whether to plot individual Gaussian functions for each excited state.", type = bool, default = False),
-        plot_cumulative_peaks = Option(help = "Whether to plot the sum of all Gaussian functions (most closely simulates a real spectrum).", type = bool, default = True)
+        plot_cumulative_peak = Option(help = "Whether to plot the sum of all Gaussian functions (most closely simulates a real spectrum).", type = bool, default = True)
     )
     
     IR_spectrum = Options(help = "Options for controlling the appearance of simulated IR like vibrational frequency spectra.",
