@@ -1,10 +1,14 @@
+# General imports.
+from collections.abc import MutableMapping
+
+# Silico imports.
 from silico.config.configurable.option import Option
 from silico.exception.base import Silico_exception
 from silico.exception.configurable import Configurable_option_exception
 from silico.config.configurable.base import Options_mixin
 
 
-class Options_mapping():
+class Options_mapping(MutableMapping):
     """
     A class that 'binds' an Options object with a parent Configurable.
     """
@@ -55,7 +59,18 @@ class Options_mapping():
         except KeyError:
             # Unrecognised sub option?
             raise Configurable_option_exception(self.owning_obj, self.options_obj, "'{}' is not recognised as a valid sub option".format(name))
-
+        
+    def __len__(self):
+        """
+        The number of options in the Options object we are mapping.
+        """
+        return len(self.options_obj.OPTIONS)
+    
+    def __iter__(self):
+        """
+        Iteration magic method.
+        """
+        yield from self.options_obj.OPTIONS
 
     def __getitem__(self, key):
         """
