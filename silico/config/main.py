@@ -121,7 +121,7 @@ To disable the maximum width, set to null.""", type = int, default = 1200
         ),
         peak_cutoff = Option(help =\
 """The minimum oscillator strength that a peak must have to be shown in the graph, as a fraction ofthe highest peak.
-Set to 0 for no cutoff (all peaks shown), which may results in the graph being extended well beyond the drawn peaks (because many peaks are too small to see.
+Set to 0 for no cutoff (all peaks shown), which may results in the graph being extended well beyond the drawn peaks (because many peaks are too small to see).
 This option has no effect when using manual x limits.""", type = float, default = 0.01
         ),
         x_padding = Option(help = "The amount (in nm) to extend the x axis past the highest/lowest energy peak.", type = int, default = 40),
@@ -154,7 +154,7 @@ To disable the maximum width, set to null.""", type = int, default = 1200
         ),
         peak_cutoff = Option(help =\
 """The minimum oscillator strength that a peak must have to be shown in the graph, as a fraction ofthe highest peak.
-Set to 0 for no cutoff (all peaks shown), which may results in the graph being extended well beyond the drawn peaks (because many peaks are too small to see.
+Set to 0 for no cutoff (all peaks shown), which may results in the graph being extended well beyond the drawn peaks (because many peaks are too small to see).
 This option has no effect when using manual x limits.""", type = float, default = 0.01
         ),
         x_padding = Option(help = "The amount (in nm) to extend the x axis past the highest/lowest energy peak.", type = int, default = 40),
