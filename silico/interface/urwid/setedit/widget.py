@@ -1,12 +1,10 @@
 # General imports.
 import urwid
-import pathlib
 
 # Silico imports.
-import silico.interface.urwid.file.browser
-from silico.interface.urwid.dialogue import Widget_dialogue
 from silico.exception.base import Silico_exception
 from silico.interface.urwid.edit.popup import File_edit, Choices_edit
+from silico.interface.urwid.setedit.common import Setedit_widget_parent_mixin
 
 
 class Min_edit(urwid.Edit):
@@ -32,23 +30,17 @@ class Setedit_widget(urwid.Pile):
     edit_attr = "editable"
     help_attr = "body"
     
-    def __init__(self, setedit, has_divider = True):
+    def __init__(self, setedit):
         """
         Constructor for Setedit_widget objects.
-        
-        :param widget_list: List of widgets to stack vertically.
-        :param has_divider: Whether to show a divider after this widget.
         """
         self.setedit = setedit
-        self.divider = urwid.Divider()
         
         widget_list = self.get_widgets()
         
-        if has_divider:
-            widget_list.append(self.divider)
         urwid.Pile.__init__(self, widget_list)
         
-    def reset(self):
+    def discard(self):
         """
         Reset the current value back to the default value.
         """
@@ -71,6 +63,13 @@ class Setedit_widget(urwid.Pile):
     def value(self):
         """
         Get the possibly edited value of this widget.
+        """
+        raise NotImplementedError("Implement in subclass")
+    
+    @value.setter
+    def value(self, value):
+        """
+        Change the edit value of this widget.
         """
         raise NotImplementedError("Implement in subclass")
     
@@ -133,16 +132,15 @@ class Single_editor(Setedit_widget):
     A Setedit_widget for changing a single value.
     """
     
-    def __init__(self, setedit, has_divider = True):
+    def __init__(self, setedit):
         """
         Constructor for Setedit_widger objects.
         
         :param edit_widget: A widget to use for editing this settings.
         :param help: Help text to display for this editor.
-        :param has_divider: Whether to show a divider after this widget.
         """
         self.edit_widget = None
-        super().__init__(setedit, has_divider)
+        super().__init__(setedit)
         
     def load_widgets(self, edit_widget):
         """
@@ -163,14 +161,14 @@ class Text_editor(Single_editor):
         """
         Load the list of inner widgets we'll use for display.
         """
-        self.edit = urwid.Edit((self.title_attr, self.setedit.title + ": "), self.value_to_str(self.setedit.starting_value))
+        self.edit = urwid.Edit((self.title_attr, self.setedit.title + ": "), self.value_to_str(self.setedit.previous_value))
         return super().load_widgets(self.edit)
     
-    def reset(self):
+    def discard(self):
         """
         Reset the current value back to the default value.
         """
-        self.edit.set_edit_text(self.value_to_str(self.setedit.starting_value))
+        self.edit.set_edit_text(self.value_to_str(self.setedit.previous_value))
     
     @property
     def value(self):
@@ -179,6 +177,13 @@ class Text_editor(Single_editor):
         """
         value = self.edit.get_edit_text()
         return self.str_to_value(value)
+    
+    @value.setter
+    def value(self, value):
+        """
+        Change the edit value of this widget.
+        """
+        self.edit.set_edit_text(self.value_to_str(value))
 
 
 class Bool_editor(Single_editor):
@@ -190,19 +195,19 @@ class Bool_editor(Single_editor):
         """
         Load the list of inner widgets we'll use for display.
         """
-        # Panic if our starting_value is not True or False.
-        if self.setedit.starting_value is not True and self.setedit.starting_value is not False:
-            raise Silico_exception("Only True or False are allowed values for checkboxes, not '{}'".format(self.setedit.starting_value))
+        # Panic if our previous_value is not True or False.
+        if self.setedit.previous_value is not True and self.setedit.previous_value is not False:
+            raise Silico_exception("Only True or False are allowed values for checkboxes, not '{}'".format(self.setedit.previous_value))
         
-        self.checkbox = urwid.CheckBox((self.title_attr, self.setedit.title + ": "), self.setedit.starting_value)
+        self.checkbox = urwid.CheckBox((self.title_attr, self.setedit.title + ": "), self.setedit.previous_value)
         
         return super().load_widgets(self.checkbox)
     
-    def reset(self):
+    def discard(self):
         """
         Reset the current value back to the default value.
         """
-        self.checkbox.set_state(self.setedit.starting_value)
+        self.checkbox.set_state(self.setedit.previous_value)
     
     @property
     def value(self):
@@ -210,6 +215,13 @@ class Bool_editor(Single_editor):
         The current, possible edited, value of this widget.
         """
         return self.checkbox.get_state()
+    
+    @value.setter
+    def value(self, value):
+        """
+        Change the edit value of this widget.
+        """
+        self.checkbox.set_state(value)
 
     
 class Popup_editor(Single_editor):
@@ -221,7 +233,7 @@ class Popup_editor(Single_editor):
         """
         """
         self.popup_widget = popup_widget
-        self._value = setedit.starting_value
+        self._value = setedit.previous_value
         
         super().__init__(setedit, *args, **kwargs)
     
@@ -237,11 +249,11 @@ class Popup_editor(Single_editor):
         
         return super().load_widgets(body)
     
-    def reset(self):
+    def discard(self):
         """
         Reset the current value back to the default value.
         """
-        self.popup_widget.value = self.setedit.starting_value
+        self.popup_widget.value = self.setedit.previous_value
     
     @property
     def value(self):
@@ -249,6 +261,13 @@ class Popup_editor(Single_editor):
         The currently, possibly edited, value of this widget.
         """
         return self.str_to_value(self.popup_widget.value)
+    
+    @value.setter
+    def value(self, value):
+        """
+        Change the edit value of this widget.
+        """
+        self.popup_widget.value = self.value_to_str(value)
 
 
 class File_editor(Popup_editor):
@@ -256,9 +275,9 @@ class File_editor(Popup_editor):
     An editor for picking files.
     """
     
-    def __init__(self, setedit, has_divider = True):
-        popup_widget = File_edit(setedit.top, setedit.starting_value, "File for {}:".format(setedit.title))
-        super().__init__(setedit, has_divider = has_divider, popup_widget = popup_widget)
+    def __init__(self, setedit):
+        popup_widget = File_edit(setedit.top, setedit.previous_value, "File for {}:".format(setedit.title))
+        super().__init__(setedit, popup_widget = popup_widget)
 
 
 class Choices_editor(Popup_editor):
@@ -266,9 +285,9 @@ class Choices_editor(Popup_editor):
     An editor that allows the user to pick from a number of choices.
     """
      
-    def __init__(self, setedit, has_divider = True):
-        popup_widget = Choices_edit(setedit.top, setedit.choices, setedit.starting_value, "Select option for {}".format(setedit.title))
-        super().__init__(setedit, has_divider = has_divider, popup_widget = popup_widget)
+    def __init__(self, setedit):
+        popup_widget = Choices_edit(setedit.top, setedit.choices, setedit.previous_value, "Select option for {}".format(setedit.title))
+        super().__init__(setedit, popup_widget = popup_widget)
 
 
 class Text_list_editor(Min_edit):
@@ -308,6 +327,13 @@ class Text_list_editor(Min_edit):
         """
         value = self.get_edit_text()
         return Setedit_widget.str_to_value(value)
+    
+#     @value.setter
+#     def value(self, value):
+#         """
+#         Change the edit value of this widget.
+#         """
+#         self.set_edit_text(Setedit_widget.value_to_str(value))
 
 
 class List_editor(Setedit_widget):
@@ -315,32 +341,31 @@ class List_editor(Setedit_widget):
     Editor widget for list values.
     """
     
-    def __init__(self, setedit, has_divider = True, strip_empty = True):
+    def __init__(self, setedit, strip_empty = True):
         """
         Constructor for Bool_editor widgets.
         
         :param title: The title of this editor.
         :param values: List of starting values.
         :param help: Help text to display for this editor.
-        :param has_divider: Whether to show a divider after this widget.
         :param strip_empty: Whether to remove empty values in the list.
         """
         self.strip_empty = strip_empty
         
-        super().__init__(setedit, has_divider)
+        super().__init__(setedit)
         
-    def reset(self):
+    def discard(self):
         """
         Reset the current value back to the default value.
         """
-        self.inner_pile.contents = [(field, self.inner_pile.options()) for field in self.get_fields(self.setedit.starting_value)]
+        self.inner_pile.contents = [(field, self.inner_pile.options()) for field in self.get_fields(self.setedit.previous_value)]
         
     def load_widgets(self):
         """
         Load the list of inner widgets we'll use for display.
         """
         # An inner pile we'll use for adding/removing values.
-        self.inner_pile = urwid.Pile(self.get_fields(self.setedit.starting_value))
+        self.inner_pile = urwid.Pile(self.get_fields(self.setedit.previous_value))
         
         return [
             # Widget for our title.
@@ -382,7 +407,14 @@ class List_editor(Setedit_widget):
         """
         The currently, possible edited, value of this widget.
         """
-        return [field.base_widget.value for field, options in self.inner_pile.contents if field.value is not None or not self.strip_empty]
+        return [field.base_widget.value for field, options in self.inner_pile.contents if field.base_widget.value is not None or not self.strip_empty]
+    
+    @value.setter
+    def value(self, value):
+        """
+        Change the edit value of this widget.
+        """
+        self.inner_pile.contents = [(field, self.inner_pile.options()) for field in self.get_fields(value)]
         
     def adjust(self):
         """
@@ -442,8 +474,7 @@ class Dict_item_editor(urwid.Columns):
         """
         Get the possibly edited value of this field.
         """
-        return (Setedit_widget.str_to_value(self.key_edit.get_edit_text()), Setedit_widget.str_to_value(self.value_edit.get_edit_text()))
-        
+        return (Setedit_widget.str_to_value(self.key_edit.get_edit_text()), Setedit_widget.str_to_value(self.value_edit.get_edit_text()))        
 
 
 class Dict_editor(List_editor):
@@ -501,23 +532,27 @@ class Dict_editor(List_editor):
             self.adjust()
 
 
-class Sub_setedit(Setedit_widget):
+class Sub_setedit(Setedit_widget, Setedit_widget_parent_mixin):
     """
     A Setedit object for editing sub options.
     """
     
+    padding_amount = 4
     
-    def reset(self):
+    @property
+    def child_widgets(self):
         """
-        Reset the current value back to the default value.
-        """
-        self.inner_pile.contents = [(field, self.inner_pile.options()) for field in self.get_fields()]
+        A shortcut to the property where the child widgets are stored.
         
+        This must be defined by the inheriting class because it depends on the type of the inheriting class, for example self.body for listboxes.
+        """
+        return [widget for widget, options in self.inner_pile.contents]
+            
     def load_widgets(self):
         """
         Load the list of inner widgets we'll use for display.
         """
-        self.inner_pile = urwid.Pile(self.get_fields())
+        self.inner_pile = urwid.Pile(self.load_child_widgets(self.setedit.get_children()))
         
         return [
             # Widget for our title.
@@ -525,21 +560,14 @@ class Sub_setedit(Setedit_widget):
             # Help text.
             self.get_help_widget(self.setedit.help),
             # Actual contents.
-            urwid.Padding(self.inner_pile, left = 2)
+            urwid.Padding(self.inner_pile, left = self.padding_amount)
         ]
         
-    def get_fields(self):
+    def discard(self):
         """
-        Get the child widgets to display.
+        Reset the current value back to the default value.
         """
-        fields = []
-        
-        # Ask our setedit for its children.
-        children = self.setedit.get_children()
-        for child_setedit in children:
-            fields.append(self.class_from_type(child_setedit.vtype)(child_setedit, has_divider = len(fields) != len(children)-1))
-            
-        return fields
+        return Setedit_widget_parent_mixin.discard(self)
     
     @property
     def value(self):
@@ -547,9 +575,23 @@ class Sub_setedit(Setedit_widget):
         The currently, possible edited, value of this widget.
         """
         val =  {}
-        for field, options in self.inner_pile.contents:
-            key, value = field.value
-            val[key] = value
+        for child_widget in self.child_setedit_widgets.values():
+            value = child_widget.value
+            val[child_widget.setedit.title] = value
                 
         return val
+    
+    @value.setter
+    def value(self, value):
+        """
+        Change the edit value of this widget.
+        
+        :param value: The new value to set; a dictionary of values mapping to the child widgets of this widget.
+        """
+        # We'll cache this dict temporarily because otherwise we'll be recreating it each time.
+        child_widgets = self.child_setedit_widgets
+        for key, sub_value in value:
+            child_widgets[key].value = sub_value
+            
+        
 

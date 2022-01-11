@@ -6,6 +6,8 @@ import urwid
 # Silico imports.
 from silico.interface.urwid.setedit.widget import Setedit_widget
 from silico.interface.urwid.section import Section
+from silico.interface.urwid.setedit.common import Setedit_widget_parent_mixin
+from urwid.listbox import SimpleFocusListWalker
 
 
 class Setedit():
@@ -25,19 +27,27 @@ class Setedit():
         """
         self.top = top
         self.title = title
-        self.starting_value = starting_value
+        # TODO: Should rename this to 'previous_value' (or similar).
+        self.previous_value = starting_value
         self.vtype = vtype
         self.help = help
         self.choices = choices
         self._widget = None
         
+    def confirm(self):
+        """
+        Confirm the changes made to this Setedit, so that future rollbacks will return to the current value.
+        """
+        # TODO: HERE, should this be on the widget? How to set for children?
+        self.previous_value = self.get_widget().value
+        
     def get_children(self):
         """
         Get child setedits of this setedit.
         
-        This method should only be called if self.starting_value contains values of the form (starting_value, vtype, help). This is likely only to be the case if self.vtype == "Options".
+        This method should only be called if self.previous_value contains values of the form (previous_value, vtype, help). This is likely only to be the case if self.vtype == "Options".
         """
-        return [type(self)(name, starting_value, vtype, help) for name, (starting_value, vtype, help) in self.starting_value.items()]
+        return [type(self)(name, previous_value, vtype, help) for name, (previous_value, vtype, help) in self.previous_value.items()]
     
     def get_widget(self, reload = False):
         """
@@ -53,13 +63,7 @@ class Setedit():
         Load the widget we'll use for display.
         """
         return Setedit_widget.class_from_type(self.vtype)(self)
-    
-    def get_value(self):
-        """
-        Get the possibly edited value of this Setedit.
-        """
-        return self.get_widget().value
-    
+        
     @classmethod
     def vtype_from_configurable_option(self, option):
         """
@@ -100,20 +104,7 @@ class Setedit():
         else:
             # A normal option, just get the value.
             # This doesn't work if option is a sub option.
-            return option.__get__(owning_obj)
-    
-#     @classmethod
-#     def from_configurable_optiono(self, owning_obj, option):
-#         """
-#         Construct a new Setedit object from a configurable option.
-#         
-#         :param owning_obj: The owning object on which the Option object is set as a class attribute.
-#         :param option: The configurable option.
-#         :returns: The Setedit object.
-#         """
-#         if option.name == "DFT_excited_states":
-#             raise Exception(str(self.value_from_configurable_option(owning_obj, option)))
-#         return self(option.name, self.value_from_configurable_option(owning_obj, option), self.vtype_from_configurable_option(option), option.help)    
+            return option.__get__(owning_obj)  
 
 
 class Option_setedit(Setedit):
@@ -128,6 +119,7 @@ class Option_setedit(Setedit):
         :param dict_obj: The dict in which the value of this Option is stored.
         :param value: The new value to set.
         """
+        # Note that we don't call our parent's constructor
         self.top = top
         self.owning_obj = owning_obj
         self.dict_obj = dict_obj
@@ -138,13 +130,16 @@ class Option_setedit(Setedit):
         self.vtype = self.vtype_from_configurable_option(option)
         self.help = option.help
         self.choices = option.choices
+        # This is the last value we saved, if we're asked to reset we'll roll back to this.
+        self.previous_value = self.option.get_from_dict(self.owning_obj, self.dict_obj)
         
-    @property
-    def starting_value(self):
+    def confirm(self):
         """
-        Return the initial value of this option (before editing).
+        Confirm the changes made to this Setedit, so that future rollbacks will return to the current value.
         """
-        return self.option.get_from_dict(self.owning_obj, self.dict_obj)
+        # First update the value of our widget from the value of the configurable option (because it could have changed, for example from type conversion etc).
+        self.get_widget().value = self.option.get_from_dict(self.owning_obj, self.dict_obj)
+        super().confirm()
     
     def get_children(self, reload = False):
         """
@@ -179,10 +174,23 @@ class Options_setedit(Option_setedit):
     def __init__(self, top, owning_obj, dict_obj, option):
         super().__init__(top, owning_obj, dict_obj, option)
         self._children = None
+        
+    def confirm(self):
+        """
+        Confirm the changes made to this Setedit, so that future rollbacks will return to the current value.
+        """
+        # TODO: HERE, should this be on the widget? How to set for children?
+        for child in self.get_children():
+            child.confirm()
     
     @property
-    def starting_value(self):
+    def previous_value(self):
         raise NotImplementedError("Options_setedit does not contain values")
+    
+    @previous_value.setter
+    def previous_value(self, value):
+        # Do nothing.
+        pass
     
     def load_children(self):
         """
@@ -213,59 +221,58 @@ class Options_setedit(Option_setedit):
                 
 
 
-class Setedit_walker(urwid.SimpleFocusListWalker):
-    """
-    ListWalker-compatible class for displaying Settings.
+# class Setedit_walker(urwid.SimpleFocusListWalker):
+#     """
+#     ListWalker-compatible class for displaying Settings.
+# 
+#     Positions are Setedit objects, while actual display is handled by Setedit_widgets.
+#     """
+# 
+#     def __init__(self, data):
+#         """
+#         Constructor for Row_walker objects.
+#         
+#         :param data: List of data (Row_items) to display.
+#         """
+#         super().__init__(data)
+#             
+#     def get_focus(self):
+#         """
+#         Get the current focus.
+#         
+#         :returns: A tuple (widget, position) of the current focus.
+#         """
+#         try:
+#             focus = self.focus
+#             return self[focus].get_widget(), focus
+#         except (IndexError, KeyError, TypeError):
+#             return None, None
+#         
+#     def get_next(self, position):
+#         """
+#         Get the next.
+#         
+#         :returns: A tuple (widget, position) of position.
+#         """
+#         try:
+#             position = self.next_position(position)
+#             return self[position].get_widget(), position
+#         except (IndexError, KeyError):
+#             return None, None
+# 
+#     def get_prev(self, position):
+#         """
+#         Get the previous.
+#         
+#         :returns: A tuple (widget, position) of position.
+#         """
+#         try:
+#             position = self.prev_position(position)
+#             return self[position].get_widget(), position
+#         except (IndexError, KeyError):
+#             return None, None
 
-    Positions are Setedit objects, while actual display is handled by Setedit_widgets.
-    """
-
-    def __init__(self, data):
-        """
-        Constructor for Row_walker objects.
-        
-        :param data: List of data (Row_items) to display.
-        """
-        super().__init__(data)
-            
-    def get_focus(self):
-        """
-        Get the current focus.
-        
-        :returns: A tuple (widget, position) of the current focus.
-        """
-        try:
-            focus = self.focus
-            return self[focus].get_widget(), focus
-        except (IndexError, KeyError, TypeError):
-            return None, None
-        
-    def get_next(self, position):
-        """
-        Get the next.
-        
-        :returns: A tuple (widget, position) of position.
-        """
-        try:
-            position = self.next_position(position)
-            return self[position].get_widget(), position
-        except (IndexError, KeyError):
-            return None, None
-
-    def get_prev(self, position):
-        """
-        Get the previous.
-        
-        :returns: A tuple (widget, position) of position.
-        """
-        try:
-            position = self.prev_position(position)
-            return self[position].get_widget(), position
-        except (IndexError, KeyError):
-            return None, None
-
-
-class Setedit_browser(urwid.ListBox):
+class Setedit_browser(urwid.ListBox, Setedit_widget_parent_mixin):
     """
     A widget that permits viewing and editing lists of options.
     """
@@ -277,22 +284,25 @@ class Setedit_browser(urwid.ListBox):
         :param setedits: A list of  Setedit objects to browse through.
         :param on_change_callback: A function to call (with no arguments) when new settings are saved.
         """
-        super().__init__(Setedit_walker(setedits))
+        #super().__init__(Setedit_walker(setedits))
+        super().__init__(SimpleFocusListWalker(self.load_child_widgets(setedits)))
         self.on_change_callback = on_change_callback
         
-    
-    def discard(self):
+    @property
+    def child_widgets(self):
         """
-        Discard any changes made without saving.
+        A shortcut to the property where the child widgets are stored.
+        
+        This must be defined by the inheriting class because it depends on the type of the inheriting class, for example self.body for listboxes.
         """
-        for setedit in self.body:
-            setedit.get_widget().reset()
+        return self.body
             
     def save(self):
         """
         Save the changes made.
         """
-        # This default implementation does nothing.
+        for child_widget in self.child_setedit_widgets.values():
+            child_widget.setedit.confirm()
         
     def _save(self):
         """

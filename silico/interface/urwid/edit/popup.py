@@ -68,7 +68,7 @@ class Popup_edit(urwid.Button):
         """
         Reset the current value back to the default value.
         """
-        self._value = self.setedit.starting_value
+        self._value = self.setedit.previous_value
         self.update_label()
         
     def update(self):

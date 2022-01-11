@@ -3,6 +3,7 @@
 # General imports.
 
 # Silico imports.
+import silico.logging
 from silico.interface.urwid.setedit.base import Setedit_browser, Option_setedit
 
 
@@ -28,10 +29,24 @@ class Configurable_browser(Setedit_browser):
         Update the configurable we are editing with the current values.
         """
         options = self.configurable.OPTIONS
+        child_widgets = list(self.child_setedit_widgets.values())
         
-        for setedit in self.body:
-            value = setedit.get_value()
-            options[setedit.title].__set__(self.configurable, value)
-            
+        for child_widget in child_widgets:
+            value = child_widget.value
+            options[child_widget.setedit.title].__set__(self.configurable, value)
             # Also update the 'default' value of the setedit.
-            setedit.default_value = setedit.value_from_configurable_option(self.configurable, options[setedit.title])
+            #setedit.default_value = setedit.value_from_configurable_option(self.configurable, options[setedit.title])
+        
+        # Check the values we just set are allowed.
+        try:
+            self.configurable.validate()
+        
+        except Exception:
+            silico.logging.get_logger().error("Failed to save changes; an option has an invalid value", exc_info = True)
+            return False
+        
+        # All good, confirm changes.
+        for child_widget in child_widgets:
+            child_widget.setedit.confirm()
+        
+        
