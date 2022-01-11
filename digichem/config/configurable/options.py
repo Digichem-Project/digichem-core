@@ -37,6 +37,7 @@ class Options_mapping(MutableMapping):
         
         Access to the second, sub_dict_obj is provided through this property because there is no guarantee that it actually exists.
         """
+        # TODO: This property can probably be replaced by the get_sub_dict() method of the Options class.
         try:
             return self.dict_obj[self.options_obj.name]
         
@@ -188,6 +189,27 @@ class Options(Option, Options_mixin):
         :param value: The new value to upate from. This should be a dict-like object that supports iteration via items().
         """
         self.set_into_dict(owning_obj, owning_obj._configurable_options, value)
+        
+    def get_sub_dict(self, dict_obj):
+        """
+        Get access to the dict object which holds values for our sub options.
+        
+        Options objects are essentially a dict in disguise. This makes access slightly more confusing to understand (for humans), because there are two dicts to consider:
+          - The first is the 'normal' dict_obj in which the value of the Options object is stored (the 'value' here is the second dict). This dict_obj is probably the _configurable_options attribute of our owning object, but this is not guaranteed (for example, if this Options object is a child of another Options object).
+          - The second is the dict in which our child options will store their values, which can be thought of as the dict our Options object is mapping. This second dict is what is referred to here as the sub_dict_obj.
+        
+        Access to the second, sub_dict_obj is provided through this function because there is no guarantee that it actually exists.
+        """
+        try:
+            return dict_obj[self.name]
+        
+        except KeyError:
+            if self.name not in dict_obj:
+                dict_obj[self.name] = {}
+                return dict_obj[self.name]
+            
+            else:
+                raise
 
 
     def set_into_dict(self, owning_obj, dict_obj, value):
@@ -202,7 +224,7 @@ class Options(Option, Options_mixin):
         try:
             for key, sub_value in value.items():
                 try:
-                    self.OPTIONS[key].set_into_dict(owning_obj, dict_obj[self.name], sub_value)
+                    self.OPTIONS[key].set_into_dict(owning_obj, self.get_sub_dict(dict_obj), sub_value)
                 
                 except KeyError:
                     # Unknown sub option?
@@ -231,7 +253,7 @@ class Options(Option, Options_mixin):
         :param dict_obj: The dict in which the value of this Option is stored. In most cases, the value of this option is evaluated simply as dict_obj[self.name]
         """
         for sub_option in self.OPTIONS.values():
-            sub_option.set_default(owning_obj, dict_obj[self.name])
+            sub_option.set_default(owning_obj, self.get_sub_dict(dict_obj))
 
 
     def is_default(self, dict_obj):
@@ -243,7 +265,7 @@ class Options(Option, Options_mixin):
         :param dict_obj: The dict in which the value of this Option is stored. In most cases, the value of this option is evaluated simply as dict_obj[self.name]
         """
         # This is safe, because all([]) == True.
-        return all([sub_option.is_default(dict_obj[self.name]) for sub_option in self.OPTIONS.values()])
+        return all([sub_option.is_default(self.get_sub_dict(dict_obj)) for sub_option in self.OPTIONS.values()])
 
 
     def validate(self, owning_obj, dict_obj = None):
