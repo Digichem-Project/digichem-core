@@ -13,7 +13,9 @@ class Options_mixin():
         """
         Get a list of all Configurable Options of this object.
         """
-        return {getattr(type(self), attr).name: getattr(type(self), attr) for attr in dir(type(self)) if isinstance(getattr(type(self), attr), Option)}
+        # TODO: This property gets called quite a lot (anecodotally), might be worth optimising.
+        # We apply a custom sort here which ignores case (otherwise all uppercase options appear before all lowercase which is annoying).
+        return dict(sorted({getattr(type(self), attr).name: getattr(type(self), attr) for attr in dir(type(self)) if isinstance(getattr(type(self), attr), Option)}.items(), key = lambda v: v[0].upper()))
     
     def prune(self, owning_obj, dict_obj):
         """
