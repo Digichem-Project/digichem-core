@@ -108,6 +108,7 @@ class Top(urwid.WidgetPlaceholder):
         :param submit_callback: A function to call when the submit button is pressed.
         :returns: A wrapped widget.
         """
+        # TODO: cancel_callback and submit_callback should probably be defined on each class.
         # If our widget is a Swappable and a submit_callback has not been given, we can use a default.
         if isinstance(original_widget, Swappable) and submit_callback is None:
             submit_callback = original_widget.submit
