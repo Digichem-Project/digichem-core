@@ -7,6 +7,8 @@ import io
 import silico
 from silico.interface.urwid.window import Window
 from silico.interface.urwid.section import Section
+from silico.interface.urwid.setedit.configurable import Configurable_browser
+from silico.interface.urwid.setedit.base import Settings_editor
 
 
 class Silico_window(Window):
@@ -28,6 +30,9 @@ class Silico_window(Window):
         
         # Setup our window.
         super().__init__(title = "Silico {}".format(silico.version))
+        
+        # Browser object for changing settings.
+        self.settings_editor = Settings_editor(Configurable_browser(self.top, self.program.config), "Main Silico Settings")
         
         body = urwid.Pile([
             ('pack', urwid.Padding(urwid.BigText("Silico", HalfBlock7x7Font()), align = "center", width = "clip")),
@@ -68,7 +73,9 @@ class Silico_window(Window):
         :returns: A list of widgets.
         """
         program_buttons = [self.program_button(prog_cls) for prog_cls in self.program.program_classes]
-        # Add our exit button.
+        # Add a settings button.
+        program_buttons.append(self.get_option_widget("Settings", lambda button: self.top.swap_into_window(self.settings_editor, cancel_callback = self.settings_editor.browser.discard, submit_callback = self.settings_editor.browser._save)))
+        # And an exit button.
         program_buttons.append(self.get_option_widget("Quit", lambda button: self.top.back()))
         
         return program_buttons
