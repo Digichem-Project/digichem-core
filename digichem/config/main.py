@@ -266,7 +266,7 @@ Example:
         super().__init__(validate_now=validate_now, **kwargs)
         
     # These methods allow the main silico options object to be accessed as a dict.
-    # This is largely to provide compatibility with legacy code, where the silico options object was a dict.
+    # This is largely to provide compatibility with legacy code, where the silico options object was, in fact, a dict.
     def __getitem__(self, key):
         return getattr(self, key)
     
