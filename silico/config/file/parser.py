@@ -33,7 +33,11 @@ class Config_parser():
         """
         """
         # Load with PyYaml.
-        config = yaml.safe_load(config_stream)
+        try:
+            config = yaml.safe_load(config_stream)
+        except Exception as e:
+            # We could ignore errors here but it might not be obvious to the user why their settings have been ignored
+            raise Exception("Error parsing settings") from e
         
         # Check the config isn't None (which it will be if the file is empty.)
         try:
