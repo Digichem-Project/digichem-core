@@ -2,7 +2,6 @@
 # Code for loading/reading/parsing config files and configurable files.
 #
 
-import pkg_resources
 from pathlib import Path
 import yaml
 import glob
@@ -13,34 +12,13 @@ from silico.config.main import Silico_options
 from silico.config.configurable.loader import Partial_loader, Update_loader
 from silico.config.configurable.loader import Single_loader
 from silico.exception.configurable import Configurable_loader_exception
+from silico.config.file.locations import master_config_path, system_config_location, user_config_location
 
 
 class Config_parser():
     """
-    Class for loading standard silico options.
+    Class for loading standard silico options (from a string).
     """
-
-    @classmethod
-    def MASTER_CONFIG_PATH(self):
-        """
-        Location of the master config path.
-        """
-        return Path(pkg_resources.resource_filename('silico', "data/config/silico.yaml"))
-        
-    @classmethod
-    def SYSTEM_CONFIG_LOCATION(self):
-        """
-        The location of the system-wide config file (which has precedence over the master).
-        """
-        return Path("/etc/silico/silico.yaml")
-    
-    @classmethod
-    def USER_CONFIG_LOCATION(self):
-        """
-        The location of the user specific config file (which has precedence over the system).
-        """
-        return Path(Path.home(), ".config/silico/silico.yaml") 
-    
     
     def __init__(self, config_string):
         """
@@ -128,12 +106,12 @@ class Config_file_parser(Config_parser):
         :return: A Silico_options object (a fancy dict).
         """
         # First, we always load the 'master' (located in the silico install directory).
-        config = self(self.MASTER_CONFIG_PATH()).load(True)
+        config = self(master_config_path).load(True)
         
         # Next the system (located at /etc/silico)
-        config.merge(self(self.SYSTEM_CONFIG_LOCATION()).load(True))
+        config.merge(self(system_config_location).load(True))
         # Finally the user specific (located at ~/.config/silico)
-        config.merge(self(self.USER_CONFIG_LOCATION()).load(True))
+        config.merge(self(user_config_location).load(True))
         
         # Get a merged version.
         options = Silico_options(**config)
@@ -147,7 +125,7 @@ class Config_file_parser(Config_parser):
     
 class Configurables_parser():
     """
-    Reads and parsers all configurable files from a location.
+    Reads and parses all configurable files from a location.
     """
     
     def __init__(self, *paths, TYPE, children = None):
@@ -261,7 +239,7 @@ class Configurables_parser():
             ("Programs", "programs", "program"),
             ("Destinations", "destinations", "destination")
         ):
-            root_directories = [Path(location, configurable_name) for location in (Config_parser.MASTER_CONFIG_PATH().parent, Config_parser.SYSTEM_CONFIG_LOCATION().parent, Config_parser.USER_CONFIG_LOCATION().parent)]
+            root_directories = [Path(location, configurable_name) for location in (master_config_path.parent, system_config_location.parent, user_config_location.parent)]
             
             # Load from the location and add to our silico_options object.
             # The name of the attribute we add to is the same as the location we read from, but in lower case...
