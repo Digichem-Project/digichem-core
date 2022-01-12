@@ -181,20 +181,6 @@ class Option():
             except (TypeError, ValueError) as e:
                 raise Configurable_option_exception(owning_obj, self, "value '{}' of type '{}' is of invalid type".format(value, type(value).__name__)) from e
         
-#         if len(self.choices) != 0:
-#             # If we are a list type, we'll check each item in value (rather than value itself).
-#             try:
-#                 if issubclass(self.type, list) or issubclass(self.type, tuple):
-#                     values = value
-#                 else:
-#                     values = [value]
-#             except TypeError:
-#                 # issubclass raises this all the time...
-#                 values = [value]
-#             
-#             for subvalue in values:                    
-#                 if subvalue not in self.choices:
-#                     raise Disallowed_choice_exception(owning_obj, self, subvalue)
         if len(self.choices) != 0:
             # We have some choices to validate.
             # If we are a list type, we'll check each item in value (rather than value itself).
