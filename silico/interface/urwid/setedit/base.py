@@ -27,7 +27,6 @@ class Setedit():
         """
         self.top = top
         self.title = title
-        # TODO: Should rename this to 'previous_value' (or similar).
         self.previous_value = starting_value
         self.vtype = vtype
         self.help = help
@@ -38,7 +37,6 @@ class Setedit():
         """
         Confirm the changes made to this Setedit, so that future rollbacks will return to the current value.
         """
-        # TODO: HERE, should this be on the widget? How to set for children?
         self.previous_value = self.get_widget().value
         
     def get_children(self):
@@ -179,7 +177,6 @@ class Options_setedit(Option_setedit):
         """
         Confirm the changes made to this Setedit, so that future rollbacks will return to the current value.
         """
-        # TODO: HERE, should this be on the widget? How to set for children?
         for child in self.get_children():
             child.confirm()
     
@@ -218,59 +215,7 @@ class Options_setedit(Option_setedit):
             self._children = self.load_children()
         
         return self._children
-                
 
-
-# class Setedit_walker(urwid.SimpleFocusListWalker):
-#     """
-#     ListWalker-compatible class for displaying Settings.
-# 
-#     Positions are Setedit objects, while actual display is handled by Setedit_widgets.
-#     """
-# 
-#     def __init__(self, data):
-#         """
-#         Constructor for Row_walker objects.
-#         
-#         :param data: List of data (Row_items) to display.
-#         """
-#         super().__init__(data)
-#             
-#     def get_focus(self):
-#         """
-#         Get the current focus.
-#         
-#         :returns: A tuple (widget, position) of the current focus.
-#         """
-#         try:
-#             focus = self.focus
-#             return self[focus].get_widget(), focus
-#         except (IndexError, KeyError, TypeError):
-#             return None, None
-#         
-#     def get_next(self, position):
-#         """
-#         Get the next.
-#         
-#         :returns: A tuple (widget, position) of position.
-#         """
-#         try:
-#             position = self.next_position(position)
-#             return self[position].get_widget(), position
-#         except (IndexError, KeyError):
-#             return None, None
-# 
-#     def get_prev(self, position):
-#         """
-#         Get the previous.
-#         
-#         :returns: A tuple (widget, position) of position.
-#         """
-#         try:
-#             position = self.prev_position(position)
-#             return self[position].get_widget(), position
-#         except (IndexError, KeyError):
-#             return None, None
 
 class Setedit_browser(urwid.ListBox, Setedit_widget_parent_mixin):
     """
@@ -284,7 +229,6 @@ class Setedit_browser(urwid.ListBox, Setedit_widget_parent_mixin):
         :param setedits: A list of  Setedit objects to browse through.
         :param on_change_callback: A function to call (with no arguments) when new settings are saved.
         """
-        #super().__init__(Setedit_walker(setedits))
         super().__init__(SimpleFocusListWalker(self.load_child_widgets(setedits)))
         self.on_change_callback = on_change_callback
         
