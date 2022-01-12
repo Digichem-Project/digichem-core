@@ -363,7 +363,7 @@ Example:
         Because Silico_options can contain large lists of Configurables (complex objects), real deepcopy can be very slow.
         We overcome this by excluding these lists.
         """
-        # TODO: Might be a better way to do this...
+        # TODO: Need to review whether this is necessary and how it could be improved.
         destinations = self.destinations
         self.destinations = []
         programs = self.programs
