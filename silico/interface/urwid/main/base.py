@@ -32,7 +32,7 @@ class Silico_window(Window):
         super().__init__(title = "Silico {}".format(silico.version))
         
         # Browser object for changing settings.
-        self.settings_editor = Settings_editor(Configurable_browser(self.top, self.program.config), "Main Silico Settings")
+        self.settings_editor = Settings_editor(Configurable_browser(self.top, self.program.config, on_change_callback = self.program.config.save), "Main Silico Settings")
         
         body = urwid.Pile([
             ('pack', urwid.Padding(urwid.BigText("Silico", HalfBlock7x7Font()), align = "center", width = "clip")),
