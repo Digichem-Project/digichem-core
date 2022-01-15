@@ -326,14 +326,7 @@ class Text_list_editor(Min_edit):
         The currently, possible edited, value of this widget.
         """
         value = self.get_edit_text()
-        return Setedit_widget.str_to_value(value)
-    
-#     @value.setter
-#     def value(self, value):
-#         """
-#         Change the edit value of this widget.
-#         """
-#         self.set_edit_text(Setedit_widget.value_to_str(value))
+        return self.editor.str_to_value(value)
 
 
 class List_editor(Setedit_widget):
