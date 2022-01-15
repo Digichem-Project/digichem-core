@@ -234,6 +234,11 @@ class Option():
             # Invalid.
             raise Configurable_option_exception(owning_obj, self, "value '{}' of type '{}' is invalid".format(value, type(value).__name__))
         
+        # Finally, if our value is equivalent to our default, we'll actually delete our value and use the default instead.
+        if value == self.default(owning_obj):
+            self.set_default(owning_obj, dict_obj)
+
+
     def validate_choices(self, value, owning_obj, dict_obj = None):
         """
         Check whether the value of this option is one of the allowed choices.
