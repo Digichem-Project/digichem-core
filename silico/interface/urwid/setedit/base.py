@@ -134,6 +134,14 @@ class Option_setedit(Setedit):
         # This is the last value we saved, if we're asked to reset we'll roll back to this.
         self.previous_value = self.option.get_from_dict(self.owning_obj, self.dict_obj)
         
+    @property
+    def default_value(self):
+        """
+        The default value of this setedit. If an equivalent value is given by the user it will not be saved, instead the true default will be used.
+        """
+        # This can raise an attribute error.
+        return self.option.default(self.owning_obj)
+        
     def confirm(self):
         """
         Confirm the changes made to this Setedit, so that future rollbacks will return to the current value.
