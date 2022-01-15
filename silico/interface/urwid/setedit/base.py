@@ -73,15 +73,18 @@ class Setedit():
         if hasattr(option, "OPTIONS"):
             return "Options"
         
-        
-        if len(option.choices) > 0:
+        elif len(option.choices) > 0:
             return "choices"
         
-        try:
-            return option.type.__name__
+        elif option.list_type is not None:
+            return "list"
         
-        except Exception:
-            return "str"
+        else: 
+            try:
+                return option.type.__name__
+            
+            except Exception:
+                return "str"
     
     @classmethod
     def value_from_configurable_option(self, owning_obj, option):
