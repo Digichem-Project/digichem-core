@@ -552,7 +552,11 @@ class Sub_setedit(Setedit_widget, Setedit_widget_parent_mixin):
         """
         Load the list of inner widgets we'll use for display.
         """
-        self.inner_pile = urwid.Pile(self.load_child_widgets(self.setedit.get_children()))
+        # Prepend a divider.
+        child_widgets = [urwid.Divider("-")]
+        child_widgets.extend(self.load_child_widgets(self.setedit.get_children()))
+        
+        self.inner_pile = urwid.Pile(child_widgets)
         
         return [
             # Widget for our title.
