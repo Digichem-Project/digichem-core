@@ -9,6 +9,7 @@ from silico.config.configurable.option import Option
 from silico.config.configurable.options import Options
 from silico.config.file.locations import user_config_location
 import yaml
+from silico.misc.io import atomic_write
 
 
 class Silico_options(Configurable):
@@ -307,9 +308,9 @@ Example:
         
         Changed settings are always saved to the user's config file.
         """
-        with open(user_config_location, "wt") as user_config_file:
-            # TODO: Might be nicer to have a more public interface to '_configurable_options'?
-            yaml.dump(self._configurable_options, user_config_file)
+        # TODO: Might be nicer to have a more public interface to '_configurable_options'?
+        data = yaml.dump(self._configurable_options)
+        atomic_write(user_config_location, data)
     
     def set_log_level(self, logger):
         """
