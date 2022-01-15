@@ -34,8 +34,6 @@ class Configurable_browser(Setedit_browser):
         for child_widget in child_widgets:
             value = child_widget.value
             options[child_widget.setedit.title].__set__(self.configurable, value)
-            # Also update the 'default' value of the setedit.
-            #setedit.default_value = setedit.value_from_configurable_option(self.configurable, options[setedit.title])
         
         # Check the values we just set are allowed.
         try:
