@@ -235,10 +235,10 @@ Example:
    excited_state_transition_threshold: 0.1
    Would render orbital 5, HOMO-1, HOMO, LUMO and any orbitals involved in an excited state transition with a probability 0.1 or greater.""",
             et_transition_threshold = Option(help = "Include orbitals involved in an excited state transition with a probability of this value or greater.", type = float, default = 0.1),
-            orbital_levels = Option(help = "Include normal/alpha orbitals by level.", type = int, default = None),
-            beta_levels = Option(help = "Include beta orbitals by level.", type = int, default = None),
-            orbital_distances = Option(help = "Include normal/alpha orbitals by distance from the HOMO.", type = list, default = [0, 1]),
-            beta_distances = Option(help = "Include beta orbitals by distance from the HOMO.", type = list, default = [0, 1])
+            orbital_levels = Option(help = "Include normal/alpha orbitals by level.", list_type = list, type = int, default = None),
+            beta_levels = Option(help = "Include beta orbitals by level.", list_type = list, type = int, default = None),
+            orbital_distances = Option(help = "Include normal/alpha orbitals by distance from the HOMO.", list_type = list, type = int, default = [0, 1]),
+            beta_distances = Option(help = "Include beta orbitals by distance from the HOMO.", list_type = list, type = int, default = [0, 1])
         ),
         frequency_table = Options(help = "Options that control how many vibrational frequencies to list in the frequencies table. ",
             min_frequency = Option(help = "The most negative frequency to show in the table (remember that frequencies can go negative). 'null' is for no limit. Units are cm-1.", type = float, default = None),
