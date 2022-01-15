@@ -297,16 +297,18 @@ class Text_list_editor(Min_edit):
     # Attribute that controls appearance of the position indicator.
     position_attr = "body"
     
-    def __init__(self, position, edit_text):
+    def __init__(self, editor, position, edit_text):
         """
         Constructor for Text_list_editor widgets.
         
+        :param editor: The parent editor object:
         :param position: Starting position (index +1) of this editor.
         :param edit_text: Default value of this editor.
         """
+        self.editor = editor
         
         # Replace None values with actual text.
-        edit_text = Setedit_widget.value_to_str(edit_text)
+        edit_text = self.editor.value_to_str(edit_text)
                 
         super().__init__("", edit_text)
         
@@ -391,7 +393,7 @@ class List_editor(Setedit_widget):
         :param value: The starting position of value.
         :returns: The new widget
         """
-        field =  Text_list_editor(position, edit_text = value)
+        field =  Text_list_editor(self, position, edit_text = value)
         
         # Add a signal to watch for changes.
         urwid.connect_signal(field, 'postchange', lambda *data: self.adjust())
