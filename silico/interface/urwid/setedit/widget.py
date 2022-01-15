@@ -373,7 +373,11 @@ class List_editor(Setedit_widget):
         """
         Build a list of edit fields based on a value.
         """
-        fields = [self.get_field(index +1, value) for index, value in enumerate(values)]
+        if values is not None:
+            fields = [self.get_field(index +1, value) for index, value in enumerate(values)]
+            
+        else:
+            fields = []
         
         # Add one final editor so we can add more values.
         fields.append(self.get_field(len(fields) +1, None))
