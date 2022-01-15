@@ -1,6 +1,8 @@
 import collections
 import math
 from pathlib import Path
+import tempfile
+import os
 
 def tail(file, num_lines = 20):
     """
@@ -43,3 +45,25 @@ def smkdir(dir_name, max_iter = math.inf):
                 raise
             
     return directory
+
+# TODO: Would be nice to implement this as a context manager that acts like a file (better compatibility with yaml.dump() for example).
+def atomic_write(file, data):
+    """
+    Atomically write to a file.
+    
+    :param file: The name of file to write to.
+    :param data: Data to write to the file.
+    """
+    file = Path(file)
+    # Open a temp file in the same directory as the real file (so we're likely to be on the same file system).
+    with tempfile.NamedTemporaryFile("wt", dir = file.parent, delete = False) as temp_write:
+        # Write data to the temp file.
+        temp_write.write(data)
+        # Force it to disk.
+        temp_write.flush()
+        os.fsync(temp_write)
+        # Rename the temp file over the real file (overwriting it).
+        os.rename(temp_write.name, file)
+        
+        
+        
