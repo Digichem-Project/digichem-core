@@ -88,7 +88,6 @@ class Setedit_widget(urwid.Pile):
         """
         return str(value) if value is not None else ""
     
-    @classmethod
     def str_to_value(self, value):
         """
         Convert a string to a real value.
