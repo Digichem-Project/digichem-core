@@ -35,8 +35,8 @@ class Setedit_widget_parent_mixin():
             #fields.append(self.class_from_type(child_setedit.vtype)(child_setedit, has_divider = len(fields) != len(children)-1))
             child_widgets.append(child_setedit.get_widget())
             # Also add a divider if we are not at the end
-            if len(child_widgets)/2 != len(child_setedits)-1:
-                child_widgets.append(urwid.Divider())
+            if len(child_widgets) < (len(child_setedits)*2)-1:
+                child_widgets.append(urwid.Divider("-"))
             
         return child_widgets
     
