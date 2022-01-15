@@ -264,7 +264,7 @@ class Setedit_browser(urwid.ListBox, Setedit_widget_parent_mixin):
         Wrapper for save. This method should not be modified in child classes.
         """
         retval = self.save()
-        if self.on_change_callback is not None:
+        if retval != False and self.on_change_callback is not None:
             self.on_change_callback()
         return retval
 
