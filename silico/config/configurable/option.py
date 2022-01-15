@@ -9,23 +9,29 @@ class Option():
     Options are descriptors that perform type checking and other functionality for Configurables; they expose the options that a certain configurable expects.
     """
     
-    def __init__(self, name = None, *, default = None, help = None, choices = None, validate = None, type = None, rawtype = None, exclude = None, required = False, no_edit = False):
+    def __init__(self, name = None, *, default = None, help = None, choices = None, validate = None, list_type = None, type = None, rawtype = None, exclude = None, required = False, no_edit = False):
         """
         Constructor for Configurable Option objects.
         
         :param name: The name of this option. If None is given this will be determined automatically from the name of the attribute this option is stored under.
-        :param default: Default value for this option. Alternatively, default can be a callable which will be called with 2 arguments: this Option object and the owning Configurable object and should return the default value.
+        :param default: Default value for this option. Alternatively, default can be a callable which will be called with 2 arguments: this Option object and the owning Configurable object and should return the default value. Be careful about setting mutable options (eg, lists, dicts) as default, if one object modifies the object this will be propagated to all objects that have this option.
         :param help: Descriptive help string
         :param choices: An optional iterable of valid choices for this option.
         :param validate: Function called to check that the given value is valid. The function will be called with 3 arguments: this Option object, the owning Configurable object and the value being set, and should return True or False as appropriate.
+        :param list_type: If given, indicates that this option should accept a number of elements which will be stored in an object of type list_type (commonly list or tuple, but anything with a similar interface should work). If list_type and type are both given, then type will be used to set the type of each element in the list.
         :param type: A callable that is used to set the type of value.
         :param exclude: A list of strings of the names of attributes that this option is mutually exclusive with.
         :param required: Whether this option is required or not.
         :param no_edit: Flag to indicate that this option shouldn't be edited.
         """
         self.name = name
+        # TODO: Need to be smarter about storing mutable objects (most notable, list and dict, normally empty ones) as default
+        # When a default is accessed, it is this actual object that is returned, hence modifications would be shared by all configurable options of the same type.
+        # Perhaps a solution is to on demand copy() the default and store the resulting clone?
         self._default = default
+        self.list_type = list_type
         self.type = type
+        # TODO: This is probably deprecated
         self.rawtype = type if rawtype is None else rawtype
         self.help = help
         self.choices = choices if choices is not None else []
@@ -33,6 +39,10 @@ class Option():
         self.exclude = exclude if exclude is not None else []
         self.required = required
         self.no_edit = no_edit
+        
+        # If we are a list_type and a default of None has been given, change the default to an empty list.
+        if self.list_type is not None and self._default is None:
+            self._default = []
         
         # If we are a sub-object (ie, part of a dict), this is a hierarchy of names of the Options object we are owned by.
         self.parents = []
@@ -175,25 +185,34 @@ class Option():
         
         # Try and set the type.
         if not self.is_default(dict_obj) and value is not None:
-            try:
-                value = self.type(value) if self.type is not None else value
-                self.set_into_dict(owning_obj, dict_obj, value)
-            except (TypeError, ValueError) as e:
-                raise Configurable_option_exception(owning_obj, self, "value '{}' of type '{}' is of invalid type".format(value, type(value).__name__)) from e
-        
-        if len(self.choices) != 0:
-            # We have some choices to validate.
-            # If we are a list type, we'll check each item in value (rather than value itself).
-            list_type = False
-            try:
-                if issubclass(self.type, list) or issubclass(self.type, tuple):
-                    list_type = True
+            # If we are a list type, convert the type of value and also each element.
+            if self.list_type is not None:
+                # First convert the list itself.
+                try:
+                    value = self.list_type(value)
+                except (TypeError, ValueError) as e:
+                    raise Configurable_option_exception(owning_obj, self, "value '{}' of type '{}' could not be converted to the list-like type '{}'".format(value, type(value).__name__, self.list_type)) from e
                 
-            except TypeError:
-                # issubclass raises this all the time...
-                pass
-            
-            if list_type:
+                # Now check each element.
+                if self.type is not None:
+                    for index, element in enumerate(value):
+                        try:
+                            value[index] = self.type(element)
+                            
+                        except (TypeError, ValueError) as e:
+                            raise Configurable_option_exception(owning_obj, self, "item '{}') '{}' of type '{}' is of invalid type".format(index, element, type(element).__name__)) from e
+            else:
+                # Not a list type, just convert.
+                try:
+                    value = self.type(value) if self.type is not None else value
+                    self.set_into_dict(owning_obj, dict_obj, value)
+                except (TypeError, ValueError) as e:
+                    raise Configurable_option_exception(owning_obj, self, "value '{}' of type '{}' is of invalid type".format(value, type(value).__name__)) from e
+        
+        # If a list of possible choices has been set, check those now.
+        if len(self.choices) != 0:
+            # If we are a list type, we'll check each item in value (rather than value itself).
+            if self.list_type is not None:
                 # Check each of our values, storing each in a new list in case they get changed.
                 values = value
                 new_values = []
