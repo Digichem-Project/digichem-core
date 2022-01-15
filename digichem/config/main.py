@@ -1,5 +1,6 @@
 # General imports.
 from copy import deepcopy
+import yaml
 
 # Silico imports.
 from silico.config.base import Auto_type
@@ -8,7 +9,6 @@ from silico.config.configurable.base import Configurable
 from silico.config.configurable.option import Option
 from silico.config.configurable.options import Options
 from silico.config.file.locations import user_config_location
-import yaml
 from silico.misc.io import atomic_write
 
 
