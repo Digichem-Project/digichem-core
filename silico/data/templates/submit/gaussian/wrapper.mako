@@ -7,10 +7,10 @@
 ##
 ## First, set the env variables gaussian needs.
 export GAUSS_SCRDIR="${program.calculation.scratch_directory}"
-export ${program.root_environ_name}="${program.gaussian_root}"
+export ${program.root_environ_name}="${program.root.parent}"
 ##
 ## Now we need to load the init script provided by gaussian. Kinda weird but fun way to do init (they even provide a c-shell version for crazy kids (was anyone still using csh in 2016?!)).
-. "${program.gaussian_init_file}" || { >&2 echo "Failed to load Gaussian init file"; exit 1; }
+. "${program.init_file}" || { >&2 echo "Failed to load Gaussian init file"; exit 1; }
 ##
 ##
 ## Now run Gaussian!

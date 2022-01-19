@@ -19,9 +19,9 @@ class Gaussian(Program_target):
     
     # Configurable options.
     executable = Option(help = "Name/path of the main Gaussian executable", required = True, type = str)
-    root_environ_name = Option(help = "The name of the environmental variable Gaussian looks for to find 'gaussian_root'", required = True, type = str)
-    gaussian_root = Option(help = "Path to the directory one above where gaussian is installed", required = True, type = str)
-    gaussian_init_file = Option(help = "Path to the gaussian .profile script which is run to set-up gaussian", required = True, type = str)
+    root_environ_name = Option(help = "The name of the environmental variable Gaussian looks for to find 'root'", required = True, type = str)
+    root = Option(help = "Path to the directory where gaussian is installed", required = True, type = Path)
+    init_file = Option(help = "Path to the gaussian .profile script which is run to set-up gaussian", required = True, type = str)
         
         
     ############################
