@@ -32,7 +32,7 @@ class Silico_window(Window):
         super().__init__(title = "Silico {}".format(silico.version))
         
         # Browser object for changing settings.
-        self.settings_editor = Settings_editor(Configurable_browser(self.top, self.program.config, on_change_callback = self.program.config.save), "Main Silico Settings")
+        self.settings_editor = Settings_editor(Configurable_browser(self.top, self.program.config, on_change_callback = self.update_settings), "Main Silico Settings")
         
         body = urwid.Pile([
             ('pack', urwid.Padding(urwid.BigText("Silico", HalfBlock7x7Font()), align = "center", width = "clip")),
@@ -44,6 +44,17 @@ class Silico_window(Window):
         # If we've got an initial program, swap to it now,
         if self.program.initial is not None:
             self.top.swap_into_window(self.get_interface(self.program.initial))
+            
+    def update_settings(self):
+        """
+        Method called when main silico options are changed.
+        """
+        # Save modified settings to file.
+        self.program.config.save()
+        
+        # Clear our cache of programs (so when they're called again they'll be recreated and take the updated options.
+        self.program._programs = {}
+            
             
     def get_interface(self, prog_obj):
         """"
