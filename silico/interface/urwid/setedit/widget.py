@@ -443,14 +443,16 @@ class Dict_item_editor(urwid.Columns):
     edit_attr = "editable"
     body_attr = "body"
     
-    def __init__(self, key, value, change_callback = None):
+    def __init__(self, editor, key, value, change_callback = None):
         """
         Constructor for Dict_item_editor objects.
         
+        :param editor: The parent Dict_editor we belong to.
         :param key: The key of this dictionary item.
         :param value: The value of this dictionary item.
         :param change_callback: Function to call when this editor changes value.
         """
+        self.editor = editor
         # We have two separate editable entities.
         self.key_edit = Min_edit(edit_text = Setedit_widget.value_to_str(key))
         self.value_edit = Min_edit(edit_text = Setedit_widget.value_to_str(value))
@@ -472,7 +474,7 @@ class Dict_item_editor(urwid.Columns):
         """
         Get the possibly edited value of this field.
         """
-        return (Setedit_widget.str_to_value(self.key_edit.get_edit_text()), Setedit_widget.str_to_value(self.value_edit.get_edit_text()))        
+        return (self.editor.str_to_value(self.key_edit.get_edit_text()), self.editor.str_to_value(self.value_edit.get_edit_text()))        
 
 
 class Dict_editor(List_editor):
@@ -487,7 +489,7 @@ class Dict_editor(List_editor):
         :param key: The key of this dictionary item.
         :param value: The value of this dictionary item.
         """
-        return Dict_item_editor(key, value, self.adjust)
+        return Dict_item_editor(self, key, value, self.adjust)
     
     def get_fields(self, values):
         """
