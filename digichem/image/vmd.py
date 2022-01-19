@@ -28,9 +28,9 @@ class VMD_image_maker(File_converter):
     # The filename extension to use for molecule scene files produced by vmd.
     scene_file_extension = ".scene"
     # 'Path' to the vmd executable.
-    vmd_execuable = "vmd"
+    #vmd_execuable = "vmd"
     # 'Path' to the tachyon executable.
-    tachyon_executable = "tachyon"
+    #tachyon_executable = "tachyon"
     # The initial resolution at which an image is rendered. This test image will then be discarded once relevant info has been extracted.
     test_resolution = 300
     
@@ -42,7 +42,9 @@ class VMD_image_maker(File_converter):
     # Name of the section where we get some specific configs.
     options_name = "orbital"
     
-    def __init__(self, *args, cube_file = None, rotations = None, auto_crop = True, rendering_style = "pastel", resolution = 1024, also_make_png = True, isovalue = 0.2, **kwargs):
+    def __init__(self, *args, cube_file = None, rotations = None, auto_crop = True, rendering_style = "pastel", resolution = 1024, also_make_png = True, isovalue = 0.2, 
+                 vmd_execuable = "vmd", tachyon_executable = "tachyon",
+                 **kwargs):
         """
         Constructor for Image_maker objects.
         
@@ -54,6 +56,8 @@ class VMD_image_maker(File_converter):
         :param resolution: The max width or height of the rendered images in pixels.
         :param also_make_png: If True, additional images will be rendered in PNG format. This option is useful to generate higher quality images alongside more portable formats. If 'output' is a .png file, then it is wise to set this option to False (otherwise two png files will be rendered, which is a waste).
         :param isovalue: The isovalue to use for rendering isosurfaces. Has no effect when rendering only atoms.
+        :param vmd_executable: 'Path' to the vmd executable to use for image rendering. Defaults to relying on the command 'vmd'.
+        :param tachyon_executable: 'Path' to the tachyon executable to use for image rendering. Defaults to relying on the command 'tachyon'.
         """
         super().__init__(*args, input_file = cube_file, **kwargs)
         # Save our translations list.
@@ -68,7 +72,12 @@ class VMD_image_maker(File_converter):
         self.rendering_style = rendering_style
         self.target_resolution = resolution
         self.also_make_png = also_make_png
-        self.isovalue = isovalue        
+        self.isovalue = isovalue
+        
+        # Save executable paths.
+        self.vmd_execuable = vmd_execuable
+        self.tachyon_executable = tachyon_executable
+        
         
         if self.rendering_style is None:
             # Panic time.
@@ -114,6 +123,8 @@ class VMD_image_maker(File_converter):
             isovalue = options['molecule_image'][self.options_name]['isovalue'],
             use_existing = options['molecule_image']['use_existing'],
             dont_modify = options['image']['dont_modify'],
+            vmd_executable = options['external']['vmd'],
+            tachyon_executable = options['external']['tachyon'],
             **kwargs
         )
         
@@ -544,6 +555,8 @@ class Combined_orbital_image_maker(VMD_image_maker):
             isovalue = options['molecule_image'][self.options_name]['isovalue'],
             use_existing = options['molecule_image']['use_existing'],
             dont_modify = options['image']['dont_modify'],
+            vmd_executable = options['external']['vmd'],
+            tachyon_executable = options['external']['tachyon'],
             **kwargs
         )
     
@@ -604,20 +617,21 @@ class Dipole_image_maker(Structure_image_maker):
         super().__init__(*args, **kwargs)
         self. dipole_moment = dipole_moment
         
-    @classmethod
-    def from_image_options(self, output, *, cube_file, dipole_moment = None, existing_file = None, rotations = None, options = None, **kwargs):
-        """
-        An alternative constructor that discards any additional keyword arguments.
-        """
-        return self(
-            output, 
-            cube_file = cube_file,
-            dipole_moment = dipole_moment,
-            existing_file = existing_file,
-            rotations = rotations,
-            **self._get_config(options['molecule_image']),
-            **options['image']
-        )
+    # Think this is deprecated.
+#     @classmethod
+#     def from_image_options(self, output, *, cube_file, dipole_moment = None, existing_file = None, rotations = None, options = None, **kwargs):
+#         """
+#         An alternative constructor that discards any additional keyword arguments.
+#         """
+#         return self(
+#             output, 
+#             cube_file = cube_file,
+#             dipole_moment = dipole_moment,
+#             existing_file = existing_file,
+#             rotations = rotations,
+#             **self._get_config(options['molecule_image']),
+#             **options['image']
+#         )
         
     def check_can_make(self):
         """
