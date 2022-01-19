@@ -68,21 +68,6 @@ class Gaussian(Program_target):
             Path to the output coordinate file that should be used for any subsequent calculations.
             """
             return self.log_file_path
-    
-    
-#         @property
-#         def chk_file_path(self):
-#             """
-#             Path to the Gaussian checkpoint .chk file written to by Gaussian.
-#             """
-#             return Path(self.destination.calc_dir.output_directory, self.calculation.chk_file_name)
-#         
-#         @property
-#         def rwf_file_path(self):
-#             """
-#             Path to the Gaussian read-write .rwf file written to by Gaussian.
-#             """
-#             return Path(self.destination.calc_dir.output_directory, self.calculation.rwf_file_name)
             
         @property
         def fchk_file_path(self):
