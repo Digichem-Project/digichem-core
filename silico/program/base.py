@@ -11,6 +11,7 @@ from silico.config.file.parser import Config_file_parser, Config_parser
 import silico.result.angle
 from silico.exception.base import Silico_exception
 import silico.logging
+from silico.logging.base import set_logging_level
 
 
 class Program():
@@ -108,7 +109,7 @@ class Program():
         Perform program wide setup. This method should only be called once per invocation of the entire silico program.
         """
         # Set our log level.
-        config.set_log_level(logger)
+        set_logging_level(config['logging']['log_level'], config['logging']['verbose'])
         
         # Set external programs.
         # TODO: Find a better way to do this.

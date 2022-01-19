@@ -311,32 +311,6 @@ Example:
         # TODO: Might be nicer to have a more public interface to '_configurable_options'?
         data = yaml.dump(self._configurable_options)
         atomic_write(user_config_location, data)
-    
-    def set_log_level(self, logger):
-        """
-        Set the logging level of a logger based on the config options in the object.
-        
-        :param logger: The logger to set (from logging.getLogger()).
-        """
-        # TODO: This does not belong here.
-        # Set from log_level first.
-        if self['logging']['log_level'] == "OFF":
-            logger.setLevel(60)
-        else:
-            logger.setLevel(self['logging']['log_level'])
-        
-        # Now adjust with verbosity.
-        verbose = self['logging']['verbose']
-        if verbose is not None:
-            # Set from verbosity.
-            new_level = logger.level - verbose * 10
-            
-            # Don't allow us to reach 0 (because this is actually 'UNSET').
-            if new_level <= 0:
-                new_level = 10
-            
-            # And set.
-            logger.setLevel(new_level)
             
     @classmethod
     def yaml_to_palette(self, yaml_palette):
