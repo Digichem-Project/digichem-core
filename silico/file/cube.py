@@ -30,16 +30,13 @@ class Fchk_to_cube(File_converter):
        - The requirement on these .fchk files is unnecessary as the data is also available in the .log file, but cubegen cannot read it.
     """
     
-    # 'Path' to the cubegen executable.
-    cubegen_executable = "cubegen"
-    
     # Text description of our input file type, used for error messages etc.
     #input_file_type = "fchk"
     input_file_type = file_types.gaussian_fchk_file
     # Text description of our output file type, used for error messages etc.
     output_file_type = file_types.gaussian_cube_file
     
-    def __init__(self, *args, fchk_file = None, cubegen_type = "MO", orbital = "HOMO", npts = 0, cube_file = None, memory = None, **kwargs):
+    def __init__(self, *args, fchk_file = None, cubegen_type = "MO", orbital = "HOMO", npts = 0, cube_file = None, memory = None, cubegen_executable = "cubegen", **kwargs):
         """
         Constructor for Fchk_to_cube objects.
         
@@ -59,6 +56,7 @@ class Fchk_to_cube(File_converter):
         self.npts = npts
         memory = memory if memory is not None else "3 GB"
         self.memory = Memory(memory)
+        self.cubegen_executable = cubegen_executable
         
     @classmethod
     def from_options(self, output, *, fchk_file = None, cubegen_type = "MO", orbital = "HOMO", options, **kwargs):
@@ -72,6 +70,7 @@ class Fchk_to_cube(File_converter):
             orbital = orbital,
             npts = options['molecule_image']['orbital']['cube_grid_size'],
             dont_modify = options['image']['dont_modify'],
+            cubegen_executable = options['external']['cubegen'],
             **kwargs
         )
             
@@ -145,6 +144,7 @@ class Fchk_to_spin_cube(Fchk_to_cube):
             spin_density = spin_density,
             npts = options['molecule_image']['spin']['cube_grid_size'],
             dont_modify = options['image']['dont_modify'],
+            cubegen_executable = options['external']['cubegen'],
             **kwargs
         )
         
@@ -181,6 +181,7 @@ class Fchk_to_density_cube(Fchk_to_cube):
             density_type = density_type,
             npts = options['molecule_image']['density']['cube_grid_size'],
             dont_modify = options['image']['dont_modify'],
+            cubegen_executable = options['external']['cubegen'],
             **kwargs
         )
         
@@ -417,7 +418,6 @@ class Turbomole_to_cube(File_converter):
         # Link.
         destination = self.destination_t()
         prog = self.prog_t(destination)
-        #todo:here
         calc = self.calc_t(prog, global_silico_options = self.silico_options)
         
         # We'll write our calc to a tempdir.

@@ -111,14 +111,8 @@ class Program():
         # Set our log level.
         set_logging_level(config['logging']['log_level'], config['logging']['verbose'])
         
-        # Set external programs.
-        # TODO: Find a better way to do this.
-        silico.image.vmd.VMD_image_maker.vmd_execuable = config['external']['vmd']
-        silico.image.vmd.VMD_image_maker.tachyon_executable = config['external']['tachyon']
-        silico.file.cube.Fchk_to_cube.cubegen_executable = config['external']['cubegen']
-        silico.file.fchk.Chk_to_fchk.cubegen_executable = config['external']['formchk']
-        
         # Set angles.
+        # TODO: Think about a better way of handling angle units.
         silico.result.angle.Angle.set_default_angle_units(config['angle_units'])
             
         # Set numpy errors (not sure why this isn't the default...)

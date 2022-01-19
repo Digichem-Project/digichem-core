@@ -75,7 +75,8 @@ class Gaussian_setup(Image_setup):
                 Path(output_dir, output_name + ".fchk"),
                 chk_file = self.chk_file_paths['structure'],
                 fchk_file = self.fchk_file_paths['structure'],
-                memory = self.memory
+                memory = self.memory,
+                formchk_executable = self.options['external']['formchk']
             )
         }
         
@@ -86,7 +87,8 @@ class Gaussian_setup(Image_setup):
                     Path(output_dir, output_name + ".spin.fchk"),
                     chk_file = self.chk_file_paths['spin'],
                     fchk_file = self.fchk_file_paths['spin'],
-                    memory = self.memory
+                    memory = self.memory,
+                    formchk_executable = self.options['external']['formchk']
                 )
             }
         
