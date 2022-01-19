@@ -235,7 +235,7 @@ class Option():
             raise Configurable_option_exception(owning_obj, self, "value '{}' of type '{}' is invalid".format(value, type(value).__name__))
         
         # Finally, if our value is equivalent to our default, we'll actually delete our value and use the default instead.
-        if value == self.default(owning_obj):
+        if not self.required and value == self.default(owning_obj):
             self.set_default(owning_obj, dict_obj)
 
 
