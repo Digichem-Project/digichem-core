@@ -75,6 +75,13 @@ class Gaussian(Program_target):
             Path to the formatted checkpoint .fchk file.
             """
             return Path(self.destination.calc_dir.output_directory, self.calculation.chk_file_name).with_suffix(".fchk")
+        
+        @property
+        def formchk_executable(self):
+            """
+            Path to the formchk executable of this Gaussian installation.
+            """
+            return Path(self.root, 'formchk')
     
         def pre(self):
             """
@@ -124,7 +131,7 @@ class Gaussian(Program_target):
             try:
                 # Create an fchk file if asked.
                 if self.calculation.convert_chk:
-                    fchk_file = Chk_to_fchk(self.fchk_file_path, chk_file = self.chk_file_path, memory = self.calculation.memory)
+                    fchk_file = Chk_to_fchk(self.fchk_file_path, chk_file = self.chk_file_path, memory = self.calculation.memory, formchk_executable = self.formchk_executable)
                     fchk_file.get_file()
             except Exception:
                 silico.logging.get_logger().error("Failed to create fchk file", exc_info = True)
