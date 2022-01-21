@@ -53,7 +53,7 @@ def set_logging_level(log_level, verbose = None):
     if log_level == "OFF":
         logger.setLevel(60)
     else:
-        logger.setLevel(verbose)
+        logger.setLevel(log_level)
     
     # Now adjust with verbosity.
     if verbose is not None:
