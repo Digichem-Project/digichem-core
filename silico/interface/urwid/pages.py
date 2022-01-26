@@ -12,7 +12,7 @@ class Pages(Tab_pile):
     A widget that can switch between a number of different pages.
     """
     
-    def __init__(self, pages, title = "Page Enhanced_tree_selector"):
+    def __init__(self, pages, title = "Page Selector"):
         """
         
         :param title: The title to display.
