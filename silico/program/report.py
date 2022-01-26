@@ -43,39 +43,8 @@ class Report_program(Program):
         aux_input_group = sub_parser.add_argument_group("auxiliary input", "options for specifying additional input files. These options are all optional, but if given the ordering should match that of the given log files")
         aux_input_group.add_argument("--chk", help = "a (number of) Gaussian chk file(s) that will be used to generate all image files required. Note that this option requires Gaussian to be installed and formchk & cubegen to be in your path", nargs = "*", default = [])
         aux_input_group.add_argument("--fchk", help = "a (number of) Gaussian fchk file(s) that will be used to generate all image files required. Note that this option requires Gaussian to be installed and cubegen to be in your path", nargs = "*", default = [])
-        
-        image_group = sub_parser.add_argument_group("image options", "advanced options for altering the appearance of images in the report")
-        image_group.add_argument("--render_style", help = "change the style used to render molecules and orbitals", choices=['pastel', 'light-pastel', 'dark-pastel','sharp', 'gaussian', 'vesta'], default = None)
-        image_group.add_argument("-d", "--dont_create_new_images", help = "don't attempt to create any new image files. If existing image files can be found, they will still be included in the report", action = "store_true", default = None)
-        image_group.add_argument("-o", "--overwrite_existing_images", help = "force overwriting and re-rendering of all image files", action = "store_true", default = None)
-        image_group.add_argument("--dont_auto_crop", help = "disable automatic cropping of excess whitespace around the border of images. If given, rendered images will have the same resolution, but molecules may only occupy a small portion of the true image", action = "store_true", default = None)
     
-        return sub_parser
-    
-    def process_arguments(self, args):
-        """
-        Process command line arguments and set defaults.
-        """
-        
-    @classmethod
-    def arg_to_config(self, args, config):
-        """
-        A class method that will be called to add command line arguments from 'args' to the configuration object 'config'.
-        
-        :param args: An argparser object.
-        :param config: A Silico config object to add to.
-        """
-        # Add our report specific command line arguments to our config dictionary.
-        if args.render_style is not None:
-            config['molecule_image']['rendering_style'] = args.render_style
-        if args.overwrite_existing_images is not None:
-                config['molecule_image']['use_existing'] = not args.overwrite_existing_images
-        if args.dont_auto_crop is not None:
-                config['molecule_image']['auto_crop'] = not args.dont_auto_crop
-        
-        if args.dont_create_new_images is not None:
-            config['image']['dont_modify'] = args.dont_create_new_images
-        
+        return sub_parser        
         
     def load_interface(self, window):
         """
