@@ -53,7 +53,7 @@ class Silico_window(Window):
         self.program.config.save()
         
         # Clear our cache of programs (so when they're called again they'll be recreated and take the updated options.
-        self.program._programs = {}
+        #self.program._programs = {}
             
             
     def get_interface(self, prog_obj):
