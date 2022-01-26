@@ -5,11 +5,11 @@ import urwid
 
 # Silico imports.
 from silico.interface.urwid.misc import Tab_pile
-from silico.interface.urwid.section import Section
 from silico.interface.urwid.main.program import Program_view
 from silico.interface.urwid.coord.list import Coordinate_list
 from silico.interface.urwid.method.list import Method_list
 from silico.interface.urwid.edit.popup import Output_edit
+from silico.interface.urwid.layout import Pane
 
 
 class Submit_interface(Program_view):
@@ -39,9 +39,9 @@ class Submit_interface(Program_view):
         :returns: An urwid widget to display.
         """
         return Tab_pile([
-            Section(self.coordinate_list, "Input Coordinates"),
-            Section(self.method_list, "Calculation Methods"),
-                ('pack', Section(urwid.Pile([
+            Pane(self.coordinate_list, "Input Coordinates"),
+            Pane(self.method_list, "Calculation Methods"),
+                ('pack', Pane(urwid.Pile([
                     urwid.Columns([
                         ('pack', urwid.Text("Output location:")),
                         urwid.AttrMap(self.output_widget, "editable"),

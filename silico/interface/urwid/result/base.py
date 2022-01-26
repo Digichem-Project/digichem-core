@@ -6,7 +6,6 @@ import shlex
 from silico.interface.urwid.main.program import Program_view
 from silico.config.configurable.option import Option
 from silico.interface.urwid.misc import Tab_pile
-from silico.interface.urwid.section import Section
 from silico.interface.urwid.result.list import Result_list
 from silico.interface.urwid.edit.popup import Choices_edit, Output_edit
 from silico.format.text import Text_summary_group_format
@@ -14,6 +13,7 @@ from silico.format.csv import CSV_property_group_format,\
     CSV_summary_group_format
 from silico.format.table import Table_summary_group_format,\
     Property_table_group_format
+from silico.interface.urwid.layout import Pane
 
 
 class Result_interface(Program_view):
@@ -65,22 +65,22 @@ class Result_interface(Program_view):
         :returns: An urwid widget to display.
         """
         return Tab_pile([
-            Section(self.file_list, "Calculation Log Files"),('pack', 
-                Section(urwid.Pile([
-                    urwid.Columns([
-                        ('pack', urwid.Text("Format:")),
-                        urwid.AttrMap(self.format_widget, "editable"),
-                    ], dividechars = 1),
-                    
-                    urwid.Columns([
-                        ('pack', urwid.Text("Filters:")),
-                        urwid.AttrMap(self.filters_widget, "editable"),
-                    ], dividechars = 1),
-                    
-                    urwid.Columns([
-                        ('pack', urwid.Text("Save location:")),
-                        urwid.AttrMap(self.output_widget, "editable"),
-                    ], dividechars = 1)
+            Pane(self.file_list, "Calculation Log Files"),
+            ('pack', Pane(urwid.Pile([
+                urwid.Columns([
+                    ('pack', urwid.Text("Format:")),
+                    urwid.AttrMap(self.format_widget, "editable"),
+                ], dividechars = 1),
+                
+                urwid.Columns([
+                    ('pack', urwid.Text("Filters:")),
+                    urwid.AttrMap(self.filters_widget, "editable"),
+                ], dividechars = 1),
+                
+                urwid.Columns([
+                    ('pack', urwid.Text("Save location:")),
+                    urwid.AttrMap(self.output_widget, "editable"),
+                ], dividechars = 1)
                 
                 ]), "Output Options")
             )

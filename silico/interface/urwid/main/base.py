@@ -5,10 +5,8 @@ import io
 
 # Silico import.
 import silico
-from silico.interface.urwid.window import Window
-from silico.interface.urwid.section import Section
 from silico.interface.urwid.setedit.configurable import Configurable_browser
-from silico.interface.urwid.setedit.base import Settings_editor
+from silico.interface.urwid.layout import Window, Pane
 
 
 class Silico_window(Window):
@@ -31,8 +29,8 @@ class Silico_window(Window):
         # Setup our window.
         super().__init__(title = "Silico {}".format(silico.version))
         
-        # Browser object for changing settings.
-        self.settings_editor = Settings_editor(Configurable_browser(self.top, self.program.config, on_change_callback = self.update_settings), "Main Silico Settings")
+        # A widget which can be swapped to in order to change the main silico settings.
+        self.settings_pane = Pane(Configurable_browser(self.top, self.program.config, on_change_callback = self.update_settings), "Main Silico Settings")
         
         body = urwid.Pile([
             ('pack', urwid.Padding(urwid.BigText("Silico", HalfBlock7x7Font()), align = "center", width = "clip")),
@@ -75,7 +73,7 @@ class Silico_window(Window):
         """
         Get the main menu from which the user can select an option.
         """
-        return Section(urwid.Pile(self.get_options()), "Main Menu")
+        return Pane(urwid.Pile(self.get_options()), "Main Menu")
         
     def get_options(self):
         """
@@ -85,7 +83,7 @@ class Silico_window(Window):
         """
         program_buttons = [self.program_button(prog_cls) for prog_cls in self.program.program_classes]
         # Add a settings button.
-        program_buttons.append(self.get_option_widget("Settings", lambda button: self.top.swap_into_window(self.settings_editor, cancel_callback = self.settings_editor.browser.discard, submit_callback = self.settings_editor.browser._save)))
+        program_buttons.append(self.get_option_widget("Settings", lambda button: self.top.swap_into_window(self.settings_pane, cancel_callback = self.settings_pane.base_widget.discard, submit_callback = self.settings_pane.base_widget._save)))
         # And an exit button.
         program_buttons.append(self.get_option_widget("Quit", lambda button: self.top.back()))
         

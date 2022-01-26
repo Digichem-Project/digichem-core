@@ -3,11 +3,10 @@ import urwid
 
 # Silico imports.
 from silico.config.configurable.base import Configurable
-from silico.interface.urwid.section import Section, Sub_section
+from silico.interface.urwid.layout import Sub_pane, Pane
 
 class Swappable(urwid.WidgetWrap, Configurable):
     """
-    (view)
     A widget designed to be shown inside a swapping window.
     """
     
@@ -26,7 +25,8 @@ class Swappable(urwid.WidgetWrap, Configurable):
         """
         Get the widget we'll use for display.
         """
-        inner_cls = Section if self.border else Sub_section
+        # TODO: That the body is wrapped in a Pane object is weird and odd and should probably be removed. 
+        inner_cls = Pane if self.border else Sub_pane
         inner_body = inner_cls(self.inner, self.title, self.focusable)
         return inner_body
         

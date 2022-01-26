@@ -1,6 +1,6 @@
 from silico.interface.urwid.pages import Pages
-from silico.interface.urwid.setedit.base import Settings_editor
 from silico.interface.urwid.setedit.configurable import Configurable_browser
+from silico.interface.urwid.layout import Pane
 
 
 class Method_editor(Pages):
@@ -11,9 +11,9 @@ class Method_editor(Pages):
     def __init__(self, top, destination, program, calculation):
         """
         """
-        self.calculation_editor = Settings_editor(Configurable_browser(top, calculation), self.get_title(calculation))
-        self.program_editor = Settings_editor(Configurable_browser(top, program), self.get_title(program))
-        self.destination_editor = Settings_editor(Configurable_browser(top, destination), self.get_title(destination))
+        self.calculation_pane = Pane(Configurable_browser(top, calculation), self.get_title(calculation))
+        self.program_pane = Pane(Configurable_browser(top, program), self.get_title(program))
+        self.destination_pane = Pane(Configurable_browser(top, destination), self.get_title(destination))
         # We show in reverse order, because typically the calculation is what the user wants to change anyway.
         super().__init__([
             ("Calculation", self.calculation_editor),
@@ -25,17 +25,17 @@ class Method_editor(Pages):
         """
         Reset any changed values back to their defaults.
         """
-        self.calculation_editor.browser.discard()
-        self.program_editor.browser.discard()
-        self.destination_editor.browser.discard()
+        self.calculation_editor.base_widget.discard()
+        self.program_editor.base_widget.discard()
+        self.destination_editor.base_widget.discard()
         
     def save(self):
         """
         Save any changes made.
         """
-        self.calculation_editor.browser.save()
-        self.program_editor.browser.save()
-        self.destination_editor.browser.save()
+        self.calculation_editor.base_widget.save()
+        self.program_editor.base_widget.save()
+        self.destination_editor.base_widget.save()
         
     def get_title(self, method_target):
         """

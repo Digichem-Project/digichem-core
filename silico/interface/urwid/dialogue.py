@@ -2,8 +2,8 @@
 import urwid
 
 # Silico imports.
-from silico.interface.urwid.section import Section
 from silico.interface.urwid.wrapper import Confirm_or_cancel, Confirm
+from silico.interface.urwid.layout import Pane
 
 
 class Dialogue_mixin():
@@ -27,13 +27,13 @@ class Dialogue_mixin():
         # Decide on formatting.
         if self.error:
             # Error formatting.
-            attrs = {"body": "section--dialogue--error", "section": "section--dialogue--error"}
+            attrs = {"body": "pane--dialogue--error", "pane": "pane--dialogue--error"}
         
         else:
             # Normal formatting.
-            attrs = {"body": "dialogue", "section": "section--dialogue"}
+            attrs = {"body": "dialogue", "pane": "pane--dialogue"}
             
-        return urwid.AttrMap(Section(
+        return urwid.AttrMap(Pane(
             self.dialogue_body,
             title = self.title,
             focusable = False
@@ -199,7 +199,7 @@ class Output_dialogue(Confirm, Dialogue_mixin):
         # Decide on formatting.
         if error:
             # Error formatting.
-            attr = "section--dialogue--error"
+            attr = "pane--dialogue--error"
         
         else:
             # Normal formatting.

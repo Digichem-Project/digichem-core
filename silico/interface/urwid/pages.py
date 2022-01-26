@@ -4,7 +4,7 @@ import functools
 
 # Silico imports.
 from silico.interface.urwid.misc import Tab_pile
-from silico.interface.urwid.section import Section
+from silico.interface.urwid.layout import Pane
 
 
 class Pages(Tab_pile):
@@ -24,7 +24,7 @@ class Pages(Tab_pile):
         
         controls = urwid.Columns(self.get_controls(), dividechars = 1)
         super().__init__([
-            ("pack", Section(controls, title = self.title)),
+            ("pack", Pane(controls, title = self.title)),
             self.top
         ])
         

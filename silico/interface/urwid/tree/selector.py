@@ -3,8 +3,8 @@ import urwid
 
 # Silico imports.
 from silico.interface.urwid.misc import Tab_pile
-from silico.interface.urwid.section import Section
 from silico.interface.urwid.swap.swappable import Swappable
+from silico.interface.urwid.layout import Pane
 
 
 class Two_part_tree_selector(Swappable):
@@ -30,7 +30,7 @@ class Two_part_tree_selector(Swappable):
         # We will wrap our body in a Pile and add our manual widget underneath in.
         return Tab_pile([
             main_body,
-            (3, Section(urwid.Filler(urwid.AttrMap(self.secondary_widget, "editable")), self.secondary_title))
+            (3, Pane(urwid.Filler(urwid.AttrMap(self.secondary_widget, "editable")), self.secondary_title))
         ])
         
 

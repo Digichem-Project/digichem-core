@@ -286,31 +286,35 @@ palette:
         - black
         # Background.
         - light gray
-
-    section:
+    
+    pane:
         - black, bold
         - light gray
-
-    section--dialogue:
+    
+    pane--dialogue:
         - white, bold
         - dark blue
-
-    section--dialogue--error:
+    
+    pane--dialogue--error:
         - yellow, bold
         - dark blue
-
+        
+    pane--focus:
+        - dark blue
+        - light gray
+    
     boldnode:
         - black, bold
         - light gray
-
+    
     bold:
         - black, bold
         - light gray
-
+    
     warningnode:
         - dark red
         - light gray
-
+    
     hiddennode:
         - light red, blink
         - light gray
@@ -319,37 +323,33 @@ palette:
         - light gray
         - dark blue
         - standout
-
+    
     node--focus:
         - light gray
         - dark blue
         - standout
-
+    
     node--warning:
         - dark red
         - light gray
-
+    
     node--warning--focus:
         - dark red
         - dark blue
-
+    
     node--flagged:
         - white
         - black
-
+    
     node--flagged--focus:
         - dark cyan
         - black
-
-    focus--section:
-        - dark blue
-        - light gray
         
     header:
         - light gray, bold
         - dark blue
         - standout
-
+    
     footer:
         - light gray
         - dark blue
@@ -370,7 +370,7 @@ palette:
     editable:
         - dark blue
         - light gray
-
+    
     dialogue:
         - white
         - dark blue
@@ -378,37 +378,37 @@ palette:
     title:
         - white, bold
         - dark blue
-
-
+    
+    
     # Buttons.        
     button--good:
         - white
         - dark green
-
+    
     button--good--focus:
         - white, bold
         - dark green
-
+    
     button:
         - white
         - dark gray
-
+    
     button--focus:
         - white, bold
         - dark gray
-
+    
     button--small:
         - black, bold
         - light gray    
-
+    
     button--small--focus:
         - dark blue
         - light gray
-
+    
     button--settings:
         - white
         - brown
-
+    
     button--settings--focus:
         - white, bold
         - brown
@@ -416,12 +416,14 @@ palette:
     button--bad:
         - white
         - dark red
-
+    
     button--bad--focus:
         - white, bold
         - dark red
-
+    
     button--bad--small:
         - light red, bold
         - light gray
+        
+
             

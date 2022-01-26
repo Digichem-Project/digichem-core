@@ -8,7 +8,7 @@ import urwid
 from silico.interface.urwid.file.browser import File_browser, Selector_mixin
 from silico.interface.urwid.swap.swappable import Swappable
 from silico.interface.urwid.misc import Tab_pile
-from silico.interface.urwid.section import Section
+from silico.interface.urwid.layout import Pane
 
 
 class Output_tree_list_box(File_browser):
@@ -197,7 +197,7 @@ class Output_selector(Swappable, Selector_mixin):
         # We will wrap our body in a Pile and add our manual widget underneath in.
         return Tab_pile([
             main_body,
-            ('pack', Section(
+            ('pack', Pane(
                 urwid.Pile([
                     urwid.AttrMap(self.file_name_widget, "editable"),
                     urwid.AttrMap(self.location_widget, "editable")

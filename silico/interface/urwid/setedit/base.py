@@ -2,12 +2,11 @@
 
 # General imports.
 import urwid
+from urwid.listbox import SimpleFocusListWalker
 
 # Silico imports.
 from silico.interface.urwid.setedit.widget import Setedit_widget
-from silico.interface.urwid.section import Section
 from silico.interface.urwid.setedit.common import Setedit_widget_parent_mixin
-from urwid.listbox import SimpleFocusListWalker
 
 
 class Setedit():
@@ -267,25 +266,3 @@ class Setedit_browser(urwid.ListBox, Setedit_widget_parent_mixin):
         if retval != False and self.on_change_callback is not None:
             self.on_change_callback()
         return retval
-
-
-class Settings_editor(Section):
-    """
-    A high-level widget for editing a list of settings.
-    """
-    
-    def __init__(self, browser, title):
-        """
-        Constructor for Settings_editor objects.
-        
-        :param browser: A Setedit_browser to use as our body.
-        :param title: The title to show.
-        """
-        self.browser = browser
-        
-        super().__init__(self.browser, title)
-        
-        
-        
-    
-    

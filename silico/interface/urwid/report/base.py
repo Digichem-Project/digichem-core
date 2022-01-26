@@ -6,10 +6,10 @@ import urwid
 # Silico imports.
 from silico.config.configurable.option import Option
 from silico.interface.urwid.file.list import File_list
-from silico.interface.urwid.section import Section
 from silico.interface.urwid.misc import Tab_pile
 from silico.interface.urwid.main.program import Program_view
 from silico.interface.urwid.edit.popup import Output_edit
+from silico.interface.urwid.layout import Pane
 
 
 class Report_interface(Program_view):
@@ -55,8 +55,8 @@ class Report_interface(Program_view):
         :returns: An urwid widget to display.
         """
         return Tab_pile([
-            Section(self.file_list, "Calculation Log Files"),
-                ('pack', Section(urwid.Pile([
+            Pane(self.file_list, "Calculation Log Files"),
+                ('pack', Pane(urwid.Pile([
                     urwid.Columns([
                         ('pack', urwid.Text("Output location:")),
                         urwid.AttrMap(self.output_widget, "editable"),
