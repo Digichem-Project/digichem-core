@@ -31,8 +31,6 @@ class Setedit_widget_parent_mixin():
         child_widgets = []
         
         for child_setedit in child_setedits:
-            # TODO: This is weird, surely the setedit should give us its child (via .get_widget() or similar?)
-            #fields.append(self.class_from_type(child_setedit.vtype)(child_setedit, has_divider = len(fields) != len(children)-1))
             child_widgets.append(child_setedit.get_widget())
             # Also add a divider if we are not at the end
             if len(child_widgets) < (len(child_setedits)*2)-1:
