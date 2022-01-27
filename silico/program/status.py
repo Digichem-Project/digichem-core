@@ -4,6 +4,7 @@ import tabulate
 # Silico imports.
 from silico.program.base import Program
 from silico.exception.base import Silico_exception
+from silico.interface.urwid.status.base import Status_interface
 
 
 class Status_program(Program):
@@ -29,6 +30,14 @@ class Status_program(Program):
         sub_parser.add_argument("methods", help = "Selected methods to show status for", nargs = "*", default = ())
     
         return sub_parser
+    
+    def load_interface(self, window):
+        """
+        Get the interface widget we'll use for display.
+        
+        :param window The parent window object.
+        """
+        return Status_interface(window, self)
     
     def main(self):
         """
