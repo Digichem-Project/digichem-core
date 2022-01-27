@@ -8,6 +8,7 @@ from silico.interface.urwid.wrapper import Confirm_settings_cancel,\
 from silico.interface.urwid.setedit.swappable import Swappable_browser
 from silico.interface.urwid.swap.swappable import Swappable
 from silico.interface.urwid.layout import Pane
+from silico.interface.urwid.setedit.configurable import Configurable_browser
 
 
 class Top(urwid.WidgetPlaceholder):
@@ -117,7 +118,7 @@ class Top(urwid.WidgetPlaceholder):
         # If we have options, use a Confirm_settings_cancel.
         if isinstance(original_widget, Swappable) and original_widget.has_settings:
             # Get a widget we can use to edit the settings of the main widget; we can't ask the Swappable class to do this because of circular import nonsense (some of the edit widgets are themselves Swappable).
-            settings_pane = Pane(Swappable_browser(original_widget), "Settings")
+            settings_pane = Pane(Configurable_browser.from_configurable(original_widget.top, original_widget, original_widget.on_settings_change), "Settings")
             window = Confirm_settings_cancel(original_widget, top = self, settings_widget = settings_pane, cancel_callback = cancel_callback, submit_callback = submit_callback)
             
         elif submit_callback is not None:
