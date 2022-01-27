@@ -32,7 +32,9 @@ class Silico_window(Window):
         super().__init__(title = "Silico {}".format(silico.version))
         
         # A widget which can be swapped to in order to change the main silico settings.
-        self.settings_pane = Pane(Configurable_browser(self.top, self.program.config, on_change_callback = self.update_settings), "Main Silico Settings")
+        #self.settings_pane = Pane(Configurable_browser(self.top, self.program.config, on_change_callback = self.update_settings), "Main Silico Settings")
+        pages = {name: Configurable_browser([Options_solo_setedit(self.top, self.program.config, self.program.config._configurable_options, option)], self.program.config) for name, option in self.program.config.OPTIONS.items() if not option.no_edit and option.num_child_options > 0}
+        self.settings_pane = Sub_pane(Paginated_settings_browser(pages, on_change_callback = self.update_settings), "Main Silico Settings")
         
         body = urwid.Pile([
             ('pack', urwid.Padding(urwid.BigText("Silico", HalfBlock7x7Font()), align = "center", width = "clip")),
