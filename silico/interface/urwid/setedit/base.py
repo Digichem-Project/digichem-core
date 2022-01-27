@@ -7,6 +7,8 @@ from urwid.listbox import SimpleFocusListWalker
 # Silico imports.
 from silico.interface.urwid.setedit.widget import Setedit_widget
 from silico.interface.urwid.setedit.common import Setedit_widget_parent_mixin
+from silico.interface.urwid.pages import Pages
+from silico.logging.base import get_logger
 
 
 class Setedit():
@@ -104,127 +106,7 @@ class Setedit():
         else:
             # A normal option, just get the value.
             # This doesn't work if option is a sub option.
-            return option.__get__(owning_obj)  
-
-
-class Option_setedit(Setedit):
-    """
-    A setedit for editing a Configurable Option.
-    """
-    
-    def __init__(self, top, owning_obj, dict_obj, option):
-        """
-        :param top: Top-most widget being used for display.
-        :param owning_obj: The owning object on which the Option object is set as a class attribute.
-        :param dict_obj: The dict in which the value of this Option is stored.
-        :param value: The new value to set.
-        """
-        # Note that we don't call our parent's constructor
-        self.top = top
-        self.owning_obj = owning_obj
-        self.dict_obj = dict_obj
-        self.option = option
-        self._widget = None
-        
-        self.title = option.name
-        self.vtype = self.vtype_from_configurable_option(option)
-        self.help = option.help
-        self.choices = option.choices
-        # This is the last value we saved, if we're asked to reset we'll roll back to this.
-        self.previous_value = self.option.get_from_dict(self.owning_obj, self.dict_obj)
-        
-    @property
-    def default_value(self):
-        """
-        The default value of this setedit. If an equivalent value is given by the user it will not be saved, instead the true default will be used.
-        """
-        # This can raise an attribute error.
-        return self.option.default(self.owning_obj)
-        
-    def confirm(self):
-        """
-        Confirm the changes made to this Setedit, so that future rollbacks will return to the current value.
-        """
-        # First update the value of our widget from the value of the configurable option (because it could have changed, for example from type conversion etc).
-        self.get_widget().value = self.option.get_from_dict(self.owning_obj, self.dict_obj)
-        super().confirm()
-    
-    def get_children(self, reload = False):
-        """
-        Get a list of Option_setedit object that represent the options that are children of this option.
-        """
-        raise NotImplementedError("Option objects don't have children")
-    
-    @classmethod
-    def from_configurable_option(self, top, owning_obj, option):
-        """
-        Construct a new Setedit object from a configurable option.
-        
-        :param top: The top-most widget being used for display.
-        :param owning_obj: The owning object on which the Option object is set as a class attribute.
-        :param option: The configurable option.
-        :returns: The Setedit object.
-        """
-        if hasattr(option, "OPTIONS"):
-            cls = Options_setedit
-            
-        else:
-            cls = self
-            
-        return cls(top, owning_obj, owning_obj._configurable_options, option)
-
-
-class Options_setedit(Option_setedit):
-    """
-    A setedit for editing a group of Configurable Options.
-    """
-    
-    def __init__(self, top, owning_obj, dict_obj, option):
-        super().__init__(top, owning_obj, dict_obj, option)
-        self._children = None
-        
-    def confirm(self):
-        """
-        Confirm the changes made to this Setedit, so that future rollbacks will return to the current value.
-        """
-        for child in self.get_children():
-            child.confirm()
-    
-    @property
-    def previous_value(self):
-        raise NotImplementedError("Options_setedit does not contain values")
-    
-    @previous_value.setter
-    def previous_value(self, value):
-        # Do nothing.
-        pass
-    
-    def load_children(self):
-        """
-        Load the child setedits of this one.
-        """
-        mapping = self.option.get_from_dict(self.owning_obj, self.dict_obj)
-        
-        children = []
-        
-        for sub_option in self.option.OPTIONS.values():
-            if hasattr(sub_option, "OPTIONS"):
-                # This sub option has sub options of its own.
-                children.append(Options_setedit(self.top, self.owning_obj, mapping, sub_option))
-                
-            else:
-                children.append(Option_setedit(self.top, self.owning_obj, mapping, sub_option))
-                
-        return children
-    
-    def get_children(self, reload = False):
-        """
-        Get a list of Option_setedit object that represent the options that are children of this option.
-        """
-        if self._children is None or reload:
-            self._children = self.load_children()
-        
-        return self._children
+            return option.__get__(owning_obj)
 
 
 class Setedit_browser(urwid.ListBox, Setedit_widget_parent_mixin):
@@ -257,12 +139,79 @@ class Setedit_browser(urwid.ListBox, Setedit_widget_parent_mixin):
         """
         for child_widget in self.child_setedit_widgets.values():
             child_widget.setedit.confirm()
+            
+    def confirm_callback(self):
+        """
+        Method called when settings have been changed.
+        """
+        try:
+            retval = self.save()
+            
+        except Exception:
+            get_logger().error("Failed to save changes", exc_info = True)
+            return False
         
-    def _save(self):
-        """
-        Wrapper for save. This method should not be modified in child classes.
-        """
-        retval = self.save()
-        if retval != False and self.on_change_callback is not None:
+        if self.on_change_callback is not None:
             self.on_change_callback()
+            
         return retval
+
+
+# TOOD: Should inherit from some ABC?
+class Paginated_settings_browser(Pages):
+    """
+    A widget for editing multiple pages of settings.
+    """
+    
+    def __init__(self, *args, on_change_callback = None, **kwargs):
+        """
+        Constructor for Paginated_settings_browser objects.
+        
+        :param pages: An (ordered) dict of Setedit_browser objects (or similar), where each item is the browser object and each key is the name/title of that browser.
+        :param title: The title of this paginated browser.
+        """
+        super().__init__(*args, **kwargs)
+        self.on_change_callback = on_change_callback
+        
+    def confirm_callback(self):
+        """
+        Method called when settings have been changed.
+        """
+        try:
+            # TODO: Need to be smarter about this, at the very least we should swap to the page where the bad option is.
+            self.save()
+        
+        except Exception:
+            get_logger().error("Failed to save changes", exc_info = True)
+            return False
+    
+    def save(self):
+        """
+        Save any changes made.
+        """
+        # Save each of the individual browsers that we encapsulate.
+        for page in self.pages.values():
+            page.base_widget.save()
+            
+        self.validate()
+        self.on_change_callback()
+            
+    def validate(self):
+        """
+        Validate any recent changes made.
+        
+        If any of the changes are invalid, an exception will be raised.
+        """
+        # This default implementation does nothing.
+    
+    def discard(self):
+        """
+        Discard any changes made.
+        """
+        for page in self.pages.values():
+            page.base_widget.discard()
+    
+    
+    
+    
+    
