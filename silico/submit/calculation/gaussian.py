@@ -107,7 +107,7 @@ class Gaussian(Concrete_calculation):
     )
     frequency = Options(
         help = "Options that control calculation of vibrational frequencies.",
-        on = Option(help = "Whether to calculation vibrational frequencies.", default = False, type = bool),
+        on = Option(help = "Whether to calculate vibrational frequencies.", default = False, type = bool),
         options = Option(help = "Additional options to specify.", type = dict, default = {})
     )
     DFT_excited_states = Options(
