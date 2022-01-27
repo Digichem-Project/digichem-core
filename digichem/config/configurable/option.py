@@ -50,6 +50,13 @@ class Option():
         # By definition, Options that are required can have no default, so we'll delete this attribute.
         if self.required:
             del(self._default)
+            
+    @property
+    def num_child_options(self):
+        """
+        The number of child/sub options contained within this one. For 'normal' options, this is always 0.
+        """
+        return 0
     
     def default_validate(self, option, configurable, value):
         """

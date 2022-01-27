@@ -130,6 +130,13 @@ class Options(Option, Options_mixin):
             # Set ourselves as parent.
             kwargs[argname].add_parent(self)
             
+    @property
+    def num_child_options(self):
+        """
+        The number of child/sub options contained within this one. For 'normal' options, this is always 0.
+        """
+        return len(self.OPTIONS)
+            
     def add_parent(self, parent):
         """
         Add an owning parent Options object to this Option object.
