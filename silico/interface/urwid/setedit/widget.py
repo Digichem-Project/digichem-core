@@ -5,6 +5,7 @@ import urwid
 from silico.exception.base import Silico_exception
 from silico.interface.urwid.edit.popup import File_edit, Choices_edit
 from silico.interface.urwid.setedit.common import Setedit_widget_parent_mixin
+from silico.interface.urwid.layout import Pane
 
 
 class Min_edit(urwid.Edit):
@@ -514,6 +515,10 @@ class Dict_editor(List_editor):
                 val[key] = value
                 
         return val
+    
+    @value.setter
+    def value(self, value):
+        super(self.__class__, self.__class__).value.fset(self, value)
 
     def adjust(self):
         """
@@ -596,6 +601,38 @@ class Sub_setedit(Setedit_widget, Setedit_widget_parent_mixin):
         child_widgets = self.child_setedit_widgets
         for key, sub_value in value:
             child_widgets[key].value = sub_value
+
+      
+class Solo_sub_editor(Sub_setedit):
+    """
+    A widget for displaying a set of sub-options as the main editing item.
+    """
             
+    def load_widgets(self):
+        """
+        Load the list of inner widgets we'll use for display.
+        """
+        # Prepend a divider.
+        child_widgets = list(self.load_child_widgets(self.setedit.get_children()))
         
+        self.inner_pile = urwid.Pile(child_widgets)
+        
+#         return [
+#             ## Widget for our title.
+#             #urwid.Text((self.title_attr, self.setedit.title)),
+#             ## Help text.
+#             #self.get_help_widget(self.setedit.help),
+#             ## A divider.
+#             #urwid.Divider('-'),
+#             # Actual contents.
+#             self.inner_pile
+#         ]
+        return [
+            Pane(urwid.Pile([
+                self.get_help_widget(self.setedit.help),
+                urwid.Divider('-'),
+                self.inner_pile
+                ]),
+            self.setedit.title)
+        ] 
 
