@@ -6,7 +6,7 @@ import shlex
 from silico.interface.urwid.row_list.base import Row_item, Row_widget,\
     Row_browser
 from silico.interface.urwid.method.browser import Method_selector
-from silico.interface.urwid.submit.edit import Method_editor
+from silico.interface.urwid.method.edit import Method_editor
 import silico.logging
 
 
