@@ -29,7 +29,7 @@ class Silico_window(Window):
         self._interfaces = {}
         
         # Setup our window.
-        super().__init__(title = "Silico {}".format(silico.version))
+        super().__init__(title = "Silico {}".format(silico.version), help = "Arrow Keys: Navigate  TAB: Next: SHIFT-TAB  Previous  ENTER: Select  ESC: Back")
         
         # A widget which can be swapped to in order to change the main silico settings.
         #self.settings_pane = Pane(Configurable_browser(self.top, self.program.config, on_change_callback = self.update_settings), "Main Silico Settings")
