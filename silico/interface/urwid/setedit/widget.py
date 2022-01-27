@@ -536,7 +536,7 @@ class Dict_editor(List_editor):
             # Check again.
             self.adjust()
 
-
+# TOOD: Rename?
 class Sub_setedit(Setedit_widget, Setedit_widget_parent_mixin):
     """
     A Setedit object for editing sub options.
