@@ -12,22 +12,48 @@ class Pages(Tab_pile):
     A widget that can switch between a number of different pages.
     """
     
-    def __init__(self, pages, title = "Page Selector"):
+    def __init__(self, pages, title = "Page Selector ", max_width = 50):
         """
         
         :param title: The title to display.
-        :param pages: A list of pages to switch between, where each 'page' is a tuple of (title, widget).
+        :param pages: An (ordered) dict of pages to switch between, where each item is a page to switch between and each key is the title of the page.
         """
         self.title = title
         self.pages = pages
-        self.top = urwid.WidgetPlaceholder(pages[0][1])
+        # Set our first page as the one shown by default.
+        #self.top = urwid.WidgetPlaceholder(self.pages[list(self.pages.keys())[0]])
+        self.top = urwid.WidgetPlaceholder(None)
         
-        controls = urwid.Columns(self.get_controls(), dividechars = 1)
+        # Buttons to change page.
+        self.buttons = self.get_controls()
+        cols = self.calculate_min_cell_width(self.buttons, max_width)
+        
+        controls = urwid.GridFlow(self.buttons, cell_width = cols, h_sep = 1, v_sep = 0, align = "center")
         super().__init__([
             ("pack", Pane(controls, title = self.title)),
             self.top
         ])
         
+        self.switch_page(self.buttons[0].base_widget, self.buttons[0], list(self.pages.keys())[0])
+    
+    def calculate_min_cell_width(self, items, max_width):
+        """
+        """
+        # We need to work out how many columns to give each of our page buttons.
+        # We can do this by repeatedly calling rows() on each of the buttons until they all report that they only need a single row.
+        # This is probably v wasteful tho.
+        cols = 0
+        while cols < max_width:
+            cols += 1
+            too_small = False
+            for item in items:
+                if item.rows((cols,)) > 1:
+                    too_small = True
+                    break
+                
+            if not too_small: 
+                # If we get this far we can stop.
+                return cols
     
     def get_controls(self):
         """
@@ -37,20 +63,40 @@ class Pages(Tab_pile):
         """
         controls = []
         
-        for page_index, (page_title, widget) in enumerate(self.pages):
-            switch_button = urwid.Button(page_title, functools.partial(self.switch_page, index = page_index))
-            controls.append(urwid.AttrMap(switch_button, "button--small", "button--small--focus"))
+        for page_title, widget in self.pages.items():
+            placeholder = urwid.WidgetPlaceholder(None)
+            attrmap = urwid.AttrMap(placeholder, "button--small", "button--small--focus")
+            switch_button = urwid.Button(page_title, functools.partial(self.switch_page, title = page_title), attrmap)
+            placeholder.original_widget = switch_button
+            controls.append(attrmap)
             
         return controls
+    
+    def set_button_selected(self, button_attrmap):
+        """
+        Set one of the page selector buttons as selected.
+        
+        :parma button_attrmap: The selected 'button', wrapped by an attrmap.
+        """
+        # First, reset all buttons.
+        for button in self.buttons:
+            button.set_attr_map({None: 'button--small'})
+            button.set_focus_map({None: 'button--small--focus'})
+            
+        # Now set our button.
+        button_attrmap.set_attr_map({None: 'button--small--selected'})
+        button_attrmap.set_focus_map({None: 'button--small--selected--focus'})
         
         
-    def switch_page(self, button, index):
+    def switch_page(self, button, attrmap, title):
         """
         Switch the currently visibly page.
         
         :param index: The index of the page to switch to.
         """
-        self.top.original_widget = self.pages[index][1]
+        self.top.original_widget = self.pages[title]
+        # Change the attr
+        self.set_button_selected(attrmap)
         
     
         
