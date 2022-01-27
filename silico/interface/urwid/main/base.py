@@ -5,8 +5,10 @@ import io
 
 # Silico import.
 import silico
-from silico.interface.urwid.setedit.configurable import Configurable_browser
-from silico.interface.urwid.layout import Window, Pane
+from silico.interface.urwid.setedit.configurable import Configurable_browser,\
+    Options_solo_setedit
+from silico.interface.urwid.layout import Window, Pane, Sub_pane
+from silico.interface.urwid.setedit.base import Paginated_settings_browser
 
 
 class Silico_window(Window):
@@ -83,7 +85,7 @@ class Silico_window(Window):
         """
         program_buttons = [self.program_button(prog_cls) for prog_cls in self.program.program_classes]
         # Add a settings button.
-        program_buttons.append(self.get_option_widget("Settings", lambda button: self.top.swap_into_window(self.settings_pane, cancel_callback = self.settings_pane.base_widget.discard, submit_callback = self.settings_pane.base_widget._save)))
+        program_buttons.append(self.get_option_widget("Settings", lambda button: self.top.swap_into_window(self.settings_pane, cancel_callback = self.settings_pane.base_widget.discard, submit_callback = self.settings_pane.base_widget.confirm_callback)))
         # And an exit button.
         program_buttons.append(self.get_option_widget("Quit", lambda button: self.top.back()))
         
