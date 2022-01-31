@@ -8,6 +8,7 @@ from silico.interface.urwid.setedit.base import Setedit_browser, Setedit,\
     Paginated_settings_browser
 from silico.exception.base import Silico_exception
 from silico.interface.urwid.setedit.widget import Solo_sub_editor
+from silico.interface.urwid.layout import Pane
 
 
 class Option_setedit(Setedit):
@@ -204,9 +205,40 @@ class Configurable_browser(Setedit_browser):
             child_widget.setedit.confirm()
 
 
-# class Paginated_configurable_browser(Paginated_settings_browser):
-#     """
-#     A settings browser which displays one page for each sub
-#     """
+def make_paginated_configurable_browser(configurable, top, general_page_name = "general", on_change_callback = None, page_selector_title = None):
+    """
+    Create a paginated setting browser that has one page for each sub_option of a confiugrable object, plus one additional page for all top-level options.
+    
+    :param configurable: A configurable to create a settings browser for.
+    :param top: A top-level widget to use for switching the current widget.
+    :param general_page_name: The name to use for the general settings page where top-level settings are located.
+    :param on_change_callback: A function to call when settings are changed.
+    :param page_selector_title: The title to use for the widget which allows changing page.
+    """
+    # First, split our options based on those that do and do not have children.
+    options_without_children = []
+    options_with_children = []
+
+    for name, option in configurable.OPTIONS.items():
+        if not option.no_edit:
+            # Split based on children.
+            if option.num_child_options == 0:
+                options_without_children.append(option)
+            
+            else:
+                options_with_children.append((name, option))
+    
+    
+    # Next, make a page for top-level (no children) settings.
+    pages = {general_page_name: Pane(Configurable_browser([Option_setedit(top, configurable, configurable._configurable_options, option) for option in options_without_children], configurable), general_page_name)}
+    
+    # Next, add one page for each sub_option.
+    pages.update({name: Pane(Configurable_browser([Options_solo_setedit(top, configurable, configurable._configurable_options, option)], configurable), name) for name, option in options_with_children})
+    
+    # TOOD: Here
+    browser = Paginated_settings_browser(pages, on_change_callback = on_change_callback, title = page_selector_title)
+    
+    # Done.
+    return browser
         
         

@@ -9,6 +9,7 @@ from silico.interface.urwid.setedit.widget import Setedit_widget
 from silico.interface.urwid.setedit.common import Setedit_widget_parent_mixin
 from silico.interface.urwid.pages import Pages
 from silico.logging.base import get_logger
+from silico.interface.urwid.layout import Pane
 
 
 class Setedit():
@@ -210,8 +211,3 @@ class Paginated_settings_browser(Pages):
         """
         for page in self.pages.values():
             page.base_widget.discard()
-    
-    
-    
-    
-    
