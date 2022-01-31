@@ -27,7 +27,7 @@ class Silico_options(Configurable):
         vmd = Option(help = "VMD (Visual Molecular Dynamics), used for rendering molecules https://www.ks.uiuc.edu/Research/vmd/", default = "vmd"),
         tachyon = Option(help = "The tachyon ray-tracing library, performs the actual rendering. Tachyon is typically packaged with VMD, but often isn't added to the path automatically", default = "tachyon")
     )
-    
+    # TODO: Do we really need an entire set of sub-settings for one option?
     image = Options(
         help = "Image manipulation options.",
         dont_modify = Option(help = "Set to True to disable image rendering.", type = bool, default = False)
