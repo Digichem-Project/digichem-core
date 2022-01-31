@@ -34,7 +34,7 @@ class Swappable(urwid.WidgetWrap, Configurable):
         """
         A method to call when this Swappable's submit button is pressed.
         """
-        raise NotImplementedError("This view does not have a default submit() defined.")
+        raise NotImplementedError("This Swappable object does not have a default submit() defined.")
     
     @property
     def has_settings(self):
