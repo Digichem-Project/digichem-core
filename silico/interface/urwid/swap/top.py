@@ -5,7 +5,6 @@ import urwid
 from silico.interface.urwid.dialogue import Output_dialogue
 from silico.interface.urwid.wrapper import Confirm_settings_cancel,\
     Confirm_or_cancel, Confirm
-from silico.interface.urwid.setedit.swappable import Swappable_browser
 from silico.interface.urwid.swap.swappable import Swappable
 from silico.interface.urwid.layout import Pane
 from silico.interface.urwid.setedit.configurable import Configurable_browser
