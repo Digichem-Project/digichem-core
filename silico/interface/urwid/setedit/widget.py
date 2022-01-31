@@ -628,11 +628,8 @@ class Solo_sub_editor(Sub_setedit):
 #             self.inner_pile
 #         ]
         return [
-            Pane(urwid.Pile([
-                self.get_help_widget(self.setedit.help),
-                urwid.Divider('-'),
-                self.inner_pile
-                ]),
-            self.setedit.title)
+            self.get_help_widget(self.setedit.help),
+            urwid.Divider('-'),
+            self.inner_pile
         ] 
 
