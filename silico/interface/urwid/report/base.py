@@ -10,6 +10,7 @@ from silico.interface.urwid.misc import Tab_pile
 from silico.interface.urwid.main.program import Program_view
 from silico.interface.urwid.edit.popup import Output_edit
 from silico.interface.urwid.layout import Pane
+from silico.interface.urwid.setedit.configurable import make_settings_page_from_configurable_option
 
 
 class Report_interface(Program_view):
@@ -19,6 +20,23 @@ class Report_interface(Program_view):
     
     name = Option(help = "Name of the molecule/system to use in the report.", type = str)
     report_type = Option(help = "The type of report to render.", type = str, choices = ["full", "atoms"])
+    
+    @property
+    def additional_option_pages(self):
+        """
+        A dict of additional 'pages' of options to edit.
+        """
+        options = self.program.config.OPTIONS
+        return dict([
+            make_settings_page_from_configurable_option(self.window.top, self.program.config, self.program.config._configurable_options, options['absorption_spectrum']),
+            make_settings_page_from_configurable_option(self.window.top, self.program.config, self.program.config._configurable_options, options['emission_spectrum']),
+            make_settings_page_from_configurable_option(self.window.top, self.program.config, self.program.config._configurable_options, options['excited_states_diagram']),
+            make_settings_page_from_configurable_option(self.window.top, self.program.config, self.program.config._configurable_options, options['image']),
+            make_settings_page_from_configurable_option(self.window.top, self.program.config, self.program.config._configurable_options, options['IR_spectrum']),
+            make_settings_page_from_configurable_option(self.window.top, self.program.config, self.program.config._configurable_options, options['molecule_image']),
+            make_settings_page_from_configurable_option(self.window.top, self.program.config, self.program.config._configurable_options, options['orbital_diagram']),
+            make_settings_page_from_configurable_option(self.window.top, self.program.config, self.program.config._configurable_options, options['report'])
+        ])
     
     
     def __init__(self, window, program):
