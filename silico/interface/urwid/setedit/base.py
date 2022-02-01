@@ -34,6 +34,13 @@ class Setedit():
         self.choices = choices
         self._widget = None
         
+    def refresh(self):
+        """
+        Refresh the current edit value of the edit widgets of this setedit (in case the underlying has changed).
+        """
+        # Do nothing.
+        pass
+        
     def confirm(self):
         """
         Confirm the changes made to this Setedit, so that future rollbacks will return to the current value.
@@ -132,6 +139,13 @@ class Setedit_browser(urwid.ListBox, Setedit_widget_parent_mixin):
         This must be defined by the inheriting class because it depends on the type of the inheriting class, for example self.body for listboxes.
         """
         return self.body
+    
+    def refresh(self):
+        """
+        Refresh the current edit value of each of the child widgets of this browser (in case the underlying value has changed).
+        """
+        # Do nothing for normal browsers.
+        pass
             
     def save(self):
         """
@@ -184,6 +198,12 @@ class Paginated_settings_browser(Pages):
         except Exception:
             get_logger().error("Failed to save changes", exc_info = True)
             return False
+        
+    def refresh(self):
+        """
+        """
+        for page in self.pages.values():
+            page.base_widget.refresh()
     
     def save(self):
         """

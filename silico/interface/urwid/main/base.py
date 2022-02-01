@@ -83,11 +83,19 @@ class Silico_window(Window):
         """
         program_buttons = [self.program_button(prog_cls) for prog_cls in self.program.program_classes]
         # Add a settings button.
-        program_buttons.append(self.get_option_widget("Settings", lambda button: self.top.swap_into_window(self.settings_pane, cancel_callback = self.settings_pane.base_widget.discard, submit_callback = self.settings_pane.base_widget.confirm_callback)))
+        program_buttons.append(self.get_option_widget("Settings", lambda button: self.swap_to_main_settings()))
         # And an exit button.
         program_buttons.append(self.get_option_widget("Quit", lambda button: self.top.back()))
         
         return program_buttons
+    
+    def swap_to_main_settings(self):
+        """
+        Swap to the settings editor widget.
+        """
+        # TODO: Calling refresh should really happen elsewhere (mostly because it's easy to forget if its the job of the swapping widget to refresh).
+        self.settings_pane.base_widget.refresh()
+        self.top.swap_into_window(self.settings_pane, cancel_callback = self.settings_pane.base_widget.discard, submit_callback = self.settings_pane.base_widget.confirm_callback)
         
     def get_option_widget(self, name, callback):
         """

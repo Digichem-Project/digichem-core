@@ -36,6 +36,13 @@ class Option_setedit(Setedit):
         # This is the last value we saved, if we're asked to reset we'll roll back to this.
         self.previous_value = self.option.get_from_dict(self.owning_obj, self.dict_obj)
         
+    def refresh(self):
+        """
+        Refresh the current edit value of the edit widgets of this setedit (in case the underlying configurable option value has changed).
+        """
+        self.previous_value = self.option.get_from_dict(self.owning_obj, self.dict_obj)
+        self.get_widget().discard()
+        
     @property
     def default_value(self):
         """
@@ -90,6 +97,13 @@ class Options_setedit(Option_setedit):
     def __init__(self, top, owning_obj, dict_obj, option):
         super().__init__(top, owning_obj, dict_obj, option)
         self._children = None
+        
+    def refresh(self):
+        """
+        Refresh the current edit value of the edit widgets of this setedit (in case the underlying configurable option value has changed).
+        """
+        for child in self.get_children():
+            child.refresh()
         
     def confirm(self):
         """
@@ -181,9 +195,18 @@ class Configurable_browser(Setedit_browser):
         setedits = [Option_setedit.from_configurable_option(top, configurable, option) for option in configurable.OPTIONS.values() if option.no_edit is False]
         return self(setedits, configurable, on_change_callback = on_change_callback)
         
-    def save(self):
+    def refresh(self):
+        """
+        Refresh the current edit value of each of the child widgets of this browser (in case the underlying configurable option value has changed).
+        """
+        for child_widget in self.child_setedit_widgets.values():
+            child_widget.setedit.refresh()
+
+    def save(self, validate = True):
         """
         Update the configurable we are editing with the current values.
+        
+        :param validate: Whether to validate the changes made.
         """
         options = self.configurable.OPTIONS
         child_widgets = list(self.child_setedit_widgets.values())
