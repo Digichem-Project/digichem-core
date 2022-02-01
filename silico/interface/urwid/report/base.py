@@ -19,7 +19,7 @@ class Report_interface(Program_view):
     """
     
     name = Option(help = "Name of the molecule/system to use in the report.", type = str)
-    report_type = Option(help = "The type of report to render.", type = str, choices = ["full", "atoms"])
+    report_type = Option(help = "The type of report to render.", type = str, choices = ["full", "atoms"], default = "full")
     
     @property
     def additional_option_pages(self):
