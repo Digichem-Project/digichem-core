@@ -317,7 +317,6 @@ def make_paginated_configurable_browser(configurable, top, general_page_name = "
     # Next, add one page for each sub_option.
     pages.update({name: Pane(Configurable_browser([Options_solo_setedit(top, configurable, configurable._configurable_options, option)], top, configurable), name) for name, option in options_with_children})
     
-    # TOOD: Here
     browser = Paginated_settings_browser(pages, on_change_callback = on_change_callback, title = page_selector_title)
     
     # Done.
