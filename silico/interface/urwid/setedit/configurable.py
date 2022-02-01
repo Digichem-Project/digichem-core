@@ -214,7 +214,18 @@ class Configurable_browser(Setedit_browser):
         for child_widget in child_widgets:
             value = child_widget.value
             options[child_widget.setedit.title].__set__(self.configurable, value)
+            
+        if validate:
+            self.validate()
         
+            
+    def validate(self):
+        """
+        Check the currently set values of our configurable are valid.
+        
+        Note that this function validates all configurable options of the configurable; not just the ones that have been changed by this editor.
+        """
+        child_widgets = list(self.child_setedit_widgets.values())
         # Check the values we just set are allowed.
         try:
             self.configurable.validate()

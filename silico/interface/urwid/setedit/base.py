@@ -147,9 +147,11 @@ class Setedit_browser(urwid.ListBox, Setedit_widget_parent_mixin):
         # Do nothing for normal browsers.
         pass
             
-    def save(self):
+    def save(self, validate = True):
         """
         Save the changes made.
+        
+        :param validate: Whether to validate the changes made; currently has no effect.
         """
         for child_widget in self.child_setedit_widgets.values():
             child_widget.setedit.confirm()
@@ -205,9 +207,11 @@ class Paginated_settings_browser(Pages):
         for page in self.pages.values():
             page.base_widget.refresh()
     
-    def save(self):
+    def save(self, validate = True):
         """
         Save any changes made.
+        
+        :param validate: Whether to validate the changes made.
         """
         # Save each of the individual browsers that we encapsulate.
         for page in self.pages.values():
@@ -230,3 +234,5 @@ class Paginated_settings_browser(Pages):
         """
         for page in self.pages.values():
             page.base_widget.discard()
+            
+        self.save(False)
