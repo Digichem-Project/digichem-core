@@ -91,7 +91,7 @@ class Program():
         
         For most programs, we parse this from config files, but some programs do other more weird stuff (see resume).
         """
-        return Config_file_parser.silico_options()
+        return Config_file_parser.silico_options(extra_config_files = args.config_files, extra_config_strings = args.setting)
     
     @classmethod
     def subprocess_init(self):
@@ -209,7 +209,7 @@ class Program():
         group.add_argument("-I", "--interactive", help = "Run this command interactively", action = 'store_true')
         group.add_argument("-V", "--verbose", help = "increase verbosity, stack with itself to further increase verbosity (this option overrides log_level)",  action='count', default = None)
         group.add_argument("--log_level", choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL', 'OFF'], help = "the level of messages to print", default = None)
-        group.add_argument("-S", "--setting", help = "set a config option to a value. Options of this type are parsed as if they were a config file (in yaml format) and are then used to set corresponding options, eg -S \"absorption_graph: {fwhm: 100}\"", nargs = "*", default = [], action = "append")
+        group.add_argument("-S", "--setting", help = "set a config option to a value. Options of this type are parsed as if they were a config file (in yaml format) and are then used to set corresponding options, eg -S \"absorption_graph: {fwhm: 100}\"", nargs = "*", default = [], action = "extend")
         group.add_argument("--config_files", help = "an additional config file to read from. See the master config file for possible config options. Note that the master config file (at silico/data/config/silico.yaml) and user config file (at ~/.config/silico/silico.yaml) are always read automatically and do not need to be specified here. Multiple files may be given and will be processed in the order specified (the last having highest priority)", nargs = "*", default = [])
         return standard_args
     
@@ -227,22 +227,6 @@ class Program():
             
         if args.verbose is not None:
             config['logging']['verbose'] = args.verbose
-        
-        # We will also process any additional config files given on the command line, and add them in order.
-        for config_file_name in args.config_files:
-            # Load the file and merge.
-            config.merge(Config_file_parser(config_file_name).load())
-            
-        # Finally, we set any config options.
-        # We do this last so that they'll have highest priority.
-        # We read each individually because otherwise options that have been set twice won't merge properly (the yaml parser will overwrite the older).
-        for config_file in itertools.chain(*args.setting):
-            # Now we'll parse it as YAML.
-            try:
-                config.merge(Config_parser(config_file).load())
-                
-            except Exception:
-                raise Silico_exception("failed to parse command-line config options")
             
         # All done.
     

@@ -99,7 +99,7 @@ class Config_file_parser(Config_parser):
                 raise
     
     @classmethod
-    def silico_options(self):
+    def silico_options(self, extra_config_files = None, extra_config_strings = None):
         """
         Load all Silico config files.
         
@@ -109,6 +109,12 @@ class Config_file_parser(Config_parser):
         
         :return: A Silico_options object (a fancy dict).
         """
+        if extra_config_files is None:
+            extra_config_files = []
+            
+        if extra_config_strings is None:
+            extra_config_strings = []
+        
         # First, we always load the 'master' (located in the silico install directory).
         config = self(master_config_path).load(True)
         
@@ -116,6 +122,14 @@ class Config_file_parser(Config_parser):
         config.merge(self(system_config_location).load(True))
         # Finally the user specific (located at ~/.config/silico)
         config.merge(self(user_config_location).load(True))
+        
+        # Now load any additional config files.
+        for extra_config_file in extra_config_files:
+            config.merge(self(extra_config_file).load())
+            
+        # Then load any additional config strings.
+        for extra_config_string in extra_config_strings:
+            config.merge(Config_parser(extra_config_string).load())
         
         # Get a merged version.
         options = Silico_options(**config)
