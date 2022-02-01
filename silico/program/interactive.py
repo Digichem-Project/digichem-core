@@ -38,7 +38,7 @@ class Interactive_program(Program):
         self._programs = {type(initial): initial}
         
         # All the programs we can switch between.
-        self.program_classes = [Submit_program, Report_program, Result_program, Status_program, Convert_program]
+        self.program_classes = [Submit_program, Report_program, Result_program, Convert_program, Status_program]
 
     def get_program(self, prog_cls):
         """

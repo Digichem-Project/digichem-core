@@ -7,6 +7,7 @@ import io
 import silico
 from silico.interface.urwid.setedit.configurable import make_paginated_configurable_browser
 from silico.interface.urwid.layout import Window, Pane, Sub_pane
+from silico.program.status import Status_program
 
 
 class Silico_window(Window):
@@ -81,7 +82,10 @@ class Silico_window(Window):
         
         :returns: A list of widgets.
         """
-        program_buttons = [self.program_button(prog_cls) for prog_cls in self.program.program_classes]
+        program_buttons = [self.program_button(prog_cls) for prog_cls in self.program.program_classes if prog_cls is not Status_program]
+        # Add a status button.
+        # TODO: Should add a smarter interface for the status program.
+        program_buttons.append(self.get_option_widget("Status: Check queue status", lambda button: self.program.get_program(Status_program).main()))
         # Add a settings button.
         program_buttons.append(self.get_option_widget("Settings", lambda button: self.swap_to_main_settings()))
         # And an exit button.
