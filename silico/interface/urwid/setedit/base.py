@@ -198,6 +198,9 @@ class Paginated_settings_browser(Pages):
         try:
             self.save()
         
+            if self.on_change_callback is not None:
+                self.on_change_callback()
+        
         except Exception:
             get_logger().error("Failed to save changes", exc_info = True)
             return False
@@ -224,8 +227,11 @@ class Paginated_settings_browser(Pages):
         # Change back to the original page.
         self.switch_page(current_page)
             
-        if self.on_change_callback is not None:
-            self.on_change_callback()
+    def validate(self):
+        """
+        """
+        for name, page in self.pages.items():
+            page.base_widget.validate()
     
     def discard(self):
         """
@@ -235,3 +241,6 @@ class Paginated_settings_browser(Pages):
             page.base_widget.discard()
             
         self.save(False)
+        self.validate()
+        if self.on_change_callback is not None:
+            self.on_change_callback()
