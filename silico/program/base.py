@@ -3,13 +3,11 @@ import argparse
 import logging
 import numpy
 import signal
-import itertools
 
 # Silico imports.
 from silico.exception.uncatchable import Signal_caught
-from silico.config.file.parser import Config_file_parser, Config_parser
+from silico.config.file.parser import Config_file_parser
 import silico.result.angle
-from silico.exception.base import Silico_exception
 import silico.logging
 from silico.logging.base import set_logging_level
 
