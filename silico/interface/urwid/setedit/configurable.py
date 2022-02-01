@@ -58,25 +58,12 @@ class Option_setedit(Setedit):
         self.previous_value = self.option.get_from_dict(self.owning_obj, self.dict_obj)
         self.get_widget().discard()
         
-    @property
-    def default_value(self):
-        """
-        The default value of this setedit. If an equivalent value is given by the user it will not be saved, instead the true default will be used.
-        """
-        # This can raise an attribute error.
-        return self.option.default(self.owning_obj)
-        
     def confirm(self):
         """
         Confirm the changes made to this Setedit, so that future rollbacks will return to the current value.
         """
         # First update the value of our widget from the value of the configurable option (because it could have changed, for example from type conversion etc).
-        try:
-            self.get_widget().value = self.option.get_from_dict(self.owning_obj, self.dict_obj)
-        except Exception:
-            print("\n" + self.title + "\n")
-            print("\n" + str(self.get_widget()) + "\n")
-            raise
+        self.get_widget().value = self.option.get_from_dict(self.owning_obj, self.dict_obj)
         super().confirm()
     
     def get_children(self, reload = False):
@@ -226,8 +213,6 @@ class Configurable_browser(Setedit_browser):
         """
         for widget in self.child_setedit_widgets.values():
             widget.setedit.reset()
-            #widget.setedit.option.set_default(widget.setedit.owning_obj, widget.setedit.dict_obj)
-            #widget.setedit.refresh()
         
     @classmethod
     def from_configurable(self, top, configurable, on_change_callback = None):
