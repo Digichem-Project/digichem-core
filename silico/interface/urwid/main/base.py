@@ -27,7 +27,7 @@ class Silico_window(Window):
         self._interfaces = {}
         
         # Setup our window.
-        super().__init__(title = "Silico {}".format(silico.version), help = "Arrow Keys: Navigate  TAB: Next: SHIFT-TAB  Previous  ENTER: Select  ESC: Back")
+        super().__init__(title = "Silico {}".format(silico.version), help = "Arrow Keys: Navigate  TAB: Next: SHIFT-TAB: Previous  ENTER: Select  ESC: Back")
         
         # A widget which can be swapped to in order to change the main silico settings.        
         self.settings_pane = Sub_pane(make_paginated_configurable_browser(self.program.config, self.top, on_change_callback = self.update_settings, page_selector_title = "Settings Type"), "Main Silico Settings")
