@@ -178,7 +178,7 @@ class Output_dialogue(Confirm, Dialogue_mixin):
         self.max_length = max_length
         self.list = urwid.ListBox(urwid.SimpleListWalker([]))
         
-        Dialogue_mixin.setup(self, "Progarm Output", self.list, error = False)
+        Dialogue_mixin.setup(self, "Program Output", self.list, error = False)
         super().__init__(self.get_body(), top)
 
     def back(self, *args, **kwargs):
