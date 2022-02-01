@@ -28,7 +28,7 @@ class VMD_image_maker(File_converter):
     # The filename extension to use for molecule scene files produced by vmd.
     scene_file_extension = ".scene"
     # 'Path' to the vmd executable.
-    #vmd_execuable = "vmd"
+    #vmd_executable = "vmd"
     # 'Path' to the tachyon executable.
     #tachyon_executable = "tachyon"
     # The initial resolution at which an image is rendered. This test image will then be discarded once relevant info has been extracted.
@@ -43,7 +43,7 @@ class VMD_image_maker(File_converter):
     options_name = "orbital"
     
     def __init__(self, *args, cube_file = None, rotations = None, auto_crop = True, rendering_style = "pastel", resolution = 1024, also_make_png = True, isovalue = 0.2, 
-                 vmd_execuable = "vmd", tachyon_executable = "tachyon",
+                 vmd_executable = "vmd", tachyon_executable = "tachyon",
                  **kwargs):
         """
         Constructor for Image_maker objects.
@@ -75,7 +75,7 @@ class VMD_image_maker(File_converter):
         self.isovalue = isovalue
         
         # Save executable paths.
-        self.vmd_execuable = vmd_execuable
+        self.vmd_executable = vmd_executable
         self.tachyon_executable = tachyon_executable
         
         
@@ -276,7 +276,7 @@ class VMD_image_maker(File_converter):
                 #check = True
             )
         except FileNotFoundError:
-            raise File_maker_exception(self, "Could not locate vmd executable '{}'".format(self.vmd_execuable))
+            raise File_maker_exception(self, "Could not locate vmd executable '{}'".format(self.vmd_executable))
         
     def run_tachyon_renderer(self, scene_file, tga_file, resolution):
         """
@@ -373,7 +373,7 @@ class Structure_image_maker(VMD_image_maker):
         The arguments which we'll pass to VMD, inheriting classes can implement this method if they have a different VMD call signature.
         """
         return [
-                "{}".format(self.vmd_execuable),
+                "{}".format(self.vmd_executable),
                 "-dispdev", "none",
                 "-e", "{}".format(self.vmd_script_path),
                 "-args",
@@ -402,7 +402,7 @@ class Orbital_image_maker(Structure_image_maker):
         The arguments which we'll pass to VMD, inheriting classes can implement this method if they have a different VMD call signature.
         """
         return [
-                "{}".format(self.vmd_execuable),
+                "{}".format(self.vmd_executable),
                 "-dispdev", "none",
                 "-e", "{}".format(self.vmd_script_path),
                 "-args",
@@ -445,7 +445,7 @@ class Spin_density_image_maker(Orbital_image_maker):
         The arguments which we'll pass to VMD, inheriting classes can implement this method if they have a different VMD call signature.
         """
         return [
-                "{}".format(self.vmd_execuable),
+                "{}".format(self.vmd_executable),
                 "-dispdev", "none",
                 "-e", "{}".format(self.vmd_script_path),
                 "-args",
@@ -502,7 +502,7 @@ class Density_image_maker(Orbital_image_maker):
         The arguments which we'll pass to VMD, inheriting classes can implement this method if they have a different VMD call signature.
         """
         return [
-                "{}".format(self.vmd_execuable),
+                "{}".format(self.vmd_executable),
                 "-dispdev", "none",
                 "-e", "{}".format(self.vmd_script_path),
                 "-args",
@@ -579,7 +579,7 @@ class Combined_orbital_image_maker(VMD_image_maker):
         The arguments which we'll pass to VMD, inheriting classes can implement this method if they have a different VMD call signature.
         """
         return [
-            "{}".format(self.vmd_execuable),
+            "{}".format(self.vmd_executable),
             "-dispdev", "none",
             "-e", "{}".format(self.vmd_script_path),
             "-args",
@@ -654,7 +654,7 @@ class Dipole_image_maker(Structure_image_maker):
         The arguments which we'll pass to VMD, inheriting classes can implement this method if they have a different VMD call signature.
         """
         return [
-            "{}".format(self.vmd_execuable),
+            "{}".format(self.vmd_executable),
             "-dispdev", "none",
             "-e", "{}".format(self.vmd_script_path),
             "-args",
