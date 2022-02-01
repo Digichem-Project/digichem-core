@@ -205,9 +205,12 @@ class Configurable_browser(Setedit_browser):
             child_widget.setedit.confirm()
 
 
+#########################
+# Convenience functions #
+#########################
 def make_paginated_configurable_browser(configurable, top, general_page_name = "general", on_change_callback = None, page_selector_title = None):
     """
-    Create a paginated setting browser that has one page for each sub_option of a confiugrable object, plus one additional page for all top-level options.
+    Create a paginated setting browser that has one page for each sub_option of a configurable object, plus one additional page for all top-level options.
     
     :param configurable: A configurable to create a settings browser for.
     :param top: A top-level widget to use for switching the current widget.
@@ -240,5 +243,18 @@ def make_paginated_configurable_browser(configurable, top, general_page_name = "
     
     # Done.
     return browser
+
+
+def make_settings_page_from_configurable_option(top, configurable, configurable_options, option):
+    """
+    Create a single page that might be used in a paginated_configurable_browser to edit the settings of an option from a configurable.
+    
+    :param top: A top-level widget to use for switching the current widget.
+    :param configurable: The configurable that contains the option.
+    :param configurable_options: The dict where the value of option is stored.
+    :param option: The configurable option to edit.
+    :returns: A tuple of (name, page).
+    """
+    return (option.name, Pane(Configurable_browser([Options_solo_setedit(top, configurable, configurable_options, option)], configurable), option.name))
         
         
