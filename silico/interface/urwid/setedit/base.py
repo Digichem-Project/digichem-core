@@ -194,7 +194,6 @@ class Paginated_settings_browser(Pages):
         Method called when settings have been changed.
         """
         try:
-            # TODO: Need to be smarter about this, at the very least we should swap to the page where the bad option is.
             self.save()
         
         except Exception:
@@ -214,19 +213,17 @@ class Paginated_settings_browser(Pages):
         :param validate: Whether to validate the changes made.
         """
         # Save each of the individual browsers that we encapsulate.
-        for page in self.pages.values():
-            page.base_widget.save()
+        # As we validate, we'll change the page so that if a validation fails, we're likely to end on the correct page.
+        current_page = self.current_page 
+        for name, page in self.pages.items():
+            self.switch_page(name)
+            page.base_widget.save(validate)
             
-        self.validate()
-        self.on_change_callback()
+        # Change back to the original page.
+        self.switch_page(current_page)
             
-    def validate(self):
-        """
-        Validate any recent changes made.
-        
-        If any of the changes are invalid, an exception will be raised.
-        """
-        # This default implementation does nothing.
+        if self.on_change_callback is not None:
+            self.on_change_callback()
     
     def discard(self):
         """
