@@ -5,7 +5,6 @@ import urwid
 from silico.exception.base import Silico_exception
 from silico.interface.urwid.edit.popup import File_edit, Choices_edit
 from silico.interface.urwid.setedit.common import Setedit_widget_parent_mixin
-from silico.interface.urwid.layout import Pane
 
 
 class Min_edit(urwid.Edit):

@@ -3,7 +3,6 @@
 # General imports.
 
 # Silico imports.
-import silico.logging
 from silico.interface.urwid.setedit.base import Setedit_browser, Setedit,\
     Paginated_settings_browser
 from silico.exception.base import Silico_exception
