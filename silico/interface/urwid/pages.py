@@ -34,7 +34,7 @@ class Pages(Tab_pile):
             self.top
         ])
         
-        self.switch_page(self.buttons[0].base_widget, self.buttons[0], list(self.pages.keys())[0])
+        self.switch_page(list(self.pages.keys())[0])
     
     def calculate_min_cell_width(self, items, max_width):
         """
@@ -63,10 +63,13 @@ class Pages(Tab_pile):
         """
         controls = []
         
+        def button_callback(button, title):
+            self.switch_page(title)
+        
         for page_title, widget in self.pages.items():
             placeholder = urwid.WidgetPlaceholder(None)
             attrmap = urwid.AttrMap(placeholder, "button--small", "button--small--focus")
-            switch_button = urwid.Button(page_title, functools.partial(self.switch_page, title = page_title), attrmap)
+            switch_button = urwid.Button(page_title, functools.partial(button_callback, title = page_title))
             placeholder.original_widget = switch_button
             controls.append(attrmap)
             
@@ -87,16 +90,15 @@ class Pages(Tab_pile):
         button_attrmap.set_attr_map({None: 'button--small--selected'})
         button_attrmap.set_focus_map({None: 'button--small--selected--focus'})
         
-        
-    def switch_page(self, button, attrmap, title):
+    def switch_page(self, title):
         """
         Switch the currently visibly page.
         
-        :param index: The index of the page to switch to.
+        :param title: The title of the page to switch to.
         """
         self.top.original_widget = self.pages[title]
         # Change the attr
-        self.set_button_selected(attrmap)
+        self.set_button_selected(self.buttons[list(self.pages).index(title)])
         
     
         
