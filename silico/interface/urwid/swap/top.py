@@ -6,8 +6,9 @@ from silico.interface.urwid.dialogue import Output_dialogue
 from silico.interface.urwid.wrapper import Confirm_settings_cancel,\
     Confirm_or_cancel, Confirm
 from silico.interface.urwid.swap.swappable import Swappable
-from silico.interface.urwid.layout import Pane
+from silico.interface.urwid.layout import Pane, Sub_pane
 from silico.interface.urwid.setedit.configurable import Configurable_browser
+from silico.interface.urwid.setedit.base import Paginated_settings_browser
 
 
 class Top(urwid.WidgetPlaceholder):
@@ -98,6 +99,41 @@ class Top(urwid.WidgetPlaceholder):
         # Update.
         self.update_view()
         
+    def get_settings_pane(self, swappable_widget):
+        """
+        Create a widget that can be used to change the  settings of a swappable widget.
+        
+        :param swappable_widget: The widget to create the new widget for.
+        """
+        additional_options = swappable_widget.additional_option_pages
+        # The overall title for use for the settings widget.
+        settings_title = "Settings for {}".format(swappable_widget.title)
+        
+        # First, get normal options from the widget (if there are any).
+        if swappable_widget.has_settings:
+            # The title to use depends on whether there are additional options or not.
+            title = settings_title if len(additional_options) == 0 else "general"
+            widget_options = Pane(Configurable_browser.from_configurable(swappable_widget.top, swappable_widget, swappable_widget.on_settings_change), title)
+        
+        else:
+            widget_options = None
+        
+        settings_pane = widget_options
+        if len(additional_options) > 0:
+            # We have some extra stuff to add.
+            # The first page will be the widget's own options.
+            pages = {'general': widget_options}
+            
+            # Then add the additional ones.
+            pages.update(additional_options)
+            
+            # Our settings_pane will now be paginated.
+            settings_pane = Sub_pane(Paginated_settings_browser(pages, "Settings Type"), settings_title)
+            
+        # Done.
+        return settings_pane
+            
+        
     def wrap_with_controls(self, original_widget, cancel_callback = None, submit_callback = None):
         """
         Wrap a widget with controls (buttons).
@@ -117,7 +153,7 @@ class Top(urwid.WidgetPlaceholder):
         # If we have options, use a Confirm_settings_cancel.
         if isinstance(original_widget, Swappable) and original_widget.has_settings:
             # Get a widget we can use to edit the settings of the main widget; we can't ask the Swappable class to do this because of circular import nonsense (some of the edit widgets are themselves Swappable).
-            settings_pane = Pane(Configurable_browser.from_configurable(original_widget.top, original_widget, original_widget.on_settings_change), "Settings")
+            settings_pane = self.get_settings_pane(original_widget)
             window = Confirm_settings_cancel(original_widget, top = self, settings_widget = settings_pane, cancel_callback = cancel_callback, submit_callback = submit_callback)
             
         elif submit_callback is not None:

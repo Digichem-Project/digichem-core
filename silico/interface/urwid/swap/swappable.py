@@ -43,6 +43,13 @@ class Swappable(urwid.WidgetWrap, Configurable):
         """
         return len(self.OPTIONS) != 0
     
+    @property
+    def additional_option_pages(self):
+        """
+        A dict of additional 'pages' of options to edit.
+        """
+        return {}
+    
     def on_settings_change(self):
         """
         A method that will be called when settings have been changed.
