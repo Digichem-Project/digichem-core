@@ -89,6 +89,14 @@ class Pages(Tab_pile):
         # Now set our button.
         button_attrmap.set_attr_map({None: 'button--small--selected'})
         button_attrmap.set_focus_map({None: 'button--small--selected--focus'})
+    
+    @property
+    def current_page(self):
+        """
+        Get the title of the page that is currently visible.
+        """
+        page_index = list(self.pages.values()).index(self.top.original_widget)
+        return list(self.pages.keys())[page_index]
         
     def switch_page(self, title):
         """
