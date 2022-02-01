@@ -21,7 +21,7 @@ class Result_interface(Program_view):
     Class for controlling interface to result program.
     """
     
-    stop_on_missing = Option(help = "Stop on missing properties rather than ignoring them.", type = bool)
+    stop_on_missing = Option(help = "Stop on missing properties rather than ignoring them.", type = bool, default = False)
     
     formats = {
         "text": Text_summary_group_format,
