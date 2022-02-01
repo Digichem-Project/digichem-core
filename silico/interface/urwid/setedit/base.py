@@ -121,14 +121,16 @@ class Setedit_browser(urwid.ListBox, Setedit_widget_parent_mixin):
     A widget that permits viewing and editing lists of options.
     """
     
-    def __init__(self, setedits, on_change_callback = None):
+    def __init__(self, widgets, top, on_change_callback = None):
         """
         Constructor for Setedit_browser objects.
         
         :param setedits: A list of  Setedit objects to browse through.
+        :param top: Top-most widget being used for display.
         :param on_change_callback: A function to call (with no arguments) when new settings are saved.
         """
-        super().__init__(SimpleFocusListWalker(self.load_child_widgets(setedits)))
+        self.top = top
+        super().__init__(SimpleFocusListWalker(widgets))
         self.on_change_callback = on_change_callback
         
     @property

@@ -8,6 +8,8 @@ from silico.interface.urwid.setedit.base import Setedit_browser, Setedit,\
 from silico.exception.base import Silico_exception
 from silico.interface.urwid.setedit.widget import Solo_sub_editor
 from silico.interface.urwid.layout import Pane
+from silico.interface.urwid.dialogue import Confirm_or_cancel_dialogue
+import urwid
 
 
 class Option_setedit(Setedit):
@@ -35,6 +37,19 @@ class Option_setedit(Setedit):
         self.choices = option.choices
         # This is the last value we saved, if we're asked to reset we'll roll back to this.
         self.previous_value = self.option.get_from_dict(self.owning_obj, self.dict_obj)
+        
+    def reset(self):
+        """
+        Reset the value of this option back to its default (if it has one).
+        """
+        try:
+            default = self.option.default(self.owning_obj)
+            
+        except AttributeError:
+            # No default, do nothing.
+            return
+        
+        self.get_widget().value = default
         
     def refresh(self):
         """
@@ -97,7 +112,14 @@ class Options_setedit(Option_setedit):
     def __init__(self, top, owning_obj, dict_obj, option):
         super().__init__(top, owning_obj, dict_obj, option)
         self._children = None
-        
+    
+    def reset(self):
+        """
+        Reset the value of this option back to its default (if it has one).
+        """
+        for child in self.get_children():
+            child.reset()
+    
     def refresh(self):
         """
         Refresh the current edit value of the edit widgets of this setedit (in case the underlying configurable option value has changed).
@@ -171,17 +193,41 @@ class Configurable_browser(Setedit_browser):
     A widget that permits viewing and editing lists of options.
     """
             
-    def __init__(self, setedits, configurable, on_change_callback = None):
+    def __init__(self, setedits, top, configurable, on_change_callback = None):
         """
         Construct a Setedit_browser from a configurable object.
         
-        :param top: Top-most widget being used for display.
         :param setedits: A list of setedit objects to edit.
+        :param top: Top-most widget being used for display.
         :param configurable: The configurable object which is being edited.
         :param on_change_callback: A function to call when settings are saved.
         """
         self.configurable = configurable
-        super().__init__(setedits, on_change_callback = on_change_callback)
+        
+        # Get our list of edit widgets.
+        widgets = self.load_child_widgets(setedits)
+        
+        # Add a button at the bottom which will reset our options.
+        widgets.append(urwid.Divider())
+        widgets.append(urwid.AttrMap(urwid.Button("Reset to defaults", lambda button: self.popup_reset_dialogue()), 'button--settings', 'button--settings--focused'))
+        
+        super().__init__(widgets, top, on_change_callback = on_change_callback)    
+        
+    def popup_reset_dialogue(self):
+        """
+        Show the popup dialogue which prompts the user whether they are sure they want to reset to defaults.
+        """
+        text = ""
+        self.top.popup(Confirm_or_cancel_dialogue("Reset to defaults", "Are you sure you want to reset all options in this list?\n\nNote: After reseting, changes will not be saved until the 'save' button is pressed.", self.top, submit_callback = self.reset))
+        
+    def reset(self):
+        """
+        Reset each of the settings in this browser to their default (if they have one).
+        """
+        for widget in self.child_setedit_widgets.values():
+            widget.setedit.reset()
+            #widget.setedit.option.set_default(widget.setedit.owning_obj, widget.setedit.dict_obj)
+            #widget.setedit.refresh()
         
     @classmethod
     def from_configurable(self, top, configurable, on_change_callback = None):
@@ -193,7 +239,7 @@ class Configurable_browser(Setedit_browser):
         :param on_change_callback: A function to call when settings are saved.
         """
         setedits = [Option_setedit.from_configurable_option(top, configurable, option) for option in configurable.OPTIONS.values() if option.no_edit is False]
-        return self(setedits, configurable, on_change_callback = on_change_callback)
+        return self(setedits, top, configurable, on_change_callback = on_change_callback)
         
     def refresh(self):
         """
@@ -266,10 +312,10 @@ def make_paginated_configurable_browser(configurable, top, general_page_name = "
     
     
     # Next, make a page for top-level (no children) settings.
-    pages = {general_page_name: Pane(Configurable_browser([Option_setedit(top, configurable, configurable._configurable_options, option) for option in options_without_children], configurable), general_page_name)}
+    pages = {general_page_name: Pane(Configurable_browser([Option_setedit(top, configurable, configurable._configurable_options, option) for option in options_without_children], top, configurable), general_page_name)}
     
     # Next, add one page for each sub_option.
-    pages.update({name: Pane(Configurable_browser([Options_solo_setedit(top, configurable, configurable._configurable_options, option)], configurable), name) for name, option in options_with_children})
+    pages.update({name: Pane(Configurable_browser([Options_solo_setedit(top, configurable, configurable._configurable_options, option)], top, configurable), name) for name, option in options_with_children})
     
     # TOOD: Here
     browser = Paginated_settings_browser(pages, on_change_callback = on_change_callback, title = page_selector_title)
@@ -288,6 +334,6 @@ def make_settings_page_from_configurable_option(top, configurable, configurable_
     :param option: The configurable option to edit.
     :returns: A tuple of (name, page).
     """
-    return (option.name, Pane(Configurable_browser([Options_solo_setedit(top, configurable, configurable_options, option)], configurable), option.name))
+    return (option.name, Pane(Configurable_browser([Options_solo_setedit(top, configurable, configurable_options, option)], top, configurable), option.name))
         
         
