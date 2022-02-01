@@ -35,7 +35,7 @@ class Silico_window(Window):
         
         body = urwid.Pile([
             ('pack', urwid.Padding(urwid.BigText("Silico", HalfBlock7x7Font()), align = "center", width = "clip")),
-            ('pack', urwid.Padding(self.get_menu(), align = "center", width = 40))
+            ('pack', urwid.Padding(self.get_menu(), align = "center", width = 45))
         ])
         
         self.top.swap(urwid.Filler(body))
@@ -87,7 +87,7 @@ class Silico_window(Window):
         # TODO: Should add a smarter interface for the status program.
         program_buttons.append(self.get_option_widget("Status: Check queue status", lambda button: self.program.get_program(Status_program).main()))
         # Add a settings button.
-        program_buttons.append(self.get_option_widget("Settings", lambda button: self.swap_to_main_settings()))
+        program_buttons.append(self.get_option_widget("Settings: Permanently change settings", lambda button: self.swap_to_main_settings()))
         # And an exit button.
         program_buttons.append(self.get_option_widget("Quit", lambda button: self.top.back()))
         
