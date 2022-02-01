@@ -32,8 +32,8 @@ class Options_mixin():
                     del(dict_obj[key])
                     
             # If None, delete.
-            if value is None:
-                del(dict_obj[key])
+            #if value is None:
+            #    del(dict_obj[key])
     
     def validate_children(self, owning_obj, dict_obj):
         """
