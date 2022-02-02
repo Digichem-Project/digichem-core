@@ -195,6 +195,34 @@ class Silico_input():
             multiplicity = int(self.multiplicity) if self.multiplicity is not None else None
             return Openbabel_converter.get_cls("xyz")(input_file = self.xyz, input_file_path = self.auto_name, input_file_type = "xyz").convert(file_type, charge = charge, multiplicity = multiplicity)
 
+    @classmethod
+    def input_formats(self):
+        """
+        A dictionary of available input formats that this file can be created from.
+        
+        Each key is the short-code of the format (eg, si, com, xyz etc) while the value is a longer description.
+        """
+        formats = {
+            "si": "Silico input format",
+            "com": "Gaussian Input",
+            "gau": "Gaussian Input",
+            "gjc": "Gaussian Input",
+            "gjf": "Gaussian Input"
+        }
+        formats.update(pybel.informats)
+        return formats
+
+    @classmethod
+    def output_formats(self):
+        """
+        A dictionary of available output formats that this file can be converted to.
+        
+        Each key is the short-code of the format (eg, si, com, xyz etc) while the value is a longer description.
+        """
+        formats = {"si": "Silico input format"}
+        formats.update(pybel.outformats)
+        return formats
+
     @property
     def implicit_charge(self):
         """
