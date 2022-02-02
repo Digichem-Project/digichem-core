@@ -1,6 +1,7 @@
 from silico.submit.calculation import Calculation_target
 from silico.config.configurable.option import Option
 from silico.exception.configurable import Configurable_exception
+from silico.submit.base import Memory
 
 class Calculation_series(Calculation_target):
     """
@@ -17,6 +18,9 @@ class Calculation_series(Calculation_target):
         type = tuple,
         no_edit = True
     )
+    
+    memory = Option(help = "Force each calculation in this series to use this amount of memory", default = None, type = Memory, rawtype = str)
+    num_CPUs = Option(help = "Force each calculation in this series to use this many CPUs", default = None, type = int)
             
     def expand(self, calculations):
         """
@@ -30,9 +34,19 @@ class Calculation_series(Calculation_target):
         
         for tag_path in self.calculation_IDs:
             try:
-                calcs.append(calculations.resolve(tag_path))
+                # Get the calc we represent.
+                calc = calculations.resolve(tag_path)
                 
             except Exception as e:
                 raise Configurable_exception(self, "Could not expand to real calculation with TAG path '{}'".format(tag_path)) from e
+                
+            # Overwrite the memory and CPUs if given.
+            if self.num_CPUs is not None:
+                calc.num_CPUs = self.num_CPUs
+        
+            if self.memory is not None:
+                calc.memory = self.memory
+            
+            calcs.append(calc)
         
         return calcs
