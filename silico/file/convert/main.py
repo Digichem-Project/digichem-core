@@ -187,7 +187,7 @@ class Silico_input():
         :param file_type: The format of the file; a string recognised by openbabel.
         """
         if file_type.lower() == "si":
-            # Convertto yaml
+            # Convert to yaml
             return self.yaml
         else:
             # Convert.
