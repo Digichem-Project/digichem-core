@@ -158,7 +158,7 @@ class Row_pointer_widget(Row_widget):
         """
         Load the widget we'll use to display our main body.
         """
-        return urwid.Button(self.row_item._value, lambda button: self.row_item.add_func())
+        return urwid.Button(self.row_item._value, lambda button: self.row_item.browser_callback())
 
 
 class Row_item():
@@ -261,7 +261,7 @@ class Row_pointer(Row_item):
     A dummy row item that indicates where the next item will be inserted.
     """
     
-    def __init__(self,  row_list, add_func, movable = True, widget_text = "Add new here"):
+    def __init__(self,  row_list, browser_callback, movable = True, widget_text = "Add new here"):
         """
         Constructor for Row_pointer objects.
         
@@ -269,7 +269,7 @@ class Row_pointer(Row_item):
         """
         Row_item.__init__(self, widget_text, row_list, movable)
         # A function we'll call when our button is pressed.
-        self.add_func = add_func
+        self.browser_callback = browser_callback
         
     def load_widget(self):
         """
@@ -378,24 +378,23 @@ class Row_list(urwid.ListBox):
     A custom ListBox that displays data in (movable) rows.
     """
     
-    def __init__(self, top, add_func, rearrangeable = True, initial = None):
+    def __init__(self, top, row_pointer, initial = None):
         """
         
         :param top: The top-most widget to use for display.
-        :param add_func: A function to call when a new item is to be added.
-        :param rearrangeable: Whether the rows of this Row_list can be rearranged.
+        :param row_pointer: A row_pointer widget which can be used to add new values.
         :param initial: An optional list of initial values to populate the list with.
         """
         self.top = top
         initial = [] if initial is None else initial
         
-        self.rearrangeable = rearrangeable
+        self.rearrangeable = row_pointer.movable
         
         # Convert our initial values into actual rows.
         initial = [self.load_row(value) for value in initial]
         
         # Keep track of our pointer
-        self.pointer = Row_pointer(self, add_func, rearrangeable)
+        self.pointer = row_pointer
         # Add to our list of starting items.
         initial.append(self.pointer)
         
@@ -438,7 +437,7 @@ class Row_browser(Row_list):
     A higher level Row_list object that can show a browser to add nodes.
     """
     
-    def __init__(self, selector, top, rearrangeable=True, initial = None):
+    def __init__(self, selector, top, rearrangeable = True, initial = None):
         """
         Constructor for Method_list objects.
         
@@ -449,7 +448,13 @@ class Row_browser(Row_list):
         
         self.selector = selector
         
-        super().__init__(top, self.swap_to_browser, rearrangeable=rearrangeable, initial=initial)
+        super().__init__(top, self.get_row_pointer(rearrangeable), initial=initial)
+    
+    
+    def get_row_pointer(self, rearrangeable, *args, **kwargs):
+        """
+        """
+        return Row_pointer(self, self.swap_to_browser, rearrangeable)
         
     def swap_to_browser(self):
         """
@@ -493,6 +498,6 @@ class Row_browser(Row_list):
         """
         Reset our method selector.
         """
-        self.selector.browser.reset()    
+        self.selector.browser.reset()
 
     

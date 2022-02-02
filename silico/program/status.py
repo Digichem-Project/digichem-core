@@ -31,14 +31,6 @@ class Status_program(Program):
     
         return sub_parser
     
-    def load_interface(self, window):
-        """
-        Get the interface widget we'll use for display.
-        
-        :param window The parent window object.
-        """
-        return Status_interface(window, self)
-    
     def main(self):
         """
         Logic for our program.

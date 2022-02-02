@@ -180,7 +180,7 @@ class Configurable_browser(Setedit_browser):
     A widget that permits viewing and editing lists of options.
     """
             
-    def __init__(self, setedits, top, configurable, on_change_callback = None):
+    def __init__(self, setedits, top, configurable, on_change_callback = None, can_reset = True):
         """
         Construct a Setedit_browser from a configurable object.
         
@@ -194,9 +194,10 @@ class Configurable_browser(Setedit_browser):
         # Get our list of edit widgets.
         widgets = self.load_child_widgets(setedits)
         
-        # Add a button at the bottom which will reset our options.
-        widgets.append(urwid.Divider())
-        widgets.append(urwid.AttrMap(urwid.Button("Reset to defaults", lambda button: self.popup_reset_dialogue()), 'button--settings', 'button--settings--focused'))
+        if can_reset:
+            # Add a button at the bottom which will reset our options.
+            widgets.append(urwid.Divider())
+            widgets.append(urwid.AttrMap(urwid.Button("Reset to defaults", lambda button: self.popup_reset_dialogue()), 'button--settings', 'button--settings--focused'))
         
         super().__init__(widgets, top, on_change_callback = on_change_callback)    
         
@@ -215,7 +216,7 @@ class Configurable_browser(Setedit_browser):
             widget.setedit.reset()
         
     @classmethod
-    def from_configurable(self, top, configurable, on_change_callback = None):
+    def from_configurable(self, top, configurable, on_change_callback = None, can_reset = True):
         """
         Alternative constructor that creates a Configurable_browser object with all configurable options of a Configurable a its body.
         
@@ -224,7 +225,7 @@ class Configurable_browser(Setedit_browser):
         :param on_change_callback: A function to call when settings are saved.
         """
         setedits = [Option_setedit.from_configurable_option(top, configurable, option) for option in configurable.OPTIONS.values() if option.no_edit is False]
-        return self(setedits, top, configurable, on_change_callback = on_change_callback)
+        return self(setedits, top, configurable, on_change_callback = on_change_callback, can_reset = can_reset)
         
     def refresh(self):
         """
