@@ -10,6 +10,7 @@ from silico.misc.base import to_bool
 from silico.file.convert.main import Silico_input
 from silico.file.convert.babel import Openbabel_converter
 from silico.misc.file_wrapper import Multi_file_wrapper
+from silico.interface.urwid.convert.base import Convert_interface
 
 
 class Convert_program(Program):
@@ -61,4 +62,12 @@ class Convert_program(Program):
         # Convert and write.
         with Multi_file_wrapper(self.args.output_file, "wt") as outfile:
             outfile.write(parser.to_format(self.args.output_format))
+            
+    def load_interface(self, window):
+        """
+        Get the interface widget we'll use for display.
+        
+        :param window The parent window object.
+        """
+        return Convert_interface(window, self)
         
