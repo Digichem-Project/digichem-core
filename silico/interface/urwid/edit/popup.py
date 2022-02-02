@@ -196,11 +196,11 @@ class File_edit(Popup_edit):
     An edit widget for picking (existing) file locations.
     """
     
-    def __init__(self, top, initial = None, title = "Select file"):
+    def __init__(self, top, initial = None, title = "Select file", can_choose_folders = True):
         """
         Constructor for File_edit widgets.
         """
-        self.file_selector = silico.interface.urwid.file.browser.File_selector(top, title = title, can_choose_folders = True, can_choose_multiple = False)
+        self.file_selector = silico.interface.urwid.file.browser.File_selector(top, title = title, can_choose_folders = can_choose_folders, can_choose_multiple = False)
         super().__init__(top, initial)
         
     def open_popup(self):
