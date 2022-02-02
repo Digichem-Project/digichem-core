@@ -4,7 +4,6 @@ import tabulate
 # Silico imports.
 from silico.program.base import Program
 from silico.exception.base import Silico_exception
-from silico.interface.urwid.status.base import Status_interface
 
 
 class Status_program(Program):
