@@ -15,7 +15,7 @@ class Destination_target(Method_target):
     """
     
     CLASS_HANDLE = ("destination",)
-    TYPE = Option(default = "destination")
+    TYPE = Option(default = "destination", no_edit = True)
             
     @property
     def unique_name(self):

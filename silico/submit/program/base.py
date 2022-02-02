@@ -39,7 +39,7 @@ class Program_target(Method_target):
     """
     
     CLASS_HANDLE = ("program",)
-    TYPE = Option(default = "program")
+    TYPE = Option(default = "program", no_edit = True)
         
     ############################
     # Class creation mechanism #

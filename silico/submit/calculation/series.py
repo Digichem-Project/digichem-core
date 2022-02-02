@@ -14,7 +14,8 @@ class Calculation_series(Calculation_target):
         "calculations",
         help = "A list of calculations to perform in series",
         required = True,
-        type = tuple
+        type = tuple,
+        no_edit = True
     )
             
     def expand(self, calculations):
