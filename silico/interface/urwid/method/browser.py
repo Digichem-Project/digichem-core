@@ -6,6 +6,7 @@ from silico.interface.urwid.tree.base import Flaggable_tree_list_box,\
 from silico.config.configurable.option import Option
 from silico.interface.urwid.swap.swappable import Swappable
 from silico.interface.urwid.layout import Pane
+from silico.interface.urwid.misc import Tab_pile
     
 
 class Method_browser(Flaggable_tree_list_box):
@@ -30,6 +31,16 @@ class Method_browser(Flaggable_tree_list_box):
         # We do this extra check incase there are destinations and/or programs without children.
         loader_list = node.get_value()        
         return not loader_list[-1].partial and node.loader_type == "calculation"
+    
+    def select(self, focus_node, focus_widget):
+        """
+        Select (or deselect) the node currently in focus.
+        """
+        super().select(focus_node, focus_widget)
+#         
+#         if focus_widget.flagged:
+#             # This node is now selected, add to our other widget.
+#             focus_widget.
 
 
 class Method_selector(Swappable):
@@ -49,7 +60,13 @@ class Method_selector(Swappable):
         self.browser = Method_browser(methods, show_hidden = self.show_hidden)
         self.browser.offset_rows = 1
         
-        super().__init__(top, Pane(self.browser, title = "Method Browser"))
+        self.code_widget = urwid.AttrMap(urwid.Edit(multiline = True), "editable")
+        
+        # Assemble our widgets.
+        #body = Tab_pile([Pane(self.browser, title = "Method Browser"), ('weight', 0.3, Pane(urwid.Filler(self.code_widget, valign = "top"), "Method Codes"))])
+        body = Pane(self.browser, title = "Method Browser")
+        
+        super().__init__(top, body)
         
     def on_settings_change(self):
         """
