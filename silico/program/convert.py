@@ -20,6 +20,7 @@ class Convert_program(Program):
     
     name = "Calculation File Converter"
     command = "convert"
+    aliases = ["c", "con"]
     description = "convert computational files between formats"
     help = "Convert files"
     

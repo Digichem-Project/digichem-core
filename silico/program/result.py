@@ -21,6 +21,7 @@ class Result_program(Program):
     
     name = "Calculation Result Parser"
     command = "result"
+    aliases = ["R", "res"]
     description = "extract results from calculation output files and convert them to more convenient intermediate formats"
     help = "Parse results"
 

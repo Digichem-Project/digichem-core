@@ -60,13 +60,6 @@ PROGRAMS = [
     Status_program,
     Submit_program]
 
-# # Printable name of this program.
-# NAME = "Silico"
-# DESCRIPTION = "computational chemistry management"
-# EPILOG = "{} V{}. Written by {}. Last updated {}.".format(NAME, silico.version, silico.author, silico.last_updated.strftime("%d/%m/%Y"))
-# USAGE = """%(prog)s submit ...
-#    or: %(prog)s result ...
-#    or: %(prog)s report ..."""
 
 def main():
     """
@@ -83,6 +76,11 @@ def main():
     # Create sub parsers for each sub-program. Each will define its own parser.
     for sub_program in PROGRAMS:
         sub_program.arguments(subparser)
+        
+#     # A hack to pick a default program if none has been chosen.
+#     if len(sys.argv) < 2 or ( sys.argv[1] not in ["--help", "-h", "-v"] and sys.argv[1] not in subparser.choices ):
+#         sys.argv.insert(1, "submit")
+#         sys.argv.insert(2, "-I")
     
     # Process command line arguments.
     args = parser.parse_args()
@@ -105,7 +103,7 @@ def main():
         return -2
     
     # What we do next depends on whether we're running interactively or not.
-    if getattr(args, 'interactive', False):
+    if getattr(args, 'interactive', False) and type(outer_program) != Interactive_program:
         # Because we're running interactively, we'll actually use the interactive program rather than the chosen program.
         outer_program = Interactive_program(inner_program.args, inner_program.config, inner_program.logger, initial = inner_program)
 

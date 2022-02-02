@@ -17,6 +17,7 @@ class Report_program(Program):
     
     name = "Calculation Report Generator"
     command = "report"
+    aliases = ["r", "rep"]
     description = "generate PDF reports from finished calculations"
     usage = "%(prog)s [options] file.log [file2.log] [-O report.pdf]"
     help = "Write reports"

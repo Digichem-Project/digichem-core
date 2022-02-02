@@ -18,6 +18,7 @@ class Submit_program(Program):
     
     name = "Silico Calculation Submitter"
     command = "submit"
+    aliases = ["s", "sub"]
     description = "submit calculation files"
     help = "Submit calculations"
     usage = """%(prog)s submit ...

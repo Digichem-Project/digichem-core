@@ -25,6 +25,7 @@ class Program():
     epilog = "{} V{}. Written by {}. Last updated {}.".format(name, silico.version, silico.author, silico.last_updated.strftime("%d/%m/%Y"))
     usage = None
     help = None
+    aliases = []
     
     def __init__(self, args, config, logger):
         """
@@ -160,18 +161,6 @@ class Program():
             
             return -2
     
-#     def run(self):
-#         """
-#         Run this program.
-#         
-#         :returns: The return value of this program.
-#         """
-#         self.program_init()
-#         
-#         self.logger.debug("Startup completed")
-#         
-#         return self.main_wrapper()
-    
     @classmethod
     def arg_to_config(self, args, config):
         """
@@ -181,7 +170,7 @@ class Program():
         :param config: A Silico config object to add to.
         """
         # This default implementation does nothing.
-        
+    
     @classmethod
     def top_level_arguments(self):
         """
@@ -260,6 +249,7 @@ class Program():
         """
         sub_parser = sub_parsers_object.add_parser(
             self.command,
+            aliases = self.aliases,
             description = self.description,
             parents = [self.standard_arguments()],
             usage = self.usage,

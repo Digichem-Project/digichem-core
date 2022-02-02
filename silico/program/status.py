@@ -13,6 +13,7 @@ class Status_program(Program):
     
     name = "Method status"
     command = "status"
+    aliases = ["S", "sta"]
     description = "check status of known submission methods"
     help = "Check status"
     
