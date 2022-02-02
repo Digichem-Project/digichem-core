@@ -5,6 +5,7 @@ import io
 
 # Silico import.
 import silico
+import silico.logging
 from silico.interface.urwid.setedit.configurable import make_paginated_configurable_browser
 from silico.interface.urwid.layout import Window, Pane, Sub_pane
 from silico.program.status import Status_program
@@ -48,6 +49,9 @@ class Silico_window(Window):
         """
         Method called when main silico options are changed.
         """
+        # Update logging.
+        silico.logging.set_logging_level(self.program.config['logging']['log_level'], self.program.config['logging']['verbose'])
+        
         # Save modified settings to file.
         self.program.config.save()
         
