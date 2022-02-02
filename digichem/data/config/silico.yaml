@@ -303,20 +303,8 @@ palette:
         - dark blue
         - light gray
     
-    boldnode:
-        - black, bold
-        - light gray
-    
     bold:
         - black, bold
-        - light gray
-    
-    warningnode:
-        - dark red
-        - light gray
-    
-    hiddennode:
-        - light red, blink
         - light gray
         
     focus:
@@ -354,18 +342,6 @@ palette:
         - light gray
         - dark blue
         - standout
-        
-    bars:
-        - dark blue
-        - light gray
-        
-    arrowtip:
-        - light blue
-        - light gray
-        
-    connectors:
-        - light red
-        - light gray
         
     editable:
         - dark blue
