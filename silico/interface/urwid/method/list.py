@@ -8,6 +8,7 @@ from silico.interface.urwid.row_list.base import Row_item, Row_widget,\
 from silico.interface.urwid.method.browser import Method_selector
 from silico.interface.urwid.method.edit import Method_editor
 import silico.logging
+from silico.interface.urwid.dialogue import Edit_dialogue
 
 
 class Method_widget(Row_widget):
@@ -112,6 +113,51 @@ class Method_item(Row_item):
         return (self.destination, self.program, self.calculation)
 
 
+class Method_pointer_widget(Row_pointer_widget):
+    """
+    Specific list pointer widget used by method lists; allows specifying methods via either a browser or directly by a code.
+    """
+    
+    def __init__(self, row_item):
+        self.edit = Edit_dialogue("Method codes", row_item.row_list.top, submit_callback = self.add_from_edit)
+        super().__init__(row_item)
+        
+    def add_from_edit(self):
+        """
+        Add the values from our edit widget to our parent list.
+        """
+        # This reference is long, perhaps there is better access?
+        methods = self.row_item.row_list.selector.browser.methods 
+        
+        # Add each of the methods identified by each code.
+        for code in self.edit.edit.edit_text.split():
+            try:
+                self.row_item.row_list.add_row(methods.resolve_method_string(code))
+            
+            except Exception:
+                # Something went wrong, most probably the given code is no good.
+                silico.logging.get_logger().error("Failed to resolve method identified by code '{}'".format(code), exc_info = True)
+        
+        # Clear our edit widget.
+        self.edit.edit.edit_text = ""
+    
+    def load_inner(self):
+        """
+        Load the widget we'll use to display our main body.
+        """
+        code_button = urwid.Button("Add from method code", lambda button: self.row_item.row_list.top.popup(self.edit))
+        
+        return urwid.Columns([
+            urwid.Button("Add from browser", lambda button: self.row_item.browser_callback()),
+            code_button,
+        ], dividechars = 1)
+
+
+class Method_pointer(Row_pointer):
+    def load_widget(self):
+        return Method_pointer_widget(self)
+
+
 class Method_list(Row_browser):
     """
     A widget for displaying a list of loaded methods.
@@ -130,6 +176,9 @@ class Method_list(Row_browser):
         initial_methods = [] if initial_methods is None else initial_methods
         
         super().__init__(Method_selector(top, methods), top, rearrangeable = rearrangeable, initial = initial_methods)
+        
+    def get_row_pointer(self, rearrangeable):
+        return Method_pointer(self, self.swap_to_browser, rearrangeable)
     
     def value_from_node(self, node):
         """
