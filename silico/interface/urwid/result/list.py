@@ -72,7 +72,7 @@ class Result_list(Row_browser):
         self.subprocess_init = subprocess_init
         
         # Widget for choosing files, stored at self.selector
-        file_selector = Result_selector(top, start_dir, title = "Select Result Files")
+        file_selector = Result_selector(top, start_dir)
         
         # Add our starting files.
         initial_results = [] if initial_results is None else initial_results

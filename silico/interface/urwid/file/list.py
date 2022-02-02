@@ -60,7 +60,7 @@ class File_list(Row_browser):
         start_dir = start_dir if start_dir is not None else pathlib.Path.cwd()
         
         # Widget for choosing files.
-        file_selector = File_selector(top, start_dir, title = "Select Calculation Files", can_choose_folders = can_choose_folders)
+        file_selector = File_selector(top, start_dir, can_choose_folders = can_choose_folders)
         
         # Add our starting files.
         initial_files = [] if initial_files is None else initial_files

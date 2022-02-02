@@ -5,6 +5,7 @@ from silico.interface.urwid.tree.base import Flaggable_tree_list_box,\
     Flaggable_tree_walker
 from silico.config.configurable.option import Option
 from silico.interface.urwid.swap.swappable import Swappable
+from silico.interface.urwid.layout import Pane
     
 
 class Method_browser(Flaggable_tree_list_box):
@@ -48,7 +49,7 @@ class Method_selector(Swappable):
         self.browser = Method_browser(methods, show_hidden = self.show_hidden)
         self.browser.offset_rows = 1
         
-        super().__init__(top, self.browser, title = "Method Browser")
+        super().__init__(top, Pane(self.browser, title = "Method Browser"))
         
     def on_settings_change(self):
         """

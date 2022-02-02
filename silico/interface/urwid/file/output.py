@@ -75,7 +75,7 @@ class Output_selector(Swappable, Selector_mixin):
     A tree list box widget for selecting a location to save something.
     """
     
-    def __init__(self, top, default = None, title = "Select output location", folder = False, default_file_name = ""):
+    def __init__(self, top, default = None, folder = False, default_file_name = ""):
         """
         Constructor for Output_selector objects.
         
@@ -117,7 +117,6 @@ class Output_selector(Swappable, Selector_mixin):
         # Save our default.
         self.default = default
         self.default_file_name = default_file_name
-        self.lower_title = title
         self._updating = False
                 
         # Keep track of our sub widgets.
@@ -125,7 +124,18 @@ class Output_selector(Swappable, Selector_mixin):
         self.file_name_widget = urwid.Edit(("body", "File name: "), file_name)
         self.location_widget = urwid.Edit(("body", "Location: "), str(default) if default is not None else "")
         
-        super().__init__(top, self.browser, "Select file or folder" if not folder else "Select folder")
+        body = Tab_pile([
+            Pane(self.browser, "Choose file or folder"),
+            ('pack', Pane(
+                urwid.Pile([
+                    urwid.AttrMap(self.file_name_widget, "editable"),
+                    urwid.AttrMap(self.location_widget, "editable")
+                ]), 
+                "Output location"
+            ))
+        ])
+        
+        super().__init__(top, body)
         
         # Connect signals.
         urwid.connect_signal(self.file_name_widget, 'postchange', self.update_from_file_name_widget)
@@ -187,24 +197,6 @@ class Output_selector(Swappable, Selector_mixin):
             
             finally:
                 self._updating = False
-        
-    def _get_body(self):
-        """
-        Get the widget we'll use for display.
-        """
-        main_body = super()._get_body()
-        
-        # We will wrap our body in a Pile and add our manual widget underneath in.
-        return Tab_pile([
-            main_body,
-            ('pack', Pane(
-                urwid.Pile([
-                    urwid.AttrMap(self.file_name_widget, "editable"),
-                    urwid.AttrMap(self.location_widget, "editable")
-                ]), 
-                self.lower_title
-            ))
-        ])
         
     @property
     def value(self):

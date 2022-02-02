@@ -11,6 +11,7 @@ from silico.interface.urwid.tree.base import Flaggable_tree_list_box,\
 from silico.config.configurable.option import Option
 from silico.interface.urwid.file.node import Directory_node
 from silico.interface.urwid.swap.swappable import Swappable
+from silico.interface.urwid.layout import Pane
 
 
 class File_browser(Flaggable_tree_list_box):
@@ -57,19 +58,24 @@ class File_selector(Swappable, Selector_mixin):
     A tree list box widget used to browse and select files.
     """
 
-    def __init__(self, top, starting_dir = None, title = "File Browser", can_choose_folders = False, can_choose_multiple = True):
+    def __init__(self, top, starting_dir = None, pane_title = None, can_choose_folders = False, can_choose_multiple = True):
         """
         Constructor for File_selector objects.
         
         :param top: Top-most widget being used for display.
         :param starting_dir: The starting directory that will be shown expanded.
-        :param title: A title to display around this selector.
         """
+        if pane_title is None:
+            if can_choose_multiple:
+                pane_title = "Choose file(s)" if not can_choose_folders else "Choose file(s) or folder(s)"
+            else:
+                pane_title = "Choose file" if not can_choose_folders else "Choose file or folder"
+        
         browser = File_browser(starting_dir, show_hidden = self.show_hidden, can_choose_multiple = can_choose_multiple, can_choose_folders = can_choose_folders)
         browser.offset_rows = 1
         self.browser = browser
         
-        super().__init__(top, self.browser, title)
+        super().__init__(top, Pane(self.browser, pane_title))
                 
     def on_settings_change(self):
         """

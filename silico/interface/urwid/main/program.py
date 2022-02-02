@@ -4,6 +4,7 @@
 
 import silico.logging
 from silico.interface.urwid.swap.top import Swappable
+from silico.interface.urwid.layout import Sub_pane
 
 
 class Program_view(Swappable):
@@ -20,7 +21,7 @@ class Program_view(Swappable):
         """
         self.window = window
         self.program = program
-        super().__init__(self.window.top, self.get_body(), title = program.name, border = False)
+        super().__init__(self.window.top, Sub_pane(self.get_body(), title = program.name))
         
     def get_body(self):
         """

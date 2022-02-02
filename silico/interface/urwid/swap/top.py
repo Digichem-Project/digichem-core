@@ -107,7 +107,7 @@ class Top(urwid.WidgetPlaceholder):
         """
         additional_options = swappable_widget.additional_option_pages
         # The overall title for use for the settings widget.
-        settings_title = "Settings for {}".format(swappable_widget.title)
+        settings_title = swappable_widget.settings_title
         
         # First, get normal options from the widget (if there are any).
         if swappable_widget.has_settings:
