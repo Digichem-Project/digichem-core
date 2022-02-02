@@ -72,7 +72,11 @@ class File_selector(Enhanced_tree_selector, Selector_mixin):
         
         super().__init__(top, browser, manual_widget, title, manual_widget_title)
                 
-        
+    def on_settings_change(self):
+        """
+        A method that will be called when settings have been changed.
+        """
+        Selector_mixin.on_settings_change(self)    
     
     
     
