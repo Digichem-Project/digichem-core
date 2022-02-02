@@ -37,7 +37,7 @@ class Error_widget(urwid.TreeWidget):
     """
 
     def get_display_text(self):
-        return ('warningnode', "(error: {})".format(self.get_node().get_value()))
+        return ('node--warning', "(error: {})".format(self.get_node().get_value()))
 
 
 class Directory_widget(Flag_widget):
