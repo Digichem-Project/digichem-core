@@ -351,6 +351,10 @@ palette:
         - white
         - dark blue
         
+    dialogue--editable:
+        - dark cyan, bold
+        - dark blue
+        
     title:
         - white, bold
         - dark blue

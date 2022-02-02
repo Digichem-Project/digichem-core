@@ -138,6 +138,19 @@ class Confirm_or_cancel_dialogue(Confirm_or_cancel, Text_dialogue):
         return Text_dialogue.convert_callback(self, *args, **kwargs)
 
 
+class Edit_dialogue(Widget_dialogue):
+    """
+    A dialogue box that allows entering values.
+    """
+
+    def __init__(self, title, top, error = False, cancel_callback = None, submit_callback = None):
+        """
+        """
+        self.edit = urwid.Edit(multiline = True)
+        
+        super().__init__(title, urwid.Filler(urwid.AttrMap(self.edit, "dialogue--editable"), valign = "top"), top, error = error, cancel_callback = cancel_callback, submit_callback = submit_callback)
+
+
 class Confirm_dialogue(Confirm, Text_dialogue):
     """
     A dialogue box with one button.
