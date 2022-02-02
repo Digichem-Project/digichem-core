@@ -19,15 +19,7 @@ class Calculation_target(Method_target):
     CLASS_HANDLE = ("calculation",)
     TYPE = Option(default = "calculation", no_edit = True)
     
-#     def __new__(cls, *args, TYPE = "calculation", **kwargs):
-#         # TODO: If this is a good idea (adding a default TYPE to __new__), do the same for destination and program.
-#         # Alternatively, add TYPE as a configurable option and set a default?
-#         # Perhaps add some sort of inheritance for configurable options, so we can eg just change the default with specifying help etc again...
-#         # Also add a default for class_name.
-#         if 'class_name' not in kwargs:
-#             kwargs['class_name'] = cls.CLASS_HANDLE[0]
-#         return super().__new__(cls, *args, TYPE = TYPE, **kwargs)
-        
+            
     @classmethod
     def safe_name(self, file_name):
         """
