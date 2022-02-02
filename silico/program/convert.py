@@ -33,13 +33,13 @@ class Convert_program(Program):
         """
         sub_parser = super().arguments(sub_parsers_object)
         
-        sub_parser.add_argument("input_file", help = "Input file to read and convert.")
+        sub_parser.add_argument("input_file", help = "Input file to read and convert.", nargs = "?")
         sub_parser.add_argument("-i", "--input_format", help = "Input format (.com, .xyz, .tmol etc)")
         sub_parser.add_argument("-o", "--output_format", help = "Output format (.com, .xyz, .tmol etc)")
         sub_parser.add_argument("-O", "--output_file", help = "Output file", default = "-")
         sub_parser.add_argument("-C", "--charge", help = "The molecular charge to set in the output format. Note that not all formats support a charge", default = None, type = float)
         sub_parser.add_argument("-M", "--multiplicity", help = "The multiplicity to set in the output format. Note that not all formats support a multiplicity", default = None, type = int)
-        sub_parser.add_argument("--gen3D", help = "Whether to generate 3D coordinates (this will scramble existing atom coordinates). The default is yes, but only if it can be safely determined that the loaded coordinates are not already in 3D)", type = to_bool , default = None)
+        sub_parser.add_argument("--gen3D", help = "Whether to generate 3D coordinates (this will scramble existing atom coordinates). The default is yes, but only if it can be safely determined that the loaded coordinates are not already in 3D)", type = to_bool , default = True)
     
         return sub_parser
     
@@ -47,6 +47,10 @@ class Convert_program(Program):
         """
         Logic for our program.
         """
+        # Panic if we don't have an input file.
+        if self.args.input_file is None:
+            raise Silico_exception("No input file specified")
+        
         # Load the file we were given.
         parser = Silico_input.from_file(self.args.input_file, self.args.input_format, charge = self.args.charge, multiplicity = self.args.multiplicity, gen3D = self.args.gen3D)
         
