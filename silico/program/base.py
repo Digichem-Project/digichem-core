@@ -248,7 +248,7 @@ class Program():
         """
         Load the urwid widget suitable for controlling this program.
         """
-        raise NotImplementedError("This program does not support an interface")
+        raise NotImplementedError("This program does not support an interactive interface")
     
     @classmethod
     def arguments(self, sub_parsers_object):
