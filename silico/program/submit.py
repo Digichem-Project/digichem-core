@@ -1,5 +1,6 @@
 # General imports.
 from pathlib import Path
+import argparse
 
 # Silico imports.
 from silico.program.base import Program
@@ -9,7 +10,31 @@ from silico.exception.base import Silico_exception
 from silico.submit.calculation.base import Calculation_target
 from silico.exception.uncatchable import Submission_paused
 from silico.file.convert.main import Silico_input
+from silico.submit.base import parse_method_from_file
 
+
+class Method_action(argparse.Action):
+    """
+    """
+    
+    def __init__(self, *args, method_type, **kwargs):
+        self.method_type = method_type
+        super().__init__(*args, **kwargs)
+    
+    def __call__(self, parser, namespace, values, option_string = None):
+        """
+        """
+        try:
+            methods = getattr(namespace, self.dest)
+            
+        except AttributeError:
+            methods = []
+            setattr(namespace, self.dest, methods)
+            
+        for method in values:
+            methods.append((self.method_type, method))
+            
+        
 
 class Submit_program(Program):
     """
@@ -37,9 +62,10 @@ class Submit_program(Program):
         
         sub_parser.add_argument("calculation_files", help = "Calculation input files to submit", nargs = "*", type = Path)
         sub_parser.add_argument("-O", "--output", help = "Base directory to perform calculations in. Defaults to the current directory", default = Path("./"))
-        sub_parser.add_argument("-m", "--methods", help = "Methods to perform, identified either by name or by ID", nargs = "*", default = [])
+        sub_parser.add_argument("-m", "--method-files", help = "Methods to perform, identified by file name", nargs = "*", default = [], dest = "methods", action = Method_action, method_type = "file")
+        sub_parser.add_argument("-c", "--method-codes", help = "Methods to perform, identified either by name or by ID", nargs = "*", default = [], dest = "methods", action = Method_action, method_type = "code")
         sub_parser.add_argument("-C", "--charge", help = "Set the molecular charge of all input files. Note that certain calculations will override this value", default = None, type = int)
-        sub_parser.add_argument("-M", "--multiplicity", help = "Set the multiplicity of all input files. Note that certain calculations will override this value", default = None, type = int)
+        sub_parser.add_argument("-M", "--multiplicity", "--mult", help = "Set the multiplicity of all input files. Note that certain calculations will override this value", default = None, type = int)
         sub_parser.add_argument("--gen3D", help = "Whether to generate 3D coordinates (this will scramble existing atom coordinates). The default is yes, but only if it can be safely determined that the loaded coordinates are not already in 3D)", type = to_bool, default = True)
         
         return sub_parser
@@ -66,7 +92,18 @@ class Submit_program(Program):
         :param logger: The logger to use for output.
         """
         # First get our list of methods.
-        methods = [config.methods.resolve_method_string(method_string) for method_string in getattr(args, 'methods', [])]
+        methods = []
+        for method_type, method_id in args.methods:
+            if method_type == "code":
+                methods.append(config.methods.resolve_method_string(method_id))
+                
+            elif method_type == "file":
+                methods.append(parse_method_from_file(method_id, config))
+        
+#         methods = [config.methods.resolve_method_string(method_string) for method_string in args.method_codes]
+#         
+#         methods_from_files = [parse_method_from_file(method_file, config) for method_file in args.method_files]
+#         methods.extend(methods_from_files)
         
         # Load coordinates.
         coords = [Silico_input.from_file(file, gen3D = args.gen3D, charge = args.charge, multiplicity = args.multiplicity) for file in args.calculation_files]
