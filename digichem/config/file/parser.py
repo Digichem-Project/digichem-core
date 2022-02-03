@@ -140,7 +140,7 @@ class Config_file_parser(Config_parser):
         # And return.
         return options
 
-    
+# TOOD: This class should proably be rename to something like 'Confiugrable_loader_parser'...
 class Configurables_parser():
     """
     Reads and parses all configurable files from a location.
