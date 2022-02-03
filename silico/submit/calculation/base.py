@@ -269,7 +269,7 @@ class Concrete_calculation(Calculation_target):
                 molecule_name = calculation.molecule_name,
                 molecule_charge = calculation.input_coords.charge,
                 molecule_multiplicity = calculation.input_coords.multiplicity,
-                # Don't gen3D or add H (we want to use of output coordinates exactly as-is).
+                # Don't gen3D or add H (we want to use output coordinates exactly as-is).
                 gen3D = False
             )
             
