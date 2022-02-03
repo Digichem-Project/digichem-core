@@ -67,6 +67,10 @@ class Calculation_target(Method_target):
                 prog = program_t(destination)
                 calc = expanded_calculation_t(prog, global_silico_options = global_silico_options)
                 
+                # TODO: Need to ensure that the given calculation and program objects are compatible.
+                # This is tricky because of circular imports,
+                # probably means we should refactor our organisation of programs and calculations
+                
                 # If the calc was part of a series, set the series name.
                 if "Series" in calculation_t.CLASS_HANDLE:
                     calc.series_name = calculation_t.name
