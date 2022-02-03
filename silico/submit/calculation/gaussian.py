@@ -102,12 +102,12 @@ class Gaussian(Concrete_calculation):
     
     optimisation = Options(
         help = "Options that control optimisations.",
-        on = Option(help = "Whether to perform an optimisation. If excited states are also being calculated, then the excited state given by 'root' will be optimised", default = False, type = bool),
+        calculate = Option(help = "Whether to perform an optimisation. If excited states are also being calculated, then the excited state given by 'root' will be optimised", default = False, type = bool),
         options = Option(help = "Additional options to specify.", type = dict, default = {})
     )
     frequency = Options(
         help = "Options that control calculation of vibrational frequencies.",
-        on = Option(help = "Whether to calculate vibrational frequencies.", default = False, type = bool),
+        calculate = Option(help = "Whether to calculate vibrational frequencies.", default = False, type = bool),
         options = Option(help = "Additional options to specify.", type = dict, default = {})
     )
     DFT_excited_states = Options(
@@ -119,6 +119,7 @@ class Gaussian(Concrete_calculation):
         options = Option(help = "Additional options to specify.", type = dict, default = {})
     )
     keywords = Option(help = "Additional Gaussian route keywords. These are written to the input file with only minor modification ('keyword: option' becomes 'keyword=(option)' and 'keyword: {option: value}' becomes 'keyword=(option=value)'), so any option valid to Gaussian can be given here", default = {'Population': 'Regular', 'Density': 'Current'}, type = dict)            
+    
     
     @property
     def charge(self):
@@ -189,11 +190,11 @@ class Gaussian(Concrete_calculation):
         keyword_sections = []
         
         # Optimisations.
-        if self.optimisation['on']:
+        if self.optimisation['run']:
             keyword_sections.append(str(Keyword("Opt", self.optimisation['options'])))
             
         # Frequencies.
-        if self.frequency['on']:
+        if self.frequency['run']:
             keyword_sections.append(str(Keyword("Freq", self.frequency['options'])))
             
         # Excited states.

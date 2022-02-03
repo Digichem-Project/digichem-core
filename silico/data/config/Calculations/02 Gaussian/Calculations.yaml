@@ -16,7 +16,7 @@ TAG: Gaussian Optimisation
 ALIAS: Optimisation
 
 optimisation:
-    "on": True
+    calculate: True
 
 NEXT:
     - Gaussian Solvents
@@ -30,9 +30,9 @@ TAG: Gaussian Optimisation Frequencies
 ALIAS: Optimisation Frequencies
 
 optimisation:
-    "on": True
+    calculate: True
 frequency:
-    "on": True
+    calculate: True
 
 NEXT:
     - Gaussian Solvents
@@ -45,9 +45,9 @@ TAG: Gaussian Optimisation Frequencies Unrestricted Triplet
 ALIAS: Optimisation Frequencies Unrestricted Triplet
 
 optimisation:
-    "on": True
+    calculate: True
 frequency:
-    "on": True
+    calculate: True
 multiplicity: 3
 unrestricted: True
 
@@ -63,7 +63,7 @@ TAG: Gaussian Frequencies
 ALIAS: Frequencies
 
 frequency:
-    "on": True
+    calculate: True
 
 NEXT:
     - Gaussian Solvents
