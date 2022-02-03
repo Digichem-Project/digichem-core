@@ -248,7 +248,12 @@ class Configurable_loader():
         
         # Panic if we've got nothing.
         if len(loader_lists) == 0:
-            raise Silico_exception("Could not find a configurable with TAG '{}' that is a child of '{}'".format(tag, self.TAG))
+            if self.TAG is not None:
+                message = "Could not find a definition with TAG '{}' that is a child of '{}'".format(tag, self.TAG)
+            
+            else:
+                message = "Could not find a definition with TAG '{}'".format(tag)
+            raise Silico_exception(message)
         
         # We want the match that is closest to us (fewest path steps away).
         shortest = min((len(loader_path) for loader_path in loader_lists))
