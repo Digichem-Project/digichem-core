@@ -6,6 +6,7 @@ from silico.exception import Submission_error
 from silico.submit.base import Method_target
 from silico.config.configurable.option import Option
 
+
 class Destination_target(Method_target):
     """
     Top-level class for classes that implement a destination to where calculations can be submitted.
