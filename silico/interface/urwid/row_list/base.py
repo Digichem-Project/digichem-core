@@ -154,6 +154,9 @@ class Row_pointer_widget(Row_widget):
     A widget used for displaying the row pointer.
     """
     
+    def load_widget(self):
+        return urwid.AttrMap(super().load_widget(), "bold", "editable")
+    
     def load_inner(self):
         """
         Load the widget we'll use to display our main body.
@@ -477,7 +480,13 @@ class Row_browser(Row_list):
             
             except Exception as error:
                 # We couldn't load the node for some reason, show an error and ignore.
-                logger.warning("Failed to add item '{}': {}".format(value, error), exc_info = True)
+                if value is not None:
+                    message = "Failed to add item '{}': {}".format(value, error)
+                
+                else:
+                    message = "Failed to add item: {}".format(error)
+                    
+                logger.warning(message, exc_info = True)
                 
         # Clear the selected nodes.
         self.selector.browser.reset()

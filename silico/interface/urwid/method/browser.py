@@ -15,12 +15,12 @@ class Method_browser(Flaggable_tree_list_box):
     """
 
 
-    def __init__(self, methods, show_hidden):
+    def __init__(self, method_library, show_hidden):
         """
         Constructor for calculation browser objects.
         """
-        self.methods = methods
-        self.topnode = Loader_top_node(methods, show_hidden = show_hidden)
+        self.method_library = method_library
+        self.topnode = Loader_top_node(method_library.destinations, show_hidden = show_hidden)
         super().__init__(Flaggable_tree_walker(self.topnode))
         
     def is_selectable(self, node):
@@ -67,6 +67,13 @@ class Method_selector(Swappable):
         body = Pane(self.browser, title = "Method Browser")
         
         super().__init__(top, body)
+        
+    @property
+    def selected(self):
+        return self.browser.selected
+    
+    def reset(self):
+        return self.browser.reset()
         
     def on_settings_change(self):
         """

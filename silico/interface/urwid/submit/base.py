@@ -26,7 +26,7 @@ class Submit_interface(Program_view):
         """
         # Keep track of our individual widgets.
         self.coordinate_list = Coordinate_list(window.top, initial_coords = program.coords, initial_charge = program.args.charge, initial_mult = program.args.multiplicity, gen3D = program.args.gen3D)
-        self.method_list = Method_list(window.top, program.config.methods, initial_methods = program.methods)
+        self.method_list = Method_list(window.top, method_library = program.config, initial_methods = program.methods)
         # The location to write the formatted results to.
         self.output_widget = Output_edit(window.top, program.args.output, folder = True)
         

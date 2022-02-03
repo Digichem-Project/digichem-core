@@ -9,6 +9,8 @@ from silico.interface.urwid.method.browser import Method_selector
 from silico.interface.urwid.method.edit import Method_editor
 import silico.logging
 from silico.interface.urwid.dialogue import Edit_dialogue
+from silico.interface.urwid.file.browser import File_selector
+from silico.submit.base import parse_method_from_file
 
 
 class Method_widget(Row_widget):
@@ -24,11 +26,27 @@ class Method_widget(Row_widget):
         """
         Get the unique code of the method we represent.
         """
-        return "[{}/{}/{}]".format(
-            self.row_item.destination.index(), 
-            self.row_item.program.index(),
-            self.row_item.calculation.index()
-        )
+        # Carefully get the code of each part of our method, being aware that methods not loaded from the library don't have an index.
+        try:
+            dest_code = self.row_item.destination.index()
+        
+        except IndexError:
+            dest_code = "N.A"
+            
+        try:
+            prog_code = self.row_item.program.index()
+        
+        except IndexError:
+            prog_code = "N.A"
+            
+        try:
+            calc_code = self.row_item.calculation.index()
+        
+        except IndexError:
+            calc_code = "N.A"
+        
+                
+        return "[{}/{}/{}]".format(dest_code, prog_code, calc_code)
     
     def get_text(self):
         """
@@ -119,18 +137,19 @@ class Method_pointer_widget(Row_pointer_widget):
     """
     
     def __init__(self, row_item):
-        self.edit = Edit_dialogue("Method codes", row_item.row_list.top, submit_callback = self.add_from_edit)
+        self.code_popup = Edit_dialogue("Method codes", row_item.row_list.top, submit_callback = self.add_from_edit_code)
+        self.file_selector = File_selector(row_item.row_list.top, pane_title = "Select method file(s)", can_choose_folders = False, can_choose_multiple = True)
         super().__init__(row_item)
         
-    def add_from_edit(self):
+    def add_from_edit_code(self):
         """
         Add the values from our edit widget to our parent list.
         """
         # This reference is long, perhaps there is better access?
-        methods = self.row_item.row_list.selector.browser.methods 
+        methods = self.row_item.row_list.selector.browser.method_library.methods
         
         # Add each of the methods identified by each code.
-        for code in self.edit.edit.edit_text.split():
+        for code in self.code_popup.edit.edit_text.split():
             try:
                 self.row_item.row_list.add_row(methods.resolve_method_string(code))
             
@@ -139,17 +158,30 @@ class Method_pointer_widget(Row_pointer_widget):
                 silico.logging.get_logger().error("Failed to resolve method identified by code '{}'".format(code), exc_info = True)
         
         # Clear our edit widget.
-        self.edit.edit.edit_text = ""
+        self.code_popup.edit.edit_text = ""
+        
+    def add_from_files(self):
+        """
+        Add the values from our file selector to our parent list.
+        """
+        for method_file in self.file_selector.browser.selected:
+            try:
+                self.row_item.row_list.add_row(parse_method_from_file(method_file, self.row_item.row_list.selector.browser.method_library))
+            
+            except Exception:
+                # Something went wrong, most probably the given code is no good.
+                silico.logging.get_logger().error("Failed to parse method file '{}'".format(method_file), exc_info = True)
+                
+        self.file_selector.browser.reset()
     
     def load_inner(self):
         """
         Load the widget we'll use to display our main body.
         """
-        code_button = urwid.Button("Add from method code", lambda button: self.row_item.row_list.top.popup(self.edit))
-        
         return urwid.Columns([
-            urwid.Button("Add from browser", lambda button: self.row_item.browser_callback()),
-            code_button,
+            urwid.Button("Browse library", lambda button: self.row_item.browser_callback()),
+            urwid.Button("Add from code", lambda button: self.row_item.row_list.top.popup(self.code_popup)),
+            urwid.Button("Add from files", lambda button: self.row_item.row_list.top.swap_into_window(self.file_selector, submit_callback = self.add_from_files))
         ], dividechars = 1)
 
 
@@ -163,19 +195,19 @@ class Method_list(Row_browser):
     A widget for displaying a list of loaded methods.
     """
     
-    def __init__(self, top, methods, rearrangeable = True, initial_methods = None):
+    def __init__(self, top, method_library, rearrangeable = True, initial_methods = None):
         """
         Constructor for Method_list objects.
         
         :param top: The topmost widget to use for display.
-        :param methods: A Configurable_list or similar that contains available methods.
+        :param method_library: An object that contains methods, destinations, programs and calculations as attributes.
         :param rearrangeable: Whether the order of chosen methods can be rearranged.
         :param initial_methods: A list of methods (tuples) to initially populate with.
         """
         # Add our starting files.
         initial_methods = [] if initial_methods is None else initial_methods
         
-        super().__init__(Method_selector(top, methods), top, rearrangeable = rearrangeable, initial = initial_methods)
+        super().__init__(Method_selector(top, method_library), top, rearrangeable = rearrangeable, initial = initial_methods)
         
     def get_row_pointer(self, rearrangeable):
         return Method_pointer(self, self.swap_to_browser, rearrangeable)

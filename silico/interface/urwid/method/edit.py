@@ -26,4 +26,9 @@ class Method_editor(Paginated_settings_browser):
         """
         Get the title to display for a given method_target.
         """
-        return "Editing {} with ID: {}".format(method_target.TYPE, method_target.index())
+        try:
+            return "Editing {} with ID: {}".format(method_target.TYPE, method_target.index())
+        
+        except IndexError:
+            # No index.
+            return "Editing {}".format(method_target.TYPE)

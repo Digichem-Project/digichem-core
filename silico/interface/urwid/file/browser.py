@@ -76,6 +76,13 @@ class File_selector(Swappable, Selector_mixin):
         self.browser = browser
         
         super().__init__(top, Pane(self.browser, pane_title))
+        
+    @property
+    def selected(self):
+        return self.browser.selected
+    
+    def reset(self):
+        return self.browser.reset()
                 
     def on_settings_change(self):
         """
