@@ -44,7 +44,8 @@ class Configurable_exception(Silico_exception):
             return None
         
         if len(hierarchy) == 0:
-            return None
+            # No hierarchy, return a single file name instead.
+            return self.configurable.file_name
         
         elif len(hierarchy) == 1:
             return "{}: {}".format(hierarchy[0][0], hierarchy[0][1])
