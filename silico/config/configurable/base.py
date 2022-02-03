@@ -129,15 +129,17 @@ class Configurable_class_target(Dynamic_parent, Configurable):
     name = Option(help = "The unique name of this configurable target", type = str, required = True)
 
 
-    def __init__(self, loader_list = None, validate_now = True, **kwargs):
+    def __init__(self, loader_list = None, file_name = None, validate_now = True, **kwargs):
         """
         Constructor for Configurable objects.
         
-        :param loader_list: If this configurable was loaded from a (number of) configurable loaders, an ordered list of those loaders. 
+        :param loader_list: If this configurable was loaded from a (number of) configurable loaders, an ordered list of those loaders.
+        :param file_name: If this confiugrable was not loaded from a (number of) loaders but was loaded from a file, the name of that file.
         :param validate_now: If True, the given options will be validated before this constructor returns. Validation can also be performed at any time by calling validate(). 
         """
         self.inner_cls = None
         self.loader_list = loader_list if loader_list is not None else []
+        self._file_name = file_name
         
         self.configure_auto_name()
         
@@ -148,18 +150,23 @@ class Configurable_class_target(Dynamic_parent, Configurable):
         """
         A list of files from which this configurable was loaded.
         """
-        return [loader.file_name for loader in self.loader_list if loader.file_name is not None]
+        if self._file_name is None:
+            return [loader.file_name for loader in self.loader_list if loader.file_name is not None]
+        
+        else:
+            return [self._file_name]
         
     @property
     def file_name(self):
         """
         The file names from which this configurable was loaded from, formatted as a single string (will return None if not loaded from any files).
         """
-        if len(self.file_names) == 0:
+        file_names = self.file_names
+        if len(file_names) == 0:
             return None
         
-        elif len(self.file_names) == 1:
-            return self.file_names[0]
+        elif len(file_names) == 1:
+            return file_names[0]
         
         else:
             return "\n".join(self.file_names)
