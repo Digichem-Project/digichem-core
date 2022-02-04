@@ -39,7 +39,7 @@ class Silico_window(Window):
         
         body = Tab_pile([
             ('pack', urwid.Padding(urwid.BigText("Silico", HalfBlock7x7Font()), align = "center", width = "clip")),
-            ('pack', urwid.Padding(urwid.Button("Silico development team", lambda button: self.popup_authorship_window()), align = "center", width = 27)),#19
+            ('pack', urwid.Padding(urwid.AttrMap(urwid.Button("Silico development team", lambda button: self.popup_authorship_window()), "body", "editable"), align = "center", width = 27)),#19
             ('pack', urwid.Padding(self.get_menu(), align = "center", width = 45))
         ], focus_item = 2)
         
