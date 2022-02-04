@@ -150,13 +150,12 @@ class Configurables_parser():
     Reads and parses all configurable files from a location.
     """
     
-    def __init__(self, *paths, TYPE, children = None):
+    def __init__(self, *paths, TYPE):
         """
         Constructor for Configurables_loader object.
         
         :param paths: Paths to  directories to load .yaml files from. All *.yaml files under each directory will be loaded and processed.
         :param TYPE: The TYPE of the configurables we are loading; this is a string which identifies the type of the configurables (eg, Destination, Calculation etc).
-        :param children: The top loader (probably a configurable list) for the child type for this loader.
         """
         self.root_directories = paths
         # A type to set for all configurables we load.
@@ -165,20 +164,10 @@ class Configurables_parser():
         self.loaders = []
         # Configs that update other configs.
         self.updates = []
-        # Top-level configurable loader for our children.
-        self.children = children
-        
-    def load(self):
-        """
-        Read, parse and process all configs at our location.
-        
-        :returns: A list of configurable loaders
-        """
-        self.parse()
-        
-        return self.process()
-    
-    
+        # Configs that have a PARENTS set.
+        # This is a list of tuples where the first item is the loader and the second is the list of PARENT tags.
+        self.has_parents = []
+            
     def parse(self):
         """
         Read and parse all .yaml files within our directory.
@@ -199,29 +188,55 @@ class Configurables_parser():
                         
                         else:
                             # Normal config, pre process and add.
-                            self.loaders.append(self.pre_process(config, file_name))
+                            loader = self.pre_process(config, file_name)
+                            self.loaders.append(loader)
+                            
+                            # If the loader has PARENTS set, add it to our list.
+                            if "PARENTS" in loader.config:
+                                self.has_parents.append((loader, loader.config["PARENTS"]))
                     
             except FileNotFoundError:
                 # This should be ok to ignore, just means a file was moved inbetween us looking how many files there are and reading them.
                 # Possibly no need to worry about this?
                 pass
             
-    def process(self):
+    def process(self, children = None):
         """
         Process the config dicts that we have parsed.
         """
         # First, apply any updates.
         for update in self.updates:
             update.update(self.loaders)
-        
+                
         # We need to link any partial loaders together.
         for loader in self.loaders:
-            loader.link(self.loaders, children = self.children)
+            loader.link(self.loaders, children = children)
             
         # Next we need to purge partial configurables from the top level list.
         #conf_list = Configurable_list([loader for loader in self.loaders if loader.TOP], self.TYPE)
         conf_list = [loader for loader in self.loaders if loader.TOP]
-        return conf_list       
+        return conf_list
+    
+    def process_parents(self, parent_loaders):
+        """
+        Process any loaders that have a PREVIOUS option set.
+        
+        :param parent_loaders: A flat list of the loaders that can be considered parents of this one.
+        """
+        for loader, parents in self.has_parents:
+            for parent_tag in parents:
+                # Find the loader in the parent list that is referenced.
+                matching = [parent_loader for parent_loader in parent_loaders if parent_loader.TAG == parent_tag]
+                
+                # Panic if there were no matches
+                if len(matching) == 0:
+                    raise Configurable_loader_exception(loader.config, loader.TYPE, loader.file_name, "PREVIOUS tag '{}' could not be found".format(parent_tag))
+                
+                # Add the loader to each of the matching loader's NEXT attr.
+                for parent in matching:
+                    if "NEXT" not in parent.config:
+                        parent.config['NEXT'] = []
+                    parent.config['NEXT'].append(loader.TAG)
     
     def pre_process(self, config, config_path):
         """
@@ -253,29 +268,47 @@ class Configurables_parser():
         Load configurables from all silico locations and add to a silico options object.
         
         :param options: A Silico_options object to populate with configurables.
-        """            
+        """
+        parsers = []
+        
         # Iterate through each configurable type.
-        for configurable_name, configurable_type, TYPE in (
-            ("Basis Sets", "basis_sets", "basis_set"),
-            ("Calculations", "calculations", "calculation"),
-            ("Programs", "programs", "program"),
-            ("Destinations", "destinations", "destination")
+        for folder, TYPE in (
+            ("Basis Sets", "basis_set"),
+            ("Calculations", "calculation"),
+            ("Programs", "program"),
+            ("Destinations", "destination")
         ):
-            root_directories = [Path(location, configurable_name) for location in (master_config_path.parent, system_config_location.parent, user_config_location.parent)]
+            root_directories = [Path(location, folder) for location in (master_config_path.parent, system_config_location.parent, user_config_location.parent)]
             
             # Load from the location and add to our silico_options object.
             # The name of the attribute we add to is the same as the location we read from, but in lower case...
             try:
-                # Determine which are our children of the current type.
-                children = None
-                if TYPE == "program":
-                    children = options.calculations
-                
-                elif TYPE == "destination":
-                    children = options.programs
-                
-                getattr(options, configurable_type).NEXT.extend(self(*root_directories, TYPE = TYPE, children = children).load())
-                
+                parser = self(*root_directories, TYPE = TYPE)
+                parser.parse()
+                parsers.append((TYPE, parser))
+            
             except FileNotFoundError:
                 # No need to panic.
                 pass
+        
+        children = None
+        for index, (TYPE, parser) in enumerate(parsers):
+            # First, link any parents.
+            try:
+                parents = parsers[index+1][1].loaders
+            
+            except IndexError:
+                parents = []
+                
+            parser.process_parents(parents)
+            
+            # Now process fully.
+            loaders = parser.process(children)
+            
+            # Add to config object.            
+            # TODO: This is a bit weird, could do with a cleaner interface to add more loaders.
+            getattr(options, TYPE+"s").NEXT.extend(loaders)
+            
+            children = getattr(options, TYPE+"s")
+                
+           
