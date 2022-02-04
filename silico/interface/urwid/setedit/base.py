@@ -114,9 +114,27 @@ class Setedit():
             # A normal option, just get the value.
             # This doesn't work if option is a sub option.
             return option.__get__(owning_obj)
+        
+        
+class Setedit_editor_mixin():
+    """
+    A mixin ABC for classes that act like widgets which can browse and change lists of options.
+    """
+    
+    def refresh(self):
+        raise NotImplementedError("Implement in subclass")
+    
+    def save(self, validate = True):
+        raise NotImplementedError("Implement in subclass")
+    
+    def discard(self):
+        raise NotImplementedError("Implement in subclass")
+    
+    def validate(self):
+        raise NotImplementedError("Implement in subclass")
 
 
-class Setedit_browser(urwid.ListBox, Setedit_widget_parent_mixin):
+class Setedit_browser(urwid.ListBox, Setedit_widget_parent_mixin, Setedit_editor_mixin):
     """
     A widget that permits viewing and editing lists of options.
     """
@@ -175,8 +193,7 @@ class Setedit_browser(urwid.ListBox, Setedit_widget_parent_mixin):
         return retval
 
 
-# TOOD: Should inherit from some ABC?
-class Paginated_settings_browser(Pages):
+class Paginated_settings_browser(Pages, Setedit_editor_mixin):
     """
     A widget for editing multiple pages of settings.
     """
