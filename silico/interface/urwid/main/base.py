@@ -9,6 +9,9 @@ import silico.logging
 from silico.interface.urwid.setedit.configurable import make_paginated_configurable_browser
 from silico.interface.urwid.layout import Window, Pane, Sub_pane
 from silico.program.status import Status_program
+from silico.interface.urwid.misc import Tab_pile
+from silico.interface.urwid.dialogue import Confirm_dialogue
+from silico.authors import get_authorship_string
 
 
 class Silico_window(Window):
@@ -34,10 +37,11 @@ class Silico_window(Window):
         # A widget which can be swapped to in order to change the main silico settings.        
         self.settings_pane = Sub_pane(make_paginated_configurable_browser(self.program.config, self.top, on_change_callback = self.update_settings, page_selector_title = "Settings Type"), "Main Silico Settings")
         
-        body = urwid.Pile([
+        body = Tab_pile([
             ('pack', urwid.Padding(urwid.BigText("Silico", HalfBlock7x7Font()), align = "center", width = "clip")),
+            ('pack', urwid.Padding(urwid.Button("Silico development team", lambda button: self.popup_authorship_window()), align = "center", width = 27)),#19
             ('pack', urwid.Padding(self.get_menu(), align = "center", width = 45))
-        ])
+        ], focus_item = 2)
         
         self.top.swap(urwid.Filler(body))
         
@@ -96,6 +100,11 @@ class Silico_window(Window):
         program_buttons.append(self.get_option_widget("Quit", lambda button: self.top.back()))
         
         return program_buttons
+    
+    def popup_authorship_window(self):
+        """
+        """
+        self.top.popup(Confirm_dialogue("The Silico Development Team", get_authorship_string(), self.top), width = ('relative', 60), height = ('relative', 60))
     
     def swap_to_main_settings(self):
         """
