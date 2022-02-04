@@ -176,10 +176,19 @@ class Row_item():
         :param row_list: The Row_list object we belong to.
         """
         self.movable = movable
-        self._value = value
+        self.value = value
         self.row_list = row_list
         self._widget = None
         
+    @property
+    def value(self):
+        return self._value
+    
+    @value.setter
+    def value(self, val):
+        self._value = val
+    
+    # TOOD: This should probably be deprecated and removed.
     def get_value(self):
         """
         Get the updated value of this row.
