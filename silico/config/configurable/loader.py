@@ -557,10 +557,10 @@ class Partial_loader(Configurable_loader):
                 if len(matching) == 0:
                     # Check we weren't accidentally given a list (because lists are allowed in NEXT for single loaders, but not for partial loaders).
                     if isinstance(tag, list):
-                        raise Configurable_loader_exception(self.config, self.TYPE, self.file_name, "next TAG '{}' is a list".format(tag))
+                        raise Configurable_loader_exception(self.config, self.TYPE, self.file_name, "cannot use a NEXT tag '{}' that is a list here".format(tag))
                     
                     else:
-                        raise Configurable_loader_exception(self.config, self.TYPE, self.file_name, "next TAG '{}' could not be found".format(tag))
+                        raise Configurable_loader_exception(self.config, self.TYPE, self.file_name, "NEXT tag '{}' could not be found".format(tag))
                 
                 # Add all matching to our NEXT.
                 for match in matching:
