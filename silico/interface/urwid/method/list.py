@@ -19,8 +19,19 @@ class Method_widget(Row_widget):
     """
     
     def __init__(self, row_item):
+        self.code_widget = urwid.Text("")
+        self.name_widget = urwid.Text("")
         Row_widget.__init__(self, row_item)
-        self.method_editor = Method_editor(self.row_item.row_list.top, self.row_item.destination, self.row_item.program, self.row_item.calculation)
+        self.method_editor = Method_editor(self.row_item.row_list.top, self.row_item.destination, self.row_item.program, self.row_item.calculation, on_change_callback = self.update_from_editor)
+
+    def update_from_editor(self):
+        """
+        Update the widgets of this row from our (possibly updated) method.
+        """
+        # First, update the method object (in case any of the method targets changed class).
+        self.row_item.value = self.method_editor.method
+        self.code_widget.set_text(self.get_code())
+        self.name_widget.set_text(self.get_text())
 
     def get_code(self):
         """
@@ -62,9 +73,11 @@ class Method_widget(Row_widget):
         """
         Load the inner widget we'll use for display.
         """
+        self.code_widget.set_text(self.get_code())
+        self.name_widget.set_text(self.get_text())
         return urwid.Columns([
-            ("pack", urwid.Text(self.get_code())),
-            urwid.Text(self.get_text())
+            ("pack", self.code_widget),
+            self.name_widget
         ], dividechars = 1)
         
     def load_controls(self):
@@ -109,26 +122,37 @@ class Method_item(Row_item):
         :param row_list: The parent Row_list object.
         :param movable: Whether we are movable.
         """
-        Row_item.__init__(self, method, row_list, movable=movable)
-        # Also resolve and store each of our method parts.
-        # Each method consists of 3 parts: 1) destination, 2) program, 3) calculation.
-        #destination_path, program_path, calculation_path = method
-        #self.destination = destination_path[0].resolve_path(destination_path)
-        #self.program = program_path[0].resolve_path(program_path)
-        #self.calculation = calculation_path[0].resolve_path(calculation_path)
-        self.destination, self.program, self.calculation = method
+        super().__init__(method, row_list, movable=movable)
+        
+    @property
+    def destination(self):
+        return self.value[0]
+    
+    @destination.setter
+    def destination(self, value):
+        self.value[0] = value
+        
+    @property
+    def program(self):
+        return self.value[1]
+    
+    @program.setter
+    def program(self, value):
+        self.value[1] = value
+        
+    @property
+    def calculation(self):
+        return self.value[2]
+    
+    @calculation.setter
+    def calculation(self, value):
+        self.value[2] = value
         
     def load_widget(self):
         """
         Load the widget we'll use for display.
         """
         return Method_widget(self)
-    
-    def get_value(self):
-        """
-        Get the current value of this coordinate item object.
-        """
-        return (self.destination, self.program, self.calculation)
 
 
 class Method_pointer_widget(Row_pointer_widget):
