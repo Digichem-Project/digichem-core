@@ -66,7 +66,7 @@ def main():
     Main entry point for the program.
     """
     # ----- Program init -----
-    
+    silico.logging.set_logging_level("DEBUG")
     # Configure our argument parser.
     # This is the top-level parser; each sub program will specify its own sub-parser.
     parser = Program.top_level_arguments()
