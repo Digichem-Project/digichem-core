@@ -25,7 +25,7 @@ prerelease = 1
 # Whether this is a development version.
 development = prerelease is not None
 # The full version number of this package.
-version = "{}.{}.{}{}".format(major_version, minor_version, revision, "-dev.{}".format(prerelease) if development else "")
+version = "{}.{}.{}{}".format(major_version, minor_version, revision, "-pre.{}".format(prerelease) if development else "")
 # The bloke who wrote this.
 author = "Oliver Lee"
 # Program date (when we were last updated).
