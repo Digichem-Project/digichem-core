@@ -7,6 +7,7 @@ import urwid
 import silico.interface.urwid.file.browser
 import silico.interface.urwid.file.output
 from silico.interface.urwid.dialogue import Widget_dialogue
+from silico.interface.urwid.method.browser import Method_selector
 
 
 class Popup_edit(urwid.Button):
@@ -248,5 +249,53 @@ class Output_edit(File_edit):
         self.value = self.file_selector.value
         
         self.update_label()
+        
+        
+class Method_target_picker(Popup_edit):
+    """
+    An edit widget for picking part of a method (a calculation, program or destination).
+    """
+    
+    def __init__(self, top, method_targets, initial = None):
+        """
+        Constructor for File_edit widgets.
+        """
+        self.method_selector = Method_selector(top, method_targets, one_type_only = True)
+        super().__init__(top, initial)
+        
+    def open_popup(self):
+        """
+        Method called to show the popup the user can interactive with.
+        """
+        self.top.swap_into_window(self.get_popup(), submit_callback = self.update)
+    
+    def load_popup(self):
+        return self.method_selector
+    
+    def update(self):
+        """
+        Update the value of this widget.
+        """
+        # Get whatever has been selected.
+        selected_paths = self.method_selector.selected
+        if len(selected_paths) == 0:
+            self.value = None
+        
+        else:
+                
+            path = selected_paths[-1]
+            method = path[0].resolve_path(path)
+            
+            self.value = method
+            
+        self.method_selector.reset()
+        
+        self.update_label()
+        
+    def update_label(self):
+        """
+        Update the label of this widget with the current value.
+        """
+        self.set_label(str(self.value.name) if self.value is not None else "")
     
     
