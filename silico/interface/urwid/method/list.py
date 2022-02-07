@@ -105,7 +105,7 @@ class Method_widget(Row_widget):
         """
         Open a window where settings for this method can be changed.
         """
-        self.row_item.row_list.top.swap_into_window(self.method_editor, cancel_callback = self.method_editor.discard, submit_callback = self.method_editor.confirm_callback)
+        self.row_item.row_list.top.swap_into_window(self.method_editor, cancel_callback = self.method_editor.cancel_callback, submit_callback = self.method_editor.confirm_callback)
 
 
 class Method_item(Row_item):
