@@ -132,6 +132,12 @@ class Setedit_editor_mixin():
     
     def validate(self):
         raise NotImplementedError("Implement in subclass")
+    
+    def confirm_callback(self):
+        raise NotImplementedError("Implement in subclass")
+    
+    def cancel_callback(self):
+        raise NotImplementedError("Implement in subclass")
 
 
 class Setedit_browser(urwid.ListBox, Setedit_widget_parent_mixin, Setedit_editor_mixin):
@@ -191,6 +197,11 @@ class Setedit_browser(urwid.ListBox, Setedit_widget_parent_mixin, Setedit_editor
             self.on_change_callback()
             
         return retval
+    
+    def cancel_callback(self):
+        """
+        """
+        return self.method_editor.discard()
 
 
 class Paginated_settings_browser(Pages, Setedit_editor_mixin):
@@ -221,6 +232,12 @@ class Paginated_settings_browser(Pages, Setedit_editor_mixin):
         except Exception:
             get_logger().error("Failed to save changes", exc_info = True)
             return False
+        
+    def cancel_callback(self):
+        """
+        Method called when settings are being abandoned.
+        """
+        return self.discard()
         
     def refresh(self):
         """
