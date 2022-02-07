@@ -168,7 +168,7 @@ class Choices_edit(Popup_edit):
     An edit widget for selecting between a number of pre-chosen choices.
     """
     
-    def __init__(self, top, choices, initial = None, title = "Select option"):
+    def __init__(self, top, choices, initial = None, title = "Select option", change_callback = None):
         """
         Constructor for Choices_edit widgets.
         """
@@ -176,6 +176,7 @@ class Choices_edit(Popup_edit):
         self.choices = choices
         self.title = title
         self.picker = Choices_picker(self)
+        self.change_callback = change_callback
     
     def load_popup(self):
         return Widget_dialogue(self.title, self.picker, self.top, submit_callback = self.update)
@@ -189,6 +190,9 @@ class Choices_edit(Popup_edit):
         
         # Also update out picked widget to show the currently selected as having default focus.
         self.picker.set_choice(self.value)
+        
+        if self.change_callback is not None:
+            self.change_callback()
 
 
 class File_edit(Popup_edit):
