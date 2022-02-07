@@ -114,7 +114,7 @@ class Dynamic_parent():
             if len(class_handles) > 0:
                 handles.append(class_handles[0])
                 
-        return handles
+        return sorted(handles)
     
     @classmethod
     def recursive_subclasses(self):
