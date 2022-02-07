@@ -1,3 +1,7 @@
+# General imports.
+import deepmerge
+
+# Silico imports.
 from silico.exception import Configurable_exception
 from silico.misc import Dynamic_parent
 from silico.config.configurable.option import Option
@@ -90,6 +94,14 @@ class Configurable(Options_mixin):
         instance._configurable_options = values
         
         return instance
+        
+    def deep_merge(self, update):
+        """
+        Recursively update the options of this configurable from a (possibly nested) dict.
+        
+        :param update: The dictionary to update from.
+        """
+        deepmerge.always_merger.merge(self._configurable_options, update)
     
     def __init__(self, validate_now = True, **kwargs):
         """
