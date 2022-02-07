@@ -223,7 +223,7 @@ class Configurable_class_target(Dynamic_parent, Configurable):
         # Start with the name.
         try:
             desc += self.name
-        except AttributeError:
+        except Exception:
             # No name set, this is pretty unusual but try and continue.
             desc += "NO-NAME"
             
