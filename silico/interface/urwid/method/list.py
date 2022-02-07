@@ -1,6 +1,5 @@
 # General imports.
 import urwid
-import shlex
 
 # Silico imports.
 from silico.interface.urwid.row_list.base import Row_item, Row_widget,\
