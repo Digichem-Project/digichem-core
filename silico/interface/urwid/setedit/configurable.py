@@ -10,6 +10,7 @@ from silico.interface.urwid.setedit.widget import Solo_sub_editor
 from silico.interface.urwid.layout import Pane
 from silico.interface.urwid.dialogue import Confirm_or_cancel_dialogue
 import urwid
+from silico.exception.configurable import Missing_option_exception
 
 
 class Option_setedit(Setedit):
@@ -35,8 +36,13 @@ class Option_setedit(Setedit):
         self.vtype = self.vtype_from_configurable_option(option)
         self.help = option.help
         self.choices = option.choices
+        
         # This is the last value we saved, if we're asked to reset we'll roll back to this.
-        self.previous_value = self.option.get_from_dict(self.owning_obj, self.dict_obj)
+        try:
+            self.previous_value = self.option.get_from_dict(self.owning_obj, self.dict_obj)
+        
+        except Missing_option_exception:
+            self.previous_value = None
         
     def reset(self):
         """
