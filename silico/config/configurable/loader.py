@@ -213,9 +213,6 @@ class Configurable_loader():
             cls = self.type_class
 
         configurable = cls(loader_path, validate_now = validate, **config)
-        #configurable.configure_auto_name()
-        #if validate:
-        #    configurable.validate()
         configurable.finalize()
         return configurable
     
