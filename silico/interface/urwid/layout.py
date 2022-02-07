@@ -101,7 +101,7 @@ class Pane(urwid.AttrMap):
         """
         Change the inner widget that we are wrapping.
         """
-        self._pane_inner_body.original_widget = value
+        self.original_widget.original_widget.original_widget = value
 
 
 class Sub_pane(Pane):
