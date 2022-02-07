@@ -222,9 +222,12 @@ class Option():
                 # Not a list type, just convert.
                 try:
                     value = self.type(value) if self.type is not None else value
-                    self.set_into_dict(owning_obj, dict_obj, value)
+                    
                 except (TypeError, ValueError) as e:
                     raise Configurable_option_exception(owning_obj, self, "value '{}' of type '{}' is of invalid type".format(value, type(value).__name__)) from e
+                
+            # Save the new value.
+            self.set_into_dict(owning_obj, dict_obj, value)
         
         # If a list of possible choices has been set, check those now.
         if len(self.choices) != 0:
