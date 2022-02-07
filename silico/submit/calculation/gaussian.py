@@ -32,7 +32,7 @@ class Keyword():
         for option in options:
             if isinstance(option, dict):
                 # Dictionary, merge.
-                deepmerge.always_merger(self.options, option)
+                deepmerge.always_merger.merge(self.options, option)
                 
             else:
                 # Convert to string, assume this is an option without a value.
