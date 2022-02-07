@@ -45,7 +45,7 @@ class Keyword():
         The returned string is suitable for inclusion in a Gaussian input file.
         """
         options_strings = []
-        for option_name, option_value in self.options:
+        for option_name, option_value in self.options.items():
             if option_value == "":
                 # 'Blank' option value, just add the option name.
                 options_strings.append(option_name)
@@ -190,11 +190,11 @@ class Gaussian(Concrete_calculation):
         keyword_sections = []
         
         # Optimisations.
-        if self.optimisation['run']:
+        if self.optimisation['calculate']:
             keyword_sections.append(str(Keyword("Opt", self.optimisation['options'])))
             
         # Frequencies.
-        if self.frequency['run']:
+        if self.frequency['calculate']:
             keyword_sections.append(str(Keyword("Freq", self.frequency['options'])))
             
         # Excited states.
@@ -229,8 +229,8 @@ class Gaussian(Concrete_calculation):
             route_parts.append(self.keyword_to_string("SCRF", {"Solvent": self.solvent}))
         
         # Finally, add any free-form options.
-        for keyword in self.keywords:
-            route_parts.append(str(keyword(keyword, self.keywords[keyword])))
+        for keyword_str in self.keywords:
+            route_parts.append(str(Keyword(keyword_str, self.keywords[keyword_str])))
                 
         # Convert to string and return.
         return " ".join(route_parts)
