@@ -22,7 +22,7 @@ class Pages(Tab_pile):
         self.pages = pages
         # Set our first page as the one shown by default.
         #self.top = urwid.WidgetPlaceholder(self.pages[list(self.pages.keys())[0]])
-        self.top = urwid.WidgetPlaceholder(None)
+        self.page = urwid.WidgetPlaceholder(None)
         
         # Buttons to change page.
         self.buttons = self.get_controls()
@@ -31,7 +31,7 @@ class Pages(Tab_pile):
         controls = urwid.GridFlow(self.buttons, cell_width = cols, h_sep = 1, v_sep = 0, align = "center")
         super().__init__([
             ("pack", Pane(controls, title = self.title)),
-            self.top
+            self.page
         ])
         
         self.switch_page(list(self.pages.keys())[0])
@@ -95,7 +95,7 @@ class Pages(Tab_pile):
         """
         Get the title of the page that is currently visible.
         """
-        page_index = list(self.pages.values()).index(self.top.original_widget)
+        page_index = list(self.pages.values()).index(self.page.original_widget)
         return list(self.pages.keys())[page_index]
         
     def switch_page(self, title):
@@ -104,7 +104,7 @@ class Pages(Tab_pile):
         
         :param title: The title of the page to switch to.
         """
-        self.top.original_widget = self.pages[title]
+        self.page.original_widget = self.pages[title]
         # Change the attr
         self.set_button_selected(self.buttons[list(self.pages).index(title)])
         
