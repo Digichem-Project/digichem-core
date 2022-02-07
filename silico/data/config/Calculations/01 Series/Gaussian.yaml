@@ -27,8 +27,8 @@ TAG: Gaussian Auto Organic TDA
 ALIAS: Opt+Freq → TDA 50/50 (PBE0/6-31G(d,p))
 
 calculations:
-    - [Gaussian Optimisation Frequencies, Gaussian Gas Phase, Gaussian PBE1PBE (GD3BJ), Gaussian 6-31G(d,p)]
-    - [Gaussian TDA, Gaussian 10 Singlets 10 Triplets, Gaussian Gas Phase, Gaussian PBE1PBE (GD3BJ), Gaussian 6-31G(d,p)]
+    - [Gaussian Optimisation Frequencies, Gaussian Gas Phase, Gaussian PBE1PBE (GD3BJ), 'Gaussian 6-31G(d,p)']
+    - [Gaussian TDA, Gaussian 10 Singlets 10 Triplets, Gaussian Gas Phase, Gaussian PBE1PBE (GD3BJ), 'Gaussian 6-31G(d,p)']
     
  
 ---
@@ -38,10 +38,10 @@ TAG: Gaussian Auto Organic TD-DFT
 ALIAS: Opt+Freq → TD-DFT 50/50 → Opt Triplet → SP Singlet (PBE0/6-31G(d,p))
 
 calculations:
-    - [Gaussian Optimisation Frequencies, Gaussian Gas Phase, Gaussian PBE1PBE (GD3BJ), Gaussian 6-31G(d,p)]
-    - [Gaussian TD-DFT, Gaussian 10 Singlets 10 Triplets, Gaussian Gas Phase, Gaussian PBE1PBE (GD3BJ), Gaussian 6-31G(d,p)]
-    - [Gaussian Optimisation Frequencies Unrestricted Triplet, Gaussian Gas Phase, Gaussian PBE1PBE (GD3BJ), Gaussian 6-31G(d,p)]
-    - [Gaussian Single Point Singlet, Gaussian Gas Phase, Gaussian PBE1PBE (GD3BJ), Gaussian 6-31G(d,p)]
+    - [Gaussian Optimisation Frequencies, Gaussian Gas Phase, Gaussian PBE1PBE (GD3BJ), 'Gaussian 6-31G(d,p)']
+    - [Gaussian TD-DFT, Gaussian 10 Singlets 10 Triplets, Gaussian Gas Phase, Gaussian PBE1PBE (GD3BJ), 'Gaussian 6-31G(d,p)']
+    - [Gaussian Optimisation Frequencies Unrestricted Triplet, Gaussian Gas Phase, Gaussian PBE1PBE (GD3BJ), 'Gaussian 6-31G(d,p)']
+    - [Gaussian Single Point Singlet, Gaussian Gas Phase, Gaussian PBE1PBE (GD3BJ), 'Gaussian 6-31G(d,p)']
 
 
 ---
