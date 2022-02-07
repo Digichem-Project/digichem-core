@@ -32,8 +32,8 @@ class Method_target(Configurable_class_target):
             # The python docs mention that sched_getaffinity() is not available on all systems, but it is not clear what exception will be raised in such a case. These two seem most likely.
         except (AttributeError, NotImplementedError):
             return os.cpu_count()
-        
-    
+
+
 class Memory():
     """
     Class for storing memory-amounts.
