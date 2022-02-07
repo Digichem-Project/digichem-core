@@ -9,7 +9,7 @@ class Option():
     Options are descriptors that perform type checking and other functionality for Configurables; they expose the options that a certain configurable expects.
     """
     
-    def __init__(self, name = None, *, default = None, help = None, choices = None, validate = None, list_type = None, type = None, rawtype = None, exclude = None, required = False, no_edit = False):
+    def __init__(self, name = None, *, default = None, help = None, choices = None, validate = None, list_type = None, type = None, rawtype = None, exclude = None, required = False, no_none = None, no_edit = False):
         """
         Constructor for Configurable Option objects.
         
@@ -22,6 +22,7 @@ class Option():
         :param type: A callable that is used to set the type of value.
         :param exclude: A list of strings of the names of attributes that this option is mutually exclusive with.
         :param required: Whether this option is required or not.
+        :param no_none: Whether to allows None values. This defaults to False unless required == True, in which case no_none defaults to True.
         :param no_edit: Flag to indicate that this option shouldn't be edited.
         """
         self.name = name
@@ -39,6 +40,10 @@ class Option():
         self.exclude = exclude if exclude is not None else []
         self.required = required
         self.no_edit = no_edit
+        if no_none is None:
+            self.no_none = required
+        else:
+            self.no_none = no_none
         
         # If we are a list_type and a default of None has been given, change the default to an empty list.
         if self.list_type is not None and self._default is None:
@@ -189,6 +194,11 @@ class Option():
             dict_obj = owning_obj._configurable_options
         
         value = self.get_from_dict(owning_obj, dict_obj)
+        
+        # If our value is None and that's not allowed, panic.
+        if value is None and self.no_none:
+            self.set_default(owning_obj, dict_obj)
+            raise Configurable_option_exception(owning_obj, self, "value cannot be None")
         
         # Try and set the type.
         if not self.is_default(dict_obj) and value is not None:
