@@ -135,9 +135,8 @@ class Configurable_class_target(Dynamic_parent, Configurable):
     """
         
     # Configurable options.
-    #TYPE = Option(help = "The type of this Configurable", choices = ('destination', 'program', 'calculation', 'basis_set'), required = True, default = 'calculation', type = str, no_edit = True)
     TYPE = Option(help = "The parent class of this target, the class we will be replaced as will be a child class of this.", required = True, type = str, no_edit = True)
-    class_name = Option(help = "The name of a class that we will be replaced as.", required = True, no_edit = True)
+    class_name = Option(help = "The name of a class that we will be replaced as.", required = True, type = str, no_edit = True)
     name = Option(help = "The unique name of this configurable target", type = str, required = True)
 
 
