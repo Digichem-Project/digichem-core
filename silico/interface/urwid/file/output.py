@@ -88,7 +88,8 @@ class Output_selector(Swappable, Selector_mixin):
         if default is None:
             # No default.
             starting_dir = None
-            file_name = ""
+            # Use a default file name if we have one.
+            file_name = default_file_name
         
         else:
             default = Path(default)
