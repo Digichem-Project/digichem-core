@@ -130,18 +130,19 @@ class Configurable(Options_mixin):
         """
         return str(type(self))
     
-    def dump(self):
+    def dump(self, explicit = False):
         """
         Dump the value of this option so it can be serialised (for example, to yaml).
         
+        :param explicit: If True, all values will be dumped. If False, only non-default values will be dumped.
         :returns: A dumped version of this option's value.
         """
         self.OPTIONS['class_name'].get_from_dict(self, self._configurable_options)
         dump = {}
         
         for option in self.OPTIONS.values():
-            if not option.is_default(self._configurable_options):
-                dump[option.name] = option.dump(self, self._configurable_options)
+            if explicit or not option.is_default(self._configurable_options):
+                dump[option.name] = option.dump(self, self._configurable_options, explicit = explicit)
                 
         return dump
             

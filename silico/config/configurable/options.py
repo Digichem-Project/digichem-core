@@ -249,16 +249,17 @@ class Options(Option, Options_mixin):
             else:
                 raise
             
-    def dump(self, owning_obj, dict_obj):
+    def dump(self, owning_obj, dict_obj, explicit = False):
         """
         Dump the value of this option so it can be serialised (for example, to yaml).
         
+        :param explicit: If True, all values will be dumped. If False, only non-default values will be dumped.
         :returns: A dumped version of this option's value.
         """
         dump = {}
         
         for option in self.OPTIONS.values():
-            if not option.is_default(self.get_sub_dict(dict_obj)):
+            if explicit or not option.is_default(self.get_sub_dict(dict_obj)):
                 dump[option.name] = option.dump(owning_obj, self.get_sub_dict(dict_obj))
                 
         return dump
