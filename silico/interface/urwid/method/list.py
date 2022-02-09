@@ -189,7 +189,7 @@ class Method_pointer_widget(Row_pointer_widget):
         """
         for method_file in self.file_selector.browser.selected:
             try:
-                self.row_item.row_list.add_row(parse_method_from_file(method_file, self.row_item.row_list.selector.browser.method_library))
+                self.row_item.row_list.add_row(parse_method_from_file(method_file, self.row_item.row_list.method_library))
             
             except Exception:
                 # Something went wrong, most probably the given code is no good.
@@ -227,10 +227,12 @@ class Method_list(Row_browser):
         :param rearrangeable: Whether the order of chosen methods can be rearranged.
         :param initial_methods: A list of methods (tuples) to initially populate with.
         """
+        self.method_library = method_library
+        
         # Add our starting files.
         initial_methods = [] if initial_methods is None else initial_methods
         
-        super().__init__(Method_selector(top, method_library), top, rearrangeable = rearrangeable, initial = initial_methods)
+        super().__init__(Method_selector(top, method_library.methods), top, rearrangeable = rearrangeable, initial = initial_methods)
         
     def get_row_pointer(self, rearrangeable):
         return Method_pointer(self, self.swap_to_browser, rearrangeable)

@@ -95,7 +95,7 @@ class Loader_parent_node(Loader_node_mixin, urwid.ParentNode):
     Class for Parent nodes that contain configurable loaders as children.
     """
     
-    def __init__(self, loader_list, *args, **kwargs):
+    def __init__(self, loader_list, *args, stop_on_single = False, **kwargs):
         """
         Constructor for Loader_parent_node objects.
         
@@ -104,9 +104,11 @@ class Loader_parent_node(Loader_node_mixin, urwid.ParentNode):
         The name that the node will appear under is taken from the last loader in the list.
         
         :param loader_list: A list of the Configurable loaders we represent. The last loader in the list should have children.
+        :param stop_on_single: Whether to stop at the first Single_loader. If False (the default) the tree will be traversed fully.
         """
         urwid.ParentNode.__init__(self, loader_list, *args, **kwargs)
         self.concrete_children = []
+        self.stop_on_single = stop_on_single
     
     def refresh(self):
         """
@@ -128,9 +130,10 @@ class Loader_parent_node(Loader_node_mixin, urwid.ParentNode):
         child_depth = self.get_depth() +1
         
         # Decide what kind of node we need.
-        if len(child_loader_list[-1].sub_node_paths) != 0:
+        if (not self.stop_on_single or child_loader_list[-1].partial) and len(child_loader_list[-1].sub_node_paths) != 0:
             # This node has children.
             child_class = Loader_parent_node
+            return Loader_parent_node(child_loader_list, parent=self, key=key, depth=child_depth, stop_on_single = self.stop_on_single)
         
         else:
             # This loader has no children, it needs a leaf.
@@ -162,7 +165,7 @@ class Loader_top_node(Loader_parent_node):
     """
     
     def __init__(self, methods, *args, show_hidden, **kwargs):
-        super().__init__([methods])
+        super().__init__([methods], *args, **kwargs)
         self._show_hidden = show_hidden
     
     def load_widget(self):

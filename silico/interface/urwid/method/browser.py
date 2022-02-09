@@ -15,32 +15,32 @@ class Method_browser(Flaggable_tree_list_box):
     """
 
 
-    def __init__(self, method_library, show_hidden):
+    def __init__(self, methods, show_hidden, one_type_only = False):
         """
         Constructor for calculation browser objects.
         """
-        self.method_library = method_library
-        self.topnode = Loader_top_node(method_library.destinations, show_hidden = show_hidden)
+        self.methods = methods
+        self.topnode = Loader_top_node(methods, show_hidden = show_hidden, stop_on_single = one_type_only)
         super().__init__(Flaggable_tree_walker(self.topnode))
         
     def is_selectable(self, node):
         """
         Determine whether a given node is selectable.
         """
-        # Only base calculations are selectable.
+        # Normally, only base calculations are selectable.
         # We do this extra check incase there are destinations and/or programs without children.
-        loader_list = node.get_value()        
-        return not loader_list[-1].partial and node.loader_type == "calculation"
+        # However, if we're only showing one type of method, then we'll allow any node without children to be selected.
+        loader_list = node.get_value()
+        if self.topnode.stop_on_single:
+            return not loader_list[-1].partial
+        else:
+            return not loader_list[-1].partial and node.loader_type == "calculation"
     
     def select(self, focus_node, focus_widget):
         """
         Select (or deselect) the node currently in focus.
         """
         super().select(focus_node, focus_widget)
-#         
-#         if focus_widget.flagged:
-#             # This node is now selected, add to our other widget.
-#             focus_widget.
 
 
 class Method_selector(Swappable):
@@ -50,14 +50,14 @@ class Method_selector(Swappable):
     
     show_hidden = Option(help = "Whether to show hidden methods.", default = False, type = bool)
 
-    def __init__(self, top, methods):
+    def __init__(self, top, methods, one_type_only = False):
         """
         Constructor for Method_selector objects.
         
         :param top: Top-most widget to use for display.
-        :param methods: The methods that can be selected.
+        :param method_library: An object that contains methods, destinations, programs and calculations as attributes.
         """
-        self.browser = Method_browser(methods, show_hidden = self.show_hidden)
+        self.browser = Method_browser(methods, show_hidden = self.show_hidden, one_type_only = one_type_only)
         self.browser.offset_rows = 1
         
         self.code_widget = urwid.AttrMap(urwid.Edit(multiline = True), "editable")
