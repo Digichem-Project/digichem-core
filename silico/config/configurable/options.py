@@ -112,7 +112,7 @@ class Options(Option, Options_mixin):
         """
         """        
         # Use parent constructor.
-        super().__init__(name = name, help = help, rawtype = dict, exclude = exclude)
+        super().__init__(name = name, help = help, exclude = exclude)
         
         # Go through args and add to kwargs.
         for arg in args:
@@ -248,7 +248,20 @@ class Options(Option, Options_mixin):
             
             else:
                 raise
-
+            
+    def dump(self, owning_obj, dict_obj):
+        """
+        Dump the value of this option so it can be serialised (for example, to yaml).
+        
+        :returns: A dumped version of this option's value.
+        """
+        dump = {}
+        
+        for option in self.OPTIONS.values():
+            if not option.is_default(self.get_sub_dict(dict_obj)):
+                dump[option.name] = option.dump(owning_obj, self.get_sub_dict(dict_obj))
+                
+        return dump
 
     def set_default(self, owning_obj, dict_obj):
         """
