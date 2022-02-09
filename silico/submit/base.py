@@ -185,7 +185,7 @@ def parse_method_from_file(file_name, method_library):
     
     # Now for each of the three parts, either fetch a definition from our config library, or else get a new definition from the options given.
     for method_part_name, raw_method_part in raw_method.items():
-        if isinstance(raw_method_part, str):
+        if not isinstance(raw_method_part, dict):
             # The method has been given as a string; fetch the definition from our library.
             method_part = getattr(method_library, method_part_name + "s").resolve(raw_method_part)
             
