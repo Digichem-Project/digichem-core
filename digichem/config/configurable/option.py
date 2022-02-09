@@ -100,10 +100,11 @@ class Option():
         
         return self.get_from_dict(owning_obj, owning_obj._configurable_options)
     
-    def dump(self, owning_obj, dict_obj):
+    def dump(self, owning_obj, dict_obj, explicit = False):
         """
         Dump the value of this option so it can be serialised (for example, to yaml).
         
+        :param explicit: If True, all values will be dumped. If False, only non-default values will be dumped.
         :returns: A dumped version of this option's value.
         """
         value = self.get_from_dict(owning_obj, dict_obj)
