@@ -307,6 +307,10 @@ palette:
         - black, bold
         - light gray
         
+    bold italics:
+        - black, bold, italics
+        - light gray
+        
     focus:
         - light gray
         - dark blue
