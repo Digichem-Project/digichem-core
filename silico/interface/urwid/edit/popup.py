@@ -234,11 +234,11 @@ class Output_edit(File_edit):
     An edit widget for picking a location to save a new file to.
     """
     
-    def __init__(self, top, initial = None, folder = False):
+    def __init__(self, top, initial = None, folder = False, default_file_name = ""):
         """
         Constructor for File_edit widgets.
         """
-        self.file_selector = silico.interface.urwid.file.output.Output_selector(top, default = initial, folder = folder)
+        self.file_selector = silico.interface.urwid.file.output.Output_selector(top, default = initial, folder = folder, default_file_name = default_file_name)
         Popup_edit.__init__(self, top, initial)
 
     def update(self):
