@@ -14,33 +14,73 @@ from silico.submit.program import Program_target
 from silico.submit.destination import Destination_target
 
 
-# TODO: Probably need a better name?
-class Method_page(Tab_pile, Setedit_editor_mixin):
+class Method_target_editor(Tab_pile, Setedit_editor_mixin):
     """
+    A widget that edits part of a method (a calculation, program or destination)
     """
     
-    def __init__(self, top, method_target, parent_class):
+    def __init__(self, top, parent_class, method_target = None):
         """
+        Constructor for Method_page objects.
+        
+        :param method_target: The method target (one part of a method: a calculation, program or destination) to edit.
+        :param parent_class: The parent class of method_target. This class should inherit from Dynamic_parent and is used to change the class of method_target that is being edited.
         """
         self.top = top
         self.parent_class = parent_class
         
         # A widget which allows us to change the class of the configurable we're editing.
-        self.class_widget = Choices_edit(top, parent_class.known_handles(), initial = method_target.class_name, title = "Class name", change_callback = self.popup_class_confirmation_dialogue)
+        self.class_widget = Choices_edit(top, parent_class.known_handles(), initial = method_target.class_name if method_target is not None else None, title = "Class name", change_callback = self.popup_class_confirmation_dialogue)
         
         # The actual browser where we can change settings.
-        self.browser = Configurable_browser.from_configurable(top, method_target, can_reset = False)
-        self.browser_pane = Pane(self.browser, self.get_title(method_target))
+        # If we do not have a configurable class to start with, this will be an empty placeholder for now.
+        if method_target is None:
+            self.browser = None
+            self.browser_swapper = urwid.WidgetPlaceholder(urwid.Filler(urwid.Text("")))
+            
+        else:
+            self.browser = Configurable_browser.from_configurable(top, method_target, can_reset = False)
+            self.browser_swapper = urwid.WidgetPlaceholder(
+                Pane(self.browser, method_target.TYPE)
+            )
+        
         
         # Keep track of the method target we're editing, so we can rollback to it if we need.
         self.last_method_target = method_target
         
-        super().__init__([("pack", Pane(self.class_widget, "Class")), self.browser_pane])
+        super().__init__(self.get_body())
+        
+    @property
+    def configurable(self):
+        """
+        The configurable that is being edited.
+        
+        Note that thid property can return None if no initial method_target was given and the user has not yet chosen a configurable class.
+        """
+        try:
+            return self.browser.configurable
+        
+        except AttributeError:
+            if self.browser is None:
+                return None
+            
+            else:
+                raise
+        
+    def get_body(self):
+        return [
+            ("pack", Pane(self.class_widget, "Select class")),
+            self.browser_swapper
+        ]
         
     def popup_class_confirmation_dialogue(self):
         """
         Show a dialogue that prompts the user if they're sure before changing the method target class.
         """
+        if self.browser is None:
+            self.update_class()
+            return
+        
         # If the chosen class is the same as our current class, do nothing.
         if self.class_widget.value == self.browser.configurable.class_name:
             return
@@ -62,7 +102,7 @@ class Method_page(Tab_pile, Setedit_editor_mixin):
         """
         Create a new empty method_target from the current value of the class picker widget.
         """
-        new_target = self.parent_class.from_class_handle(self.class_widget.value)(validate_now = False)
+        new_target = self.parent_class.from_class_handle(self.class_widget.value)(class_name = self.class_widget.value, validate_now = False)
         self.update_current_method_target(new_target)
         
     def update_current_method_target(self, new_target):
@@ -72,29 +112,39 @@ class Method_page(Tab_pile, Setedit_editor_mixin):
         :param new_target: The method_target to set.
         """
         self.browser = Configurable_browser.from_configurable(self.top, new_target, can_reset = False)
-        self.browser_pane.inner_body = self.browser
+        self.browser_swapper.original_widget = Pane(self.browser, new_target.TYPE)
         self.class_widget.value = self.browser.configurable.class_name
         
-    def get_title(self, method_target):
-        """
-        Get the title to display for a given method_target.
-        """
-        try:
-            return "Editing {} with ID: {}".format(method_target.TYPE, method_target.index())
-        
-        except IndexError:
-            # No index.
-            return "Editing {}".format(method_target.TYPE)
-        
     def refresh(self):
+        # If no class has yet been selected, do nothing.
+        if self.class_widget.value is None:
+            return
+        
         self.browser.refresh()
         
     def save(self, validate=True):
+        """
+        Save (or attempt to) any changes made since the last made.
+        """
+        # If no class has yet been selected, do nothing.
+        if self.class_widget.value is None:
+            return
+        
         self.browser.save(validate)
         # Save was successful, update the rollback point.
         self.last_method_target = self.browser.configurable
+        # Call finalize on the target, so child objects created from its template will see the new changes.
+        # TODO: Perhaps there should be an option to call this from a Configurable_browser object?
+        self.browser.configurable.finalize()
         
     def discard(self):
+        """
+        Discard any changes made since the last save.
+        """
+        # If no class has yet been selected, do nothing.
+        if self.class_widget.value is None:
+            return
+        
         # If the current method target that's being edited is not the same as the last one that was saved, we'll rollback the entire configurable.
         if self.last_method_target is not self.browser.configurable:
             # Reset.
@@ -104,6 +154,10 @@ class Method_page(Tab_pile, Setedit_editor_mixin):
             self.browser.discard()
         
     def validate(self):
+        # If no class has yet been selected, do nothing.
+        if self.class_widget.value is None:
+            return
+        
         self.browser.validate()
 
 
@@ -116,22 +170,25 @@ class Method_editor(Paginated_settings_browser):
         """
         """
         self.top = top
-        calculation_pane = Method_page(top, calculation, Calculation_target)
-        program_pane = Method_page(top, program, Program_target)
-        destination_pane = Method_page(top, destination, Destination_target)
+        calculation_page = self.get_page(top, Calculation_target, calculation)
+        program_page = self.get_page(top, Program_target, program)
+        destination_page = self.get_page(top, Destination_target, destination)
         # We show in reverse order, because typically the calculation is what the user wants to change anyway.
         super().__init__({
-            "Calculation": calculation_pane,
-            "Program": program_pane,
-            "Destination": destination_pane
+            "Calculation": calculation_page,
+            "Program": program_page,
+            "Destination": destination_page
         }, on_change_callback = on_change_callback)
+        
+    def get_page(self, *args, **kwargs):
+        return Method_target_editor(*args, **kwargs)
         
     @property
     def method(self):
         return (
-            self.pages['Destination'].browser.configurable,
-            self.pages['Program'].browser.configurable,
-            self.pages['Calculation'].browser.configurable,
+            self.pages['Destination'].configurable,
+            self.pages['Program'].configurable,
+            self.pages['Calculation'].configurable,
         )
         
         
