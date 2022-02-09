@@ -205,7 +205,39 @@ class Setedit_browser(urwid.ListBox, Setedit_widget_parent_mixin, Setedit_editor
         return self.method_editor.discard()
 
 
-class Paginated_settings_browser(Pages, Setedit_editor_mixin):
+class Paginated_browser_mixin(Setedit_editor_mixin):
+    """
+    A mixin ABC for classes that act like widgets which can browse and change pages of lists of options.
+    """
+        
+    def refresh(self):
+        """
+        Refresh each of the pages of options.
+        """
+        raise NotImplementedError("Implement in subclass")
+
+    def save(self, validate = True):
+        """
+        Save any changes made.
+        
+        :param validate: Whether to validate the changes made.
+        """
+        raise NotImplementedError("Implement in subclass")
+
+    def validate(self):
+        """
+        Validate each of the pages of options (without saving changes first).
+        """
+        raise NotImplementedError("Implement in subclass")
+
+    def discard(self):
+        """
+        Discard any changes made.
+        """
+        raise NotImplementedError("Implement in subclass")
+
+
+class Paginated_settings_browser(Pages, Paginated_browser_mixin):
     """
     A widget for editing multiple pages of settings.
     """
