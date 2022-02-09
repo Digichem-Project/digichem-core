@@ -43,6 +43,13 @@ class Option_setedit(Setedit):
         
         except Missing_option_exception:
             self.previous_value = None
+            
+    @property
+    def required(self):
+        """
+        Whether this option must have a value set.
+        """
+        return self.option.required
         
     def reset(self):
         """

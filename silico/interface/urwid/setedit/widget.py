@@ -26,19 +26,29 @@ class Setedit_widget(urwid.Pile):
     Top class for widgets that handle display of Setedit objects.
     """
     
-    title_attr = "bold"
-    edit_attr = "editable"
-    help_attr = "body"
-    
     def __init__(self, setedit):
         """
         Constructor for Setedit_widget objects.
         """
+        self.title_attr = "bold" if not setedit.required else "bold italics"
+        self.edit_attr = "editable"
+        self.help_attr = "body"
+        
         self.setedit = setedit
         
         widget_list = self.get_widgets()
         
         urwid.Pile.__init__(self, widget_list)
+    
+    @property
+    def title(self):
+        """
+        The title of this widget.
+        """
+        title =  self.setedit.title
+        if self.setedit.required:
+            title += " (required)"
+        return title
         
     def discard(self):
         """
@@ -160,7 +170,7 @@ class Text_editor(Single_editor):
         """
         Load the list of inner widgets we'll use for display.
         """
-        self.edit = urwid.Edit((self.title_attr, self.setedit.title + ": "), self.value_to_str(self.setedit.previous_value))
+        self.edit = urwid.Edit((self.title_attr, self.title + ": "), self.value_to_str(self.setedit.previous_value))
         return super().load_widgets(self.edit)
     
     def discard(self):
@@ -198,7 +208,7 @@ class Bool_editor(Single_editor):
         if self.setedit.previous_value is not True and self.setedit.previous_value is not False:
             raise Silico_exception("Only True or False are allowed values for checkboxes, not '{}'".format(self.setedit.previous_value))
         
-        self.checkbox = urwid.CheckBox((self.title_attr, self.setedit.title + ": "), self.setedit.previous_value)
+        self.checkbox = urwid.CheckBox((self.title_attr, self.title + ": "), self.setedit.previous_value)
         
         return super().load_widgets(self.checkbox)
     
@@ -242,7 +252,7 @@ class Popup_editor(Single_editor):
         """
         # We'll wrap this in a columns so we can add our title.
         body = urwid.Columns([
-            ('pack', urwid.Text((self.title_attr, "{}: ".format(self.setedit.title)))),
+            ('pack', urwid.Text((self.title_attr, "{}: ".format(self.title)))),
             self.popup_widget
         ], dividechars = 1)
         
@@ -294,9 +304,6 @@ class Text_list_editor(Min_edit):
     Text editor that appears as part of a list.
     """
     
-    # Attribute that controls appearance of the position indicator.
-    position_attr = "body"
-    
     def __init__(self, editor, position, edit_text):
         """
         Constructor for Text_list_editor widgets.
@@ -305,6 +312,8 @@ class Text_list_editor(Min_edit):
         :param position: Starting position (index +1) of this editor.
         :param edit_text: Default value of this editor.
         """
+        # Attribute that controls appearance of the position indicator.
+        self.position_attr = "body"
         self.editor = editor
         
         # Replace None values with actual text.
@@ -363,7 +372,7 @@ class List_editor(Setedit_widget):
         
         return [
             # Widget for our title.
-            urwid.Text((self.title_attr, self.setedit.title)),
+            urwid.Text((self.title_attr, self.title)),
             # Help text.
             self.get_help_widget(self.setedit.help),
             # Actual contents.
@@ -564,7 +573,7 @@ class Sub_setedit(Setedit_widget, Setedit_widget_parent_mixin):
         
         return [
             # Widget for our title.
-            urwid.Text((self.title_attr, self.setedit.title)),
+            urwid.Text((self.title_attr, self.title)),
             # Help text.
             self.get_help_widget(self.setedit.help),
             # Actual contents.
@@ -618,7 +627,7 @@ class Solo_sub_editor(Sub_setedit):
         
 #         return [
 #             ## Widget for our title.
-#             #urwid.Text((self.title_attr, self.setedit.title)),
+#             #urwid.Text((self.title_attr, self.title)),
 #             ## Help text.
 #             #self.get_help_widget(self.setedit.help),
 #             ## A divider.

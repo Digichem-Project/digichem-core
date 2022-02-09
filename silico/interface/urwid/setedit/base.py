@@ -33,6 +33,7 @@ class Setedit():
         self.help = help
         self.choices = choices
         self._widget = None
+        self.required = False
         
     def refresh(self):
         """
