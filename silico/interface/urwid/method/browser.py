@@ -6,7 +6,6 @@ from silico.interface.urwid.tree.base import Flaggable_tree_list_box,\
 from silico.config.configurable.option import Option
 from silico.interface.urwid.swap.swappable import Swappable
 from silico.interface.urwid.layout import Pane
-from silico.interface.urwid.misc import Tab_pile
     
 
 class Method_browser(Flaggable_tree_list_box):
