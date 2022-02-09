@@ -1,7 +1,6 @@
 import getpass
 from pathlib import Path
 import copy
-import deepmerge
 
 from silico.submit.structure.flag import Flag
 from silico.exception.base import Submission_error
@@ -10,6 +9,7 @@ from silico.config.configurable.option import Option
 from silico.config.configurable.options import Options
 from silico.file.convert import Silico_input
 from silico.submit.base import Method_target
+
 
 class Calculation_target(Method_target):
     """
