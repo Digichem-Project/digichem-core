@@ -12,6 +12,7 @@ from silico.program.status import Status_program
 from silico.interface.urwid.misc import Tab_pile
 from silico.interface.urwid.dialogue import Confirm_dialogue
 from silico.authors import get_authorship_string
+from silico.interface.urwid.method.builder import Method_builder
 
 
 class Silico_window(Window):
@@ -36,6 +37,9 @@ class Silico_window(Window):
         
         # A widget which can be swapped to in order to change the main silico settings.        
         self.settings_pane = Sub_pane(make_paginated_configurable_browser(self.program.config, self.top, on_change_callback = self.update_settings, page_selector_title = "Settings Type"), "Main Silico Settings")
+        
+        # A widget for creating new methods.
+        self.method_builder = Method_builder(self.top, self.program.config)
         
         body = Tab_pile([
             ('pack', urwid.Padding(urwid.BigText("Silico", HalfBlock7x7Font()), align = "center", width = "clip")),
@@ -94,8 +98,10 @@ class Silico_window(Window):
         # Add a status button.
         # TODO: Should add a smarter interface for the status program.
         program_buttons.append(self.get_option_widget("Status: Check queue status", lambda button: self.program.get_program(Status_program).main()))
+        # Add a method builder button.
+        program_buttons.append(self.get_option_widget("Method builder", lambda button: self.swap_to_method_builder()))
         # Add a settings button.
-        program_buttons.append(self.get_option_widget("Settings: Permanently change settings", lambda button: self.swap_to_main_settings()))
+        program_buttons.append(self.get_option_widget("Settings", lambda button: self.swap_to_main_settings()))
         # And an exit button.
         program_buttons.append(self.get_option_widget("Quit", lambda button: self.top.back()))
         
@@ -105,6 +111,12 @@ class Silico_window(Window):
         """
         """
         self.top.popup(Confirm_dialogue("The Silico Development Team", get_authorship_string(), self.top), width = ('relative', 60), height = ('relative', 60))
+        
+    def swap_to_method_builder(self):
+        """
+        Swap to the widget that can be used to create new methods.
+        """
+        self.top.swap_into_window(self.method_builder, cancel_callback = self.method_builder.cancel_callback, submit_callback = self.method_builder.submit_callback)
     
     def swap_to_main_settings(self):
         """
@@ -112,7 +124,7 @@ class Silico_window(Window):
         """
         # TODO: Calling refresh should really happen elsewhere (mostly because it's easy to forget if its the job of the swapping widget to refresh).
         self.settings_pane.base_widget.refresh()
-        self.top.swap_into_window(self.settings_pane, cancel_callback = self.settings_pane.base_widget.discard, submit_callback = self.settings_pane.base_widget.confirm_callback)
+        self.top.swap_into_window(self.settings_pane, cancel_callback = self.settings_pane.base_widget.cancel_callback, submit_callback = self.settings_pane.base_widget.confirm_callback)
         
     def get_option_widget(self, name, callback):
         """
