@@ -405,7 +405,7 @@ class Partial_loader(Configurable_loader):
         
         else:
             # Unrecognised identifier
-            raise TypeError("identifier must be either an integer, str or a list-like/tuple-like")
+            raise TypeError("identifier must be either an integer, str or a list-like/tuple-like, not '{}'".format(type(identifier)))
         
         # Now resolve our path.
         return self.resolve_path(path, validate = validate)
