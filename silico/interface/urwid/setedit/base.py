@@ -271,9 +271,10 @@ class Paginated_settings_browser(Pages, Paginated_browser_mixin):
         Method called when settings are being abandoned.
         """
         return self.discard()
-        
+    
     def refresh(self):
         """
+        Refresh each of the pages of options.
         """
         for page in self.pages.values():
             page.base_widget.refresh()
@@ -296,6 +297,7 @@ class Paginated_settings_browser(Pages, Paginated_browser_mixin):
             
     def validate(self):
         """
+        Validate each of the pages of options (without saving changes first).
         """
         for name, page in self.pages.items():
             page.base_widget.validate()
