@@ -167,6 +167,14 @@ class Configurable_class_target(Dynamic_parent, Configurable):
         :param file_name: If this confiugrable was not loaded from a (number of) loaders but was loaded from a file, the name of that file.
         :param validate_now: If True, the given options will be validated before this constructor returns. Validation can also be performed at any time by calling validate(). 
         """
+        # If no class name has been set, use the class handle of this object.
+        # We do this because it feels clumsy to specify class_name when constructing a configurable directly,
+        # otherwise you'd have to do something like: configurable(class_name = "configurable") everytime.
+        # We can't set this by default = because this would interfere with the dumping mechanism (because
+        # options that are set to their default are not saved by default.
+        if 'class_name' not in kwargs:
+            self.class_name = self.CLASS_HANDLE[0]
+        
         self.inner_cls = None
         self.loader_list = loader_list if loader_list is not None else []
         self._file_name = file_name
