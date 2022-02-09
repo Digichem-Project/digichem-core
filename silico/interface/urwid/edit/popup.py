@@ -277,13 +277,12 @@ class Method_target_picker(Popup_edit):
         Update the value of this widget.
         """
         # Get whatever has been selected.
-        selected_paths = self.method_selector.selected
-        if len(selected_paths) == 0:
+        selected_nodes = self.method_selector.browser.selected_nodes
+        if len(selected_nodes) == 0:
             self.value = None
         
         else:
-                
-            path = selected_paths[-1]
+            path = selected_nodes[-1].build_loader_path()[-1]
             method = path[0].resolve_path(path)
             
             self.value = method
