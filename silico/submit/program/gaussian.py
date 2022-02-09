@@ -15,7 +15,7 @@ class Gaussian(Program_target):
     Top level class for submitting calculations to Gaussian.
     """
     
-    CLASS_HANDLE = ("gaussian",)
+    CLASS_HANDLE = ("Gaussian",)
     
     # Configurable options.
     executable = Option(help = "Name/path of the main Gaussian executable", required = True, type = str)
