@@ -9,7 +9,7 @@ class Option():
     Options are descriptors that perform type checking and other functionality for Configurables; they expose the options that a certain configurable expects.
     """
     
-    def __init__(self, name = None, *, default = None, help = None, choices = None, validate = None, list_type = None, type = None, rawtype = None, exclude = None, required = False, no_none = None, no_edit = False):
+    def __init__(self, name = None, *, default = None, help = None, choices = None, validate = None, list_type = None, type = None, exclude = None, required = False, no_none = None, no_edit = False, dump_func = None):
         """
         Constructor for Configurable Option objects.
         
@@ -24,6 +24,7 @@ class Option():
         :param required: Whether this option is required or not.
         :param no_none: Whether to allows None values. This defaults to False unless required == True, in which case no_none defaults to True.
         :param no_edit: Flag to indicate that this option shouldn't be edited.
+        :param dump_func: An optional function that will be called to serialize the data of this option ready for dumping to file. The function will be called with 3 arguments: this Option object, the owning Configurable object and the value being set, and should return the value to save.
         """
         self.name = name
         # TODO: Need to be smarter about storing mutable objects (most notable, list and dict, normally empty ones) as default
@@ -32,14 +33,13 @@ class Option():
         self._default = default
         self.list_type = list_type
         self.type = type
-        # TODO: This is probably deprecated
-        self.rawtype = type if rawtype is None else rawtype
         self.help = help
         self.choices = choices if choices is not None else []
         self._validate = validate if validate is not None else self.default_validate
         self.exclude = exclude if exclude is not None else []
         self.required = required
         self.no_edit = no_edit
+        self.dump_func = dump_func
         if no_none is None:
             self.no_none = required
         else:
@@ -99,7 +99,19 @@ class Option():
             return self
         
         return self.get_from_dict(owning_obj, owning_obj._configurable_options)
-
+    
+    def dump(self, owning_obj, dict_obj):
+        """
+        Dump the value of this option so it can be serialised (for example, to yaml).
+        
+        :returns: A dumped version of this option's value.
+        """
+        value = self.get_from_dict(owning_obj, dict_obj)
+        if self.dump_func is not None:
+            return self.dump_func(self, owning_obj, value)
+        
+        else:
+            return value 
 
     def get_from_dict(self, owning_obj, dict_obj):
         """
