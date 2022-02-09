@@ -34,6 +34,7 @@ class Loader_node_mixin():
         """
         Build a list of configurable loaders from this node up to the parent node.
         
+        :param loader_paths: A parameter used when this method is called recursively, this should typically not be given by the user.
         :returns: A list of loader paths (each of a different TYPE), each of which is a list of loaders.
         """
         if loader_paths is None:
