@@ -152,6 +152,7 @@ class Loader_parent_widget(Loader_widget):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # We start unexpanded so we don't have to generate the entire tree at the start.
+        # TODO: Allow an opening path to be given here.
         self.expanded = False
         self.update_expanded_icon()
 
