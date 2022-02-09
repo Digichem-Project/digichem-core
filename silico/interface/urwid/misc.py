@@ -13,22 +13,42 @@ class Tab_pile(urwid.Pile):
         
         # Add support for traversing between our children.
         if key == 'tab':
+            pass
             # Move down (if we can).
-            if self.focus_position +1 < len(self.contents):
-                self.focus_position = self.focus_position +1
-            
-            else:
-                # Continue.
+            next_pos = 1
+            changed_focus = False
+            while self.focus_position +next_pos < len(self.contents):
+                # Check if it can be selected.
+                next_focus = self.contents[self.focus_position +next_pos][0]
+                if next_focus.selectable():
+                    self.focus_position = self.focus_position +next_pos
+                    changed_focus = True
+                    break
+                 
+                else:
+                    next_pos += 1
+                     
+            if not changed_focus:
                 return key
             
         elif key == 'shift tab':
             # Move up (if we can).
-            if self.focus_position > 0:
-                self.focus_position = self.focus_position -1
-            
-            else :
-                # Continue;
+            prev_pos = 1
+            changed_focus = False
+            while self.focus_position -prev_pos >= 0:
+                # Check if it can be selected.
+                prev_focus = self.contents[self.focus_position -prev_pos][0]
+                if prev_focus.selectable():
+                    self.focus_position = self.focus_position -prev_pos
+                    changed_focus = True
+                    break
+                
+                else:
+                    prev_pos += 1
+                    
+            if not changed_focus:
                 return key
+
         else:
             return key
         
