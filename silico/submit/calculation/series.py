@@ -3,6 +3,7 @@ from silico.config.configurable.option import Option
 from silico.exception.configurable import Configurable_exception
 from silico.submit.base import Memory
 
+
 class Calculation_series(Calculation_target):
     """
     A pseudo calculation that automatically runs a number of calculations in series.
@@ -15,7 +16,9 @@ class Calculation_series(Calculation_target):
         "calculations",
         help = "A list of calculations to perform in series",
         required = True,
-        type = tuple,
+        type = None,
+        list_type = list,
+        # TODO: Need to add some way to actually edit properly; each item can be an int, a string or a list.
         no_edit = True
     )
     
