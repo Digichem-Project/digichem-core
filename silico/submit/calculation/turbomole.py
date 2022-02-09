@@ -35,7 +35,7 @@ class Turbomole(Concrete_calculation):
     OUTPUT_COORD_TYPE = "tmol"
     
     # Configurable options.
-    memory = Option(help = "The amount of memory to use for the calculation.", required = True, type = Turbomole_memory, rawtype = str)
+    memory = Option(help = "The amount of memory to use for the calculation.", required = True, type = Turbomole_memory, dump_func = lambda option, configurable, value: str(value))
     modules = Option(help = "A list of turbomole commands/programs to execute in order.", type = tuple, required = True)
     parallel_mode = Option(help = "The type of parallelization to use. SMP uses shared memory and therefore is only suitable for parallelization across a single node, while MPI uses message-passing between processes and so can be used across multiple nodes. Use 'linear' to disable parallelization.", default = "SMP", choices = ("SMP", "MPI", "linear"), type = str)
     

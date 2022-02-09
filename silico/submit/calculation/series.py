@@ -19,7 +19,7 @@ class Calculation_series(Calculation_target):
         no_edit = True
     )
     
-    memory = Option(help = "Force each calculation in this series to use this amount of memory", default = None, type = Memory, rawtype = str)
+    memory = Option(help = "Force each calculation in this series to use this amount of memory", default = None, type = Memory, dump_func = lambda option, configurable, value: str(value))
     num_CPUs = Option(help = "Force each calculation in this series to use this many CPUs", default = None, type = int)
             
     def expand(self, calculations):
