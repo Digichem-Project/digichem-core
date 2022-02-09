@@ -17,8 +17,6 @@ class Method_target(Configurable_class_target):
     
     hidden = Option(help = "If True, this method will not appear in lists (but can still be specified by the user). Useful for methods that should not be used naively.", type = bool, default = False, no_edit = True)
     warning = Option(help = "A warning message to display when this method is chosen.", default = None, type = str, no_edit = True)
-    # We can have a default class_name.
-    class_name = Option(default = lambda opt, obj: obj.CLASS_HANDLE[0], no_edit = True)
             
     @classmethod
     def get_available_CPUs(self):
