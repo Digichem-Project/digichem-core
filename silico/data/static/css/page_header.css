@@ -38,4 +38,6 @@ header {
     text-overflow: ellipsis;
     padding-left: 15px;
     padding-right: 15px;
+    width: 100%;
+    text-align: center;
 }
