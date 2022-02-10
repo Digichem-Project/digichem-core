@@ -153,7 +153,7 @@ class Memory():
         return self.auto
     
 
-def parse_method_from_file(file_name, method_library):
+def parse_method_from_file(file_name, method_library, resolve = True):
     """
     Parse a method from a given file name.
     
@@ -164,6 +164,7 @@ def parse_method_from_file(file_name, method_library):
     
     :param file_name: Path to a file to parse.
     :param method_library: A loaded library fo method definitions.
+    :param resolve: Whether to resolve method parts that are IDs to a method in the library. If False, the method ID will be returned instead.
     :returns: A tuple of (destination, program, calculation)
     """
     # First, parse the file with yaml.
@@ -187,7 +188,12 @@ def parse_method_from_file(file_name, method_library):
     for method_part_name, raw_method_part in raw_method.items():
         if not isinstance(raw_method_part, dict):
             # The method has been given as a string; fetch the definition from our library.
-            method_part = getattr(method_library, method_part_name + "s").resolve(raw_method_part)
+            if resolve:
+                method_part = getattr(method_library, method_part_name + "s").resolve(raw_method_part)
+                
+            else:
+                # Just save the id.
+                method_part = raw_method_part
             
         else:
             # The method has been given as a dict. Create a new definition.
