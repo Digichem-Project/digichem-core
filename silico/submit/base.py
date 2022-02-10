@@ -192,7 +192,11 @@ def parse_method_from_file(file_name, method_library, resolve = True):
         if not isinstance(raw_method_part, dict):
             # The method has been given as a string; fetch the definition from our library.
             if resolve:
-                method_part = getattr(method_library, method_part_name + "s").resolve(raw_method_part)
+                try:
+                    method_part = getattr(method_library, method_part_name + "s").resolve(raw_method_part)
+                
+                except Exception as e:
+                    raise Exception("Cannot resolve {} ID '{}' from file '{}'".format(method_part_name, raw_method_part, file_name)) from e
                 
             else:
                 # Just save the id.
