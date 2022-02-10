@@ -12,7 +12,7 @@ from silico.exception.configurable import Configurable_loader_exception,\
 from silico.exception.base import Silico_exception
 from silico.config.configurable.base import Configurable_class_target
 from silico.config.configurable.identifier import ID_splitter
-from silico.misc.base import is_int
+from silico.misc.base import is_int, is_iter
 
 
 class Configurable_loader():
@@ -565,11 +565,14 @@ class Partial_loader(Configurable_loader):
                     match.TOP = False
                     self.NEXT.append(match)
                     
-        except KeyError:
+        except (TypeError, KeyError):
             if 'NEXT' not in self.config:
                 # Missing required NEXT
                 raise Configurable_loader_exception(self.config, self.TYPE, self.file_name, "missing required option NEXT") from None
-                
+            
+            elif not is_iter(self.config['NEXT']):
+                raise Configurable_loader_exception(self.config, self.TYPE, self.file_name, "option NEXT is not iterable") from None
+            
             else:
                 # Something else went wrong.
                 raise
