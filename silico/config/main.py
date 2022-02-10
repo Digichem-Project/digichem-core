@@ -345,8 +345,6 @@ Example:
         self.programs = []
         calculations = self.calculations
         self.calculations = []
-        basis_sets = self.basis_sets
-        self.basis_sets = []
         # TMP remove __deepcopy__ so we don't recurse.
         copyfunc = self.__deepcopy__
         self.__deepcopy__ = None
@@ -361,8 +359,6 @@ Example:
         new.programs = programs
         self.calculations = calculations
         new.calculations = calculations
-        self.basis_sets = basis_sets
-        new.basis_sets = basis_sets
         self.__deepcopy__ = copyfunc
         
         # And return.
