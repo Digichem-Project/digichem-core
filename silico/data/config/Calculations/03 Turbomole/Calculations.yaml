@@ -11,43 +11,6 @@ NEXT:
 ---
 
 
-TAG: Turbomole Single Point
-SUB_TYPE: partial
-ALIAS: Single Point
-
-modules:
-    - dscf
-
-NEXT:
-    - Turbomole Functionals
-    - Turbomole CC2 SP
-    - Turbomole ADC(2) SP
-
-
----
-
-
-TAG: Turbomole CC2 SP
-SUB_TYPE: partial
-ALIAS: CC2
-
-NEXT:
-    - Turbomole CC2
-
-
----
-
-
-TAG: Turbomole ADC(2) SP
-SUB_TYPE: partial
-ALIAS: ADC(2)
-
-NEXT:
-    - Turbomole ADC(2)
-
----
-
-
 TAG: Turbomole Optimisation
 SUB_TYPE: partial
 ALIAS: Optimisation

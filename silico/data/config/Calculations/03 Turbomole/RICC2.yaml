@@ -1,13 +1,12 @@
-TAG: Turbomole CC2
+TAG: Turbomole MP2
 SUB_TYPE: pseudo
-ALIAS: CC2
+ALIAS: MP2
 
-num_CPUs: 6
+num_CPUs: 32
 memory: 80GB
 
 ricc2:
-    model: cc2
-    scs: scs
+    model: mp2
 
 NEXT:
     - Turbomole Correlation Consistent Basis Sets
@@ -18,9 +17,9 @@ NEXT:
 
 TAG: Turbomole ADC(2)
 SUB_TYPE: pseudo
-ALIAS: ADC(2)
+ALIAS: SCS-ADC(2)
 
-num_CPUs: 6
+num_CPUs: 32
 memory: 80GB
 
 ricc2:
@@ -29,3 +28,22 @@ ricc2:
 
 NEXT:
     - Turbomole Correlation Consistent Basis Sets
+
+
+---
+
+
+TAG: Turbomole CC2
+SUB_TYPE: pseudo
+ALIAS: SCS-CC2
+
+num_CPUs: 32
+memory: 80GB
+
+ricc2:
+    model: cc2
+    scs: scs
+
+NEXT:
+    - Turbomole Correlation Consistent Basis Sets
+
