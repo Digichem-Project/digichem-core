@@ -10,6 +10,7 @@ from silico.config.configurable.option import Option
 from silico.config.configurable.options import Options
 from silico.config.file.locations import user_config_location
 from silico.misc.io import atomic_write
+from silico.submit.calculation.turbomole import Turbomole_memory
 
 
 class Silico_options(Configurable):
@@ -195,7 +196,7 @@ To disable the maximum width, set to null.""", type = int, default = 1500),
     report = Options(help = "Options for controlling the generation of calculation reports.",
         turbomole = Options(help = "Sub options for Turbomole reports.",
             num_CPUs = Option(help = "The number of CPUs to use to generate cubes.", type = int, default = 1),
-            memory = Option(help = "The amount of memory with which to generate cubes.", default = "1GB"),
+            memory = Option(help = "The amount of memory with which to generate cubes.", type = Turbomole_memory, default = Turbomole_memory("1GB")),
             program = Option(help = "The name of a program definition to use to create cubes.", default = "Turbomole")
         ),
         cleanup = Option(help =\
