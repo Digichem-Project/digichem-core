@@ -231,9 +231,9 @@ class Top(urwid.WidgetPlaceholder):
                 self.dialogue_stack.pop([True if overlay.top_w == popup else False for overlay in self.dialogue_stack].index(True))
             
             #TOOD: This might be catching the wrong exception?
-            except IndexError:
+            except ValueError:
                 # Give a slightly more descriptive error.
-                raise IndexError("close_popup() called but widget '{}' is not currently visible".format(popup))
+                raise IndexError("close_popup() called but widget '{}' is not currently visible".format(popup)) from None
             
         else:
             try:
