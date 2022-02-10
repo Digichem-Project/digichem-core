@@ -260,7 +260,7 @@ class Method_target_picker(Popup_edit):
         """
         Constructor for File_edit widgets.
         """
-        self.method_selector = Method_selector(top, method_targets, one_type_only = True)
+        self.method_selector = Method_selector(top, method_targets, one_type_only = True, can_choose_multiple = False)
         super().__init__(top, initial)
         
     def open_popup(self):
