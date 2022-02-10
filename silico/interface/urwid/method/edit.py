@@ -153,12 +153,12 @@ class Method_target_editor(Tab_pile, Setedit_editor_mixin):
         else:
             self.browser.discard()
         
-    def validate(self):
+    def validate_setedits(self):
         # If no class has yet been selected, do nothing.
         if self.class_widget.value is None:
             return
         
-        self.browser.validate()
+        self.browser.validate_setedits()
 
 
 class Method_editor(Paginated_settings_browser):

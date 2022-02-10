@@ -131,7 +131,7 @@ class Setedit_editor_mixin():
     def discard(self):
         raise NotImplementedError("Implement in subclass")
     
-    def validate(self):
+    def validate_setedits(self):
         raise NotImplementedError("Implement in subclass")
     
     def confirm_callback(self):
@@ -224,7 +224,7 @@ class Paginated_browser_mixin(Setedit_editor_mixin):
         """
         raise NotImplementedError("Implement in subclass")
 
-    def validate(self):
+    def validate_setedits(self):
         """
         Validate each of the pages of options (without saving changes first).
         """
@@ -295,12 +295,12 @@ class Paginated_settings_browser(Pages, Paginated_browser_mixin):
         # Change back to the original page.
         self.switch_page(current_page)
             
-    def validate(self):
+    def validate_setedits(self):
         """
         Validate each of the pages of options (without saving changes first).
         """
         for name, page in self.pages.items():
-            page.base_widget.validate()
+            page.base_widget.validate_setedits()
     
     def discard(self):
         """
@@ -310,6 +310,6 @@ class Paginated_settings_browser(Pages, Paginated_browser_mixin):
             page.base_widget.discard()
             
         self.save(False)
-        self.validate()
+        self.validate_setedits()
         if self.on_change_callback is not None:
             self.on_change_callback()

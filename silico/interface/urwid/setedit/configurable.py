@@ -261,12 +261,12 @@ class Configurable_browser(Setedit_browser):
             options[child_widget.setedit.title].__set__(self.configurable, value)
             
         if validate:
-            self.validate()
+            self.validate_setedits()
             # TODO: This should probably not be called from here...
             self.confirm()
         
             
-    def validate(self):
+    def validate_setedits(self):
         """
         Check the currently set values of our configurable are valid.
         

@@ -128,7 +128,7 @@ class Method_target_builder(Tab_pile, Setedit_editor_mixin):
         self.previous_from_library = self.from_library
         self.previous_library_configurable = self.library_picker_widget.value
             
-    def validate(self):
+    def validate_setedits(self):
         """
         Validate each of the pages of options (without saving changes first).
         """
@@ -138,7 +138,7 @@ class Method_target_builder(Tab_pile, Setedit_editor_mixin):
             self.method_library.path_by_tags(self.library_picker_widget.value.tag_hierarchy)
             
         else:
-            self.editor.validate()
+            self.editor.validate_setedits()
             
     def discard(self):
         """
