@@ -169,7 +169,7 @@ class Method_pointer_widget(Row_pointer_widget):
         Add the values from our edit widget to our parent list.
         """
         # This reference is long, perhaps there is better access?
-        methods = self.row_item.row_list.selector.browser.method_library.methods
+        methods = self.row_item.row_list.method_library.methods
         
         # Add each of the methods identified by each code.
         for code in self.code_popup.edit.edit_text.split():
