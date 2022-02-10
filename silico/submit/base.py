@@ -152,6 +152,9 @@ class Memory():
         """
         return self.auto
     
+    def __eq__(self, other):
+        return int(self) == other
+    
 
 def parse_method_from_file(file_name, method_library, resolve = True):
     """
