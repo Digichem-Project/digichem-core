@@ -83,6 +83,7 @@ class Gaussian(Concrete_calculation):
         functional = Option(help = "The DFT functional to use. Specifying an option here will enable DFT.", type = str),
         empirical_dispersion = Option(help = "Optional empirical dispersion method to use, note that not all methods are suitable with all functions.", choices = ("PFD", "GD2", "GD3", "GD3BJ", None), default = None)
     )
+    post_HF_method = Option(help = "The name of a post-HF, calculation method to perform.", choices = ("MP2", "MP3", "MP4", "MP4(DQ)", "MP4(SDQ)", "MP5", "CCD", "CCSD", None), default = None)
     unrestricted = Option(help = "Whether to perform an unrestricted calculation", type = bool, default = False)
     basis_set = Options(help = "The basis set to use.",
         internal = Option(help = "The name of a basis set built in to Gaussian, see Gaussian manual for allowed values.", type = str, exclude = "exchange"),
@@ -115,6 +116,16 @@ class Gaussian(Concrete_calculation):
     )
     keywords = Option(help = "Additional Gaussian route keywords. These are written to the input file with only minor modification ('keyword: option' becomes 'keyword=(option)' and 'keyword: {option: value}' becomes 'keyword=(option=value)'), so any option valid to Gaussian can be given here", default = {'Population': 'Regular', 'Density': 'Current'}, type = dict)            
     
+    @property
+    def method(self):
+        """
+        A string describing the method to use (either a DFT functional or a post-HF method).
+        """
+        if self.DFT['functional'] is not None:
+            return self.DFT['functional']
+        
+        else:
+            return self.post_HF_method
     
     @property
     def charge(self):
@@ -201,7 +212,7 @@ class Gaussian(Concrete_calculation):
         @property
         def model_chemistry(self):
             """
-            The 'model chemistry' to be used by the calculation, this is a string containing both the functional and basis set (separated by /).
+            The 'model chemistry' to be used by the calculation, this is a string containing both the method/functional and basis set (separated by /).
             """
             # First, determine the basis set being used.
             # This label is distinct from both the basis_set property and the basis_set.internal option.
@@ -216,11 +227,12 @@ class Gaussian(Concrete_calculation):
                 basis_set = None
             
             model = ""
+            method = self.method
             # Add the functional.
-            if self.DFT['functional'] is not None:
-                model += "{}{}".format("u" if self.unrestricted else "", self.DFT['functional'])
+            if method is not None:
+                model += "{}{}".format("u" if self.unrestricted else "", method)
             # Add a slash if we have both functional and basis set.
-            if self.DFT['functional'] is not None and basis_set is not None:
+            if method is not None and basis_set is not None:
                 model += "/"
             # And finally the basis set.
             if basis_set is not None:
@@ -235,7 +247,7 @@ class Gaussian(Concrete_calculation):
             """
             # Assemble our route line.
             # Add calc keywords.
-            route_parts = list(self.calculation_keywords)
+            route_parts = [self.calculation_keywords]
             
             # Model chemistry
             route_parts.append(self.model_chemistry)
