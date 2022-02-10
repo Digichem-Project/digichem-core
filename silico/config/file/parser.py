@@ -181,6 +181,9 @@ class Configurables_parser():
                 with open(file_name, "rt") as file:
                     # Parse each.
                     for config in yaml.safe_load_all(file):
+                        if config is None:
+                            continue
+                        
                         # If the config has its SUB_TYPE set to update, file it away separately.
                         if config.get('SUB_TYPE') == "update":
                             # An update, no need to pre process.
