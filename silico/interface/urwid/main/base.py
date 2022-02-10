@@ -12,7 +12,8 @@ from silico.program.status import Status_program
 from silico.interface.urwid.misc import Tab_pile
 from silico.interface.urwid.dialogue import Confirm_dialogue
 from silico.authors import get_authorship_string
-from silico.interface.urwid.method.builder import Method_builder
+from silico.interface.urwid.method.builder import Method_builder_menu
+from silico.interface.urwid.wrapper import Cancel
 
 
 class Silico_window(Window):
@@ -39,7 +40,8 @@ class Silico_window(Window):
         self.settings_pane = Sub_pane(make_paginated_configurable_browser(self.program.config, self.top, on_change_callback = self.update_settings, page_selector_title = "Settings Type"), "Main Silico Settings")
         
         # A widget for creating new methods.
-        self.method_builder = Method_builder(self.top, self.program.config)
+        #self.method_builder = Method_builder(self.top, self.program.config)
+        self.method_builder = Method_builder_menu(self.top, self.program.config)
         
         body = Tab_pile([
             ('pack', urwid.Padding(urwid.BigText("Silico", HalfBlock7x7Font()), align = "center", width = "clip")),
@@ -116,7 +118,7 @@ class Silico_window(Window):
         """
         Swap to the widget that can be used to create new methods.
         """
-        self.top.swap_into_window(self.method_builder, cancel_callback = self.method_builder.cancel_callback, submit_callback = self.method_builder.submit_callback)
+        self.top.swap(Cancel(self.method_builder, self.top, lambda: None))
     
     def swap_to_main_settings(self):
         """
