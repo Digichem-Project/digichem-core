@@ -21,7 +21,7 @@
     <h2 class="section__header">About</h2>
     <div class="section__body section__body--text section__body--about">
         <div class="title">
-            <div class="title__superTitle"><u>cr</u>eport: <u>C</u>alculation <u>R</u>eport Generator</div>
+            <div class="title__superTitle">Silico Calculation Report</div>
             <div class="title__mainTitle">Part of the silico software package</div>
             <div class="title__subTitle">Version ${silico.version}</div>
             <div class="title__subTitle">${silico.last_updated.day} ${silico.last_updated.strftime("%B %Y")}</div>
