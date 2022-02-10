@@ -44,9 +44,14 @@ class Method_target_builder(Tab_pile, Setedit_editor_mixin):
         # A widget which can pick an existing method from the library.
         if initially_from_library:
             # Get the configurable referred to by our ID.
-            initial = method_library.resolve(initial) if initial is not None else None
+            try:
+                initial = method_library.resolve(initial) if initial is not None else None
             
-        self.library_picker_widget = Method_target_picker(top, method_library, initial = initial)
+            except Exception:
+                silico.logging.get_logger().error("Failed to resolve {} identified by ID '{}'".format(method_type, initial), exc_info = True)
+                initial = None
+            
+        self.library_picker_widget = Method_target_picker(top, method_library, initial = initial if initially_from_library else None)
         self.library_picker_pane = Pane(self.library_picker_widget, "Choose from library")
         
         # The widget whose contents will change depending on the value of the from_library widget.
