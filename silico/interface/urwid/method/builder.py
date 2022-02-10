@@ -106,7 +106,9 @@ class Method_target_builder(Tab_pile, Setedit_editor_mixin):
         except AttributeError:
             if (self.from_library and self.library_picker_widget.value is None) or (not self.from_library and self.editor.configurable is None):
                 # No configurable has been chosen yet.
-                raise Exception("No {} has been chosen".format(self.method_type)) from None
+                #raise Exception("No {} has been chosen".format(self.method_type)) from None
+                silico.logging.get_logger().warning("No {} has been chosen; this part of the method will be left blank".format(self.method_type))
+                return None
             
             else:
                 raise
