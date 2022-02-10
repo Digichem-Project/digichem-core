@@ -121,7 +121,7 @@ class Turbomole_AI(Turbomole):
         )
     ricc2 = Options(
         help = "Options for ricc2.",
-        model = Option(help = "The computational model to use (CC2, MP2 etc.). If no model is specified, no cc options will be used.", type = str, default = None),
+        model = Option(help = "The computational model to use (CC2, MP2 etc.). If no model is specified, no cc options will be used.", choices = ("ccs" , "cis", "mp2", "cid(d)", "adc(2)", "cc2", "ccsd", "ccsd(t)", "mp4", None), default = None),
         scs = Option(help = "Whether to use spin-component scaling", choices = ("scs", "sos", None), default = None)
         )
     cc_geoopt = Options(
