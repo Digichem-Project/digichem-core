@@ -22,7 +22,7 @@ class Method_target_builder(Tab_pile, Setedit_editor_mixin):
     """
     """
     
-    def __init__(self, top, parent_class, method_library, method_type, initial = None):
+    def __init__(self, top, parent_class, method_library, method_type, initial = None, initially_from_library = None):
         """
         """
         self.top = top
@@ -31,7 +31,8 @@ class Method_target_builder(Tab_pile, Setedit_editor_mixin):
         self.method_type = method_type
         
         # Whether to start by showing the method editor or library picker.
-        initially_from_library = not isinstance(initial, Method_target) and initial is not None
+        if initially_from_library is None:
+            initially_from_library = not isinstance(initial, Method_target) and initial is not None
         
         # A checkbox which will change the main body contents depending on its state.
         self.from_library_widget = urwid.CheckBox("Select an existing {} from the library or create new?".format(method_type), initially_from_library, on_state_change = self.switch_target_editor)
