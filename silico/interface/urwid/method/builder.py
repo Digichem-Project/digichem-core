@@ -163,6 +163,14 @@ class Method_builder(Swappable, Setedit_editor_mixin):
     
     def __init__(self, top, method_library, destination = None, program = None, calculation = None, file_path = None):
         """
+        Constructor for Method_builder objects.
+        
+        :param top: The top-most widget to use for swapping.
+        :param method_library: A loaded method library, containing destinations, programs and calculations as attributes.
+        :param destination: Optional destination (either an ID or an object) to edit by default.
+        :param destination: Optional program (either an ID or an object) to edit by default.
+        :param destination: Optional calculation (either an ID or an object) to edit by default.
+        :param file_path: A default file path to show.
         """
         calculation_page = Method_target_builder(top, Calculation_target, method_library = method_library.calculations, method_type = "calculation", initial = calculation)
         program_page = Method_target_builder(top, Program_target, method_library = method_library.programs, method_type = "program", initial = program)
