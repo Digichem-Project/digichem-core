@@ -14,13 +14,13 @@ class Method_browser(Flaggable_tree_list_box):
     """
 
 
-    def __init__(self, methods, show_hidden, one_type_only = False):
+    def __init__(self, methods, show_hidden, one_type_only = False, can_choose_multiple = True):
         """
         Constructor for calculation browser objects.
         """
         self.methods = methods
         self.topnode = Loader_top_node(methods, show_hidden = show_hidden, stop_on_single = one_type_only)
-        super().__init__(Flaggable_tree_walker(self.topnode))
+        super().__init__(Flaggable_tree_walker(self.topnode), can_choose_multiple = can_choose_multiple)
         
     def is_selectable(self, node):
         """
@@ -49,14 +49,14 @@ class Method_selector(Swappable):
     
     show_hidden = Option(help = "Whether to show hidden methods.", default = False, type = bool)
 
-    def __init__(self, top, methods, one_type_only = False):
+    def __init__(self, top, methods, one_type_only = False, can_choose_multiple = True):
         """
         Constructor for Method_selector objects.
         
         :param top: Top-most widget to use for display.
         :param method_library: An object that contains methods, destinations, programs and calculations as attributes.
         """
-        self.browser = Method_browser(methods, show_hidden = self.show_hidden, one_type_only = one_type_only)
+        self.browser = Method_browser(methods, show_hidden = self.show_hidden, one_type_only = one_type_only, can_choose_multiple = can_choose_multiple)
         self.browser.offset_rows = 1
         
         self.code_widget = urwid.AttrMap(urwid.Edit(multiline = True), "editable")
