@@ -39,8 +39,7 @@ SUB_TYPE: partial
 TAG: Gaussian Gas Phase
 ALIAS: Gas Phase
 
-NEXT:
-    - Gaussian Functionals
+NEXT: [Gaussian Basis Sets]
 
 
 ---
@@ -52,8 +51,7 @@ ALIAS: 1,4-Dioxane
 
 solvent: 1,4-Dioxane
 
-NEXT:
-    - Gaussian Functionals
+NEXT: [Gaussian Basis Sets]
 
 
 ---
@@ -65,8 +63,7 @@ ALIAS: 2-Propanol
 
 solvent: 2-Propanol
 
-NEXT:
-    - Gaussian Functionals
+NEXT: [Gaussian Basis Sets]
 
 
 ---
@@ -78,8 +75,7 @@ ALIAS: Acetone
 
 solvent: Acetone
 
-NEXT:
-    - Gaussian Functionals
+NEXT: [Gaussian Basis Sets]
 
 
 ---
@@ -91,8 +87,7 @@ ALIAS: Acetonitrile
 
 solvent: Acetonitrile
 
-NEXT:
-    - Gaussian Functionals
+NEXT: [Gaussian Basis Sets]
 
 
 ---
@@ -104,8 +99,7 @@ ALIAS: Benzene
 
 solvent: Benzene
 
-NEXT:
-    - Gaussian Functionals
+NEXT: [Gaussian Basis Sets]
 
 
 ---
@@ -117,8 +111,7 @@ ALIAS: CycloHexane
 
 solvent: Cyclohexane
 
-NEXT:
-    - Gaussian Functionals
+NEXT: [Gaussian Basis Sets]
 
 
 ---
@@ -130,8 +123,7 @@ ALIAS: Diethylether
 
 solvent: DiethylEther
 
-NEXT:
-    - Gaussian Functionals
+NEXT: [Gaussian Basis Sets]
 
 
 ---
@@ -143,8 +135,7 @@ ALIAS: DMSO
 
 solvent: DiMethylSulfoxide
 
-NEXT:
-    - Gaussian Functionals
+NEXT: [Gaussian Basis Sets]
 
 
 ---
@@ -156,8 +147,7 @@ ALIAS: DCM
 
 solvent: Dichloromethane
 
-NEXT:
-    - Gaussian Functionals
+NEXT: [Gaussian Basis Sets]
 
 
 ---
@@ -165,11 +155,11 @@ NEXT:
 
 SUB_TYPE: partial
 TAG: Gaussian Ethanol
+ALIAS: Ethanol
 
 solvent: Ethanol
 
-NEXT:
-    - Gaussian Functionals
+NEXT: [Gaussian Basis Sets]
 
 
 ---
@@ -181,8 +171,7 @@ ALIAS: Ethyl acetate
 
 solvent: EthylEthanoate
 
-NEXT:
-    - Gaussian Functionals
+NEXT: [Gaussian Basis Sets]
 
 
 ---
@@ -194,8 +183,7 @@ ALIAS: Methanol
 
 solvent: Methanol
 
-NEXT:
-    - Gaussian Functionals
+NEXT: [Gaussian Basis Sets]
 
 
 ---
@@ -207,8 +195,7 @@ ALIAS: Heptane
 
 solvent: Heptane
 
-NEXT:
-    - Gaussian Functionals
+NEXT: [Gaussian Basis Sets]
 
 
 ---
@@ -220,8 +207,7 @@ ALIAS: Hexane
 
 solvent: n-Hexane
 
-NEXT:
-    - Gaussian Functionals
+NEXT: [Gaussian Basis Sets]
 
 
 ---
@@ -233,8 +219,7 @@ ALIAS: THF
 
 solvent: TetraHydroFuran
 
-NEXT:
-    - Gaussian Functionals
+NEXT: [Gaussian Basis Sets]
 
 
 ---
@@ -246,8 +231,7 @@ ALIAS: Toluene
 
 solvent: Toluene
 
-NEXT:
-    - Gaussian Functionals
+NEXT: [Gaussian Basis Sets]
 
 
 ---
@@ -259,5 +243,4 @@ ALIAS: Water
 
 solvent: Water
 
-NEXT:
-    - Gaussian Functionals
+NEXT: [Gaussian Basis Sets]

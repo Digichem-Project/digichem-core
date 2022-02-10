@@ -20,8 +20,7 @@ DFT:
     functional: PBE1PBE
     empirical_dispersion: GD3BJ
 
-NEXT:
-    - Gaussian Basis Sets
+NEXT: [Gaussian Solvents]
 
 
 ---
@@ -35,8 +34,7 @@ DFT:
     functional: CAM-B3LYP
     empirical_dispersion: GD3BJ
 
-NEXT:
-    - Gaussian Basis Sets
+NEXT: [Gaussian Solvents]
 
 
 ---
@@ -50,8 +48,7 @@ DFT:
     functional: B3LYP
     empirical_dispersion: GD3BJ
 
-NEXT:
-    - Gaussian Basis Sets
+NEXT: [Gaussian Solvents]
 
 
 ---
@@ -65,8 +62,7 @@ DFT:
     functional: M062X
     empirical_dispersion: GD3
 
-NEXT:
-    - Gaussian Basis Sets
+NEXT: [Gaussian Solvents]
 
 
 ---
@@ -80,5 +76,4 @@ DFT:
     functional: wB97XD
     empirical_dispersion: GD3BJ
 
-NEXT:
-    - Gaussian Basis Sets
+NEXT: [Gaussian Solvents]

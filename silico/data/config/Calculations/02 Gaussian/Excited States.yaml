@@ -41,7 +41,7 @@ DFT_excited_states:
     nstates: 10
 
 NEXT:
-    - Gaussian Solvents
+    - Gaussian Functionals
 
 
 ---
@@ -55,7 +55,7 @@ DFT_excited_states:
     nstates: 5
 
 NEXT:
-    - Gaussian Solvents
+    - Gaussian Functionals
 
 ---
 
@@ -68,7 +68,7 @@ DFT_excited_states:
     nstates: 100
 
 NEXT:
-    - Gaussian Solvents
+    - Gaussian Functionals
 
 
 ---
@@ -86,7 +86,7 @@ optimisation:
     on: True
 
 NEXT:
-    - Gaussian Solvents
+    - Gaussian Functionals
 
 
 ---
@@ -105,4 +105,4 @@ optimisation:
     on: True
 
 NEXT:
-    - Gaussian Solvents
+    - Gaussian Functionals
