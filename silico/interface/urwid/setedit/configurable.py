@@ -39,7 +39,8 @@ class Option_setedit(Setedit):
         
         # This is the last value we saved, if we're asked to reset we'll roll back to this.
         try:
-            self.previous_value = self.option.get_from_dict(self.owning_obj, self.dict_obj)
+            #self.previous_value = self.option.get_from_dict(self.owning_obj, self.dict_obj)
+            self.previous_value = self.option.dump(self.owning_obj, self.dict_obj)
         
         except Missing_option_exception:
             self.previous_value = None
@@ -76,7 +77,8 @@ class Option_setedit(Setedit):
         Confirm the changes made to this Setedit, so that future rollbacks will return to the current value.
         """
         # First update the value of our widget from the value of the configurable option (because it could have changed, for example from type conversion etc).
-        self.get_widget().value = self.option.get_from_dict(self.owning_obj, self.dict_obj)
+        #self.get_widget().value = self.option.get_from_dict(self.owning_obj, self.dict_obj)
+        self.get_widget().value = self.option.dump(self.owning_obj, self.dict_obj)
         super().confirm()
     
     def get_children(self, reload = False):
