@@ -6,7 +6,7 @@ import yaml
 from silico.interface.urwid.method.edit import Method_target_editor
 from silico.interface.urwid.layout import Pane
 from silico.interface.urwid.misc import Tab_pile
-from silico.submit.base import Method_target
+from silico.submit.base import Method_target, parse_method_from_file
 from silico.interface.urwid.edit.popup import Method_target_picker , Output_edit
 from silico.interface.urwid.setedit.base import Setedit_editor_mixin,\
     Paginated_settings_browser
@@ -15,7 +15,8 @@ from silico.submit.calculation.base import Calculation_target
 from silico.submit.program.base import Program_target
 from silico.interface.urwid.swap.swappable import Swappable
 import silico.logging
-
+from silico.interface.urwid.file.browser import File_selector
+from silico.interface.urwid.dialogue import Confirm_or_cancel_dialogue
 
 
 class Method_target_builder(Tab_pile, Setedit_editor_mixin):
@@ -231,19 +232,118 @@ class Method_builder(Swappable, Setedit_editor_mixin):
         """
         return self.editor.save(validate)
 
-    def validate(self):
+    def validate_setedits(self):
         """
         Validate each of the pages of options (without saving changes first).
         """
-        return self.editor.validate()
+        return self.editor.validate_setedits()
 
     def discard(self):
         """
         Discard any changes made.
         """
         return self.editor.discard()
+
+
+class Method_builder_menu(Swappable):
+    """
+    A widget (menu) which provides access to a method builder.
+    """
     
+    def __init__(self, top, method_library):
+        """
+        :param top: The top-most widget to use for swapping.
+        :param method_library: A loaded method library, containing destinations, programs and calculations as attributes.
+        """
+        self.method_library = method_library
         
+        # The method builder widget that can be switched to create/edit methods.
+        self.builder = None
         
+        # A file browser to use to pick existing method files.
+        self.file_selector = File_selector(top, pane_title = "Select method file", can_choose_folders = False, can_choose_multiple = False)
         
+        self.menu = urwid.Pile([
+            ('pack', urwid.AttrMap(urwid.Button("Create a new method", lambda button: self.create_new()), "button--small", "button--small--focus")),
+            ('pack', urwid.AttrMap(urwid.Button("Load a method from file", lambda button: self.popup_file_browser()), "button--small", "button--small--focus")),
+        ])
+        self._done_add_resume_button = False
+        
+        super().__init__(top, urwid.Filler(urwid.Padding(Pane(self.menu, "Method Builder"), width = 45, align = "center")))
+        
+    def cancel_callback(self):
+        self.top.back()
+        
+    def popup_file_browser(self):
+        """
+        Open the file browser widget that can be used to select an existing method file to edit.
+        """
+        self.top.swap_into_window(self.file_selector, submit_callback = self.load_from_file)
+        
+    def add_resume_editing_button(self):
+        """
+        Add a button to the central menu that switches back to the method builder.
+        """
+        if not self._done_add_resume_button:
+            self.menu.contents.insert(0,
+                (urwid.AttrMap(urwid.Button("Continue editing", lambda button: self.swap_to_builder()), "button--small", "button--small--focus"), self.menu.options(height_type = "pack")) 
+                )
+            self.menu.focus_position = 0
+        self._done_add_resume_button = True
+        
+    def swap_to_builder(self):
+        """
+        Open the method builder.
+        """
+        self.top.swap_into_window(self.builder, submit_callback = self.builder.submit_callback)
+    
+    def load_from_file(self):
+        """
+        Load a method from a file.
+        """
+        # If no file selected, do nothing.
+        if len(self.file_selector.selected) == 0:
+            return
+        
+        method_file_path = self.file_selector.selected[0]
+        self.file_selector.reset()
+        
+        # First, load the method from file (or try to anyway).
+        try:
+            method = parse_method_from_file(method_file_path, self.method_library, resolve = False)
+            
+        except Exception:
+            silico.logging.get_logger().error("Failed to parse method file '{}'".format(method_file_path), exc_info = True)
+            return
+        
+        # TODO: This swapping is a bit clumsy.
+        self.top.back()
+        self.change_builder(Method_builder(self.top, self.method_library, method[0], method[1], method[2], method_file_path))
+        
+        return False
+        
+    def create_new(self):
+        """
+        Create a new, blank method.
+        """
+        self.change_builder(Method_builder(self.top, self.method_library))
+        
+    def change_builder(self, new_builder):
+        """
+        Change the method builder, prompting the user if they wish to discard changes if a builder has already been set.
+        """
+        def change_callback():
+            self.builder = new_builder
+            self.add_resume_editing_button()
+            self.swap_to_builder()
+            
+        # If a builder has already been set, prompt the user whether they're sure they want to change.
+        if self.builder is not None:
+            self.top.popup(Confirm_or_cancel_dialogue("Discard Method?", "There is already a method that is open for editing. Opening a new method will discard any unsaved changes to this old method. Are you sure you want to do this?", self.top, error = True, submit_callback = change_callback))
+        
+        else:
+            # No builder currently set, change without prompting.
+            change_callback()
+        
+            
         
