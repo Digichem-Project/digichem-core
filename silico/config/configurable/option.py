@@ -9,7 +9,7 @@ class Option():
     Options are descriptors that perform type checking and other functionality for Configurables; they expose the options that a certain configurable expects.
     """
     
-    def __init__(self, name = None, *, default = None, help = None, choices = None, validate = None, list_type = None, type = None, exclude = None, required = False, no_none = None, no_edit = False, dump_func = None):
+    def __init__(self, name = None, *, default = None, help = None, choices = None, validate = None, list_type = None, type = None, exclude = None, required = False, no_none = None, no_edit = False, dump_func = None, edit_vtype = None):
         """
         Constructor for Configurable Option objects.
         
@@ -37,6 +37,8 @@ class Option():
         self.choices = choices if choices is not None else []
         self._validate = validate if validate is not None else self.default_validate
         self.exclude = exclude if exclude is not None else []
+        if isinstance(self.exclude, str):
+            self.exclude = [self.exclude]
         self.required = required
         self.no_edit = no_edit
         self.dump_func = dump_func
@@ -44,6 +46,7 @@ class Option():
             self.no_none = required
         else:
             self.no_none = no_none
+        self.edit_vtype = edit_vtype
         
         # If we are a list_type and a default of None has been given, change the default to an empty list.
         if self.list_type is not None and self._default is None:

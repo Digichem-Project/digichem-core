@@ -79,7 +79,10 @@ class Setedit():
         :param option: The configurable option.
         :returns: The value type (a string).
         """
-        if hasattr(option, "OPTIONS"):
+        if option.edit_vtype is not None:
+            return option.edit_vtype
+        
+        elif hasattr(option, "OPTIONS"):
             return "Options"
         
         elif len(option.choices) > 0:
