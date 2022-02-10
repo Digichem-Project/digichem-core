@@ -65,7 +65,7 @@ class Keyword():
 
 class Gaussian(Concrete_calculation):
     """
-    DFT (density functional theory) calculations with Gaussian.
+    Calculations with Gaussian.
     """
     # Identifying handle.
     CLASS_HANDLE = ("Gaussian",)
@@ -79,7 +79,10 @@ class Gaussian(Concrete_calculation):
     # Configurable options.
     CPU_list = Option(help = "A list of integers specifying specific CPUs to use for the calculation, starting at 0. CPU_list and num_CPUs are mutually exclusive", exclude = ("num_CPUs",), default = (), type = tuple)
     num_CPUs = Option(help = "An integer specifying the number of CPUs to use for this calculation. CPU_list and num_CPUs are mutually exclusive", exclude = ("CPU_list",), default = 1, type = int)
-    functional = Option(help = "The DFT functional to use", type = str)
+    DFT = Options(help = "Options for DFT.",
+        functional = Option(help = "The DFT functional to use. Specifying an option here will enable DFT.", type = str),
+        empirical_dispersion = Option(help = "Optional empirical dispersion method to use, note that not all methods are suitable with all functions.", choices = ("PFD", "GD2", "GD3", "GD3BJ", None), default = None)
+    )
     unrestricted = Option(help = "Whether to perform an unrestricted calculation", type = bool, default = False)
     basis_set = Options(help = "The basis set to use.",
         internal = Option(help = "The name of a basis set built in to Gaussian, see Gaussian manual for allowed values.", type = str, exclude = "exchange"),
@@ -214,10 +217,10 @@ class Gaussian(Concrete_calculation):
             
             model = ""
             # Add the functional.
-            if self.functional is not None:
-                model += "{}{}".format("u" if self.unrestricted else "", self.functional)
+            if self.DFT['functional'] is not None:
+                model += "{}{}".format("u" if self.unrestricted else "", self.DFT['functional'])
             # Add a slash if we have both functional and basis set.
-            if self.functional is not None and basis_set is not None:
+            if self.DFT['functional'] is not None and basis_set is not None:
                 model += "/"
             # And finally the basis set.
             if basis_set is not None:
@@ -239,7 +242,12 @@ class Gaussian(Concrete_calculation):
             
             # Solvent.
             if self.solvent is not None:
-                route_parts.append(self.keyword_to_string("SCRF", {"Solvent": self.solvent}))
+                #route_parts.append(self.keyword_to_string("SCRF", {"Solvent": self.solvent}))
+                route_parts.append(str(Keyword("SCRF", {"Solvent": self.solvent})))
+                
+            # Empirical dispersion
+            if self.DFT['empirical_dispersion'] is not None:
+                route_parts.append(str(Keyword("EmpiricalDispersion", self.DFT['empirical_dispersion'])))
             
             # Finally, add any free-form options.
             for keyword_str in self.keywords:

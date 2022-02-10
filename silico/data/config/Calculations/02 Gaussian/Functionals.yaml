@@ -16,9 +16,9 @@ SUB_TYPE: partial
 TAG: Gaussian PBE1PBE (GD3BJ)
 ALIAS: PBE1PBE (GD3BJ)
 
-functional: PBE1PBE
-keywords:
-    EmpiricalDispersion: GD3BJ
+DFT:
+    functional: PBE1PBE
+    empirical_dispersion: GD3BJ
 
 NEXT:
     - Gaussian Basis Sets
@@ -31,9 +31,9 @@ SUB_TYPE: partial
 TAG: Gaussian CAM-B3LYP (GD3BJ)
 ALIAS: CAM-B3LYP (GD3BJ)
 
-functional: CAM-B3LYP
-keywords:
-    EmpiricalDispersion: GD3BJ
+DFT:
+    functional: CAM-B3LYP
+    empirical_dispersion: GD3BJ
 
 NEXT:
     - Gaussian Basis Sets
@@ -46,9 +46,9 @@ SUB_TYPE: partial
 TAG: Gaussian B3LYP (GD3BJ)
 ALIAS: B3LYP (GD3BJ)
 
-functional: B3LYP
-keywords:
-    EmpiricalDispersion: GD3BJ
+DFT:
+    functional: B3LYP
+    empirical_dispersion: GD3BJ
 
 NEXT:
     - Gaussian Basis Sets
@@ -61,9 +61,9 @@ SUB_TYPE: partial
 TAG: Gaussian M062X (GD3)
 ALIAS: M062X (GD3)
 
-functional: M062X
-keywords:
-    EmpiricalDispersion: GD3
+DFT:
+    functional: M062X
+    empirical_dispersion: GD3
 
 NEXT:
     - Gaussian Basis Sets
@@ -76,9 +76,9 @@ SUB_TYPE: partial
 TAG: Gaussian wB97XD (GD3BJ)
 ALIAS: wB97XD (GD3BJ)
 
-functional: wB97XD
-keywords:
-    EmpiricalDispersion: GD3BJ
+DFT:
+    functional: wB97XD
+    empirical_dispersion: GD3BJ
 
 NEXT:
     - Gaussian Basis Sets
