@@ -91,7 +91,7 @@ class Setedit():
         elif option.list_type is not None:
             return "list"
         
-        else: 
+        else:
             try:
                 return option.type.__name__
             
