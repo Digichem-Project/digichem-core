@@ -5,6 +5,7 @@ import deepmerge
 from silico.exception import Configurable_exception
 from silico.misc import Dynamic_parent
 from silico.config.configurable.option import Option
+from silico.exception.configurable import Configurable_option_exception
 
 
 class Options_mixin():
@@ -56,8 +57,13 @@ class Options_mixin():
             # Also check for exclusions.
             for exclusion in option.exclude:
                 # This option has an exclusion, check at least one of it and the exclusion is not set.
-                if not self.OPTIONS[exclusion].is_default(dict_obj) and not option.is_default(dict_obj):
-                    raise Configurable_exception(self, "options '{}' and '{}' cannot be set at the same time (mutually exclusive)".format(option.name, exclusion))
+                try:
+                    if not self.OPTIONS[exclusion].is_default(dict_obj) and not option.is_default(dict_obj):
+                        raise Configurable_exception(self, "options '{}' and '{}' cannot be set at the same time (mutually exclusive)".format(option.name, exclusion))
+                
+                except KeyError:
+                    # One of the given options cannot be found.
+                    raise Configurable_option_exception(owning_obj, option, "The option '{}' in exclude cannot be found".format(exclusion)) from None
             
         # We also need to make sure there are no unexpected options.
         for unexpected_key in set(dict_obj).difference(self.OPTIONS):
