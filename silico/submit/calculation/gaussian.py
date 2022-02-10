@@ -2,10 +2,11 @@ from mako.lookup import TemplateLookup
 import deepmerge
 
 import silico
-from silico.exception import Configurable_exception
 from silico.config.configurable.option import Option
 from silico.submit.calculation import Concrete_calculation
 from silico.config.configurable.options import Options
+from silico.submit.basis import BSE_basis_set
+
 
 class Keyword():
     """
@@ -60,7 +61,7 @@ class Keyword():
         
         else:
             return "{}=({})".format(self.keyword, ", ".join(options_strings))
-        
+
 
 class Gaussian(Concrete_calculation):
     """
@@ -80,18 +81,9 @@ class Gaussian(Concrete_calculation):
     num_CPUs = Option(help = "An integer specifying the number of CPUs to use for this calculation. CPU_list and num_CPUs are mutually exclusive", exclude = ("CPU_list",), default = 1, type = int)
     functional = Option(help = "The DFT functional to use", type = str)
     unrestricted = Option(help = "Whether to perform an unrestricted calculation", type = bool, default = False)
-    basis_set = Option(help = "The basis set to use. 'Gen' or 'GenECP' should be given here if an external basis set is to be used", type = str)
-    _external_basis_sets = Option(
-        "external_basis_sets",
-        help = "A list of external basis sets to use. The order given here is the order the basis sets will be appended to the input file",
-        type = tuple,
-        default = ()
-    )
-    _external_ECPs = Option(
-        "external_ECPs",
-        help = "A list of external ECPs (effective core potentials) to use",
-        type = tuple,
-        default = ()
+    basis_set = Options(help = "The basis set to use.",
+        internal = Option(help = "The name of a basis set built in to Gaussian, see Gaussian manual for allowed values.", type = str, exclude = "exchange"),
+        exchange = Option(help = "The definition of a (number of) basis sets to use from the Basis Set Exchange (BSE), in the format 'basis set name': 'applicable elements' (for example: '6-31G(d,p)': '1,3-4,B-F')", type = BSE_basis_set, dump_func = lambda option, configurable, value: value.definition if value is not None else {}, exclude = "internal", edit_vtype = "dict")
     )
     _multiplicity = Option("multiplicity", help = "Forcibly set the molecule multiplicity. Leave blank to use the multiplicity given in the input file", default = None, type = int)
     _charge = Option("charge", help = "Forcibly set the molecule charge. Leave blank to use the charge given in the input file", default = None, type = float)
@@ -140,47 +132,18 @@ class Gaussian(Concrete_calculation):
         return int(self._multiplicity if self._multiplicity is not None else self.input_coords.implicit_multiplicity)
     
     @property
-    def external_ECPs(self):
+    def basis_set_name(self):
         """
-        The list of basis set Configurable objects we'll be using in the calculation for effective core potentials.
+        A descriptive label of the basis set being used for the calculation.
+        """
+        if self.basis_set['builtin'] is not None:
+            return self.basis_set['builtin']
         
-        This property will translate the names of the basis sets, under self._extended_ECPs, to the actual objects.
-        """
-        known_ECPs = self.silico_options.effective_core_potentials
-        try:
-            return [known_ECPs.get_config(ECP) for ECP in self._external_ECPs]
-        except Exception:
-            raise Configurable_exception(self, "could not load external ECP")
+        elif self.basis_set['external'] is not None:
+            return str(self.basis_set['external'])
         
-    @property
-    def external_basis_sets(self):
-        """
-        The list of basis set Configurable objects we'll be using in the calculation.
-        
-        This property will translate the names of the basis sets, under self._extended_basis_sets, to the actual objects.
-        """
-        try:
-            return [self.silico_options.basis_sets.get_config(basis_set) for basis_set in self._external_basis_sets]
-        except Exception:
-            raise Configurable_exception(self, "could not load external basis set")
-        
-    @property
-    def model_chemistry(self):
-        """
-        The 'model chemistry' to be used by the calculation, this is a string containing both the functional and basis set (separated by /).
-        """    
-        model = ""
-        # Add the functional.
-        if self.functional is not None:
-            model += "{}{}".format("u" if self.unrestricted else "", self.functional)
-        # Add a slash if we have both functional and basis set.
-        if self.functional is not None and self.basis_set is not None:
-            model += "/"
-        # And finally the basis set.
-        if self.basis_set is not None:
-            model += self.basis_set
-            
-        return model
+        else:
+            return None
     
     @property
     def calculation_keywords(self):
@@ -211,29 +174,6 @@ class Gaussian(Concrete_calculation):
             
         # Merge and return.
         return " ".join(keyword_sections)
-
-    @property
-    def route_section(self):
-        """
-        Get a Gaussian input file route section from this calculation target.
-        """
-        # Assemble our route line.
-        # Add calc keywords.
-        route_parts = list(self.calculation_keywords)
-        
-        # Model chemistry
-        route_parts.append(self.model_chemistry)
-        
-        # Solvent.
-        if self.solvent is not None:
-            route_parts.append(self.keyword_to_string("SCRF", {"Solvent": self.solvent}))
-        
-        # Finally, add any free-form options.
-        for keyword_str in self.keywords:
-            route_parts.append(str(Keyword(keyword_str, self.keywords[keyword_str])))
-                
-        # Convert to string and return.
-        return " ".join(route_parts)
     
     
     ############################
@@ -254,6 +194,59 @@ class Gaussian(Concrete_calculation):
             self.com_file_name = None
             self.rwf_file_name = None
             self.com_file_body = None
+            
+        @property
+        def model_chemistry(self):
+            """
+            The 'model chemistry' to be used by the calculation, this is a string containing both the functional and basis set (separated by /).
+            """
+            # First, determine the basis set being used.
+            # This label is distinct from both the basis_set property and the basis_set.internal option.
+            if self.basis_set['internal'] is not None:
+                basis_set = self.basis_set['internal']
+                
+            elif self.basis_set['exchange'] is not None:
+                # Our basis set label will be either gen or genECP (depending on whether we have any ECPs).
+                basis_set = "gen" if not self.basis_set['exchange'].has_ECPs(self.input_coords.elements) else "genECP"
+                
+            else:
+                basis_set = None
+            
+            model = ""
+            # Add the functional.
+            if self.functional is not None:
+                model += "{}{}".format("u" if self.unrestricted else "", self.functional)
+            # Add a slash if we have both functional and basis set.
+            if self.functional is not None and basis_set is not None:
+                model += "/"
+            # And finally the basis set.
+            if basis_set is not None:
+                model += basis_set
+                
+            return model
+        
+        @property
+        def route_section(self):
+            """
+            Get a Gaussian input file route section from this calculation target.
+            """
+            # Assemble our route line.
+            # Add calc keywords.
+            route_parts = list(self.calculation_keywords)
+            
+            # Model chemistry
+            route_parts.append(self.model_chemistry)
+            
+            # Solvent.
+            if self.solvent is not None:
+                route_parts.append(self.keyword_to_string("SCRF", {"Solvent": self.solvent}))
+            
+            # Finally, add any free-form options.
+            for keyword_str in self.keywords:
+                route_parts.append(str(Keyword(keyword_str, self.keywords[keyword_str])))
+                    
+            # Convert to string and return.
+            return " ".join(route_parts)
         
         def prepare(self, output, input_coords):
             """

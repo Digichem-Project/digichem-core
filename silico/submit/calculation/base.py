@@ -101,7 +101,7 @@ class Concrete_calculation(Calculation_target):
     INPUT_FILE_TYPES = []
     
     # Configurable options.
-    memory = Option(help = "The amount of memory to use for the calculation", required = True, type = Memory, dump_func = lambda option, configurable, value: str(value))
+    memory = Option(help = "The amount of memory to use for the calculation", required = True, type = Memory)
     _num_CPUs = Option("num_CPUs", help = "An integer specifying the number of CPUs to use for this calculation", default = 1, type = int)
     scratch_options = Options(
         help = "Options that control the use of the scratch directory",

@@ -273,7 +273,6 @@ class Configurables_parser():
         
         # Iterate through each configurable type.
         for folder, TYPE in (
-            ("Basis Sets", "basis_set"),
             ("Calculations", "calculation"),
             ("Programs", "program"),
             ("Destinations", "destination")

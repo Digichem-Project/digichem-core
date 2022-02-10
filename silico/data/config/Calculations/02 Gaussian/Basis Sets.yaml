@@ -30,7 +30,8 @@ NEXT:
 
 TAG: Gaussian 6-31G(d,p)
 ALIAS: 6-31G(d,p)
-basis_set: 6-31G(d,p)
+basis_set:
+    internal: 6-31G(d,p)
 
 
 ---
@@ -38,7 +39,8 @@ basis_set: 6-31G(d,p)
 
 TAG: Gaussian 6-31+G(d,p)
 ALIAS: 6-31+G(d,p)
-basis_set: 6-31+G(d,p)
+basis_set:
+    internal: 6-31+G(d,p)
 
 
 ---
@@ -46,7 +48,8 @@ basis_set: 6-31+G(d,p)
 
 TAG: Gaussian 6-31++G(d,p)
 ALIAS: 6-31++G(d,p)
-basis_set: 6-31++G(d,p)
+basis_set:
+    internal: 6-31++G(d,p)
 
 
 ---
@@ -54,7 +57,8 @@ basis_set: 6-31++G(d,p)
 
 TAG: Gaussian 6-311G(d,p)
 ALIAS: 6-311G(d,p)
-basis_set: 6-311G(d,p)
+basis_set:
+    internal: 6-311G(d,p)
 
 
 ---
@@ -62,7 +66,8 @@ basis_set: 6-311G(d,p)
 
 TAG: Gaussian 6-311+G(d,p)
 ALIAS: 6-311+G(d,p)
-basis_set: 6-311+G(d,p)
+basis_set:
+    internal: 6-311+G(d,p)
 
 
 ---
@@ -70,7 +75,8 @@ basis_set: 6-311+G(d,p)
 
 TAG: Gaussian 6-311++G(d,p)
 ALIAS: 6-311++G(d,p)
-basis_set: 6-311++G(d,p)
+basis_set: 
+    internal: 6-311++G(d,p)
 
 
 ---
@@ -78,7 +84,8 @@ basis_set: 6-311++G(d,p)
 
 TAG: Gaussian cc-pVDZ
 ALIAS: cc-pVDZ
-basis_set: cc-pVDZ
+basis_set: 
+    internal: cc-pVDZ
 
 
 ---
@@ -86,7 +93,8 @@ basis_set: cc-pVDZ
 
 TAG: Gaussian cc-pVTZ
 ALIAS: cc-pVTZ
-basis_set: cc-pVTZ
+basis_set:
+    internal: cc-pVTZ
 
 
 ---
@@ -94,7 +102,8 @@ basis_set: cc-pVTZ
 
 TAG: Gaussian cc-pVQZ
 ALIAS: cc-pVQZ
-basis_set: cc-pVQZ
+basis_set:
+    internal: cc-pVQZ
 
 
 ---
@@ -102,7 +111,8 @@ basis_set: cc-pVQZ
 
 TAG: Gaussian cc-pV5Z
 ALIAS: cc-pV5Z
-basis_set: cc-pV5Z
+basis_set:
+    internal: cc-pV5Z
 
 
 ---
@@ -110,5 +120,6 @@ basis_set: cc-pV5Z
 
 TAG: Gaussian cc-pV6Z
 ALIAS: cc-pV6Z
-basis_set: cc-pV6Z
+basis_set:
+    internal: cc-pV6Z
 

@@ -40,19 +40,14 @@ ${calculation.safe_name(calculation.descriptive_name)}
 ${calculation.charge}, ${calculation.multiplicity}
 ## Geometry
 ${input_coords.geometry}
-
-## Extended Basis.
-%for extended_basis_set in calculation.external_basis_sets:
-${extended_basis_set.basis_set}
-%endfor
-
 ##
-## Extended ECP.
-%for extended_ECP in calculation.external_ECPs:
-${extended_ECP.ECP}
-%endfor
+## External basis set from BSE
 ##
+%if calculation.basis_set['exchange'] is not None:
 
+${calculation.basis_set['exchange'].to_format("gaussian94", calculation.input_coords.elements)}
+%endif
+##
 ## Finally, and additional sections that might be in the input file (currently disables).
 ##%for index, section in enumerate(calculation.input_file.sections[2:]):
 ##${section}

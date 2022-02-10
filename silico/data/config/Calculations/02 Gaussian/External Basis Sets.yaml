@@ -12,12 +12,17 @@ NEXT:
 TAG: Gaussian 6-31+G(d,p)/SBKJC-VDZ (ECP)
 ALIAS: "6-31+G(d,p)/SBKJC-VDZ (ECP)"
 
-basis_set: genECP
-external_basis_sets:
-    - 6_31_plus_starstar_H_Ar
-    - SBKJC_VDZ
-external_ECPs:
-    - SBKJC_VDZ
+basis_set:
+    exchange:
+        6-31+G**: H-Ar
+        SBKJC-VDZ: K-Rn, La, Ce
+
+# basis_set: genECP
+# external_basis_sets:
+#     - 6_31_plus_starstar_H_Ar
+#     - SBKJC_VDZ
+# external_ECPs:
+#     - SBKJC_VDZ
 
 ---
 
@@ -25,9 +30,14 @@ external_ECPs:
 TAG: Gaussian 6-31+G(d,p)/LANL2DZ (ECP)
 ALIAS: "6-31+G(d,p)/LANL2DZ (ECP)"
 
-basis_set: genECP
-external_basis_sets:
-    - 6_31_plus_starstar_H_Ar
-    - LANL2DZ
-external_ECPs:
-    - LANL2DZ
+# basis_set: genECP
+# external_basis_sets:
+#     - 6_31_plus_starstar_H_Ar
+#     - LANL2DZ
+# external_ECPs:
+#     - LANL2DZ
+
+basis_set:
+    exchange:
+        6-31+G**: H-Ar
+        LANL2DZ: K-Bi, La, U, Np, Pu
