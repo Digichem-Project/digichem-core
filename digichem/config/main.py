@@ -258,7 +258,6 @@ Example:
         self.destinations = Configurable_list([], "destination")
         self.programs = Configurable_list([], "program")
         self.calculations = Configurable_list([], "calculation")
-        self.basis_sets = Configurable_list([], "basis_set")
         
         # The palette to use for urwid.
         # A palette is a list of tuples, where the first item of each tuple identifies the name of an attribute, and the remaining specify how that attribute should appear.
