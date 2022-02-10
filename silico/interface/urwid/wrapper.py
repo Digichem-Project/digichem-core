@@ -192,4 +192,21 @@ class Confirm(Control_wrapper):
         return [
             urwid.AttrMap(urwid.Button("Confirm", lambda button: self.cancel()), "button--good", "button--good--focus")
         ]
+        
+        
+class Cancel(Control_wrapper):
+    """
+    A widget wrapper that provides a single cancel button.
+    """
+    
+    def __init__(self, body, top, submit_callback = None):
+        super().__init__(body, top, cancel_callback = submit_callback)
+    
+    def get_controls(self):
+        """
+        Get the buttons used to control this widget.
+        """
+        return [
+            urwid.AttrMap(urwid.Button("Back", lambda button: self.top.back()), "button", "button--focus")
+        ]
     
