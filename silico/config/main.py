@@ -309,8 +309,7 @@ Example:
         
         Changed settings are always saved to the user's config file.
         """
-        # TODO: Might be nicer to have a more public interface to '_configurable_options'?
-        data = yaml.dump(self._configurable_options)
+        data = yaml.dump(self.dump())
         atomic_write(user_config_location, data)
             
     @classmethod
