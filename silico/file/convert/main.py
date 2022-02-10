@@ -52,6 +52,13 @@ class Silico_input():
         return molecule.formula
     
     @property
+    def elements(self):
+        """
+        A unique list of the elements in this input file.
+        """
+        return list(set([atom.atomicnum for atom in pybel.readstring("xyz", self.to_format("xyz")).atoms]))
+    
+    @property
     def auto_name(self):
         """
         A more intelligent name for this molecule, taking into account our old file name if necessary.
