@@ -198,7 +198,7 @@ class Setedit_browser(urwid.ListBox, Setedit_widget_parent_mixin, Setedit_editor
             return False
         
         if self.on_change_callback is not None:
-            self.on_change_callback()
+            self.on_change_callback(True)
             
         return retval
     
@@ -263,7 +263,7 @@ class Paginated_settings_browser(Pages, Paginated_browser_mixin):
             self.save()
         
             if self.on_change_callback is not None:
-                self.on_change_callback()
+                self.on_change_callback(True)
         
         except Exception:
             get_logger().error("Failed to save changes", exc_info = True)
@@ -315,4 +315,4 @@ class Paginated_settings_browser(Pages, Paginated_browser_mixin):
         self.save(False)
         self.validate_setedits()
         if self.on_change_callback is not None:
-            self.on_change_callback()
+            self.on_change_callback(False)

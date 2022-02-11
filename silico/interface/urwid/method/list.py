@@ -23,7 +23,7 @@ class Method_widget(Row_widget):
         Row_widget.__init__(self, row_item)
         self.method_editor = Method_editor(self.row_item.row_list.top, self.row_item.destination, self.row_item.program, self.row_item.calculation, on_change_callback = self.update_from_editor)
 
-    def update_from_editor(self):
+    def update_from_editor(self, confirm):
         """
         Update the widgets of this row from our (possibly updated) method.
         """

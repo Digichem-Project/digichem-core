@@ -55,18 +55,18 @@ class Silico_window(Window):
         if self.program.initial is not None:
             self.top.swap_into_window(self.get_interface(self.program.initial))
             
-    def update_settings(self):
+    def update_settings(self, confirm):
         """
         Method called when main silico options are changed.
+        
+        :param confirm: Whether the settings were updated because they were changed (True) or because they were rolled back (False).
         """
         # Update logging.
         silico.logging.set_logging_level(self.program.config['logging']['log_level'], self.program.config['logging']['verbose'])
         
         # Save modified settings to file.
-        self.program.config.save()
-        
-        # Clear our cache of programs (so when they're called again they'll be recreated and take the updated options.
-        #self.program._programs = {}
+        if confirm:
+            self.program.config.save()
             
             
     def get_interface(self, prog_obj):
