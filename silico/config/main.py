@@ -310,7 +310,14 @@ Example:
         Changed settings are always saved to the user's config file.
         """
         data = yaml.dump(self.dump())
-        atomic_write(user_config_location, data)
+        
+        try:
+            user_config_location.parent.mkdir(exist_ok = True)
+            atomic_write(user_config_location, data)
+        
+        except FileNotFoundError as e:
+            # We lost the race, give up.
+            raise Exception("Failed to write settings to file '{}'; one of the parent directories does not exist".format(user_config_location)) from e
             
     @classmethod
     def yaml_to_palette(self, yaml_palette):
