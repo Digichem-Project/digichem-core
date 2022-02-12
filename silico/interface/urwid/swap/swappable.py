@@ -44,7 +44,7 @@ class Swappable(urwid.WidgetWrap, Configurable):
         """
         return {}
     
-    def on_settings_change(self):
+    def on_settings_change(self, confirm):
         """
         A method that will be called when settings have been changed.
         """

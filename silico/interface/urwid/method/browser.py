@@ -74,7 +74,7 @@ class Method_selector(Swappable):
     def reset(self):
         return self.browser.reset()
         
-    def on_settings_change(self):
+    def on_settings_change(self, confirm):
         """
         A method that will be called when settings have been changed.
         """

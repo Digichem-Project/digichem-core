@@ -206,10 +206,10 @@ class Output_selector(Swappable, Selector_mixin):
         """
         return Path(self.location_widget.get_edit_text()) if self.location_widget.get_edit_text() != "" else None
         
-    def on_settings_change(self):
+    def on_settings_change(self, confirm):
         """
         A method that will be called when settings have been changed.
         """
-        Selector_mixin.on_settings_change(self)
+        Selector_mixin.on_settings_change(self, confirm)
         
         

@@ -45,7 +45,7 @@ class Selector_mixin():
     show_hidden = Option(help = "Whether to show hidden files.", type = bool, default = False)
     refresh = Option(help = "Whether to refresh the contents of a directory when it is closed.", type = bool, default = True)
         
-    def on_settings_change(self):
+    def on_settings_change(self, confirm):
         """
         A method that will be called when settings have been changed.
         """
@@ -84,11 +84,11 @@ class File_selector(Swappable, Selector_mixin):
     def reset(self):
         return self.browser.reset()
                 
-    def on_settings_change(self):
+    def on_settings_change(self, confirm):
         """
         A method that will be called when settings have been changed.
         """
-        Selector_mixin.on_settings_change(self)    
+        Selector_mixin.on_settings_change(self, confirm)    
     
     
     
