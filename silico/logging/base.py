@@ -79,15 +79,15 @@ class Handler(logging.StreamHandler):
     """
     """
     
-    def emit(self, *args, **kwargs):
-        """
-        """
-        # Acquire lock.
-        LOGGER_LOCK.acquire()
-        try:
-            # Do the actual work.
-            return super().emit(*args, **kwargs)
-            
-        finally:
-            # Release lock.
-            LOGGER_LOCK.release()
+#     def emit(self, *args, **kwargs):
+#         """
+#         """
+#         # Acquire lock.
+#         LOGGER_LOCK.acquire()
+#         try:
+#             # Do the actual work.
+#             return super().emit(*args, **kwargs)
+#             
+#         finally:
+#             # Release lock.
+#             LOGGER_LOCK.release()
