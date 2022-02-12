@@ -96,8 +96,8 @@ class SLURM(Resumable_destination):
             
             # This will trigger an error if the format is weird, which is what we want.
             cpu_info = (int(cpu_info[0]),int(cpu_info[1]),int(cpu_info[2]),int(cpu_info[3]))
-        except Exception:
-            raise Silico_exception("Failed to retrieve sinfo for partition {}".format(self.partition))
+        except Exception as e:
+            raise Silico_exception("Failed to retrieve sinfo for partition {}".format(self.partition)) from e
         
         return cpu_info
     
