@@ -41,6 +41,10 @@ ${calculation.charge}, ${calculation.multiplicity}
 ## Geometry
 ${input_coords.geometry}
 ##
+## This new line is important.
+##
+
+##
 ## External basis set from BSE
 ##
 %if calculation.basis_set['exchange'] is not None:
