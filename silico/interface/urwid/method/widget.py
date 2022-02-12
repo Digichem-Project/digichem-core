@@ -87,7 +87,7 @@ class Loader_widget(Flag_widget):
                 destination = node.resolve()
                 
                 try:
-                    status = destination.status()
+                    status = destination.status
                     
                 except Exception:
                     # Could be because we couldn't retrieve status, or because this destination doesn't support status.
