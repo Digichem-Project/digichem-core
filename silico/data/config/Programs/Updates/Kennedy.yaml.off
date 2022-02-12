@@ -1,16 +1,3 @@
-TAG: Program Base
-SUB_TYPE: update
-
-# These are the destinations that this program is compatible with.
-destinations:
-    - slurm-bigmem
-    - slurm-multi
-    - slurm-debug
-
-
----
-
-
 TAG: Gaussian 09
 SUB_TYPE: update
 
