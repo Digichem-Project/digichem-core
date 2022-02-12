@@ -5,6 +5,7 @@ import urwid
 
 # Silico imports.
 from silico.interface.urwid.tree.base import Flag_widget
+import warnings
 
 
 class Loader_widget(Flag_widget):
@@ -155,6 +156,16 @@ class Loader_parent_widget(Loader_widget):
         # TODO: Allow an opening path to be given here.
         self.expanded = False
         self.update_expanded_icon()
+        
+    def update_expanded_icon(self):
+        if self.expanded:
+            # If we are expanding and any of the loaders we represent have warnings, issue those now.
+            loader_list = self.get_node().get_value()
+            for loader in loader_list:
+                if 'warning' in loader.config:
+                    warnings.warn(loader.config['warning'])
+            
+        return super().update_expanded_icon()
 
 
 class Loader_top_widget(Loader_widget):
