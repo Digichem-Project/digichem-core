@@ -19,6 +19,7 @@ class Keyword():
         keyword=(option1, option2=value)
     """
     
+    # TODO: Add better support for gaussian keyword options that don't contain a sub option (eg, TDA=(50-50))
     def __init__(self, keyword, *options):
         """
         Constructor for Gaussian Keyword objects.
@@ -178,8 +179,8 @@ class Gaussian(Concrete_calculation):
         if self.DFT_excited_states['nstates'] != 0:
             # First, build our options.
             options = {
+                self.DFT_excited_states['multiplicity']: "",
                 'nstates': self.DFT_excited_states['nstates'],
-                'multiplicity': self.DFT_excited_states['multiplicity'],
                 'root': self.DFT_excited_states['root']
             }
                 
