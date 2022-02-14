@@ -17,6 +17,11 @@ PIL.Image.MAX_IMAGE_PIXELS = None
 name = "silico"
 # Brief description.
 description = "Silico Computational Chemistry Package"
+# Version information.
+major_version = 1
+minor_version = 0
+revision = 0
+prerelease = 4
 # Whether this is a development version.
 development = False
 # Version information.
