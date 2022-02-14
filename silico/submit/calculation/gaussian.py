@@ -36,7 +36,7 @@ class Keyword():
                 # Dictionary, merge.
                 deepmerge.always_merger.merge(self.options, option)
                 
-            else:
+            elif option is not None:
                 # Convert to string, assume this is an option without a value.
                 self.options[str(option)] = ""
         
