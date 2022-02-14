@@ -296,13 +296,6 @@ Example:
         """
         return self.yaml_to_palette(self.palette)
     
-    @property
-    def effective_core_potentials(self):
-        """
-        A list of known ECPs.
-        """
-        return [basis_set for basis_set in self.basis_sets if basis_set.ECP is not None]
-    
     def save(self):
         """
         Save the current value of these options to file, so that they will be reloaded on next program start.
