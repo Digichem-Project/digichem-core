@@ -48,7 +48,6 @@ ${input_coords.geometry}
 ## External basis set from BSE
 ##
 %if calculation.basis_set['exchange'] is not None:
-
 ${calculation.basis_set['exchange'].to_format("gaussian94", calculation.input_coords.elements)}
 %endif
 ##
