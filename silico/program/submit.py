@@ -157,7 +157,7 @@ class Submit_program(Program):
                 # We don't stop here though, we might have more calcs we can submit.
                 self.logger.error("Failed to submit file '{}'".format(coord.file_name), exc_info = True)
         
-        self.logger.info("Successfully submitted {} calculations".format(done))
+        self.logger.info("Successfully submitted {} calculation(s)".format(done))
         
         return done
         
