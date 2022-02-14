@@ -106,6 +106,16 @@ class Method_widget(Row_widget):
         Open a window where settings for this method can be changed.
         """
         self.row_item.row_list.top.swap_into_window(self.method_editor, cancel_callback = self.method_editor.cancel_callback, submit_callback = self.method_editor.confirm_callback)
+        
+    def keypress(self, size, key):
+        """
+        Handle keypress events.
+        """
+        if key in ['m']:
+            self.switch_to_editer()
+
+        else:
+            return super().keypress(size, key)
 
 
 class Method_item(Row_item):
