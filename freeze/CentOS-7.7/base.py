@@ -12,6 +12,7 @@ datas.extend(collect_data_files('cssselect2'))
 datas.extend(collect_data_files('cairocffi'))
 datas.extend(collect_data_files('pyphen'))
 datas.extend(collect_data_files('pysoc'))
+datas.extend(collect_data_files('basis_set_exchange'))
 
 # Add silico data files.
 datas.append(('../../silico/data', 'silico/data'))
