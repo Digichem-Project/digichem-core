@@ -11,6 +11,12 @@ NEXT:
     - Gaussian 100 Singlets
     - Gaussian Optimised S(1)
     - Gaussian Optimised T(1)
+    
+keywords:
+    # Options required for PySOC
+    6D:
+    10F:
+    GFInput:
 
 
 ---
@@ -28,6 +34,12 @@ NEXT:
     - Gaussian 100 Singlets
     - Gaussian Optimised S(1)
     - Gaussian Optimised T(1)
+    
+keywords:
+    # Options required for PySOC
+    6D:
+    10F:
+    GFInput:
 
 
 ---
