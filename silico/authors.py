@@ -5,7 +5,7 @@ authorship = {
     "Supervision": "Eli Zysman-Colman",
     "Beta Testers": [
         "Ettore Crovini",
-        "Campbell Mackenzie",
+        "Campbell F. R. Mackenzie",
         "Tomas Matulaitis"
         ],
     # Additional authors to go here hopefully one day...
