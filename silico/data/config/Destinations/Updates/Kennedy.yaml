@@ -2,7 +2,7 @@ TAG: SLURM Base
 SUB_TYPE: update
 NEXT:
     - Single Node SLURM
-    - Big Mem SLURM
+#    - Big Mem SLURM
     - Debug SLURM
     - Multi Node SLURM
 
@@ -17,16 +17,16 @@ NEXT:
     - Programs Base
 
 
----
-
-
-TAG: Big Mem SLURM
-
-partition: bigmem
-warning: You have selected the high memory capacity partition. This memory capacity is not normally required for DFT calculations; please make sure you know what you are doing.
-
-NEXT:
-    - Programs Base
+#---
+#
+#
+#TAG: Big Mem SLURM
+#
+#partition: bigmem
+#warning: You have selected the high memory capacity partition. This memory capacity is not normally required for DFT calculations; please make sure you know what you are doing.
+#
+#NEXT:
+#    - Programs Base
 
 
 ---
