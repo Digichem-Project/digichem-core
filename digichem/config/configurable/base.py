@@ -6,6 +6,7 @@ from silico.exception import Configurable_exception
 from silico.misc import Dynamic_parent
 from silico.config.configurable.option import Option
 from silico.exception.configurable import Configurable_option_exception
+from copy import deepcopy
 
 
 class Options_mixin():
@@ -99,7 +100,7 @@ class Configurable(Options_mixin):
                 pass
             
         # Setting like this might be unsafe because we're not deep copying...
-        instance._configurable_options = values
+        instance._configurable_options = deepcopy(values)
         
         return instance
         
