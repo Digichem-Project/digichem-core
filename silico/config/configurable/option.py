@@ -201,7 +201,18 @@ class Option():
         :param dict_obj: The dict in which the value of this Option is stored. In most cases, the value of this option is evaluated simply as dict_obj[self.name]
         """
         return not self.name in dict_obj
-
+    
+    def to_type(self, value):
+        """
+        Wrapper function to convert a value to the type of this option.
+        """
+        # Uncommenting the following line will prevent setting the type if our value already has the same type.
+        # TODO: Review if this is desirable.
+        if value is not None and self.type is not None:# and (type(self.type) != type or type(value) != self.type):
+            return self.type(value)
+        
+        else:
+            return value
 
     def validate(self, owning_obj, dict_obj = None):
         """
@@ -234,14 +245,14 @@ class Option():
                 if self.type is not None:
                     for index, element in enumerate(value):
                         try:
-                            value[index] = self.type(element)
+                            value[index] = self.to_type(element)
                             
                         except (TypeError, ValueError) as e:
                             raise Configurable_option_exception(owning_obj, self, "item '{}') '{}' of type '{}' is of invalid type".format(index, element, type(element).__name__)) from e
             else:
                 # Not a list type, just convert.
                 try:
-                    value = self.type(value) if self.type is not None else value
+                    value = self.to_type(value)
                     
                 except (TypeError, ValueError) as e:
                     raise Configurable_option_exception(owning_obj, self, "value '{}' of type '{}' is of invalid type".format(value, type(value).__name__)) from e
