@@ -289,7 +289,7 @@ class SOC_property_format(Property_table_format):
         """
         return OrderedDict({
             "Singlet": soc.singlet_state.state_symbol,
-            "Triplet": soc.singlet_state.state_symbol,
+            "Triplet": soc.triplet_state.state_symbol,
             "+1 /cm-1": soc.positive_one,
             "0 /cm-1": soc.zero,
             "-1 /cm-1": soc.negative_one,

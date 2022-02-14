@@ -35,6 +35,13 @@ unset TURBOTMPDIR
 ## Import turbomole init script.
 <%include file="wrapper.mako"/>\
 ##
+## If we've been asked to, set the allowed MKL instruction set.
+%if program.calculation.intel_AVX2_fix:
+##
+export MKL_ENABLE_INSTRUCTIONS=SSE4_2
+##
+%endif
+##
 ## Now run the calculation programs we've been given.
 %for module in program.calculation.modules:
 ${module} >> ${shlex.quote(str(program.turbomole_output_path.resolve()))} || { >&2 echo "Failed to execute Turbomole program '${module}'"; exit 1; }

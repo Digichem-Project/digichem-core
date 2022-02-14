@@ -33,6 +33,7 @@ class Metadata(Result_object):
     def __init__(
             self,
             name = None,
+            user = None,
             log_files = None,
             auxiliary_files = None,
             date = None,
@@ -54,6 +55,7 @@ class Metadata(Result_object):
         Constructor for result Metadata objects.
         
         :param name: Optional name of this calculation result.
+        :param user: The username of the user who parsed this result.
         :param log_files: An optional list of text-based calculation log files from which this result was parsed.
         :param auxiliary_files: An optional dict of auxiliary files associated with this calculation result.
         :param num_calculations: Optional number of individual calculations this metadata represents.
@@ -75,6 +77,7 @@ class Metadata(Result_object):
         """
         self.num_calculations = 1
         self.name = name
+        self.user = user
         self.log_files = log_files if log_files is not None else []
         self.auxiliary_files = auxiliary_files if auxiliary_files is not None else {}
         self.date = date
@@ -235,8 +238,10 @@ class Metadata(Result_object):
             else:
                 date = None
             
+            # TODO: This doesn't seem to make sense; the parser already contains a metadata object...
             return self(
                 name = parser.data.metadata.get('name', None),
+                user = parser.data.metadata.get('user', None),
                 log_files = parser.data.metadata.get('log_files', None),
                 auxiliary_files = parser.data.metadata.get('aux_files', None),
                 date = date,
@@ -283,7 +288,7 @@ class Merged_metadata(Metadata):
         """
         # Our merged metadata.
         merged_metadata = self(num_calculations = len(multiple_metadatas))
-        for attr in ("name", "package", "package_version", "functional", "basis_set"):
+        for attr in ("name", "user", "package", "package_version", "functional", "basis_set"):
             setattr(merged_metadata, attr, self.merged_attr(attr, multiple_metadatas))
             
         # We take the latest of the two dates.

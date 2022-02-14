@@ -1,3 +1,162 @@
+- 2021-07-29: Updated quick reference with ADC(2)
+- 2021-07-29: Added new documentation showing change in common calc codes.
+- 2021-07-20: Removed dev flag
+- 2021-07-20: Merge branch 'devel'
+- 2021-06-24: Fixed a bug where the SUCCESS flag could be set even if a calulcation had failed.
+- 2021-06-24: Suppresed warnings from obabel when not in DEBUG logging level.
+- 2021-06-14: Bump version
+- 2021-06-14: Fixed typo in basis sets with diffuse functions
+- 2021-05-31: Fixed a bug where Turbomole time and duration were not parsed.
+- 2021-05-31: Bumped version
+- 2021-05-31: Fixed typo in SOC csv results
+- 2021-05-23: Fixed calculation of dipole moments
+- 2021-05-14: Changed folder structure for combi reports
+- 2021-05-13: Fixed a python 3.6 vs 3.8 related bug when parsing results.
+- 2021-05-13: Bumped version number
+- 2021-05-13: Submitted calculations will now automatically generate combined reports as appropriate.
+- 2021-05-13: Reimplemented Result_set identity() and added identity string function.
+- 2021-05-05: The multiple calculation parser can accept previously parsed Result_set objects in addition to unparsed log files.
+- 2021-05-04: Cleanup
+- 2021-05-04: Formchk and cubegen will now use the same amount of memory as the parent calculation (if available).
+- 2021-05-04: Fixed a bug creating Gaussian reports from calcs
+- 2021-05-04: Added check to prevent parsing of 'silico.log' files.
+- 2021-04-25: Added alternative header and footer colours for failed calc reports
+- 2021-04-25: Switched from cp -R to copytree
+- 2021-04-23: Added new warning page to reports when generating from unconverged/incomplete calcs; fix for #29
+- 2021-04-23: Added alternative report title for failed/unconverged calcs
+- 2021-04-23: Fixed typo
+- 2021-04-23: Fixed bug generating reports when there is no ground state.
+- 2021-04-23: Readded creating reports if calc fails
+- 2021-04-23: Fixed crash when structure cube is missing
+- 2021-04-23: Fixed typo
+- 2021-04-23: Removed unnused imports.
+- 2021-04-23: Improved formatting of warnings
+- 2021-04-23: Refactored to add misc.io.smkdir() function
+- 2021-04-23: Fixed error message to reflect change of command-line arg from -o to -O
+- 2021-04-23: Fixed additional whitespace
+- 2021-04-23: Improved merge mechanism and associated warnings
+- 2021-04-22: Removed unused command line args from report subprogram
+- 2021-04-21: Fixed refactoring errors in gaussian report generator
+- 2021-04-21: Added calculations to report metadata
+- 2021-04-21: Improved cleanup when restarting Turbomole calcs
+- 2021-04-21: Fixed typo
+- 2021-04-21: The tail of the primary log file is now included in the exception message when a calculation fails.
+- 2021-04-21: Improved error message when attempting to parse with zero log files
+- 2021-04-21: Added support for parsing results with no ground state energies.
+- 2021-04-15: Update report templates to support new emission
+- 2021-04-15: Improved handling of emission energies; added support for emission energies of different multiplicity
+- 2021-04-09: Fixed parsing order when given multiple log files so earlier log files take precedence
+- 2021-04-09: Added -proper flag to Turbomole density calcs to prevent wasteful recalculation of energies etc.
+- 2021-04-08: Fixed a bug generating orbital images
+- 2021-04-08: Improved image generation from mulitple calc results
+- 2021-04-08: Added better error message for when a Turbomole cube maker can't find a finished cube file.
+- 2021-04-08: Merge branch 'devel' into reports
+- 2021-04-08: Set dev flag
+- 2021-04-07: Added ADC(2) calc to auto characterise
+- 2021-04-07: Corrected ADC2 to ADC(2)
+- 2021-04-07: Merge branch 'devel'
+- 2021-04-02: Improved submission process; gaussian .rwf and .chk files will now only be coppied if they are to be kept permanently
+- 2021-03-31: Increase default Turbomole define timeout from 15 to 60 s
+- 2021-03-31: Updated Dragon1 configs to reflect recent upgrade to that cluster
+- 2021-03-23: Added warning when parsing more MO symmetries than MO energies.
+- 2021-03-18: Unset dev flag
+- 2021-03-18: Reduced number of turbomole CC2 CPUs to 6
+- 2021-03-18: Fixed a bug when merging configurables.
+- 2021-03-18: Added support for setting memory usage of cubegen
+- 2021-03-18: Set default memory allocation for formchk to 3GB to mitigate OOM errors
+- 2021-03-17: WIP
+- 2021-03-17: Added ability to generate images in a single report from both gaussian and turbomole calculations.
+- 2021-03-17: Fixed file naming in merged reports
+- 2021-03-16: Fixed merged metadata showing incorrect number of merged calcs Fixed merged metadata showing empty functional
+- 2021-03-16: Fixed nonsensical merging of calculation energies.
+- 2021-03-16: Added ability to produce merged reports from multiple calculations.
+- 2021-02-28: Updated parsing and result handling in preparation for supporting merged results.
+- 2021-03-12: Fixed the report program ignoring certain command line arguments (-D, -O etc...)
+- 2021-03-10: Increased default memory allocation for CC2 and ADC(2)
+- 2021-03-10: Turned off saving of scratch directory on calculation failure by default.
+- 2021-03-02: Reduced number of Turbomole CC2 iterations
+- 2021-02-26: Added default alignment class for Parser.process()
+- 2021-02-26: Fixed __float__() return value type inconsistencies and added comparison operators for MOs, SOC and vibrations
+- 2021-02-26: Added merge function for excited states; added comparison operators for floatable result types
+- 2021-02-26: The excited states method __float__() now correctly returns a real float (instead of numpy float)
+- 2021-02-26: Fixed output format of calculation duration in CSV format
+- 2021-02-25: Added duration and date parsing for Turbomole.
+- 2021-02-25: Chagned default scratch location in Kennedy Vs Dragon servers
+- 2021-02-23: Added hidden import for CentOS 6.10
+- 2021-02-23: Updated configs for Dragon1 and Dragon2
+- 2021-02-23: Added the ADC(2) method
+- 2021-02-23: Fixed a bug where calculation errors could be accidentally hidden by later errors.
+- 2021-02-23: Fixed bug where configurables could share the same list of PARENTS and ALIAS
+- 2021-02-19: WIP multi calculation results
+- 2021-02-18: Calculation methods are now ordered
+- 2021-02-18: Further refactoring and cleanup.
+- 2021-02-18: Refactoring and cleanup of parsers
+- 2021-02-18: Switched to longer file name in results
+- 2021-02-18: Refactoring of result classes
+- 2021-02-17: Merge branch 'devel' of https://github.com/oliver-s-lee/silico
+- 2021-02-17: Updated documentation to 0.18.4
+- 2021-02-17: Merge branch 'devel' of https://github.com/oliver-s-lee/silico
+- 2021-02-17: Version to 0.18.4
+- 2021-02-17: Fixed line-height in section headers.
+- 2021-02-17: Unset dev flag
+- 2021-02-17: Merge branch 'devel' of https://github.com/oliver-s-lee/silico
+- 2021-02-16: Added program name to SLURM title.
+- 2021-02-16: Fixed line height in image captions.
+- 2021-02-16: Fixed line spacing in report about and bibliography sections
+- 2021-02-15: Potential fix for malfunctioning shutil.move
+- 2021-02-15: Fixed a crash when the /tmp dir is on a different volume
+- 2021-02-15: Fixed Turbomole cube generation using incorrect scratch location.
+- 2021-02-15: Reduced number of CPUs for Turbomole to address instability problems.
+- 2021-02-15: Cleaned up
+- 2021-02-15: Cleaning up
+- 2021-02-15: Fixed support for Turbomole UFF
+- 2021-02-14: Updated doc to 0.18.0
+- 2021-02-14: Changed text alignment to 'justify' in report about section.
+- 2021-02-14: Fixed rendering of simulated emission spectra.
+- 2021-02-14: Added Turbomole excited state optimisations
+- 2021-02-14: Fixed generating reports with emission energy
+- 2021-02-14: Axes are now correctly superscripted in IR graphs
+- 2021-02-14: Added peak detection for emission graphs
+- 2021-02-14: Added peak detection for absorption and IR graphs.
+- 2021-02-13: Removed PIL max image manipulation size to prevent PIL.Image.DecompressionBombError
+- 2021-02-13: Added support for SCF density images
+- 2021-02-12: Cleaned up Turbomole result parser
+- 2021-02-12: Errors encountered during the calculation are now correctl re-raised
+- 2021-02-11: Fixed generating reports with Gaussian.
+- 2021-02-11: Improved the error message for file maker errors
+- 2021-02-11: The caption for the simulated UV-Vis graph will now no longer appear if there is no such graph to show.
+- 2021-02-11: Fixed support for excited states with no multiplicity
+- 2021-02-11: Fixed generating RHF reports for Turbomole
+- 2021-02-11: Fix for missing multiplicities in excited states.
+- 2021-02-11: Fixed submitting TD-DFT/DFT calcs with UHF
+- 2021-02-11: An exception will now be correctly raised if a calculation finishes with an error or does not converge.
+- 2021-02-11: Added support for rendering spin density with Turbomole
+- 2021-02-11: Fixed rendering of orbital images for unrestricted Turbomole calcs
+- 2021-02-11: Added molecule and orbital image generation for Turbomole
+- 2021-02-10: Fixed typo
+- 2021-02-10: Added support for orbital irreps
+- 2021-02-10: Fixed writing empty pointval group in turbomole setup
+- 2021-02-09: Swapped for tabs to spaces.
+- 2021-02-09: Merge branch 'devel' into report
+- 2021-02-09: Major refactoring of calculation reports.
+- 2021-02-09: Ignored certain matplotlib warnings
+- 2021-02-09: Removed unused imports in status program
+- 2021-02-06: Fixed Turbomole CC2 SP not using ricc2
+- 2021-02-06: Memory values that cannot be represented absolutely will now be rounded automatically.
+- 2021-02-06: WIP
+- 2021-02-04: Changed format of molecular charge in formula strings from +3 to 3+
+- 2021-01-31: Reduced SLURM memory allocation from x1.2 to x1.1
+- 2021-01-31: WIP
+- 2021-01-27: WIP improvements to reports
+- 2021-01-27: Changed Turbomole scratch options to no longer write all output to scratch.
+- 2021-01-26: Increased number of CPUs used by Turbomole CC2 to 32 Fixed a config error that resulted in lower number of SCF cycles for CC2
+- 2021-01-25: Merge branch 'devel' of https://github.com/oliver-s-lee/silico into report
+- 2021-01-21: Updated documentation to include references
+- 2021-01-19: Updated readme to include Turbomole
+- 2021-01-19: Added option to include program name in calculation directories.
+- 2021-01-19: WIP improvements to reports
+- 2021-01-14: Updated documentation to v0.17.1
+- 2021-01-14: Added new changelog.
 - 2021-01-12: Added PySOC to references.
 - 2021-01-12: TDMs are now parsed with cclib
 - 2021-01-12: Bumped version
@@ -51,6 +210,7 @@
 - 2020-10-31: Added initial bash completion support.
 - 2020-10-31: Openbabel converters can now convert directly from memory.
 - 2020-10-30: Updated configs for dragon
+- 2020-10-29: Changed purple to blue in urwid interfaces to improved readability.
 - 2020-10-29: Added better error reporting for when an uncregonised Gaussian input file is encountered
 - 2020-10-27: Silico will no longer try to submit calculations whens using 'Esc' to quit.
 - 2020-10-27: Changed default colour of editable fields in urwid interfaces to dark blue to increase readability.

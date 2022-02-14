@@ -11,6 +11,12 @@
 <div class="resultsContainer">
     <div class="reportHeader reportHeader--minor reportHeader--results">${"Metadata" if title is None else title}</div>
     <table class="results">
+    	%if metadata.user is not None:
+        <tr>
+            <td class="results__name">Username:</td>
+            <td class="results__value">${metadata.user}</td>
+        </tr>
+        %endif
         %if metadata.date is not None:
         <tr>
             <td class="results__name">Date:</td>

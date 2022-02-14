@@ -38,6 +38,8 @@ class Turbomole(Concrete_calculation):
     memory = Option(help = "The amount of memory to use for the calculation.", required = True, type = Turbomole_memory, dump_func = lambda option, configurable, value: str(value))
     modules = Option(help = "A list of turbomole commands/programs to execute in order.", type = tuple, required = True)
     parallel_mode = Option(help = "The type of parallelization to use. SMP uses shared memory and therefore is only suitable for parallelization across a single node, while MPI uses message-passing between processes and so can be used across multiple nodes. Use 'linear' to disable parallelization.", default = "SMP", choices = ("SMP", "MPI", "linear"), type = str)
+    # See issue #36 for more information on this.
+    intel_AVX2_fix = Option(help = "Whether to disable AVX2 CPU extensions by setting MKL_ENABLE_INSTRUCTIONS=SSE4_2 in the program environment. This option is required to fix a bug in some turbomole modules (ricc2 at least) which occurs on some intel CPUs. Setting this option when it is not required is likely to incur a performance penalty.", type = bool, default = False)
     
 
 class Turbomole_AI(Turbomole):

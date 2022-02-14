@@ -337,7 +337,7 @@ Example:
         
         # Done.
         return palette
-            
+
     def __deepcopy__(self, memo):
         """
         Overriding deep copy.

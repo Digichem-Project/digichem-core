@@ -225,6 +225,13 @@ class Concrete_calculation(Calculation_target):
             return "{} {}".format(self.molecule_name, self.name)
         
         @property
+        def mem_per_CPU(self):
+            """
+            Get the amount of memory to assign (per CPU).
+            """
+            return Memory(float(self.memory) / self._num_CPUs)
+        
+        @property
         def num_CPUs(self):
             """
             The number of CPUs to use for the calculation, this (roughly ?) translates to the number of worker processes that will be used.

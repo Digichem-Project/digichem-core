@@ -89,7 +89,9 @@ class HTML_report(Report):
 #             universal_newlines = True,
 #             check = True
 #         )
-        copytree(str(self.src_static_dir), str(self.static_dir))
+        # Be aware of #21
+        # We only want to copy data, nothing else.
+        copytree(str(self.src_static_dir), str(self.static_dir), copy_function = shutil.copyfile)
         
         # Done.
         
