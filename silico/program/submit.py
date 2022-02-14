@@ -140,6 +140,8 @@ class Submit_program(Program):
         
         for coord in self.coords:
             try:
+                self.logger.info("Submitting file '{}'...".format(coord.file_name))
+                
                 # Prepare.
                 first.prepare(self.args.output, coord)
                 
@@ -157,7 +159,7 @@ class Submit_program(Program):
                 # We don't stop here though, we might have more calcs we can submit.
                 self.logger.error("Failed to submit file '{}'".format(coord.file_name), exc_info = True)
         
-        self.logger.info("Successfully submitted {} calculation(s)".format(done))
+        self.logger.info("Successfully submitted {} file(s)".format(done))
         
         return done
         
