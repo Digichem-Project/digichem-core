@@ -288,15 +288,20 @@ Example:
         """
         A list of known methods which have been loaded from config files.
         
-        :param logger: The logger to set (from logging.getLogger()).
-        """        
-        # Set from log_level first.
-        if self['logging']['log_level'] == "OFF":
-            logger.setLevel(60)
-            # Also disable obabel logging.
-            pybel.ob.obErrorLog.StopLogging()
-        else:
-            logger.setLevel(self['logging']['log_level'])
+        This is a configurable list of destinations, which can be traversed to also find programs and then calculations.
+        """
+        return self.destinations
+    
+    @property
+    def urwid_palette(self):
+        """
+        A shortcut for accessing the urwid palette (in a format that can be passed directly to urwid).
+        """
+        return self.yaml_to_palette(self.palette)
+    
+    def save(self):
+        """
+        Save the current value of these options to file, so that they will be reloaded on next program start.
         
         Changed settings are always saved to the user's config file.
         """
