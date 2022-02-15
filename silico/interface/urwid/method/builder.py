@@ -186,7 +186,7 @@ class Method_builder(Swappable, Setedit_editor_mixin):
         })
         
         # The save location.
-        self.output_widget = Output_edit(top, file_path, default_file_name = "method.yaml")
+        self.output_widget = Output_edit(top, file_path, default_file_name = "method.sim")
         
         super().__init__(top, Tab_pile([
             self.editor,
