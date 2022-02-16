@@ -73,7 +73,7 @@ class Calculation_target(Method_target):
                 
                 # If the calc was part of a series, set the series name.
                 if "Series" in calculation_t.CLASS_HANDLE:
-                    calc.series_name = calculation_t.name
+                    calc.series_name = calculation_t.combined_report_name
                 
                 # Keep track of the first.
                 if first is None:

@@ -24,7 +24,12 @@ class Calculation_series(Calculation_target):
     
     memory = Option(help = "Force each calculation in this series to use this amount of memory", default = None, type = Memory)
     num_CPUs = Option(help = "Force each calculation in this series to use this many CPUs", default = None, type = int)
+    _combined_report_name = Option("combined_report_name", help = "The name to use for the folder in which the combined report for this series calculation will be written", default = None)
             
+    @property
+    def combined_report_name(self):
+        return self._combined_report_name if self._combined_report_name is not None else self.name
+    
     def expand(self, calculations):
         """
         Expand this calculation target if it represents multiple real calcs.

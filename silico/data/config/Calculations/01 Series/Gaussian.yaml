@@ -26,6 +26,7 @@ NEXT:
 TAG: Gaussian Auto Organic TDA
 ALIAS: Opt+Freq -> TDA 50/50 (PBE0/6-31G(d,p))
 
+combined_report_name: Organic Emitter TDA 
 calculations:
     - [Gaussian Optimisation Frequencies, Gaussian PBE1PBE (GD3BJ), Gaussian Gas Phase, 'Gaussian 6-31G(d,p)']
     - [Gaussian TDA, Gaussian 10 Singlets 10 Triplets, Gaussian PBE1PBE (GD3BJ), Gaussian Gas Phase, 'Gaussian 6-31G(d,p)']
@@ -37,6 +38,7 @@ calculations:
 TAG: Gaussian Auto Organic TD-DFT
 ALIAS: Opt+Freq -> TD-DFT 50/50 -> Opt Triplet -> SP Singlet (PBE0/6-31G(d,p))
 
+combined_report_name: Organic Emitter TD-DFT
 calculations:
     - [Gaussian Optimisation Frequencies, Gaussian PBE1PBE (GD3BJ), Gaussian Gas Phase, 'Gaussian 6-31G(d,p)']
     - [Gaussian TD-DFT, Gaussian 10 Singlets 10 Triplets, Gaussian PBE1PBE (GD3BJ), Gaussian Gas Phase, 'Gaussian 6-31G(d,p)']
@@ -61,6 +63,7 @@ NEXT:
 TAG: Gaussian Auto Organometallic TDA
 ALIAS: Opt+Freq -> TDA 50/50 (B3LYP/6-31G+(d,p)/SBKJC-VDZ-ECP)
 
+combined_report_name: Organometallic Emitter TDA
 calculations:
     - [Gaussian Optimisation Frequencies, Gaussian B3LYP (GD3BJ), Gaussian Acetonitrile, 'Gaussian 6-31+G(d,p)/SBKJC-VDZ (ECP)']
     - [Gaussian TDA, Gaussian 10 Singlets 10 Triplets, Gaussian B3LYP (GD3BJ), Gaussian Acetonitrile, 'Gaussian 6-31+G(d,p)/SBKJC-VDZ (ECP)']
@@ -72,6 +75,7 @@ calculations:
 TAG: Gaussian Auto Organometallic TD-DFT
 ALIAS: Opt+Freq -> TD-DFT 50/50 -> Opt Triplet -> SP Singlet (B3LYP/6-31G+(d,p)/SBKJC-VDZ-ECP)
 
+combined_report_name: Organometallic Emitter TD-DFT
 calculations:
     - [Gaussian Optimisation Frequencies, Gaussian B3LYP (GD3BJ), Gaussian Acetonitrile, 'Gaussian 6-31+G(d,p)/SBKJC-VDZ (ECP)']
     - [Gaussian TD-DFT, Gaussian 10 Singlets 10 Triplets, Gaussian B3LYP (GD3BJ), Gaussian Acetonitrile, 'Gaussian 6-31+G(d,p)/SBKJC-VDZ (ECP)']
