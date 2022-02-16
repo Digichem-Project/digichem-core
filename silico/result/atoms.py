@@ -193,35 +193,21 @@ class Atom_list(Result_container, Unmergeable_container_mixin):
         If the atom lists are not equivalent, a warning will be issued.
         """
         return super().merge(*multiple_lists, charge = charge)
+    
+    def to_xyz(self):
+        """
+        Convert this list of atoms to xyz format.
+        """
+        # First, the number of atoms.
+        xyz = "{}\n\n".format(len(self))
         
-#     @classmethod
-#     def merge(self, *multiple_lists, charge):
-#         """
-#         Merge multiple lists of atoms into a single list.
-#         
-#         Note that it does not make logical sense to combine different list of atoms into one; hence the method only ensures that all given lists (which are not empty) are the same and then returns the first (non empty) given.
-#         If the atom lists are not equivalent, a warning will be issued.
-#         """
-#         atoms = self(multiple_lists[0], charge = charge)
-#         
-#         # Check all other lists are the same.
-#         for atom_list in multiple_lists[1:]:
-#             # If this list has atoms and our current doesn't, use this as our base list.
-#             if len(atom_list) > 0 and len(atoms) == 0:
-#                 atoms = atom_list
-#             else:
-#                 for index, atom in enumerate(atom_list):
-#                     try:
-#                         other_atom = atoms[index]
-#                         if atom != other_atom:
-#                             #raise Silico_exception("Cannot merge lists of atoms that are not identical; '{} is not equal to '{}'".format(atom, other_atom))
-#                             warnings.warn(self.MERGE_WARNING)
-#                     except IndexError:
-#                         #raise Silico_exception("Cannot merge lists of atoms that are not identical; these atom lists contain different numbers of atoms")
-#                         warnings.warn(self.MERGE_WARNING)
-#                 
-#         # Return the 'merged' list.
-#         return atoms
+        # Then coordinates.
+        # No effort is made here to truncate coordinates to a certain precision.
+        for atom in self:
+            xyz += "{}    {}    {}    {}\n".format(atom.element.symbol, atom.coords[0], atom.coords[1], atom.coords[2])
+            
+        return xyz
+
 
 class Atom(Result_object):
     """
