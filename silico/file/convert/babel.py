@@ -140,16 +140,21 @@ if HAVE_PYBEL:
         
         """            
         
-        def convert(self, output_file_type, *, gen3D = None, charge = None, multiplicity = None):
+        def convert(self, output_file_type, output_file = None, *, gen3D = None, charge = None, multiplicity = None):
             """
             Convert the input file wrapped by this class to the designated output_file_type.
             
             :param output_file_type: The file type to convert to.
+            :param output_file: Optional file name to write to. If not given, the converted file will be returned as a string (or binary string depending on format).
             :param gen3D: If True and the loaded molecule does not have 3D coordinates, these will be generated (this will scramble atom coordinates).
             :param charge: Optional charge of the output format.
             :param multiplicity: Optional multiplicity of the output format.
-             :return: The converted file.
+            :return: The converted file, or None if output_file is not None.
             """
+            output_file = str(output_file) if output_file is not None else None
+            if output_file is None and output_file_type == "png":
+                raise ValueError("output_file must not be None if format is png")
+            
             try:
                 # Stop logging from pybel, we'll handle that ourselves.
                 pybel.ob.obErrorLog.StopLogging()
@@ -201,7 +206,11 @@ if HAVE_PYBEL:
                     molecule.addh()
                 
                 # Now convert and return
-                return molecule.write(output_file_type)
+                # If the format is png, use the draw() method instead because write() is bugged.
+                if output_file_type == "png":
+                    molecule.draw(False, output_file)
+                else:
+                    return molecule.write(output_file_type, output_file, overwrite = True)
             
             finally:
                 # Start logging again.
@@ -223,15 +232,18 @@ class Obabel_converter(Openbabel_converter):
     # 'Path' to the obabel executable.
     obabel_execuable = "obabel"        
     
-    def convert(self, output_file_type, *, gen3D = None, charge = None, multiplicity = None):
+    def convert(self, output_file_type, output_file = None, *, gen3D = None, charge = None, multiplicity = None):
         """
         Convert the input file wrapped by this class to the designated output_file_type.
          
+        :param output_file_type: The file type to convert to.
+        :param output_file: Optional file name to write to. If not given, the converted file will be returned as a string (or binary string depending on format).
         :param gen3D: If True and the loaded molecule does not have 3D coordinates, these will be generated (this will scramble atom coordinates).        
-         :param output_file_type: The file type to convert to.
         :param charge:  Optional charge of the output format.
-         :return: The converted file.
+        :param multiplicity: Optional multiplicity of the output format.
+        :return: The converted file, or None if output_file is not None.
         """
+        output_file = str(output_file) if output_file is not None else None
         # For Obabel, gen3D defaults to False, because we can't determine ahead of time whether we're in 3D or not (unless format is cdx, which is always 2D).
         if gen3D is None:
             if self.input_file_type.lower() == "cdx":
@@ -248,16 +260,17 @@ class Obabel_converter(Openbabel_converter):
             silico.logging.get_logger().warning("Unable to set multiplicity '{}' of molecule loaded from file '{}' with obabel converter".format(multiplicity, self.input_name))
         
         # Run
-        return self.run_obabel(output_file_type, gen3D = gen3D)
+        return self.run_obabel(output_file_type, output_file, gen3D = gen3D)
         
-    def run_obabel(self, output_file_type, *, gen3D):
+    def run_obabel(self, output_file_type, output_file, *, gen3D):
         """
-         Run obabel, converting the input file wrapped by this class to the designated output_file_type.
-         
-         :param gen3D: If True and the loaded molecule does not have 3D coordinates, these will be generated (this will scramble atom coordinates).        
-         :param output_file_type: The file type to convert to.                  
-         :return: The converted file.
-         """
+        Run obabel, converting the input file wrapped by this class to the designated output_file_type.
+        
+        :param output_file_type: The file type to convert to.
+        :param output_file: Optional file name to write to. If not given, the converted file will be returned as a string (or binary string depending on format).
+        :param gen3D: If True and the loaded molecule does not have 3D coordinates, these will be generated (this will scramble atom coordinates).
+        :return: The converted file.
+        """
         # The signature we'll use to run obabel.
         sig = [self.obabel_execuable]
         
@@ -280,6 +293,10 @@ class Obabel_converter(Openbabel_converter):
         if self.add_H:
             #silico.logging.get_logger().info("Adding any missing hydrogens to structure loaded from file '{}'".format(self.input_name))
             sig.append("-h")
+            
+        # If a file to write to has been given, set it.
+        if output_file is not None:
+            sig.extend(['-O', output_file])
         
         # There are several openbabel bugs re. the chem draw format; one of them occurs when we are frozen and have set the BABEL_LIBDIR env variable.
         # The workaround is to temp unset BABEL_LIBDIR.
@@ -315,4 +332,4 @@ class Obabel_converter(Openbabel_converter):
             raise Silico_exception("obabel command did not appear to complete successfully") from CalledProcessError(done_process.returncode, " ".join(done_process.args), done_process.stdout, done_process.stderr)
         
         # Return our output.
-        return done_process.stdout
+        return done_process.stdout if output_file is None else None
