@@ -52,7 +52,7 @@ class Openbabel_converter():
     @classmethod
     def type_from_file_name(self, input_file_name):
         """
-        Get the type of a fail based on its file name.
+        Get the type of a file based on its file name.
         
         This method largely uses the file extension (.com, .tmol etc), with a few other simple rules.
         """
