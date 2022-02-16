@@ -26,7 +26,7 @@
         <div class="imageBlock imageBlock--multi imageBlock--frontPage">
             <div class="image__aligner image__aligner--frontPage">
             	%if 'aligned_structure' in report.images:
-                <img class="image__img image__img--frontPage" src="${report.relative_image('aligned_structure', 'x0y0z0')}">
+                <img class="image__img image__img--frontPage" src="${report.relative_image('skeletal')}">
         		%endif
             </div>
         </div>

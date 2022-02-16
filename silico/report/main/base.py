@@ -15,6 +15,8 @@ from silico.result.excited_states import Excited_state_list
 from silico.image.graph import Convergence_graph_maker
 from silico.result.molecular_orbitals import Molecular_orbital_list
 import silico.report.image
+from silico.image.structure import Skeletal_image_maker
+from silico.file.convert.main import Silico_coords
 
 class Report():
     """
@@ -262,6 +264,15 @@ class Report():
                 dipole_moment = self.result.dipole_moment,
                 rotations = self.rotations,
                 options = self.options)
+            
+        ################
+        # 2D Structure #
+        ################
+        self.images['skeletal'] = Skeletal_image_maker.from_options(
+            Path(output_dir, "Structure", output_name + ".skeletal.png"),
+            coords = Silico_coords.from_xyz(self.result.atoms.to_xyz()),
+            options = self.options
+            )
         
         
         ####################################################
