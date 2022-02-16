@@ -188,11 +188,12 @@ class Silico_coords():
         """
         file.write(self.yaml)
         
-    def to_format(self, file_type):
+    def to_format(self, file_type, file = None):
         """
         Get this input file in an arbitrary format.
         
         :param file_type: The format of the file; a string recognised by openbabel.
+        :param file: An optional file to write to, if not given the converted file is returned as a string.
         """
         if file_type.lower() == "si":
             # Convert to yaml
@@ -201,7 +202,7 @@ class Silico_coords():
             # Convert.
             charge = int(self.charge) if self.charge is not None else None
             multiplicity = int(self.multiplicity) if self.multiplicity is not None else None
-            return Openbabel_converter.get_cls("xyz")(input_file = self.xyz, input_file_path = self.auto_name, input_file_type = "xyz").convert(file_type, charge = charge, multiplicity = multiplicity)
+            return Openbabel_converter.get_cls("xyz")(input_file = self.xyz, input_file_path = self.auto_name, input_file_type = "xyz").convert(file_type, file, charge = charge, multiplicity = multiplicity)
 
     @classmethod
     def input_formats(self):
