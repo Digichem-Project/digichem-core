@@ -12,10 +12,10 @@ import silico.logging
 
 
 # Try and load openbabel bindings.
-HAVE_BINDINGS = False
+HAVE_PYBEL = False
 try:
     from openbabel import pybel
-    HAVE_BINDINGS = True
+    HAVE_PYBEL = True
 except ModuleNotFoundError:
     # No bindings, carry on.
     silico.logging.get_logger().debug("Could not load python pybel bindings; falling back to obabel executable", exc_info = True)
@@ -124,7 +124,7 @@ class Openbabel_converter():
         
         The only exception is for the cdx format for which Obabel_converter is always returned (because of bug https://github.com/openbabel/openbabel/issues/1690 which still seems to be plaguing us in mid-2020).
         """
-        if not HAVE_BINDINGS or input_file_type.lower() == "cdx":
+        if not HAVE_PYBEL or input_file_type.lower() == "cdx":
             return Obabel_converter
         else:
             return Pybel_converter
@@ -133,7 +133,7 @@ class Openbabel_converter():
 
 # Babel_convert doesn't inherit from File_converter because we are only interested in reading to/from stdin/out (which File_converter doesn't support)
 #TODO: Add stdin/stdout support to File_converter
-if HAVE_BINDINGS:
+if HAVE_PYBEL:
     class Pybel_converter(Openbabel_converter):
         """
         Wrapper class for pybel
