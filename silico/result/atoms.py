@@ -99,8 +99,6 @@ class Atom_list(Result_container, Unmergeable_container_mixin):
             
         return formula_string
         
-    
-        
     @property
     def X_length(self):
         return self.get_axis_length(0)
