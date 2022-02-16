@@ -274,7 +274,7 @@ class Gaussian(Concrete_calculation):
             Prepare this calculation for submission.
             
             :param output: Path to a directory to perform the calculation in.
-            :param input_coords: A Silico_input object containing the coordinates on which the calculation will be performed.
+            :param input_coords: A Silico_coords object containing the coordinates on which the calculation will be performed.
             """            
             # Call parent.
             super().prepare(output, input_coords)

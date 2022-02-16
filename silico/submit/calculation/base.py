@@ -7,7 +7,7 @@ from silico.exception.base import Submission_error
 from silico.submit import Memory
 from silico.config.configurable.option import Option
 from silico.config.configurable.options import Options
-from silico.file.convert import Silico_input
+from silico.file.convert import Silico_coords
 from silico.submit.base import Method_target
 
 
@@ -256,7 +256,7 @@ class Concrete_calculation(Calculation_target):
             Prepare this calculation for submission.
             
             :param output: Path to a directory to perform the calculation in.
-            :param input_coords: A Silico_input object containing the coordinates on which the calculation will be performed.
+            :param input_coords: A Silico_coords object containing the coordinates on which the calculation will be performed.
             """
             # Because we normally run the program in a different environment to where we are currently, we need to load all input files we need into memory so they can be pickled.
             self.output = output
@@ -302,7 +302,7 @@ class Concrete_calculation(Calculation_target):
             # First, try and convert our given input file to the universal silico input format.
             try:
                 # Load file.
-                input_coords = Silico_input.from_file(input_file_path, input_format, name = molecule_name, charge = molecule_charge, multiplicity = molecule_multiplicity, gen3D = gen3D)
+                input_coords = Silico_coords.from_file(input_file_path, input_format, name = molecule_name, charge = molecule_charge, multiplicity = molecule_multiplicity, gen3D = gen3D)
             except Exception:
                 raise Submission_error(self, "failed to prepare input file (input format may not be supported)", file_name = input_file_path)
             

@@ -5,7 +5,7 @@ import urwid
 from silico.interface.urwid.main.program import Program_view
 from silico.interface.urwid.edit.popup import File_edit, Output_edit,\
     Choices_edit
-from silico.file.convert.main import Silico_input
+from silico.file.convert.main import Silico_coords
 from silico.interface.urwid.misc import Tab_pile, IntEditZero
 from silico.interface.urwid.layout import Pane
 
@@ -20,7 +20,7 @@ class Convert_interface(Program_view):
         """
         An ordered list of input formats that are supported.
         """
-        formats = list(Silico_input.input_formats().keys())
+        formats = list(Silico_coords.input_formats().keys())
         formats.sort(key = lambda item: item.upper())
         formats.insert(0, None)
         return formats
@@ -30,7 +30,7 @@ class Convert_interface(Program_view):
         """
         An ordered list of input formats that are supported.
         """
-        formats = list(Silico_input.output_formats().keys())
+        formats = list(Silico_coords.output_formats().keys())
         formats.sort(key = lambda item: item.upper())
         formats.insert(0, None)
         return formats

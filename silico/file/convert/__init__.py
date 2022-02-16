@@ -1,1 +1,1 @@
-from .main import Silico_input
+from .main import Silico_coords

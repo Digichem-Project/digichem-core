@@ -20,7 +20,8 @@ def literal_str_representer(dumper, data):
 # Add to yaml.
 yaml.add_representer(literal_str, literal_str_representer)
 
-class Silico_input():
+
+class Silico_coords():
     """
     Class that represents an input file in the silico input (.si) format.
      
@@ -78,7 +79,7 @@ class Silico_input():
     @classmethod
     def from_xyz(self, geometry, **kwargs):
         """
-        Create a Silico_input object from a molecule in xyz format.
+        Create a Silico_coords object from a molecule in xyz format.
         
         :param geometry: The input geometry in xyz format.
         :param charge: The molecular charge.
@@ -97,7 +98,7 @@ class Silico_input():
     @classmethod
     def from_com(self, geometry, *, charge = None, multiplicity = None, **kwargs):
         """
-        Create a Silico_input object from a molecule in gaussian input format (.com, .gjf etc).
+        Create a Silico_coords object from a molecule in gaussian input format (.com, .gjf etc).
         
         :param geometry: The input geometry in gaussian format.
         :param charge: The molecular charge.
@@ -120,7 +121,7 @@ class Silico_input():
     @classmethod
     def from_file(self, file_name, file_type = None, *, gen3D = None, **kwargs):
         """
-        Create a Silico_input object from a file in arbitrary format.
+        Create a Silico_coords object from a file in arbitrary format.
         
         :param file_name: Name/path of the input file to read from.
         :param file_type: The format of the file; a string recognised by openbabel. If not given, an attempt will be made to guess from the file name (see Openbabel_converter.type_from_file_name()).
@@ -158,7 +159,7 @@ class Silico_input():
     @classmethod
     def from_yaml(self, yaml_dict, file_name = None, **kwargs):
         """
-        Create a Silico_input object from a loaded/parsed .si file.
+        Create a Silico_coords object from a loaded/parsed .si file.
         """
         yaml_dict = dict(yaml_dict)
         # Overwrite dictionary values if explicit ones have been given.
@@ -175,7 +176,7 @@ class Silico_input():
     @classmethod
     def from_si(self, si_file, **kwargs):
         """
-        Create a Silico_input object from a raw .si file.
+        Create a Silico_coords object from a raw .si file.
         """
         return self.from_yaml(yaml.safe_load(si_file), **kwargs)
         

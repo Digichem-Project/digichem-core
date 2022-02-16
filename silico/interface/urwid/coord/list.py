@@ -5,7 +5,7 @@ import urwid
 # Silico imports.
 from silico.interface.urwid.row_list.base import Row_item, Row_widget,\
     Row_browser
-from silico.file.convert.main import Silico_input
+from silico.file.convert.main import Silico_coords
 from silico.interface.urwid.misc import IntEditZero
 import silico.logging
 from silico.interface.urwid.coord.browser import Coord_selector
@@ -45,7 +45,7 @@ class Coordinate_item(Row_item):
         """
         Constructor for Coordinate_item objects.
         
-        :param coord: A Silico_input object.
+        :param coord: A Silico_coords object.
         :param row_list: Our parent row_list object.
         :param movable: Whether we should show rearranging buttons.
         """
@@ -121,7 +121,7 @@ class Coordinate_list(Row_browser):
         """
         Get a value to add from a value selected by the user.
         """
-        return Silico_input.from_file(selected_value, charge = self.selector.charge, multiplicity = self.selector.multiplicity, gen3D = self.selector.generate_3D)
+        return Silico_coords.from_file(selected_value, charge = self.selector.charge, multiplicity = self.selector.multiplicity, gen3D = self.selector.generate_3D)
         
     def load_row(self, value):
         return Coordinate_item(value, self)

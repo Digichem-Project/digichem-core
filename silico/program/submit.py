@@ -9,7 +9,7 @@ from silico.interface.urwid.submit.base import Submit_interface
 from silico.exception.base import Silico_exception
 from silico.submit.calculation.base import Calculation_target
 from silico.exception.uncatchable import Submission_paused
-from silico.file.convert.main import Silico_input
+from silico.file.convert.main import Silico_coords
 from silico.submit.base import parse_method_from_file
 
 
@@ -75,7 +75,7 @@ class Submit_program(Program):
         Constructor for submit programs.
         
         :param output: A pathlib Path to a directory to write output to. Each submitted molecule will have a subdirectory under the output directory.
-        :param coords: A list of Silico_input objects representing coordinates to submit.
+        :param coords: A list of Silico_coords objects representing coordinates to submit.
         :param methods: A list of method tuples to submit to.
         """
         super().__init__(args = args, config = config, logger = logger)
@@ -106,7 +106,7 @@ class Submit_program(Program):
 #         methods.extend(methods_from_files)
         
         # Load coordinates.
-        coords = [Silico_input.from_file(file, gen3D = args.gen3D, charge = args.charge, multiplicity = args.multiplicity) for file in args.calculation_files]
+        coords = [Silico_coords.from_file(file, gen3D = args.gen3D, charge = args.charge, multiplicity = args.multiplicity) for file in args.calculation_files]
                 
         return self(coords, methods, args = args, config = config, logger = logger)
     

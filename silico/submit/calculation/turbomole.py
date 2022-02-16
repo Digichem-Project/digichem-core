@@ -9,7 +9,7 @@ from silico.config.configurable.option import Option
 from silico.submit.base import Memory
 import silico
 from silico.config.configurable.options import Options
-from silico.file.convert.main import Silico_input
+from silico.file.convert.main import Silico_coords
 
                 
 class Turbomole_memory(Memory):
@@ -347,7 +347,7 @@ class Turbomole_restart(Turbomole_AI):
             :param molecule_name: A name that refers to the system under study (eg, Benzene etc).
             """
             # Load input coords, although we won't be using them.
-            input_coords = Silico_input.from_file(Path(input, "coord"), "tmol", name = molecule_name, charge = None, multiplicity = None, gen3D = False)
+            input_coords = Silico_coords.from_file(Path(input, "coord"), "tmol", name = molecule_name, charge = None, multiplicity = None, gen3D = False)
             
             super().prepare(output, input, input_coords)
             
