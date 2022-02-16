@@ -6,14 +6,16 @@
 
 <%
     acknowledgements = [
-        {"title": "Extraction and processing of results", "citations": [{"name": "cclib", "number": 1}]},
-        {"title": "Generation of 3D images", "citations": [{"name": "VMD", "number": 2}, {"name": "Tachyon", "number": 3}]},
-        {"title": "Generation of graphs", "citations": [{"name": "Matplotlib", "number": 4}]},
-        {"title": "Calculation of CIE colour coordinates", "citations": [{"name": "Colour Science", "number": 5}]},
-        {"title": "Generation of report", "citations": [{"name": "Mako", "number": 6}, {"name": "Weasyprint", "number": 7}]},
-        {"title": "Scientific constants", "citations": [{"name": "SciPy", "number": 8}]},
-        {"title": "Conversion of file formats", "citations": [{"name": "Pybel", "number": 9}, {"name": "Openbabel", "number": 10}]},
-        {"title": "Calculation of spin-orbit coupling", "citations": [{"name": "PySOC", "number": 11}]},
+        {"title": "Extraction and processing of results", "citations": [{"name": "cclib", "numbers": 1}]},
+        {"title": "Rendering of 3D images", "citations": [{"name": "VMD", "numbers": 2}, {"name": "Tachyon", "numbers": 3}]},
+        {"title": "Rendering of graphs", "citations": [{"name": "Matplotlib", "numbers": 4}]},
+        {"title": "Calculation of CIE colour coordinates", "citations": [{"name": "Colour Science", "numbers": 5}]},
+        {"title": "Generation of reports", "citations": [{"name": "Mako", "numbers": 6}, {"name": "Weasyprint", "numbers": 7}]},
+        {"title": "Scientific constants", "citations": [{"name": "SciPy", "numbers": 8}]},
+        {"title": "Conversion of file formats", "citations": [{"name": "Pybel", "numbers": 9}, {"name": "Openbabel", "numbers": 10}]},
+        {"title": "Calculation of spin-orbit coupling", "citations": [{"name": "PySOC", "numbers": 11}]},
+        {"title": "Rendering of 2D structures", "citations": [{"name": "RDKit", "numbers": 12}]},
+        {"title": "Saving of state during submission", "citations": [{"name": "Dill", "numbers": [13, 14]}]}
     ]
 %>
 

@@ -7,7 +7,7 @@
     <div class="acknowledgement__title">${title}:</div>
     <div class="acknowledgement__body">
         %for index,citation in enumerate(citations):
-        <%include file="/citation/citation.mako" args="name = citation['name'], number = citation['number']" />${"," if index != len(citations) -1 else ""}
+        <%include file="/citation/citation.mako" args="name = citation['name'], numbers = citation['numbers']" />${"," if index != len(citations) -1 else ""}
         %endfor
     </div>
 </div>
