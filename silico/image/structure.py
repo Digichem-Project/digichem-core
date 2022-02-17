@@ -7,9 +7,14 @@ try:
     import rdkit.Chem.AllChem
     HAVE_RDKIT = True
     
-except Exception:
+except ModuleNotFoundError:
     # Missing rdkit module.
-    silico.logging.get_logger().debug("Failed to import module 'rdkit', falling back to openbabel for 2D structure images")
+    silico.logging.get_logger().debug("Failed to import module 'rdkit', falling back to openbabel for 2D structure images", exc_info = True)
+    HAVE_RDKIT = False
+
+except Exception:
+    # Something went wrong.
+    silico.logging.get_logger().error("An error occurred trying to import module 'rdkit', falling back to openbabel for 2D structure images", exc_info = True)
     HAVE_RDKIT = False
 
 # Silico imports.
