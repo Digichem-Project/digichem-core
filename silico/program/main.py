@@ -22,16 +22,16 @@ if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
     warnings.filterwarnings("ignore", "(?s).*@font-face support needs Pango >= 1.38*", category = UserWarning)
     warnings.filterwarnings("ignore", "(?s).*There are known rendering problems and missing features with cairo < 1.15.4*", category = UserWarning)
 
-# Init openbabel.
-import silico
-silico.init_obabel()
+# Increase verbosity of logging to catch errors during setup.
+# This will be altered once config data has been loaded.
+import silico.logging
+silico.logging.set_logging_level("DEBUG")
 
 # General imports.
 import argparse
 #import pydevd;pydevd.settrace()
 
 # Silico imports.
-import silico.logging
 from silico.program.config.main import Config_program
 from silico.program.convert import Convert_program
 from silico.program.interactive import Interactive_program
@@ -66,7 +66,6 @@ def main():
     Main entry point for the program.
     """
     # ----- Program init -----
-    silico.logging.set_logging_level("DEBUG")
     # Configure our argument parser.
     # This is the top-level parser; each sub program will specify its own sub-parser.
     parser = Program.top_level_arguments()
