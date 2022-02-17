@@ -49,6 +49,9 @@ if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
 else:
     frozen = False
     
+# Setup openbabel library location.
+init_obabel()
+    
 
 ########################
 # Function Definitions #
