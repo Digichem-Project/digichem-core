@@ -67,7 +67,7 @@ class Skeletal_image_maker(Image_maker):
             rdkit.Chem.AllChem.Compute2DCoords(molecule)
             
             # Then write the file.
-            rdkit.Chem.Draw.MolToFile(molecule, self.output, (self.resolution, self.resolution))
+            rdkit.Chem.Draw.MolToFile(molecule, str(self.output), (self.resolution, self.resolution))
             
         else:
             # No rdkit, convert directly.
