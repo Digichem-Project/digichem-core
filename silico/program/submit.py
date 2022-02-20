@@ -101,11 +101,6 @@ class Submit_program(Program):
             elif method_type == "file":
                 methods.append(parse_method_from_file(method_id, config))
         
-#         methods = [config.methods.resolve_method_string(method_string) for method_string in args.method_codes]
-#         
-#         methods_from_files = [parse_method_from_file(method_file, config) for method_file in args.method_files]
-#         methods.extend(methods_from_files)
-        
         # Load coordinates.
         coords = [Silico_coords.from_file(file, gen3D = args.gen3D, charge = args.charge, multiplicity = args.multiplicity) for file in args.calculation_files]
                 
