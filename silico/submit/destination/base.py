@@ -17,18 +17,6 @@ class Destination_target(Method_target):
     
     CLASS_HANDLE = ("destination",)
     TYPE = Option(default = "destination", no_edit = True)
-            
-    @property
-    def unique_name(self):
-        """
-        Get a name that is unique for this calculation instance.
-        
-        Some destinations may provide their own get_unique_name() methods; this default implementation returns a random string with a very low collision chance.
-        """
-        if getattr(self, "_unique_name", None) is None:
-            self._unique_name = uuid4().hex
-            
-        return self._unique_name
         
     @property
     def status(self):
@@ -58,6 +46,15 @@ class Destination_target(Method_target):
             """
             self.program = None
             self.calc_dir = None
+            
+        @property
+        def unique_name(self):
+            """
+            Get a name that is unique for this calculation instance.
+            
+            Some destinations may provide their own get_unique_name() methods; this default implementation returns a random string with a very low collision chance.
+            """
+            return self._unique_name
 
         def submit(self):
             """
@@ -65,6 +62,9 @@ class Destination_target(Method_target):
             
             This default implementation creates the required directory structure.
             """
+            # Set a unique name.
+            self._unique_name = uuid4().hex
+            
             # Set output directory.
             self.calc_dir = Calculation_directory.from_calculation(self.program.calculation)
             

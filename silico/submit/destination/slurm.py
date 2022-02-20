@@ -116,23 +116,6 @@ class SLURM(Resumable_destination):
         free_nodes = self.get_num_nodes(True)
         return "{} ({:0.0f}%) idle nodes, {} ({:0.0f}%) idle CPUs".format(free_nodes, (free_nodes/num_nodes)*100 if num_nodes != 0 else 0, cpu_info[1], (cpu_info[1]/cpu_info[3])*100 if cpu_info[3] != 0 else 0)
     
-    @property
-    def unique_name(self):
-        """
-        Get a name that is unique for this calculation instance.
-        
-        SLURM tries to get a unique name based on our allocated SLURM ID, but if we have not yet been submitted to SLURM this method will fallback to a different method.
-        """
-        if getattr(self, "_unique_name", None) is None:
-            try:
-                self._unique_name = os.environ['SLURM_JOB_ID']
-            except KeyError:
-                # SLURM_JOB_ID isn't set, means we haven't been submitted to SLURM yet.
-                # Fallback.
-                self._unique_name = super().unique_name
-        
-        return self._unique_name    
-    
     
     ############################
     # Class creation mechanism #
@@ -142,6 +125,23 @@ class SLURM(Resumable_destination):
         """
         Inner class for SLURM.
         """
+        
+        @property
+        def unique_name(self):
+            """
+            Get a name that is unique for this calculation instance.
+            
+            SLURM tries to get a unique name based on our allocated SLURM ID, but if we have not yet been submitted to SLURM this method will fallback to a different method.
+            """
+            if getattr(self, "_unique_name", None) is None:
+                try:
+                    self._unique_name = os.environ['SLURM_JOB_ID']
+                except KeyError:
+                    # SLURM_JOB_ID isn't set, means we haven't been submitted to SLURM yet.
+                    # Fallback.
+                    self._unique_name = super().unique_name
+            
+            return self._unique_name
     
         @property
         def CPUs_per_task(self):
