@@ -3,6 +3,7 @@ import sys
 import os
 from pathlib import Path
 import silico
+
     
 def init_obabel():
     """
@@ -13,11 +14,12 @@ def init_obabel():
     So, when we are frozen, we manually set the location of these library files so openbabel will work.
     If we are not frozen we do not do this as we expect openbabel to be correctly configured.
     """
+    openbabel_version = "3.0.0"
 #     # The sys attribute 'frozen' is our flag, '_MEIPASS' is the dir location.
 #     # https://pyinstaller.readthedocs.io/en/stable/runtime-information.html#run-time-information
     if silico.frozen:
         # We need to tell openbabel where its library components are.
-        os.environ['BABEL_LIBDIR'] = str(Path(sys._MEIPASS, "openbabel", "lib", "3.1.1"))
+        os.environ['BABEL_LIBDIR'] = str(Path(sys._MEIPASS, "openbabel", "lib", openbabel_version))
         
         # And also data.
-        os.environ['BABEL_DATADIR'] = str(Path(sys._MEIPASS, "openbabel", "data", "3.1.1"))
+        os.environ['BABEL_DATADIR'] = str(Path(sys._MEIPASS, "openbabel", "data", openbabel_version))
