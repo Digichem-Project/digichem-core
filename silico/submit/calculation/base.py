@@ -58,7 +58,7 @@ class Calculation_target(Method_target):
         
         # These objects are class templates.
         for destination_t, program_t, calculation_t in methods:
-            # Expand calculation (because the 'calculation' could actually be a meta-calc representing multiple real calcs.
+            # Expand calculation (because the 'calculation' could actually be a meta-calc representing multiple real calcs).
             for expanded_calculation_t in calculation_t.expand(global_silico_options.calculations):
                 
                 # Init the destination, prog and calc.
