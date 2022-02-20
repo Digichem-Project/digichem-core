@@ -67,6 +67,7 @@ class Submit_program(Program):
         sub_parser.add_argument("-C", "--charge", help = "Set the molecular charge of all input files. Note that certain calculations will override this value", default = None, type = int)
         sub_parser.add_argument("-M", "--multiplicity", "--mult", help = "Set the multiplicity of all input files. Note that certain calculations will override this value", default = None, type = int)
         sub_parser.add_argument("--gen3D", help = "Whether to generate 3D coordinates (this will scramble existing atom coordinates). The default is yes, but only if it can be safely determined that the loaded coordinates are not already in 3D)", type = to_bool, default = True)
+        sub_parser.add_argument("-p", "--prepare-only", help = "Whether to only perform setup for the calculation without actually performing it", action = "store_true")
         
         return sub_parser
     
@@ -123,7 +124,7 @@ class Submit_program(Program):
         
         try:
             # Arrange our calcs into a linked list.
-            first = Calculation_target.link(self.methods, global_silico_options = self.config)
+            first = Calculation_target.link(self.methods, global_silico_options = self.config, prepare_only = self.args.prepare_only)
             
         except Exception:
             raise Silico_exception("Error processing methods to submit")

@@ -45,7 +45,7 @@ class Calculation_target(Method_target):
         raise NotImplementedError()
 
     @classmethod
-    def link(self, methods, *, global_silico_options):
+    def link(self, methods, *, global_silico_options, prepare_only = False):
         """
         Prepare a number of Calculation_target objects for submission by creating an ordered, linked list.
         
@@ -65,7 +65,7 @@ class Calculation_target(Method_target):
                 # This also links the three together.
                 destination = destination_t()
                 prog = program_t(destination)
-                calc = expanded_calculation_t(prog, global_silico_options = global_silico_options)
+                calc = expanded_calculation_t(prog, global_silico_options = global_silico_options, prepare_only = prepare_only)
                 
                 # TODO: Need to ensure that the given calculation and program objects are compatible.
                 # This is tricky because of circular imports,
@@ -151,12 +151,13 @@ class Concrete_calculation(Calculation_target):
         Inner class for calculations.
         """
         
-        def __init__(self, program, *, global_silico_options):
+        def __init__(self, program, *, global_silico_options, prepare_only = False):
             """
             Constructor for calculation objects.
             
             :param program: A Program_target_actual object to submit to.
             :param global_silico_options: A dict like object of options to use for this calculation. Note that the options given here can be overridden by specific options given to this calculation...
+            :param prepare_only: Whether to only prepare this calculation and not perform it. 
             """    
             # Next is a linked list of Calculation_targets. We will call submit() on next once this object has been submitted.
             self.next = None
@@ -169,6 +170,7 @@ class Concrete_calculation(Calculation_target):
             # If this calculation was chosen as part of a series (meta-calc), this is the name of that series.
             # If this calc was chosen as an individual, this will be None.
             self.series_name = None
+            self.prepare_only = prepare_only
 
         @property
         def silico_options(self):
@@ -337,7 +339,7 @@ class Concrete_calculation(Calculation_target):
             
             If there are any more calculations in the chain; we will call submit() on the next here.
             """
-            if self.next is not None:
+            if self.next is not None and not self.prepare_only:
                 # We have another calculation to do.
                 # Submit our output file.
                 try:                    

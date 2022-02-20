@@ -117,8 +117,12 @@ class Program_target(Method_target):
             # Pre-calc (write input files etc).
             self.pre()
             
+            # If we're only doing setup, stop now.
+            if self.calculation.prepare_only:
+                return
+            
             # Run Program (script).
-            self.start()            
+            self.start()
                 
             try:
                 
