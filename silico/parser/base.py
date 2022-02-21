@@ -29,7 +29,7 @@ def class_from_log_files(*log_files):
         
     except Exception as e:
         # cclib couldn't figure out the file type, it probably wasn't a .log file.
-        raise Silico_exception("Could not determine file type of file(s): '{}'; are your sure these are computational log files?".format(", ".join(log_files))) from e
+        raise Silico_exception("Could not determine file type of file(s): '{}'; are your sure these are computational log files?".format(", ".join((str(log_file) for log_file in log_files)))) from e
     
     # Either get a more complex parser if we have one, or just return the base parser.
     if log_file_type == cclib.parser.gaussianparser.Gaussian:
