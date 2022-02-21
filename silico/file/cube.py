@@ -68,8 +68,8 @@ class Fchk_to_cube(File_converter):
             fchk_file = fchk_file,
             cubegen_type = cubegen_type,
             orbital = orbital,
-            npts = options['molecule_image']['orbital']['cube_grid_size'],
-            dont_modify = options['image']['dont_modify'],
+            npts = options['rendered_image']['orbital']['cube_grid_size'],
+            dont_modify = not options['rendered_image']['enable_rendering'],
             cubegen_executable = options['external']['cubegen'],
             **kwargs
         )
@@ -142,8 +142,8 @@ class Fchk_to_spin_cube(Fchk_to_cube):
             output,
             fchk_file = fchk_file,
             spin_density = spin_density,
-            npts = options['molecule_image']['spin']['cube_grid_size'],
-            dont_modify = options['image']['dont_modify'],
+            npts = options['rendered_image']['spin']['cube_grid_size'],
+            dont_modify = not options['rendered_image']['enable_rendering'],
             cubegen_executable = options['external']['cubegen'],
             **kwargs
         )
@@ -179,8 +179,8 @@ class Fchk_to_density_cube(Fchk_to_cube):
             output,
             fchk_file = fchk_file,
             density_type = density_type,
-            npts = options['molecule_image']['density']['cube_grid_size'],
-            dont_modify = options['image']['dont_modify'],
+            npts = options['rendered_image']['density']['cube_grid_size'],
+            dont_modify = not options['rendered_image']['enable_rendering'],
             cubegen_executable = options['external']['cubegen'],
             **kwargs
         )
@@ -378,7 +378,7 @@ class Turbomole_to_cube(File_converter):
             orbitals = orbitals,
             density = density,
             spin = spin,
-            dont_modify = options['image']['dont_modify'],
+            dont_modify = not options['rendered_image']['enable_rendering'],
             silico_options = options,
             **kwargs
         )
@@ -399,7 +399,7 @@ class Turbomole_to_cube(File_converter):
             orbitals = orbitals,
             density = density,
             spin = spin,
-            dont_modify = options['image']['dont_modify'],
+            dont_modify = not options['rendered_image']['enable_rendering'],
             silico_options = options,
             **kwargs
         )

@@ -25,8 +25,10 @@
         </div>
         <div class="imageBlock imageBlock--multi imageBlock--frontPage">
             <div class="image__aligner image__aligner--frontPage">
-            	%if 'skeletal' in report.images:
+            	%if report.options.report['front_page_image'] == 'skeletal' and 'skeletal' in report.images:
                 <img class="image__img image__img--frontPage" src="${report.relative_image('skeletal')}">
+                %elif report.options.report['front_page_image'] == 'rendered' and 'structure' in report.images:
+                <img class="image__img image__img--frontPage" src="${report.relative_image('structure', 'x0y0z0')}">
         		%endif
             </div>
         </div>

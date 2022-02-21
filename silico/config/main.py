@@ -28,10 +28,11 @@ class Silico_options(Configurable):
         vmd = Option(help = "VMD (Visual Molecular Dynamics), used for rendering molecules https://www.ks.uiuc.edu/Research/vmd/", default = "vmd"),
         tachyon = Option(help = "The tachyon ray-tracing library, performs the actual rendering. Tachyon is typically packaged with VMD, but often isn't added to the path automatically", default = "tachyon")
     )
-    # TODO: Do we really need an entire set of sub-settings for one option?
-    image = Options(
-        help = "Image manipulation options.",
-        dont_modify = Option(help = "Set to True to disable image rendering.", type = bool, default = False)
+    
+    skeletal_image = Options(
+        help = "Options for controlling the rendering of 2D skeletal images.",
+        render_backend = Option(help = "The library to use for rendering.", choices = ["rdkit", "obabel"], default = "rdkit"),
+        resolution = Option("The resolution for rendered images.", type = int, default = 1024)
     )
     
     logging = Options(
@@ -40,8 +41,9 @@ class Silico_options(Configurable):
         verbose = Option(help = "Increase the verbosity of the program by this amount. Each integer increase of verbosity will increase 'log_level' by 1 degree.", type = int, default = 0)
     )
     
-    molecule_image = Options(
+    rendered_image = Options(
         help = "Options for controlling the appearance of 3D molecule images.",
+        enable_rendering = Option(help = "Set to False to disable image rendering.", type = bool, default = True),
         use_existing = Option(help =\
 """If True, previously created files will be reused. If False, new images will rendered, replacing the old.
 This is on by default for 3D rendered images because they are expensive (time-consuming) to render.""", type = bool, default = True
@@ -83,6 +85,7 @@ There are a number of valid options here (please see the cubegen manual), the mo
     )
     
     orbital_diagram = Options(help = "Options that control the appearance of orbital energy diagrams.",
+        enable_rendering = Option(help = "Set to False to disable image rendering.", type = bool, default = True),
         y_limits = Option(help =\
 """The method used to set the min/max limits of the Y axis.
 Possible options are:
@@ -95,6 +98,7 @@ Possible options are:
     )
     
     excited_states_diagram = Options(help = "Options that control the appearance of excited states energy diagrams.",
+        enable_rendering = Option(help = "Set to False to disable image rendering.", type = bool, default = True),
         y_limits = Option(help =\
 """The method used to set the min/max limits of the Y axis.
 Possible options are:
@@ -106,6 +110,7 @@ Possible options are:
     )
     
     absorption_spectrum = Options(help = "Options for controlling the appearance of simulated UV-Vis like absorption spectra.",
+        enable_rendering = Option(help = "Set to False to disable image rendering.", type = bool, default = True),
         y_limits = Option(help =\
 """The method used to set the min/max limits of the Y axis.
 Possible options are:
@@ -139,6 +144,7 @@ This option has no effect when using manual x limits.""", type = float, default 
     )
     
     emission_spectrum = Options(help = "Options for controlling the appearance of simulated emission spectra. 'emission_spectrum' and 'absorption_spectrum 'take the same options.",
+        enable_rendering = Option(help = "Set to False to disable image rendering.", type = bool, default = True),
         y_limits = Option(help =\
 """The method used to set the min/max limits of the Y axis.
 Possible options are:
@@ -172,6 +178,7 @@ This option has no effect when using manual x limits.""", type = float, default 
     )
     
     IR_spectrum = Options(help = "Options for controlling the appearance of simulated IR like vibrational frequency spectra.",
+        enable_rendering = Option(help = "Set to False to disable image rendering.", type = bool, default = True),
         y_limits = Option(help =\
 """The method used to set the min/max limits of the Y axis.
 Possible options are:
@@ -194,6 +201,7 @@ To disable the maximum width, set to null.""", type = int, default = 1500),
     )
     
     report = Options(help = "Options for controlling the generation of calculation reports.",
+        front_page_image = Option(help = "The image to use for the front page of the report.", choices = ["skeletal", "rendered"], default = "skeletal"),
         turbomole = Options(help = "Sub options for Turbomole reports.",
             num_CPUs = Option(help = "The number of CPUs to use to generate cubes.", type = int, default = 1),
             memory = Option(help = "The amount of memory with which to generate cubes.", type = Turbomole_memory, default = Turbomole_memory("1GB")),

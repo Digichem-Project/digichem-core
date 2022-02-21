@@ -50,7 +50,7 @@ class Orbital_diagram_maker(OneD_graph_image_maker):
             molecular_orbitals = molecular_orbitals,
             full_axis_lines = options['orbital_diagram']['full_axis_lines'],
             y_limits = options['orbital_diagram']['y_limits'],
-            dont_modify = options['image']['dont_modify'],
+            enable_rendering = options['orbital_diagram']['enable_rendering'],
             **kwargs
         )
         

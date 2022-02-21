@@ -243,7 +243,6 @@ class Convergence_graph_maker(Graph_image_maker):
         return self(
             output,
             energies = energies,
-            dont_modify = options['image']['dont_modify'],
             **kwargs
         )
     

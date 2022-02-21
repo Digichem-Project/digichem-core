@@ -31,11 +31,11 @@ class Report_interface(Program_view):
             make_settings_page_from_configurable_option(self.window.top, self.program.config, self.program.config._configurable_options, options['absorption_spectrum']),
             make_settings_page_from_configurable_option(self.window.top, self.program.config, self.program.config._configurable_options, options['emission_spectrum']),
             make_settings_page_from_configurable_option(self.window.top, self.program.config, self.program.config._configurable_options, options['excited_states_diagram']),
-            make_settings_page_from_configurable_option(self.window.top, self.program.config, self.program.config._configurable_options, options['image']),
             make_settings_page_from_configurable_option(self.window.top, self.program.config, self.program.config._configurable_options, options['IR_spectrum']),
-            make_settings_page_from_configurable_option(self.window.top, self.program.config, self.program.config._configurable_options, options['molecule_image']),
+            make_settings_page_from_configurable_option(self.window.top, self.program.config, self.program.config._configurable_options, options['rendered_image']),
             make_settings_page_from_configurable_option(self.window.top, self.program.config, self.program.config._configurable_options, options['orbital_diagram']),
-            make_settings_page_from_configurable_option(self.window.top, self.program.config, self.program.config._configurable_options, options['report'])
+            make_settings_page_from_configurable_option(self.window.top, self.program.config, self.program.config._configurable_options, options['report']),
+            make_settings_page_from_configurable_option(self.window.top, self.program.config, self.program.config._configurable_options, options['skeletal_image'])
         ])
     
     
