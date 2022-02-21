@@ -1,7 +1,11 @@
 #!/bin/bash
 
-# Simple script for installing the python dependencies that we need.
-pip3 install --user mako weasyprint matplotlib periodictable cclib pillow scipy tabulate bibtexparser colour-science pyyaml dill basis_set_exchange deepmerge
-
+# A simple script to install required dependencies for silico.
+# This script assumes a conda environment for silico has been created, change the name of the environment as appropriate below.
 # You will also need VMD (make sure to use the sh version, not csh).
 # And add tachyon to your path (you can find it in your vmd lib installation folder, probably /usr/local/lib/vmd)
+
+CONDA_ENV="silico"
+
+conda activate "$CONDA_ENV"
+conda install -c conda-forge mako weasyprint matplotlib periodictable "cclib>=1.7.1" pillow scipy tabulate bibtexparser colour-science pyyaml dill basis_set_exchange deepmerge openbabel rdkit urwid pillow
