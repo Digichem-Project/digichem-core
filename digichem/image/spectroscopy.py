@@ -30,7 +30,7 @@ class Spectroscopy_graph_maker(Graph_image_maker):
         peak_cutoff = 0.01,
         x_limits = 'auto',
         y_limits = 'auto',
-        **kwargs        
+        **kwargs
     ):
         """
         Constructor for spectroscopy graphs.
@@ -230,7 +230,6 @@ class Absorption_emission_graph_maker(Spectroscopy_graph_maker):
             output,
             excited_states = excited_states,
             **options[self.options_name],
-            dont_modify = options['image']['dont_modify'],
             **kwargs
         )
     
@@ -307,7 +306,6 @@ class Frequency_graph_maker(Spectroscopy_graph_maker):
             output,
             vibrations = vibrations,
             **options['IR_spectrum'],
-            dont_modify = options['image']['dont_modify'],
             **kwargs
         )
 

@@ -32,7 +32,7 @@
 #    verbose: 0
 #
 # Options for controlling the appearance of 3D molecule images.
-#molecule_image:
+#rendered_image:
 #    # If True, previously created files will be reused. If False, new images will rendered, replacing the old.
 #    # This is on by default for 3D rendered images because they are expensive (time-consuming) to render.
 #    use_existing: True
