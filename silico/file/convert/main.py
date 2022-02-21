@@ -259,8 +259,8 @@ class Silico_coords():
         """
         return {
             'name': self.name,
-            'charge': self.charge,
-            'multiplicity': self.multiplicity,
+            'charge': float(self.charge),
+            'multiplicity': float(self.multiplicity),
             'geometry': self.geometry,
         }
         
