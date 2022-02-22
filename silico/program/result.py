@@ -12,6 +12,7 @@ from silico.format.table import Table_summary_group_format,\
     Property_table_group_format
 from silico.parser.base import parse_multiple_calculations
 from silico.interface.urwid.result.base import Result_interface
+from silico.result.multi.base import Merged
 
 
 class Result_program(Program):
@@ -37,6 +38,7 @@ class Result_program(Program):
         sub_parser = super().arguments(sub_parsers_object)
         
         sub_parser.add_argument("log_files", help = "a (number of) calculation result file(s) (.log) to extract results from", nargs = "*", default = [])
+        sub_parser.add_argument("-m", "--merge", help = "whether to merge the given calculation log files into a single result, presenting a summary of the merged data rather than each calculation separately", action = "store_true")
          
         sub_parser.add_argument("-x", "--stop", help = "stop on missing properties rather than ignoring them", action = "store_true", default = False)
         sub_parser.add_argument("-C", "--num_CPUs", help = "the number of CPUs to use in parallel to parse given log_files, defaults to the number of CPUs on the system", type = int, nargs = "?", default = os.cpu_count())
@@ -51,7 +53,6 @@ class Result_program(Program):
         
         sub_parser.add_argument("-f", "--filters", help = "a list of filters to restrict which data is parsed (SCF, MOS, atoms etc)", nargs = "*", default = [])
         
-        #sub_parser.add_argument("-O", "--output", help = "a (number of) filename/path to write results to. If none is give, results will be written to stdout, which can also be explicitly requested with '-'", nargs = "*", default = ("-",))
         sub_parser.add_argument("-O", "--output", help = "a filename/path to write results to. If none is give, results will be written to stdout, which can also be explicitly requested with '-'", default = "-")
     
         return sub_parser
@@ -75,12 +76,12 @@ class Result_program(Program):
         :param logger: The logger to use for output.
         """
         # Get our alignment class.
-        alignment = Alignment.from_class_handle(config['alignment'])
+        self.alignment = Alignment.from_class_handle(config['alignment'])
         
         # Parse the log files we've been given (in parallel).
         # Get our list of results. Do this in parallel.
         try:
-            results = parse_multiple_calculations(*args.log_files, alignment_class = alignment, init_func = self.subprocess_init, processes = args.num_CPUs)
+            results = parse_multiple_calculations(*args.log_files, alignment_class = self.alignment, init_func = self.subprocess_init, processes = args.num_CPUs)
             
         except Exception:
             raise Silico_exception("Failed to read calculation files")
@@ -141,10 +142,16 @@ class Result_program(Program):
         
         # Now get our main formating object.
         output_format = self.args.format(*formats, ignore = not self.args.stop, config = self.config)
-                
+            
+        # Merge results if we've been asked to.
+        if self.args.merge:
+            results = [Merged.from_results(*self.results, alignment_class = self.alignment)]
+        else:
+            results = self.results
+        
         # Now process.
         try:
-            output_format.write(self.results, (self.args.output,))
+            output_format.write(results, (self.args.output,))
             
         except Exception as e:
             raise Silico_exception("Failed to parse/write results") from e
