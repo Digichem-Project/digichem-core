@@ -9,7 +9,7 @@ from silico.result import Result_container
 from silico.result import Result_object
 from silico.exception.base import Result_unavailable_error
 from silico.result.base import Floatable_mixin
-import itertools
+
 
 class Excited_state_list(Result_container):
     """
