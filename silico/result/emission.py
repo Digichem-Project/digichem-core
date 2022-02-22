@@ -31,8 +31,8 @@ class Relaxed_excited_state(Excited_state):
             # If we have an excited state we can inherit certain properties from it.
             self.level = self.excited_state.level
             self.multiplicity_level = excited_state.multiplicity_level
-            
             self.oscillator_strength = self.excited_state.oscillator_strength
+            self.transition_dipole_moment = self.excited_state.transition_dipole_moment
         else:
             # For now we assume this is the lowest possible excited state (may change in future).
             self.level = 1
@@ -40,6 +40,7 @@ class Relaxed_excited_state(Excited_state):
             
             # We don't have a concept of oscillator strength (yet?).
             self.oscillator_strength = None
+            self.transition_dipole_moment = None
             
         self.transition_type = transition_type
         
