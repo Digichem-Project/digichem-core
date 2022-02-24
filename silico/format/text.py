@@ -5,6 +5,7 @@ from mako.lookup import TemplateLookup
 from silico.format import Result_format
 from silico.format import Result_format_group
 import silico.format
+from silico.exception.base import Result_unavailable_error
 
 
 class Text_summary_group_format(Result_format_group):
@@ -29,6 +30,10 @@ class Text_summary_group_format(Result_format_group):
             PDM_text_summary_format(**kwargs),
             TDM_text_summary_format(**kwargs),
             Excited_states_text_summary_format(**kwargs),
+            Vertical_emission_text_summary_format(1, **kwargs),
+            Vertical_emission_text_summary_format(3, **kwargs),
+            Adiabatic_emission_text_summary_format(1, **kwargs),
+            Adiabatic_emission_text_summary_format(3, **kwargs),
             SOC_text_summary_format(**kwargs)
         ]
     
@@ -149,6 +154,46 @@ class Excited_states_text_summary_format(Text_summary_format):
     CLASS_HANDLE = silico.format.EXCITED_STATE_CLASS_HANDLE
     TEMPLATE = "excited_states.mako"
     TEMPLATE_ARGS ={'excited_states': 'excited_states'}
+    
+class Vertical_emission_text_summary_format(Text_summary_format):
+    """
+    Text format for the vertical emission.
+    """
+    CLASS_HANDLE = silico.format.VERTICAL_EMISSION_CLASS_HANDLE
+    ALLOW_CRITERIA = True
+    TEMPLATE = "emission.mako"
+    
+    def _extract_with_criteria(self, multiplicity, *, result, **kwargs):
+        """
+        Extract a specific vertical emission.
+        
+        :param multiplicity: The multiplicity to get.
+        """
+        try:
+            emission = result.vertical_emission[multiplicity]
+        except KeyError:
+            raise Result_unavailable_error("Vertical Emission", "No vertical emission with mult {} available".format(multiplicity))
+        return super()._extract(result, emission = emission, **kwargs)
+    
+class Adiabatic_emission_text_summary_format(Text_summary_format):
+    """
+    Text format for adiabatic emission.
+    """
+    CLASS_HANDLE = silico.format.ADIABATIC_EMISSION_CLASS_HANDLE
+    ALLOW_CRITERIA = True
+    TEMPLATE = "emission.mako"
+    
+    def _extract_with_criteria(self, multiplicity, *, result, **kwargs):
+        """
+        Extract a specific vertical emission.
+        
+        :param multiplicity: The multiplicity to get.
+        """
+        try:
+            emission = result.adiabatic_emission[multiplicity]
+        except KeyError:
+            raise Result_unavailable_error("Vertical Emission", "No vertical emission with mult {} available".format(multiplicity))
+        return super()._extract(result, emission = emission, **kwargs)
     
 class SOC_text_summary_format(Text_summary_format):
     """
