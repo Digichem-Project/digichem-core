@@ -404,6 +404,13 @@ class Excited_state(Energy_state):
             raise Result_unavailable_error('excited state wavelength', "excited state '{}' energy is 0 eV".format(self.state_symbol))
         
     @property
+    def joules(self):
+        """
+        The energy of this excited state in Joules.
+        """
+        return self.energy * 1.602176634e-19
+        
+    @property
     def color(self):
         """
         The 'color' that corresponds to the energy of this excited state (as a string).
