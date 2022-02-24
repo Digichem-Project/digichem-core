@@ -48,6 +48,7 @@ class Result_interface(Program_view):
         # The output format.
         inital = list(self.formats.keys())[list(self.formats.values()).index(program.args.format)]
         self.format_widget = Choices_edit(window.top, [desc for desc, cls in self.formats.items()], inital, "Output format")
+        self.merged_widget = urwid.CheckBox(("body", "Merge results"), program.args.merge)
         # Specific filters selected by the user.
         self.filters_widget = urwid.Edit("", " ".join(program.args.filters))
         
@@ -70,6 +71,7 @@ class Result_interface(Program_view):
                 urwid.Columns([
                     ('pack', urwid.Text("Format:")),
                     urwid.AttrMap(self.format_widget, "editable"),
+                    urwid.AttrMap(self.merged_widget, "editable"),
                 ], dividechars = 1),
                 
                 urwid.Columns([
@@ -101,8 +103,9 @@ class Result_interface(Program_view):
         self.program.args.stop = self.stop_on_missing
         self.program.results = self.file_list.get_values()
         self.program.args.format = self.formats[self.format_widget  .value]
-        self.program.args.filters = shlex.split(self.filters_widget.get_edit_text()) if self.filters_widget.get_edit_text() != "" else []
-        
+        self.program.args.filters = shlex.split(self.filters_widget.get_edit_text()) if self.filters_widget.get_edit_text() != "" else [] 
+        self.program.config['alignment'] = self.file_list.selector.alignment
+        self.program.args.merge = self.merged_widget.get_state()
         
         
         
