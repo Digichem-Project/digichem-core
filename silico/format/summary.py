@@ -155,7 +155,6 @@ class Metadata_summary_format(Summary_format):
         return OrderedDict({
             'Name': result.safe_get('metadata', 'name'),
             'Date': misc.date_to_string(result.safe_get('metadata', 'date')) if result.safe_get('metadata', 'date') is not None else None,
-            #'Duration': misc.timedelta_to_string(result.safe_get('metadata', 'duration')) if result.safe_get('metadata', 'duration') is not None else None,
             'Duration /s': result.safe_get('metadata', 'duration').total_seconds() if result.safe_get('metadata', 'duration') is not None else None,
             'Package': result.safe_get('metadata', 'package'),
             'Package version': result.safe_get('metadata', 'package_version'),
@@ -167,7 +166,6 @@ class Metadata_summary_format(Summary_format):
             'Optimisation converged': result.safe_get('metadata', 'optimisation_converged'),
             'Calculation temperature /K': result.safe_get('metadata', 'temperature'),
             'Calculation pressure /atm': result.safe_get('metadata', 'pressure'),
-            #'Formula': result.safe_get('alignment', 'formula_string'),
             'Charge': result.safe_get('alignment', 'charge'),
             'Multiplicity': result.safe_get('metadata', 'multiplicity')
         })
@@ -333,18 +331,6 @@ class SOC_summary_format(Summary_format):
             '<{}|Hso|{}> /cm-1'.format(soc.singlet_state.state_symbol, soc.triplet_state.state_symbol): soc.wavenumbers,
             '<{}|λ|{}> /cm-1'.format(soc.singlet_state.state_symbol, soc.triplet_state.state_symbol): soc.mixing_coefficient,
         })
-        
-#     def _extract(self, result):
-#         """
-#         Convert a Result_set into an OrderedDict object.
-#         """
-#         if len(result.spin_orbit_coupling) == 0:
-#             raise Result_unavailable_error("SOC", "there is no spin-orbit coupling0")
-#         
-#         return OrderedDict({
-#             'ΔEst /eV': result.safe_get('excited_states', 'singlet_triplet_energy'),
-#             'No. excited states': len(result.excited_states)
-#         })
         
     
 class Excited_state_transitions_summary_format(Summary_format):
