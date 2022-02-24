@@ -33,5 +33,11 @@
             <td class="results__value">${emission.emission_type.capitalize()}</td>
         </tr>
         <%include file="/excited_states/state_result_rows.mako" args="state=emission"/>
+        %if emission_rate is not None:
+        <tr>
+			<td class="results__name">${emission.multiplicity_symbol}<sub>${emission.multiplicity_level}</sub> rate /s<sup>-1</sup>:</td>
+			<td class="results__value">${"{:.2e}".format(emission_rate)}</td>
+		</tr>
+		%endif
     </table>
 </div>
