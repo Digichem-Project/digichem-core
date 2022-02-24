@@ -1,6 +1,13 @@
 from silico.result.excited_states import Excited_state
 from silico.result import Result_object
-from silico.exception.base import Silico_exception
+from silico.exception.base import Silico_exception, Result_unavailable_error
+
+# General imports.
+import math
+from scipy.constants import epsilon_0, Planck, c
+
+# Dirac constant.
+h_bar = Planck / (math.pi *2)
 
 
 class Relaxed_excited_state(Excited_state):
@@ -261,3 +268,16 @@ class Relaxed_excited_state(Excited_state):
         else:
             return "phosphorescence"
         
+    @property
+    def emission_rate(self):
+        """
+        The rate of emission (k(F) or k(Phos) etc) from this excited state.
+        """
+        try:
+            return ((4 * self.joules **3) / (3 * epsilon_0 * h_bar **4 * c **3) ) * self.transition_dipole_moment.coulomb_meters **2
+        except Exception:
+            if self.transition_dipole_moment is None:
+                raise Result_unavailable_error("emission_rate", "there is no transition dipole moment associated with this emission") from None
+            
+            else:
+                raise
