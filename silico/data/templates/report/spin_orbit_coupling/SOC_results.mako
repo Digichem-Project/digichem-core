@@ -14,7 +14,7 @@
             soc_list.append(spin_orbit_coupling.between(state1, state2))
         except Exception:
             # Skip.
-            raise
+            pass
 %>
 
 <div class="resultsContainer">
