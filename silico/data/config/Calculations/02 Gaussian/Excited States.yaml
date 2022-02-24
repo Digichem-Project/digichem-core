@@ -95,7 +95,7 @@ DFT_excited_states:
     root: 1
 
 optimisation:
-    on: True
+    calculate: True
 
 NEXT:
     - Gaussian Functionals
@@ -114,7 +114,7 @@ DFT_excited_states:
     root: 1
 
 optimisation:
-    on: True
+    calculate: True
 
 NEXT:
     - Gaussian Functionals
