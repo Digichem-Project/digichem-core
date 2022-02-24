@@ -108,6 +108,13 @@ class Dipole_moment(Result_object):
         return self.origin_coords == other.origin_coords and self.vector_coords == other.vector_coords
     
     @property
+    def coulomb_meters(self):
+        """
+        the magnitude of this dipole moment in Coulomb Meters.
+        """
+        return float(self) * 3.335640952e-30
+    
+    @property
     def X_axis_angle(self):
         """
         The angle between this dipole moment and the X axis of the atom set of the molecule.
