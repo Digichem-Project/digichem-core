@@ -12,7 +12,7 @@
     if emission is None:
         raise Result_unavailable_error("relaxed excited state", "there is no emission energy of the requested type")
         
-    title = emission.transition_type.capitalize() + " " + emission.state_symbol + " " + "Emission Energy"
+    title = emission.transition_type.capitalize() + " " + emission.state_symbol + " " + "Emission"
     
     emission_rate = emission.safe_get('emission_rate')
 %>\

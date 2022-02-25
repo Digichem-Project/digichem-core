@@ -11,7 +11,7 @@
 <%page args="emission"/>
 
 <div class="resultsContainer resultsContainer--excitedStates">
-    <div class="reportHeader reportHeader--minor reportHeader--results reportHeader--excitedStates">${emission.transition_type.capitalize()} Emission Energy</div>
+    <div class="reportHeader reportHeader--minor reportHeader--results reportHeader--excitedStates">${emission.transition_type.capitalize()} ${emission.multiplicity_symbol}<sub>${emission.multiplicity_level}</sub> Emission</div>
     <table class="results results--et re">
         <tr>
             <td class="results__name">Excited energy:</td>
