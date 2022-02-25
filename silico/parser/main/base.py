@@ -21,6 +21,7 @@ from silico.result.dipole_moment import Dipole_moment
 from silico.result.vibrations import Vibrations_list
 from silico.exception.base import Silico_exception
 import silico.logging
+from silico.result.emission import Relaxed_excited_state
 
 class Parsed_data():
     """
@@ -283,8 +284,11 @@ class Parser(Result_set):
         # PDM
         self.results.dipole_moment = Dipole_moment.from_parser(self)
         
-        # Finally, frequencies.
+        # Frequencies.
         self.results.vibrations = Vibrations_list.from_parser(self)
+        
+        # Finally, try and set emission.
+        self.results.vertical_emission, self.results.adiabatic_emission = Relaxed_excited_state.guess_from_results(self.results)
         
         # Return the populated result set for convenience.
         return self.results
