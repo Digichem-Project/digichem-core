@@ -192,7 +192,7 @@ class Adiabatic_emission_text_summary_format(Text_summary_format):
         try:
             emission = result.adiabatic_emission[multiplicity]
         except KeyError:
-            raise Result_unavailable_error("Vertical Emission", "No vertical emission with mult {} available".format(multiplicity))
+            raise Result_unavailable_error("Adiabatic Emission", "No adiabatic emission with mult {} available".format(multiplicity))
         return super()._extract(result, emission = emission, **kwargs)
     
 class SOC_text_summary_format(Text_summary_format):
