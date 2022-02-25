@@ -60,6 +60,7 @@ class Configurable_option_exception(Configurable_exception):
         """
         Constructor for Configurable_option_exception objects.
         """
+        self.option = option
         super().__init__(configurable, "error in option '{}'; {}".format(option.full_name, reason))
         
 
