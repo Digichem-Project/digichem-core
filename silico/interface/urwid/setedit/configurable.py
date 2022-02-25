@@ -276,15 +276,7 @@ class Configurable_browser(Setedit_browser):
         """
         child_widgets = list(self.child_setedit_widgets.values())
         # Check the values we just set are allowed.
-        try:
-            self.configurable.validate()
-        
-        except Exception as e:
-            raise Silico_exception("An option has an invalid value") from e
-        
-        ## All good, confirm changes.
-        #for child_widget in child_widgets:
-        #    child_widget.setedit.confirm()
+        self.configurable.validate()
             
     def confirm(self):
         """
@@ -294,7 +286,6 @@ class Configurable_browser(Setedit_browser):
         # All good, confirm changes.
         for child_widget in child_widgets:
             child_widget.setedit.confirm()
-        
 
 
 #########################

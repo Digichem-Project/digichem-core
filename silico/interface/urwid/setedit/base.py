@@ -3,12 +3,14 @@
 # General imports.
 import urwid
 from urwid.listbox import SimpleFocusListWalker
+import itertools
 
 # Silico imports.
 from silico.interface.urwid.setedit.widget import Setedit_widget
 from silico.interface.urwid.setedit.common import Setedit_widget_parent_mixin
 from silico.interface.urwid.pages import Pages
 from silico.logging.base import get_logger
+from silico.exception.configurable import Configurable_option_exception
 
 
 class Setedit():
@@ -289,22 +291,38 @@ class Paginated_settings_browser(Pages, Paginated_browser_mixin):
         :param validate: Whether to validate the changes made.
         """
         # Save each of the individual browsers that we encapsulate.
-        # As we validate, we'll change the page so that if a validation fails, we're likely to end on the correct page.
-        current_page = self.current_page 
         for name, page in self.pages.items():
-            self.switch_page(name)
-            page.base_widget.save(validate)
+            # Don't validate here, if an option in a different page fails validation we will get stuck!
+            page.base_widget.save(False)
             
-        # Change back to the original page.
-        self.switch_page(current_page)
-            
+        if validate:
+            self.validate_setedits()
+
     def validate_setedits(self):
         """
         Validate each of the pages of options (without saving changes first).
         """
-        for name, page in self.pages.items():
-            page.base_widget.validate_setedits()
-    
+        # As we validate, we'll change the page so that if a validation fails, we're likely to end on the correct page.
+        current_page = self.current_page
+        
+        try:
+            for name, page in self.pages.items():
+                self.switch_page(name)
+                page.base_widget.validate_setedits()
+            
+        except Configurable_option_exception as e:
+            # Try and switch to the page that matches the exception.
+            # See if the option (or any of its parents) is a page.
+            for parent in itertools.chain([parent.name for parent in e.option.parents], (e.option.name,)):
+                if parent in self.pages:
+                    self.switch_page(parent)
+                    break
+            
+            raise
+        
+        # Change back to the original page.
+        self.switch_page(current_page)
+
     def discard(self):
         """
         Discard any changes made.
