@@ -3,6 +3,8 @@ from itertools import filterfalse, zip_longest
 import numpy
 import colour
 import math
+import warnings
+import itertools
 
 # Silico imports.
 from silico.result import Result_container
@@ -158,7 +160,33 @@ class Excited_state_list(Result_container):
             # Set mult and total level.
             state.multiplicity_level = multiplicities[state.multiplicity]
             state.level = total_level
-            
+
+    @classmethod
+    def merge(self, *multiple_lists, **kwargs):
+        """
+        Merge multiple lists of of the same type into a single, ordered list.
+         
+        Note that this method will return a new list object, but will modify the contained objects (eg, object.level) in place.
+        Inheriting classes may safely override this method.
+        """
+        # A dictionary where each key is a multiplcity and each value is a list of excited states with that mult.
+        multiplicities = {}
+        for excited_states in multiple_lists:
+            group = excited_states.group()
+            for multiplicity in group:
+                if multiplicity not in multiplicities:
+                    # Firt time we've seen this mult, add.
+                    multiplicities[multiplicity] = group[multiplicity]
+                
+                else:
+                    # Already got this type of excited states.
+                    warnings.warn("Attempting to merge excited states of multiplicity '{}' but this multiplcity has already been provided by an earlier result, ignoring".format(multiplicity))
+        
+        merged = self(itertools.chain(*multiplicities.values()), **kwargs)
+        merged.sort()
+        merged.assign_levels()
+        return merged
+
 
 class Excited_state_transition(Result_object):
     """
