@@ -167,6 +167,10 @@ class Configurables_parser():
         # Configs that have a PARENTS set.
         # This is a list of tuples where the first item is the loader and the second is the list of PARENT tags.
         self.has_parents = []
+        # A similar list but for configs with a PREVIOUS set.
+        # PREVIOUS and PARENTS work on the same principle, the difference being PREVIOUS refers to loaders of the same type (other calculations for example),
+        # while PARENTS refers to loaders of a different type (programs being referenced from a calculation, for example).
+        self.has_previous = []
             
     def parse(self):
         """
@@ -197,6 +201,9 @@ class Configurables_parser():
                             # If the loader has PARENTS set, add it to our list.
                             if "PARENTS" in loader.config:
                                 self.has_parents.append((loader, loader.config["PARENTS"]))
+                            
+                            if "PREVIOUS" in loader.config:
+                                self.has_previous.append((loader, loader.config["PREVIOUS"]))
                     
             except FileNotFoundError:
                 # This should be ok to ignore, just means a file was moved inbetween us looking how many files there are and reading them.
@@ -220,20 +227,22 @@ class Configurables_parser():
         conf_list = [loader for loader in self.loaders if loader.TOP]
         return conf_list
     
-    def process_parents(self, parent_loaders):
+    def process_parents(self, loaders, parent_loaders, parents_type = "PARENTS"):
         """
-        Process any loaders that have a PREVIOUS option set.
+        Process any loaders that have a PARENTS/PREVIOUS set.
         
-        :param parent_loaders: A flat list of the loaders that can be considered parents of this one.
+        :param: A list of tuples of loaders that have PARENTS or PREVIOUS set.
+        :param parent_loaders: A list of loaders that could be referred to.
+        :param parents_type: One of either "PARENTS" or "PREVIOUS".
         """
-        for loader, parents in self.has_parents:
+        for loader, parents in loaders:
             for parent_tag in parents:
                 # Find the loader in the parent list that is referenced.
                 matching = [parent_loader for parent_loader in parent_loaders if parent_loader.TAG == parent_tag]
                 
                 # Panic if there were no matches
                 if len(matching) == 0:
-                    raise Configurable_loader_exception(loader.config, loader.TYPE, loader.file_name, "PREVIOUS tag '{}' could not be found".format(parent_tag))
+                    raise Configurable_loader_exception(loader.config, loader.TYPE, loader.file_name, "{} tag '{}' could not be found".format(parents_type, parent_tag))
                 
                 # Add the loader to each of the matching loader's NEXT attr.
                 for parent in matching:
@@ -301,8 +310,10 @@ class Configurables_parser():
             
             except IndexError:
                 parents = []
-                
-            parser.process_parents(parents)
+            
+            # Process parents and previous.
+            parser.process_parents(parser.has_parents, parents, "PARENTS")
+            parser.process_parents(parser.has_previous, parser.loaders, "PREVIOUS")
             
             # Now process fully.
             loaders = parser.process(children)
