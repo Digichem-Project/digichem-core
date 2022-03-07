@@ -174,7 +174,7 @@ class Unresolvable_tag_path_error(Silico_exception):
         
         matching = ""
         for loader_path in self.possible_loaders:
-            matching += " : ".join([loader.TAG for loader in loader_path]) + "\n"
+            matching += " : ".join([loader.TAG for loader in loader_path if loader.TAG is not None]) + "\n"
         
         msg += textwrap.indent(matching, "\t")
             
