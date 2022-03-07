@@ -199,6 +199,8 @@ class Configurable_loader():
         config.pop('TAG', None)
         config.pop('ALIAS', None)
         config.pop('NEXT', None)
+        config.pop('PARENTS', None)
+        config.pop('PREVIOUS', None)
         config.pop('TOP', None)
         loader_path = config.pop('loader_path', None)
         
