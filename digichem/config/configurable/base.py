@@ -99,7 +99,6 @@ class Configurable(Options_mixin):
             except KeyError:
                 pass
             
-        # Setting like this might be unsafe because we're not deep copying...
         instance._configurable_options = deepcopy(values)
         
         return instance
@@ -122,6 +121,11 @@ class Configurable(Options_mixin):
         # If we've been asked to, validate.
         if validate_now:
             self.validate()
+            
+        # We also need to make sure there are no unexpected options.
+        for unexpected_key in set(kwargs).difference(self.OPTIONS):
+            # Although this looks like a loop, we will obviously only raise the first exception.
+            raise Configurable_exception(self, "unrecognised option '{}'".format(unexpected_key))
 
     def validate(self):
         """
