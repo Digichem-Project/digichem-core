@@ -208,8 +208,10 @@ class Configurable_loader():
         except ValueError:
             raise Configurable_loader_exception(config, self.TYPE, self.file_name, "class_name '{}' is not recognised".format(config['class_name']))
         except KeyError:
-            #raise Silico_exception("Error loading configurable of type '{}' from file '{}'; no class_name set".format(self.TYPE, config_path)) from None
+            raise Configurable_loader_exception(config, self.TYPE, self.file_name, "no class_name set") from None
             # If no class set, use the top level class.
+            # IMPORTANT: It's not clear why this might be necessary so it has been disabled for now.
+            # If this breaks something it will be reinstated.
             cls = self.type_class
 
         configurable = cls(loader_path, validate_now = validate, **config)
