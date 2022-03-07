@@ -173,7 +173,7 @@ class Output_catcher(io.StringIO):
         
         # If the last char in our buffer is a newline, we can write to our widget.
         curvalue = self.getvalue()
-        if curvalue[-1] == "\n":
+        if len(curvalue) > 0 and curvalue[-1] == "\n":
             # Update our top.
             self.window.top.output(curvalue, self.error)
             
