@@ -260,7 +260,6 @@ Example:
         )
     )
     
-    
     def __init__(self, validate_now = True, palette = None, **kwargs):
         """
         Constructor for Silico_options objects.
