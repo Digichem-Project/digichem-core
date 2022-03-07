@@ -34,7 +34,7 @@ class Calculation_target(Method_target):
         safe_chars = "._"
         return "".join([char if char.isalnum() or char in safe_chars else "_" for char in file_name])
     
-    def expand(self):
+    def expand(self, calculations):
         """
         Expand this calculation target if it represents multiple real calcs.
         
@@ -42,7 +42,7 @@ class Calculation_target(Method_target):
                 
         :return: A list of ready-to-go calculation targets.
         """
-        raise NotImplementedError()
+        raise NotImplementedError("ABC Calculation_target cannot be expanded")
 
     @classmethod
     def link(self, methods, *, global_silico_options, prepare_only = False):
