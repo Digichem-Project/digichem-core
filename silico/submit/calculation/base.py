@@ -127,6 +127,33 @@ class Concrete_calculation(Calculation_target):
         default = {},
         type = dict
     )
+        
+    @property
+    def mem_per_CPU(self):
+        """
+        Get the amount of memory to assign (per CPU).
+        """
+        return Memory(float(self.memory) / self._num_CPUs)
+    
+    @property
+    def num_CPUs(self):
+        """
+        The number of CPUs to use for the calculation, this (roughly ?) translates to the number of worker processes that will be used.
+        
+        This property will translate 'auto' into a number of CPUs, use _num_CPUs if this is not desirable.
+        """
+        if self._num_CPUs == "auto":
+            return self.get_available_CPUs()
+        else:
+            return self._num_CPUs
+    
+    @num_CPUs.setter
+    def num_CPUs(self, value):
+        """
+        Set the number of CPUs to use for the calculation. In addition to an exact integer amount, the string "auto" can also be supplied, in which case all available CPUs will be used.
+        """
+        # Set.
+        self._num_CPUs = value
     
     def expand(self, calculations):
         """
@@ -225,33 +252,6 @@ class Concrete_calculation(Calculation_target):
             Get a name that describes the calculation and file together.
             """
             return "{} {}".format(self.molecule_name, self.name)
-        
-        @property
-        def mem_per_CPU(self):
-            """
-            Get the amount of memory to assign (per CPU).
-            """
-            return Memory(float(self.memory) / self._num_CPUs)
-        
-        @property
-        def num_CPUs(self):
-            """
-            The number of CPUs to use for the calculation, this (roughly ?) translates to the number of worker processes that will be used.
-            
-            This property will translate 'auto' into a number of CPUs, use _num_CPUs if this is not desirable.
-            """
-            if self._num_CPUs == "auto":
-                return self.get_available_CPUs()
-            else:
-                return self._num_CPUs
-        
-        @num_CPUs.setter
-        def num_CPUs(self, value):
-            """
-            Set the number of CPUs to use for the calculation. In addition to an exact integer amount, the string "auto" can also be supplied, in which case all available CPUs will be used.
-            """
-            # Set.
-            self._num_CPUs = value
             
         def prepare(self, output, input_coords):
             """
