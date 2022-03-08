@@ -6,6 +6,7 @@ import os
 import re
 from mako.lookup import TemplateLookup
 import subprocess
+from itertools import chain
 
 # Silico imports.
 from silico.submit.program.base import Program_target
@@ -13,7 +14,6 @@ from silico.config.configurable.option import Option
 from silico.exception.base import Submission_error
 from silico.misc.directory import copytree
 from silico.parser.base import parse_calculation
-from itertools import chain
 import silico
 
 

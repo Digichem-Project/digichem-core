@@ -387,7 +387,7 @@ class Directory_calculation_mixin():
             
             :param output: Path to a directory to perform the calculation in.
             :param input: A directory containing existing calculation files to run.
-            :param molecule_name: A name that refers to the system under study (eg, Benzene etc).
+            :param input_coords: A Silico_coords object containing the coordinates on which the calculation will be performed. This is required for various meta-data purposes.
             """
             # Because we normally run the program in a different environment to where we are currently, we need to load all input files we need into memory so they can be pickled.
             self.output = output

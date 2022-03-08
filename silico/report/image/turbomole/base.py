@@ -4,7 +4,8 @@ from pathlib import Path
 # Silico imports.
 from silico.report.image.main import Image_setup
 from silico.file.cube import Turbomole_to_cube, Turbomole_to_spin_cube,\
-    Turbomole_to_density_cube, Turbomole_to_orbital_cube
+    Turbomole_to_density_cube, Turbomole_to_orbital_cube,\
+    Turbomole_to_anadens_cube
 
 
 class Turbomole_setup(Image_setup):
@@ -117,6 +118,16 @@ class Turbomole_setup(Image_setup):
                         spin = True,
                         options = self.options
                     )
+                    
+            # Cube maker for ricc2 excited states diffden.
+            self.cube_makers['diffden'] = Turbomole_to_anadens_cube.from_options(
+                Path(output_dir, "Cubes", "diffden.cub"),
+                calculation_directory = self.calculation_directories['structure'],
+                first_density = "",
+                second_density,
+                operator, 
+                options = self.options
+            )
         
         ################
         # Spin density #
