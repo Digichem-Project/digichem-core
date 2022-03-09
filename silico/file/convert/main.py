@@ -33,11 +33,16 @@ class Silico_coords():
         Constructor for .si files.
          
         :param geometry: The molecular geometry in .si format. Use from_xyz() instead if your format is in xyz.
-        :param charge: The molecular charge.
+        :param charge: The molecular charge (as an integer).
         :param multiplicity: The molecular multiplicity (as an integer).
         :param name: Name of the system/molecule.
         :param file_name: The name of the file which was loaded. This can be used as a back-up file name.
         """
+        if charge is not None and not isinstance(charge, int):
+            raise TypeError("Charge must be an integer (or None)")
+        if multiplicity is not None and not isinstance(multiplicity, int):
+            raise TypeError("Multiplicity must be an integer (or None)")
+
         self.geometry = geometry
         self.charge = charge
         self.multiplicity = multiplicity
@@ -200,8 +205,8 @@ class Silico_coords():
             return self.yaml
         else:
             # Convert.
-            charge = int(self.charge) if self.charge is not None else None
-            multiplicity = int(self.multiplicity) if self.multiplicity is not None else None
+            charge = self.charge if self.charge is not None else None
+            multiplicity = self.multiplicity if self.multiplicity is not None else None
             return Openbabel_converter.get_cls("xyz")(input_file = self.xyz, input_file_path = self.auto_name, input_file_type = "xyz").convert(file_type, file, charge = charge, multiplicity = multiplicity)
 
     @classmethod
@@ -259,8 +264,8 @@ class Silico_coords():
         """
         return {
             'name': self.name,
-            'charge': float(self.charge),
-            'multiplicity': float(self.multiplicity),
+            'charge': self.charge,
+            'multiplicity': self.multiplicity,
             'geometry': self.geometry,
         }
         
