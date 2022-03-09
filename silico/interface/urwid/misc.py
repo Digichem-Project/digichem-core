@@ -74,6 +74,10 @@ class IntEditZero(urwid.numedit.IntegerEdit):
         super().__init__(*args, **kwargs)
         self.trimLeadingZeros = False
         
+    def value(self):
+        # Urwid returns a Decimal...
+        return int(super().value())
+        
 class FloatEditZero(urwid.numedit.FloatEdit):
     """
     An int edit widget that allows specifying zeroes.
