@@ -3,13 +3,12 @@ from mako.lookup import TemplateLookup
 from pathlib import Path
 
 # Silico imports.
-from silico.submit.calculation.base import Concrete_calculation,\
-    Directory_calculation_mixin
+from silico.submit.calculation.base import Concrete_calculation
 from silico.config.configurable.option import Option
 from silico.submit.base import Memory
 import silico
 from silico.config.configurable.options import Options
-from silico.file.convert.main import Silico_coords
+from silico.file.input.directory import Calculation_directory_input
 
                 
 class Turbomole_memory(Memory):
@@ -213,7 +212,7 @@ class Turbomole_AI(Turbomole):
     
             self.define_input = None
             
-        def prepare(self, *args, **kwargs):
+        def prepare(self, output, input_coords, *args, **kwargs):
             """
             Prepare this calculation for submission.
             
@@ -221,10 +220,12 @@ class Turbomole_AI(Turbomole):
             :param input_coords: A string containing input coordinates in a format suitable for this calculation type.
             :param molecule_name: A name that refers to the system under study (eg, Benzene etc).
             """
-            super().prepare(*args, **kwargs)
+            super().prepare(output, input_coords, *args, **kwargs)
             
             # Get and load our define template.
-            self.define_input = TemplateLookup(directories = str(silico.default_template_directory())).get_template("/submit/turbomole/define/driver.mako").render_unicode(calculation = self)
+            # The type of template to use depends on whether we are restarting a previous calculation or not.
+            template = "/submit/turbomole/define/restart.mako" if isinstance(input_coords, Calculation_directory_input) else "/submit/turbomole/define/driver.mako"
+            self.define_input = TemplateLookup(directories = str(silico.default_template_directory())).get_template(template).render_unicode(calculation = self)
                 
         def orbital_calc(self, orbitals, density):
             """
@@ -259,7 +260,7 @@ def make_orbital_calc(*, name, memory, num_CPUs, orbitals = [], density = False,
     modules = ["{} -proper".format(module) for module in modules]
     
     # First generate our calculation.
-    calc_t = Turbomole_restart(
+    calc_t = Turbomole_AI(
         name = "Orbital Cubes for {}".format(name),
         #"programs": [program_name],
         memory = str(memory),
@@ -306,7 +307,7 @@ def make_anadens_calc(*, name, memory, num_CPUs, first_density, second_density, 
         raise ValueError("The file extension/suffix of file_name must be .cub")
     
     # First generate our calculation.
-    calc_t = Turbomole_restart(
+    calc_t = Turbomole_AI(
         name = "Anadens for {}".format(name),
         memory = str(memory),
         num_CPUs = num_CPUs,
@@ -389,42 +390,3 @@ class Turbomole_UFF(Turbomole):
     # We only have one module to run.
     modules = ("uff",)
     
-        
-class Turbomole_restart(Turbomole_AI):
-    """
-    Turbomole calculations 
-    """
-    
-    # Identifying handle.
-    CLASS_HANDLE = ("Turbomole-restart",)
-    DIRECTORY_CALCULATION = True
-    
-    basis_set = Option(help = "The basis set to use.", required = False, type = str)
-    
-    ############################
-    # Class creation mechanism #
-    ############################
-    
-    class _actual(Directory_calculation_mixin._actual, Turbomole_AI._actual):
-        """
-        Inner class for calculations.
-        """
-        
-        def prepare_directory_calc(self, output, input, *, molecule_name, additional_files = None):
-            """
-            Prepare this calculation for submission.
-            
-            :param output: Path to a directory to perform the calculation in.
-            :param input:  A directory containing existing calculation files to run.
-            :param molecule_name: A name that refers to the system under study (eg, Benzene etc).
-            :param additional_files: An optional list of paths to additional files required for the calculation. These files will be copied into the output directory without modification.
-            """
-            # Load input coords, although we won't be using them.
-            input_coords = Silico_coords.from_file(Path(input, "coord"), "tmol", name = molecule_name, charge = None, multiplicity = None, gen3D = False)
-            
-            super().prepare(output, input_coords, additional_files = additional_files)
-            self.input = input
-            
-            # Get and load our define template.
-            self.define_input = TemplateLookup(directories = str(silico.default_template_directory())).get_template("/submit/turbomole/define/restart.mako").render_unicode(calculation = self)
-

@@ -15,6 +15,7 @@ from silico.exception.base import Submission_error
 from silico.misc.directory import copytree
 from silico.parser.base import parse_calculation
 import silico
+from silico.file.input.directory import Calculation_directory_input
 
 
 class Turbomole(Program_target):
@@ -254,8 +255,8 @@ class Turbomole(Program_target):
             super().pre()
             
             # If we have a directory calc, copy the old directory to our new Prep directory.
-            if self.calculation.DIRECTORY_CALCULATION:
-                copytree(self.calculation.input, self.destination.calc_dir.prep_directory)
+            if isinstance(self.calculation.input_coords, Calculation_directory_input):
+                copytree(self.calculation.input_coords.calculation_directory, self.destination.calc_dir.prep_directory)
                 
                 # Clean up some old files which may be left by the previous calc if run with silico.
                 for delete_file in chain(

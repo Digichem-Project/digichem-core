@@ -6,6 +6,7 @@ from silico.config.configurable.option import Option
 from silico.submit.calculation import Concrete_calculation
 from silico.config.configurable.options import Options
 from silico.submit.basis import BSE_basis_set
+from silico.file.input.directory import Calculation_directory_input
 
 
 class Keyword():
@@ -276,6 +277,10 @@ class Gaussian(Concrete_calculation):
             :param output: Path to a directory to perform the calculation in.
             :param input_coords: A Silico_coords object containing the coordinates on which the calculation will be performed.
             """            
+            if isinstance(self.calculation.input_coords, Calculation_directory_input):
+                # Not supported ATM.
+                raise NotImplementedError("Gaussian calculations cannot currently be prepared from directories")
+            
             # Call parent.
             super().prepare(output, input_coords)
             
