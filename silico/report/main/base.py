@@ -5,7 +5,7 @@ from pathlib import Path
 # Silico imports.
 from silico.image.vmd import Spin_density_image_maker, Orbital_image_maker,\
     Combined_orbital_image_maker, Structure_image_maker, Dipole_image_maker,\
-    Density_image_maker
+    Density_image_maker, Differential_density_image_maker
 from silico.image.orbitals import Orbital_diagram_maker
 from silico.exception.base import Result_unavailable_error
 from silico.image.excited_states import Excited_states_diagram_maker
@@ -17,6 +17,8 @@ from silico.result.molecular_orbitals import Molecular_orbital_list
 import silico.report.image
 from silico.image.structure import Skeletal_image_maker
 from silico.file.convert.main import Silico_coords
+from silico.report.image.turbomole.base import Turbomole_anadens_setup
+
 
 class Report():
     """
@@ -27,6 +29,10 @@ class Report():
         """
         Constructor for Report objects.
         
+        This Report class is calculation program agnostic, which is important because the results from multiple different calculation programs can be merged together and supplied as a merged result.
+        However, image generation is deeply integrated with the calculation program that produced the individual results, so that is handled separately by Cube_setup objects which do depend on each calculation program type.
+        
+        :param result: A parsed result set object to render a report of.
         :param options: A silico Config dictionary which contains various options that control the appearance of this report.
         """    
         # Save our result set object.
@@ -51,7 +57,7 @@ class Report():
             excited_state_transition_threshold = options['report']['orbital_image']['et_transition_threshold']
         )            
         
-        # Get image makers for each metadata.
+        # Get cube makers for each metadata.
         # We need to be careful with what we request from each image maker, especially for Turbomole
         # eg, We can't just ask for orbitals from all Turbomole makers because this is wasteful if 
         # we only need spin images from one of the makers; Turbomole will still render the orbital images
@@ -71,6 +77,11 @@ class Report():
             self.image_setters.append(
                 silico.report.image.from_metadata(self, metadata = metadata, do_orbitals = do_orbitals, do_spin = do_spin, options = options, calculation = calculation)
             )
+            
+        # Also create a cube setter for anadens cubes.
+        # Anadens cubes are specific to calculations performed with Turbomole, but they are handled differently because they require multiple calculations (a ground state and excited state) to work.
+        # Even if no Turbomole calculations are available here, this class will function fine.
+        self.image_setters.append(Turbomole_anadens_setup(self, options = options, calculation = calculation))
             
         
     @property
@@ -292,6 +303,17 @@ class Report():
                     dipole_moment = excited_state.transition_dipole_moment,
                     rotations = self.rotations,
                     options = self.options)
+                
+            # If we have differential density cubes, create images that can use them.
+            if excited_state.state_symbol + "_differential_density" in self.cubes:
+                self.images[excited_state.state_symbol + "_differential_density"] = Differential_density_image_maker.from_options(
+                    Path(output_dir, excited_state.state_symbol, output_name + ".{}_differential_density.jpg".format(excited_state.state_symbol)),
+                    cube_file = self.cubes[excited_state.state_symbol + "_differential_density"],
+                    rotations = self.rotations,
+                    options = self.options
+                )
+                self.images[excited_state.state_symbol + "_differential_density"].get_image('x0y0z0')
+                
             
         # Also set our states diagram.
         self.images['excited_state_energies'] = Excited_states_diagram_maker.from_options(

@@ -1,4 +1,5 @@
 ## -*- coding: utf-8 -*-
+## Section showing total calculation density.
 
 <%page args="report, density_image_name"/>
 
