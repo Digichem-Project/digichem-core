@@ -307,7 +307,11 @@ def make_NTO_calc(*, name, memory, num_CPUs, transition):
         convert_chk = False,
         keep_chk = True,
         scratch_options = {
-            "use_scratch": False
+            # Gaussian is basically broken without use of a scratch directory.
+            # When not given, Gaussian appears to use the current directory as the scratch,
+            # but gaussian can't handle whitespace in the scratch path, which is hard to control
+            # if the cwd is used (which often has whitespace in it).
+            "use_scratch": True
         }
     )
     
