@@ -10,3 +10,5 @@
 
 from .base import Input_file
 from .coord import Silico_coords
+from .directory import Calculation_directory_input
+from .chk import Chk_input
