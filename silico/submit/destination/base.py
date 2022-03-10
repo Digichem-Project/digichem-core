@@ -71,8 +71,8 @@ class Destination_target(Method_target):
             # Now create it.
             try:
                 self.calc_dir.create_structure(True)
-            except Exception:
-                raise Submission_error(self, "could not create directory structure; try setting a different output directory ('-O')")
+            except Exception as e:
+                raise Submission_error(self, "could not create directory structure") from e
             
     
     
