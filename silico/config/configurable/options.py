@@ -108,11 +108,11 @@ class Options(Option, Options_mixin):
     A type of option that expects more options (another dict).
     """
     
-    def __init__(self, *args, name = None, help = None, exclude = None, **kwargs):
+    def __init__(self, *args, name = None, help = None, exclude = None, no_edit = False, **kwargs):
         """
         """        
         # Use parent constructor.
-        super().__init__(name = name, help = help, exclude = exclude)
+        super().__init__(name = name, help = help, exclude = exclude, no_edit = no_edit)
         
         # Go through args and add to kwargs.
         for arg in args:

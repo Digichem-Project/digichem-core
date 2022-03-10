@@ -23,7 +23,7 @@ class Option():
         :param exclude: A list of strings of the names of attributes that this option is mutually exclusive with.
         :param required: Whether this option is required or not.
         :param no_none: Whether to allows None values. This defaults to False unless required == True, in which case no_none defaults to True.
-        :param no_edit: Flag to indicate that this option shouldn't be edited.
+        :param no_edit: Flag to indicate that this option shouldn't be edited interactively by the user, useful for 'hidden' options that don't make sense to be changed for example.
         :param dump_func: An optional function that will be called to serialize the data of this option ready for dumping to file. The function will be called with 3 arguments: this Option object, the owning Configurable object and the value being set, and should return the value to save.
         """
         self.name = name
