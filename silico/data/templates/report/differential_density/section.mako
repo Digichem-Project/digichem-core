@@ -1,7 +1,6 @@
 ## -*- coding: utf-8 -*-
 
 ## Template to display images of differential densities of excited states
-## This p
 
 <%page args="excited_states, report" />
 
