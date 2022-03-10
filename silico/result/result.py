@@ -53,6 +53,7 @@ class Result_set(Result_object):
         super().__init__()
         self.metadata = metadata
         self.metadatas = (self.metadata,)
+        self.results = (self,)
         self.CC_energies = CC_energies
         self.MP_energies = MP_energies
         self.SCF_energies = SCF_energies
