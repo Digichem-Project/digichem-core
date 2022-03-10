@@ -66,7 +66,8 @@ class Chk_to_NTO_chk(File_converter):
             name = chk_file,
             memory = Memory(options['report']['gaussian']['memory']),
             num_CPUs = options['report']['gaussian']['num_CPUs'],
-            transition = transition
+            transition = transition,
+            scratch_path = options['report']['gaussian']['scratch_path']
         )
         
         # And continue.

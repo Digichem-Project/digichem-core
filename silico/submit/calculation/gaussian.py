@@ -279,10 +279,10 @@ class Gaussian(Concrete_calculation, AI_calculation_mixin):
             """
             Return a new calculation that can create a chk file containing NTOs for a given transition.
             """
-            return make_NTO_calc(name = self.name, memory = self.memory, num_CPUs = self._num_CPUs, transition = transition)
+            return make_NTO_calc(name = self.name, memory = self.memory, num_CPUs = self._num_CPUs, transition = transition, scratch_options = self.scratch_options)
 
 
-def make_NTO_calc(*, name, memory, num_CPUs, transition):
+def make_NTO_calc(*, name, memory, num_CPUs, transition, scratch_options = None, scratch_path = None):
     """
     Create a Gaussian calculation object that can be use to create natural transition orbitals from an existing calculation.
     
@@ -291,6 +291,29 @@ def make_NTO_calc(*, name, memory, num_CPUs, transition):
     :param num_CPUs: The number of CPUs to use for the calculation (note it's not clear if this option will be respected by ricc2 or not).
     :param transition: The integer number of the transition to calculate NTOs for.
     """
+    if scratch_options is None and scratch_path is None:
+        raise ValueError("One of either scratch_options or scratch_path must be given")
+    
+    # Setup scratch options if not given.
+    if scratch_options is None:
+        scratch_options = {
+            # Gaussian is basically broken without use of a scratch directory.
+            # When not given, Gaussian appears to use the current directory as the scratch,
+            # but gaussian can't handle whitespace in the scratch path, which is hard to control
+            # if the cwd is used (which often has whitespace in it).
+            #
+            # Hence we have to turn scratch on.
+            # However, we can't use the default scratch location (because it might not exist).
+            # Likewise, we still can't use any whitespace in the path dir, so we have to be 
+            # careful about where we choose.
+            #
+            # The current solution is to force the user to give a location, which is fine
+            # but doesn't feel very satisfactory.
+            "use_scratch": True,
+            "path": scratch_path
+            
+        }
+    
     calc_t = Gaussian(
         name = "NTOs for {}".format(name),
         memory = str(memory),
@@ -306,13 +329,7 @@ def make_NTO_calc(*, name, memory, num_CPUs, transition):
         write_report = False,
         convert_chk = False,
         keep_chk = True,
-        scratch_options = {
-            # Gaussian is basically broken without use of a scratch directory.
-            # When not given, Gaussian appears to use the current directory as the scratch,
-            # but gaussian can't handle whitespace in the scratch path, which is hard to control
-            # if the cwd is used (which often has whitespace in it).
-            "use_scratch": True
-        }
+        scratch_options = scratch_options
     )
     
     # Prepare it for making new classes.
