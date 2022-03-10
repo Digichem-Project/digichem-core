@@ -1,6 +1,6 @@
 from silico.report.image.gaussian import Gaussian_setup
 from silico.report.image.turbomole import Turbomole_setup
-from silico.report.image.main import Image_setup
+from silico.report.image.main import Cube_setup
 
 def class_from_metadata(metadata):
     """
@@ -11,7 +11,7 @@ def class_from_metadata(metadata):
     elif metadata.package == "Gaussian":
         return Gaussian_setup
     else:
-        return Image_setup
+        return Cube_setup
     
 def from_metadata(report, *, metadata, do_orbitals, do_spin, options, calculation = None):
     """

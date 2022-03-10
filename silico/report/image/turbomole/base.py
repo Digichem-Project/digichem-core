@@ -2,13 +2,13 @@
 from pathlib import Path
 
 # Silico imports.
-from silico.report.image.main import Image_setup
+from silico.report.image.main import Cube_setup, Partial_cube_setup
 from silico.file.cube import Turbomole_to_cube, Turbomole_to_spin_cube,\
     Turbomole_to_density_cube, Turbomole_to_orbital_cube,\
     Turbomole_to_anadens_cube
 
 
-class Turbomole_setup(Image_setup):
+class Turbomole_setup(Partial_cube_setup):
     """
     Class for setting up Turbomole images.
     """

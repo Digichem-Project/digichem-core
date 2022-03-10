@@ -1,1 +1,1 @@
-from .base import Image_setup
+from .base import Cube_setup, Partial_cube_setup

@@ -2,13 +2,13 @@
 from pathlib import Path
 
 # Silico imports
-from silico.report.image.main import Image_setup
+from silico.report.image.main import Partial_cube_setup
 from silico.file.fchk import Chk_to_fchk
 from silico.file.cube import Fchk_to_spin_cube, Fchk_to_density_cube,\
     Fchk_to_cube
 
 
-class Gaussian_setup(Image_setup):
+class Gaussian_setup(Partial_cube_setup):
     """
     Class for setting up Gaussian images.
     """
