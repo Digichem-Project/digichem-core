@@ -1,6 +1,7 @@
 # General imports.
 import subprocess
 import os
+from pathlib import Path
 
 # Silico imports.
 from silico.file import File_converter
@@ -42,10 +43,12 @@ class Chk_to_fchk(File_converter):
         """
         Make the files referenced by this object.
         """
+        input_file = Path(str(self.input_file))
+        
         # The signature we'll use to call formchk.
         signature = [
             "{}".format(self.formchk_executable),
-            self.input_file.name,
+            input_file.name,
             str(self.output.absolute())
         ]
         
@@ -59,7 +62,7 @@ class Chk_to_fchk(File_converter):
                 stdout = subprocess.PIPE,
                 stderr = subprocess.STDOUT,
                 universal_newlines = True,
-                cwd = str(self.input_file.parent),
+                cwd = str(input_file.parent),
                 env = dict(os.environ, GAUSS_MEMDEF = str(self.memory))
                 )
         except FileNotFoundError:
