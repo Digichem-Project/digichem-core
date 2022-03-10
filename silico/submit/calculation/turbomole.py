@@ -3,7 +3,8 @@ from mako.lookup import TemplateLookup
 from pathlib import Path
 
 # Silico imports.
-from silico.submit.calculation.base import Concrete_calculation
+from silico.submit.calculation.base import Concrete_calculation,\
+    AI_calculation_mixin
 from silico.config.configurable.option import Option
 from silico.submit.base import Memory
 import silico
@@ -39,7 +40,7 @@ class Turbomole(Concrete_calculation):
     parallel_mode = Option(help = "The type of parallelization to use. SMP uses shared memory and therefore is only suitable for parallelization across a single node, while MPI uses message-passing between processes and so can be used across multiple nodes. Use 'linear' to disable parallelization.", default = "SMP", choices = ("SMP", "MPI", "linear"), type = str)
     
 
-class Turbomole_AI(Turbomole):
+class Turbomole_AI(Turbomole, AI_calculation_mixin):
     """
     Ab Initio calculations with Turbomole.
     """
@@ -49,30 +50,10 @@ class Turbomole_AI(Turbomole):
     
     # Configurable options.
     basis_set = Option(help = "The basis set to use.", required = False, type = str)
-    _charge = Option("charge", help = "Forcibly set the molecule charge. Leave blank to use the charge given in the input file.", default = None, type = float)
-    _multiplicity = Option("multiplicity", help = "Forcibly set the molecule multiplicity. Leave blank to use the multiplicity given in the input file. A value of 1 will request turbomole defaults, which will be RHF singlet in most cases. Any other multiplicity will request UHF.", default = None, type = int)
     force_unrestricted = Option(help = "Whether to force use of unrestricted HF. This option only has an effect if multiplicity is 1; as all other multiplicities will use unrestricted HF by necessity.", type = bool, default = False)
     redundant_internal_coordinates = Option(help = "Whether to use redundant internal coordinates", type = bool, default = True)
     methods = Option(help = "Method keywords and options from the define general menu, including scf, mp2, cc etc.", type = dict, default = {})
-    define_timeout = Option(help = "The amount of time (s) to allow define to run for. After the given timeout, define will be forcibly stopped if it is still running, which normally occurs because something went wrong and define froze.", type = int, default = 60)    
-    
-    @property
-    def charge(self):
-        """
-        The molecule/system charge that we'll actually be using in the calculation.
-        
-        Unlike the charge attribute, this property will translate "auto" to the actual charge to be used.
-        """
-        return int(self._charge if self._charge is not None else self.input_coords.implicit_charge)
-    
-    @property
-    def multiplicity(self):
-        """
-        The molecule/system multiplicity that we'll actually be using in the calculation.
-        
-        Unlike the multiplicity attribute, this property will translate "auto" to the actual multiplicity to be used.
-        """
-        return int(self._multiplicity if self._multiplicity is not None else self.input_coords.implicit_multiplicity)
+    define_timeout = Option(help = "The amount of time (s) to allow define to run for. After the given timeout, define will be forcibly stopped if it is still running, which normally occurs because something went wrong and define froze.", type = int, default = 60)
     
     @property
     def unrestricted_HF(self):

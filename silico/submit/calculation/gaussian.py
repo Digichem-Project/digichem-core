@@ -7,6 +7,7 @@ from silico.submit.calculation import Concrete_calculation
 from silico.config.configurable.options import Options
 from silico.submit.basis import BSE_basis_set
 from silico.file.input.directory import Calculation_directory_input
+from silico.submit.calculation.base import AI_calculation_mixin
 
 
 class Keyword():
@@ -65,7 +66,7 @@ class Keyword():
             return "{}=({})".format(self.keyword, ", ".join(options_strings))
 
 
-class Gaussian(Concrete_calculation):
+class Gaussian(Concrete_calculation, AI_calculation_mixin):
     """
     Calculations with Gaussian.
     """
@@ -91,8 +92,8 @@ class Gaussian(Concrete_calculation):
         internal = Option(help = "The name of a basis set built in to Gaussian, see Gaussian manual for allowed values.", type = str, exclude = "exchange"),
         exchange = Option(help = "The definition of a (number of) basis sets to use from the Basis Set Exchange (BSE), in the format 'basis set name': 'applicable elements' (for example: '6-31G(d,p)': '1,3-4,B-F')", type = BSE_basis_set, dump_func = lambda option, configurable, value: value.definition if value is not None else {}, exclude = "internal", edit_vtype = "dict")
     )
-    _multiplicity = Option("multiplicity", help = "Forcibly set the molecule multiplicity. Leave blank to use the multiplicity given in the input file", default = None, type = int)
-    _charge = Option("charge", help = "Forcibly set the molecule charge. Leave blank to use the charge given in the input file", default = None, type = float)
+#     _multiplicity = Option("multiplicity", help = "Forcibly set the molecule multiplicity. Leave blank to use the multiplicity given in the input file", default = None, type = int)
+#     _charge = Option("charge", help = "Forcibly set the molecule charge. Leave blank to use the charge given in the input file", default = None, type = float)
     solvent = Option(help = "Name of the solvent to use for the calculation (the model used is SCRF-PCM)", default = None, type = str)
     convert_chk = Option(help = "Whether to create an .fchk file at the end of the calculation", default = True, type = bool)
     keep_chk = Option(help = "Whether to keep the .chk file at the end of the calculation. If False, the .chk file will be automatically deleted, but not before it is converted to an .fchk file (if convert_chk is True)", default = False, type = bool)
@@ -128,24 +129,6 @@ class Gaussian(Concrete_calculation):
         
         else:
             return self.post_HF_method
-    
-    @property
-    def charge(self):
-        """
-        The molecule/system charge that we'll actually be using in the calculation.
-        
-        Unlike the charge attribute, this property will translate "auto" to the actual charge to be used.
-        """
-        return int(self._charge if self._charge is not None else self.input_coords.implicit_charge)
-    
-    @property
-    def multiplicity(self):
-        """
-        The molecule/system multiplicity that we'll actually be using in the calculation.
-        
-        Unlike the multiplicity attribute, this property will translate "auto" to the actual multiplicity to be used.
-        """
-        return int(self._multiplicity if self._multiplicity is not None else self.input_coords.implicit_multiplicity)
     
     @property
     def basis_set_name(self):

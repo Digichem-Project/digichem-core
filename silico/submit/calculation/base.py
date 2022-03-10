@@ -90,6 +90,34 @@ class Calculation_target(Method_target):
         # Return the first calculation in the chain.
         return first
 
+
+class AI_calculation_mixin():
+    """
+    Abstract mixin class for calculation types that are ab-initio (from first principles).
+    """
+    
+    _multiplicity = Option("multiplicity", help = "Forcibly set the molecule multiplicity. Leave blank to use the multiplicity given in the input file", default = None, type = int)
+    _charge = Option("charge", help = "Forcibly set the molecule charge. Leave blank to use the charge given in the input file", default = None, type = float)
+    
+    @property
+    def charge(self):
+        """
+        The molecule/system charge that we'll actually be using in the calculation.
+        
+        Unlike the charge attribute, this property will translate "auto" to the actual charge to be used.
+        """
+        return int(self._charge if self._charge is not None else self.input_coords.implicit_charge)
+    
+    @property
+    def multiplicity(self):
+        """
+        The molecule/system multiplicity that we'll actually be using in the calculation.
+        
+        Unlike the multiplicity attribute, this property will translate "auto" to the actual multiplicity to be used.
+        """
+        return int(self._multiplicity if self._multiplicity is not None else self.input_coords.implicit_multiplicity)
+
+
 class Concrete_calculation(Calculation_target):
     """
     Top-level class for real calculations.
