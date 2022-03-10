@@ -2,13 +2,14 @@
 
 # General imports.
 from datetime import timedelta, datetime
+import math
+import itertools
+from deepmerge import conservative_merger
 
 # Silico imports.
 from silico.exception import Result_unavailable_error
 from silico.result import Result_object
-import math
 from silico.misc.time import latest_datetime, total_timedelta
-import itertools
 
 class Metadata(Result_object):
     """
@@ -318,6 +319,12 @@ class Merged_metadata(Metadata):
         merged_metadata.orbital_spin_type = multiple_metadatas[0].orbital_spin_type
         merged_metadata.charge = multiple_metadatas[0].charge
         merged_metadata.multiplicity = multiple_metadatas[0].multiplicity
+        
+        # CAREFULLY merge aux files, so that later files do not overwrite earlier ones.
+        # This is useful behaviour because it matches how other results are merged, so certain aux files
+        # (turbomole density files) will still match their respective results.
+        for metadata in multiple_metadatas:
+            merged_metadata.auxiliary_files = conservative_merger.merge(merged_metadata.auxiliary_files, metadata.auxiliary_files)
         
         return merged_metadata
     
