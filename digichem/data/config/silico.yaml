@@ -280,6 +280,7 @@
 report:
     gaussian:
         program: Gaussian 16
+        scratch_path: /scratch/tmp
 
 # Colour palette for urwid interfaces.
 palette:
