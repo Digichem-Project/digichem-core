@@ -260,7 +260,7 @@ class Gaussian(Concrete_calculation, AI_calculation_mixin):
             :param output: Path to a directory to perform the calculation in.
             :param input_coords: A Silico_coords object containing the coordinates on which the calculation will be performed.
             """            
-            if isinstance(self.calculation.input_coords, Calculation_directory_input):
+            if isinstance(input_coords, Calculation_directory_input):
                 # Not supported ATM.
                 raise NotImplementedError("Gaussian calculations cannot currently be prepared from directories")
             
