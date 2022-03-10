@@ -418,7 +418,7 @@ class Turbomole_to_cube(File_converter):
         
         # We'll write our calc to a tempdir.
         with tempfile.TemporaryDirectory() as tempdir:
-            calc.prepare_from_file(tempdir, self.input_file, molecule_name = "Orbitals")
+            calc.prepare_from_directory(tempdir, self.input_file, molecule_name = "Orbitals")
             
             # Go.
             try:
@@ -560,7 +560,7 @@ class Turbomole_to_anadens_cube(File_converter):
         
         # We'll write our calc to a tempdir.
         with tempfile.TemporaryDirectory() as tempdir:
-            calc.prepare_from_file(tempdir, self.input_file, molecule_name = "Anadens", additional_files = [(self.first_density, self.first_density_file_name), (self.second_density, self.second_density_file_name)])
+            calc.prepare_from_directory(tempdir, self.input_file, molecule_name = "Anadens", additional_files = [(self.first_density, self.first_density_file_name), (self.second_density, self.second_density_file_name)])
             
             # Go.
             try:
