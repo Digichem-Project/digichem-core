@@ -45,6 +45,24 @@ modules:
 
 NEXT:
     - Turbomole Functionals
+    
+    
+---
+
+
+TAG: Turbomole MP2 Opt
+ALIAS: MP2
+SUB_TYPE: partial
+
+modules:
+    - jobex -level cc2 -c 100 -keep
+    
+# Turn on optimisation.
+cc_geoopt:
+    wavefunction: MP2
+
+NEXT:
+    - Turbomole MP2
 
 
 ---

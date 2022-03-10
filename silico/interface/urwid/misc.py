@@ -1,4 +1,5 @@
 import urwid.numedit
+import decimal
 
 class Tab_pile(urwid.Pile):
     """
@@ -73,11 +74,22 @@ class IntEditZero(urwid.numedit.IntegerEdit):
         super().__init__(*args, **kwargs)
         self.trimLeadingZeros = False
         
+    def value(self):
+        # Urwid returns a Decimal...
+        return int(super().value())
+        
 class FloatEditZero(urwid.numedit.FloatEdit):
     """
     An int edit widget that allows specifying zeroes.
     """
     
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, caption = "", default = None, *args, **kwargs):
+        # For unexplained reasons this urwid widget can't handle float input, despite being called a float edit.
+        # We'll convert floats to decimals.
+        if isinstance(default, float):
+            default = decimal.Decimal(default)
+        super().__init__(caption, default, *args, **kwargs)
         self.trimLeadingZeros = False
+        
+        
+        

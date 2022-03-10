@@ -61,7 +61,7 @@ Possible options are:
         auto_crop = Option(help = "Whether to enable  automatic cropping of excess whitespace around the border of generated images.  If False, overall image rendering is likely to take less time, but molecules may only occupy a small portion of the true image.", type = bool, default = True),
         resolution = Option(help = "The target resolution for rendered images. Higher values will increase image quality, at the cost of increased render time and file size.", type = int, default = 1024),
         
-        orbital = Options(help = "Specific options for orbital density images.",
+        orbital = Options(help = "Specific options for orbital density plots.",
             cube_grid_size = Option(help =\
 """The size of grid used to generate Gaussian cube files.
 This option is passed to cubegen as the 'npts' argument (https://gaussian.com/cubegen/) and controls how detailed MO surfaces are.
@@ -74,14 +74,17 @@ There are a number of valid options here (please see the cubegen manual), the mo
             ),
             isovalue = Option(help = "The isovalue to use for rendering orbital density.", type = float, default = 0.02)
         ),
-        spin = Options(help = "Specific options for spin density images.",
-            cube_grid_size = Option(help = "Same as cube_grid_size but specifically for spin density cubes. As cubes of this type are rendered with a smaller isovalue, it is often necessary to use a larger grid size than normal to maintain quality.", type = int, default = -3),
-            isovalue = Option(help = "Same as isovalue but specifically for spin density.", type = float, default = 0.0004)
+        spin = Options(help = "Specific options for spin density plots.",
+            cube_grid_size = Option(help = "The size of the grid use to plot cube data. As cubes of this type are rendered with a smaller isovalue, it is often necessary to use a larger grid size than normal to maintain quality.", type = int, default = -3),
+            isovalue = Option(help = "The isovalue to use for plotting spin density.", type = float, default = 0.0004)
         ),
-        density = Options(help = "Specific options for total density images.",
-            cube_grid_size = Option(help = "Same as cube_grid_size but specifically for total density cubes.", type = int, default = -3),
-            isovalue = Option(help = "Same as isovalue but specifically for total density.", type = float, default = 0.0004)
+        density = Options(help = "Specific options for total density plots.",
+            cube_grid_size = Option(help = "The size of the grid use to plot cube data.", type = int, default = -3),
+            isovalue = Option(help = "The isovalue to use for plotting total density.", type = float, default = 0.0004)
         ),
+        differential_density = Options(help = "Specific options for excited states differential density plots.",
+            isovalue = Option(help = "The isovalue to use for plotting differential density.", type = float, default = 0.01)
+        )
     )
     
     orbital_diagram = Options(help = "Options that control the appearance of orbital energy diagrams.",

@@ -139,12 +139,23 @@ class Turbomole_AI(Turbomole):
         oscillator_strengths = Option(help = "The operators with which to calculate oscillator strengths.", type = str, default = None),
         gradients = Option(help = "Whether to calculate excited state gradients.", type = bool, default = True)
         )
-    plt = Options(
-        help = "Options for orbital and density grid plotting.",
-        density = Option(help = "Whether to plot electron/spin density.", type = bool, default = False),
-        orbitals = Option(help = "List of orbitals to plot for. Orbitals are identified by their 'irrep', a combination of symmetry and number.", type = tuple, default = []),
-        format = Option(help = "The format to write to.", default = "cub", choices = ("cub", "plt", "map", "xyz", "plv"), type = str)
+    analysis = Options(help = "Options that control the use of Turbomole in analysis mode, for example density plotting. Generally these options should not be modified for typical Turbomole calculations.",            
+        plt = Options(
+            help = "Options for orbital and density grid plotting.",
+            calculate = Option(help = "Whether to plot densities.", type = bool, default = False),
+            density = Option(help = "Whether to plot electron/spin density.", type = bool, default = False),
+            orbitals = Option(help = "List of orbitals to plot for. Orbitals are identified by their 'irrep', a combination of symmetry and number.", type = tuple, default = []),
+            format = Option(help = "The format to write to.", default = "cub", choices = ("cub", "plt", "map", "xyz", "plv"), type = str)
+            ),
+        anadens = Options(
+            help = "Options for $anadens data group (calculating differential density plots etc).",
+            calculate = Option(help = "Whether to calculate $anadens.", type = bool, default = False),
+            first_density = Option(help = "One of the two density files (.cao) to calculate from, relative to the calculation directory."),
+            second_density = Option(help = "One of the two density files (.cao) to calculate from, relative to the calculation directory."),
+            operator = Option(help = "The operator to use on the two density files, eg '-' (subtraction).", default = "-"),
+            output = Option(help = "Name of the file to write to, relative to the calculation directory.")
         )
+    )
     
     @property
     def pretty_functional(self):
@@ -221,10 +232,16 @@ class Turbomole_AI(Turbomole):
             
             :param orbitals: A list of orbital irreps to make cubes for.
             """
-            return get_orbital_calc(name = self.name, memory = self.memory, num_CPUs = self._num_CPUs, orbitals = orbitals, density = density, options = self.silico_options)
+            return make_orbital_calc(name = self.name, memory = self.memory, num_CPUs = self._num_CPUs, orbitals = orbitals, density = density, options = self.silico_options)
+        
+        def anadens_calc(self, first_density, second_density, file_name, operator = "-"):
+            """
+            Return a new calculation that can create cube files generated with thr $anadens data group.
+            """
+            return make_anadens_calc(name = self.name, memory = self.memory, num_CPUs = self._num_CPUs, first_density = first_density, second_density = second_density, file_name = file_name, operator = operator)
             
     
-def get_orbital_calc(*, name, memory, num_CPUs, orbitals = [], density = False, modules = None, options):
+def make_orbital_calc(*, name, memory, num_CPUs, orbitals = [], density = False, modules = None, options):
     """
     Get a calculation template that can be used to create orbital objects.
     
@@ -247,10 +264,13 @@ def get_orbital_calc(*, name, memory, num_CPUs, orbitals = [], density = False, 
         #"programs": [program_name],
         memory = str(memory),
         num_CPUs = num_CPUs,
-        plt = {
-            "density": density,
-            "orbitals": orbitals,
-            "format": "cub"
+        analysis = {
+            'plt': {
+                "calculate": True,
+                "density": density,
+                "orbitals": orbitals,
+                "format": "cub"
+            },
         },
         modules = modules,
         # We don't need these.
@@ -266,6 +286,58 @@ def get_orbital_calc(*, name, memory, num_CPUs, orbitals = [], density = False, 
     
     # Done.
     return calc_t
+
+
+def make_anadens_calc(*, name, memory, num_CPUs, first_density, second_density, file_name, operator = "-"):
+    """
+    Create a Turbomole calculation object that can be use to create differential density plots from an existing calculation (differential density plots are similar to NTOs plots but apply specifically to calculations performed with ricc2(?))
+    
+    :param name: A name to give the calculation.
+    :param memory: The amount of memory to use for the calculation (note it's not clear if this option will be respected by ricc2 or not).
+    :param num_CPUs: The number of CPUs to use for the calculation (note it's not clear if this option will be respected by ricc2 or not).
+    :param first_density: The name of one of the two density files (.cao) to calculate the difference from.
+    :param second_density: The name of the other of the two density files (.cao) to calculate the difference from.
+    :param file_name: The name of the file to write to. Like the density files, this should be relative to the calc dir (and be careful of weird characters...). Because Turbomole forces this extension, the file must end in .cub
+    :param operator: The operator to use on the two densities, (try) and see the Turbomole manual for allowed options. Subtraction ('-') is allowed at the very least, possibly also addition ('+'). The calculated density will be calculated according to = first_density operator second_density.
+    """
+    file_name = Path(file_name)
+    # Panic if our file has the wrong extension.
+    if file_name.suffix != ".cub":
+        raise ValueError("The file extension/suffix of file_name must be .cub")
+    
+    # First generate our calculation.
+    calc_t = Turbomole_restart(
+        name = "Anadens for {}".format(name),
+        memory = str(memory),
+        num_CPUs = num_CPUs,
+        analysis = {
+            'plt': {
+                "calculate": True,
+                "format": "cub"
+            },
+            'anadens': {
+                "calculate": True,
+                "first_density": first_density,
+                "second_density": second_density,
+                "operator": operator,
+                "output": file_name.stem
+            }
+        },
+        modules = ['ricc2 -fanal'],
+        # We don't need these.
+        write_summary = False,
+        write_report = False,
+        scratch_options = {
+            "use_scratch": False
+        }
+    )
+    
+    # Prepare it for making new classes.
+    calc_t.finalize()
+    
+    # Done.
+    return calc_t
+
 
 class Turbomole_UFF(Turbomole):
     """
@@ -338,18 +410,20 @@ class Turbomole_restart(Turbomole_AI):
         Inner class for calculations.
         """
         
-        def prepare(self, output, input, *, molecule_name):
+        def prepare_directory_calc(self, output, input, *, molecule_name, additional_files = None):
             """
             Prepare this calculation for submission.
             
             :param output: Path to a directory to perform the calculation in.
-            :param input: A string containing input coordinates in a format suitable for this calculation type.
+            :param input:  A directory containing existing calculation files to run.
             :param molecule_name: A name that refers to the system under study (eg, Benzene etc).
+            :param additional_files: An optional list of paths to additional files required for the calculation. These files will be copied into the output directory without modification.
             """
             # Load input coords, although we won't be using them.
             input_coords = Silico_coords.from_file(Path(input, "coord"), "tmol", name = molecule_name, charge = None, multiplicity = None, gen3D = False)
             
-            super().prepare(output, input, input_coords)
+            super().prepare(output, input_coords, additional_files = additional_files)
+            self.input = input
             
             # Get and load our define template.
             self.define_input = TemplateLookup(directories = str(silico.default_template_directory())).get_template("/submit/turbomole/define/restart.mako").render_unicode(calculation = self)

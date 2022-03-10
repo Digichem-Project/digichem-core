@@ -316,6 +316,10 @@ class Program_target(Method_target):
             if hasattr(self.calculation, "input_coords"):
                 with open(Path(self.destination.calc_dir.input_directory, self.calculation.molecule_name).with_suffix(".si"), "wt") as input_file:
                     self.calculation.input_coords.to_file(input_file)
+                    
+            # Copy any additional files to our working directory.
+            for additional_file, dst_name in self.calculation.additional_files:
+                shutil.copyfile(additional_file, Path(self.working_directory, dst_name)) 
     
         def calculate(self):
             """

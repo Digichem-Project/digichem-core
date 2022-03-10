@@ -2,6 +2,8 @@
 from cclib.io.ccio import sort_turbomole_outputs
 import re
 from datetime import timedelta, datetime
+import glob, pathlib
+import warnings
 
 # Silico imports.
 from silico.parser.base import Parser
@@ -75,7 +77,105 @@ class Turbomole_parser(Parser):
             
         if self.data.metadata['cputime'] == 0.0:
             del(self.data.metadata['cputime'])
+
+    def process(self, alignment_class):
+        """
+        Get a Result set object from this parser.
+        
+        :param: alignment_class: An alignment class object to use to reorientate atoms. If not specified the Minimal alignment method will be used by default.
+        :return: The populated result set.
+        """
+        super().process(alignment_class)
+        
+        # After processing is complete, have a look for excited state density files.
+        # These have the general file name:
+        # adcp2-xsdn-1a-001-total.cao
+        #  ^    ^     ^  ^------------ Excited state number (1, 2, 3 etc).
+        #  |    |     ---------------- Irrep (multiplicity and symmetry)
+        #  |    ---------------------- Excited state
+        #  --------------------------- Method (MP2, ADC(2), CC2). 
+        #
+        # Each found density file will be stored under aux_files['excited_state_cao_files'][state_symbol] where state_symbol is the corresponding state, eg S(1).
+        # If we have no excited states we can skip this altogether.
+        if len(self.results.excited_states) != 0:
+            for log_file in self.log_file_paths:
+                excited_densities = {}
+                state_num = 1
+                # Look for each numbered excited state until we run out of files.
+                while True:
+                    found_densities = glob.glob(str(pathlib.Path(log_file.parent, "*xsdn*{:03}*total*.cao".format(state_num))))
                     
+                    # Sort results in case there is more than one result the same behaviour is encountered between multiple runs.
+                    found_densities.sort()
+                    
+                    if len(found_densities) > 0:
+                        try:
+                            # Get the state that corresponds to this file.
+                            excited_state = self.results.excited_states[state_num -1]
+                            excited_densities[excited_state.state_symbol] = pathlib.Path(found_densities[0])
+                            
+                            # Print a warning if there's more than one (because we don't know how to handle that scenario).
+                            if len(found_densities) > 1:
+                                warnings.warn("Found multiple excited state density files for state '{}' in Turbomole calculation directory '{}'; using file '{}' and ignoring '{}'".format(excited_state.state_symbol, log_file.parent, pathlib.Path(excited_densities[excited_state.state_symbol]).name, ", ".join([pathlib.Path(density).name for density in found_densities[1:]])))
+                        
+                        except IndexError:
+                            warnings.warn("Could not find excited state that corresponds to excited state density file '{}' with index {}; this file will be ignored".format(found_densities[0], state_num -1))
                 
+                    if len(found_densities) == 0:
+                        # All done.
+                        break
+                    
+                    state_num += 1
+                    
+                # Update aux_files with new files.
+                if len(excited_densities) > 0:
+                    try:
+                        self.results.metadata.auxiliary_files['excited_state_cao_files'].update(excited_densities)
+                        
+                    except KeyError:
+                        if 'excited_state_cao_files' not in self.results.metadata.auxiliary_files:
+                            self.results.metadata.auxiliary_files['excited_state_cao_files'] = excited_densities
+                        else:
+                            raise
+        
+        return self.results
+            
+    @classmethod
+    def find_aux_files(self, hint):
+        """
+        Find auxiliary files from a given hint.
+        
+        :param hint: A path to a file to use as a hint to find additional files.
+        :returns: A dictionary of found aux files.
+        """
+        aux_files = super().find_aux_files(hint)
+        
+        parent = pathlib.Path(hint).parent
+            
+        # Find .cao density files.
+        # First look for ground state density files.
+        # These have the general file name:
+        # mp2-gsdn-1a-000-total.cao
+        #  ^    ^   ^----------------- Irrep (multiplicity and symmetry)
+        #  |    ---------------------- Ground state
+        #  --------------------------- Method (MP2, ADC(2), CC2). 
+        #
+        ground_densities = glob.glob(str(pathlib.Path(parent, "*gsdn*total*.cao")))
+        
+        # Sort results in case there is more than one result the same behaviour is encountered between multiple runs.
+        ground_densities.sort()
+        
+        if len(ground_densities) > 0:
+            aux_files['ground_state_cao_file'] = pathlib.Path(ground_densities[0])
+        
+        # Print a warning if there's more than one (because we don't know how to handle that scenario).
+        if len(ground_densities) > 1:
+            warnings.warn("Found multiple ground state density files in Turbomole calculation directory '{}'; using file '{}' and ignoring '{}'".format(parent, pathlib.Path(aux_files['ground_state_cao_file']).name, ", ".join([pathlib.Path(density).name for density in ground_densities[1:]])))
+        
+        ######################################################################################################
+        # Note that excited state densities are also located, but this is done in the process() method. #
+        ######################################################################################################
+        
+        return aux_files
 
     

@@ -2,12 +2,13 @@
 from pathlib import Path
 
 # Silico imports.
-from silico.report.image.main import Image_setup
+from silico.report.image.main import Cube_setup, Partial_cube_setup
 from silico.file.cube import Turbomole_to_cube, Turbomole_to_spin_cube,\
-    Turbomole_to_density_cube, Turbomole_to_orbital_cube
+    Turbomole_to_density_cube, Turbomole_to_orbital_cube,\
+    Turbomole_to_anadens_cube
 
 
-class Turbomole_setup(Image_setup):
+class Turbomole_setup(Partial_cube_setup):
     """
     Class for setting up Turbomole images.
     """
@@ -147,3 +148,63 @@ class Turbomole_setup(Image_setup):
             self.report.cubes['structure'] = self.report.cubes['HOMO']
         elif "HOMO (alpha)" in self.report.cubes:
             self.report.cubes['structure'] = self.report.cubes['HOMO (alpha)']
+
+
+class Turbomole_anadens_setup(Cube_setup):
+    """
+    Class for setting up anadens cubes.
+    """
+    
+    def __init__(self, report, options, calculation = None):
+        """
+        :param report: The report object we will setup images for.
+        :param options: Dictionary of config options.
+        :param calculation: Optional calculation which will be used as a template for new calculations to generate new images.
+        """
+        self.report = report
+        self.options = options
+        self.calculation = calculation
+
+    def setup(self, output_dir, output_name):
+        """
+        Perform setup.
+        
+        Calling this method will set cube objects in the parent report.
+        
+        :param output_dir: A pathlib Path object to the directory within which our files should be created.
+        :param output_name: A string that will be used as the start of the file name of the files we create.
+        """
+        # We can only do setup if we have a ground state density and at least some excited state densities.
+        if 'ground_state_cao_file' in self.report.result.metadata.auxiliary_files and 'excited_state_cao_files' in self.report.result.metadata.auxiliary_files:
+            ground_state_cao_file = self.report.result.metadata.auxiliary_files['ground_state_cao_file']
+            excited_state_cao_files = self.report.result.metadata.auxiliary_files['excited_state_cao_files']
+            
+            # Handle each available excited state.
+            for excited_state in self.report.result.excited_states:
+                if excited_state.state_symbol in excited_state_cao_files:
+                    # Got a relevant density file.
+                    excited_state_cao_file = excited_state_cao_files[excited_state.state_symbol]
+                    
+                    # We use a different constructor depending on whether we have a calculation to use as a template.
+                    if self.calculation is not None:
+                        cube_maker = Turbomole_to_anadens_cube.from_calculation(
+                            Path(output_dir, "Cubes", excited_state.state_symbol + "_differential_density.cub"),
+                            turbomole_calculation = self.calculation,
+                            # TODO: This relies on the density files still being located in the correct turbomole calculation directory, which may not always be the case...
+                            calculation_directory = excited_state_cao_file.parent,
+                            first_density = ground_state_cao_file,
+                            second_density = excited_state_cao_file,
+                            options = self.options
+                        )
+                        
+                    else:
+                        cube_maker = Turbomole_to_anadens_cube.from_options(
+                            Path(output_dir, "Cubes", excited_state.state_symbol + "_differential_density.cub"),
+                            # TODO: This relies on the density files still being located in the correct turbomole calculation directory, which may not always be the case...
+                            calculation_directory = excited_state_cao_file.parent,
+                            first_density = ground_state_cao_file,
+                            second_density = excited_state_cao_file,
+                            options = self.options
+                        )
+                        
+                    self.report.cubes[excited_state.state_symbol + "_differential_density"] = cube_maker

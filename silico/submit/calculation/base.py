@@ -253,23 +253,38 @@ class Concrete_calculation(Calculation_target):
             """
             return "{} {}".format(self.molecule_name, self.name)
             
-        def prepare(self, output, input_coords):
+        def prepare(self, output, input_coords, additional_files = None):
             """
             Prepare this calculation for submission.
             
             :param output: Path to a directory to perform the calculation in.
             :param input_coords: A Silico_coords object containing the coordinates on which the calculation will be performed.
+            :param additional_files: An optional list of paths to additional files required for the calculation. These files will be copied into the output directory without modification. In addition, each 'path' can be a tuple where the first item is the path to an additional file and the second is a new file name (relative to the calculation dir) to copy to.
             """
             # Because we normally run the program in a different environment to where we are currently, we need to load all input files we need into memory so they can be pickled.
             self.output = output
             self.input_coords = input_coords
+            # TODO: Improve handling of additional files.
+            # In general, this implementation is fine, but it will fail if the pickled file is moved to another machine before resuming (for example), because the files will be left behind.
+            # We don't currently support this functionality, but one day we might...
+            additional_files = additional_files if additional_files is not None else []
+            self.additional_files = []
+            for additional_file in additional_files:
+                # Files that have not been given an explicit destination name will have one auto set.
+                if not isinstance(additional_file, tuple):
+                    self.additional_files.append((additional_file, Path(additional_file).name))
+                
+                else:
+                    self.additional_files.append(additional_file)
+                
             
-        def prepare_from_calculation(self, output, calculation):
+        def prepare_from_calculation(self, output, calculation, additional_files = None):
             """
             Alternative submission constructor that gets the input coordinates from a previously finished calc.
             
             :param output: Path to a directory to perform the calculation in.
             :param calculation: A previously submitted calculation.
+            :param additional_files: An optional list of paths to additional files required for the calculation. These files will be copied into the output directory without modification. In addition, each 'path' can be a tuple where the first item is the path to an additional file and the second is a new file name (relative to the calculation dir) to copy to.
             """
             self.prepare_from_file(
                 output,
@@ -279,7 +294,8 @@ class Concrete_calculation(Calculation_target):
                 molecule_charge = calculation.input_coords.charge,
                 molecule_multiplicity = calculation.input_coords.multiplicity,
                 # Don't gen3D or add H (we want to use output coordinates exactly as-is).
-                gen3D = False
+                gen3D = False,
+                additional_files = additional_files
             )
             
         def prepare_from_file(self,
@@ -290,7 +306,8 @@ class Concrete_calculation(Calculation_target):
             gen3D = None,
             molecule_name = None,
             molecule_charge = None,
-            molecule_multiplicity = None):
+            molecule_multiplicity = None,
+            additional_files = None):
             """
             Alternative submission constructor that first reads in an input file.
             
@@ -300,6 +317,7 @@ class Concrete_calculation(Calculation_target):
             :param molecule_name: Optional molecule name to use for the new calculation. If None, a name will be chosen based on the given file.
             :param molecule_charge: optional molecule charge to use for the new calculation. If None, a charge will be taken from the given file or otherwise a default will be used.
             :param molecule_multiplicity: optional molecule multiplicity to use for the new calculation. If None, a multiplicity will be taken from the given file or otherwise a default will be used.
+            :param additional_files: An optional list of paths to additional files required for the calculation. These files will be copied into the output directory without modification. In addition, each 'path' can be a tuple where the first item is the path to an additional file and the second is a new file name (relative to the calculation dir) to copy to.
             """    
             # First, try and convert our given input file to the universal silico input format.
             try:
@@ -309,7 +327,7 @@ class Concrete_calculation(Calculation_target):
                 raise Submission_error(self, "failed to prepare input file (input format may not be supported)", file_name = input_file_path)
             
             # Prep normally.
-            self.prepare(output, input_coords)
+            self.prepare(output, input_coords, additional_files = additional_files)
             
             
         def submit(self):
@@ -380,45 +398,46 @@ class Directory_calculation_mixin():
             
             self.input = None
         
-        
-        def prepare(self, output, input, input_coords):
+        def prepare_directory_calc(self, output, input, molecule_name, additional_files = None):
             """
-            Prepare this calculation for submission.
+            Prepare this directory calculation for submission.
             
             :param output: Path to a directory to perform the calculation in.
             :param input: A directory containing existing calculation files to run.
             :param molecule_name: A name that refers to the system under study (eg, Benzene etc).
+            :param additional_files: An optional list of paths to additional files required for the calculation. These files will be copied into the output directory without modification. In addition, each 'path' can be a tuple where the first item is the path to an additional file and the second is a new file name (relative to the calculation dir) to copy to.
             """
-            # Because we normally run the program in a different environment to where we are currently, we need to load all input files we need into memory so they can be pickled.
-            self.output = output
-            self.input = input
-            self.input_coords = input_coords
+            raise NotImplementedError("Implement in subclass")
         
         def prepare_from_file(self,
             output,
             input,
             *,
-            molecule_name):
+            molecule_name,
+            additional_files = None):
             """
             Alternative submission constructor that first reads in an input file.
             
             :param output: Path to a directory to perform the calculation in.
             :param input: A directory containing existing calculation files to run.
-            :param molecule_name: A name that refers to the system under study (eg, Benzene etc).s
+            :param molecule_name: A name that refers to the system under study (eg, Benzene etc).
+            :param additional_files: An optional list of paths to additional files required for the calculation. These files will be copied into the output directory without modification. In addition, each 'path' can be a tuple where the first item is the path to an additional file and the second is a new file name (relative to the calculation dir) to copy to.
             """
             # Prep normally.
-            self.prepare(output, input, molecule_name = molecule_name)
+            self.prepare_directory_calc(output, input, molecule_name = molecule_name, additional_files = additional_files)
             
-        def prepare_from_calculation(self, output, calculation):
+        def prepare_from_calculation(self, output, calculation, additional_files = None):
             """
             Alternative submission constructor that gets the input coordinates from a previously finished calc.
             
             :param output: Path to a directory to perform the calculation in.
             :param calculation: A previously submitted calculation.
+            :param additional_files: An optional list of paths to additional files required for the calculation. These files will be copied into the output directory without modification. In addition, each 'path' can be a tuple where the first item is the path to an additional file and the second is a new file name (relative to the calculation dir) to copy to.
             """
             self.prepare_from_file(
                 output,
                 calculation.program.destination.calc_dir.output_directory,
-                molecule_name = calculation.molecule_name
+                molecule_name = calculation.molecule_name,
+                additional_files = additional_files
             )
     

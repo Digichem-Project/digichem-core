@@ -6,6 +6,7 @@ import os
 import re
 from mako.lookup import TemplateLookup
 import subprocess
+from itertools import chain
 
 # Silico imports.
 from silico.submit.program.base import Program_target
@@ -13,7 +14,6 @@ from silico.config.configurable.option import Option
 from silico.exception.base import Submission_error
 from silico.misc.directory import copytree
 from silico.parser.base import parse_calculation
-from itertools import chain
 import silico
 
 
@@ -157,6 +157,14 @@ class Turbomole(Program_target):
             # Sadly, some options are not supported by define and have to be appended manually.
             if self.calculation.optimisation_state is not None:
                 self.add_control_option("$exopt {}".format(self.calculation.optimisation_state))
+                
+            if self.calculation.analysis['anadens']['calculate']:
+                self.add_control_option("$anadens\n calc {} from\n 1d0 {}\n {}1d0 {}".format(
+                    self.calculation.analysis['anadens']['output'],
+                    self.calculation.analysis['anadens']['first_density'],
+                    self.calculation.analysis['anadens']['operator'],
+                    self.calculation.analysis['anadens']['second_density'],
+            ))
             
         def add_control_option(self, option):
             """

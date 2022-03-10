@@ -99,41 +99,50 @@ class Parser(Result_set):
         """
         hint = Path(hint)
         
-        # First, find our parent dir.
-        # hint may actually be a dir.
-        if hint.is_dir():
-            # Look for all .log files.
-            parent = hint
-            log_files = [Path(found_log_file) for found_log_file in iglob(str(Path(parent, "*.log")))]
-            # Remove any 'silico.log' files as we know these are not calc log files.
-            # We don't actually write 'silico.log' files anymore either (we use silico.out instead),
-            # but older versions did...
-            log_files = [log_file for log_file in log_files if log_file.name != "silico.log"]
-        else:
-            parent = hint.parent
-            log_files = [hint]
-                            
-        # Try and find job files.
-        # These files have names like 'job.0', 'job.1' etc, ending in 'job.last'.
-        for number in itertools.count():
-            # Get the theoretical file name.
-            job_file_path = Path(parent, "job.{}".format(number))
-            
-            # See if it exists (and isn't the log_file given to us).
-            if job_file_path.exists():
-                # Add to list.
-                log_files.append(job_file_path)
+        attempt = 1
+        while attempt < 2:
+            attempt += 1
+            # First, find our parent dir.
+            # hint may actually be a dir.
+            if hint.is_dir():
+                # Look for all .log files.
+                parent = hint
+                log_files = [Path(found_log_file) for found_log_file in iglob(str(Path(parent, "*.log")))]
+                # Remove any 'silico.log' files as we know these are not calc log files.
+                # We don't actually write 'silico.log' files anymore either (we use silico.out instead),
+                # but older versions did...
+                log_files = [log_file for log_file in log_files if log_file.name != "silico.log"]
             else:
-                # We've found all the numbered files.
-                break
+                parent = hint.parent
+                log_files = [hint]
+                                
+            # Try and find job files.
+            # These files have names like 'job.0', 'job.1' etc, ending in 'job.last'.
+            for number in itertools.count():
+                # Get the theoretical file name.
+                job_file_path = Path(parent, "job.{}".format(number))
+                
+                # See if it exists (and isn't the log_file given to us).
+                if job_file_path.exists():
+                    # Add to list.
+                    log_files.append(job_file_path)
+                else:
+                    # We've found all the numbered files.
+                    break
+                        
+            # Look for other files.
+            for maybe_file_name in ("basis", "control", "mos", "alpha", "beta", "coord", "gradient", "aoforce", "job.last"):
+                maybe_file_path = Path(parent, maybe_file_name)
+                
+                if maybe_file_path.exists():
+                    # Found it.
+                    log_files.append(maybe_file_path)
                     
-        # Look for other files.
-        for maybe_file_name in ("basis", "control", "mos", "alpha", "beta", "coord", "gradient", "aoforce", "job.last"):
-            maybe_file_path = Path(parent, maybe_file_name)
-            
-            if maybe_file_path.exists():
-                # Found it.
-                log_files.append(maybe_file_path)
+            # If we have no log files, and there's a directory called Output that we can use, try again using that as the hint.
+            if len(log_files) == 0 and hint.is_dir() and Path(hint, "Output").is_dir():
+                hint = Path(hint, "Output")
+                attempt -= 1
+                
         
         return log_files
     

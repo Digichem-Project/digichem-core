@@ -20,10 +20,6 @@ class Gaussian_parser(Parser):
             file_types.gaussian_fchk_file: "fchk_file",
             file_types.gaussian_rwf_file: "rwf_file"
         }
-    
-    ## Headers that indicate certain data is about to be printed.
-    #TDM_HEADER = " Ground to excited state transition electric dipole moments (Au):\n"
-    
         
     def parse(self):
         """
