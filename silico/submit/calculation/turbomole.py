@@ -48,7 +48,7 @@ class Turbomole_AI(Turbomole):
     CLASS_HANDLE = ("Turbomole",)
     
     # Configurable options.
-    basis_set = Option(help = "The basis set to use.", required = True, type = str)
+    basis_set = Option(help = "The basis set to use.", required = False, type = str)
     _charge = Option("charge", help = "Forcibly set the molecule charge. Leave blank to use the charge given in the input file.", default = None, type = float)
     _multiplicity = Option("multiplicity", help = "Forcibly set the molecule multiplicity. Leave blank to use the multiplicity given in the input file. A value of 1 will request turbomole defaults, which will be RHF singlet in most cases. Any other multiplicity will request UHF.", default = None, type = int)
     force_unrestricted = Option(help = "Whether to force use of unrestricted HF. This option only has an effect if multiplicity is 1; as all other multiplicities will use unrestricted HF by necessity.", type = bool, default = False)
