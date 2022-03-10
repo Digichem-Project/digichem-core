@@ -67,15 +67,15 @@ class Report():
         #
         # We also move backwards through our results, this ensures that earlier calculations have precedence.
         self.image_setters = []
-        for index, metadata in enumerate(reversed(self.result.metadatas)):
+        for index, result in enumerate(reversed(self.result.results)):
             # Only request orbitals from the main result (first, but remember we are travelling backwards thro metadatas).
             do_orbitals = index == len(self.result.metadatas) -1
             # Only request spin images if available.
-            do_spin = metadata.multiplicity != 1 and metadata.orbital_spin_type == "unrestricted"
+            do_spin = result.metadata.multiplicity != 1 and result.metadata.orbital_spin_type == "unrestricted"
             
             # Setup.
             self.image_setters.append(
-                silico.report.image.from_metadata(self, metadata = metadata, do_orbitals = do_orbitals, do_spin = do_spin, options = options, calculation = calculation)
+                silico.report.image.from_result(self, result = result, do_orbitals = do_orbitals, do_spin = do_spin, options = options, calculation = calculation)
             )
             
         # Also create a cube setter for anadens cubes.
@@ -312,7 +312,21 @@ class Report():
                     rotations = self.rotations,
                     options = self.options
                 )
-                self.images[excited_state.state_symbol + "_differential_density"].get_image('x0y0z0')
+                
+            # If we have NTO cubes, create images for those too.
+            if excited_state.state_symbol + "_NTO_occ" in self.cubes and excited_state.state_symbol + "_NTO_unocc" in self.cubes:
+                self.images[excited_state.state_symbol + "_NTO"] = Combined_orbital_image_maker.from_options(
+                    Path(output_dir, excited_state.state_symbol, output_name + ".{}_NTO.jpg".format(excited_state.state_symbol)),
+                    # For NTOs, we swap the apparent HOMO and LUMO.
+                    # This is because we're really interested in how the excited state compares to the ground (rather than the reverse),
+                    # So we'll set the HOMO to the orbital containing the excited electron.
+                    HOMO_cube_file = self.cubes[excited_state.state_symbol + "_NTO_unocc"],
+                    LUMO_cube_file = self.cubes[excited_state.state_symbol + "_NTO_occ"],
+                    rotations = self.rotations,
+                    options = self.options
+                )
+                # TODO: Debugging, delete me.
+                self.images[excited_state.state_symbol + "_NTO"].get_image('x0y0z0')
                 
             
         # Also set our states diagram.
