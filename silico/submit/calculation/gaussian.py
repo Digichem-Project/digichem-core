@@ -247,7 +247,8 @@ class Gaussian(Concrete_calculation, AI_calculation_mixin):
             
             # Finally, add any free-form options.
             for keyword_str in self.keywords:
-                route_parts.append(str(Keyword(keyword_str, self.keywords[keyword_str])))
+                options = (self.keywords[keyword_str],) if isinstance(self.keywords[keyword_str], str) else self.keywords[keyword_str]
+                route_parts.append(str(Keyword(keyword_str, *options)))
                     
             # Convert to string and return.
             return " ".join(route_parts)
