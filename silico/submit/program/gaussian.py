@@ -3,6 +3,7 @@ from pathlib import Path
 import subprocess
 from mako.lookup import TemplateLookup
 import shutil
+import warnings
 
 # Silico imports.
 import silico.logging
@@ -109,6 +110,14 @@ class Gaussian(Program_target):
             # If we're submitting from a chk file, move that to the correct location now.
             if isinstance(self.calculation.input_coords, Chk_input):
                 shutil.copy(self.calculation.input_coords.chk_file, self.chk_file_path)
+                
+            # Do some sanity checking on the scratch directory (because Gaussian is likely to fail with bizarre errors if this is wrong).
+            if self.calculation.scratch_directory is None:
+                warnings.warn("Use of the scratch directory has been disabled. This is not recommended for Gaussian calculations and will likely lead to calculation failure.")
+            
+            elif " " in self.calculation.scratch_directory:
+                # TODO: Maybe check against a whitelist rather than a blacklist?
+                warnings.warn("The scratch directory '{}' contains whitespace. This is not supported by the Gaussian program and will likely lead to calculation failure.")
     
         def calculate(self):
             """

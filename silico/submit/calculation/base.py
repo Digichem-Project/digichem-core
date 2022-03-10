@@ -135,7 +135,7 @@ class Concrete_calculation(Calculation_target):
     scratch_options = Options(
         help = "Options that control the use of the scratch directory",
         use_scratch = Option(help = "Whether to use a scratch directory. False will disable the scratch directory, and is not recommended", default = True, type = bool),
-        path = Option(help = "Path to the top of the scratch directory. For each calculation, a sub-directory will be created under this path", default = "/scratch", type = str),
+        path = Option(help = "Path to the top of the scratch directory. For each calculation, a sub-directory will be created under this path. Note that some calculation programs (Gaussian16 at least) cannot handle whitespace in this path.", default = "/scratch", type = str),
         use_username = Option(help = "Whether to create a subdirectory for each user", default = True, type = bool),
         keep = Option(help = "Whether to copy any leftover files from the scratch directory once the calculation has completed successfully", default = False, type = bool),
         rescue = Option(help = "Whether to copy files from the scratch directory if the calculation fails or stops unexpectedly", default = True, type = bool),
