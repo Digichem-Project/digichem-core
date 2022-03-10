@@ -218,7 +218,7 @@ class Turbomole_AI(Turbomole, AI_calculation_mixin):
         
         def anadens_calc(self, first_density, second_density, file_name, operator = "-"):
             """
-            Return a new calculation that can create cube files generated with thr $anadens data group.
+            Return a new calculation that can create cube files generated with the $anadens data group.
             """
             return make_anadens_calc(name = self.name, memory = self.memory, num_CPUs = self._num_CPUs, first_density = first_density, second_density = second_density, file_name = file_name, operator = operator)
             
