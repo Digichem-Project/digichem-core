@@ -623,22 +623,6 @@ class Dipole_image_maker(Structure_image_maker):
         super().__init__(*args, **kwargs)
         self. dipole_moment = dipole_moment
         
-    # Think this is deprecated.
-#     @classmethod
-#     def from_image_options(self, output, *, cube_file, dipole_moment = None, existing_file = None, rotations = None, options = None, **kwargs):
-#         """
-#         An alternative constructor that discards any additional keyword arguments.
-#         """
-#         return self(
-#             output, 
-#             cube_file = cube_file,
-#             dipole_moment = dipole_moment,
-#             existing_file = existing_file,
-#             rotations = rotations,
-#             **self._get_config(options['rendered_image']),
-#             **options['image']
-#         )
-        
     def check_can_make(self):
         """
         Check whether it is feasible to try and render the image(s) that we represent.
@@ -652,7 +636,6 @@ class Dipole_image_maker(Structure_image_maker):
         # Also make sure we have a dipole.
         if self.dipole_moment is None:
             raise File_maker_exception(self, "No dipole moment is available.")
-        
         
     @property
     def VMD_signature(self):
