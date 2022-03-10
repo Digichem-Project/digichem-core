@@ -8,6 +8,7 @@ from silico.exception.base import Silico_exception
 from silico.file.convert.gaussian import Gaussian_input_parser
 from silico.file.convert.babel import Openbabel_converter
 import silico.logging
+from silico.file.input import Input_file
 
 # Custom formats to allow literal strings in yaml output.
 # Adapted from https://stackoverflow.com/questions/6432605/any-yaml-libraries-in-python-that-support-dumping-of-long-strings-as-block-liter
@@ -21,7 +22,7 @@ def literal_str_representer(dumper, data):
 yaml.add_representer(literal_str, literal_str_representer)
 
 
-class Silico_coords():
+class Silico_coords(Input_file):
     """
     Class that represents an input file in the silico input (.si) format.
      
@@ -38,17 +39,8 @@ class Silico_coords():
         :param name: Name of the system/molecule.
         :param file_name: The name of the file which was loaded. This can be used as a back-up file name.
         """
-        if charge is not None and not isinstance(charge, int):
-            raise TypeError("Charge must be an integer (or None)")
-        if multiplicity is not None and not isinstance(multiplicity, int):
-            raise TypeError("Multiplicity must be an integer (or None)")
-
+        super().__init__(charge, multiplicity, name, file_name)
         self.geometry = geometry
-        self.charge = charge
-        self.multiplicity = multiplicity
-        self.file_name = file_name
-        self.name = name
-        
     
     @property
     def formula(self):
@@ -63,23 +55,6 @@ class Silico_coords():
         A unique list of the elements in this input file.
         """
         return list(set([atom.atomicnum for atom in pybel.readstring("xyz", self.to_format("xyz")).atoms]))
-    
-    @property
-    def auto_name(self):
-        """
-        A more intelligent name for this molecule, taking into account our old file name if necessary.
-        """
-        # If a real name wasn't given, but a file name was, use it.
-        if self.name is None and self.file_name is not None:
-            name = Path(self.file_name).with_suffix("").name
-            
-        elif self.name is not None:
-            name = self.name
-        
-        else:
-            name = "molecule"
-            
-        return name
 
     @classmethod
     def from_xyz(self, geometry, **kwargs):
@@ -121,7 +96,6 @@ class Silico_coords():
             
         # Continue with other constructors.
         return self.from_xyz(parser.xyz, charge = charge, multiplicity = multiplicity, **kwargs)
-        
         
     @classmethod
     def from_file(self, file_name, file_type = None, *, gen3D = None, **kwargs):
@@ -189,7 +163,7 @@ class Silico_coords():
         """
         Write this silico input file to an open file object.
         
-        :param file: A file opened with open().
+        :param file: A file opened with open() (or similar).
         """
         file.write(self.yaml)
         
@@ -207,7 +181,7 @@ class Silico_coords():
             # Convert.
             charge = self.charge if self.charge is not None else None
             multiplicity = self.multiplicity if self.multiplicity is not None else None
-            return Openbabel_converter.get_cls("xyz")(input_file = self.xyz, input_file_path = self.auto_name, input_file_type = "xyz").convert(file_type, file, charge = charge, multiplicity = multiplicity)
+            return Openbabel_converter.get_cls("xyz")(input_file = self.xyz, input_file_path = self.implicit_name, input_file_type = "xyz").convert(file_type, file, charge = charge, multiplicity = multiplicity)
 
     @classmethod
     def input_formats(self):
@@ -236,26 +210,6 @@ class Silico_coords():
         formats = {"si": "Silico input format"}
         formats.update(pybel.outformats)
         return formats
-
-    @property
-    def implicit_charge(self):
-        """
-        The charge of the molecule/system, accounting for cases where no explicit charge is set.
-        """ 
-        if self.charge is None:
-            return 0
-        else:
-            return self.charge
-        
-    @property
-    def implicit_multiplicity(self):
-        """
-        The multiplicity (as an integer) of the molecule/system, accounting for cases where no explicit multiplicity is set.
-        """ 
-        if self.multiplicity is None:
-            return 1
-        else:
-            return self.multiplicity
         
     @property
     def dict(self):

@@ -11,7 +11,7 @@ from silico.submit.structure.flag import Flag
 from silico.file.convert.babel import Openbabel_converter
 from silico.exception.base import Submission_error
 from silico.exception.uncatchable import Signal_caught
-from silico.file.convert.main import Silico_coords
+from silico.file.input import Silico_coords
 from silico.misc.directory import copytree
 import silico.misc.io
 from silico.parser import parse_calculation

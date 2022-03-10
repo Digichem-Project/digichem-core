@@ -5,7 +5,7 @@ import urwid
 # Silico imports.
 from silico.interface.urwid.row_list.base import Row_item, Row_widget,\
     Row_browser
-from silico.file.convert.main import Silico_coords
+from silico.file.input import Silico_coords
 from silico.interface.urwid.misc import IntEditZero
 import silico.logging
 from silico.interface.urwid.coord.browser import Coord_selector
@@ -29,7 +29,7 @@ class Coordinate_widget(Row_widget):
         self.mult_edit = IntEditZero(("body", "mult:"), self.row_item._value.multiplicity) 
         
         return urwid.Columns([
-            ("weight", 2, urwid.Text(self.row_item._value.auto_name)),
+            ("weight", 2, urwid.Text(self.row_item._value.implicit_name)),
             urwid.Text(self.row_item._value.formula),
             urwid.AttrMap(self.charge_edit, "editable"),
             urwid.AttrMap(self.mult_edit, "editable"),

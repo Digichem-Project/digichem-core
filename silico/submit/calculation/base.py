@@ -7,7 +7,7 @@ from silico.exception.base import Submission_error
 from silico.submit import Memory
 from silico.config.configurable.option import Option
 from silico.config.configurable.options import Options
-from silico.file.convert import Silico_coords
+from silico.file.input import Silico_coords
 from silico.submit.base import Method_target
 
 
@@ -244,7 +244,7 @@ class Concrete_calculation(Calculation_target):
             
             This name is 'safe' for Gaussian and other sensitive programs.
             """
-            return self.safe_name(self.input_coords.auto_name)
+            return self.safe_name(self.input_coords.implicit_name)
         
         @property
         def descriptive_name(self):

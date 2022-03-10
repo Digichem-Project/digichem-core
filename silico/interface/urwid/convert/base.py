@@ -5,7 +5,7 @@ import urwid
 from silico.interface.urwid.main.program import Program_view
 from silico.interface.urwid.edit.popup import File_edit, Output_edit,\
     Choices_edit
-from silico.file.convert.main import Silico_coords
+from silico.file.input import Silico_coords
 from silico.interface.urwid.misc import Tab_pile, IntEditZero
 from silico.interface.urwid.layout import Pane
 
