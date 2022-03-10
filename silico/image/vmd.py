@@ -418,7 +418,13 @@ class Orbital_image_maker(Structure_image_maker):
                 "{}".format(self.file_path['x45y45z45'].with_suffix(self.scene_file_extension))
             ]
     
+
+class Differential_density_image_maker(Orbital_image_maker):
     
+    # Name of the section where we get some specific configs.
+    options_name = "differential_density"
+
+
 class Spin_density_image_maker(Orbital_image_maker):
     """
     Class for creating spin density images.

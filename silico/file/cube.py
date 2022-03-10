@@ -454,24 +454,36 @@ class Turbomole_to_anadens_cube(File_converter):
     input_file_type = "Turbomole Directory"
     # Text description of our output file type, used for error messages etc.
     output_file_type = file_types.gaussian_cube_file
-    # The file name we'll ask the $anadens data group to write to.
-    anadens_file = "anadens.cub"
     
-    def __init__(self, *args, calculation_directory = None, calc_t, prog_t, silico_options, **kwargs):
+    # The name of the two density files to calculate from.
+    # We will always use the same file names because 'weird' characters (eg whitespace) will break Turbomole...)
+    first_density_file_name = "first.cao"
+    second_density_file_name = "second.cao"
+    # The file name we'll ask the $anadens data group to write to.
+    anadens_file_name = "anadens.cub"
+    
+    def __init__(self, *args, calculation_directory = None, first_density, second_density, calc_t, prog_t, silico_options, **kwargs):
         """
         Constructor for Turbomole_to_cube objects.
         
         See Image_maker for a full signature.
         
-        :param output: Path to a file where the cube file will be written.
-        :param turbomole_calculation: A completed Turbomole calculation that will be used to generate cube files.
-        :param orbitals: A list of orbitals to create cube files for.
-        :param restricted: Whether the calculation is restricted or unrestricted HF.
+        :param output: Path to the file where the new cube file will be written.
+        :param calculation_directory: Path to an existing and previously completed Turbomole calculation. At least one of the two density files should have been written by this calculation.
+        :param first_density: Path to one of the two density files to calculate from.
+        :param second_density: Path to the other of the two density files to calculate from.
+        :param calc_t: The calculation template that will be run to calculate the new density.
+        :param prog_t: The program template that will be run to calculate the new density.
+        :param silico_options: Global silico options.
         """
         super().__init__(*args, input_file = calculation_directory, **kwargs)
         
         # Save our global silico options (we'll need it when creating our calcs).
         self.silico_options = silico_options
+        
+        # Also save the paths to the two density files (we'll need to copy these into the actual calc directory).
+        self.first_density = first_density
+        self.second_density = second_density
         
         # Save our calculation, program and destination templates.
         # We use an in series destination so we will block while the calc runs.
@@ -487,7 +499,7 @@ class Turbomole_to_anadens_cube(File_converter):
         self.calc_t = calc_t
         
     @classmethod
-    def from_options(self, *args, calculation_directory, first_density, second_density, operator,  options, **kwargs):
+    def from_options(self, *args, calculation_directory, first_density, second_density, operator = "-",  options, **kwargs):
         """
         Constructor that takes a dictionary of config like options.
         """
@@ -501,9 +513,9 @@ class Turbomole_to_anadens_cube(File_converter):
             name = calculation_directory,
             memory = Turbomole_memory(options['report']['turbomole']['memory']),
             num_CPUs = options['report']['turbomole']['num_CPUs'],
-            first_density = first_density,
-            second_density = second_density,
-            file_name = self.anadens_file,
+            first_density = self.first_density_file_name,
+            second_density = self.second_density_file_name,
+            file_name = self.anadens_file_name,
             operator = operator
         )
         
@@ -511,6 +523,8 @@ class Turbomole_to_anadens_cube(File_converter):
         return self(
             *args,
             calculation_directory = calculation_directory,
+            first_density = first_density,
+            second_density = second_density,
             calc_t = calc_t.inner_cls,
             prog_t = prog_t.inner_cls,
             silico_options = options,
@@ -518,15 +532,17 @@ class Turbomole_to_anadens_cube(File_converter):
         )
         
     @classmethod
-    def from_calculation(self, *args, turbomole_calculation, calculation_directory, first_density, second_density, operator, options, **kwargs):
+    def from_calculation(self, *args, turbomole_calculation, calculation_directory, first_density, second_density, operator = "-", options, **kwargs):
         """
         Create a Turbomole cube maker from an existing Turbomole calculation.
         """
-        calc_t = turbomole_calculation.anadens_calc(first_density, second_density, self.anadens_file, operator)
+        calc_t = turbomole_calculation.anadens_calc(self.first_density_file_name, self.second_density_file_name, self.anadens_file_name, operator)
         
         return self(
             *args,
             calculation_directory = calculation_directory if calculation_directory is not None else turbomole_calculation.program.destination.calc_dir.output_directory,
+            first_density = first_density,
+            second_density = second_density,
             calc_t = calc_t.inner_cls,
             prog_t = type(turbomole_calculation.program),
             silico_options = options,
@@ -544,7 +560,7 @@ class Turbomole_to_anadens_cube(File_converter):
         
         # We'll write our calc to a tempdir.
         with tempfile.TemporaryDirectory() as tempdir:
-            calc.prepare_from_file(tempdir, self.input_file, molecule_name = "Anadens")
+            calc.prepare_from_file(tempdir, self.input_file, molecule_name = "Anadens", additional_files = [(self.first_density, self.first_density_file_name), (self.second_density, self.second_density_file_name)])
             
             # Go.
             try:
@@ -554,7 +570,7 @@ class Turbomole_to_anadens_cube(File_converter):
             
             # Move the (hopefully) created output file to our real destination.
             try:
-                src = Path(destination.calc_dir.output_directory, self.anadens_file)
+                src = Path(destination.calc_dir.output_directory, self.anadens_file_name)
                 dst = self.output
                 shutil.move(src, dst, copy_function = shutil.copy)
                 
