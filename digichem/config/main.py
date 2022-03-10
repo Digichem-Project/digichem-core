@@ -218,7 +218,8 @@ To disable the maximum width, set to null.""", type = int, default = 1500),
             num_CPUs = Option(help = "The number of CPUs to use to generate cubes.", type = int, default = 1),
             memory = Option(help = "The amount of memory with which to generate cubes.", type = Turbomole_memory, default = Turbomole_memory("1GB")),
             # TODO: This should use a method picker.
-            program = Option(help = "The name of a program definition to use to create cubes.", default = "Gaussian")
+            program = Option(help = "The name of a program definition to use to create cubes.", default = "Gaussian"),
+            scratch_path = Option(help = "Path to the top of the scratch directory.", default = "/scratch")
         ),
         cleanup = Option(help =\
 """Whether to delete intermediate files that are written during the report generation process.
