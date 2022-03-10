@@ -2,6 +2,7 @@
 from pathlib import Path
 import subprocess
 from mako.lookup import TemplateLookup
+import shutil
 
 # Silico imports.
 import silico.logging
@@ -9,6 +10,7 @@ from silico.submit.program import Program_target
 from silico.file.fchk import Chk_to_fchk
 from silico.config.configurable.option import Option
 from silico.parser.base import parse_calculation
+from silico.file.input.chk import Chk_input
 
 class Gaussian(Program_target):
     """
@@ -103,6 +105,10 @@ class Gaussian(Program_target):
                 # Not using scratch output, .rwf and .chk will be in normal output dir.
                 self.chk_file_path = Path(self.destination.calc_dir.output_directory, self.calculation.chk_file_name)
                 self.rwf_file_path = Path(self.destination.calc_dir.output_directory, self.calculation.rwf_file_name)
+                
+            # If we're submitting from a chk file, move that to the correct location now.
+            if isinstance(self.calculation.input_coords, Chk_input):
+                shutil.copy(self.calculation.input_coords.chk_file, self.chk_file_path)
     
         def calculate(self):
             """

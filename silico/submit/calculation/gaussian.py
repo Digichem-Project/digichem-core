@@ -8,6 +8,7 @@ from silico.config.configurable.options import Options
 from silico.submit.basis import BSE_basis_set
 from silico.file.input.directory import Calculation_directory_input
 from silico.submit.calculation.base import AI_calculation_mixin
+from silico.file.input.coord import Silico_coords
 
 
 class Keyword():
@@ -273,5 +274,49 @@ class Gaussian(Concrete_calculation, AI_calculation_mixin):
             self.com_file_name = self.safe_name(self.molecule_name + ".com")
             
             # Get and load our com file template.
-            self.com_file_body = TemplateLookup(directories = str(silico.default_template_directory())).get_template("/submit/gaussian/input_file.mako").render_unicode(calculation = self)
-                
+            self.com_file_body = TemplateLookup(directories = str(silico.default_template_directory())).get_template("/submit/gaussian/input_file.mako").render_unicode(calculation = self, write_geom = isinstance(input_coords, Silico_coords))
+        
+        def NTO_calc(self, transition):
+            """
+            Return a new calculation that can create a chk file containing NTOs for a given transition.
+            """
+            return make_NTO_calc(name = self.name, memory = self.memory, num_CPUs = self._num_CPUs, transition = transition)
+
+
+def make_NTO_calc(*, name, memory, num_CPUs, transition):
+    """
+    Create a Gaussian calculation object that can be use to create natural transition orbitals from an existing calculation.
+    
+    :param name: A name to give the calculation.
+    :param memory: The amount of memory to use for the calculation (note it's not clear if this option will be respected by ricc2 or not).
+    :param num_CPUs: The number of CPUs to use for the calculation (note it's not clear if this option will be respected by ricc2 or not).
+    :param transition: The integer number of the transition to calculate NTOs for.
+    """
+    calc_t = Gaussian(
+        name = "NTOs for {}".format(name),
+        memory = str(memory),
+        num_CPUs = num_CPUs,
+        keywords = {
+            "Geom": "AllCheck",
+            "Guess": ("Read", "Only"),
+            "Density": ("Check", {"Transition": transition}),
+            "Population": ("Minimal", "NTO", "SaveNTO")
+        },
+        # We don't need these.
+        write_summary = False,
+        write_report = False,
+        convert_chk = False,
+        keep_chk = True,
+        scratch_options = {
+            "use_scratch": False
+        }
+    )
+    
+    # Prepare it for making new classes.
+    calc_t.finalize()
+    
+    # Done.
+    return calc_t
+    
+    
+    
