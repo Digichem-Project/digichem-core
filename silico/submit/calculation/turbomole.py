@@ -395,18 +395,20 @@ class Turbomole_restart(Turbomole_AI):
         Inner class for calculations.
         """
         
-        def prepare(self, output, input, *, molecule_name):
+        def prepare_directory_calc(self, output, input, *, molecule_name, additional_files = None):
             """
             Prepare this calculation for submission.
             
             :param output: Path to a directory to perform the calculation in.
             :param input:  A directory containing existing calculation files to run.
             :param molecule_name: A name that refers to the system under study (eg, Benzene etc).
+            :param additional_files: An optional list of paths to additional files required for the calculation. These files will be copied into the output directory without modification.
             """
             # Load input coords, although we won't be using them.
             input_coords = Silico_coords.from_file(Path(input, "coord"), "tmol", name = molecule_name, charge = None, multiplicity = None, gen3D = False)
             
-            super().prepare(output, input, input_coords)
+            super().prepare(output, input_coords, additional_files = additional_files)
+            self.input = input
             
             # Get and load our define template.
             self.define_input = TemplateLookup(directories = str(silico.default_template_directory())).get_template("/submit/turbomole/define/restart.mako").render_unicode(calculation = self)
