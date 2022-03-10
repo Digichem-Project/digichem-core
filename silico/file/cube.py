@@ -199,7 +199,6 @@ class Turbomole_to_orbital_cube(File_maker):
         Constructor for Turbomole_to_orbital_cube.
         
         :param turbomole_to_cube: A Turbomole_to_cube object.
-        :param irrep: 
         """
         self.turbomole_to_cube = turbomole_to_cube
         self.orbital = orbital
