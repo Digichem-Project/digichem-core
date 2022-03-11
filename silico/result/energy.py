@@ -36,6 +36,7 @@ class Energy_list(Result_container, Unmergeable_container_mixin):
         # Energies don't have levels.
         pass
     
+    @property
     def human_energy_type(self):
         """
         Human readable name of this type of energy (for example, self-consistent field).
