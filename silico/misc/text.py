@@ -12,9 +12,11 @@ def andjoin(listlike):
     "item1, item2 and item3"
     """
     # Now combine.
-    joined = ", ".join(str(listlike[:-1]))
+    joined = ", ".join([str(item) for item in listlike[:-1]])
     
     if len(listlike) > 1:
         joined += " and " + str(listlike[-1])
-        
+    elif len(listlike) == 1:
+        joined = listlike[0]
+    
     return joined
