@@ -181,10 +181,10 @@ class Metadata(Result_object):
         """
         calculations = []
         if "Single Point" in self.calculations:
-            calculations.append("the single point energy")
+            calculations.append("single point energy")
         
         if "Optimisation" in self.calculations:
-            calculations.append("the optimised structure")
+            calculations.append("optimised structure")
             
         if "Frequencies" in self.calculations:
             calculations.append("vibrational frequencies")
