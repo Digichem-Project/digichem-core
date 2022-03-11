@@ -253,7 +253,7 @@ class Gaussian(Concrete_calculation, AI_calculation_mixin):
             # Convert to string and return.
             return " ".join(route_parts)
         
-        def prepare(self, output, input_coords):
+        def prepare(self, output, input_coords, *args, **kwargs):
             """
             Prepare this calculation for submission.
             
@@ -265,7 +265,7 @@ class Gaussian(Concrete_calculation, AI_calculation_mixin):
                 raise NotImplementedError("Gaussian calculations cannot currently be prepared from directories")
             
             # Call parent.
-            super().prepare(output, input_coords)
+            super().prepare(output, input_coords, *args, **kwargs)
             
             # Decide on our file names.
             self.chk_file_name = self.safe_name(self.molecule_name + ".chk")
