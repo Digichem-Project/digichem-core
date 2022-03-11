@@ -154,8 +154,6 @@ class Spectroscopy_graph_maker(Graph_image_maker):
         
         else:
             peaks = self.peaks
-            
-        raise Exception("Test Me: selected_peaks")
         
         return sorted(list(set([round(peak, decimals) if decimals > 0 else int(peak) for peak in peaks])))
         
