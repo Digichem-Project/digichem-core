@@ -44,12 +44,12 @@ class Spectroscopy_graph():
         """
         Find peaks in the cumulative graph.
         
-        :return: A list of x coords that are peaks.
+        :return: A list of x,y coords that are peaks.
         """
         coords = self.plot_cumulative_gaussian(fwhm = fwhm, resolution = resolution, cutoff = cutoff)
         y_coords = [y for x,y in coords]
         indexes = scipy.signal.find_peaks(y_coords, height = max(y_coords) * cutoff)[0]
-        return [coords[index][0] for index in indexes]
+        return [coords[index] for index in indexes]
         
     def plot_gaussian(self, fwhm, resolution = 1, cutoff = 0.01):
         """

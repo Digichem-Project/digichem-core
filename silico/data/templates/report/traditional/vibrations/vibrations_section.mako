@@ -1,10 +1,6 @@
 <%page args="vibrations, report" />
 
 %if 'simulated_IR_graph' in report.images:
-<%
-	peaks = sorted(list(set([int(peak) for peak in report.images['simulated_IR_graph'].peaks])))
-	peaks = ["{}".format(peak) for peak in peaks]
-%>
 <div class="section">
     <h2 class="section__header">Vibrations</h2>
     <div class="section__body">
@@ -14,7 +10,7 @@
             </div>
             <div class="imageBlock__caption">
                 IR spectrum (simulated Gaussian functions with FWHM: ${report.images['simulated_IR_graph'].fwhm} cm<sup>-1</sup>)<br>
-                Peaks /cm<sup>-1</sup>: ${", ".join(peaks)}.
+                Peaks /cm<sup>-1</sup>: ${", ".join(report.images['simulated_IR_graph'].selected_peaks)}.
             </div>
         </div>
     </div>

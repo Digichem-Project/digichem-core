@@ -41,7 +41,7 @@
         ]
         %>
         %for stylesheet in stylesheets:
-        <link rel="stylesheet" type="text/css" href="static/css/${stylesheet}">
+        <link rel="stylesheet" type="text/css" href="static/css/traditional/${stylesheet}">
         %endfor
     </head>
     <body>

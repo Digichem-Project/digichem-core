@@ -1,0 +1,107 @@
+.header {
+    position: relative;
+    width: 100%;
+}
+
+.header__banner {
+    width: 100%;
+}
+
+.header__name {
+    position: absolute;
+    top: 10.714285714%;
+    left: 26.666667%;
+    width: 39%;
+}
+
+/* A group of titles (containing a Super Title, Main title and/or Sub Title. */
+.title {
+    width: 100%;
+    margin-top: 10px;
+    margin-bottom: 20px;
+}
+
+/* The title for the whole report. */
+.title--report {
+    margin-top: 50px;
+    margin-bottom: 50px;
+    margin-bottom: 80px;
+}
+
+/* The most important title element. */
+.title__superTitle {
+    font-size: 25px;
+    font-weight: bold;
+    display: block;
+    margin-bottom: 15px;
+    text-align: center;    
+    color: black;
+}
+
+.title__superTitle--report {
+    font-size: 30px;
+}
+
+.title__superTitle--bad {
+    color: #de2d00;
+}
+
+/* The central title of the block and the second most important element. */
+.title__mainTitle {
+    display: block;
+    margin-bottom: 10px;
+    text-align: center;
+    font-style: italic;
+    font-size: 20px;
+    color: #2B649D;
+}
+
+/* The central title of the whole report. */
+.title__mainTitle--report {
+    overflow: hidden;
+    /*word-break: break-all;*/
+    overflow-wrap: break-word;
+    /* 3 lines. */
+    max-height: 62px;
+    font-size: 26px;
+    
+}
+
+/* The sub-title; the least important element. */
+.title__subTitle {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 14px;
+    text-align: center;
+}
+
+/* Subtitle of the whole report. */
+.title__subTitle--report {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    font-size: 17px;
+}
+
+.section__body--frontPage {
+    /*display: block;*/
+}
+
+.imageBlock--frontPage {
+    /*margin: 0 auto;*/
+    width: 520px;
+}
+
+.image__aligner--frontPage {
+    width: 260px;
+    height: 260px;
+    width: 510px;
+    height: 510px;
+}
+
+.image__img--frontPage {
+    max-width: 250px;
+    max-height: 250px;
+    max-width: 500px;
+    max-height: 500px;
+}

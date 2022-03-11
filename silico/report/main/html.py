@@ -17,12 +17,13 @@ class HTML_report(Report):
     FULL_REPORT_NAME = "report.mako"
     ATOMS_REPORT_NAME = "atom_report.mako"
     
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, report_style = "journal", **kwargs):
         """
         Constructor for HTML_reports.
         """
         super().__init__(*args, **kwargs)
         
+        self.report_style = report_style
         # Set our template dir. Eventually this will be changeable by the user so they can use their own templates.
         self.template_dir = self.default_template_directory
         self.src_static_dir = self.default_src_static_directory
@@ -32,11 +33,11 @@ class HTML_report(Report):
     @property
     def default_template_directory(self):
         #return Path(pkg_resources.resource_filename('silico', 'data/templates'))
-        return Path(silico.default_template_directory(), "report")
+        return Path(silico.default_template_directory(), "report", self.report_style)
     
     @property
     def default_src_static_directory(self):
-        return Path(pkg_resources.resource_filename('silico', 'data/static'))
+        return Path(pkg_resources.resource_filename('silico', str(Path('data/static', self.report_style))))
     
     def _write(self, output, *, report_type = None, **kwargs):
         """

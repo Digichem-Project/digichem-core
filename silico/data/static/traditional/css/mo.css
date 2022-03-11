@@ -1,0 +1,30 @@
+.section__body--orbital {
+    justify-content: space-between;
+}
+
+.resultsContainer--fmo {
+    width: 250px;
+}
+
+.imageBlock--orbital {
+    margin-bottom: 30px;
+    margin-bottom: 15px;
+}
+
+.image__aligner--orbital_diagram {
+    text-align: center;
+    height: 420px;
+    width: auto;
+}
+
+.image__img--orbital_diagram {
+    max-height: 420px;
+    max-width: 350px;
+    height: auto;
+    width: auto;
+}
+
+/* The HOMO and LUMO get a bit of highlighting.*/
+.table__cell--fmo {
+    font-weight: bold;
+}

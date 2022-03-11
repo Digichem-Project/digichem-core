@@ -11,6 +11,7 @@ from silico.result import Result_container
 from silico.result import Result_object
 from silico.exception.base import Result_unavailable_error
 from silico.result.base import Floatable_mixin
+from silico.misc.text import andjoin
 
 
 class Excited_state_list(Result_container):
@@ -35,6 +36,18 @@ class Excited_state_list(Result_container):
         T1 = self.get_state("T(1)")
         # Calculate their difference.))
         return float(S1) - float(T1)
+    
+    @property
+    def multiplicity_strings(self):
+        """
+        Get a string describing the different multiplicities of the excited states of this list.
+        """
+        group = self.group()
+        mults = []
+        for multiplicity_number, excited_states in group:
+            mults.append(excited_states[0].multiplicity_string)
+            
+        return andjoin(mults)
     
     def difference(self, state1, state2):
         """

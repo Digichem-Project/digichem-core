@@ -137,7 +137,27 @@ class Spectroscopy_graph_maker(Graph_image_maker):
         """
         A list of peaks (in x units).
         """
-        return self.graph.peaks(self.fwhm, self.gaussian_resolution, self.gaussian_cutoff)
+        return [x for x,y in self.graph.peaks(self.fwhm, self.gaussian_resolution, self.gaussian_cutoff)]
+    
+    def selected_peaks(self, decimals = 0, number = None):
+        """
+        A unique list of sorted peaks, rounded to a given number of decimal points.
+        
+        :param decimals: The number of decimal points to round to.
+        :param number: The number of peaks to return (the most intense peaks will be returned first).
+        :returns: A list of ordered peaks as floats (if decimals > 0) or ints.
+        """
+        if number is not None:
+            peaks = self.graph.peaks(self.fwhm, self.gaussian_resolution, self.gaussian_cutoff)
+            peaks.sort(key = lambda coord: coord[1])
+            peaks = [x for x,y in peaks[-number:]]
+        
+        else:
+            peaks = self.peaks
+            
+        raise Exception("Test Me: selected_peaks")
+        
+        return sorted(list(set([round(peak, decimals) if decimals > 0 else int(peak) for peak in peaks])))
         
     def auto_x_limits(self):
         """
