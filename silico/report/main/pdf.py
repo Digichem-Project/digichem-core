@@ -105,8 +105,8 @@ class PDF_report(HTML_report):
             error = not self.result.metadata.success or self.result.metadata.optimisation_converged == False
             
             # Get our header and footer.
-            header_body = self._compute_overlay_element('/page/page_header.mako', error = error)
-            footer_body = self._compute_overlay_element('/page/page_footer.mako', prog_version = self.prog_version, page_number = page_number +1, pages = len(main_doc.pages), error = error)
+            header_body = self._compute_overlay_element('/page/header.mako', error = error)
+            footer_body = self._compute_overlay_element('/page/footer.mako', prog_version = self.prog_version, page_number = page_number +1, pages = len(main_doc.pages), error = error)
             
             # Disable header and footer fot atoms mini-reports (for now).
             
