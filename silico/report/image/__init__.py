@@ -1,3 +1,3 @@
-from .base import class_from_metadata, from_metadata
+from .base import class_from_result, from_result
 
 

@@ -11,7 +11,7 @@ from silico.submit.structure.flag import Flag
 from silico.file.convert.babel import Openbabel_converter
 from silico.exception.base import Submission_error
 from silico.exception.uncatchable import Signal_caught
-from silico.file.convert.main import Silico_coords
+from silico.file.input import Silico_coords
 from silico.misc.directory import copytree
 import silico.misc.io
 from silico.parser import parse_calculation
@@ -313,7 +313,8 @@ class Program_target(Method_target):
                     raise Submission_error(self, "Failed to make scratch output subdirectory") from e
             
             # Write our input file in .si format for easy reuse.
-            if hasattr(self.calculation, "input_coords"):
+            # TODO: In future, we should have some way of saving other input file types too.
+            if isinstance(self.calculation.input_coords, Silico_coords):
                 with open(Path(self.destination.calc_dir.input_directory, self.calculation.molecule_name).with_suffix(".si"), "wt") as input_file:
                     self.calculation.input_coords.to_file(input_file)
                     

@@ -1,15 +1,11 @@
 ## -*- coding: utf-8 -*-
 ##
-<%page args="calculation" />\
+<%page args="calculation, write_geom = True" />\
 ##
 <%!
     from silico.file.convert.gaussian import Gaussian_input_parser
 %>\
 ##
-<%
-    # Get our input geometry in .com format.
-    input_coords = Gaussian_input_parser(calculation.input_coords.to_format("com"))
-%>\
 ## First, the chk file.
 %%Chk="${calculation.chk_file_name}"
 ##
@@ -36,9 +32,16 @@
 ## Title card (has no effect on calculation but will crash on 'unusual' characters.
 ${calculation.safe_name(calculation.descriptive_name)}
 
+## Geometry (if we've been asked to).
+%if write_geom:
 ## Charge and mult.
 ${calculation.charge}, ${calculation.multiplicity}
 ## Geometry
+<%
+    # Get our input geometry in .com format.
+    input_coords = Gaussian_input_parser(calculation.input_coords.to_format("com"))
+%>\
+##
 ${input_coords.geometry}
 ##
 ## This new line is important.
@@ -51,11 +54,4 @@ ${input_coords.geometry}
 ${calculation.basis_set['exchange'].to_format("gaussian94", calculation.input_coords.elements)}
 %endif
 ##
-## Finally, and additional sections that might be in the input file (currently disables).
-##%for index, section in enumerate(calculation.input_file.sections[2:]):
-##${section}
-## Add a blank line (unless this is the last section and it contains a new line)
-##%if index != (len(calculation.input_file.sections[2:]) -1) or (len(section) > 0 and section[-1] != "\n"):
-##
-##%endif
-##%endfor
+%endif

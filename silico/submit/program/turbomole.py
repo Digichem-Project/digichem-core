@@ -7,6 +7,7 @@ import re
 from mako.lookup import TemplateLookup
 import subprocess
 from itertools import chain
+import warnings
 
 # Silico imports.
 from silico.submit.program.base import Program_target
@@ -15,6 +16,7 @@ from silico.exception.base import Submission_error
 from silico.misc.directory import copytree
 from silico.parser.base import parse_calculation
 import silico
+from silico.file.input.directory import Calculation_directory_input
 
 
 class Turbomole(Program_target):
@@ -253,9 +255,13 @@ class Turbomole(Program_target):
             # Call parent for setup first.
             super().pre()
             
+            # Sanity check the $PATH variable.
+            if " " in os.environ['PATH']:
+                warnings.warn("The $PATH environmental variable contains whitespace. This is not supported by the DSCF Turbomole module and will likely lead to calculation failure.")
+            
             # If we have a directory calc, copy the old directory to our new Prep directory.
-            if self.calculation.DIRECTORY_CALCULATION:
-                copytree(self.calculation.input, self.destination.calc_dir.prep_directory)
+            if isinstance(self.calculation.input_coords, Calculation_directory_input):
+                copytree(self.calculation.input_coords.calculation_directory, self.destination.calc_dir.prep_directory)
                 
                 # Clean up some old files which may be left by the previous calc if run with silico.
                 for delete_file in chain(

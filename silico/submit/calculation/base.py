@@ -7,8 +7,9 @@ from silico.exception.base import Submission_error
 from silico.submit import Memory
 from silico.config.configurable.option import Option
 from silico.config.configurable.options import Options
-from silico.file.convert import Silico_coords
+from silico.file.input import Silico_coords
 from silico.submit.base import Method_target
+from silico.file.input.directory import Calculation_directory_input
 
 
 class Calculation_target(Method_target):
@@ -89,6 +90,34 @@ class Calculation_target(Method_target):
         # Return the first calculation in the chain.
         return first
 
+
+class AI_calculation_mixin():
+    """
+    Abstract mixin class for calculation types that are ab-initio (from first principles).
+    """
+    
+    _multiplicity = Option("multiplicity", help = "Forcibly set the molecule multiplicity. Leave blank to use the multiplicity given in the input file", default = None, type = int)
+    _charge = Option("charge", help = "Forcibly set the molecule charge. Leave blank to use the charge given in the input file", default = None, type = float)
+    
+    @property
+    def charge(self):
+        """
+        The molecule/system charge that we'll actually be using in the calculation.
+        
+        Unlike the charge attribute, this property will translate "auto" to the actual charge to be used.
+        """
+        return int(self._charge if self._charge is not None else self.input_coords.implicit_charge)
+    
+    @property
+    def multiplicity(self):
+        """
+        The molecule/system multiplicity that we'll actually be using in the calculation.
+        
+        Unlike the multiplicity attribute, this property will translate "auto" to the actual multiplicity to be used.
+        """
+        return int(self._multiplicity if self._multiplicity is not None else self.input_coords.implicit_multiplicity)
+
+
 class Concrete_calculation(Calculation_target):
     """
     Top-level class for real calculations.
@@ -106,7 +135,7 @@ class Concrete_calculation(Calculation_target):
     scratch_options = Options(
         help = "Options that control the use of the scratch directory",
         use_scratch = Option(help = "Whether to use a scratch directory. False will disable the scratch directory, and is not recommended", default = True, type = bool),
-        path = Option(help = "Path to the top of the scratch directory. For each calculation, a sub-directory will be created under this path", default = "/scratch", type = str),
+        path = Option(help = "Path to the top of the scratch directory. For each calculation, a sub-directory will be created under this path. Note that some calculation programs (Gaussian16 at least) cannot handle whitespace in this path.", default = "/scratch", type = str),
         use_username = Option(help = "Whether to create a subdirectory for each user", default = True, type = bool),
         keep = Option(help = "Whether to copy any leftover files from the scratch directory once the calculation has completed successfully", default = False, type = bool),
         rescue = Option(help = "Whether to copy files from the scratch directory if the calculation fails or stops unexpectedly", default = True, type = bool),
@@ -244,7 +273,7 @@ class Concrete_calculation(Calculation_target):
             
             This name is 'safe' for Gaussian and other sensitive programs.
             """
-            return self.safe_name(self.input_coords.auto_name)
+            return self.safe_name(self.input_coords.implicit_name)
         
         @property
         def descriptive_name(self):
@@ -278,25 +307,35 @@ class Concrete_calculation(Calculation_target):
                     self.additional_files.append(additional_file)
                 
             
-        def prepare_from_calculation(self, output, calculation, additional_files = None):
+        def prepare_from_calculation(self, output, calculation, additional_files = None, directory = False):
             """
             Alternative submission constructor that gets the input coordinates from a previously finished calc.
             
             :param output: Path to a directory to perform the calculation in.
             :param calculation: A previously submitted calculation.
             :param additional_files: An optional list of paths to additional files required for the calculation. These files will be copied into the output directory without modification. In addition, each 'path' can be a tuple where the first item is the path to an additional file and the second is a new file name (relative to the calculation dir) to copy to.
+            :param directory: If True, the entire Output directory of the given calculation is used as input, useful for restarting previous calculations etc. If False (the default), only the output coords of the given calculation are used.
             """
-            self.prepare_from_file(
-                output,
-                calculation.program.next_coords,
-                input_format = calculation.OUTPUT_COORD_TYPE,
-                molecule_name = calculation.molecule_name,
-                molecule_charge = calculation.input_coords.charge,
-                molecule_multiplicity = calculation.input_coords.multiplicity,
-                # Don't gen3D or add H (we want to use output coordinates exactly as-is).
-                gen3D = False,
-                additional_files = additional_files
-            )
+            if not directory:
+                self.prepare_from_file(
+                    output,
+                    calculation.program.next_coords,
+                    input_format = calculation.OUTPUT_COORD_TYPE,
+                    molecule_name = calculation.molecule_name,
+                    molecule_charge = calculation.input_coords.charge,
+                    molecule_multiplicity = calculation.input_coords.multiplicity,
+                    # Don't gen3D or add H (we want to use output coordinates exactly as-is).
+                    gen3D = False,
+                    additional_files = additional_files
+                )
+                
+            else:
+                self.prepare_from_directory(
+                    output,
+                    calculation.program.destination.calc_dir.output_directory,
+                    molecule_name = calculation.molecule_name,
+                    additional_files = additional_files
+                )
             
         def prepare_from_file(self,
             output,
@@ -329,6 +368,20 @@ class Concrete_calculation(Calculation_target):
             # Prep normally.
             self.prepare(output, input_coords, additional_files = additional_files)
             
+        def prepare_from_directory(self, output, calculation_directory, *, molecule_name = None, additional_files = None):
+            """
+            Alternative submission constructor that uses an existing calculation directory as input.
+            
+            :param output: Path to a directory to perform the calculation in.
+            :param calculation_directory: Path to an existing calculation directory to use as input.
+            :param molecule_name: Optional molecule name to use for the new calculation. If None, a name will be chosen based on the given file.
+            :param additional_files:  An optional list of paths to additional files required for the calculation. These files will be copied into the output directory without modification. In addition, each 'path' can be a tuple where the first item is the path to an additional file and the second is a new file name (relative to the calculation dir) to copy to.
+            """
+            # Get the input file.
+            input_file = Calculation_directory_input(calculation_directory, molecule_name)
+            
+            # Prep normally.
+            self.prepare(output, input_file, additional_files = additional_files)
             
         def submit(self):
             """
@@ -370,74 +423,3 @@ class Concrete_calculation(Calculation_target):
                     
                 except Exception:
                     raise Submission_error(self, "failed to submit to next calculation in chain")
-    
-    
-class Directory_calculation_mixin():
-    """
-    A class for calculations that take an existing calculation directory as input, instead of a molecule/geometry.
-    """
-    
-    DIRECTORY_CALCULATION = True
-    
-    ############################
-    # Class creation mechanism #
-    ############################
-    
-    class _actual(Calculation_target._actual):
-        """
-        Inner class for calculations.
-        """
-        
-        def __init__(self, *args, **kwargs):
-            """
-            Constructor for calculation objects.
-            
-            :param program: A Program_target_actual object to submit to.
-            """    
-            super().__init__(*args, **kwargs)
-            
-            self.input = None
-        
-        def prepare_directory_calc(self, output, input, molecule_name, additional_files = None):
-            """
-            Prepare this directory calculation for submission.
-            
-            :param output: Path to a directory to perform the calculation in.
-            :param input: A directory containing existing calculation files to run.
-            :param molecule_name: A name that refers to the system under study (eg, Benzene etc).
-            :param additional_files: An optional list of paths to additional files required for the calculation. These files will be copied into the output directory without modification. In addition, each 'path' can be a tuple where the first item is the path to an additional file and the second is a new file name (relative to the calculation dir) to copy to.
-            """
-            raise NotImplementedError("Implement in subclass")
-        
-        def prepare_from_file(self,
-            output,
-            input,
-            *,
-            molecule_name,
-            additional_files = None):
-            """
-            Alternative submission constructor that first reads in an input file.
-            
-            :param output: Path to a directory to perform the calculation in.
-            :param input: A directory containing existing calculation files to run.
-            :param molecule_name: A name that refers to the system under study (eg, Benzene etc).
-            :param additional_files: An optional list of paths to additional files required for the calculation. These files will be copied into the output directory without modification. In addition, each 'path' can be a tuple where the first item is the path to an additional file and the second is a new file name (relative to the calculation dir) to copy to.
-            """
-            # Prep normally.
-            self.prepare_directory_calc(output, input, molecule_name = molecule_name, additional_files = additional_files)
-            
-        def prepare_from_calculation(self, output, calculation, additional_files = None):
-            """
-            Alternative submission constructor that gets the input coordinates from a previously finished calc.
-            
-            :param output: Path to a directory to perform the calculation in.
-            :param calculation: A previously submitted calculation.
-            :param additional_files: An optional list of paths to additional files required for the calculation. These files will be copied into the output directory without modification. In addition, each 'path' can be a tuple where the first item is the path to an additional file and the second is a new file name (relative to the calculation dir) to copy to.
-            """
-            self.prepare_from_file(
-                output,
-                calculation.program.destination.calc_dir.output_directory,
-                molecule_name = calculation.molecule_name,
-                additional_files = additional_files
-            )
-    

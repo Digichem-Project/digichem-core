@@ -6,6 +6,9 @@ from silico.config.configurable.option import Option
 from silico.submit.calculation import Concrete_calculation
 from silico.config.configurable.options import Options
 from silico.submit.basis import BSE_basis_set
+from silico.file.input.directory import Calculation_directory_input
+from silico.submit.calculation.base import AI_calculation_mixin
+from silico.file.input.coord import Silico_coords
 
 
 class Keyword():
@@ -64,7 +67,7 @@ class Keyword():
             return "{}=({})".format(self.keyword, ", ".join(options_strings))
 
 
-class Gaussian(Concrete_calculation):
+class Gaussian(Concrete_calculation, AI_calculation_mixin):
     """
     Calculations with Gaussian.
     """
@@ -90,8 +93,6 @@ class Gaussian(Concrete_calculation):
         internal = Option(help = "The name of a basis set built in to Gaussian, see Gaussian manual for allowed values.", type = str, exclude = "exchange"),
         exchange = Option(help = "The definition of a (number of) basis sets to use from the Basis Set Exchange (BSE), in the format 'basis set name': 'applicable elements' (for example: '6-31G(d,p)': '1,3-4,B-F')", type = BSE_basis_set, dump_func = lambda option, configurable, value: value.definition if value is not None else {}, exclude = "internal", edit_vtype = "dict")
     )
-    _multiplicity = Option("multiplicity", help = "Forcibly set the molecule multiplicity. Leave blank to use the multiplicity given in the input file", default = None, type = int)
-    _charge = Option("charge", help = "Forcibly set the molecule charge. Leave blank to use the charge given in the input file", default = None, type = float)
     solvent = Option(help = "Name of the solvent to use for the calculation (the model used is SCRF-PCM)", default = None, type = str)
     convert_chk = Option(help = "Whether to create an .fchk file at the end of the calculation", default = True, type = bool)
     keep_chk = Option(help = "Whether to keep the .chk file at the end of the calculation. If False, the .chk file will be automatically deleted, but not before it is converted to an .fchk file (if convert_chk is True)", default = False, type = bool)
@@ -127,24 +128,6 @@ class Gaussian(Concrete_calculation):
         
         else:
             return self.post_HF_method
-    
-    @property
-    def charge(self):
-        """
-        The molecule/system charge that we'll actually be using in the calculation.
-        
-        Unlike the charge attribute, this property will translate "auto" to the actual charge to be used.
-        """
-        return int(self._charge if self._charge is not None else self.input_coords.implicit_charge)
-    
-    @property
-    def multiplicity(self):
-        """
-        The molecule/system multiplicity that we'll actually be using in the calculation.
-        
-        Unlike the multiplicity attribute, this property will translate "auto" to the actual multiplicity to be used.
-        """
-        return int(self._multiplicity if self._multiplicity is not None else self.input_coords.implicit_multiplicity)
     
     @property
     def basis_set_name(self):
@@ -264,20 +247,25 @@ class Gaussian(Concrete_calculation):
             
             # Finally, add any free-form options.
             for keyword_str in self.keywords:
-                route_parts.append(str(Keyword(keyword_str, self.keywords[keyword_str])))
+                options = (self.keywords[keyword_str],) if not isinstance(self.keywords[keyword_str], list) and not isinstance(self.keywords[keyword_str], tuple) else self.keywords[keyword_str]
+                route_parts.append(str(Keyword(keyword_str, *options)))
                     
             # Convert to string and return.
             return " ".join(route_parts)
         
-        def prepare(self, output, input_coords):
+        def prepare(self, output, input_coords, *args, **kwargs):
             """
             Prepare this calculation for submission.
             
             :param output: Path to a directory to perform the calculation in.
             :param input_coords: A Silico_coords object containing the coordinates on which the calculation will be performed.
             """            
+            if isinstance(input_coords, Calculation_directory_input):
+                # Not supported ATM.
+                raise NotImplementedError("Gaussian calculations cannot currently be prepared from directories")
+            
             # Call parent.
-            super().prepare(output, input_coords)
+            super().prepare(output, input_coords, *args, **kwargs)
             
             # Decide on our file names.
             self.chk_file_name = self.safe_name(self.molecule_name + ".chk")
@@ -285,5 +273,70 @@ class Gaussian(Concrete_calculation):
             self.com_file_name = self.safe_name(self.molecule_name + ".com")
             
             # Get and load our com file template.
-            self.com_file_body = TemplateLookup(directories = str(silico.default_template_directory())).get_template("/submit/gaussian/input_file.mako").render_unicode(calculation = self)
-                
+            self.com_file_body = TemplateLookup(directories = str(silico.default_template_directory())).get_template("/submit/gaussian/input_file.mako").render_unicode(calculation = self, write_geom = isinstance(input_coords, Silico_coords))
+        
+        def NTO_calc(self, transition):
+            """
+            Return a new calculation that can create a chk file containing NTOs for a given transition.
+            """
+            return make_NTO_calc(name = self.name, memory = self.memory, num_CPUs = self._num_CPUs, transition = transition, scratch_options = self.scratch_options)
+
+
+def make_NTO_calc(*, name, memory, num_CPUs, transition, scratch_options = None, scratch_path = None):
+    """
+    Create a Gaussian calculation object that can be use to create natural transition orbitals from an existing calculation.
+    
+    :param name: A name to give the calculation.
+    :param memory: The amount of memory to use for the calculation (note it's not clear if this option will be respected by ricc2 or not).
+    :param num_CPUs: The number of CPUs to use for the calculation (note it's not clear if this option will be respected by ricc2 or not).
+    :param transition: The integer number of the transition to calculate NTOs for.
+    """
+    if scratch_options is None and scratch_path is None:
+        raise ValueError("One of either scratch_options or scratch_path must be given")
+    
+    # Setup scratch options if not given.
+    if scratch_options is None:
+        scratch_options = {
+            # Gaussian is basically broken without use of a scratch directory.
+            # When not given, Gaussian appears to use the current directory as the scratch,
+            # but gaussian can't handle whitespace in the scratch path, which is hard to control
+            # if the cwd is used (which often has whitespace in it).
+            #
+            # Hence we have to turn scratch on.
+            # However, we can't use the default scratch location (because it might not exist).
+            # Likewise, we still can't use any whitespace in the path dir, so we have to be 
+            # careful about where we choose.
+            #
+            # The current solution is to force the user to give a location, which is fine
+            # but doesn't feel very satisfactory.
+            "use_scratch": True,
+            "path": scratch_path
+            
+        }
+    
+    calc_t = Gaussian(
+        name = "NTOs for {}".format(name),
+        memory = str(memory),
+        num_CPUs = num_CPUs,
+        keywords = {
+            "Geom": "AllCheck",
+            "Guess": ("Read", "Only"),
+            "Density": ("Check", {"Transition": transition}),
+            "Population": ("Minimal", "NTO", "SaveNTO")
+        },
+        # We don't need these.
+        write_summary = False,
+        write_report = False,
+        convert_chk = False,
+        keep_chk = True,
+        scratch_options = scratch_options
+    )
+    
+    # Prepare it for making new classes.
+    calc_t.finalize()
+    
+    # Done.
+    return calc_t
+    
+    
+    

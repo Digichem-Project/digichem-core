@@ -9,7 +9,7 @@ from silico.interface.urwid.submit.base import Submit_interface
 from silico.exception.base import Silico_exception
 from silico.submit.calculation.base import Calculation_target
 from silico.exception.uncatchable import Submission_paused
-from silico.file.convert.main import Silico_coords
+from silico.file.input import Silico_coords
 from silico.submit.base import parse_method_from_file
 
 

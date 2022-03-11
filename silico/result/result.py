@@ -52,7 +52,7 @@ class Result_set(Result_object):
         """
         super().__init__()
         self.metadata = metadata
-        self.metadatas = (self.metadata,)
+        self.results = (self,)
         self.CC_energies = CC_energies
         self.MP_energies = MP_energies
         self.SCF_energies = SCF_energies
@@ -68,7 +68,13 @@ class Result_set(Result_object):
         self.vertical_emission = {}
         self.adiabatic_emission = {}
         self.spin_orbit_coupling = spin_orbit_coupling
-    
+        
+    @property
+    def metadatas(self):
+        """
+        Property providing access to the list of metadatas of the calculations that were merged together.
+        """
+        return [result.metadata for result in self.results]
     
     @property
     def title(self):

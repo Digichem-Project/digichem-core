@@ -2,6 +2,8 @@
 from pathlib import Path
 import subprocess
 from mako.lookup import TemplateLookup
+import shutil
+import warnings
 
 # Silico imports.
 import silico.logging
@@ -9,6 +11,7 @@ from silico.submit.program import Program_target
 from silico.file.fchk import Chk_to_fchk
 from silico.config.configurable.option import Option
 from silico.parser.base import parse_calculation
+from silico.file.input.chk import Chk_input
 
 class Gaussian(Program_target):
     """
@@ -103,6 +106,18 @@ class Gaussian(Program_target):
                 # Not using scratch output, .rwf and .chk will be in normal output dir.
                 self.chk_file_path = Path(self.destination.calc_dir.output_directory, self.calculation.chk_file_name)
                 self.rwf_file_path = Path(self.destination.calc_dir.output_directory, self.calculation.rwf_file_name)
+                
+            # If we're submitting from a chk file, move that to the correct location now.
+            if isinstance(self.calculation.input_coords, Chk_input):
+                shutil.copy(self.calculation.input_coords.chk_file, self.chk_file_path)
+                
+            # Do some sanity checking on the scratch directory (because Gaussian is likely to fail with bizarre errors if this is wrong).
+            if self.calculation.scratch_directory is None:
+                warnings.warn("Use of the scratch directory has been disabled. This is not recommended for Gaussian calculations and will likely lead to calculation failure.")
+            
+            elif " " in str(self.calculation.scratch_directory):
+                # TODO: Maybe check against a whitelist rather than a blacklist?
+                warnings.warn("The scratch directory '{}' contains whitespace. This is not supported by the Gaussian program and will likely lead to calculation failure.")
     
         def calculate(self):
             """
@@ -128,6 +143,7 @@ class Gaussian(Program_target):
             Post submission method.
             """
             # Chk/fchk management. Do this before making report (in super()) to avoid making fchk twice.
+            chk_conversion_success = True
             try:
                 # Create an fchk file if asked.
                 if self.calculation.convert_chk:
@@ -135,9 +151,15 @@ class Gaussian(Program_target):
                     fchk_file.get_file()
             except Exception:
                 silico.logging.get_logger().error("Failed to create fchk file", exc_info = True)
-            else:
+                chk_conversion_success = False
+            
+            # Use our parent to create result and report files.
+            super().post()
+                
+            # Now process results and reports (in case we need .chk or .rwf file, which will be deleted in but a moment).
+            if chk_conversion_success:
                 try:
-                    # Now delete the chk file if we were asked to.
+                    # Now delete the chk file if we were asked to (but only if the conversion to fchk was successful).
                     if not self.calculation.keep_chk:
                         self.chk_file_path.unlink()
                 except FileNotFoundError:
@@ -146,8 +168,9 @@ class Gaussian(Program_target):
                 except Exception:
                     silico.logging.get_logger().error("Failed to delete chk file", exc_info = True)
             
-            # Use our parent to create result and report files.
-            super().post()
+            else:
+                # Let the user know we're ignoring their request.
+                silico.logging.get_logger().warning("Not deleting chk file because conversion to fchk was not successful")
             
             # Remove rwf if we've been asked to.
             try:

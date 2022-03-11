@@ -38,7 +38,8 @@ class Silico_options(Configurable):
     logging = Options(
         help = "Options relating to output of error messages. Note that the final logging level is determined by combining both 'log_level' and 'verbose', so a 'log_level' of 'OFF' and 'verbose' of '2' is equal to 'ERROR'.",
         log_level = Option(help = "The level of messages to output, one of OFF (no logging at all), CRITICAL (fewest messages), ERROR, WARNING, INFO or DEBUG (most messages)", choices = ["OFF", "CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG"], default = "INFO"),
-        verbose = Option(help = "Increase the verbosity of the program by this amount. Each integer increase of verbosity will increase 'log_level' by 1 degree.", type = int, default = 0)
+        verbose = Option(help = "Increase the verbosity of the program by this amount. Each integer increase of verbosity will increase 'log_level' by 1 degree.", type = int, default = 0),
+        vmd_logging = Option(help = "Whether to print output from vmd, the rendering program for density plots.", type = bool, default = False)
     )
     
     rendered_image = Options(
@@ -210,6 +211,13 @@ To disable the maximum width, set to null.""", type = int, default = 1500),
             memory = Option(help = "The amount of memory with which to generate cubes.", type = Turbomole_memory, default = Turbomole_memory("1GB")),
             # TODO: This should use a method picker.
             program = Option(help = "The name of a program definition to use to create cubes.", default = "Turbomole")
+        ),
+        gaussian = Options(help = "Sub options for Gaussian reports.",
+            num_CPUs = Option(help = "The number of CPUs to use to generate cubes.", type = int, default = 1),
+            memory = Option(help = "The amount of memory with which to generate cubes.", type = Turbomole_memory, default = Turbomole_memory("1GB")),
+            # TODO: This should use a method picker.
+            program = Option(help = "The name of a program definition to use to create cubes.", default = "Gaussian"),
+            scratch_path = Option(help = "Path to the top of the scratch directory.", default = "/scratch")
         ),
         cleanup = Option(help =\
 """Whether to delete intermediate files that are written during the report generation process.

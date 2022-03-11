@@ -4,12 +4,12 @@ from pathlib import Path
 
 # Silico imports.
 from silico.submit.calculation.base import Concrete_calculation,\
-    Directory_calculation_mixin
+    AI_calculation_mixin
 from silico.config.configurable.option import Option
 from silico.submit.base import Memory
 import silico
 from silico.config.configurable.options import Options
-from silico.file.convert.main import Silico_coords
+from silico.file.input.directory import Calculation_directory_input
 
                 
 class Turbomole_memory(Memory):
@@ -40,7 +40,7 @@ class Turbomole(Concrete_calculation):
     parallel_mode = Option(help = "The type of parallelization to use. SMP uses shared memory and therefore is only suitable for parallelization across a single node, while MPI uses message-passing between processes and so can be used across multiple nodes. Use 'linear' to disable parallelization.", default = "SMP", choices = ("SMP", "MPI", "linear"), type = str)
     
 
-class Turbomole_AI(Turbomole):
+class Turbomole_AI(Turbomole, AI_calculation_mixin):
     """
     Ab Initio calculations with Turbomole.
     """
@@ -49,31 +49,11 @@ class Turbomole_AI(Turbomole):
     CLASS_HANDLE = ("Turbomole",)
     
     # Configurable options.
-    basis_set = Option(help = "The basis set to use.", required = True, type = str)
-    _charge = Option("charge", help = "Forcibly set the molecule charge. Leave blank to use the charge given in the input file.", default = None, type = float)
-    _multiplicity = Option("multiplicity", help = "Forcibly set the molecule multiplicity. Leave blank to use the multiplicity given in the input file. A value of 1 will request turbomole defaults, which will be RHF singlet in most cases. Any other multiplicity will request UHF.", default = None, type = int)
+    basis_set = Option(help = "The basis set to use.", required = False, type = str)
     force_unrestricted = Option(help = "Whether to force use of unrestricted HF. This option only has an effect if multiplicity is 1; as all other multiplicities will use unrestricted HF by necessity.", type = bool, default = False)
     redundant_internal_coordinates = Option(help = "Whether to use redundant internal coordinates", type = bool, default = True)
     methods = Option(help = "Method keywords and options from the define general menu, including scf, mp2, cc etc.", type = dict, default = {})
-    define_timeout = Option(help = "The amount of time (s) to allow define to run for. After the given timeout, define will be forcibly stopped if it is still running, which normally occurs because something went wrong and define froze.", type = int, default = 60)    
-    
-    @property
-    def charge(self):
-        """
-        The molecule/system charge that we'll actually be using in the calculation.
-        
-        Unlike the charge attribute, this property will translate "auto" to the actual charge to be used.
-        """
-        return int(self._charge if self._charge is not None else self.input_coords.implicit_charge)
-    
-    @property
-    def multiplicity(self):
-        """
-        The molecule/system multiplicity that we'll actually be using in the calculation.
-        
-        Unlike the multiplicity attribute, this property will translate "auto" to the actual multiplicity to be used.
-        """
-        return int(self._multiplicity if self._multiplicity is not None else self.input_coords.implicit_multiplicity)
+    define_timeout = Option(help = "The amount of time (s) to allow define to run for. After the given timeout, define will be forcibly stopped if it is still running, which normally occurs because something went wrong and define froze.", type = int, default = 60)
     
     @property
     def unrestricted_HF(self):
@@ -213,7 +193,7 @@ class Turbomole_AI(Turbomole):
     
             self.define_input = None
             
-        def prepare(self, *args, **kwargs):
+        def prepare(self, output, input_coords, *args, **kwargs):
             """
             Prepare this calculation for submission.
             
@@ -221,10 +201,12 @@ class Turbomole_AI(Turbomole):
             :param input_coords: A string containing input coordinates in a format suitable for this calculation type.
             :param molecule_name: A name that refers to the system under study (eg, Benzene etc).
             """
-            super().prepare(*args, **kwargs)
+            super().prepare(output, input_coords, *args, **kwargs)
             
             # Get and load our define template.
-            self.define_input = TemplateLookup(directories = str(silico.default_template_directory())).get_template("/submit/turbomole/define/driver.mako").render_unicode(calculation = self)
+            # The type of template to use depends on whether we are restarting a previous calculation or not.
+            template = "/submit/turbomole/define/restart.mako" if isinstance(input_coords, Calculation_directory_input) else "/submit/turbomole/define/driver.mako"
+            self.define_input = TemplateLookup(directories = str(silico.default_template_directory())).get_template(template).render_unicode(calculation = self)
                 
         def orbital_calc(self, orbitals, density):
             """
@@ -236,7 +218,7 @@ class Turbomole_AI(Turbomole):
         
         def anadens_calc(self, first_density, second_density, file_name, operator = "-"):
             """
-            Return a new calculation that can create cube files generated with thr $anadens data group.
+            Return a new calculation that can create cube files generated with the $anadens data group.
             """
             return make_anadens_calc(name = self.name, memory = self.memory, num_CPUs = self._num_CPUs, first_density = first_density, second_density = second_density, file_name = file_name, operator = operator)
             
@@ -259,7 +241,7 @@ def make_orbital_calc(*, name, memory, num_CPUs, orbitals = [], density = False,
     modules = ["{} -proper".format(module) for module in modules]
     
     # First generate our calculation.
-    calc_t = Turbomole_restart(
+    calc_t = Turbomole_AI(
         name = "Orbital Cubes for {}".format(name),
         #"programs": [program_name],
         memory = str(memory),
@@ -306,7 +288,7 @@ def make_anadens_calc(*, name, memory, num_CPUs, first_density, second_density, 
         raise ValueError("The file extension/suffix of file_name must be .cub")
     
     # First generate our calculation.
-    calc_t = Turbomole_restart(
+    calc_t = Turbomole_AI(
         name = "Anadens for {}".format(name),
         memory = str(memory),
         num_CPUs = num_CPUs,
@@ -389,42 +371,3 @@ class Turbomole_UFF(Turbomole):
     # We only have one module to run.
     modules = ("uff",)
     
-        
-class Turbomole_restart(Turbomole_AI):
-    """
-    Turbomole calculations 
-    """
-    
-    # Identifying handle.
-    CLASS_HANDLE = ("Turbomole-restart",)
-    DIRECTORY_CALCULATION = True
-    
-    basis_set = Option(help = "The basis set to use.", required = False, type = str)
-    
-    ############################
-    # Class creation mechanism #
-    ############################
-    
-    class _actual(Directory_calculation_mixin._actual, Turbomole_AI._actual):
-        """
-        Inner class for calculations.
-        """
-        
-        def prepare_directory_calc(self, output, input, *, molecule_name, additional_files = None):
-            """
-            Prepare this calculation for submission.
-            
-            :param output: Path to a directory to perform the calculation in.
-            :param input:  A directory containing existing calculation files to run.
-            :param molecule_name: A name that refers to the system under study (eg, Benzene etc).
-            :param additional_files: An optional list of paths to additional files required for the calculation. These files will be copied into the output directory without modification.
-            """
-            # Load input coords, although we won't be using them.
-            input_coords = Silico_coords.from_file(Path(input, "coord"), "tmol", name = molecule_name, charge = None, multiplicity = None, gen3D = False)
-            
-            super().prepare(output, input_coords, additional_files = additional_files)
-            self.input = input
-            
-            # Get and load our define template.
-            self.define_input = TemplateLookup(directories = str(silico.default_template_directory())).get_template("/submit/turbomole/define/restart.mako").render_unicode(calculation = self)
-

@@ -277,6 +277,10 @@
 #        max_frequency: null
 #        # The maximum number of frequencies to show in the table.
 #        max_num: null
+report:
+    gaussian:
+        program: Gaussian 16
+        scratch_path: /scratch/tmp
 
 # Colour palette for urwid interfaces.
 palette:
