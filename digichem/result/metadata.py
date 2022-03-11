@@ -5,11 +5,13 @@ from datetime import timedelta, datetime
 import math
 import itertools
 from deepmerge import conservative_merger
+from pathlib import Path
 
 # Silico imports.
 from silico.exception import Result_unavailable_error
 from silico.result import Result_object
 from silico.misc.time import latest_datetime, total_timedelta
+from silico.misc.text import andjoin
 
 class Metadata(Result_object):
     """
@@ -96,6 +98,30 @@ class Metadata(Result_object):
         self.temperature = temperature
         self.pressure = pressure
         self.orbital_spin_type = orbital_spin_type
+    
+    # TODO: This is more than a bit clumsy and in general the handling of names should be improved.
+    @property
+    def molecule_name(self):
+        return Path(self.name).name if self.name is not None else None
+    
+    @property
+    def level_of_theory(self):
+        """
+        A short-hand summary of the methods and basis sets used.
+        """
+        theories = []
+        for metadata in self.metadatas:
+            theory = []
+            if "DFT" in metadata:
+                theory.append(self.functional)
+            if self.basis_set is not None:
+                theory.append(self.basis_set)
+            
+            if len(theory) > 0:
+                theories.append("/".join(theory))
+        
+        return ", ".join(theories)
+            
         
     @classmethod
     def merge(self, *multiple_metadatas):
@@ -116,8 +142,6 @@ class Metadata(Result_object):
             "calculations": self.calculations_string,
             "methods": ", ".join(methods) if len(methods) > 0 else None,
             "basis": self.basis_set,
-            #"multiplicity": self.multiplicity,
-            #"charge": self.charge
         }
         
     @property
@@ -162,6 +186,30 @@ class Metadata(Result_object):
         Get the list of calculation methods as a single string, or None if there are no methods set.
         """
         return ", ".join(self.methods) if len(self.methods) != 0 else None
+    
+    @property
+    def human_calculations_string(self):
+        """
+        A version of calculations_string that is more pleasant to read.
+        """
+        calculations = []
+        if "Single Point" in self.calculations:
+            calculations.append("the single point energy")
+        
+        if "Optimisation" in self.calculations:
+            calculations.append("the optimised structure")
+            
+        if "Frequencies" in self.calculations:
+            calculations.append("vibrational frequencies")
+            
+        if "Excited States" in self.calculations:
+            calculations.append("excited states")
+            
+        if len(calculations) == 0:
+            # Use a generic term.
+            calculations.append("properties")
+        
+        return andjoin(calculations)
             
     @classmethod
     def get_calculation_types_from_cclib(self, ccdata):
