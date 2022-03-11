@@ -115,7 +115,7 @@ class Gaussian(Program_target):
             if self.calculation.scratch_directory is None:
                 warnings.warn("Use of the scratch directory has been disabled. This is not recommended for Gaussian calculations and will likely lead to calculation failure.")
             
-            elif " " in self.calculation.scratch_directory:
+            elif " " in str(self.calculation.scratch_directory):
                 # TODO: Maybe check against a whitelist rather than a blacklist?
                 warnings.warn("The scratch directory '{}' contains whitespace. This is not supported by the Gaussian program and will likely lead to calculation failure.")
     
