@@ -43,7 +43,7 @@ class VMD_image_maker(File_converter):
     options_name = "orbital"
     
     def __init__(self, *args, cube_file = None, rotations = None, auto_crop = True, rendering_style = "pastel", resolution = 1024, also_make_png = True, isovalue = 0.2, 
-                 vmd_executable = "vmd", tachyon_executable = "tachyon",
+                 vmd_executable = "vmd", tachyon_executable = "tachyon", vmd_logging = False,
                  **kwargs):
         """
         Constructor for Image_maker objects.
@@ -58,6 +58,7 @@ class VMD_image_maker(File_converter):
         :param isovalue: The isovalue to use for rendering isosurfaces. Has no effect when rendering only atoms.
         :param vmd_executable: 'Path' to the vmd executable to use for image rendering. Defaults to relying on the command 'vmd'.
         :param tachyon_executable: 'Path' to the tachyon executable to use for image rendering. Defaults to relying on the command 'tachyon'.
+        :param vmd_logging: Whether to print output from vmd.
         """
         super().__init__(*args, input_file = cube_file, **kwargs)
         # Save our translations list.
@@ -77,6 +78,8 @@ class VMD_image_maker(File_converter):
         # Save executable paths.
         self.vmd_executable = vmd_executable
         self.tachyon_executable = tachyon_executable
+        
+        self.vmd_logging = vmd_logging
         
         
         if self.rendering_style is None:
@@ -125,6 +128,7 @@ class VMD_image_maker(File_converter):
             dont_modify = not options['rendered_image']['enable_rendering'],
             vmd_executable = options['external']['vmd'],
             tachyon_executable = options['external']['tachyon'],
+            vmd_logging = options['logging']['vmd_logging']
             **kwargs
         )
         
@@ -269,7 +273,7 @@ class VMD_image_maker(File_converter):
                 # We normally capture and discard stdout (because VMD is VERY verbose), but if we're at a suitable log level, we'll print it.
                 # Nothing useful appears to be printed to stderr, so we'll treat it the same as stdout.,
                 stdin = subprocess.DEVNULL,
-                stdout = subprocess.DEVNULL if silico.logging.get_logger().level > logging.DEBUG else None,
+                stdout = subprocess.DEVNULL if not self.vmd_logging else None,
                 stderr = subprocess.STDOUT,
                 universal_newlines = True,
                 # VMD has a tendency to sigsegv when closing with VMDNOOPTIX set to on (even tho everything is fine) so we can't check retval sadly.
@@ -563,6 +567,7 @@ class Combined_orbital_image_maker(VMD_image_maker):
             dont_modify = not options['rendered_image']['enable_rendering'],
             vmd_executable = options['external']['vmd'],
             tachyon_executable = options['external']['tachyon'],
+            vmd_logging = options['logging']['vmd_logging'],
             **kwargs
         )
     

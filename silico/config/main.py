@@ -38,7 +38,8 @@ class Silico_options(Configurable):
     logging = Options(
         help = "Options relating to output of error messages. Note that the final logging level is determined by combining both 'log_level' and 'verbose', so a 'log_level' of 'OFF' and 'verbose' of '2' is equal to 'ERROR'.",
         log_level = Option(help = "The level of messages to output, one of OFF (no logging at all), CRITICAL (fewest messages), ERROR, WARNING, INFO or DEBUG (most messages)", choices = ["OFF", "CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG"], default = "INFO"),
-        verbose = Option(help = "Increase the verbosity of the program by this amount. Each integer increase of verbosity will increase 'log_level' by 1 degree.", type = int, default = 0)
+        verbose = Option(help = "Increase the verbosity of the program by this amount. Each integer increase of verbosity will increase 'log_level' by 1 degree.", type = int, default = 0),
+        vmd_logging = Option(help = "Whether to print output from vmd, the rendering program for density plots.", type = bool, default = False)
     )
     
     rendered_image = Options(
