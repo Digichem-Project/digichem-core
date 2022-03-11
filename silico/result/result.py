@@ -77,6 +77,25 @@ class Result_set(Result_object):
         return [result.metadata for result in self.results]
     
     @property
+    def level_of_theory(self):
+        """
+        A short-hand summary of the methods and basis sets used.
+        """
+        theories = []
+        for metadata in self.metadatas:
+            theory = []
+            if len(metadata.converted_methods) > 0:
+                theory.extend(metadata.converted_methods)
+                
+            if metadata.basis_set is not None:
+                theory.append(metadata.basis_set)
+            
+            if len(theory) > 0:
+                theories.append("/".join(theory))
+        
+        return ", ".join(theories)
+    
+    @property
     def title(self):
         """
         A string Title describing this result.
