@@ -309,7 +309,7 @@ class VMD_image_maker(File_converter):
                         "-res", "{}".format(resolution), "{}".format(resolution),
                         "-o", tmpfile_name
                     ],
-                    stdout = subprocess.DEVNULL if silico.logging.get_logger().level > logging.DEBUG else None,
+                    stdout = subprocess.DEVNULL if not self.vmd_logging else None,
                     stderr = subprocess.STDOUT,
                     universal_newlines = True,
                     check = True,
