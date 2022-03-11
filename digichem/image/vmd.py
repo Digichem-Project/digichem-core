@@ -128,7 +128,7 @@ class VMD_image_maker(File_converter):
             dont_modify = not options['rendered_image']['enable_rendering'],
             vmd_executable = options['external']['vmd'],
             tachyon_executable = options['external']['tachyon'],
-            vmd_logging = options['logging']['vmd_logging']
+            vmd_logging = options['logging']['vmd_logging'],
             **kwargs
         )
         
