@@ -1,0 +1,29 @@
+.header {
+	
+}
+
+.header__imageArea {
+	float: left;
+	width: 29.9999%;
+	/* margin-right: 10px; */
+	padding-right: 10px;
+}
+
+.header__image {
+	width: 100%;
+}
+
+.header__date {
+	margin-bottom: 15px;
+	font-size: 12px;
+}
+
+.header__titleArea {
+	float: left;
+	width:70%;
+}
+
+.header__title {
+	text-transform: capitalize;
+	margin-bottom: 15px;
+}

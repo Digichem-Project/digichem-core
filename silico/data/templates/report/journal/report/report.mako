@@ -9,11 +9,12 @@
         <meta charset="utf-8"/>
         <% 
         stylesheets = [
-        
+        	"general.css",
+        	"header.css"
         ]
         %>
         %for stylesheet in stylesheets:
-        <link rel="stylesheet" type="text/css" href="static/css/journal/${stylesheet}">
+        <link rel="stylesheet" type="text/css" href="static/css/${stylesheet}">
         %endfor
     </head>
     <body>

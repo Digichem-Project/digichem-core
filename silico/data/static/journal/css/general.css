@@ -1,0 +1,36 @@
+@page {
+    size: A4 portrait;
+    /* Changing this breaks weasyprint layout in some ways, may need to adjust some width values. */
+    margin: 1.5cm 1.5cm;
+}
+
+* {
+	/* outline: 1px solid red; */
+	box-sizing: border-box;
+}
+
+body {
+	text-align: justify;
+	font-size: 10px;
+	margin: 0px;
+	padding: 0px;
+	margin-top: 20px;
+}
+
+sub, sup {
+	/* This appears to be broken in current weasyprint. */
+	/* Just use an explicit size for now. *. */
+    /*font-size: xx-small */
+    font-size: 7px;
+}
+
+h1, .h1 {
+	font-size: 20px;
+	margin: 0px 0px 5px 0px;
+}
+
+h5, .h5 {
+	font-size: inherit;
+	font-weight: bold;
+	margin: 0px 0px 0px 0px;
+}
