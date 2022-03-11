@@ -44,7 +44,7 @@ class Excited_state_list(Result_container):
         """
         group = self.group()
         mults = []
-        for multiplicity_number, excited_states in group:
+        for excited_states in group.values():
             mults.append(excited_states[0].multiplicity_string)
             
         return andjoin(mults)
