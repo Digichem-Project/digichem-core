@@ -25,13 +25,6 @@ class Merged(Result_set):
         self.results = results
         self.vertical_emission = vertical_emission if vertical_emission is not None else {}
         self.adiabatic_emission = adiabatic_emission if vertical_emission is not None else {}
-        
-    @property
-    def metadatas(self):
-        """
-        Property providing access to the list of metadatas of the calculations that were merged together.
-        """
-        return [result.metadata for result in self.results]
             
     @classmethod
     def from_results(self, *results, alignment_class):
