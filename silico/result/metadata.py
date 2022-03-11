@@ -110,6 +110,13 @@ class Metadata(Result_object):
         Merge multiple metadata objects into a single metadata.
         """
         return Merged_metadata.from_metadatas(*multiple_metadatas)
+    
+    @property
+    def converted_methods(self):
+        """
+        Similar to the methods attribute but where DFT is replaced with the actual functional used.
+        """
+        return [self.functional if method == "DFT" and self.functional is not None else method for method in self.methods if method is not None]
         
     @property
     def identity(self):
@@ -117,11 +124,10 @@ class Metadata(Result_object):
         A dictionary of critical attributes that identify a calculation.
         """
         # Get our list of methods, replacing 'DFT' with the functional used if available.
-        methods = [self.functional if method == "DFT" and self.functional is not None else method for method in self.methods if method is not None]
         return {
             "package": self.package,
             "calculations": self.calculations_string,
-            "methods": ", ".join(methods) if len(methods) > 0 else None,
+            "methods": ", ".join(self.converted_methods) if len(self.converted_methods) > 0 else None,
             "basis": self.basis_set,
         }
         
