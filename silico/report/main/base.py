@@ -327,8 +327,6 @@ class Report():
                     rotations = self.rotations,
                     options = self.options
                 )
-                # TODO: Debugging, delete me.
-                self.images[excited_state.state_symbol + "_NTO"].get_image('x0y0z0')
                 
             
         # Also set our states diagram.
