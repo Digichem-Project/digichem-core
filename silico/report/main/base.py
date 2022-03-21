@@ -284,7 +284,9 @@ class Report():
             coords = Silico_coords.from_xyz(self.result.atoms.to_xyz()),
             options = self.options
             )
-        
+        # NOTE: We ask for the skeletal image here because if report: front_page == "rendered" (the default), then this image is never created.
+        # This could be a shame for the user as the image might be useful even if it's not used in the report (and it takes no time to make so).
+        self.images['skeletal'].get_image()
         
         ####################################################
         # Excited states & transition dipole moments (TDM) #
