@@ -84,7 +84,7 @@ There are a number of valid options here (please see the cubegen manual), the mo
             isovalue = Option(help = "The isovalue to use for plotting total density.", type = float, default = 0.0004)
         ),
         differential_density = Options(help = "Specific options for excited states differential density plots.",
-            isovalue = Option(help = "The isovalue to use for plotting differential density.", type = float, default = 0.01)
+            isovalue = Option(help = "The isovalue to use for plotting differential density.", type = float, default = 0.001)
         )
     )
     
