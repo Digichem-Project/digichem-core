@@ -383,7 +383,7 @@ class Energy_state(Result_object, Floatable_mixin):
         A short hand notation to identify this excited state.
         
         If the multiplicity is well defined (singlet, doublet, triplet etc), the symbol starts with an appropriate letter (S, D, T etc), otherwise a numeric multiplicity is used. The symbol ends with an integer in brackets, indicating the excited state's level.
-        eg, S1 is the first singlet excited state, S2 is the second and so on.
+        eg, S(1) is the first singlet excited state, S(2) is the second and so on.
         """
         return "{}({})".format(self.multiplicity_symbol, self.multiplicity_level)
 
