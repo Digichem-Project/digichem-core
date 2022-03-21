@@ -1,0 +1,56 @@
+.resultsTable {
+	width: 100%;
+	font-size: 8px;
+	margin-top: 10px;
+	margin-bottom: 10px;
+	padding-top: 5px;
+	padding-bottom: 5px;
+	border-top: 1px solid black;
+	border-bottom: 1px solid black;
+}
+
+.resultsTable__table {
+	width: 100%;
+	border-spacing: 0px;
+	box-sizing: border-box;
+	word-break: break-word;
+}
+
+.resultsTable--complete {
+	break-inside: avoid;
+}
+
+.resultTable__row {
+	break-inside: avoid;
+}
+
+.resultsTable__title {
+	vertical-align: bottom;
+	font-weight: bold;
+	padding-bottom: 5px;
+	
+}
+
+.resultsTable__caption {
+	font-style: italic;
+}
+
+.resultsTable__cell {
+	padding-left: 5px;
+	padding-right: 5px;
+	text-align: center;
+	vertical-align: top;
+	padding-bottom: 5px;
+}
+
+.resultsTable__cell--excitedStateTransitions {
+	text-align: left;
+}
+
+.resultsTable__cell:first-child {
+	padding-left: 0px;
+}
+
+.resultsTable__cell:last-child {
+	padding-right: 0px;
+}

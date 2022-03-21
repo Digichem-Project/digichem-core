@@ -1,7 +1,7 @@
 @page {
     size: A4 portrait;
     /* Changing this breaks weasyprint layout in some ways, may need to adjust some width values. */
-    margin: 1.5cm 1.5cm;
+    margin: 2cm 1.5cm 2cm 1.5cm;
 }
 
 * {
@@ -10,11 +10,11 @@
 }
 
 body {
-	text-align: justify;
-	font-size: 10px;
+	
+	font-size: 11px;
 	margin: 0px;
 	padding: 0px;
-	margin-top: 20px;
+	margin-top: 0px;
 }
 
 sub, sup {
@@ -33,4 +33,10 @@ h5, .h5 {
 	font-size: inherit;
 	font-weight: bold;
 	margin: 0px 0px 0px 0px;
+	break-after: avoid;
+	font-size: 11px;
+}
+
+.iblock {
+	display: inline-block;
 }

@@ -1,0 +1,42 @@
+.reportBody {
+	column-count: 2;
+	column-gap: 15px;
+	text-align: justify;
+	padding-top: 15px;
+	font-size: 10px;
+}
+
+/* General content holding body of the text/results etc. */
+.content {
+	text-align: justify;
+	margin-bottom: 10px;
+	/* font-family: sans; */
+	line-height: 1.25;
+}
+
+.result {
+	display: block;
+	display: inline;
+}
+
+.result__title {
+	display: inline;
+	font-weight: bold;
+	/* font-style: italic; */
+}
+
+.result__value {
+	/* inline-block will stop the number and the unit from being split across different lines. */
+	/* display: inline-block; */
+	display: inline;
+}
+
+.result__value--good, .resultsTable__value--good {
+	color: #18A701;
+    font-weight: bold;
+}
+
+.result__value--bad, .resultsTable__value--bad {
+	color: #ff3300;
+    font-weight: bold;
+}
