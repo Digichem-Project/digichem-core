@@ -292,7 +292,7 @@ class Energy_state(Result_object, Floatable_mixin):
     
     # Colour categories.
     colors = [
-        {"max": 400, "name": "UV"},
+        {"max": 400, "name": "Ultraviolet"},
         {"max": 420, "name": "Violet"},
         {"max": 470, "name": "Blue"},
         {"max": 505, "name": "Cyan"},
@@ -300,7 +300,7 @@ class Energy_state(Result_object, Floatable_mixin):
         {"max": 595, "name": "Yellow"},
         {"max": 625, "name": "Orange"},
         {"max": 740, "name": "Red"},
-        {"max": float("inf"), "name": "IR"}    
+        {"max": float("inf"), "name": "Infrared"}    
     ]
     
     def __init__(self, level, multiplicity, multiplicity_level, energy):
