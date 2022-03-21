@@ -119,9 +119,23 @@ class Excited_state_list(Result_container):
             except KeyError:
                 # No list exists yet.
                 grouped_excited_states[excited_state.multiplicity] = type(self)([excited_state])
-                
-        # Return.
-        return grouped_excited_states
+        
+        # Sorting hack for old version of python that didn't technically support sorted dicts (although the sort order was secretly maintained).
+        # Just make a new dict that is sorted from the start:
+        sorted_group = {}
+        for mult in sorted(grouped_excited_states):
+            sorted_group[mult] = grouped_excited_states[mult]
+        
+        return sorted_group
+    
+    def group_pairs(self):
+        """
+        Return all the unique pair combinations of the different multiplicities of this list.
+        
+        :returns: A two membered tuple, where the first element is a list of pairs of multiplicities [(1, 2), (1, 3), (2, 3)] etc, and the second is a grouped dictionary of multiplicites (see group()).
+        """
+        group = self.group()
+        return (list(itertools.combinations(group, 2)), group)
     
     @property
     def num_singlets(self):
