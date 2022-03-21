@@ -29,6 +29,14 @@ class Alignment(Atom_list, Dynamic_parent):
             
         #self.debug_print()
         #exit()
+    
+    @property
+    def method_type(self):
+        return self.CLASS_HANDLE[1]
+    
+    @property
+    def human_method_type(self):
+        return self.CLASS_HANDLE[0]
 
     
     def align_axes(self):
