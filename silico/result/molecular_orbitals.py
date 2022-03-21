@@ -62,6 +62,20 @@ class Molecular_orbital_list(Result_container):
         LUMO = self.get_orbital(HOMO_difference = 1)
         # Return the difference.
         return float(LUMO) - float(HOMO)
+    
+    @property
+    def occupied(self):
+        """
+        Return a new Molecular_orbital_list containing only the occupied orbitals of this list.
+        """
+        return type(self)([orbital for orbital in self if orbital.is_occupied])
+    
+    @property
+    def virtual(self):
+        """
+        Return a new Molecular_orbital_list containing only the virtual (unoccupied) orbitals of this list.
+        """
+        return type(self)([orbital for orbital in self if not orbital.is_occupied])
 
     @property
     def spin_type(self):
@@ -320,6 +334,13 @@ class Molecular_orbital(Result_object, Floatable_mixin):
         # This needs to be set outside of this constructor, because it relies on multiple lists of orbitals being completed.
         # Total level is the index +1 of this orbital out of both alpha and beta orbitals (for restricted this will == level).
         self.total_level = None
+        
+    @property
+    def is_occupied(self):
+        """
+        Determine whether this orbital is occupied.
+        """
+        return self.HOMO_difference <= 0
             
     def __float__(self):
         return float(self.energy)
