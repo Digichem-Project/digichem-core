@@ -8,6 +8,7 @@ import shutil
 # Silico imports.
 from silico.report.main import Report
 from silico.misc.directory import copytree
+from silico.reference.cross_reference import Captions
 
 class HTML_report(Report):
     """
@@ -29,6 +30,7 @@ class HTML_report(Report):
         self.src_static_dir = self.default_src_static_directory
         self.report_html_file = None
         self.report_type = None
+        self.captions = Captions()
     
     @property
     def default_template_directory(self):
