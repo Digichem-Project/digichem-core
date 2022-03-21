@@ -208,7 +208,7 @@ To disable the maximum width, set to null.""", type = int, default = 1500),
     )
     
     report = Options(help = "Options for controlling the generation of calculation reports.",
-        front_page_image = Option(help = "The image to use for the front page of the report.", choices = ["skeletal", "rendered"], default = "skeletal"),
+        front_page_image = Option(help = "The image to use for the front page of the report.", choices = ["skeletal", "rendered"], default = "rendered"),
         turbomole = Options(help = "Sub options for Turbomole reports.",
             num_CPUs = Option(help = "The number of CPUs to use to generate cubes.", type = int, default = 1),
             memory = Option(help = "The amount of memory with which to generate cubes.", type = Turbomole_memory, default = Turbomole_memory("1GB")),
