@@ -103,6 +103,20 @@ class Metadata(Result_object):
     @property
     def molecule_name(self):
         return Path(self.name).name if self.name is not None else None
+    
+    @property
+    def level_of_theory(self):
+        """
+        A short-hand summary of the methods and basis sets used.
+        """
+        theories = []
+        if len(self.converted_methods) > 0:
+            theories.extend(self.converted_methods)
+            
+        if self.basis_set is not None:
+            theories.append(self.basis_set)
+            
+        return("/".join(theories))
         
     @classmethod
     def merge(self, *multiple_metadatas):
