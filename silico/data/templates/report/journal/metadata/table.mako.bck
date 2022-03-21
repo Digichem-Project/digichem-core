@@ -1,0 +1,97 @@
+<%page args="metadata, report"/>
+
+<%!
+	from silico import misc
+	from silico.result.excited_states import Energy_state
+%>
+
+<div class="resultsTable resultsTable--complete">
+	<div class="resultsTable__caption"><div class="caption">Table ${report.captions("table", "metadata")}:</div> Summary of overall calculation metadata.</div>
+	<table class="resultsTable__table">
+		##############
+	    ## Headers. ##
+	    ##############
+	    <tr>
+		    %if metadata.date is not None:
+		    	<td class="resultsTable__title resultsTable__cell">Date</td>
+		    %endif
+		    %if metadata.duration is not None:
+		    	<td class="resultsTable__title resultsTable__cell">Duration</td>
+		    %endif
+				<td class="resultsTable__title resultsTable__cell">Success</td>
+		    %if metadata.optimisation_converged is not None:
+		        <td class="resultsTable__title resultsTable__cell">Converged</td>
+		    %endif
+		    %if metadata.package_string != "":
+		        <td class="resultsTable__title resultsTable__cell">Computational package</td>
+		    %endif
+		    <td class="resultsTable__title resultsTable__cell">Level of theory</div>
+		    %if len(metadata.calculations) > 0:
+		        <td class="resultsTable__title resultsTable__cell">Calculations</td>
+		    %endif
+		    %if metadata.orbital_spin_type is not None:
+		        <td class="resultsTable__title resultsTable__cell">Wavefunction</td>
+		    %endif
+		    %if metadata.multiplicity is not None:
+		        <td class="resultsTable__title resultsTable__cell">Multiplicity</td>
+		    %endif
+		    %if metadata.temperature is not None:
+		        <td class="resultsTable__title resultsTable__cell">Temperature <span class="iblock">/ K</span></td>
+		    %endif
+		    %if metadata.pressure is not None:
+		        <td class="resultsTable__title resultsTable__cell">Pressure <span class="iblock">/ atm</span></td>
+		    %endif
+		    %if metadata.num_calculations != 1:
+		        <td class="resultsTable__title resultsTable__cell">No. merged calculations</td>
+		    %endif
+	    </tr>
+	    
+	    ###########
+	    ## Data. ##
+	    ###########
+	    <tr>
+	    %if metadata.date is not None:
+	        <td class="resultsTable__value resultsTable__cell">${misc.date_to_string(metadata.date)}</td>
+	    %endif
+	    %if metadata.duration is not None:
+	        <td class="resultsTable__value resultsTable__cell">${misc.timedelta_to_string(metadata.duration)}</td>
+	    %endif
+	    %if metadata.success:
+	    <td class="resultsTable__value resultsTable__cell resultsTable__value--good">True</td>
+	    %elif not metadata.success:
+	    <td class="resultsTable__value resultsTable__cell resultsTable__value--bad">False</td>
+	    %else:
+	    <td class="resultsTable__value resultsTable__cell resultsTable__value--bad">Unknown</td>
+	    %endif
+	    %if metadata.optimisation_converged is not None:
+	        %if metadata.optimisation_converged:
+	        <td class="resultsTable__value resultsTable__cell  resultsTable__value--good">True</td>
+	        %else:
+	        <td class="resultsTable__value resultsTable__cell  resultsTable__value--bad">False</td>
+	        %endif
+	    %endif
+	    %if metadata.package_string != "":
+	        <td class="resultsTable__value resultsTable__cell">${metadata.package_string}</td>
+	    %endif
+	    <td class="resultsTable__value resultsTable__cell">${metadata.level_of_theory}</div>
+	    %if len(metadata.calculations) > 0:
+	        <td class="resultsTable__value resultsTable__cell">${metadata.calculations_string}</td>
+	    %endif
+	    %if metadata.orbital_spin_type is not None:
+	        <td class="resultsTable__value resultsTable__cell">${metadata.orbital_spin_type}</td>
+	    %endif
+	    %if metadata.multiplicity is not None:
+	        <td class="resultsTable__value resultsTable__cell">${metadata.multiplicity} (${Energy_state.multiplicity_number_to_string(metadata.multiplicity)})</td>
+	    %endif
+	    %if metadata.temperature is not None:
+	        <td class="resultsTable__value resultsTable__cell">${metadata.temperature}</td>
+	    %endif
+	    %if metadata.pressure is not None:
+	        <td class="resultsTable__value resultsTable__cell">${metadata.pressure}</td>
+	    %endif
+	    %if metadata.num_calculations != 1:
+	        <td class="resultsTable__value resultsTable__cell">${metadata.num_calculations}</td>
+	    %endif
+	    </tr>
+	</table>
+</div>
