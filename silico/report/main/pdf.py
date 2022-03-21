@@ -101,6 +101,10 @@ class PDF_report(HTML_report):
         for page_number, page in enumerate(main_doc.pages):
             page_body = self.get_element(page._page_box.all_children(), 'body')
             
+            if page_body is None:
+                # Couldn't find the body element...
+                continue
+            
             # Should we display error colors?
             error = not self.result.metadata.success or self.result.metadata.optimisation_converged == False
             
