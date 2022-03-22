@@ -107,7 +107,10 @@
 			% if len(report.result.excited_states) > 0:
 				In total, ${len(report.result.excited_states)} excited states ${inflector.plural("was", len(report.result.excited_states))} calculated with ${report.result.excited_states.multiplicity_strings} multiplicity.
 				% if 'simulated_absorption_graph' in report.images:
-					The most intense absorption peaks were calculated to be at ${andjoin(report.images['simulated_absorption_graph'].selected_peaks(0, 5))} nm.
+					<%
+					abs_peaks = report.images['simulated_absorption_graph'].selected_peaks(0, 5)
+					%>
+					The most intense absorption ${inflector.plural("peak", len(abs_peaks))} ${inflector.plural("peak", len(abs_peaks))} calculated to be at ${andjoin(abs_peaks)} nm.
 				% endif
 				## S(1) and T(1).
 				% if S1 is not None and T1 is not None:
