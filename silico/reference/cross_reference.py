@@ -7,12 +7,7 @@ class Captions():
     
     def __init__(self):
         self.database = {}
-        
-#     def caption(self, caption_type, name):
-#         """
-#         Register a new caption, for example an image or table, that can be later cross referenced.
-#         """
-        
+                
     def cross(self, caption_type, name):
         """
         Retrieve a cross-reference to a caption.
