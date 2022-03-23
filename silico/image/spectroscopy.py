@@ -217,17 +217,18 @@ class Absorption_emission_graph_maker(Spectroscopy_graph_maker):
     # The key/name of where our options are stored in the main config.
     options_name = None
     
-    def __init__(self, output, excited_states, *args, use_jacobian = True, **kwargs):
+    def __init__(self, output, excited_states, *args, adjust_zero = False, use_jacobian = True, **kwargs):
         """
         Constructor for UV-Vis type absorption graphs.
         
         :param output: A path to an output file to write to. The extension of this path is used to determine the format of the file (eg, png, jpeg).
         :param excited_states: List of excited states to plot.
+        :param adjust_zero: If all the intensities of the given excited states are zero, whether to arbitrarily set the y coords to 1.
         :param peak_cutoff: The minimum oscillator strength a peak must have to be drawn, as a fraction of the tallest peak. Set to 0 for no cutoff.
         :param max_width: The maximum width in pixels of the graph.
         """        
         # Call our parent.
-        super().__init__(output, Absorption_emission_graph.from_excited_states(excited_states, use_jacobian = use_jacobian), *args, **kwargs)
+        super().__init__(output, Absorption_emission_graph.from_excited_states(excited_states, adjust_zero = adjust_zero, use_jacobian = use_jacobian), *args, **kwargs)
         
         # The amount of space (in matplotlib inches) to allocate per unit of the x axis.
         self.inch_per_x = 0.0192
@@ -237,7 +238,10 @@ class Absorption_emission_graph_maker(Spectroscopy_graph_maker):
         
         # Axes labels.
         self.x_label = "Wavelength /nm"
-        self.y_label = "Intensity" if self.graph.use_jacobian else "Oscillator Strength"
+        if not self.graph.false_intensity:
+            self.y_label = "Intensity" if self.graph.use_jacobian else "Oscillator Strength"
+        else:
+            self.hide_y = True
     
     @classmethod
     def from_options(self, output, *, excited_states, options, **kwargs):
