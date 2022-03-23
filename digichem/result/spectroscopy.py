@@ -177,15 +177,17 @@ class Absorption_emission_graph(Spectroscopy_graph):
     Class for graphing absorption/emission spectra.
     """
     
-    def __init__(self, coordinates, *, use_jacobian = True):
+    def __init__(self, coordinates, *, false_intensity = False, use_jacobian = True):
         """
         Constructor for Absorption_emission_graph objects.
         
+        :param false_intensity: A flag to indicate that the intensity units (y-axis) are arbitrary.
         :param use_jacobian: Whether to use the jacobian transform to scale the y axis.
         """
         # Get our x,y values from our excited states.
         super().__init__(coordinates)
         self.use_jacobian = use_jacobian
+        self.false_intensity = false_intensity
         
     @property
     def coordinates(self):
@@ -197,14 +199,23 @@ class Absorption_emission_graph(Spectroscopy_graph):
         return self.nm_coordinates
         
     @classmethod
-    def from_excited_states(self, excited_states, **kwargs):
+    def from_excited_states(self, excited_states, *, adjust_zero = False, **kwargs):
         """
         An alternative constructor that takes a list of excited states as argument.
         
         :param excited_states: An Excited_states_list object to construct from.
+        :param adjust_zero: If all the intensities of the given excited states are zero, whether to arbitrarily set the y coords to 1.
         :param **kwargs: Passed to the real constructor.
         """
-        return self([(excited_state.energy, excited_state.oscillator_strength if excited_state.oscillator_strength is not None else 0) for excited_state in excited_states], **kwargs)
+        false_intensity = False
+        coords = [(excited_state.energy, excited_state.oscillator_strength if excited_state.oscillator_strength is not None else 0) for excited_state in excited_states]
+        if adjust_zero:
+            # Check if all the y axis is zero.
+            if all([y == 0 for x,y in coords]):
+                coords = [(x, 1) for x, y in coords]
+                false_intensity = True
+        
+        return self(coords, false_intensity = false_intensity, **kwargs)
     
     @property
     def nm_coordinates(self):

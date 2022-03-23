@@ -27,6 +27,10 @@ class Graph_image_maker(Image_maker):
         self.init_image_width = 5
         self.init_image_height = 5
         
+        # If true, the label and tick labels will be hidden for that axis.
+        self.hide_x = False
+        self.hide_y = False
+        
         # The label to use for the x and y axes.
         self.x_label = ""
         self.y_label = ""
@@ -103,7 +107,14 @@ class Graph_image_maker(Image_maker):
         Adjust the axes of our graph.
         
         This method is called automatically as part of the make() method.
-        """
+        """ 
+        if self.hide_x:
+            self.x_label = "Arbitrary units"
+            self.axes.xaxis.set_ticks([])
+        if self.hide_y:
+            self.y_label = "Arbitrary units"
+            self.axes.yaxis.set_ticks([])
+        
         # Add our axes labels.
         if not self.x_label == "": 
             self.axes.set_xlabel(self.x_label, labelpad = 8, fontsize = 16, weight = 'bold')
