@@ -118,7 +118,15 @@
 	%if 'simulated_absorption_graph' in report.images and report.images['simulated_absorption_graph'].safe_get_file() is not None:
 	<div class="resultImage resultImage--graph">
 		<img class="resultImage__image" src="${report.relative_image('simulated_absorption_graph')}">
-		<div class="resultImage__caption"><div class="caption">Figure ${report.captions("figure", 'simulated_absorption_graph')}:</div> Graph of the simulated absorption spectrum. Excited states are shown as vertical black lines, while peaks simulated with a gaussian function with FWHM: ${"{:.2f}".format(report.images['simulated_absorption_graph'].fwhm)} eV are shown as a blue line. Peaks can be found at: ${andjoin(report.images['simulated_absorption_graph'].selected_peaks())} nm.</div>
+		<div class="resultImage__caption">
+			<div class="caption">Figure ${report.captions("figure", 'simulated_absorption_graph')}:</div>
+			Graph of the simulated absorption spectrum.
+			Excited states are shown as vertical black lines, while peaks simulated with a gaussian function with FWHM: ${"{:.2f}".format(report.images['simulated_absorption_graph'].fwhm)} eV are shown as a blue line.
+			%if report.images['simulated_absorption_graph'].hide_y:
+				The oscillator strength of each excited state has arbitrarily been set to 1 because all oscillator strengths were 0.
+			%endif
+			Peaks can be found at: ${andjoin(report.images['simulated_absorption_graph'].selected_peaks())} nm.
+		</div>
 	</div>
 	%endif
 </div>
