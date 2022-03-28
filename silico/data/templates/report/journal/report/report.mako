@@ -4,6 +4,7 @@
 
 <%!
 	from silico.misc.text import andjoin
+	import itertools
 %>
 
 <!DOCTYPE html>
@@ -30,7 +31,50 @@
     <body>
     	<%include file="/header.mako" args="report = report"/>
     	<%include file="/metadata/table.mako" args="report = report"/>
+    	<h4>Summary Of Results</h4>
     	<div class="reportBody">
+    		## Summaries.
+    		%for energies in [report.result.SCF_energies, report.result.MP_energies, report.result.CC_energies]:
+    			%if len(energies) > 0:
+    				<h5>${energies.energy_type} Energy</h5>
+    				<%include file="/energy/summary.mako" args="energies = energies, report = report"/>
+    			%endif
+    		%endfor
+    		%if len(report.result.alignment) > 0:
+    			<h5>Geometry</h5>
+    			<%include file="/geometry/summary.mako" args="alignment = report.result.alignment, report = report"/>
+    		%endif
+    		%if len(report.result.molecular_orbitals) > 0:
+    			<h5>${"Molecular Orbitals" if report.result.molecular_orbitals.spin_type == 'none' else "Alpha Orbitals"}</h5>
+    			<%include file="/orbital/summary.mako" args="molecular_orbitals = report.result.molecular_orbitals, report = report"/>
+    		%endif
+    		%if len(report.result.beta_orbitals) > 0:
+    			<h5>Beta Orbitals</h5>
+    			<%include file="/orbital/summary.mako" args="molecular_orbitals = report.result.beta_orbitals, report = report"/>
+    		%endif
+    		%if report.result.dipole_moment is not None:
+    			<h5>Permanent Dipole Moment</h5>
+    			<%include file="/dipole_moment/summary.mako" args="dipole_moment = report.result.dipole_moment, report = report"/>
+    		%endif
+    		%if report.result.transition_dipole_moment is not None:
+    			<h5>${report.result.transition_dipole_moment.excited_state.multiplicity_symbol}<sub>${report.result.transition_dipole_moment.excited_state.multiplicity_level}</sub> Transition Dipole Moment</h5>
+    			<%include file="/dipole_moment/summary.mako" args="dipole_moment = report.result.transition_dipole_moment, report = report"/>
+    		%endif
+    		%if len(report.result.vibrations) > 0:
+    			<h5>Vibrations</h5>
+    			<%include file="/vibrations/summary.mako" args="vibrations = report.result.vibrations, report = report"/>
+    		%endif
+    		%if len(report.result.excited_states) > 0:
+    			<h5>Excited States</h5>
+    			<%include file="/excited_states/summary.mako" args="excited_states = report.result.excited_states, report = report"/>
+    		%endif
+    		%for emission in itertools.chain(report.result.adiabatic_emission.values(), report.result.vertical_emission.values()):
+    			<h5>${emission.transition_type} ${emission.multiplicity_symbol}<sub>${emission.multiplicity_level}</sub> Emission</h5>
+    			<%include file="/emission/summary.mako" args="emission = emission"/>
+    		%endfor
+    		##
+    		##
+    		<h4>Methodology</h4>
     		## Overall metadata.
     		<%include file="/metadata/metadata.mako" args="metadata = report.result.metadata, report = report, primary = True"/>
     		## Individual metadatas.
