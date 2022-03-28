@@ -2,8 +2,12 @@
 	column-count: 2;
 	column-gap: 15px;
 	text-align: justify;
-	padding-top: 15px;
+	/*padding-top: 15px;*/
 	font-size: 10px;
+}
+
+.section--separate {
+	break-before: page;
 }
 
 /* General content holding body of the text/results etc. */

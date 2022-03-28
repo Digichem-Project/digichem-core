@@ -9,6 +9,11 @@
 	border-bottom: 1px solid black;
 }
 
+.resultsTable--summary {
+	margin-top: 4px;
+	font-size: 9px;
+}
+
 .resultsTable__table {
 	width: 100%;
 	border-spacing: 0px;
@@ -18,6 +23,10 @@
 
 .resultsTable--complete {
 	break-inside: avoid;
+}
+
+.resultsTable--summary:first-child {
+	margin-top: 0px;
 }
 
 .resultTable__row {
@@ -33,6 +42,7 @@
 
 .resultsTable__caption {
 	font-style: italic;
+	padding-bottom: 3px;
 }
 
 .resultsTable__cell {
@@ -41,6 +51,15 @@
 	text-align: center;
 	vertical-align: top;
 	padding-bottom: 5px;
+}
+
+.resultsTable__cell--fmo {
+	font-weight: bold;
+}
+
+.resultsTable--summary .resultsTable__cell {
+	text-align: left;
+	width: 50%;
 }
 
 .resultsTable__cell--excitedStateTransitions {

@@ -10,7 +10,7 @@
 }
 
 body {
-	
+	font-family: serif;
 	font-size: 11px;
 	margin: 0px;
 	padding: 0px;
@@ -22,6 +22,8 @@ sub, sup {
 	/* Just use an explicit size for now. *. */
     /*font-size: xx-small */
     font-size: 7px;
+    /* Prevents the line from being widened when there's a sub or sup tag. */
+    line-height: 0;
 }
 
 h1, .h1 {
@@ -29,14 +31,31 @@ h1, .h1 {
 	margin: 0px 0px 5px 0px;
 }
 
+h4, .h4 {
+	font-weight: bold;
+	margin: 0px 0px 5px 0px;
+	break-after: avoid;
+	font-size: 13px;
+	text-transform: capitalize;
+}
+
 h5, .h5 {
-	font-size: inherit;
 	font-weight: bold;
 	margin: 0px 0px 0px 0px;
 	break-after: avoid;
 	font-size: 11px;
+	text-transform: capitalize;
+}
+
+.h5--tableHeader {
+	padding-top: 5px;
 }
 
 .iblock {
 	display: inline-block;
+}
+
+.nocap {
+	display: inline;
+	text-transform: none;
 }
