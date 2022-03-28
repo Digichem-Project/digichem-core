@@ -66,7 +66,7 @@
 		%if index == 0:
 			The difference in energy between the ${state1.multiplicity_symbol}<sub>${state1.multiplicity_level}</sub> and ${state2.multiplicity_symbol}<sub>${state2.multiplicity_level}</sub> excited states <div class="result"><div class="result__title">(ΔE<sub>${state1.multiplicity_symbol}${state2.multiplicity_symbol}</sub>)</div> was therefore <div class="result__value">${"{:.2f}".format(state1.energy - state2.energy)} eV</div></div>${text_join(index, len(mult_pairs))}
 		%else:
-			ΔE<sub>${state1.multiplicity_symbol}${state2.multiplicity_symbol}</sub>  was ${"{:.2f}".format(state1.energy - state2.energy)} eV${text_join(index, len(mult_pairs))} 
+			ΔE<sub>${state1.multiplicity_symbol}${state2.multiplicity_symbol}</sub>  was ${text_float(state1.energy - state2.energy)} eV${text_join(index, len(mult_pairs))} 
 		%endif
 	%endfor
 	A complete table of the calculated excited state properties is available in table ${report.captions("table", "excited_states")}.
