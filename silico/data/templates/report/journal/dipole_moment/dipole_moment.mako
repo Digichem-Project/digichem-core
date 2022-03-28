@@ -5,21 +5,10 @@
 <%!
     from silico.misc.text import text_float
 %>
-
-<%
-    # First work out our title, which changes slightly depending on whether this is the ground or excited state dipole.
-    if dipole_moment.dipole_type == "permanent":
-        # This is the ground state dipole.
-        dipole_title = 'Permanent Dipole Moment'
-        dipole_name = "permanent dipole moment"
-    else:
-        # This is an excited states dipole.
-        dipole_title = 'Transition ({}<sub>{}</sub>) Dipole Moment'.format(dipole_moment.excited_state.multiplicity_symbol, dipole_moment.excited_state.multiplicity_level) 
-        dipole_name = 'transition ({}<sub>{}</sub>) dipole moment'.format(dipole_moment.excited_state.multiplicity_symbol, dipole_moment.excited_state.multiplicity_level)
-%>
+<%namespace name="dipole_titles" file="/dipole_moment/title.mako"/>
 
 <div class="content">
-	<h5>${dipole_title}</h5>
+	<h5>${dipole_titles.dipole_title(dipole_moment)}</h5>
 	%if dipole_moment.dipole_type == "permanent":
 		The calculated <div class="result"><div class="result__title">permanent dipole moment (PDM)</div>
 	%else:
@@ -43,7 +32,7 @@
 		angle between the dipole moment and the XY-plane was ${"{:0.2f} {}".format(dipole_moment.XY_plane_angle.angle, dipole_moment.XY_plane_angle.pretty_units)}.
 		%endif
 		%if image_name in report.images:
-		<%include file="/geometry/image.mako" args="image_name = image_name, caption = 'The {} (red arrow) plotted against the aligned molecular geometry'.format(dipole_name), report = report" />
+		<%include file="/geometry/image.mako" args="image_name = image_name, caption = 'The {} (red arrow) plotted against the aligned molecular geometry'.format(dipole_titles.dipole_name(dipole_moment)), report = report" />
 		%endif
 	%else:
 		was <div class="result__value">exactly 0 D</div></div>.
