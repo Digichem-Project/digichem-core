@@ -114,13 +114,34 @@
 	    	%if len(report.result.excited_states) > 0:
 	    	<%include file="/excited_states/excited_states.mako" args="report = report"/>
 	    	%endif
-	        <%include file="/emission.mako" args="report = report"/>
+	        <%include file="/emission/emission.mako" args="report = report"/>
+	    </div>
+	    <div class="section section--separate reportBody">
+	    	<h4>Tables of Results</h4>
+	    	%if len(report.result.alignment) > 0:
+	    		<h5 class="h5--tableHeader">Atom Coordinates</h5>
+	    		<%include file="/geometry/table.mako" args="report = report"/>
+	    	%endif
+	    	%if len(report.result.molecular_orbitals) > 0:
+	    		<h5 class="h5--tableHeader">Molecular Orbitals</h5>
+	    		<%include file="/orbital/table.mako" args="report = report"/>
+	    	%endif
+	    	%if len(report.result.vibrations) > 0:
+	    		<h5 class="h5--tableHeader">Vibrational Frequencies</h5>
+	    		<%include file="/vibrations/table.mako" args="report = report"/>
+	    	%endif
     	</div>
-    	%if len(report.result.excited_states) > 0:
-    	<%include file="/excited_states/table.mako" args="report = report"/>
-    	%endif
-    	%if len(report.result.spin_orbit_coupling) > 0:
-    	<%include file="/excited_states/SOC.mako" args="report = report"/>
+    	%if len(report.result.excited_states) > 0 or len(report.result.spin_orbit_coupling) > 0:
+	    	<div class="section section--separate">
+		    	%if len(report.result.excited_states) > 0:
+		    		<h5 class="h5--tableHeader">Excited States</h5>
+		    		<%include file="/excited_states/table.mako" args="report = report"/>
+		    	%endif
+		    	%if len(report.result.spin_orbit_coupling) > 0:
+		    		<h5 class="h5--tableHeader">Spin-Orbit Coupling</h5>
+		    		<%include file="/SOC/table.mako" args="report = report"/>
+		    	%endif
+	    	</div>
     	%endif
     </body>
 </html>
