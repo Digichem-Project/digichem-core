@@ -143,5 +143,13 @@
 		    	%endif
 	    	</div>
     	%endif
+    	<div class="section reportBody">
+	    	<h4>References</h4>
+	    	<table class="">
+	    		%for reference in report.captions.database['citation']:
+	    			<%include file="/reference/RSC/reference.mako" args="reference_name = reference"/>
+	    		%endfor
+	    	</table>
+    	</div>
     </body>
 </html>
