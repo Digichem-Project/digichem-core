@@ -3,31 +3,13 @@
 <%page args="report"/>
 
 <%
-    alignment = report.result.alignment
-
-    # Build our formula string here becase we don't want any spaces between the letters, which can be tricky to do in the template.
-    formula_string = ""
-    
-    # Go through each element and add to the string.
-    for element in alignment.element_dict:
-        # Add the element symbol (which is our key).
-        formula_string += element
-        # Add the number, unless it is 1.
-        if alignment.element_dict[element] > 1:
-            formula_string += "<sub>{}</sub>".format(alignment.element_dict[element])
-            
-    # Finally, add on our charge if we have one, but don't include the number if we are +/- 1.
-    if alignment.charge == 1:
-        formula_string += "<sup>+</sup>"
-    elif alignment.charge == -1:
-        formula_string += "<sup>-</sup>"
-    elif alignment.charge != 0:
-        formula_string += "<sup>{:+}</sup>".format(alignment.charge)
+	alignment = report.result.alignment
 %>
 
 <div class="content">
 	<h5>Geometry</h5>
-	The <div class="result"><div class="result__title">empirical formula</div> of the studied system was <div class="result__value">${formula_string}</div></div>,
+	The <div class="result"><div class="result__title">empirical formula</div> of the studied system was
+	<div class="result__value"><%include file="/geometry/formula.mako", args="atoms = alignment"/></div></div>,
 	corresponding to a <div class="result"><div class="result__title">molecular mass</div> of  <div class="result__value">${"{:0.2f}".format(alignment.molar_mass)} gmol<sup>-1</sup></div></div>${"." if alignment.safe_get('mass') is None else ""}
 	%if alignment.safe_get('mass') is not None:
     and an <div class="result"><div class="result__title">exact mass</div>, considering only specific atomic isotopes, of <div class="result__value">${"{:0.2f}".format(alignment.mass)} gmol<sup>-1</sup></div></div>.
