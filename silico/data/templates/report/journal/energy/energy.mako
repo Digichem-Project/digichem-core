@@ -12,7 +12,7 @@
 %>
 
 <div class="content">
-	<h5>Total ${energy.energy_type} Energy</h5>
+	<h5>Total <div class="nocap">${energy.energy_type}</div> Energy</h5>
 	The total energy of the system was calculated at the <div class="result"><div class="result__title">${energy.human_energy_type} (${energy.energy_type})</div> level${"," if energy.energy_type == "SCF" else ""}
 	%if energy.energy_type == "SCF":
 		%if "DFT" in report.result.metadata.methods:
@@ -32,7 +32,10 @@
 	%if len(energy) > 1 and '{}_convergence_graph'.format(energy.energy_type) in report.images:
 	<div class="resultImage resultImage--graph">
 		<img class="resultImage__image" src="${report.relative_image('{}_convergence_graph'.format(energy.energy_type))}">
-		<div class="resultImage__caption"><div class="caption">Figure ${report.captions("figure", '{}_convergence_graph'.format(energy.energy_type))}:</div> Graph of calculated energies at the ${energy.human_energy_type} (${energy.energy_type}) level.</div>
+		<div class="resultImage__caption"><div class="caption">
+			Figure ${report.captions("figure", '{}_convergence_graph'.format(energy.energy_type))}:</div>
+			Graph of calculated energies at the ${energy.human_energy_type} (${energy.energy_type}) level.
+		</div>
 	</div>
 	%endif
 	%if energy.energy_type in report.images:
