@@ -50,7 +50,7 @@
 	## Specific energies.
 	%for index, (mult, grouped_states) in enumerate(mults.items()):
 		%if index == 0:
-			The energy of the lowest <div class="result"><div class="result__title">${grouped_states[0].multiplicity_string} excited state (${grouped_states[0].multiplicity_symbol}<sub>${grouped_states[0].multiplicity_level}</sub>)</div> was <div class="result__value">${"{:.2f}".format(grouped_states[0].energy)} eV</div></div>, corresponding to absorption by a photon with a wavelength of ${"{:.0f}".format(grouped_states[0].wavelength)} nm, ${inflector.a(grouped_states[0].color.lower())} 'color' <%include file="/excited_states/color.mako" args="colorRGB = grouped_states[0].rgb"/> and Commission internationale de l'éclairage (CIE) coordinates of ${"({:.2f}, {:.2f})".format(grouped_states[0].CIE_xy[0], grouped_states[0].CIE_xy[1])}${text_join(index, len(mults), "while")}
+			The energy of the lowest <div class="result"><div class="result__title">${grouped_states[0].multiplicity_string} excited state (${grouped_states[0].multiplicity_symbol}<sub>${grouped_states[0].multiplicity_level}</sub>)</div> was <div class="result__value">${"{:.2f}".format(grouped_states[0].energy)} eV</div></div>, corresponding to absorption by a photon with a wavelength of ${"{:.0f}".format(grouped_states[0].wavelength)} nm, ${inflector.a(grouped_states[0].color.lower())} 'color' <%include file="/excited_states/color.mako" args="colorRGB = grouped_states[0].rgb"/> and CIE coordinates of ${"({:.2f}, {:.2f})".format(grouped_states[0].CIE_xy[0], grouped_states[0].CIE_xy[1])}${text_join(index, len(mults), "while")}
 		%elif index == 1:
 			the energy of the <div class="result"><div class="result__title">${grouped_states[0].multiplicity_symbol}<sub>${grouped_states[0].multiplicity_level}</sub></div> was ${excited_state_text(grouped_states[0])}</div>${text_join(index, len(mults))}
 		%else:
@@ -133,8 +133,9 @@
 ## Spin-orbit coupling.
 %if len(report.result.spin_orbit_coupling) > 0:
 	<div class="content">
+		<h5>Spin-Orbit Coupling</h5>
 		## TODO: This section is fine for now because PySOC is the only method implemented for calculating SOC, but in the future when further methods have been added this will need expanding.
-		The <div class="result"><div class="result__title">spin-orbit coupling (SOC, H<sub>SO</sub>)</div>  between each singlet state
+		The <div class="result"><div class="result__title">spin-orbit coupling</div>  between each singlet state
 		%if report.result.ground_state.multiplicity == 1:
 			(including the ground state)
 		%endif
