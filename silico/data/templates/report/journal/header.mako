@@ -35,7 +35,11 @@
 	<div class="header__titleArea">
 		<img class="header__logo" src="static/image/logo.png">
 		<div class="header__info">
-			<div class="header__title h1">A report on the calculation of the ${report.result.metadata.human_calculations_string} of ${report.result.metadata.molecule_name}</div>
+			<div class="header__title h1">
+				A report on the calculation of the ${report.result.metadata.human_calculations_string}
+				of ${report.result.metadata.molecule_name}
+				at the <div class="nocap">${report.result.level_of_theory}</div> level
+			</div>
 		 	%if report.result.metadata.user is not None:
 		 	<div class="header__authors">
 		 	${report.result.metadata.user}
