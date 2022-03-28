@@ -83,9 +83,14 @@
 	    		<%include file="/metadata/metadata.mako" args="metadata = metadata, report = report, primary = False"/>
 	    		%endfor
     		%endif
+    		##
+    		## Silico methods.
+    		<%include file="/method.mako" args="report = report"/>
+    		##
+    		<h4>Discussion</h4>
     		%for energy in [report.result.SCF_energies, report.result.MP_energies, report.result.CC_energies]:
 	    		%if len(energy) > 0:
-	    		<%include file="/energy.mako" args="energy = energy, report = report"/>
+	    		<%include file="/energy/energy.mako" args="energy = energy, report = report"/>
 	    		%endif
     		%endfor
     		%if "spin_density" in report.images:
@@ -95,16 +100,16 @@
 	    	<%include file="/geometry/geometry.mako" args="report = report"/>
 	    	%endif
 	    	%if report.result.dipole_moment is not None:
-	    	<%include file="/dipole_moment.mako" args="dipole_moment = report.result.dipole_moment, report = report, image_name = 'dipole_moment'"/>
+	    	<%include file="/dipole_moment/dipole_moment.mako" args="dipole_moment = report.result.dipole_moment, report = report, image_name = 'dipole_moment'"/>
 	    	%endif
 	    	%if report.result.transition_dipole_moment is not None:
-	    	<%include file="/dipole_moment.mako" args="dipole_moment = report.result.transition_dipole_moment, report = report, image_name = '{}_dipole'.format(report.result.transition_dipole_moment.excited_state.state_symbol)"/>
+	    	<%include file="/dipole_moment/dipole_moment.mako" args="dipole_moment = report.result.transition_dipole_moment, report = report, image_name = '{}_dipole'.format(report.result.transition_dipole_moment.excited_state.state_symbol)"/>
 	    	%endif
 	    	%if len(report.result.molecular_orbitals) > 0:
 	    	<%include file="/orbital/orbitals.mako" args="report = report"/>
 	    	%endif
 	    	%if len(report.result.vibrations) > 0:
-	    	<%include file="/vibrations.mako" args="report = report"/>
+	    	<%include file="/vibrations/vibrations.mako" args="report = report"/>
 	    	%endif
 	    	%if len(report.result.excited_states) > 0:
 	    	<%include file="/excited_states/excited_states.mako" args="report = report"/>
