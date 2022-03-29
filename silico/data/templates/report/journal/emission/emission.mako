@@ -4,7 +4,7 @@
 ##
 <%!
 	import inflect
-	from silico.misc.text import andjoin, text_integer
+	from silico.misc.text import andjoin, text_integer, text_float
 %>\
 ##
 <%
@@ -37,6 +37,9 @@
 			both the ground and excited state have the same multiplicity.
 		%else:
 			the ground and excited state have different multiplicity.
+		%endif
+		%if emission.safe_get("emission_rate") is not None:
+			Finally, the rate constant of the emission was calculated to be ${"{:.2e}".format(emission.emission_rate)} s<sup>-1</sup>
 		%endif
 		## Graph and spectrum.
 		%if energies_image_name in report.images:
