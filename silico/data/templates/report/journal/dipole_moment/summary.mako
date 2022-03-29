@@ -2,6 +2,10 @@
 
 <%page args="dipole_moment, report"/>
 
+<%!
+	from silico.misc.text import text_float
+%>
+
 <%namespace name="dipole_titles" file="/dipole_moment/title.mako"/>
 
 <div class="resultsTable resultsTable--summary">
@@ -12,7 +16,7 @@
     <table class="resultsTable__table">
         <tr class="resultsTable__row">
 		    <td class="resultsTable__title resultsTable__cell">Total</td>
-		    <td class="resultsTable__value resultsTable__cell">${"{:0.2f}".format(dipole_moment.magnitude)} D</td>
+		    <td class="resultsTable__value resultsTable__cell">${text_float(dipole_moment.magnitude)} D</td>
 		</tr>
 		<tr class="resultsTable__row">
 		    <td class="resultsTable__title resultsTable__cell">X axis angle</td>
