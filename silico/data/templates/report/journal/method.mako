@@ -14,6 +14,32 @@
 	%if len(report.result.spin_orbit_coupling):
 		Spin-orbit coupling (SOC, H<sub>SO</sub>) was calculated using a custom implementation of the PySOC program.<%include file="/citation.mako" args="citation = 'PySOC', report = report"/>
 	%endif
+	%if len(report.result.vertical_emission) > 0 or len(report.result.adiabatic_emission) > 0:
+		Emission rate constants (k<sub>e</sub>) were calculated according to the method devloped by Shizu and Kaji<%include file="/citation.mako" args="citation = '10.1021/acs.jpca.1c06165', report = report"/>
+		as described by formula ${report.captions("formula", "emission rate")}, where
+		∆E<sub>e</sub> is the energy of emission,
+		ε<sub>0</sub> is the vacuum permittivity constant,
+		ℏ is the reduced Planck constant (the Dirac constant),
+		c is the speed of light and
+		μ<sub>e</sub> is the transition dipole moment of the emission.
+		<div class="formula">
+			<div class="formula__content">
+				k<sub>e</sub> = 
+				<div class="fraction">
+					<div class="fraction__numerator"><div class="fraction__cell">
+						4 ∆E<sub>e</sub>
+					</div></div>
+					<div class="fraction__denominator"><div class="fraction__cell">
+						3 ε<sub>0</sub> ℏ<sup>4</sup> c<sup>3</sup>
+					</div></div>
+				</div>
+				μ<sub>e</sub>
+			</div>
+			<div class="caption formula__caption">
+				${report.captions("formula", "emission rate")}
+			</div>
+		</div>
+	%endif
 	Three-dimensional plots of atom positions and calculated densities, including molecular orbitals,
 	were rendered using Visual Molecular Dynamics (VMD)<%include file="/citation.mako" args="citation = 'VMD', report = report"/>
 	and the Tachyon ray-tracer.<%include file="/citation.mako" args="citation = 'Tachyon', report = report"/>
@@ -29,5 +55,5 @@
 	%endif
 	Finally, two-dimensional graphs were plotted using the MatPlotlib library,<%include file="/citation.mako" args="citation = 'Matplotlib', report = report"/>
 	while this report itself was prepared using the Mako template library<%include file="/citation.mako" args="citation = 'Mako', report = report"/>
-	and the Weasyprint library<%include file="/citation.mako" args="citation = 'Weasyprint', report = report"/>, the latter of which was responsible for generarion of the PDF file.
+	and the Weasyprint library<%include file="/citation.mako" args="citation = 'Weasyprint', report = report"/>, the latter of which was responsible for generation of the PDF file.
 </div>
