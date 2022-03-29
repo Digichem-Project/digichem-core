@@ -21,7 +21,8 @@
         	"header.css",
         	"color_box.css",
         	"citation.css",
-        	"reference.css"
+        	"reference.css",
+        	"formula.css"
         ]
         %>
         %for stylesheet in stylesheets:
