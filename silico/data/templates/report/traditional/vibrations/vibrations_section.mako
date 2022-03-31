@@ -10,7 +10,7 @@
             </div>
             <div class="imageBlock__caption">
                 IR spectrum (simulated Gaussian functions with FWHM: ${report.images['simulated_IR_graph'].fwhm} cm<sup>-1</sup>)<br>
-                Peaks /cm<sup>-1</sup>: ${", ".join(report.images['simulated_IR_graph'].selected_peaks)}.
+                Peaks /cm<sup>-1</sup>: ${", ".join([str(peak) for peak in report.images['simulated_IR_graph'].selected_peaks()])}.
             </div>
         </div>
     </div>
