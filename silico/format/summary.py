@@ -308,7 +308,7 @@ class Excited_states_summary_format(Summary_format):
             raise Result_unavailable_error("excited states", "there are no excited states")
         
         return OrderedDict({
-            'ΔEst /eV': result.safe_get('excited_states', 'singlet_triplet_energy'),
+            'ΔE(ST) /eV': result.safe_get('excited_states', 'singlet_triplet_energy'),
             'No. excited states': len(result.excited_states)
         })
         
