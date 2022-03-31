@@ -40,7 +40,7 @@ class Image_maker(File_maker):
         """
         A short message that may (depending on log-level) be printed to the user before make_files() is called.
         """
-        return "Rendering {} to file(s)".format(self.output)
+        return "Rendering '{}' to file(s)".format(self.output)
     
     
         
