@@ -8,4 +8,4 @@
 CONDA_ENV="silico"
 
 conda activate "$CONDA_ENV"
-conda install -c conda-forge mako weasyprint matplotlib periodictable "cclib>=1.7.1" pillow scipy tabulate bibtexparser colour-science pyyaml dill basis_set_exchange deepmerge openbabel rdkit urwid pillow
+conda install -c conda-forge mako weasyprint matplotlib periodictable "cclib>=1.7.1" pillow scipy tabulate bibtexparser colour-science pyyaml dill basis_set_exchange deepmerge openbabel rdkit urwid pillow inflect
