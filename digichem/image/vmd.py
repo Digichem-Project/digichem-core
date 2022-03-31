@@ -5,7 +5,6 @@ import subprocess
 import math
 from PIL import Image
 import numpy as np
-import logging
 import pkg_resources
 from uuid import uuid4
 import os
@@ -14,7 +13,6 @@ from math import fabs
 # Silico imports.
 from silico.exception.base import File_maker_exception
 from silico.file import File_converter
-import silico.logging
 
 class VMD_image_maker(File_converter):
     """
