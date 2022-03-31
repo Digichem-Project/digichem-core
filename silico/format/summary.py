@@ -312,6 +312,42 @@ class Excited_states_summary_format(Summary_format):
             'No. excited states': len(result.excited_states)
         })
         
+class Emission_summary_format(Summary_format):
+    
+    ALLOW_CRITERIA = True
+    
+    def _extract_with_criteria(self, multiplicity, *, result):
+        """
+        Convert a Result_set into an OrderedDict object.
+        
+        """
+        multiplicity = float(multiplicity)
+        
+        try:
+            emission = getattr(result, self.EMISSION_ATTR)[multiplicity]
+        except KeyError:
+            raise Result_unavailable_error("adiabatic emission", "there are no emission with multiplicity '{}'".format(multiplicity))
+            
+        title = emission.transition_type.capitalize() + " " + emission.state_symbol + " " + "Emission"
+        emission_rate = emission.safe_get('emission_rate')
+        
+        return OrderedDict({
+            '{} energy /eV'.format(title): emission.energy,
+            '{} wavelength /nm'.format(title): emission.wavelength,
+            '{} colour'.format(title): emission.color,
+            '{} oscillator strength'.format(title): emission.oscillator_strength,
+            '{} rate /s-1'.format(title): emission_rate,
+        })
+        
+class Adiabatic_emission_format(Emission_summary_format):
+    
+    CLASS_HANDLE = silico.format.ADIABATIC_EMISSION_CLASS_HANDLE
+    EMISSION_ATTR = 'adiabatic_emission'
+    
+class Vertical_emission_format(Emission_summary_format):
+    
+    CLASS_HANDLE = silico.format.VERTICAL_EMISSION_CLASS_HANDLE
+    EMISSION_ATTR = 'vertical_emission'
         
 class SOC_summary_format(Summary_format):
     """
