@@ -40,6 +40,7 @@ class Report_program(Program):
         
         sub_parser.add_argument("--name", help = "name of the molecule/system to use in the report", default = None)
         sub_parser.add_argument("--type", help = "the type of report to make", choices = ["full", "atoms"], default = "full")
+        sub_parser.add_argument("--style", help = "the style of report to make", choices = ["journal", "traditional"], default = "journal")
         
         aux_input_group = sub_parser.add_argument_group("auxiliary input", "options for specifying additional input files. These options are all optional, but if given the ordering should match that of the given log files")
         aux_input_group.add_argument("--chk", help = "a (number of) Gaussian chk file(s) that will be used to generate all image files required. Note that this option requires Gaussian to be installed and formchk & cubegen to be in your path", nargs = "*", default = [])
@@ -72,7 +73,7 @@ class Report_program(Program):
             result = parse_calculations(*self.args.log_files, aux_files = aux_files)
             
             # Then get a report.
-            report = PDF_report(result, options = self.config)
+            report = PDF_report(result, report_style = self.args.style, options = self.config)
             
         except Exception as e:
             raise Silico_exception("Failed to load results")

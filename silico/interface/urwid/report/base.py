@@ -20,6 +20,7 @@ class Report_interface(Program_view):
     
     name = Option(help = "Name of the molecule/system to use in the report.", type = str)
     report_type = Option(help = "The type of report to render.", type = str, choices = ["full", "atoms"], default = "full")
+    report_style = Option(help = "The style of the report to render.", type = str, choices = ["journal", "traditional"], default = "journal")
     
     @property
     def additional_option_pages(self):
@@ -54,6 +55,7 @@ class Report_interface(Program_view):
         # Set our options from our program object.
         self.name = program.args.name
         self.report_type = program.args.type
+        self.report_style = program.args.style
         
         super().__init__(window, program)
         
@@ -65,6 +67,7 @@ class Report_interface(Program_view):
         self.program.args.name = self.name
         self.program.args.type = self.report_type
         self.program.args.log_files = self.file_list.get_values()
+        self.program.args.style = self.report_style
     
     def get_body(self):
         """
