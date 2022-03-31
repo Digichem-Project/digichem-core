@@ -72,7 +72,7 @@ class PDF_report(HTML_report):
         :return: A Weasyprint pre-rendered representation of an html element.
         """
         # We recompute the header and footer for each page so we can update page numbers etc.
-        html_text = TemplateLookup(directories = self.template_dir, strict_undefined = True).get_template(template_file).render_unicode(report = self, *args, **kwargs)
+        html_text = TemplateLookup(directories = self.template_directory(self.report_style), strict_undefined = True).get_template(template_file).render_unicode(report = self, *args, **kwargs)
         
         html = HTML(
             string=html_text,

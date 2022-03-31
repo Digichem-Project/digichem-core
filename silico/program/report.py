@@ -73,7 +73,7 @@ class Report_program(Program):
             result = parse_calculations(*self.args.log_files, aux_files = aux_files)
             
             # Then get a report.
-            report = PDF_report(result, report_style = self.args.style, options = self.config)
+            report = PDF_report(result, options = self.config)
             
         except Exception as e:
             raise Silico_exception("Failed to load results")
@@ -114,7 +114,7 @@ class Report_program(Program):
         # Now make (compile?) and save our report.
         self.logger.info("Generating report '{}'...".format(self.args.pdf_file))
         try:
-            report.write(self.args.pdf_file, report_type = self.args.type)
+            report.write(self.args.pdf_file, report_type = self.args.type, report_style = self.args.style)
         except Exception as e:
             raise Silico_exception("Failed to generate report '{}'".format(self.args.pdf_file)) from e
         
