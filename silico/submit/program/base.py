@@ -511,10 +511,11 @@ class Program_target(Method_target):
             """
             # Load report.
             report = self.get_report(self.result)
-            # The full report.
-            report.write(Path(self.destination.calc_dir.report_directory, self.calculation.molecule_name + ".pdf"))
+            # The full report, using both styles.
+            report.write(Path(self.destination.calc_dir.report_directory, self.calculation.molecule_name + ".traditional.pdf"), report_style = "traditional")
+            report.write(Path(self.destination.calc_dir.report_directory, self.calculation.molecule_name + ".journal.pdf"), report_style = "journal")
             # And atoms.
-            report.write(Path(self.destination.calc_dir.report_directory, self.calculation.molecule_name + ".atoms.pdf"), report_type = "atoms")
+            report.write(Path(self.destination.calc_dir.report_directory, self.calculation.molecule_name + ".atoms.pdf"), report_type = "atoms", report_style = "traditional")
             
         def write_combi_report_files(self):
             """
