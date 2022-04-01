@@ -12,7 +12,7 @@ Welcome to silico's documentation!
 
    installation/requirements
    running/introduction
-   running/submit
+   running/tutorial
    bibliography
 
 

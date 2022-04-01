@@ -120,6 +120,11 @@ formula, charge and multiplicity. These latter two columns can be edited individ
 For example, to change the multiplicity of 'Benzene' in the above example, first move the cursor with the arrow keys to the ``mult:1`` widget for the 'Benzene' row.
 Then, the old multiplicity can be removed used the backspace key, and a new multiplicity can be typed.
 
+The three widgets in the right-most column of the coordinate table can be used to control the position of each row.
+These widgets are buttons, which can be readily identified by the angle brackets surrounding the text of the button (eg, ``< Button >``).
+Buttons can be 'clicked' or 'activated' by first selecting them with the cursor and then pressing 'enter' (or 'space').
+In this case, the ``< 
+
 New input coordinate files can also be loaded at this point using the 'Add new here' widget.
 This widget is a button, which can be readily identified by the angle brackets surrounding the text of the button (eg, ``< Button >``).
 Buttons can be 'clicked' or 'activated' by first selecting them with the cursor and then pressing 'enter' (or 'space').
