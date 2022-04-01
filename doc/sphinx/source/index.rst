@@ -12,7 +12,8 @@ Welcome to silico's documentation!
 
    installation/requirements
    running/introduction
-
+   running/submit
+   bibliography
 
 
 Indices and tables
