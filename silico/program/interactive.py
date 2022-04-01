@@ -20,7 +20,7 @@ class Interactive_program(Program):
     
     name = "Silico (interactive)"
     command = "interactive"
-    aliases = ["i", "int"]
+    aliases = ["I", "int"]
     description = "run Silico interactively with a console interface"
     help = "Run interactively"
     
