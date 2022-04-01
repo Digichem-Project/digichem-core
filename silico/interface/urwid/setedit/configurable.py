@@ -266,6 +266,19 @@ class Configurable_browser(Setedit_browser):
             self.validate_setedits()
             # TODO: This should probably not be called from here...
             self.confirm()
+            
+    def discard(self, save = True):
+        """
+        Discard any changes made.
+        
+        :param save: Whether to save (and validate) the rolled back changes. Normally this is safe, but if this browser is only editing part of the options of a configurable and some of those other options have not been reset (or otherwise contain invalid options), this method will fail (because all the options have to be validated, not just those edited by this browser).
+        """
+        # First, rollback each widget.
+        super().discard()
+        
+        # Now save the rolled back changes.
+        if save:
+            self.save()
         
             
     def validate_setedits(self):

@@ -203,11 +203,12 @@ class Setedit_browser(urwid.ListBox, Setedit_widget_parent_mixin, Setedit_editor
             self.on_change_callback(True)
             
         return retval
-    
-    def cancel_callback(self):
-        """
-        """
-        return self.method_editor.discard()
+
+# This doesn't seem to be used and makes no sense anyway (what is method_editor?)
+#     def cancel_callback(self):
+#         """
+#         """
+#         return self.method_editor.discard()
 
 
 class Paginated_browser_mixin(Setedit_editor_mixin):
@@ -328,7 +329,7 @@ class Paginated_settings_browser(Pages, Paginated_browser_mixin):
         Discard any changes made.
         """
         for page in self.pages.values():
-            page.base_widget.discard()
+            page.base_widget.discard(False)
             
         self.save(False)
         self.validate_setedits()
