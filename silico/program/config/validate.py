@@ -21,7 +21,7 @@ class Validate_program(Program):
         """
         sub_parser = super().arguments(sub_parsers_object)
         
-        sub_parser.add_argument("type", help = "the type of configurables to validate. If none are given, all will be validated.", nargs = "*", choices = ("basis_sets", "methods", "programs", "calculations", "all"), default = "all")
+        sub_parser.add_argument("type", help = "the type of configurables to validate. If none are given, all will be validated.", nargs = "*", choices = ("destinations", "programs", "calculations", "all"), default = "all")
     
         return sub_parser
     
@@ -30,7 +30,7 @@ class Validate_program(Program):
         Logic for our program.
         """
         if self.args.type == "all":
-            self.args.type = ("basis_sets", "methods", "programs", "calculations")
+            self.args.type = ("destinations", "programs", "calculations")
     
         for configurable_type in self.args.type:
             for index, configurable in enumerate(getattr(self.config, configurable_type)):
