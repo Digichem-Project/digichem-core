@@ -60,7 +60,7 @@ class Submit_program(Program):
         """
         sub_parser = super().arguments(sub_parsers_object)
         
-        sub_parser.add_argument("calculation_files", help = "Calculation input files to submit", nargs = "*", type = Path)
+        sub_parser.add_argument("coordinate_files", help = "Coordinate input files to submit", nargs = "*", type = Path)
         sub_parser.add_argument("-O", "--output", help = "Base directory to perform calculations in. Defaults to the current directory", default = Path("./"))
         sub_parser.add_argument("-m", "--method-files", help = "Methods to perform, identified by file name", nargs = "*", default = [], dest = "methods", action = Method_action, method_type = "file")
         sub_parser.add_argument("-c", "--method-codes", help = "Methods to perform, identified either by name or by ID", nargs = "*", default = [], dest = "methods", action = Method_action, method_type = "code")
@@ -102,7 +102,7 @@ class Submit_program(Program):
                 methods.append(parse_method_from_file(method_id, config))
         
         # Load coordinates.
-        coords = [Silico_coords.from_file(file, gen3D = args.gen3D, charge = args.charge, multiplicity = args.multiplicity) for file in args.calculation_files]
+        coords = [Silico_coords.from_file(file, gen3D = args.gen3D, charge = args.charge, multiplicity = args.multiplicity) for file in args.coordinate_files]
                 
         return self(coords, methods, args = args, config = config, logger = logger)
     
