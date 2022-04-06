@@ -67,25 +67,25 @@ To begin, run the silico submit sub-program followed by a list of the coordinate
 
 .. code-block:: console
 
-	silico sub -I Benzene.cdx Naphthalene.com
+	$ silico sub -I Benzene.cdx Naphthalene.com
 	
 At this point, an explicit charge and/or multiplicity can be set using the ``-C`` (or ``--charge``) and ``-M`` (or ``--multiplicity``) options. If given, these options will overwrite any charge or multiplicity given in the coordinate files, for all specified coordinate files. For example, to submit all calculations as a radical cation:
 
 .. code-block:: console
 
-	silico sub -I Benzene.cdx Naphthalene.com -C 1 -M 2
+	$ silico sub -I Benzene.cdx Naphthalene.com -C 1 -M 2
 	
 If any of the file names contain whitespace, or other 'unusual' characters, remember to use quotation marks:
 
 .. code-block:: console
 
-	silico sub -I "Benz ene.cdx" Naphthalene.com
+	$ silico sub -I "Benz ene.cdx" Naphthalene.com
 
 If any of the coordinate files are not in the current directory, the full path should be specified (including directories):
 
 .. code-block:: console
 
-	silico sub -I Aromatic/Benzene.cdx Aromatic/Naphthalene.com
+	$ silico sub -I Aromatic/Benzene.cdx Aromatic/Naphthalene.com
 	
 .. note::
 	Alternatively, you can change the current directory using the ``cd`` command, for example ``cd Aromatic``.
@@ -97,13 +97,13 @@ In additional to individual coordinate files, the contents of entire directories
 
 .. code-block:: console
 
-	silico sub -I Aromatic/*#
+	$ silico sub -I Aromatic/*
 
 Finally, you may choose to not specify any input coordinates at this time, in which case they can be loaded later using the interactive interface (see :ref:`interactive coords`)
 
 .. code-block:: console
 
-	silico sub -I
+	$ silico sub -I
 
 	
 The Interactive Interface

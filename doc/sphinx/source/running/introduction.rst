@@ -10,7 +10,7 @@ the submit program:
 
 .. code-block:: console
 
-    silico submit
+    $ silico submit
 
 Each sub-program also has a 3-letter and 1-letter short code by which it can be accessed.
 There is no functional difference between using the short codes or the full name, so the user is
@@ -20,13 +20,13 @@ be accessed by any of the following commands:
 
 .. code-block:: console
 
-    silico sub
+    $ silico sub
 
 or:
 
 .. code-block:: console
 
-    silico s
+    $ silico s
 
 A list of the available sub-programs is given below:
 
@@ -79,7 +79,7 @@ To use the interactive interface for a sub-program, specify the ``-I`` (or ``--i
 
 .. code-block:: console
 
-	silico sub -I
+	$ silico sub -I
 	
 .. note::
 	As with all aspects of using silico, there is no difference between specifying the 3-letter short code, 1-letter short code or full command name when specifying the ``-I`` option.
