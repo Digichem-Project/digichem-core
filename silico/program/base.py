@@ -193,12 +193,12 @@ class Program():
         :returns: An ArgumentParser object.
         """
         standard_args = argparse.ArgumentParser(add_help=False)
-        group = standard_args.add_argument_group("general options", "general options that control various aspects of silico")
+        group = standard_args.add_argument_group("General Options", "General options that control various aspects of silico")
         group.add_argument("-I", "--interactive", help = "Run this command interactively", action = 'store_true')
-        group.add_argument("-V", "--verbose", help = "increase verbosity, stack with itself to further increase verbosity (this option overrides log_level)",  action='count', default = None)
-        group.add_argument("--log_level", choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL', 'OFF'], help = "the level of messages to print", default = None)
-        group.add_argument("-S", "--setting", help = "set a config option to a value. Options of this type are parsed as if they were a config file (in yaml format) and are then used to set corresponding options, eg -S \"absorption_graph: {fwhm: 100}\"", nargs = "*", default = [], action = Extend_action)
-        group.add_argument("--config_files", help = "an additional config file to read from. See the master config file for possible config options. Note that the master config file (at silico/data/config/silico.yaml) and user config file (at ~/.config/silico/silico.yaml) are always read automatically and do not need to be specified here. Multiple files may be given and will be processed in the order specified (the last having highest priority)", nargs = "*", default = [])
+        group.add_argument("-V", "--verbose", help = "Increase verbosity, stack with itself to further increase verbosity (each time this option is given, log_level is increased by one stage)",  action='count', default = None)
+        group.add_argument("--log_level", choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL', 'OFF'], help = "The level of messages to print", default = None)
+        group.add_argument("-S", "--setting", help = "Set a config option to a value. Options of this type are parsed as if they were a config file (in yaml format) and are then used to set corresponding options, eg -S \"absorption_graph: {fwhm: 100}\"", nargs = "*", default = [], action = Extend_action)
+        group.add_argument("--config_files", help = "An additional config file to read from. See the master config file for possible config options. Note that the master config file (at silico/data/config/silico.yaml) and user config file (at ~/.config/silico/silico.yaml) are always read automatically and do not need to be specified here. Multiple files may be given and will be processed in the order specified (the last having highest priority)", nargs = "*", default = [])
         return standard_args
     
     @classmethod
