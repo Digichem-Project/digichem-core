@@ -79,6 +79,10 @@ class Configurable_loader():
         self._TOP = True
         self.pseudo = pseudo
         
+        # Check our tag name is valid (does not contain /).
+        if self.TAG is not None and  "/" in self.TAG:
+            raise Configurable_loader_exception(self.config, self.TYPE, self.file_name, "the '/' character is not allowed in TAG names")
+        
     def __iter__(self):
         """
         Iteration magic method
