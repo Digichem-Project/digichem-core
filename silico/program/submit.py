@@ -63,7 +63,7 @@ class Submit_program(Program):
         sub_parser.add_argument("coordinate_files", help = "Coordinate input files to submit", nargs = "*", type = Path)
         sub_parser.add_argument("-O", "--output", help = "Base directory to perform calculations in. Defaults to the current directory", default = Path("./"))
         sub_parser.add_argument("-m", "--method-files", help = "Methods to perform, identified by file name", nargs = "*", default = [], dest = "methods", action = Method_action, method_type = "file")
-        sub_parser.add_argument("-c", "--method-codes", help = "Methods to perform, identified either by name or by ID", nargs = "*", default = [], dest = "methods", action = Method_action, method_type = "code")
+        sub_parser.add_argument("-c", "--method-codes", help = "Methods to perform, identified either by name or by ID (such, as 1/1/1)", nargs = "*", default = [], dest = "methods", action = Method_action, method_type = "code")
         sub_parser.add_argument("-C", "--charge", help = "Set the molecular charge of all input files. Note that certain calculations will override this value", default = None, type = int)
         sub_parser.add_argument("-M", "--multiplicity", "--mult", help = "Set the multiplicity of all input files. Note that certain calculations will override this value", default = None, type = int)
         sub_parser.add_argument("--gen3D", help = "Whether to generate 3D coordinates (this will scramble existing atom coordinates). The default is yes, but only if it can be safely determined that the loaded coordinates are not already in 3D)", type = to_bool, default = True)
