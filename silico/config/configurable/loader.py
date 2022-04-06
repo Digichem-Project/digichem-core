@@ -5,6 +5,7 @@
 
 # General imports.
 import deepmerge
+import yaml
 
 # Silico imports.
 from silico.exception.configurable import Configurable_loader_exception,\
@@ -322,7 +323,8 @@ class Partial_loader(Configurable_loader):
         :returns: The split parts (a list).
         """
         try:
-            tokens = list(ID_splitter(identifier))
+            #tokens = list(ID_splitter(identifier))
+            tokens = identifier.split("/")
             
         except Exception as e:
             raise ValueError("Could not split identifier string '{}'".format(identifier)) from e
@@ -332,11 +334,12 @@ class Partial_loader(Configurable_loader):
         
         new_tokens = []
         for token in tokens:
-            if is_int(token):
-                new_tokens.append(int(token))
-                
-            else:
-                new_tokens.append(token)
+            new_tokens.append(yaml.safe_load(token))
+#             if is_int(token):
+#                 new_tokens.append(int(token))
+#                 
+#             else:
+#                 new_tokens.append(token)
         
         return new_tokens
     
