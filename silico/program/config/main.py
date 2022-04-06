@@ -1,6 +1,6 @@
 from silico.program.base import Program
 import silico.program.config.validate
-
+import silico.program.config.show
 
 class Config_program(Program):
     """
@@ -31,6 +31,7 @@ class Config_program(Program):
     
         # Create sub parsers for each sub-program. Each will define its own parser.
         silico.program.config.validate.Validate_program.arguments(subparsers)
+        silico.program.config.show.Show_program.arguments(subparsers)
     
         return sub_parser
     
