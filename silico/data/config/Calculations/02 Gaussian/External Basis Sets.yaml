@@ -1,15 +1,15 @@
 SUB_TYPE: pseudo
 TAG: Gaussian External Basis Sets
 NEXT:
-    - Gaussian 6-31+G(d,p)/SBKJC-VDZ (ECP)
-    - Gaussian 6-31+G(d,p)/LANL2DZ (ECP)
+    - Gaussian 6-31+G(d,p) SBKJC-VDZ (ECP)
+    - Gaussian 6-31+G(d,p) LANL2DZ (ECP)
 
 
 ---
 
 
 
-TAG: Gaussian 6-31+G(d,p)/SBKJC-VDZ (ECP)
+TAG: Gaussian 6-31+G(d,p) SBKJC-VDZ (ECP)
 ALIAS: "6-31+G(d,p)/SBKJC-VDZ (ECP)"
 
 basis_set:
@@ -27,7 +27,7 @@ basis_set:
 ---
 
 
-TAG: Gaussian 6-31+G(d,p)/LANL2DZ (ECP)
+TAG: Gaussian 6-31+G(d,p) LANL2DZ (ECP)
 ALIAS: "6-31+G(d,p)/LANL2DZ (ECP)"
 
 # basis_set: genECP
