@@ -1,3 +1,5 @@
+.. _tutorial :
+
 Calculation Submission Tutorial
 ===============================
 

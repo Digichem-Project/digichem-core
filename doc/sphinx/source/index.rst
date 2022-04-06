@@ -7,18 +7,11 @@ Welcome to silico's documentation!
 ==================================
 
 .. toctree::
-   :maxdepth: 5
+   :maxdepth: 2
+   :includehidden:
    :caption: Contents:
 
-   installation/requirements
+   introduction/intro
    running/introduction
    running/tutorial
    bibliography
-
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
