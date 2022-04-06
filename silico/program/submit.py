@@ -44,11 +44,11 @@ class Submit_program(Program):
     name = "Silico Calculation Submitter"
     command = "submit"
     aliases = ["s", "sub"]
-    description = "submit calculation files"
+    description = "Submit calculation files"
     help = "Submit calculations"
-    usage = """%(prog)s submit ...
-       or: %(prog)s result ...
-       or: %(prog)s report ..."""
+    usage = """%(prog)s [options] coord1.file [coord2.file] -c d1/p1/c1 [d2/p2/c2]
+       %(prog)s [options] coord1.file [coord2.file] -m method1.file [method2.file]
+       """
     
     @classmethod
     def arguments(self, sub_parsers_object):
