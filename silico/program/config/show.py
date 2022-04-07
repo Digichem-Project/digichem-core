@@ -1,5 +1,6 @@
 from silico.program.base import Program
 import textwrap
+import yaml
 from silico.exception.configurable import Long_tag_path_error
 
 
@@ -35,46 +36,86 @@ class Show_program(Program):
         """
         base = getattr(self.config, self.args.base)
         path = base.path_by_tags(self.args.path)
-        if len(self.args.path) == 0:
-            header = self.args.base.capitalize() + ":"
+        
+        print(self.args.base.capitalize() + ":")
+        # If we are starting from a node, add a bit of extra space to indent properly.
+        if len(path) == 1 and path[0] == base:
+            indent = 1
         else:
-            header = self.get_name(base, path)
+            indent = 2
+            print("    " + self.get_title(path, False))
         
-        body = self.get_body(base, path)
-            
-        print(header + textwrap.indent(body, "    "))
+        tree = self.build_tree(path, self.args.depth + indent, cur_depth = 1 + indent)
         
-    def get_body(self, base, path, number = 1):
-        """
-        """
-        body = ""
-        children = path[-1].get_concrete_children(show_hidden = True)
-        for child_path in children:
-            full_child_path = path + child_path
-            body += "\n" + self.get_name(base, full_child_path, True)
-            
-            if number < self.args.depth:
-                body += textwrap.indent(self.get_body(base, full_child_path, number + 1), "    ")
+        self.print_tree(tree)
         
-        return body
-        
-    def get_name(self, base, loader_path, last_only = False):
-        """
-        """
-        if not loader_path[-1].partial:
-            code = str(base.index_of_path(loader_path))
-            
+    def get_title(self, path, final = True):
+        # If our node has a single loader at the end, get a code.
+        if not path[-1].partial:
+            code = "[{}]".format(path[0].index_of_path(path))
         else:
             code = None
         
-        if not last_only:
-            name = " ".join(["'{}'".format(loader.TAG) for loader in loader_path if not loader.pseudo])
+        if final:
+            name = "'{}'".format(path[-1].TAG)
         else:
-            name = "'{}'".format(loader_path[-1].TAG)
+            name = " ".join(["'{}'".format(loader.TAG) for loader in path if not loader.partial])
         
         if code is not None:
-            return "[{}] ".format(code) + name
+            title = code + " " + name
         else:
-            return name
+            title = name
+            
+        return title
+        
+    def print_tree(self, tree):
+        """
+        """
+        for node in tree:
+            depth = node[0]
+            path = node[1]
+            children = node[2]
+            
+            print(textwrap.indent(self.get_title(path), "    " * (depth-1)))
+            
+            if len(children) > 0:
+                self.print_tree(children)
+        
+        
+    def build_tree(self, path, max_depth, *, cur_depth = 1):
+        """
+        """
+        tree = []        
+        children = path[-1].get_concrete_children(True)
+        
+        # Don't save the parent path if it ends with a single loader (because we are now a different type)
+        if not path[-1].partial:
+            prev_path = []
+        else:
+            prev_path = path
+        
+        for child_path in children:                
+                
+            # Get grand children if we've been asked to.
+            if cur_depth < max_depth:
+                grand_children = self.build_tree(prev_path + child_path, max_depth, cur_depth = cur_depth +1)
+                
+            else:
+                grand_children = []
+            
+            tree.append([cur_depth, prev_path + child_path, grand_children])
+        
+        return tree
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
         
         
