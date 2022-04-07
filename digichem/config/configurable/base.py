@@ -224,6 +224,13 @@ class Configurable_class_target(Dynamic_parent, Configurable):
         """
         An ordered list of the TAGs of each of the configurable loaders that were combined to generate this configurable.
         """
+        return [loader.TAG for loader in self.loader_list if not loader.pseudo and loader.TAG is not None]
+    
+    @property
+    def alias_hierarchy(self):
+        """
+        An ordered list of the ALIASes of each of the configurable loaders that were combined to generate this configurable.
+        """
         return [loader.ALIAS for loader in self.loader_list if not loader.pseudo and loader.ALIAS is not None]
     
     def index(self):
@@ -240,7 +247,7 @@ class Configurable_class_target(Dynamic_parent, Configurable):
          
         Automatic names are ones that are generated automatically from some other information about the configurable.
         """
-        tag_hierarchy = self.tag_hierarchy
+        tag_hierarchy = self.alias_hierarchy
         # If our name is empty, set from our tag hierarchy.
         if not hasattr(self, "name") and len(tag_hierarchy) > 0:
             # No name, set from the category.
