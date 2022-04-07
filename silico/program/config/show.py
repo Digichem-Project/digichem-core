@@ -49,6 +49,12 @@ class Show_program(Program):
         self.print_tree(tree)
         
     def get_title(self, path, final = True):
+        """
+        Get the name/title of a node.
+        
+        :param path: The loader path leading to the node
+        :param final: Whether to only print the final part of the path.
+        """
         # If our node has a single loader at the end, get a code.
         if not path[-1].partial:
             code = "[{}]".format(path[0].index_of_path(path))
@@ -69,6 +75,9 @@ class Show_program(Program):
         
     def print_tree(self, tree):
         """
+        Print a tree of loader nodes.
+        
+        :param tree: The tree to print, a list of lists, where the first item is the depth of the node, the second is the path to the node, and the third is a list of children of the node.
         """
         for node in tree:
             depth = node[0]
@@ -83,6 +92,11 @@ class Show_program(Program):
         
     def build_tree(self, path, max_depth, *, cur_depth = 1):
         """
+        Build a tree of nodes.
+        
+        :param path: The starting path to build from.
+        :param max_depth: The maximum number of layers of children to build.
+        :param cur_depth: The current depth; used when called recursively.
         """
         tree = []        
         children = path[-1].get_concrete_children(True)
@@ -105,16 +119,3 @@ class Show_program(Program):
             tree.append([cur_depth, prev_path + child_path, grand_children])
         
         return tree
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
