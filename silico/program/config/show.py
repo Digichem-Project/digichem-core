@@ -1,7 +1,6 @@
-from silico.program.base import Program
 import textwrap
-import yaml
-from silico.exception.configurable import Long_tag_path_error
+
+from silico.program.base import Program
 
 
 class Show_program(Program):
