@@ -8,6 +8,7 @@ import silico.interface.urwid.file.browser
 import silico.interface.urwid.file.output
 from silico.interface.urwid.dialogue import Widget_dialogue
 from silico.interface.urwid.method.browser import Method_selector
+import silico.logging
 
 
 class Popup_edit(urwid.Button):
@@ -250,6 +251,10 @@ class Output_edit(File_edit):
         
         self.update_label()
         
+        # If there's nothing selected, show a warning.
+        if self.value is None:
+            silico.logging.get_logger().warning("No output location has been selected")
+            return False
         
 class Method_target_picker(Popup_edit):
     """
