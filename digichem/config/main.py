@@ -9,7 +9,7 @@ from silico.exception.configurable import Configurable_exception
 from silico.config.base import Auto_type
 from silico.config.configurable.loader import Configurable_list
 from silico.config.configurable.base import Configurable
-from silico.config.configurable.option import Option
+from silico.config.configurable.option import Option, Method_target_option
 from silico.config.configurable.options import Options
 from silico.config.file.locations import user_config_location
 from silico.misc.io import atomic_write
@@ -212,8 +212,7 @@ To disable the maximum width, set to null.""", type = int, default = 1500),
         turbomole = Options(help = "Sub options for Turbomole reports.",
             num_CPUs = Option(help = "The number of CPUs to use to generate cubes.", type = int, default = 1),
             memory = Option(help = "The amount of memory with which to generate cubes.", type = Turbomole_memory, default = Turbomole_memory("1GB")),
-            # TODO: This should use a method picker.
-            program = Option(help = "The name of a program definition to use to create cubes.", default = "Turbomole")
+            program = Method_target_option(lambda option, configurable: configurable.programs, help = "The name of a program definition to use to create cubes.", default = None)
         ),
         gaussian = Options(help = "Sub options for Gaussian reports.",
             num_CPUs = Option(help = "The number of CPUs to use to generate cubes.", type = int, default = 1),
@@ -271,14 +270,14 @@ Example:
         )
     )
     
-    def __init__(self, validate_now = True, palette = None, **kwargs):
+    def __init__(self, validate_now = True, palette = None, destinations = None, programs = None, calculations = None, **kwargs):
         """
         Constructor for Silico_options objects.
         """
         # Set Configurable lists.
-        self.destinations = Configurable_list([], "destination")
-        self.programs = Configurable_list([], "program")
-        self.calculations = Configurable_list([], "calculation")
+        self.destinations = destinations
+        self.programs = programs
+        self.calculations = calculations
         
         # The palette to use for urwid.
         # A palette is a list of tuples, where the first item of each tuple identifies the name of an attribute, and the remaining specify how that attribute should appear.
