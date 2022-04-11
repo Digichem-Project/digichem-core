@@ -206,16 +206,16 @@ To disable the maximum width, set to null.""", type = int, default = 1500),
     
     report = Options(help = "Options for controlling the generation of calculation reports.",
         front_page_image = Option(help = "The image to use for the front page of the report.", choices = ["skeletal", "rendered"], default = "rendered"),
-        turbomole = Options(help = "Sub options for Turbomole reports.",
-            num_CPUs = Option(help = "The number of CPUs to use to generate cubes.", type = int, default = 1),
-            memory = Option(help = "The amount of memory with which to generate cubes.", type = Turbomole_memory, default = Turbomole_memory("1GB")),
-            program = Method_target_option(lambda option, config: config.programs, help = "A program definition to use to create cubes.", default = None)
+        turbomole = Options(help = "Options that control the running of Turbomole calculations to generate cube files from completed calculations. Note that when reports are created automatically following calculation completion these options will be overridden with the specifics of that calculation.",
+            num_CPUs = Option(help = "The number of CPUs with which to run.", type = int, default = 1),
+            memory = Option(help = "The amount of memory with which to run.", type = Turbomole_memory, default = Turbomole_memory("1GB")),
+            program = Method_target_option(lambda option, config: config.programs, help = "A program definition from the internal library to run.", default = None)
         ),
-        gaussian = Options(help = "Sub options for Gaussian reports.",
-            num_CPUs = Option(help = "The number of CPUs to use to generate cubes.", type = int, default = 1),
-            memory = Option(help = "The amount of memory with which to generate cubes.", type = Turbomole_memory, default = Turbomole_memory("1GB")),
-            # TODO: This should use a method picker.
-            program = Option(help = "The name of a program definition to use to create cubes.", default = "Gaussian"),
+        gaussian = Options(help = "Options that control the running of Gaussian calculations to generate NTO cube files from completed calculations. Note that when reports are created automatically following calculation completion these options will be overridden with the specifics of that calculation.",
+            num_CPUs = Option(help = "The number of CPUs with which to run.", type = int, default = 1),
+            memory = Option(help = "The amount of memory with which to run.", type = Turbomole_memory, default = Turbomole_memory("1GB")),
+            program = Method_target_option(lambda option, config: config.programs, help = "A program definition from the internal library to run.", default = None),
+            # TODO: This needs expanding.
             scratch_path = Option(help = "Path to the top of the scratch directory.", default = "/scratch")
         ),
         cleanup = Option(help =\

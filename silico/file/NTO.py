@@ -1,5 +1,5 @@
 import silico.file.types as file_types
-from silico.file.base import File_converter
+from silico.file.base import File_converter, Dummy_file_maker
 from silico.submit.destination.local import Series
 from silico.submit.calculation.gaussian import make_NTO_calc
 from silico.submit.base import Memory
@@ -49,7 +49,7 @@ class Chk_to_NTO_chk(File_converter):
         self.calc_t = calc_t
         
     @classmethod
-    def from_options(self, *args, chk_file, transition, options, **kwargs):
+    def from_options(self, output, *args, chk_file, transition, options, **kwargs):
         """
         Constructor that takes a dictionary of config like options.
         
@@ -59,7 +59,11 @@ class Chk_to_NTO_chk(File_converter):
         :param options: Global silico options.
         """
         # First, get our program.
-        prog_t = options.programs.resolve(options['report']['gaussian']['program'])
+        prog_t = options['report']['gaussian']['program']
+        
+        # Give up if no program available.
+        if prog_t is None:
+            return Dummy_file_maker(output, "No program definition is available (set the report: gaussian: program: option)")
         
         # Next, generate our calculation.
         calc_t = make_NTO_calc(
@@ -72,6 +76,7 @@ class Chk_to_NTO_chk(File_converter):
         
         # And continue.
         return self(
+            output,
             *args,
             chk_file = chk_file,
             calc_t = calc_t.inner_cls,
