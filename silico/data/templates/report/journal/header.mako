@@ -110,7 +110,7 @@
 			## Excited states.
 			% if len(report.result.excited_states) > 0:
 				In total, ${len(report.result.excited_states)} excited states ${inflector.plural("was", len(report.result.excited_states))} calculated with ${report.result.excited_states.multiplicity_strings} multiplicity.
-				% if 'simulated_absorption_graph' in report.images:
+				% if 'simulated_absorption_graph' in report.images and report.images['simulated_absorption_graph'].safe_get_file() is not None:
 					<%
 					abs_peaks = report.images['simulated_absorption_graph'].selected_peaks(0, 5)
 					%>

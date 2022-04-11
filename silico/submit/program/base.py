@@ -543,7 +543,9 @@ class Program_target(Method_target):
                 combi_report_dir = smkdir(Path(str(self.destination.calc_dir.molecule_directory), "Combined Reports", base_name))
             
                 # And write.
-                report.write(Path(combi_report_dir, self.calculation.molecule_name + ".pdf"))
+                # Both styles.
+                report.write(Path(combi_report_dir, self.calculation.molecule_name + ".traditional.pdf"), report_style = "traditional")
+                report.write(Path(combi_report_dir, self.calculation.molecule_name + ".journal.pdf"), report_style = "journal")
             
         def write_xyz_file(self):
             """
