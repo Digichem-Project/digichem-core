@@ -25,7 +25,10 @@ class Option_setedit(Setedit):
         :param dict_obj: The dict in which the value of this Option is stored.
         :param value: The new value to set.
         """
-        # Note that we don't call our parent's constructor
+        # Note that we don't call our parent's constructor.
+        # TOOD: The relationship between Option_setedit and Setedit is a bit cursed and needs reviewing.
+        # Not only does Option_setedit (this one) not use __init__ of Setedit, but in fact this is the only type of setedit that is used in Silico.
+        # ie, Setedit doesn't get used anywhere except as a parent of this class...
         self.top = top
         self.owning_obj = owning_obj
         self.dict_obj = dict_obj
@@ -39,8 +42,10 @@ class Option_setedit(Setedit):
         
         # This is the last value we saved, if we're asked to reset we'll roll back to this.
         try:
-            #self.previous_value = self.option.get_from_dict(self.owning_obj, self.dict_obj)
-            self.previous_value = self.option.dump(self.owning_obj, self.dict_obj)
+            # TODO: Why do we use dump() here?
+            # Have changed back 08/04/2022 because get_from_dict seems to be the correct func?
+            self.previous_value = self.option.get_from_dict(self.owning_obj, self.dict_obj)
+            #self.previous_value = self.option.dump(self.owning_obj, self.dict_obj)
         
         except Missing_option_exception:
             self.previous_value = None
@@ -70,6 +75,7 @@ class Option_setedit(Setedit):
         Refresh the current edit value of the edit widgets of this setedit (in case the underlying configurable option value has changed).
         """
         self.previous_value = self.option.get_from_dict(self.owning_obj, self.dict_obj)
+        #self.previous_value = self.option.dump(self.owning_obj, self.dict_obj)
         self.get_widget().discard()
         
     def confirm(self):
@@ -77,8 +83,8 @@ class Option_setedit(Setedit):
         Confirm the changes made to this Setedit, so that future rollbacks will return to the current value.
         """
         # First update the value of our widget from the value of the configurable option (because it could have changed, for example from type conversion etc).
-        #self.get_widget().value = self.option.get_from_dict(self.owning_obj, self.dict_obj)
-        self.get_widget().value = self.option.dump(self.owning_obj, self.dict_obj)
+        self.get_widget().value = self.option.get_from_dict(self.owning_obj, self.dict_obj)
+        #self.get_widget().value = self.option.dump(self.owning_obj, self.dict_obj)
         super().confirm()
     
     def get_children(self, reload = False):
