@@ -351,7 +351,8 @@ class Turbomole_to_cube(File_converter):
         Constructor that takes a dictionary of config like options.
         """
         # First, get our program.
-        prog_t = options.programs.resolve(options['report']['turbomole']['program'])
+        #prog_t = options.programs.resolve(options['report']['turbomole']['program'])
+        prog_t = options['report']['turbomole']['program']
         
         calculation_directory = calculation_directory.resolve() if calculation_directory is not None else None
         
@@ -503,7 +504,8 @@ class Turbomole_to_anadens_cube(File_converter):
         Constructor that takes a dictionary of config like options.
         """
         # First, get our program.
-        prog_t = options.programs.resolve(options['report']['turbomole']['program'])
+        #prog_t = options.programs.resolve(options['report']['turbomole']['program'])
+        prog_t = options['report']['turbomole']['program']
         
         calculation_directory = calculation_directory.resolve()
         

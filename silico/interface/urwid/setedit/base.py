@@ -81,10 +81,7 @@ class Setedit():
         :param option: The configurable option.
         :returns: The value type (a string).
         """
-        if option.edit_vtype is not None:
-            return option.edit_vtype
-        
-        elif hasattr(option, "OPTIONS"):
+        if hasattr(option, "OPTIONS"):
             return "Options"
         
         elif len(option.choices) > 0:
@@ -93,12 +90,11 @@ class Setedit():
         elif option.list_type is not None:
             return "list"
         
+        elif option.edit_vtype is not None:
+            return option.edit_vtype
+        
         else:
-            try:
-                return option.type.__name__
-            
-            except Exception:
-                return "str"
+            return "str"
     
     @classmethod
     def value_from_configurable_option(self, owning_obj, option):

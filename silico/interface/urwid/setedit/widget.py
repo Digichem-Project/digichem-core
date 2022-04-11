@@ -3,7 +3,8 @@ import urwid
 
 # Silico imports.
 from silico.exception.base import Silico_exception
-from silico.interface.urwid.edit.popup import File_edit, Choices_edit
+from silico.interface.urwid.edit.popup import File_edit, Choices_edit,\
+    Method_target_picker
 from silico.interface.urwid.setedit.common import Setedit_widget_parent_mixin
 
 
@@ -112,7 +113,7 @@ class Setedit_widget(urwid.Pile):
         Get a concrete Setedit_widget suitable for a certain type.
         
         :param vtype: The name of the type (as a string). If in doubt try type(value).__name__
-        :returns: A suitable class which will have a constructor of the form __init__(title, value(s), help).
+        :returns: A suitable class.
         """
         if vtype == "bool":
             return Bool_editor
@@ -131,6 +132,9 @@ class Setedit_widget(urwid.Pile):
         
         elif vtype == "Options":
             return Sub_setedit
+        
+        elif vtype == "method":
+            return Method_target_editor
         
         else:
             return Text_editor
@@ -296,6 +300,16 @@ class Choices_editor(Popup_editor):
      
     def __init__(self, setedit):
         popup_widget = Choices_edit(setedit.top, setedit.choices, setedit.previous_value, "Select option for {}".format(setedit.title))
+        super().__init__(setedit, popup_widget = popup_widget)
+
+
+class Method_target_editor(Popup_editor):
+    """
+    An editor that allows the user to pick from a number of different method targets (Destinations, Programs, Calculations etc).
+    """
+    
+    def __init__(self, setedit):
+        popup_widget = Method_target_picker(setedit.top, setedit.option.data_func(setedit.option, setedit.owning_obj), setedit.previous_value)
         super().__init__(setedit, popup_widget = popup_widget)
 
 
