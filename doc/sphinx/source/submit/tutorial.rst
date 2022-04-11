@@ -243,4 +243,4 @@ Once all files have been processed, the 'Successfully submitted x file(s)' line 
 
 .. image:: /_static/submit_tutorial/submission.png
 
-The input coordinates have now been submitted, and Silico can be exited (by using the 'esc' key), or further calculations can be queued.
+Congratulations, the input coordinates have now been submitted and Silico can be exited (by using the 'esc' key), or further calculations can be queued.

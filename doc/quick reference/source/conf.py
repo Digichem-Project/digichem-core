@@ -17,9 +17,9 @@
 
 # -- Project information -----------------------------------------------------
 
-project = 'Silico'
+project = 'Silico Quick Reference'
 copyright = '2022, Silico Dev Team'
-author = 'Oliver S. Lee, Campbell F. R. Mackenzie, Tomas Matulaitis, Ettore Crovini and Eli Zysman-Colman'
+author = 'The Silico Dev Team'
 
 # The full version, including alpha/beta/rc tags
 release = 'v1.0.0'
@@ -31,10 +31,7 @@ release = 'v1.0.0'
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    'sphinxcontrib.bibtex',
-    'sphinxarg.ext'
 ]
-bibtex_bibfiles = ['references.bib']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']

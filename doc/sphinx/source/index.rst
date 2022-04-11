@@ -13,5 +13,5 @@ Welcome to silico's documentation!
 
    introduction/intro
    running/introduction
-   running/tutorial
+   submit/intro
    bibliography
