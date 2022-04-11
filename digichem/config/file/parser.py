@@ -9,7 +9,8 @@ import itertools
 
 from silico.config.base import Config
 from silico.config.main import Silico_options
-from silico.config.configurable.loader import Partial_loader, Update_loader
+from silico.config.configurable.loader import Partial_loader, Update_loader,\
+    Configurable_list
 from silico.config.configurable.loader import Single_loader
 from silico.exception.configurable import Configurable_loader_exception
 from silico.config.file.locations import master_config_path, system_config_location, user_config_location
@@ -135,16 +136,16 @@ class Config_file_parser(Config_parser):
         for extra_config_string in extra_config_strings:
             config.merge(Config_parser(extra_config_string).load())
         
-        # Get a merged version.
-        options = Silico_options(**config)
+        # Load our library of methods.
+        methods = Configurables_parser.load_methods()
         
-        # Add configurables.
-        Configurables_parser.add_default_configurables(options)
+        # Get a merged version.
+        options = Silico_options(validate_now = True, **methods, **config)
         
         # And return.
         return options
 
-# TOOD: This class should proably be rename to something like 'Confiugrable_loader_parser'...
+# TOOD: This class should probably be renamed to something like 'Confiugrable_loader_parser'...
 class Configurables_parser():
     """
     Reads and parses all configurable files from a location.
@@ -275,11 +276,9 @@ class Configurables_parser():
         
     
     @classmethod
-    def add_default_configurables(self, options):
+    def load_methods(self):
         """
-        Load configurables from all silico locations and add to a silico options object.
-        
-        :param options: A Silico_options object to populate with configurables.
+        Load methods from all silico locations and return.
         """
         parsers = []
         
@@ -301,6 +300,12 @@ class Configurables_parser():
             except FileNotFoundError:
                 # No need to panic.
                 pass
+            
+        methods = {
+            'destinations': Configurable_list([], "destination"),
+            'programs': Configurable_list([], "program"),
+            'calculations': Configurable_list([], "calculation")
+        }
         
         children = None
         for index, (TYPE, parser) in enumerate(parsers):
@@ -320,8 +325,12 @@ class Configurables_parser():
             
             # Add to config object.            
             # TODO: This is a bit weird, could do with a cleaner interface to add more loaders.
-            getattr(options, TYPE+"s").NEXT.extend(loaders)
+            #getattr(options, TYPE+"s").NEXT.extend(loaders)
+            methods[TYPE+"s"].NEXT.extend(loaders)
             
-            children = getattr(options, TYPE+"s")
+            #children = getattr(options, TYPE+"s")
+            children = methods[TYPE+"s"]
+            
+        return methods
                 
            
