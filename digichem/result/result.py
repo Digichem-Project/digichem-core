@@ -10,6 +10,7 @@ from silico.result.alignment.FAP import Furthest_atom_pair
 from silico.result.alignment import Minimal
 from silico.result import Result_object
 import silico.result.excited_states
+import itertools
 
         
 class Result_set(Result_object):
@@ -81,19 +82,17 @@ class Result_set(Result_object):
         """
         A short-hand summary of the methods and basis sets used.
         """
-        theories = []
+        methods = []
+        basis_sets = []
         for metadata in self.metadatas:
-            theory = []
-            if len(metadata.converted_methods) > 0:
-                theory.extend(metadata.converted_methods)
+            for method in metadata.converted_methods:
+                if method not in methods:
+                    methods.append(method)
                 
-            if metadata.basis_set is not None:
-                theory.append(metadata.basis_set)
-            
-            if len(theory) > 0:
-                theories.append("/".join(theory))
-        
-        return ", ".join(theories)
+            if metadata.basis_set is not None and metadata.basis_set not in basis_sets:
+                basis_sets.append(metadata.basis_set)
+                        
+        return "/".join(itertools.chain(methods, basis_sets))
     
     @property
     def title(self):
