@@ -278,6 +278,14 @@
 #        # The maximum number of frequencies to show in the table.
 #        max_num: null
 
+# TODO: This needs to be moved to kennedy own config.
+report:
+    gaussian:
+        program: Gaussian 16
+        scratch_path: /scratch/tmp
+    turbomole:
+        program: Turbomole
+
 
 # Colour palette for urwid interfaces.
 palette:
