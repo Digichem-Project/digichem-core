@@ -180,8 +180,9 @@ class Program():
         Each sub-program will add it's own possible sub-arguments to this object.
         """
         parser = argparse.ArgumentParser(
-        description = self.description,
-        epilog = self.epilog)
+            description = self.description,
+            epilog = self.epilog
+        )
         parser.add_argument("-v", "--version", action = "version", version = str(silico.version))
         return parser
 
