@@ -50,7 +50,6 @@ Computational chemistry, particularly for newcomers, can be an almost impenetrab
 Silico is a software package that attempts to alleviate this problem by automating and/or simplifying
 as many aspects of computational chemistry as possible, so that the computational process
 becomes as close to a black-box as can be achieved.
-Silico is under development and suggestions are welcome, please contact osl@st-andrews.ac.uk.
 A non-exhaustive list of features is as follows:
 
 	* Submission to computational programs through a simple and unified interface.

@@ -10,4 +10,5 @@ Silico Quick Reference
 	authorship
 	about
 	installation
+	submit
 	codes
