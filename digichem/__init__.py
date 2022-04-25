@@ -37,10 +37,6 @@ author = "Oliver Lee"
 _last_updated_string = "11/02/2022"
 last_updated = datetime.strptime(_last_updated_string, "%d/%m/%Y")
 
-# The name of the command to launch new instances of silico.
-silico_cmd = "silico" if not development else "silico-dev"
-
-
 # Decide on whether we are frozen or not.
 # The sys attribute 'frozen' is our flag, '_MEIPASS' is the dir location.
 # https://pyinstaller.readthedocs.io/en/stable/runtime-information.html#run-time-information
