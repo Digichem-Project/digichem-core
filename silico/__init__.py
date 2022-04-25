@@ -29,8 +29,6 @@ author = "Oliver Lee"
 _last_updated_string = "11/02/2021"
 last_updated = datetime.strptime(_last_updated_string, "%d/%m/%Y")
 
-# The name of the command to launch new instances of silico.
-silico_cmd = "silico" if not development else "silico-dev"
 
 # The name of the logger that will be used by silico.
 logger_name = "silico"

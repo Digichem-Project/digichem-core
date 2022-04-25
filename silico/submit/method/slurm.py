@@ -30,6 +30,7 @@ class SLURM(Resumable_method):
     options = Option(help = "Additional SLURM options. Any option valid to SLURM can be included here", default = {}, type = dict)
     sbatch_command = Option(help = "The name/path of the sbatch command", default = "sbatch", type = str)
     sinfo_command = Option(help = "The name/path of the sinfo command", default = "sinfo", type = str)
+    silico_command = Option(help = "The name/path of the silico command", default = "silico", type = str)
     
     def get_num_free_nodes(self):
         """
