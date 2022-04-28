@@ -50,13 +50,15 @@ Computational chemistry, particularly for newcomers, can be an almost impenetrab
 Silico is a software package that attempts to alleviate this problem by automating and/or simplifying
 as many aspects of computational chemistry as possible, so that the computational process
 becomes as close to a black-box as can be achieved.
-A non-exhaustive list of features is as follows:
 
-	* Submission to computational programs through a simple and unified interface.
-	* Simultaneous submission of multiple molecules/systems.
-	* Automatic in series submission of results from completed calculations to subsequent calculations.
-	* Automatic conversion of input files (including ChemDraw) to types appropriate for the selected computational program.
-	* Automatic and manual analysis of computation results, including tabulation to CSV format.
-	* Automatic and manual generation of PDF reports from computation results, including rendered 3D structures, orbital images and graphs.
-	* Various post-analyses including spin-orbit coupling (SOC), natural-transition orbitals (NTOs) and differential-density plots.
+Silico handles the entire calculation submission process from start to finish; this means that you do not need to write batch files or worry about running computational programs (such as Gaussian or Turbomole) directly, Silico manages all this for you. As the user, all you need to do to start performing calculations is to draw the structures you are interested in and then pick a calculation from a list, that is all. Silico can even handle submitting multiple calculations in sequence, automatically. Further, Silico parses and processes the raw data from completed calculation results and presents it in formats that are easy to read, understand and distribute to other scientists. This even includes the automation of common post-analysis tasks such as the generation of molecular orbital plots, natural-transition orbitals for excited states, simulated UV-Vis, IR and emission spectra, and much more. For a full list of features and a detailed overview of the Silico project, please refer to the full Silico manual.
 
+
+A Note on Terminology
+---------------------
+
+Computational chemistry programs perform calculations on collections of atoms.
+These collections of atoms can theoretically describe any structure, ranging in scale and complexity from a single element to a molecule, an ionic compound, a polymer, organometallic complex, protein or even a crystal lattice.
+This large scope can make referring to these collections of atoms in an inclusive way difficult, and often the term 'system of interest' is used so as to not exclude any of the above group.
+However, this term is somewhat clumsy, and so instead the term 'molecule' will be generally used in the discussion of this document for simplicity's sake.
+As such, the term 'molecule' can be exchanged for any of the above terms wherever it is encountered, unless otherwise noted.

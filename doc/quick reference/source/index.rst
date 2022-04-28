@@ -11,4 +11,5 @@ Silico Quick Reference
 	about
 	installation
 	submit
+	structure
 	codes

@@ -15,7 +15,7 @@ These are: (1) coordinate files, which specify the elements and starting geometr
 and (2) method files, which control the specifics of each calculation, such as the functional and basis set.
 
 One of the main advantages of using Silico for calculation submission is that multiple coordinate file can be specified at once, in which case all the given coordinate files will be submitted to the same calculation (as specified by the method file) simultaneously.
-In addition, multiple method files can also be specified, in which case each coordinate file will first be submitted to the calculation defined by the first method file specified. Once each of these calculations has completed, the resulting atomic geometry will then be submitted to the calculation defined by the second method file, and so until all method files have been exhausted.
+In addition, multiple method files can also be specified, in which case each coordinate file will first be submitted to the calculation defined by the first method file specified. Once each of these calculations has completed, the resulting atomic geometry will then be submitted to the calculation defined by the second method file, and so on until all method files have been exhausted.
 
 Silico comes pre-loaded with a large database of method files, and so in most cases these don't need to be written by the user.
 Hence all that is generally needed to submit a calculation is a number of coordinate file specifying the molecules of interest.
@@ -41,31 +41,15 @@ As such, it is strongly recommended to favour 3D formats over 2D. If available, 
 Prepare Coordinate Files
 ------------------------
 
-The first step in submitting a calculation is to prepare the coordinate files. Each molecule (or system) to be studied should be written to its own file.
-There is no functional difference between using one format over another, so if the reader has a particular format which they favour they are encouraged to use it.
-
-
-GaussView on Kennedy
-____________________
-
-If in doubt, coordinate files can be prepared using the instance of the GaussView program which is installed on Kennedy.
-To do so, first connect to Kennedy using PuTTY, as normal. Second, run the ``gaussivew`` command, as follows:
-
-.. code-block:: console
-
-	$ gaussview
-	
-This will open an interactive window which connects to the GaussView installation running on Kennedy.
-Molecules can now be drawn at will.
-When saved, these molecules will be saved directly to the Kennedy server, meaning the `Upload Coordinate Files` step can be skipped.
-
+The first step in submitting a calculation is to prepare the coordinate files. These files represent the molecules upon which the calculation (or calculations) will be performed; one molecule per file.
+Any program can be used to write these coordinate files (so long as the file can be saved in a format Silico understands), but generally in the EZC group the GaussView program is used.
+GaussView can be run on your personal machine `via` `Apps Anywhere <https://appstore.st-andrews.ac.uk/login>`_, or on one of the group computers (where GaussView is already installed).
 
 Upload Coordinate Files
 -----------------------
 
 Connect to the Kennedy cluster using WinSCP and upload the prepared coordinate files.
 It is recommended that molecules corresponding to different projects be stored in different directories, but this is left to the discretion of the reader.
-
 
 Run Silico
 -------------
