@@ -478,7 +478,7 @@ class Program_target(Method_target):
             Write text result files (like with cresult) from this calculation.
             """
             # First, write a text summary.
-            Text_summary_group_format(ignore = True, config = self.calculation.silico_options).write_single(self.result, Path(self.destination.calc_dir.result_directory, self.calculation.molecule_name +".summary"))
+            Text_summary_group_format(ignore = True, config = self.calculation.silico_options).write_single(self.result, Path(self.destination.calc_dir.result_directory, self.calculation.molecule_name +".summary.txt"))
             
             # Atoms.
             CSV_property_group_format(Atoms_property_format(ignore = True, config = self.calculation.silico_options)).write_single(self.result, Path(self.destination.calc_dir.result_directory, self.calculation.molecule_name + ".atoms.csv"))
