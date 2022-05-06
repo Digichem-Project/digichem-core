@@ -19,7 +19,7 @@ development = False
 # Version information.
 major_version = 0
 minor_version = 20
-revision = 5
+revision = 6
 version_number = "{}.{}.{}".format(major_version, minor_version, revision)
 # The full version number of this package.
 version = "{}{}".format(version_number, "-dev" if development else "")
@@ -29,8 +29,6 @@ author = "Oliver Lee"
 _last_updated_string = "11/02/2021"
 last_updated = datetime.strptime(_last_updated_string, "%d/%m/%Y")
 
-# The name of the command to launch new instances of silico.
-silico_cmd = "silico" if not development else "silico-dev"
 
 # The name of the logger that will be used by silico.
 logger_name = "silico"
