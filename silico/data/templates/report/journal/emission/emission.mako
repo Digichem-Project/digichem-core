@@ -30,7 +30,7 @@
 		%else:
 			This
 		%endif
-		energy is equivalent to emission of a photon with a wavelength of ${"{:.0f}".format(emission.wavelength)} nm, corresponding to a colour of ${emission.color} <%include file="/excited_states/color.mako" args="colorRGB = emission.rgb"/> and CIE coordinates (x,y) of ${"({}, {})".format(*emission.CIE_xy)}.
+		energy is equivalent to emission of a photon with a wavelength of ${"{:.0f}".format(emission.wavelength)} nm, corresponding to a colour of ${emission.color} <%include file="/excited_states/color.mako" args="colorRGB = emission.rgb"/> and CIE coordinates (x,y) of ${"({:.2f}, {:.2f})".format(*emission.CIE_xy)}.
 		The excited state had a total energy of ${"{:.2f}".format(emission.excited_energy)} eV and a multiplicity of ${text_integer(emission.excited_multiplicity)}, while the ground state had a total energy of ${"{:.2f}".format(emission.ground_energy)} eV and a multiplicity of ${text_integer(emission.ground_multiplicity)}.
 		This emission is therefore a ${emission.emission_type} type process, because
 		%if emission.emission_type == "fluorescence":

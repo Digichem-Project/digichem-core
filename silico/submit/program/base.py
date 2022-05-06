@@ -22,7 +22,8 @@ from silico.submit.structure.directory import Silico_directory
 from silico.submit.base import Method_target
 from silico.config.configurable.option import Option
 from silico.format.text import Text_summary_group_format
-from silico.format.csv import CSV_property_group_format
+from silico.format.csv import CSV_property_group_format,\
+    CSV_summary_group_format
 from silico.format.property import Atoms_property_format,\
     Orbitals_property_format, Beta_property_format, SCF_property_format,\
     CC_property_format, MP_property_format, Excited_state_property_format,\
@@ -478,7 +479,9 @@ class Program_target(Method_target):
             Write text result files (like with cresult) from this calculation.
             """
             # First, write a text summary.
-            Text_summary_group_format(ignore = True, config = self.calculation.silico_options).write_single(self.result, Path(self.destination.calc_dir.result_directory, self.calculation.molecule_name +".summary"))
+            Text_summary_group_format(ignore = True, config = self.calculation.silico_options).write_single(self.result, Path(self.destination.calc_dir.result_directory, self.calculation.molecule_name +".summary.txt"))
+            # And also a csv summary.
+            CSV_summary_group_format(ignore = True, config = self.calculation.silico_options).write_single(self.result, Path(self.destination.calc_dir.result_directory, self.calculation.molecule_name +".summary.csv"))
             
             # Atoms.
             CSV_property_group_format(Atoms_property_format(ignore = True, config = self.calculation.silico_options)).write_single(self.result, Path(self.destination.calc_dir.result_directory, self.calculation.molecule_name + ".atoms.csv"))

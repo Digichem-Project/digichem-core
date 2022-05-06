@@ -1,6 +1,8 @@
+import itertools
+
 from silico.exception.configurable import Configurable_option_exception,\
     Missing_option_exception, Disallowed_choice_exception
-import itertools
+from builtins import isinstance
 
 class Option():
     """
@@ -9,7 +11,7 @@ class Option():
     Options are descriptors that perform type checking and other functionality for Configurables; they expose the options that a certain configurable expects.
     """
     
-    def __init__(self, name = None, *, default = None, help = None, choices = None, validate = None, list_type = None, type = None, exclude = None, required = False, no_none = None, no_edit = False, dump_func = None, edit_vtype = None):
+    def __init__(self, name = None, *, default = None, help = None, choices = None, validate = None, list_type = None, type = None, type_func = None, exclude = None, required = False, no_none = None, no_edit = False, dump_func = None, edit_vtype = None, data_func = None):
         """
         Constructor for Configurable Option objects.
         
@@ -20,11 +22,14 @@ class Option():
         :param validate: Function called to check that the given value is valid. The function will be called with 3 arguments: this Option object, the owning Configurable object and the value being set, and should return True or False as appropriate.
         :param list_type: If given, indicates that this option should accept a number of elements which will be stored in an object of type list_type (commonly list or tuple, but anything with a similar interface should work). If list_type and type are both given, then type will be used to set the type of each element in the list.
         :param type: A callable that is used to set the type of value.
+        :param type_func: An alternative and more powerful type conversion function than 'type'. A function that will be called with 3 arguments: this Option object, the owning Configurable object and the value being set, and should return a converted type of the value.
         :param exclude: A list of strings of the names of attributes that this option is mutually exclusive with.
         :param required: Whether this option is required or not.
-        :param no_none: Whether to allows None values. This defaults to False unless required == True, in which case no_none defaults to True.
+        :param no_none: Whether to allow None values. This defaults to False unless required == True, in which case no_none defaults to True.
         :param no_edit: Flag to indicate that this option shouldn't be edited interactively by the user, useful for 'hidden' options that don't make sense to be changed for example.
         :param dump_func: An optional function that will be called to serialize the data of this option ready for dumping to file. The function will be called with 3 arguments: this Option object, the owning Configurable object and the value being set, and should return the value to save.
+        :param edit_vtype: An optional explicit string denoting the interactive editor to use for this option.
+        :param data_func: A (pseudo) optional function that can be used to retrieve data about the option for editing purposes. Certain edit_vtype options will require this function.
         """
         self.name = name
         # TODO: Need to be smarter about storing mutable objects (most notable, list and dict, normally empty ones) as default
@@ -32,7 +37,7 @@ class Option():
         # Perhaps a solution is to on demand copy() the default and store the resulting clone?
         self._default = default
         self.list_type = list_type
-        self.type = type
+        #self.type = type
         self.help = help
         self.choices = choices if choices is not None else []
         self._validate = validate if validate is not None else self.default_validate
@@ -47,6 +52,28 @@ class Option():
         else:
             self.no_none = no_none
         self.edit_vtype = edit_vtype
+        # This part of the interface is a bit WIP and might change, this function is used to retrieve data for certain setedits that need it.
+        # Currently this is only used for method pickers, which use the data func to retrieve the 'list' of methods to pick from.
+        self.data_func = data_func
+        
+        # Deal with type and type_func.
+        if type is not None and type_func is not None:
+            raise ValueError("type and type_func cannot be specified together")
+        
+        elif type is not None:
+            # Wrap the type function in a wrapper.
+            def wrapper_type(option, configurable, value):
+                return type(value)
+            
+            self.type_func = wrapper_type
+            
+            # If we also don't have a edit_vtype, use this type.
+            if self.edit_vtype is None:
+                self.edit_vtype = type.__name__
+        
+        else:
+            self.type_func = type_func
+            
         
         # If we are a list_type and a default of None has been given, change the default to an empty list.
         if self.list_type is not None and self._default is None:
@@ -202,14 +229,14 @@ class Option():
         """
         return not self.name in dict_obj
     
-    def to_type(self, value):
+    def to_type(self, owning_obj, value):
         """
         Wrapper function to convert a value to the type of this option.
         """
         # Uncommenting the following line will prevent setting the type if our value already has the same type.
         # TODO: Review if this is desirable.
-        if value is not None and self.type is not None:# and (type(self.type) != type or type(value) != self.type):
-            return self.type(value)
+        if value is not None and self.type_func is not None:# and (type(self.type) != type or type(value) != self.type):
+            return self.type_func(self, owning_obj, value)
         
         else:
             return value
@@ -242,17 +269,17 @@ class Option():
                     raise Configurable_option_exception(owning_obj, self, "value '{}' of type '{}' could not be converted to the list-like type '{}'".format(value, type(value).__name__, self.list_type)) from e
                 
                 # Now check each element.
-                if self.type is not None:
+                if self.type_func is not None:
                     for index, element in enumerate(value):
                         try:
-                            value[index] = self.to_type(element)
+                            value[index] = self.to_type(owning_obj, element)
                             
                         except (TypeError, ValueError) as e:
                             raise Configurable_option_exception(owning_obj, self, "item '{}') '{}' of type '{}' is of invalid type".format(index, element, type(element).__name__)) from e
             else:
                 # Not a list type, just convert.
                 try:
-                    value = self.to_type(value)
+                    value = self.to_type(owning_obj, value)
                     
                 except (TypeError, ValueError) as e:
                     raise Configurable_option_exception(owning_obj, self, "value '{}' of type '{}' is of invalid type".format(value, type(value).__name__)) from e
@@ -312,4 +339,49 @@ class Option():
         # If we get here, there was no match.
         raise Disallowed_choice_exception(owning_obj, self, value)
         
+
+class Method_target_option(Option):
+    """
+    A specific sub-type of options for accessing parts of the method library.
+    """
+    
+    def __init__(self, method_targets_func, name = None, *, default = None, help = None, validate = None, exclude = None, required = False, no_none = None, no_edit = False):
+        """
+        
+        """
+        # This function will convert the 'string' (could actually be an int or list of strings) representation of the method part to the real method.
+        def type_func(option, configurable, value):
+            # Hack to check if the value is already a resolved configurable (avoiding circular imports).
+            # TODO: Improve this.
+            if hasattr(value, "TYPE"):
+                return value
             
+            # Get the available methods.
+            method_targets = method_targets_func(option, configurable)
+            return method_targets.resolve(value)
+        
+        def dump_func(option, configurable, value):
+            return value.tag_hierarchy if value is not None else None
+        
+        super().__init__(
+            # General stuff.
+            name = name,
+            default = default,
+            help = help,
+            validate = validate,
+            exclude = exclude,
+            required = required,
+            no_none = no_none,
+            no_edit = no_edit,
+            
+            # Values specific to method target options.
+            type = None,
+            type_func = type_func,
+            dump_func = dump_func,
+            edit_vtype = "method",
+            data_func = method_targets_func
+        )
+        
+        
+        
+    

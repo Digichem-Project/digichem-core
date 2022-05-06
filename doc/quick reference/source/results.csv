@@ -1,0 +1,18 @@
+File Extension,Description
+absorptions.csv,A simulated electronic absorption spectrum in units of eV and oscillator strength
+alpha.csv,Alpha orbitals (unrestricted calculations only)
+atoms.csv,Atomic coordinates
+beta.csv,Beta orbitals (unrestricted calculations only)
+CC.csv,Coupled-cluster energies
+ES.csv,Electronic excited states
+IR.csv,A simulated vibrational frequency spectrum (equivalent to an infra-red spectrum)
+MP.csv,Møller–Plesset energies
+orbitals.csv,Molecular orbitals (restricted calculations only)
+SCF.csv,"Self-consistent field (SCF, typically equivalent to the HF or DFT) energies"
+SOC.csv,Spin-orbit coupling
+summary.csv,"A complete summary of the calculation results (equivalent to `summary.txt`, except in csv format)"
+TDM.csv,Transition-dipole moments
+transitions.csv,"Excited state orbital transitions. This information is also included in the `ES.csv` file, but the
+format here may be more convenient for directly comparing transitions."
+UV-Vis.csv,A simulated electronic absorption spectrum in units of nm and intensity (equivalent to a UV-Vis spectrum)
+vibrations.csv,Vibrational frequencies

@@ -63,10 +63,10 @@ ALIAS: Optimisation, Frequencies, Excited States and Unrestricted Triplet Emissi
 
 combined_report_name: Organometallic Emitter TD-DFT Unrestricted Emission (in acetonitrile)
 calculations:
-    - [Gaussian Optimisation Frequencies, Gaussian B3LYP (GD3BJ), Gaussian Acetonitrile, 'Gaussian 6-31+G(d,p)/SBKJC-VDZ (ECP)']
-    - [Gaussian TD-DFT, Gaussian 10 Singlets 10 Triplets, Gaussian B3LYP (GD3BJ), Gaussian Acetonitrile, 'Gaussian 6-31+G(d,p)/SBKJC-VDZ (ECP)']
-    - [Gaussian Optimisation Frequencies Unrestricted Triplet, Gaussian B3LYP (GD3BJ), Gaussian Acetonitrile, 'Gaussian 6-31+G(d,p)/SBKJC-VDZ (ECP)']
-    - [Gaussian Single Point Singlet, Gaussian B3LYP (GD3BJ), Gaussian Acetonitrile, 'Gaussian 6-31+G(d,p)/SBKJC-VDZ (ECP)']
+    - [Gaussian Optimisation Frequencies, Gaussian B3LYP (GD3BJ), Gaussian Acetonitrile, 'Gaussian 6-31+G(d,p) SBKJC-VDZ (ECP)']
+    - [Gaussian TD-DFT, Gaussian 10 Singlets 10 Triplets, Gaussian B3LYP (GD3BJ), Gaussian Acetonitrile, 'Gaussian 6-31+G(d,p) SBKJC-VDZ (ECP)']
+    - [Gaussian Optimisation Frequencies Unrestricted Triplet, Gaussian B3LYP (GD3BJ), Gaussian Acetonitrile, 'Gaussian 6-31+G(d,p) SBKJC-VDZ (ECP)']
+    - [Gaussian Single Point Singlet, Gaussian B3LYP (GD3BJ), Gaussian Acetonitrile, 'Gaussian 6-31+G(d,p) SBKJC-VDZ (ECP)']
 
 
 ---
@@ -77,9 +77,9 @@ ALIAS: Optimisation, Frequencies, Excited States and TD-DFT T(1) Emission (B3LYP
 
 combined_report_name: Organometallic Emitter TD-DFT Emission (in acetonitrile)
 calculations:
-    - [Gaussian Optimisation Frequencies, Gaussian B3LYP (GD3BJ), Gaussian Acetonitrile, 'Gaussian 6-31+G(d,p)/SBKJC-VDZ (ECP)']
-    - [Gaussian TDA, Gaussian 10 Singlets 10 Triplets, Gaussian B3LYP (GD3BJ), Gaussian Acetonitrile, 'Gaussian 6-31+G(d,p)/SBKJC-VDZ (ECP)']
-    - [Gaussian TDA, Gaussian Optimised T(1), Gaussian B3LYP (GD3BJ), Gaussian Acetonitrile, 'Gaussian 6-31+G(d,p)/SBKJC-VDZ (ECP)']
+    - [Gaussian Optimisation Frequencies, Gaussian B3LYP (GD3BJ), Gaussian Acetonitrile, 'Gaussian 6-31+G(d,p) SBKJC-VDZ (ECP)']
+    - [Gaussian TDA, Gaussian 10 Singlets 10 Triplets, Gaussian B3LYP (GD3BJ), Gaussian Acetonitrile, 'Gaussian 6-31+G(d,p) SBKJC-VDZ (ECP)']
+    - [Gaussian TDA, Gaussian Optimised T(1), Gaussian B3LYP (GD3BJ), Gaussian Acetonitrile, 'Gaussian 6-31+G(d,p) SBKJC-VDZ (ECP)']
 
 
 

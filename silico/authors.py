@@ -4,9 +4,9 @@ authorship = {
     "Lead": "Oliver S. Lee",
     "Supervision": "Eli Zysman-Colman",
     "Beta Testers": [
-        "Ettore Crovini",
         "Campbell F. R. Mackenzie",
-        "Tomas Matulaitis"
+        "Tomas Matulaitis",
+        "Ettore Crovini",
         ],
     # Additional authors to go here hopefully one day...
     "Contributors": []
@@ -16,10 +16,10 @@ def get_authorship_string():
     """
     """
     auth_string = """Lead: {}
-Supervision: {}
 Beta Testers:
     {}
-""".format(authorship["Lead"], authorship["Supervision"], "\n    ".join(authorship["Beta Testers"]))
+Supervision: {}
+""".format(authorship["Lead"], "\n    ".join(authorship["Beta Testers"]), authorship["Supervision"])
     
     if len(authorship['Contributors']) > 0:
         auth_string += "Contributors:\n    " + "\n    ".join(authorship['Contributors'])

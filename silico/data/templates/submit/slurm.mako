@@ -5,6 +5,8 @@
     import silico
 %>\
 ##
+<%page args="SLURM_target"/>\
+##
 #!/bin/bash
 #SBATCH -J "${SLURM_target.program.calculation.descriptive_name} (${SLURM_target.program.name})"
 ##
@@ -37,5 +39,4 @@
 #SBATCH --error="${SLURM_target.calc_dir.log_file}"
 ##
 ## exec into resume, so we handle signals from SLURM etc.
-exec ${silico.silico_cmd} resume ${shlex.quote(str(SLURM_target.resume_file_path))}
-<%page args="SLURM_target"/>
+exec ${shlex.quote(SLURM_target.silico_command)} resume ${shlex.quote(str(SLURM_target.resume_file_path))}

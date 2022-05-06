@@ -17,11 +17,11 @@ class Control_wrapper(Tab_pile):
         self.top = top
         self.cancel_callback = self.convert_callback(cancel_callback)
         
-        controls = urwid.Columns(self.get_controls())
+        self.controls = urwid.Columns(self.get_controls())
         
         super().__init__([
             self.body,
-            ('pack', controls)
+            ('pack', self.controls)
         ])
 
     def convert_callback(self, callback):
@@ -116,6 +116,7 @@ class Confirm_or_cancel(Control_wrapper):
         Function called when the submit button is pressed.
         """
         if self.submit_callback is not None:
+            self.controls.set_focus(0)
             if self.submit_callback() is not False:
                 self.back()
 
@@ -161,6 +162,7 @@ class Confirm_settings_cancel(Control_wrapper):
         Function called when the submit button is pressed.
         """
         if self.submit_callback is not None:
+            self.controls.set_focus(0)
             if self.submit_callback() is not False:
                 self.back()
     

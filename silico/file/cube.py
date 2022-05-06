@@ -15,7 +15,7 @@ import silico.logging
 from silico.submit.destination.local import Series
 from silico.submit.calculation.turbomole import make_orbital_calc, Turbomole_memory,\
     make_anadens_calc
-from silico.file.base import File_maker
+from silico.file.base import File_maker, Dummy_file_maker
 from silico.submit import Memory
 
 
@@ -346,12 +346,16 @@ class Turbomole_to_cube(File_converter):
         self.calc_t = calc_t
         
     @classmethod
-    def from_options(self, *args, calculation_directory = None, orbitals = [], density = True, spin = False, options, **kwargs):
+    def from_options(self, output, *args, calculation_directory = None, orbitals = [], density = True, spin = False, options, **kwargs):
         """
         Constructor that takes a dictionary of config like options.
         """
         # First, get our program.
-        prog_t = options.programs.resolve(options['report']['turbomole']['program'])
+        prog_t = options['report']['turbomole']['program']
+        
+        # Give up if no program available.
+        if prog_t is None:
+            return Dummy_file_maker(output, "No program definition is available (set the report: turbomole: program: option)")
         
         calculation_directory = calculation_directory.resolve() if calculation_directory is not None else None
         
@@ -367,6 +371,7 @@ class Turbomole_to_cube(File_converter):
         
         # And continue.
         return self(
+            output,
             *args,
             calculation_directory = calculation_directory,
             calc_t = calc_t.inner_cls,
@@ -498,12 +503,16 @@ class Turbomole_to_anadens_cube(File_converter):
         self.calc_t = calc_t
         
     @classmethod
-    def from_options(self, *args, calculation_directory, first_density, second_density, operator = "-",  options, **kwargs):
+    def from_options(self, output, *args, calculation_directory, first_density, second_density, operator = "-",  options, **kwargs):
         """
         Constructor that takes a dictionary of config like options.
         """
         # First, get our program.
-        prog_t = options.programs.resolve(options['report']['turbomole']['program'])
+        prog_t = options['report']['turbomole']['program']
+        
+        # Give up if no program available.
+        if prog_t is None:
+            return Dummy_file_maker(output, "No program definition is available (set the report: turbomole: program: option)")
         
         calculation_directory = calculation_directory.resolve()
         
@@ -520,6 +529,7 @@ class Turbomole_to_anadens_cube(File_converter):
         
         # And continue.
         return self(
+            output,
             *args,
             calculation_directory = calculation_directory,
             first_density = first_density,

@@ -85,7 +85,7 @@ class Gaussian(Concrete_calculation, AI_calculation_mixin):
     num_CPUs = Option(help = "An integer specifying the number of CPUs to use for this calculation. CPU_list and num_CPUs are mutually exclusive", exclude = ("CPU_list",), default = 1, type = int)
     DFT = Options(help = "Options for DFT.",
         functional = Option(help = "The DFT functional to use. Specifying an option here will enable DFT.", type = str),
-        empirical_dispersion = Option(help = "Optional empirical dispersion method to use, note that not all methods are suitable with all functions.", choices = ("PFD", "GD2", "GD3", "GD3BJ", None), default = None)
+        empirical_dispersion = Option(help = "Optional empirical dispersion method to use, note that not all methods are suitable with all functionals.", choices = ("PFD", "GD2", "GD3", "GD3BJ", None), default = None)
     )
     post_HF_method = Option(help = "The name of a post-HF, calculation method to perform.", choices = ("MP2", "MP3", "MP4", "MP4(DQ)", "MP4(SDQ)", "MP5", "CCD", "CCSD", None), default = None)
     unrestricted = Option(help = "Whether to perform an unrestricted calculation", type = bool, default = False)

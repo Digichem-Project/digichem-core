@@ -6,6 +6,7 @@ from silico.report.image.main import Cube_setup, Partial_cube_setup
 from silico.file.cube import Turbomole_to_cube, Turbomole_to_spin_cube,\
     Turbomole_to_density_cube, Turbomole_to_orbital_cube,\
     Turbomole_to_anadens_cube
+from silico.file.base import Dummy_file_maker
 
 
 class Turbomole_setup(Partial_cube_setup):
@@ -138,7 +139,13 @@ class Turbomole_setup(Partial_cube_setup):
         for orbital_list in (self.report.result.molecular_orbitals, self.report.result.beta_orbitals):
             for orbital in orbital_list:                
                 # Save cube.
-                self.report.cubes[orbital.label] = Turbomole_to_orbital_cube(turbomole_to_cube = self.cube_makers['structure'], orbital = orbital)    
+                # Cubes can only be created from a real image maker, the dummy class lacks the methods required by the Turbomole_to_orbital_cube init() function.
+                #TODO: Don't really like this, ideally the constructor would seamlesly use a Dummy_file_maker
+                if not isinstance(self.cube_makers['structure'], Dummy_file_maker):
+                    self.report.cubes[orbital.label] = Turbomole_to_orbital_cube(turbomole_to_cube = self.cube_makers['structure'], orbital = orbital)
+                
+                else:
+                    self.report.cubes[orbital.label] = Dummy_file_maker(orbital.label+ " cube file", self.cube_makers['structure'].message)
         
         #############
         # Structure #

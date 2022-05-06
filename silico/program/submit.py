@@ -44,11 +44,11 @@ class Submit_program(Program):
     name = "Silico Calculation Submitter"
     command = "submit"
     aliases = ["s", "sub"]
-    description = "submit calculation files"
+    description = "Submit calculation files"
     help = "Submit calculations"
-    usage = """%(prog)s submit ...
-       or: %(prog)s result ...
-       or: %(prog)s report ..."""
+    usage = """%(prog)s [options] coord1.file [coord2.file] -c d1/p1/c1 [d2/p2/c2]
+       %(prog)s [options] coord1.file [coord2.file] -m method1.file [method2.file]
+       """
     
     @classmethod
     def arguments(self, sub_parsers_object):
@@ -60,13 +60,13 @@ class Submit_program(Program):
         """
         sub_parser = super().arguments(sub_parsers_object)
         
-        sub_parser.add_argument("calculation_files", help = "Calculation input files to submit", nargs = "*", type = Path)
+        sub_parser.add_argument("coordinate_files", help = "Coordinate input files to submit", nargs = "*", type = Path)
         sub_parser.add_argument("-O", "--output", help = "Base directory to perform calculations in. Defaults to the current directory", default = Path("./"))
         sub_parser.add_argument("-m", "--method-files", help = "Methods to perform, identified by file name", nargs = "*", default = [], dest = "methods", action = Method_action, method_type = "file")
-        sub_parser.add_argument("-c", "--method-codes", help = "Methods to perform, identified either by name or by ID", nargs = "*", default = [], dest = "methods", action = Method_action, method_type = "code")
+        sub_parser.add_argument("-c", "--method-codes", help = "Methods to perform, identified either by name or by ID (such, as 1/1/1)", nargs = "*", default = [], dest = "methods", action = Method_action, method_type = "code")
         sub_parser.add_argument("-C", "--charge", help = "Set the molecular charge of all input files. Note that certain calculations will override this value", default = None, type = int)
         sub_parser.add_argument("-M", "--multiplicity", "--mult", help = "Set the multiplicity of all input files. Note that certain calculations will override this value", default = None, type = int)
-        sub_parser.add_argument("--gen3D", help = "Whether to generate 3D coordinates (this will scramble existing atom coordinates). The default is yes, but only if it can be safely determined that the loaded coordinates are not already in 3D)", type = to_bool, default = True)
+        sub_parser.add_argument("--gen3D", help = "Whether to generate 3D coordinates from any given 2D input coordinate files (which will scramble existing atom coordinates). The default is yes, but only if it can be safely determined that the loaded coordinates are not already in 3D)", type = to_bool, default = True)
         sub_parser.add_argument("-p", "--prepare-only", help = "Whether to only perform setup for the calculation without actually performing it", action = "store_true")
         
         return sub_parser
@@ -102,7 +102,7 @@ class Submit_program(Program):
                 methods.append(parse_method_from_file(method_id, config))
         
         # Load coordinates.
-        coords = [Silico_coords.from_file(file, gen3D = args.gen3D, charge = args.charge, multiplicity = args.multiplicity) for file in args.calculation_files]
+        coords = [Silico_coords.from_file(file, gen3D = args.gen3D, charge = args.charge, multiplicity = args.multiplicity) for file in args.coordinate_files]
                 
         return self(coords, methods, args = args, config = config, logger = logger)
     

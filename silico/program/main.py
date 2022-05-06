@@ -58,12 +58,12 @@ PROGRAMS = [
     Status_program,
     Submit_program]
 
-
-def main():
+def get_argparser():
     """
-    Main entry point for the program.
+    A helper function which returns an argaprser object for all our sub-programs.
+    
+    This function is separate from main to help with autodocing.
     """
-    # ----- Program init -----
     # Configure our argument parser.
     # This is the top-level parser; each sub program will specify its own sub-parser.
     parser = Program.top_level_arguments()
@@ -73,6 +73,15 @@ def main():
     # Create sub parsers for each sub-program. Each will define its own parser.
     for sub_program in PROGRAMS:
         sub_program.arguments(subparser)
+        
+    return parser
+
+def main():
+    """
+    Main entry point for the program.
+    """
+    # ----- Program init -----
+    parser = get_argparser()
         
 #     # A hack to pick a default program if none has been chosen.
 #     if len(sys.argv) < 2 or ( sys.argv[1] not in ["--help", "-h", "-v"] and sys.argv[1] not in subparser.choices ):

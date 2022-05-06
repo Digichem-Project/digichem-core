@@ -5,10 +5,11 @@
 
 # General imports.
 import deepmerge
+import yaml
 
 # Silico imports.
 from silico.exception.configurable import Configurable_loader_exception,\
-    Tag_path_length_error, Unresolvable_tag_path_error
+    Short_tag_path_error, Unresolvable_tag_path_error, Long_tag_path_error
 from silico.exception.base import Silico_exception
 from silico.config.configurable.base import Configurable_class_target
 from silico.config.configurable.identifier import ID_splitter
@@ -77,6 +78,10 @@ class Configurable_loader():
         
         self._TOP = True
         self.pseudo = pseudo
+        
+        # Check our tag name is valid (does not contain /).
+        if self.TAG is not None and  "/" in self.TAG:
+            raise Configurable_loader_exception(self.config, self.TYPE, self.file_name, "the '/' character is not allowed in TAG names")
         
     def __iter__(self):
         """
@@ -322,7 +327,8 @@ class Partial_loader(Configurable_loader):
         :returns: The split parts (a list).
         """
         try:
-            tokens = list(ID_splitter(identifier))
+            #tokens = list(ID_splitter(identifier))
+            tokens = identifier.split("/")
             
         except Exception as e:
             raise ValueError("Could not split identifier string '{}'".format(identifier)) from e
@@ -332,11 +338,12 @@ class Partial_loader(Configurable_loader):
         
         new_tokens = []
         for token in tokens:
-            if is_int(token):
-                new_tokens.append(int(token))
-                
-            else:
-                new_tokens.append(token)
+            new_tokens.append(yaml.safe_load(token))
+#             if is_int(token):
+#                 new_tokens.append(int(token))
+#                 
+#             else:
+#                 new_tokens.append(token)
         
         return new_tokens
     
@@ -434,7 +441,7 @@ class Partial_loader(Configurable_loader):
         
         except IndexError:
             # We ran out of parts of our path before reaching a single loader, give up.
-            raise Tag_path_length_error([configurable.TAG for configurable in path])
+            raise Short_tag_path_error([configurable.TAG for configurable in path])
         
     def index_of_path(self, path, *, parent_offset = 0):
         """
@@ -452,7 +459,7 @@ class Partial_loader(Configurable_loader):
         
         except IndexError:
             # Ran out of path segments (or couldn't find the given segment?)
-            raise Tag_path_length_error([configurable.TAG for configurable in path])
+            raise Short_tag_path_error([configurable.TAG for configurable in path])
             
         # Next, we need the total of all the indexes we skipped (that are before our given index.
         skipped_total = sum([loader.size() for loader in self.NEXT[:index]])
@@ -501,7 +508,7 @@ class Partial_loader(Configurable_loader):
         
         :param tag_list: A list of ordered tags indicating which configurables to get.
         :param path: The currently built configurable path, used when called recursively.
-        :param allow_incomplete: Whether to return incomplete paths. Incomplete paths are those that do not end in a single loader. If False, a Tag_path_length_error exception will be raised if the given tag_list is not long enough. 
+        :param allow_incomplete: Whether to return incomplete paths. Incomplete paths are those that do not end in a single loader. If False, a Short_tag_path_error exception will be raised if the given tag_list is not long enough. 
         :returns: The list of loaders.
         """
         path = [] if path is None else path
@@ -518,7 +525,7 @@ class Partial_loader(Configurable_loader):
                 return path
             
             # We're not allowed incomplete paths, panic.
-            raise Tag_path_length_error(tag_list) from None
+            raise Short_tag_path_error(tag_list) from None
 
         # Search through our children for the next tag.
         # This function returns a list of loaders that lead to the tag we're looking for (like a path).
@@ -535,8 +542,8 @@ class Partial_loader(Configurable_loader):
         try:
             return next_children[-1].path_by_tags(new_tag_list, path = path)
         
-        except Tag_path_length_error:
-            raise Tag_path_length_error(tag_list) from None
+        except Short_tag_path_error:
+            raise Short_tag_path_error(tag_list) from None
         
 
     def link(self, loaders, children = None):
@@ -714,6 +721,10 @@ class Single_loader(Configurable_loader):
         
         # Add ourself to the path.
         path.append(self)
+        
+        if len(tag_list) > 0:
+            # Something's gone wrong, this is the last loader in the chain but we've got more segments to process?
+            raise Long_tag_path_error(path, tag_list)
         
         return path
     

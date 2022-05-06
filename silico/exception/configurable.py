@@ -132,14 +132,14 @@ class Configurable_loader_exception(Silico_exception):
         
         return message
     
-class Tag_path_length_error(Silico_exception):
+class Short_tag_path_error(Silico_exception):
     """
     A given TAG path was too short.
     """
     
     def __init__(self, tag_path):
         """
-        Constructor for Tag_path_length_error
+        Constructor for Short_tag_path_error
         
         :param tag_path: A list of TAG names that is too short.
         """
@@ -150,6 +150,27 @@ class Tag_path_length_error(Silico_exception):
         Get a string description of this error.
         """
         return "could not resolve TAG list '{}', too few TAG names given".format(self.tag_path)
+    
+class Long_tag_path_error(Silico_exception):
+    """
+    A given TAG path was too long.
+    """
+    
+    def __init__(self, path, remaining_tags):
+        """
+        Constructor for Long_tag_path_error
+        
+        :param path: The loader path that has been built so far.
+        :param remaining_tags: The tags that remain to be resolved.
+        """
+        self.path = path
+        self.remaining_tags = remaining_tags
+        
+    def __str__(self):
+        """
+        Get a string description of this error.
+        """
+        return "could not resolve remaining items in TAG list '{}', already reached the single loader '{}'".format(self.remaining_tags, self.path[-1].TAG)
     
 class Unresolvable_tag_path_error(Silico_exception):
     """
