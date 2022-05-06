@@ -3,7 +3,7 @@ The Silico Dev Team
 
 Silico is the result of the dedication of a small team of researchers endeavouring to make computational chemistry accessible for all.
 Silico is under active development and contributions are welcome, please contact osl@st-andrews.ac.uk in the first instance.
-The authors would, at this point, like to thank the all members of the Silico Development Team for their continued support:
+The authors would, at this point, like to thank all members of the Silico Development Team for their continued support:
 
 Project Lead
 ------------

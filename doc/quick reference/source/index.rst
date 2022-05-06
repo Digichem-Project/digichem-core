@@ -10,6 +10,8 @@ Silico Quick Reference
 	authorship
 	about
 	installation
+	intro
 	submit
 	structure
+	results
 	codes

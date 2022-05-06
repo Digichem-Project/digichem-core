@@ -14,10 +14,10 @@ When using Silico, there are two types of input file that control how each calcu
 These are: (1) coordinate files, which specify the elements and starting geometry of each of the molecules or systems under study,
 and (2) method files, which control the specifics of each calculation, such as the functional and basis set.
 
-One of the main advantages of using Silico for calculation submission is that multiple coordinate file can be specified at once, in which case all the given coordinate files will be submitted to the same calculation (as specified by the method file) simultaneously.
+One of the main advantages of using Silico for calculation submission is that multiple coordinate files can be specified at once, in which case all the given coordinate files will be submitted to the same calculation (as specified by the method file) simultaneously.
 In addition, multiple method files can also be specified, in which case each coordinate file will first be submitted to the calculation defined by the first method file specified. Once each of these calculations has completed, the resulting atomic geometry will then be submitted to the calculation defined by the second method file, and so on until all method files have been exhausted.
 
-Silico comes pre-loaded with a large database of method files, and so in most cases these don't need to be written by the user.
+Silico comes pre-loaded with a large database of method files, and so in most cases these do not need to be written by the user.
 Hence all that is generally needed to submit a calculation is a number of coordinate file specifying the molecules of interest.
 
 Silico supports a wide variety of coordinate formats, including both 2D and 3D formats, each of which can be written by different programs. Notable entries include:
@@ -112,7 +112,7 @@ Any of the above commands will run the silico submit sub-program in interactive 
 
 This interface acts similarly to a graphical user interface (GUI).
 The various parts of the interface can be navigated with the arrow keys.
-Doing so will move the flashing cursor which indicates the part of the interface which is currently selected.
+Doing so will move the flashing cursor which indicates the part of the interface that is currently selected.
 
 
 Input Coordinates
@@ -150,7 +150,7 @@ A directory can similarly be contracted by selecting it and using the 'left arro
 To select a coordinate file to load, use the 'space' or 'enter' key to highlight it. If a file is chosen in error, pressing 'space' again will deselect it.
 Once the files to be loaded have been selected, navigate to the ``< Confirm >`` button in the bottom right corner and select it.
 
-..	note::
+..	tip::
 	Instead of using the down arrow key to navigate all the way to the bottom of the page, the 'tab' key can be used to skip directly to the controls at the bottom of the window.
 	Similarly, 'shift-tab' (holding shift will pressing tab) will skip back to the browser.
 
