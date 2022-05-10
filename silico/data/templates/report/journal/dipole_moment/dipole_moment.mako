@@ -32,7 +32,7 @@
 		angle between the dipole moment and the XY-plane was ${"{:0.2f} {}".format(dipole_moment.XY_plane_angle.angle, dipole_moment.XY_plane_angle.pretty_units)}.
 		%endif
 		%if image_name in report.images:
-		<%include file="/geometry/image.mako" args="image_name = image_name, caption = 'The {} (red arrow) plotted against the aligned molecular geometry'.format(dipole_titles.dipole_name(dipole_moment)), report = report" />
+		<%include file="/geometry/image.mako" args="image_name = image_name, caption = 'The {} (red arrow) plotted against the aligned molecular geometry'.format(capture(dipole_titles.dipole_name, dipole_moment)), report = report" />
 		%endif
 	%else:
 		was <div class="result__value">exactly 0 D</div></div>.
