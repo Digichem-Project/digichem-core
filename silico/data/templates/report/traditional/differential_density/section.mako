@@ -1,15 +1,15 @@
 ## -*- coding: utf-8 -*-
 
-## Template to display images of differential densities of excited states
+## Template to display images of difference densities of excited states
 
 <%page args="excited_states, report" />
 
 <%
 	diffden_images = []
-	# Prepare a list of differential density images to display.
+	# Prepare a list of difference density images to display.
 	for excited_state in excited_states:
-		if excited_state.state_symbol + "_differential_density" in report.images:
-			diffden_images.append((excited_state, excited_state.state_symbol + "_differential_density"))
+		if excited_state.state_symbol + "_difference_density" in report.images:
+			diffden_images.append((excited_state, excited_state.state_symbol + "_difference_density"))
 	
 %>
 
@@ -21,7 +21,7 @@
     <h2 class="section__header">${", ".join([excited_state.state_symbol for excited_state, image_name in diffden_group])} Differential Densities</h2>
     <div class="section__body section__body--orbital">
         %for excited_state, image_name in diffden_group:
-        <%include file="/density/plot.mako" args="image_name = image_name, caption = excited_state.state_symbol + ' positive (hole) (' + report.images[image_name].primary_colour + ') & negative (electron) (' + report.images[image_name].secondary_colour + ') differential density (isovalue: ' + str(report.images[image_name].isovalue) + ')', report = report"/>
+        <%include file="/density/plot.mako" args="image_name = image_name, caption = excited_state.state_symbol + ' positive (hole) (' + report.images[image_name].primary_colour + ') & negative (electron) (' + report.images[image_name].secondary_colour + ') difference density (isovalue: ' + str(report.images[image_name].isovalue) + ')', report = report"/>
         %endfor
     </div>
 </div>

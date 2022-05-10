@@ -94,7 +94,7 @@
         %if len(report.result.excited_states) > 0:
             <%include file="/excited_states/excited_states_section.mako" args="excited_states = report.result.excited_states, report = report"/>
         %endif
-        <%include file="/differential_density/section.mako" args="excited_states = report.result.excited_states, report = report"/>
+        <%include file="/difference_density/section.mako" args="excited_states = report.result.excited_states, report = report"/>
         <%include file="/NTO/section.mako" args="excited_states = report.result.excited_states, report = report"/>
         %if len(report.result.spin_orbit_coupling) > 0:
             <%include file="/spin_orbit_coupling/SOC_table.mako" args="spin_orbit_coupling = report.result.spin_orbit_coupling"/>

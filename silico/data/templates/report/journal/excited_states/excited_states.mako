@@ -13,12 +13,12 @@
 	
 	# A list of excited states that have NTOs for.
 	NTOs = []
-	# A list of excited states that have differential density plots.
+	# A list of excited states that have difference density plots.
 	diff_dens = []
 	for excited_state in report.result.excited_states:
 		if excited_state.state_symbol + "_NTO" in report.images:
 			NTOs.append(excited_state)
-		if excited_state.state_symbol + "_differential_density" in report.images:
+		if excited_state.state_symbol + "_difference_density" in report.images:
 			diff_dens.append(excited_state)
 		
 	
@@ -97,7 +97,7 @@
 	%endif
 	## Differential density.
 	%if len(diff_dens) > 0:
-		Finally, the difference in density <div class="result"><div class="result__title">(differential density)</div> between
+		Finally, the <div class="result"><div class="result__title">difference in density</div> between
 		%if len(diff_dens) == len(report.result.excited_states):
 			each excited state
 		%else:
@@ -107,7 +107,7 @@
 		<%
 			captions = []
 			for state in diff_dens:
-				captions.append(report.captions("figure", state.state_symbol + "_differential_density"))
+				captions.append(report.captions("figure", state.state_symbol + "_difference_density"))
 		%>
 		and is shown in <div class="result__value">${inflector.plural("figure", len(captions))} ${listjoin(captions)}</div></div>.
 	%endif
@@ -174,6 +174,6 @@
 	<%include file="/geometry/image.mako" args="image_name = state.state_symbol + '_NTO', caption = 'Density plot of the NTO hole (' + report.images[state.state_symbol + '_NTO'].primary_colour + ') & electron (' + report.images[state.state_symbol + '_NTO'].secondary_colour + ') of the {}<sub>{}</sub> state, plotted with isovalue: {}'.format(state.multiplicity_symbol, state.multiplicity_level, report.images[state.state_symbol + '_NTO'].isovalue), report = report" />
 	%endfor
 	%for state in diff_dens:
-	<%include file="/geometry/image.mako" args="image_name = state.state_symbol + '_differential_density', caption = 'Differential density plot of the hole (' + report.images[state.state_symbol + '_differential_density'].primary_colour + ') & electron (' + report.images[state.state_symbol + '_differential_density'].secondary_colour + ') of the {}<sub>{}</sub> state, plotted with isovalue: {}'.format(state.multiplicity_symbol, state.multiplicity_level, report.images[state.state_symbol + '_differential_density'].isovalue), report = report" />
+	<%include file="/geometry/image.mako" args="image_name = state.state_symbol + '_difference_density', caption = 'Differential density plot of the hole (' + report.images[state.state_symbol + '_difference_density'].primary_colour + ') & electron (' + report.images[state.state_symbol + '_difference_density'].secondary_colour + ') of the {}<sub>{}</sub> state, plotted with isovalue: {}'.format(state.multiplicity_symbol, state.multiplicity_level, report.images[state.state_symbol + '_difference_density'].isovalue), report = report" />
 	%endfor
 </div>

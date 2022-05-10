@@ -83,8 +83,8 @@ There are a number of valid options here (please see the cubegen manual), the mo
             cube_grid_size = Option(help = "The size of the grid use to plot cube data.", type = int, default = -3),
             isovalue = Option(help = "The isovalue to use for plotting total density.", type = float, default = 0.0004)
         ),
-        differential_density = Options(help = "Specific options for excited states differential density plots.",
-            isovalue = Option(help = "The isovalue to use for plotting differential density.", type = float, default = 0.001)
+        difference_density = Options(help = "Specific options for excited states difference density plots.",
+            isovalue = Option(help = "The isovalue to use for difference density plots.", type = float, default = 0.001)
         )
     )
     

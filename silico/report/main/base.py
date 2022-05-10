@@ -306,11 +306,11 @@ class Report():
                     rotations = self.rotations,
                     options = self.options)
                 
-            # If we have differential density cubes, create images that can use them.
-            if excited_state.state_symbol + "_differential_density" in self.cubes:
-                self.images[excited_state.state_symbol + "_differential_density"] = Differential_density_image_maker.from_options(
-                    Path(output_dir, excited_state.state_symbol, output_name + ".{}_differential_density.jpg".format(excited_state.state_symbol)),
-                    cube_file = self.cubes[excited_state.state_symbol + "_differential_density"],
+            # If we have difference density cubes, create images that can use them.
+            if excited_state.state_symbol + "_difference_density" in self.cubes:
+                self.images[excited_state.state_symbol + "_difference_density"] = Differential_density_image_maker.from_options(
+                    Path(output_dir, excited_state.state_symbol, output_name + ".{}_difference_density.jpg".format(excited_state.state_symbol)),
+                    cube_file = self.cubes[excited_state.state_symbol + "_difference_density"],
                     rotations = self.rotations,
                     options = self.options
                 )

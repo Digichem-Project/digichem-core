@@ -6,7 +6,7 @@
 
 <%
 	NTO_images = []
-	# Prepare a list of differential density images to display.
+	# Prepare a list of difference density images to display.
 	for excited_state in excited_states:
 		if excited_state.state_symbol + "_NTO" in report.images:
 			NTO_images.append((excited_state, excited_state.state_symbol + "_NTO"))

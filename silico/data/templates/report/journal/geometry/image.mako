@@ -1,6 +1,6 @@
 ## -*- coding: utf-8 -*-
 ##
-## Template to display a collection of four images showing some sort of density plot (eg, orbitals, differential density, NTO etc).
+## Template to display a collection of four images showing some sort of density plot (eg, orbitals, difference density, NTO etc).
 ##
 <%page args="image_name, caption, report" />
 

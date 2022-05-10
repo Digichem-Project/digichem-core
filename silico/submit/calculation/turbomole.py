@@ -128,7 +128,7 @@ class Turbomole_AI(Turbomole, AI_calculation_mixin):
             format = Option(help = "The format to write to.", default = "cub", choices = ("cub", "plt", "map", "xyz", "plv"), type = str)
             ),
         anadens = Options(
-            help = "Options for $anadens data group (calculating differential density plots etc).",
+            help = "Options for $anadens data group (calculating difference density plots etc).",
             calculate = Option(help = "Whether to calculate $anadens.", type = bool, default = False),
             first_density = Option(help = "One of the two density files (.cao) to calculate from, relative to the calculation directory."),
             second_density = Option(help = "One of the two density files (.cao) to calculate from, relative to the calculation directory."),
@@ -272,7 +272,7 @@ def make_orbital_calc(*, name, memory, num_CPUs, orbitals = [], density = False,
 
 def make_anadens_calc(*, name, memory, num_CPUs, first_density, second_density, file_name, operator = "-"):
     """
-    Create a Turbomole calculation object that can be use to create differential density plots from an existing calculation (differential density plots are similar to NTOs plots but apply specifically to calculations performed with ricc2(?))
+    Create a Turbomole calculation object that can be use to create difference density plots from an existing calculation (difference density plots are similar to NTOs plots but apply specifically to calculations performed with ricc2(?))
     
     :param name: A name to give the calculation.
     :param memory: The amount of memory to use for the calculation (note it's not clear if this option will be respected by ricc2 or not).

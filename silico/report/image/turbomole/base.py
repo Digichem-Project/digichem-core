@@ -195,7 +195,7 @@ class Turbomole_anadens_setup(Cube_setup):
                     # We use a different constructor depending on whether we have a calculation to use as a template.
                     if self.calculation is not None:
                         cube_maker = Turbomole_to_anadens_cube.from_calculation(
-                            Path(output_dir, "Cubes", excited_state.state_symbol + "_differential_density.cub"),
+                            Path(output_dir, "Cubes", excited_state.state_symbol + "_difference_density.cub"),
                             turbomole_calculation = self.calculation,
                             # TODO: This relies on the density files still being located in the correct turbomole calculation directory, which may not always be the case...
                             calculation_directory = excited_state_cao_file.parent,
@@ -206,7 +206,7 @@ class Turbomole_anadens_setup(Cube_setup):
                         
                     else:
                         cube_maker = Turbomole_to_anadens_cube.from_options(
-                            Path(output_dir, "Cubes", excited_state.state_symbol + "_differential_density.cub"),
+                            Path(output_dir, "Cubes", excited_state.state_symbol + "_difference_density.cub"),
                             # TODO: This relies on the density files still being located in the correct turbomole calculation directory, which may not always be the case...
                             calculation_directory = excited_state_cao_file.parent,
                             first_density = ground_state_cao_file,
@@ -214,4 +214,4 @@ class Turbomole_anadens_setup(Cube_setup):
                             options = self.options
                         )
                         
-                    self.report.cubes[excited_state.state_symbol + "_differential_density"] = cube_maker
+                    self.report.cubes[excited_state.state_symbol + "_difference_density"] = cube_maker
