@@ -19,7 +19,7 @@
 
 project = 'Silico'
 copyright = '2022, Silico Dev Team'
-author = 'Oliver S. Lee, Campbell F. R. Mackenzie, Tomas Matulaitis, Ettore Crovini and Eli Zysman-Colman'
+author = 'The Silico Dev Team'
 
 # The full version, including alpha/beta/rc tags
 release = 'v1.0.0'
