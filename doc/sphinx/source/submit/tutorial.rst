@@ -1,4 +1,4 @@
-.. _tutorial :
+.. _submit_tutorial :
 
 Calculation Submission Tutorial
 ===============================

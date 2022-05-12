@@ -14,5 +14,5 @@ Welcome to silico's documentation!
    introduction/authorship
    introduction/intro
    running/introduction
-   submit/intro
+   submit/index
    bibliography

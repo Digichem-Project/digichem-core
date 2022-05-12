@@ -1,3 +1,5 @@
+.. _silico_submit:
+
 Silico Submit
 =============================
 
