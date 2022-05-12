@@ -55,7 +55,7 @@ Run Silico
 -------------
 
 It is now time to run Silico, the program which will manage the remainder of the submission process.
-To begin, run the ``silico submit`` sub-program followed by a list of the coordinate files to submit. For example, to submit two files named 'Benzene.cdx' and 'Naphthalene.com', run:
+To begin, run the ``silico submit`` subprogram followed by a list of the coordinate files to submit. For example, to submit two files named 'Benzene.cdx' and 'Naphthalene.com', run:
 
 .. code-block:: console
 
@@ -104,7 +104,7 @@ Finally, you may choose to not specify any input coordinates at this time, in wh
 The Interactive Interface
 --------------------------
 
-Any of the above commands will run the silico submit sub-program in interactive mode, which will open a window that appears as follows:
+Any of the above commands will run the silico submit subprogram in interactive mode, which will open a window that appears as follows:
 
 .. image:: /_static/submit_tutorial/submit_interface.png
     :width: 80%

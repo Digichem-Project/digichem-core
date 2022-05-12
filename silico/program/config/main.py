@@ -29,7 +29,7 @@ class Config_program(Program):
         
         subparsers = sub_parser.add_subparsers(dest="prog")
     
-        # Create sub parsers for each sub-program. Each will define its own parser.
+        # Create sub parsers for each subprogram. Each will define its own parser.
         silico.program.config.validate.Validate_program.arguments(subparsers)
         silico.program.config.show.Show_program.arguments(subparsers)
     
