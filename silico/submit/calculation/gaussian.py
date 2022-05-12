@@ -91,7 +91,7 @@ class Gaussian(Concrete_calculation, AI_calculation_mixin):
     unrestricted = Option(help = "Whether to perform an unrestricted calculation", type = bool, default = False)
     basis_set = Options(help = "The basis set to use.",
         internal = Option(help = "The name of a basis set built in to Gaussian, see Gaussian manual for allowed values.", type = str, exclude = "exchange"),
-        exchange = Option(help = "The definition of a (number of) basis sets to use from the Basis Set Exchange (BSE), in the format 'basis set name': 'applicable elements' (for example: '6-31G(d,p)': '1,3-4,B-F')", type = BSE_basis_set, dump_func = lambda option, configurable, value: value.definition if value is not None else {}, exclude = "internal", edit_vtype = "dict")
+        exchange = Option(help = "The definition of a (number of) basis sets to use from the Basis Set Exchange (BSE), in the format 'basis set name': 'applicable elements' (for example: '6-31G(d,p)': '1,3-4,B-F')", type = BSE_basis_set, dump_func = lambda option, configurable, value: dict(value), exclude = "internal", edit_vtype = "dict", default = lambda option, configurable: BSE_basis_set())
     )
     solvent = Option(help = "Name of the solvent to use for the calculation (the model used is SCRF-PCM)", default = None, type = str)
     convert_chk = Option(help = "Whether to create an .fchk file at the end of the calculation", default = True, type = bool)
@@ -203,7 +203,7 @@ class Gaussian(Concrete_calculation, AI_calculation_mixin):
             if self.basis_set['internal'] is not None:
                 basis_set = self.basis_set['internal']
                 
-            elif self.basis_set['exchange'] is not None:
+            elif len(self.basis_set['exchange']) > 0:
                 # Our basis set label will be either gen or genECP (depending on whether we have any ECPs).
                 basis_set = "gen" if not self.basis_set['exchange'].has_ECPs(self.input_coords.elements) else "genECP"
                 

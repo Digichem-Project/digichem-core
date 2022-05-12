@@ -218,7 +218,7 @@ def parse_method_from_file(file_name, method_library, resolve = True):
                 raise Configurable_loader_exception(method_part, method_part_name, file_name, "class_name '{}' is not recognised".format(method_part['class_name']))
             
             # Now make from it (this will also validate).
-            method_part = cls(file_name = file_name, validate = True, **raw_method_part)
+            method_part = cls(file_name = file_name, validate_now = True, **raw_method_part)
             
             # And finalize so we can make real objects from it.
             method_part.finalize()
