@@ -137,9 +137,11 @@ class Method_target_editor(Tab_pile, Setedit_editor_mixin):
         # TODO: Perhaps there should be an option to call this from a Configurable_browser object?
         self.browser.configurable.finalize()
         
-    def discard(self):
+    def discard(self, save = True):
         """
         Discard any changes made since the last save.
+        
+        :param save: Whether to save (and validate) the rolled back changes. Normally this is safe, but if this browser is only editing part of the options of a configurable and some of those other options have not been reset (or otherwise contain invalid options), this method will fail (because all the options have to be validated, not just those edited by this browser).
         """
         # If no class has yet been selected, do nothing.
         if self.class_widget.value is None:
@@ -151,7 +153,7 @@ class Method_target_editor(Tab_pile, Setedit_editor_mixin):
             self.update_current_method_target(self.last_method_target)
             
         else:
-            self.browser.discard()
+            self.browser.discard(save = save)
         
     def validate_setedits(self):
         # If no class has yet been selected, do nothing.
