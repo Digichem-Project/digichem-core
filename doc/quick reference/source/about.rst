@@ -60,5 +60,4 @@ A Note on Terminology
 Computational chemistry programs perform calculations on collections of atoms.
 These collections of atoms can theoretically describe any structure, ranging in scale and complexity from a single element to a molecule, an ionic compound, a polymer, organometallic complex, protein or even a crystal lattice.
 This large scope can make referring to these collections of atoms in an inclusive way difficult, and often the term 'system of interest' is used so as to not exclude any of the above group.
-However, this term is somewhat clumsy, and so instead the term 'molecule' will be generally used in the discussion of this document for simplicity's sake.
-As such, the term 'molecule' can be exchanged for any of the above terms wherever it is encountered, unless otherwise noted.
+However, as this term is somewhat clumsy, 'molecule' will be used interchangeably with it in the body of this document.
