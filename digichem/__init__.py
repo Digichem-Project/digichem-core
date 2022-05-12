@@ -21,7 +21,7 @@ description = "Silico Computational Chemistry Package"
 major_version = 1
 minor_version = 0
 revision = 0
-prerelease = 23
+prerelease = 24
 # Whether this is a development version.
 development = False
 # Version information.
