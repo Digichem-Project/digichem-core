@@ -161,6 +161,7 @@ class Method_target_editor(Tab_pile, Setedit_editor_mixin):
             return
         
         self.browser.validate_setedits()
+        self.browser.confirm()
 
 
 class Method_editor(Paginated_settings_browser):
