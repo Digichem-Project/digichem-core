@@ -2,7 +2,7 @@ Silico Basics
 ============================
 
 
-The Sub-Programs
+The Subprograms
 ----------------
 The various functionality of Silico is split into a number of subprograms. These can be accessed
 by specifying the name of the desired subprogram after the silico command. For example, to use
