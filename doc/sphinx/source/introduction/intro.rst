@@ -3,6 +3,7 @@ Introduction
 
 .. toctree::
 	
-	howto
-	about
-	features
+    about
+    features
+    new
+    howto
