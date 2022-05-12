@@ -2,18 +2,18 @@ import basis_set_exchange.writers
 import deepmerge
 
 
-class BSE_basis_set():
+class BSE_basis_set(dict):
     """
     A class for representing a (number of) basis sets fetched from the basis set exchange.
     """
     
-    def __init__(self, definition):
+    def __init__(self, *args, **kwargs):
         """
         Constructor for BSE_basis_set objects.
         
         :param definition: A dictionary where each key is the name of a basis set and the value is the elements it applies to. The values 'all', '*', and None can be used to indicate the basis set applies to all atoms.
         """
-        self.definition = definition
+        super().__init__( *args, **kwargs)
         
     @classmethod
     def is_filter_all(self, element_filter):
@@ -32,7 +32,7 @@ class BSE_basis_set():
         """
         names = []
         
-        for basis_set_name, basis_set_elements in self.definition.items():
+        for basis_set_name, basis_set_elements in self.items():
             name = basis_set_name
             if not self.is_filter_all(basis_set_elements):
                 name += " []".format(basis_set_exchange.misc.compact_elements(basis_set_exchange.misc.expand_elements(basis_set_elements)))
@@ -60,7 +60,7 @@ class BSE_basis_set():
         basis_sets = {}
         
         # First, convert each definition to to a basis_set_exchange dict
-        for basis_set_name, basis_set_elements in self.definition.items():
+        for basis_set_name, basis_set_elements in self.items():
             # Only elements that are actually present will have a basis set recorded.
             # The values of 'all', '*' and None are also accepted as meaning all atoms.
             if not self.is_filter_all(basis_set_elements):
