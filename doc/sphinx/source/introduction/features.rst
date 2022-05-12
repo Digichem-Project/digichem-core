@@ -3,11 +3,13 @@
 Features
 ========
 
-A general list of the features that Silico offers for computational chemists is described below:
+ * Handling of the entire submission process from start to finish. The user does not not need to write batch/submission files or worry about calling the CC programs themselves.
+ * Separation of the concepts of 'starting geometries' (coordinates) and 'calculation options' (methods) into separate logical units.
+ * Support for *ca.* 150 different input coordinate formats. Any of these formats can be used interchangeably with any of the supported CC programs.
+ * Introduction of the concept of calculation 'methods' which define all aspects of a computation (except any starting geometries). Support for specifying methods as individual files (in a program-independent format) or by selecting from an internal database.
+ * Support for submitting multiple input coordinates simultaneously, facilitating large scale computational screens with ease.
+ * Support for queueing multiple methods sequentially to support compound jobs in which one calculation depends on the output geometry of another.
+ * Automated parsing and analysis of completed calculation results and saving of the resulting data to formats which can be easily read and processed by the user, including plain text and comma-separated values (CSV).
+ * Automation of common post-processing tasks, including the generation of 3D structure images, orbital density plots, natural-transition orbitals, difference density plots and simulated spectra.
+ * Automated generation of a summary report from completed calculations. This report is saved in portable-document format (PDF) for easy reading and distribution.
 
- * Submission to computational programs through a simple and unified interface.
- * Simultaneous submission of multiple molecules/systems.
- * Automatic in series submission of results from completed calculations to subsequent calculations.
- * Automatic conversion of input files (including ChemDraw) to formats appropriate for the selected computational program.
- * Automatic and manual analysis of computation results, including tabulation to comma-separated values (CSV) format.
- * Automatic and manual generation of PDF reports from computation results, including rendered 3D structures, orbital images and graphs.
