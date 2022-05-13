@@ -65,7 +65,7 @@ Explicit charge and multiplicity information can be specified by the ``-C`` (or 
 
     $ silico con coordinate.file -O coordinate.si -C 0 -M 1
 
-The .si format is written in yaml and has the following basic structure::
+The .si format is written in yaml, so a silico input file can also be written from scratch using any text editor.  The .si file has the following basic structure::
 
     name: null
     charge: 0
@@ -112,27 +112,34 @@ However, users can also, if they wish, write their own method files.
 Method Files
 ____________
 
-Method files are written in yaml format and contain three basic `keys` (``destination``, ``program`` and ``calculation``), each of which contains information about the three logical parts of the method (the `Destination`, the `Program` or the `Calculation`).
+Method files are written in yaml format and contain three basic `keys` (``destination``, ``program`` and ``calculation``), each of which contains information about the three logical parts of the method (the `Destination`, the `Program` or the `Calculation`):
+
+.. code-block:: yaml
+
+    destination:        # Destination (SLURM partition, storage location etc) information.
+    program:            # CC program (Gaussian, Turbomoel etc) information.
+    calculation:        # Specific calculation options (functional, method, basis set etc).
+
 Each of these structures can either contain a custom definition (essentially defining a new method), or refer to part of a method already built into Silico.
-This is useful because it allows a method file to use a built in `destination` and `program` definition, which typically depend on the server setup and cannot be changed anyway, while still changing the details of the `calculation` itself.
+This is useful because it allows a method file, for example, to use a built in `destination` and `program` definition, which typically depend on the server setup and cannot be changed anyway, while still changing the details of the `calculation` itself.
 
 To refer to a built in method part, specify either the unique code or ID of the relevant part, for example:
 
 .. code-block:: yaml
 
-    destination: SLURM
+    destination: SLURM      # Use the built in destination called 'SLURM'.
 
 or:
 
 .. code-block:: yaml
 
-    destination: 1
+    destination: 1          # Use the built in destination with code of 1.
 
 If the method part is built up from a hierarchy of TAG names, the path can be specified as a list:
 
 .. code-block:: yaml
     
-    program: [Gaussian, 16]
+    program: [Gaussian, 16] # Use the built in program with the name "Gaussian" "16".
     
 or:
 
@@ -146,7 +153,7 @@ Any other format will be interpreted as specifying a new method part, in which c
 
 .. code-block:: yaml
 
-    calculation:
+    calculation:            # Options for a new type of calculation.
         class_name: Gaussian
         memory: 1GB
         name: New Calculation
