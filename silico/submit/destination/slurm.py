@@ -1,15 +1,19 @@
-from silico.exception import Submission_error, Silico_exception
+# General imports.
 from mako.lookup import TemplateLookup
 from pathlib import Path
-import silico
 import os
 import stat
-from silico.submit import Memory
-from silico.submit.destination.resume import Resumable_destination
 import subprocess
 from subprocess import CalledProcessError
+
+# Silico imports.
+import silico
+from silico.exception import Submission_error, Silico_exception
+from silico.submit import Memory
+from silico.submit.destination.resume import Resumable_destination
 from silico.config.configurable.option import Option
 from silico.misc.base import is_int
+
 
 class SLURM(Resumable_destination):
     """
