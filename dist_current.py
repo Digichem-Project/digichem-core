@@ -8,6 +8,8 @@ import subprocess
 import distutils.dir_util
 import shutil
 from datetime import datetime
+import itertools
+import shutil
 
 # The name of the archive.
 archive_name = silico.name + "-" + silico.version
@@ -27,6 +29,14 @@ edited_date = datetime.today()
 
 # First copy our source to an appropriate folder name
 distutils.dir_util.copy_tree("./", str(dest))
+
+# Delete any __pycache__ dirs and .pyc or .pyo files.
+# First __pycache__
+for pycachedir in dest.rglob("__pycache__"):
+    shutil.rmtree(pycachedir)
+
+for pycachefile in itertools.chain(dest.rglob("*.pyc"), dest.rglob("*.pyo")):
+    pycachefile.unlink()
 
 # Modify our version info to remove the development label.
 version_file_contents = ""
