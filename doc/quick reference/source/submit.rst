@@ -18,7 +18,7 @@ One of the main advantages of using Silico for calculation submission is that mu
 In addition, multiple method files can also be specified, in which case each coordinate file will first be submitted to the calculation defined by the first method file specified. Once each of these calculations has completed, the resulting atomic geometry will then be submitted to the calculation defined by the second method file, and so on until all method files have been exhausted.
 
 Silico comes pre-loaded with a large database of method files, and so in most cases these do not need to be written by the user.
-Hence all that is generally needed to submit a calculation is a number of coordinate file specifying the molecules of interest.
+Hence all that is generally needed to submit a calculation is a number of coordinate file(s) specifying the systems of interest.
 
 Silico supports a wide variety of coordinate formats, including both 2D and 3D formats, each of which can be written by different programs. Notable entries include:
 
@@ -55,7 +55,7 @@ Run Silico
 -------------
 
 It is now time to run Silico, the program which will manage the remainder of the submission process.
-To begin, run the ``silico submit`` sub-program followed by a list of the coordinate files to submit. For example, to submit two files named 'Benzene.cdx' and 'Naphthalene.com', run:
+To begin, run the ``silico submit`` subprogram followed by a list of the coordinate files to submit. For example, to submit two files named 'Benzene.cdx' and 'Naphthalene.com', run:
 
 .. code-block:: console
 
@@ -104,7 +104,7 @@ Finally, you may choose to not specify any input coordinates at this time, in wh
 The Interactive Interface
 --------------------------
 
-Any of the above commands will run the silico submit sub-program in interactive mode, which will open a window that appears as follows:
+Any of the above commands will run the silico submit subprogram in interactive mode, which will open a window that appears as follows:
 
 .. image:: /_static/submit_tutorial/submit_interface.png
     :width: 80%

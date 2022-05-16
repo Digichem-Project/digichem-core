@@ -1,4 +1,4 @@
-.. _tutorial :
+.. _submit_tutorial :
 
 Calculation Submission Tutorial
 ===============================
@@ -38,7 +38,7 @@ The molecules or systems to study are specified by coordinate files, one molecul
  
 .. note::
 	Care should be taken when using 2D formats, particularly for complex 3D structures or those with specific steric information (enantiomers, for example).
-	The conversion from 2D to 3D employs a rapid molecular-mechanics (MM) optimisation provided by the obabel library\ :cite:p:`Openbabel`. In many cases this will result in a satisfactory starting structure for further optimisation, but occassionally the geometry will become locked in an impossible or high-energy conformation. Similarly, steric information may be destroyed by the optimisation process. In these cases it is recommended to first convert the 2D coordinates to a 3D representation using the convert sub-program and manually inspect the resulting geometry prior to submission.
+	The conversion from 2D to 3D employs a rapid molecular-mechanics (MM) optimisation provided by the obabel library\ :cite:p:`Openbabel`. In many cases this will result in a satisfactory starting structure for further optimisation, but occassionally the geometry will become locked in an impossible or high-energy conformation. Similarly, steric information may be destroyed by the optimisation process. In these cases it is recommended to first convert the 2D coordinates to a 3D representation using the convert subprogram and manually inspect the resulting geometry prior to submission.
 	
 .. note::
 	When using a coordinate file that also includes calculation commands (for example, the Gaussian input format), these commands will be ignored. However, charge and multiplicity information, if present, will be respected.
@@ -65,7 +65,7 @@ Run Silico
 
 Once the required coordinate files (and optionally method files) have been prepared, it is time to run Silico.
 This can be done in either a non-interactive or interactive manner (see :ref:`Running Interactively`\ ); for the purposes of this tutorial the interactive interface will primarily be used.
-To begin, run the silico submit sub-program followed by a list of the coordinate files to submit. For example, to submit two files named 'Benzene.cdx' and 'Naphthalene.com', run:
+To begin, run the silico submit subprogram followed by a list of the coordinate files to submit. For example, to submit two files named 'Benzene.cdx' and 'Naphthalene.com', run:
 
 .. code-block:: console
 
@@ -111,7 +111,7 @@ Finally, you may choose to not specify any input coordinates at this time, in wh
 The Interactive Interface
 ----------------------------
 
-Any of the above commands will run the silico submit sub-program in interactive mode, which will open a window that appears as follows:
+Any of the above commands will run the silico submit subprogram in interactive mode, which will open a window that appears as follows:
 
 .. image:: /_static/submit_tutorial/submit_interface.png
 

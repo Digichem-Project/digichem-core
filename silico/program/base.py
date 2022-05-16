@@ -177,7 +177,7 @@ class Program():
         """
         Get the top-level argument parser object.
         
-        Each sub-program will add it's own possible sub-arguments to this object.
+        Each subprogram will add it's own possible sub-arguments to this object.
         """
         parser = argparse.ArgumentParser(
             description = self.description,

@@ -9,7 +9,7 @@ from silico.interface.urwid.layout import Sub_pane
 
 class Program_view(Swappable):
     """
-    A widget for running a sub-program.
+    A widget for running a subprogram.
     """
     
     def __init__(self, window, program):

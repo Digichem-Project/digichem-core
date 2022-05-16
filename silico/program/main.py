@@ -60,7 +60,7 @@ PROGRAMS = [
 
 def get_argparser():
     """
-    A helper function which returns an argaprser object for all our sub-programs.
+    A helper function which returns an argaprser object for all our subprograms.
     
     This function is separate from main to help with autodocing.
     """
@@ -70,7 +70,7 @@ def get_argparser():
     subparser = parser.add_subparsers(dest="prog")
     subparser.required = True
         
-    # Create sub parsers for each sub-program. Each will define its own parser.
+    # Create sub parsers for each subprogram. Each will define its own parser.
     for sub_program in PROGRAMS:
         sub_program.arguments(subparser)
         

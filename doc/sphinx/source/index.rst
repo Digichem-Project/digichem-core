@@ -11,7 +11,8 @@ Welcome to silico's documentation!
    :includehidden:
    :caption: Contents:
 
+   introduction/authorship
    introduction/intro
    running/introduction
-   submit/intro
+   submit/index
    bibliography
