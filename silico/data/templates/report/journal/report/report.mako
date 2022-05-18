@@ -14,6 +14,7 @@
         <meta charset="utf-8"/>
         <%
         stylesheets = [
+            "font.css",
         	"general.css",
         	"results.css",
         	"image.css",
