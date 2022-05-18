@@ -104,8 +104,10 @@ class Output_selector(Swappable, Selector_mixin):
                 
             else:
                 # Output location is a file, but default could be either a file or a directory.
-                # Try and work out of default is a dir or not (only works if it already exists).
-                if default.is_dir():
+                # Try and work out if default is a dir or not.
+                # If the file exists this is easy, we can just check.
+                # Otherwise, if the file name has an extension then we'll assume its a file, otherwise a dir.
+                if default.is_dir() or len(default.suffixes) == 0:
                     # It is a directory, don't set file_name.
                     file_name = ""
                     starting_dir = default
