@@ -7,50 +7,12 @@ Perhaps the most powerful aspect of Silico is its functionality for submitting a
 This tutorial acts as a walk-through for running through this process and is an excellent start for performing computations with Silico.
 
 
-Prepare Files For Submission
+Prepare Coordinate Files
 -------------------------------
 
-Traditionally, each computation chemistry (CC) program used to perform calculations (Gaussian, Turbomole, Orca etc.) is associated with a particular (and often unique) input file type.
-Generally, these files are made up of two sections which dictate how the calculation is performed:
+The first step in submitting a calculation is to prepare the coordinate files. These files represent the molecules upon which the calculation (or calculations) will be performed; one molecule per file. The file format used for these input coordinates is essentially irrelevant, so long as the format is supported by Silico, and different formats can be freely intermixed. See the :ref:`list of available formats <coordinate_formats>` and section on :ref:`coordinate files <coordinate_files>` for more information.
 
- * The Atomic Coordinates, specifying the position and element of the system (molecule) under study.
- * The Calculation Commands, specifying the nature of the calculation to perform, such as the method, functional, basis set and associated options.
- 
-In addition to generally being unique to each CC program, this design pattern can make submission of large numbers of calculations difficult.
-This is both because it is tedious and time-consuming to duplicate the calculation commands across multiple files, but also because accidental differences can be introduced across the series of files which might not be detected until after the calculation(s) have completed, which may in extreme cases take days or more.
-
-Silico aims to alleviate these traditional problems by separating the atomic coordinates and calculation commands into separate coordinate and method files respectively,
-and by providing a standard interface for both by which all CC programs can be accessed. Additionally, Silico supports the submission of multiple (near infinite, limited only by the resources of the operating system) coordinate files to a single method simultaneously, facilitating large-scale computational screens with ease.
-
-
-Coordinate Files
-____________________
-
-
-The molecules or systems to study are specified by coordinate files, one molecule per file. Silico supports a wide range of coordinate formats, mostly by interfacing to the obabel file conversion library.\ :cite:p:`Openbabel` This includes, but is not limited to:
-
- * Specific CC program input files, including Gaussian input files (.gjf, .com etc) and Turbomole coordinate files (.turb). These proprietary formats may be used regardless of the CC program actually being used to perform the calculation, for example a .com file may be used to submit a Turbomole calculation.
- * Independant 3D formats, including .xyz and .cml.
- * 2D drawing formats, including .cdx, .cdxml (ChemDraw) and .mrv (MarvinSketch). These will be automatically converted to an appropriate 3D representation.
- * Calculation output files, including .log files from Gaussian and Turbomole.
- * Crystallographic formats, most notable the .cif format.
- * An independant Silico format, the .si format.
- 
-.. note::
-	Care should be taken when using 2D formats, particularly for complex 3D structures or those with specific steric information (enantiomers, for example).
-	The conversion from 2D to 3D employs a rapid molecular-mechanics (MM) optimisation provided by the obabel library\ :cite:p:`Openbabel`. In many cases this will result in a satisfactory starting structure for further optimisation, but occassionally the geometry will become locked in an impossible or high-energy conformation. Similarly, steric information may be destroyed by the optimisation process. In these cases it is recommended to first convert the 2D coordinates to a 3D representation using the convert subprogram and manually inspect the resulting geometry prior to submission.
-	
-.. note::
-	When using a coordinate file that also includes calculation commands (for example, the Gaussian input format), these commands will be ignored. However, charge and multiplicity information, if present, will be respected.
-	
 The first step in the submission process is to write the systems that are to be studied to respective coordinate files. The choice of file format is essentially irrelevant, and different file formats can be freely intermixed. Once written, these coordinate files should be transfered to the machine on which the calculation is to be performed (most commonly a remote server or cluster) by whatever method is most convenient (File-Transfer Protocol (FTP), SSH File Transfer Protocol (SFTP) etc).
-
-
-Method Files
-________________
-
-The details of the calculation to perform (method, functional, basis set etc) are specified by a number of method files, one calculation per file.
-However, Silico comes pre-loaded with a large database of method files which are likely to satisfy the typical user, in which case no method files need to be written at this stage. For more advanced usage, see :ref:`Writing Method Files`\ .
 
 
 Connect To The Calculation Server
