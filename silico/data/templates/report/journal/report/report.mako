@@ -69,6 +69,10 @@
     			<h5>Excited States</h5>
     			<%include file="/excited_states/summary.mako" args="excited_states = report.result.excited_states, report = report"/>
     		%endif
+    		%if len(report.result.spin_orbit_coupling) > 0:
+                <h5>Excited States</h5>
+                <%include file="/SOC/summary.mako" args="spin_orbit_coupling = report.result.spin_orbit_coupling, report = report"/>
+            %endif
     		%for emission in itertools.chain(report.result.adiabatic_emission.values(), report.result.vertical_emission.values()):
     			<h5>${emission.transition_type} ${emission.multiplicity_symbol}<sub>${emission.multiplicity_level}</sub> Emission</h5>
     			<%include file="/emission/summary.mako" args="emission = emission"/>

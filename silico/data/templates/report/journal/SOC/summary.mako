@@ -20,7 +20,7 @@
 <div class="resultsTable resultsTable--summary">
     <div class="resultsTable__caption">
 		<div class="caption">Table ${report.captions("table", "SOC summary")}:</div>
-		Summary of the calculated excited states.
+		Summary of the calculated spin-orbit coupling values.
 	</div>
     <table class="resultsTable__table">
         %for soc in soc_list:
