@@ -147,6 +147,20 @@ class Result_set(Result_object):
         except Result_unavailable_error:
             # No S1 available.
             return None
+        
+    @property
+    def magnetic_transition_dipole_moment(self):
+        """
+        The S1 magnetic dipole moment, commonly referred to as THE magnetic transition dipole moment (although this name is ambiguous).
+        
+        None is returned if the S1 dipole moment is not available.        
+        """
+        try:
+            S1 = self.excited_states.get_state("S(1)")
+            return S1.magnetic_transition_dipole_moment
+        except Result_unavailable_error:
+            # No S1 available.
+            return None
 
         
     
