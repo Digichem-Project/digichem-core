@@ -1,20 +1,32 @@
 Input Files
 ===========
 
-When using Silico, there are two types of input file that control how each calculation will be performed.
+When submitting calculations with Silico, there are two types of input file that control how each calculation will be performed.
 These are: (1) coordinate files, which specify the elements and starting geometry of each of the molecules or systems under study,
-and (2) method files, which control the specifics of each calculation, such as the functional and basis set.
+and (2) method files, which control the specifics of each calculation, such as the functional and basis set. Of these, input files have to be provided by the user, because Silico cannot know in advance which molecules you will find interesting. However, method files are optional, because Silico contains a large database of methods built-in, and in many cases the methods in this database will be sufficient (particularly for most common DFT problems). However, for greater control over the calculation, or for more unusual or niche calculations, separate method files can also be provided by the user during submission. This section details the format and content of these input files types.
 
-One of the main advantages of using Silico for calculation submission is that multiple coordinate files can be specified at once, in which case all the given coordinate files will be submitted to the same calculation (as specified by the method file) simultaneously.
-In addition, multiple method files can also be specified, in which case each coordinate file will first be submitted to the calculation defined by the first method file specified. Once each of these calculations has completed, the resulting atomic geometry will then be submitted to the calculation defined by the second method file, and so on until all method files have been exhausted.
+.. _coordinate_files:
 
-Silico comes pre-loaded with a large database of method files, and so in most cases these do not need to be written by the user.
-Hence all that is generally needed to submit a calculation is a number of coordinate file(s) specifying the systems of interest.
-
-Input Coordinates
+Coordinate Files
 -----------------
 
-Silico supports a wide variety of coordinate formats, including both 2D and 3D formats, each of which can be written by different programs. Notable entries include:
+Silico can read input coordinates from a wide range of cheminformatics formats. This includes familiar 3D formats such as Gaussian input files (.com) and .xyz files, as well as 2D formats such as ChemDraw files. When submitting a calculation with Silico, any of the supported coordinate formats can be used interchangeably; even formats that are specific to certain CC programs may be used to perform a calculation with a different CC program. For example, the Gaussian input format (.com, .gjf etc) can be used to perform a calculation with Turbomole. This permits the user to use their preferred program to write their input files for all their calculations without having to worry about incompatibilities. The output files from previously completed calculations (.log etc) can also be used directly as input to new calculations, again regardless of whether the program being submitted to is the same as that which wrote the output file.
+
+The choice of coordinate file format is therefore mostly arbitrary, but with two important considerations:
+
+ #. Two-dimensional formats: Formats that are naturally two-dimensional, such as ChemDraw and similar files, lack information about the z-axis except perhaps for basic stereochemistry (bold and dashed bonds etc). Most molecules, except those that are perfectly planar, have at least some extent in the z-axis and so a conversion to a 3D format must be undertaken to provide a reasonable starting geometry for further optimisation. In Silico, this conversion utilises a rapid molecular-mechanics (MM) optimisation provided by the obabel library\ :cite:p:`Openbabel`. In many cases this will result in a satisfactory structure, but occasionally the geometry will become locked in an impossible or high-energy conformation. Similarly, steric information may be destroyed by the optimisation process. In these cases it is recommended to first convert the 2D coordinates to a 3D representation prior to submission, so the starting geometry can be inspected. This can be achieved using the Silico convert subprogram, for example:
+ 
+  .. code-block:: console
+
+        $ silico con molecule1.cdx -O molecule1.cml
+  
+  See the convert command for more information. Note also that is generally does not make sense to perform calculations directly on a 2D coordinate format without a prior optimisation at a higher level of theory (for example, with DFT).
+ #. Charge and multiplicity: Many coordinate formats contain information only about the elements that make up the molecule and their positions, and do not convey information about the number of electrons. In these cases a neutral, singlet ground state is typically assumed. If this is not suitable, then a format which does contain electron information (normally in the form of charge and multiplicity) should be chosen. See the below sections on :ref:`charge and multiplicity <charge_and_mult>` and the :ref:`silico input format <si_format>` for more information.
+
+.. _coordinate_formats :
+
+Formats
+________
 
  * Gaussian and Turbomole output (.log)
  * GaussView input (.com, .gjf, .gjc and .gau)
@@ -22,22 +34,15 @@ Silico supports a wide variety of coordinate formats, including both 2D and 3D f
  * MarvinSketch (.mrv)
  * Independant cheminformatics (.cml, .xyz etc)
  * Crystallographic information file (.cif)
- 
-Silico uses the OpenBabel library for file conversion. Please see `the OpenBabel documentation <https://open-babel.readthedocs.io/en/latest/FileFormats/Overview.html>`_ for a full list of supported formats.
 
-.. note::
-    Care should be taken when using 2D formats, particularly for complex 3D structures or those with specific steric information (enantiomers, for example).
-    The conversion from 2D to 3D employs a rapid molecular-mechanics (MM) optimisation provided by the obabel library\ :cite:p:`Openbabel`. In many cases this will result in a satisfactory starting structure for further optimisation, but occassionally the geometry will become locked in an impossible or high-energy conformation. Similarly, steric information may be destroyed by the optimisation process. In these cases it is recommended to first convert the 2D coordinates to a 3D representation using the ``silico convert`` subprogram and manually inspect the resulting geometry prior to submission.
-    
-.. note::
-    When using a coordinate file that also includes calculation commands (for example, the Gaussian input format), these commands will be ignored. However, charge and multiplicity information, if present, will be respected.
 
+.. _charge_and_mult :
 
 Charge and Multiplicity
 _______________________
 
 In addition to elements and their positions, coordinate files in Silico terminology also convey information on the number and occupation of the electrons of the system.
-In traditional cheminformatic style, this is represented by the `charge` and `multiplicity`, which are both integers with the following meaning:
+In traditional cheminformatic style, this is represented by the `charge` and `multiplicity` of the system, which are both integers with the following meaning:
 
  * Charge: The difference in the total number of electrons compared to the total number of protons of the system. Thus a cation with one fewer electrons than protons has a charge of +1, while an anion with one more electrons than protons has a charge of -1.
  * Multiplicity: A measure of the number of unpaired electrons in the system, where multiplcicity, :math:`m = n + 1` (where n is the number of unpaired electrons).
@@ -48,6 +53,7 @@ In traditional cheminformatic style, this is represented by the `charge` and `mu
 However, some common coordinate formats don't support charge or multiplicity information directly (such as the `.xyz` format).
 In this case, it is recommended to first convert the given coordinate format to one that does (such as the Silico universal input format).
 
+.. _si_format :
 
 Universal Input Format (.si)
 ____________________________
