@@ -85,7 +85,9 @@ class Result_set(Result_object):
         methods = []
         basis_sets = []
         for metadata in self.metadatas:
-            for method in metadata.converted_methods:
+            if len(metadata.converted_methods) > 0:
+                method = metadata.converted_methods[-1]
+#             for method in metadata.converted_methods:
                 if method not in methods:
                     methods.append(method)
                 
