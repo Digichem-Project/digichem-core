@@ -111,7 +111,8 @@ class Metadata(Result_object):
         """
         theories = []
         if len(self.converted_methods) > 0:
-            theories.extend(self.converted_methods)
+            #theories.extend(self.converted_methods)
+            theories.append(self.converted_methods[-1])
             
         if self.basis_set is not None:
             theories.append(self.basis_set)
