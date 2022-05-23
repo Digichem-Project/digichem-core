@@ -9,6 +9,7 @@ import silico.interface.urwid.file.output
 from silico.interface.urwid.dialogue import Widget_dialogue
 from silico.interface.urwid.method.browser import Method_selector
 import silico.logging
+from pathlib import Path
 
 
 class Popup_edit(urwid.Button):
@@ -206,6 +207,7 @@ class File_edit(Popup_edit):
         """
         Constructor for File_edit widgets.
         """
+        initial = Path(initial).resolve() if initial is not None else initial
         self.file_selector = silico.interface.urwid.file.browser.File_selector(top, can_choose_folders = can_choose_folders, can_choose_multiple = False)
         super().__init__(top, initial)
         
@@ -239,6 +241,7 @@ class Output_edit(File_edit):
         """
         Constructor for File_edit widgets.
         """
+        initial = Path(initial).resolve() if initial is not None else initial
         self.file_selector = silico.interface.urwid.file.output.Output_selector(top, default = initial, folder = folder, default_file_name = default_file_name)
         Popup_edit.__init__(self, top, initial)
 
