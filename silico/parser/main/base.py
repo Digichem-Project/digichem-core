@@ -12,7 +12,8 @@ from silico.result.molecular_orbitals import Molecular_orbital_list,\
 from silico.result.metadata import Metadata
 from silico.result.result import Result_set
 from silico.result.atoms import Atom_list
-from silico.result.transition_dipole_moment import Transition_dipole_moment
+from silico.result.transition_dipole_moment import Electric_transition_dipole_moment,\
+    Magnetic_transition_dipole_moment
 from silico.result.excited_states import Excited_state_list
 from silico.result.energy import CC_energy_list, MP_energy_list, SCF_energy_list
 from silico.result.ground_state import Ground_state
@@ -268,7 +269,8 @@ class Parser(Result_set):
         self.results.atoms = Atom_list.from_parser(self)
         
         # TDM.
-        self.results.transition_dipole_moments = Transition_dipole_moment.list_from_parser(self)
+        self.results.transition_dipole_moments = Electric_transition_dipole_moment.list_from_parser(self)
+        self.results.magnetic_transition_dipole_moments = Magnetic_transition_dipole_moment.list_from_parser(self)
         
         # Excited states.
         self.results.excited_states = Excited_state_list.from_parser(self)

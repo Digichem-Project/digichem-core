@@ -167,9 +167,3 @@ def parse_calculations(*results, alignment_class = None, aux_files = None):
         return Merged.from_results(*parsed_results, alignment_class = alignment_class)
     else:
         return parsed_results[0]
-            
-        
-        
-        
-        
-    
