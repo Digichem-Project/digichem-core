@@ -42,7 +42,7 @@
 		<tr class="resultsTable__row">
         		<td class="resultsTable__title resultsTable__cell">${emission.multiplicity_symbol}<sub>${emission.multiplicity_level}</sub> wavelength (colour, CIE)</td>
         		<td class="resultsTable__value resultsTable__cell">
-        			${"{:.0f}".format(emission.wavelength)} nm (${emission.color} <%include file="/excited_states/color.mako" args="colorRGB = emission.rgb"/>, ${"({}, {})".format(*emission.CIE_xy)})
+        			${"{:.0f}".format(emission.wavelength)} nm (${emission.color} <%include file="/excited_states/color.mako" args="colorRGB = emission.rgb"/>, ${"({:.2f}, {:.2f})".format(*emission.CIE_xy)})
         		</td>
         	</tr>
 		<tr>
