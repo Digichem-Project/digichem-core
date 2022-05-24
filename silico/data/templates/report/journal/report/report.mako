@@ -56,11 +56,14 @@
     		%endif
     		%if report.result.dipole_moment is not None:
     			<h5>Permanent Dipole Moment</h5>
-    			<%include file="/dipole_moment/summary.mako" args="dipole_moment = report.result.dipole_moment, report = report"/>
+    			<%include file="/dipole_moment/PDM_summary.mako" args="dipole_moment = report.result.dipole_moment, report = report"/>
     		%endif
-    		%if report.result.transition_dipole_moment is not None:
-    			<h5>${report.result.transition_dipole_moment.excited_state.multiplicity_symbol}<sub>${report.result.transition_dipole_moment.excited_state.multiplicity_level}</sub> Transition Dipole Moment</h5>
-    			<%include file="/dipole_moment/summary.mako" args="dipole_moment = report.result.transition_dipole_moment, report = report"/>
+    		%if report.result.transition_dipole_moment is not None or report.result.magnetic_transition_dipole_moment is not None:
+    		    <%
+    		      tdm = report.result.transition_dipole_moment if report.result.transition_dipole_moment is not None else report.result.magnetic_transition_dipole_moment
+    		    %>
+                <h5>${tdm.excited_state.multiplicity_symbol}<sub>${tdm.excited_state.multiplicity_level}</sub> Transition Dipole Moment</h5>
+                <%include file="/dipole_moment/TDM_summary.mako" args="dipole_moment = report.result.transition_dipole_moment, magnetic_dipole_moment = report.result.magnetic_transition_dipole_moment, report = report"/>
     		%endif
     		%if len(report.result.vibrations) > 0:
     			<h5>Vibrations</h5>
