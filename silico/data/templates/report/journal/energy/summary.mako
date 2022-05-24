@@ -18,7 +18,7 @@
         </tr>
         <tr>
             <td class="resultsTable__title resultsTable__cell">Final energy</td>
-            <td class="resultsTable__value resultsTable__cell">${"{:0,.0f}".format(energies.eV_to_kJmol(energies.final))} kJmol<sup>-1</sup></td>
+            <td class="resultsTable__value resultsTable__cell">${"{:0,.0f}".format(energies.eV_to_kJmol(energies.final))} kJ⋅mol<sup>-1</sup></td>
         </tr>
     </table>
 </div>

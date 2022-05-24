@@ -17,12 +17,12 @@
         %if alignment.safe_get('mass') is not None:
         <tr class="resultsTable__row">
             <td class="resultsTable__title resultsTable__cell">Exact mass</td>
-            <td class="resultsTable__value resultsTable__cell">${"{:0.4f}".format(alignment.mass)} gmol<sup>-1</sup></td>
+            <td class="resultsTable__value resultsTable__cell">${"{:0.4f}".format(alignment.mass)} g⋅mol<sup>-1</sup></td>
         </tr>
         %endif
         <tr class="resultsTable__row">
             <td class="resultsTable__title resultsTable__cell">Molar mass</td>
-            <td class="resultsTable__value resultsTable__cell">${"{:0.4f}".format(alignment.molar_mass)} gmol<sup>-1</sup></td>
+            <td class="resultsTable__value resultsTable__cell">${"{:0.4f}".format(alignment.molar_mass)} g⋅mol<sup>-1</sup></td>
         </tr>
         <tr class="resultsTable__row">
             <td class="resultsTable__title resultsTable__cell">Alignment method</td>
