@@ -151,6 +151,33 @@ class Dipole_moment_ABC(Result_object):
         """
         cgs_vector = self.gaussian_cgs_vector
         return math.sqrt( cgs_vector[0] **2 + cgs_vector[1] **2 + cgs_vector[2] **2 )
+    
+    def angle(self, other, cgs = True):
+        """
+        Find the angle between this dipole moment and another.
+        
+        :param cgs: Whether to find the angle in Gaussian-cgs units or standard units (the direction of magnetic dipole moments is reversed in the former).
+        """
+        return Angle(math.acos(self.cos_angle(other, cgs)))
+        
+    def cos_angle(self, other, cgs = True):
+        """
+        Find the cosine of the angle between this dipole moment and another.
+        
+        :param cgs: Whether to find the angle in Gaussian-cgs units or standard units (the direction of magnetic dipole moments is reversed in the former).
+        """
+        if cgs:
+            vector_a = self.gaussian_cgs_vector
+            vector_b = other.gaussian_cgs_vector
+        
+        else:
+            vector_a = self.vector_coords
+            vector_b = other.vector_coords
+            
+        vector_a_total = math.sqrt( vector_a[0] **2 + vector_a[1] **2 + vector_a[2] **2 )
+        vector_b_total = math.sqrt( vector_b[0] **2 + vector_b[1] **2 + vector_b[2] **2 )
+            
+        return (vector_a[0] * vector_b[0] + vector_a[1] * vector_b[1] + vector_a[2] * vector_b[2]) / (vector_a_total * vector_b_total)
 
         
 class Electric_dipole_moment_mixin():
