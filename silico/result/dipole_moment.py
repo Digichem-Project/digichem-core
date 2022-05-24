@@ -130,6 +130,27 @@ class Dipole_moment_ABC(Result_object):
             return Angle(math.fabs(self.atoms.get_XY_plane_angle(self.origin_coords, self.vector_coords)), "rad")
         else:
             return None
+    
+    @property
+    def gaussian_cgs_vector(self):
+        """
+        The vector of this dipole moment in Gaussian-cgs units.
+        
+        Note that the sign of the vector will be reversed in Gaussian-cgs units.
+        See J. Phys. Chem. Lett. 2021, 21, 686-695.
+        """
+        return tuple(self.to_gaussian_cgs(coord) for coord in self.vector_coords)
+    
+    @property
+    def gaussian_cgs(self):
+        """
+        The total of this dipole moment in Gaussian-cgs units.
+        
+        Note that the sign of the vector will be reversed in Gaussian-cgs units.
+        See J. Phys. Chem. Lett. 2021, 21, 686-695.
+        """
+        cgs_vector = self.gaussian_cgs_vector
+        return math.sqrt( cgs_vector[0] **2 + cgs_vector[1] **2 + cgs_vector[2] **2 )
 
         
 class Electric_dipole_moment_mixin():
@@ -145,6 +166,13 @@ class Electric_dipole_moment_mixin():
         return float(self) * 3.335640952e-30
     
     @classmethod
+    def D_to_au(self, value):
+        """
+        Convert an electric dipole moment in D to a.u.
+        """
+        return value / 2.541746473
+    
+    @classmethod
     def from_parser(self, parser):
         """
         Construct a Dipole_moment object from an output file parser.
@@ -156,6 +184,15 @@ class Electric_dipole_moment_mixin():
             return self(parser.data.moments[0], parser.data.moments[1], parser.results.alignment)
         except AttributeError:
             return None
+    
+    @classmethod
+    def to_gaussian_cgs(self, value):
+        """
+        Convert an electric dipole moment in D to Gaussian-cgs units.
+        See J. Phys. Chem. Lett. 2021, 21, 686-695.
+        """
+        # cgs = au * e * a0
+        return self.D_to_au(value) * 4.80320425e-10 * 5.29177210903e-9
 
 
 class Magnetic_dipole_moment_mixin():
@@ -178,32 +215,12 @@ class Magnetic_dipole_moment_mixin():
         return self.total * 1.8548e-23
     
     @classmethod
-    def au_to_gaussian_cgs(self, value):
+    def to_gaussian_cgs(self, value):
         """
         Convert a magnetic dipole moment in a.u. to Gaussian-cgs units.
         See J. Phys. Chem. Lett. 2021, 21, 686-695.
         """
         return value * -9.2740100783e-21
-    
-    @property
-    def gaussian_cgs_vector(self):
-        """
-        The vector of this magnetic dipole moment in Gaussian-cgs units.
-        
-        Note that the sign of the vector will be reversed in Gaussian-cgs units.
-        See J. Phys. Chem. Lett. 2021, 21, 686-695.
-        """
-        return tuple(self.au_to_gaussian_cgs(coord) for coord in self.vector_coords)
-    
-    @property
-    def gaussian_cgs(self):
-        """
-        The total of this magnetic dipole moment in Gaussian-cgs units.
-        
-        Note that the sign of the vector will be reversed in Gaussian-cgs units.
-        See J. Phys. Chem. Lett. 2021, 21, 686-695.
-        """
-        return self.au_to_gaussian_cgs(self.total)
 
         
 class Dipole_moment(Dipole_moment_ABC, Electric_dipole_moment_mixin):
