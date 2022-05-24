@@ -392,7 +392,7 @@ class Excited_state(Energy_state):
     Class for representing an excited state.
     """
     
-    def __init__(self, level, multiplicity, multiplicity_level, symmetry, energy, oscillator_strength, transitions, transition_dipole_moment = None, magnetic_transition_dipole_moment = None):
+    def __init__(self, level, multiplicity, multiplicity_level, symmetry, energy, oscillator_strength, transitions, transition_dipole_moment = None):
         """
         Constructor for excited state objects.
         
@@ -404,7 +404,6 @@ class Excited_state(Energy_state):
         :param oscillator_strength: The oscillator strength of this transition.
         :param transitions: The singly excited transitions which make up this transition.
         :param transition_dipole_moment: Optional transition dipole moment of the excited state.
-        :param magnetic_transition_dipole_moment: Optional magnetic transition dipole moment of the excited state.
         """
         super().__init__(level, multiplicity, multiplicity_level, energy)
         self.symmetry = symmetry
@@ -414,13 +413,10 @@ class Excited_state(Energy_state):
         self.transitions = transitions
         
         # If we were given a TDM, set its excited state to ourself.
-        # Likewise for the MagTDM
-        for tdm in (transition_dipole_moment, magnetic_transition_dipole_moment):
-            if tdm is not None:
-                tdm.set_excited_state(self)
+        if transition_dipole_moment is not None:
+            transition_dipole_moment.set_excited_state(self)
                 
         self.transition_dipole_moment = transition_dipole_moment
-        self.magnetic_transition_dipole_moment = magnetic_transition_dipole_moment
         
     @classmethod
     def get_multiplicity_from_symmetry(self, symmetry_string):
@@ -544,16 +540,11 @@ class Excited_state(Energy_state):
             
             # Loop through our data.
             for index, (symmetry, energy, oscillator_strength) in enumerate(excited_states_data):                    
-                # Relevant transition dipole moments.
+                # Relevant transition dipole moment.
                 try:
                     tdm = parser.results.transition_dipole_moments[index]
                 except IndexError:
                     tdm = None
-                    
-                try:
-                    magtdm = parser.results.magnetic_transition_dipole_moments[index]
-                except IndexError:
-                    magtdm = None
                     
                 # Get and append our object.
                 # We'll set level and mult level once we've got all our objects, so just use None for now.
@@ -566,8 +557,7 @@ class Excited_state(Energy_state):
                         energy = self.wavenumbers_to_energy(energy),
                         oscillator_strength = oscillator_strength,
                         transitions = transitions[index] if len(transitions) != 0 else [],
-                        transition_dipole_moment = tdm,
-                        magnetic_transition_dipole_moment = magtdm
+                        transition_dipole_moment = tdm
                     )
                 )
             

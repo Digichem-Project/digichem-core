@@ -1,9 +1,12 @@
 # General imports.
+import warnings
 
 # Silico imports.
 from silico.result.dipole_moment import Electric_dipole_moment_mixin, Dipole_moment_ABC, Magnetic_dipole_moment_mixin
+import itertools
 
-class Transition_dipole_moment(Dipole_moment_ABC):
+
+class Transition_dipole_moment_ABC(Dipole_moment_ABC):
     """
     ABC for electric and magnetic transition dipole moments.
     """
@@ -19,7 +22,7 @@ class Transition_dipole_moment(Dipole_moment_ABC):
         # An int describing the excited state we belong to. This is always available.
         self.state_level = state_level
         
-        # The excited state object that we belong to. This may be None. We can't set this here because then both the Excited_state and Electric_transition_dipole_moment constructors would depend on each other.
+        # The excited state object that we belong to. This may be None. We can't set this here because then both the Excited_state and Transition_dipole_moment constructors would depend on each other.
         self.excited_state = None
         
         # Save a name describing which dipole we are (permanent vs transition etc).
@@ -42,7 +45,7 @@ class Transition_dipole_moment(Dipole_moment_ABC):
         self.excited_state = excited_state
         
         
-class Electric_transition_dipole_moment(Transition_dipole_moment, Electric_dipole_moment_mixin):
+class Electric_transition_dipole_moment(Transition_dipole_moment_ABC, Electric_dipole_moment_mixin):
     """
     Class that represents an electric transition dipole moment.
     """
@@ -69,7 +72,7 @@ class Electric_transition_dipole_moment(Transition_dipole_moment, Electric_dipol
             return []
 
 
-class Magnetic_transition_dipole_moment(Transition_dipole_moment, Magnetic_dipole_moment_mixin):
+class Magnetic_transition_dipole_moment(Transition_dipole_moment_ABC, Magnetic_dipole_moment_mixin):
     """
     Class that represents a magnetic transition dipole moment.
     
@@ -97,3 +100,62 @@ class Magnetic_transition_dipole_moment(Transition_dipole_moment, Magnetic_dipol
         except AttributeError:
             return []
 
+
+class Transition_dipole_moment():
+    """
+    A compound class that represents both the electric and magnetic components of a transition dipole moment.
+    
+    This class can also be used in most places where an electric TDM is expected, as it will pass references to TEDM attributes to the actual TEDM class.
+    """
+    
+    def __init__(self, electric = None, magnetic = None):
+        """
+        Constructor for TDM.
+        
+        Either or both of the substituent TDM can be None.
+        """
+        self.electric = electric
+        self.magnetic = magnetic
+        self.electromagnetic_type = "electromagnetic"
+    
+    def set_excited_state(self, excited_state):
+        """
+        Set the excited state object that we belong to.
+        """
+        self.electric.set_excited_state(excited_state)
+        self.magnetic.set_excited_state(excited_state)
+    
+    @classmethod
+    def list_from_parser(self, parser):
+        """
+        Get a list of Transition_dipole_moment from an output file parser.
+        
+        :param parser: An output file parser.
+        :return: A list of Transition_dipole_moment objects. An empty list will be returned if no TDM data is available.
+        """
+        electric = Electric_transition_dipole_moment.list_from_parser(parser)
+        magnetic = Magnetic_transition_dipole_moment.list_from_parser(parser)
+        
+        return [self(electric_part, magnetic_part) for electric_part, magnetic_part in itertools.zip_longest(electric, magnetic)]
+        
+    def __getattr__(self, name):
+        return getattr(self.electric, name)
+    
+    def angle(self, cgs = True):
+        """
+        Return the angle between the electric and magnetic components of this transition dipole moment.
+        """
+        return self.electric.angle(self.magnetic, cgs)
+    
+    def cos_angle(self, cgs = True):
+        """
+        Return the cos of the angle between the electric and magnetic components of this transition dipole moment.
+        """
+        return self.electric.cos_angle(self.magnetic, cgs)
+    
+    @property
+    def g_value(self):
+        """
+        Return the 'g value'; the dissymmerty factor of this transition dipole moment.
+        """
+        return (4 * self.electric.gaussian_cgs * self.magnetic.gaussian_cgs * self.cos_angle(True)) / (self.electric.gaussian_cgs **2 + self.magnetic.gaussian_cgs **2)
