@@ -136,7 +136,12 @@ class Transition_dipole_moment():
         return [self(electric_part, magnetic_part) for electric_part, magnetic_part in itertools.zip_longest(electric, magnetic)]
         
     def __getattr__(self, name):
-        return getattr(self.electric, name)
+        # This check prevents infinite recursion when pickling, and is probably a sensible check anyway...
+        if name != "electric":
+            return getattr(self.electric, name)
+        else:
+            raise AttributeError(name)
+            
     
     def angle(self, cgs = True):
         """
