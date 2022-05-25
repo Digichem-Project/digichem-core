@@ -109,10 +109,14 @@
 	    	<%include file="/geometry/geometry.mako" args="report = report"/>
 	    	%endif
 	    	%if report.result.dipole_moment is not None:
-	    	<%include file="/dipole_moment/dipole_moment.mako" args="dipole_moment = report.result.dipole_moment, report = report, image_name = 'dipole_moment'"/>
+	    	<%include file="/dipole_moment/PDM.mako" args="dipole_moment = report.result.dipole_moment, report = report"/>
 	    	%endif
-	    	%if report.result.transition_dipole_moment is not None:
-	    	<%include file="/dipole_moment/dipole_moment.mako" args="dipole_moment = report.result.transition_dipole_moment, report = report, image_name = '{}_dipole'.format(report.result.transition_dipole_moment.excited_state.state_symbol)"/>
+	    	%if report.result.transition_dipole_moment.electric is not None or report.result.transition_dipole_moment.magnetic is not None:
+	    	<%
+	    	## Delete me
+	    	report.result.transition_dipole_moment.electric = None
+	    	%>
+	    	<%include file="/dipole_moment/TDM.mako" args="dipole_moment = report.result.transition_dipole_moment, report = report"/>
 	    	%endif
 	    	%if len(report.result.molecular_orbitals) > 0:
 	    	<%include file="/orbital/orbitals.mako" args="report = report"/>
