@@ -1,6 +1,3 @@
-# General imports.
-import warnings
-
 # Silico imports.
 from silico.result.dipole_moment import Electric_dipole_moment_mixin, Dipole_moment_ABC, Magnetic_dipole_moment_mixin
 import itertools
