@@ -112,10 +112,6 @@
 	    	<%include file="/dipole_moment/PDM.mako" args="dipole_moment = report.result.dipole_moment, report = report"/>
 	    	%endif
 	    	%if report.result.transition_dipole_moment.electric is not None or report.result.transition_dipole_moment.magnetic is not None:
-	    	<%
-	    	## Delete me
-	    	report.result.transition_dipole_moment.electric = None
-	    	%>
 	    	<%include file="/dipole_moment/TDM.mako" args="dipole_moment = report.result.transition_dipole_moment, report = report"/>
 	    	%endif
 	    	%if len(report.result.molecular_orbitals) > 0:
