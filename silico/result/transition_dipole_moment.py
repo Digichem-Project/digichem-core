@@ -158,4 +158,7 @@ class Transition_dipole_moment():
         """
         Return the 'g value'; the dissymmerty factor of this transition dipole moment.
         """
-        return (4 * self.electric.gaussian_cgs * self.magnetic.gaussian_cgs * self.cos_angle(True)) / (self.electric.gaussian_cgs **2 + self.magnetic.gaussian_cgs **2)
+        try:
+            return (4 * self.electric.gaussian_cgs * self.magnetic.gaussian_cgs * self.cos_angle(True)) / (self.electric.gaussian_cgs **2 + self.magnetic.gaussian_cgs **2)
+        except (FloatingPointError, ZeroDivisionError):
+            return 0
