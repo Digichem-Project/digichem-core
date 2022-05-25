@@ -4,8 +4,9 @@ from pathlib import Path
 
 # Silico imports.
 from silico.image.vmd import Spin_density_image_maker, Orbital_image_maker,\
-    Combined_orbital_image_maker, Structure_image_maker, Dipole_image_maker,\
-    Density_image_maker, Differential_density_image_maker
+    Combined_orbital_image_maker, Structure_image_maker, \
+    Density_image_maker, Differential_density_image_maker,\
+    Permanent_dipole_image_maker, Transition_dipole_image_maker
 from silico.image.orbitals import Orbital_diagram_maker
 from silico.exception.base import Result_unavailable_error
 from silico.image.excited_states import Excited_states_diagram_maker
@@ -269,7 +270,7 @@ class Report():
             #######################
             # Dipole moment (PDM) #
             #######################
-            self.images['dipole_moment'] = Dipole_image_maker.from_options(
+            self.images['dipole_moment'] = Permanent_dipole_image_maker.from_options(
                 Path(output_dir, "Dipole Moment", output_name + ".dipole.jpg"),
                 cube_file = self.cubes['structure'],
                 dipole_moment = self.result.dipole_moment,
@@ -299,10 +300,11 @@ class Report():
                 
             # Get our image.
             if "structure" in self.cubes:
-                self.images[file_name] = Dipole_image_maker.from_options(
+                self.images[file_name] = Transition_dipole_image_maker.from_options(
                     Path(output_dir, sub_dir_name, output_name + ".{}.jpg".format(file_name)),
                     cube_file = self.cubes['structure'],
-                    dipole_moment = excited_state.transition_dipole_moment,
+                    dipole_moment = excited_state.transition_dipole_moment.electric,
+                    magnetic_dipole_moment = excited_state.transition_dipole_moment.magnetic,
                     rotations = self.rotations,
                     options = self.options)
                 
