@@ -11,7 +11,13 @@
 <div class="resultsTable resultsTable--summary">
     <div class="resultsTable__caption">
 		<div class="caption">Table ${report.captions("table", dipole_moment.name + " summary")}:</div>
-		Summary of the ${dipole_titles.dipole_name(dipole_moment)} properties.
+		Summary of the ${dipole_titles.dipole_name(dipole_moment)} (TDM) properties
+		μ: electric TDM.
+		m: magnetic TDM.
+		θ<sub>μ,X</sub> and θ<sub>m,X</sub>: angle between the TDM and the x-axis.
+		θ<sub>μ,xy</sub> and θ<sub>m,xy</sub>: angle between the TDM and the xy-plane.
+		θ<sub>μ,m</sub>: angle between μ and m.
+		g<sub>lum</sub>: dissymmetry factor.
 	</div>
     <table class="resultsTable__table">
 ##      Electric TDM.
