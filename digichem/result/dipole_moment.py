@@ -176,8 +176,12 @@ class Dipole_moment_ABC(Result_object):
             
         vector_a_total = math.sqrt( vector_a[0] **2 + vector_a[1] **2 + vector_a[2] **2 )
         vector_b_total = math.sqrt( vector_b[0] **2 + vector_b[1] **2 + vector_b[2] **2 )
+        
+        try:
+            return (vector_a[0] * vector_b[0] + vector_a[1] * vector_b[1] + vector_a[2] * vector_b[2]) / (vector_a_total * vector_b_total)
+        except (FloatingPointError, ZeroDivisionError):
+            return 0
             
-        return (vector_a[0] * vector_b[0] + vector_a[1] * vector_b[1] + vector_a[2] * vector_b[2]) / (vector_a_total * vector_b_total)
 
         
 class Electric_dipole_moment_mixin():
