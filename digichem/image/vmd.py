@@ -605,6 +605,7 @@ class Combined_orbital_image_maker(VMD_image_maker):
             "{}".format(self.file_path['x45y45z45'].with_suffix(self.scene_file_extension))
         ]
 
+
     
 class Dipole_image_maker(Structure_image_maker):
     """
@@ -613,32 +614,37 @@ class Dipole_image_maker(Structure_image_maker):
     
     vmd_script ="generate_dipole_images.tcl"
     
-    def __init__(self, *args, dipole_moment = None, **kwargs):
+    
+    def __init__(self, *args, dipole_moment = None, magnetic_dipole_moment = None, scaling = 1, magnetic_scaling = 1, **kwargs):
         """
         Constructor for Dipole_image_maker objects.
         
         :param output: Path to write to. See the constructor for VMD_image_maker for how this works.
         :param cube_file: A Gaussian cube file to use to render the new images.
         :param dipole_moment: A Dipole_moment object that will be rendered as a red arrow in the scene.
+        :param magnetic_dipole_moment: A second dipole moment object that will be rendered as a blue arrow in the scene.
+        :param scaling: A factor to scale the dipole moment by.
+        :param magnetic_scaling: A factor to scale the magnetic dipole moment by.
         :param *args: See the constructor for VMD_image_maker for further options.
         :param **kwargs: See the constructor for VMD_image_maker for further options.
         """
         super().__init__(*args, **kwargs)
-        self. dipole_moment = dipole_moment
+        self.dipole_moment = dipole_moment
+        self.magnetic_dipole_moment = magnetic_dipole_moment
+        self.scaling = scaling
+        self.magnetic_scaling = magnetic_scaling
+        self.electric_arrow_colour = "red"
+        self.magnetic_arrow_colour = "green"
+
+    def get_coords(self, dipole, scaling):
+        if dipole is None:
+            return ( (0.0,0.0,0.0), (0.0,0.0,0.0))
         
-    def check_can_make(self):
-        """
-        Check whether it is feasible to try and render the image(s) that we represent.
-        
-        Reasons for rendering not being possible are varied and are up to the inheriting class, but include eg, a required input (cube, fchk) file not being given.
-        
-        This method returns nothing, but will raise a File_maker_exception exception if the rendering is not possible.
-        """ 
-        super().check_can_make()
-        
-        # Also make sure we have a dipole.
-        if self.dipole_moment is None:
-            raise File_maker_exception(self, "No dipole moment is available.")
+        else:
+            return (
+                tuple([coord * scaling for coord in dipole._origin_coords]),
+                tuple([coord * scaling for coord in dipole._vector_coords])
+            ) 
         
     @property
     def VMD_signature(self):
@@ -657,10 +663,116 @@ class Dipole_image_maker(Structure_image_maker):
             "{}".format(self.prepared_rotations),
             # We don't use the normal origin_coords/vector_coords because these are already rotated, while we want/need to do this rotation with the camera in VMD.
             # Hence use _origin_coords/_vector_coods, which aren't rotated.
-            "{} {} {}".format(self.dipole_moment._origin_coords[0], self.dipole_moment._origin_coords[1], self.dipole_moment._origin_coords[2]),
-            "{} {} {}".format(self.dipole_moment._vector_coords[0], self.dipole_moment._vector_coords[1], self.dipole_moment._vector_coords[2]),
+            # Dipole 1 (electric).
+            "{} {} {}".format(*self.get_coords(self.dipole_moment, self.scaling)[0]),
+            "{} {} {}".format(*self.get_coords(self.dipole_moment, self.scaling)[1]),
+            # Dipole 2 (magnetic).
+            "{} {} {}".format(*self.get_coords(self.magnetic_dipole_moment, self.magnetic_scaling)[0]),
+            "{} {} {}".format(*self.get_coords(self.magnetic_dipole_moment, self.magnetic_scaling)[1]),
             "{}".format(self.file_path['x0y0z0'].with_suffix(self.scene_file_extension)),
             "{}".format(self.file_path['x90y0z0'].with_suffix(self.scene_file_extension)),
             "{}".format(self.file_path['x0y90z0'].with_suffix(self.scene_file_extension)),
             "{}".format(self.file_path['x45y45z45'].with_suffix(self.scene_file_extension))
         ]
+
+    
+class Permanent_dipole_image_maker(Dipole_image_maker):
+    """
+    Class for creating dipole images.
+    """
+    
+    def __init__(self, *args, dipole_moment = None, scaling = 1, **kwargs):
+        """
+        Constructor for Dipole_image_maker objects.
+        
+        :param output: Path to write to. See the constructor for VMD_image_maker for how this works.
+        :param cube_file: A Gaussian cube file to use to render the new images.
+        :param dipole_moment: A Dipole_moment object that will be rendered as a red arrow in the scene.
+        :param scaling: A factor to scale the dipole moment by.
+        :param *args: See the constructor for VMD_image_maker for further options.
+        :param **kwargs: See the constructor for VMD_image_maker for further options.
+        """
+        super().__init__(*args, dipole_moment = dipole_moment, scaling = scaling, **kwargs)
+        
+    @classmethod
+    def from_options(self, output, *, dipole_moment = None, cube_file = None, rotations = None, options, **kwargs):
+        """
+        Constructor that takes a dictionary of config like options.
+        """        
+        return self(
+            output,
+            cube_file = cube_file,
+            rotations = rotations,
+            dipole_moment = dipole_moment,
+            auto_crop = options['rendered_image']['auto_crop'],
+            rendering_style = options['rendered_image']['rendering_style'],
+            resolution = options['rendered_image']['resolution'],
+            isovalue = options['rendered_image'][self.options_name]['isovalue'],
+            use_existing = options['rendered_image']['use_existing'],
+            dont_modify = not options['rendered_image']['enable_rendering'],
+            vmd_executable = options['external']['vmd'],
+            tachyon_executable = options['external']['tachyon'],
+            vmd_logging = options['logging']['vmd_logging'],
+            scaling = options['rendered_image']['dipole_moment']['scaling'],
+            **kwargs
+        )
+    
+    def check_can_make(self):
+        """
+        Check whether it is feasible to try and render the image(s) that we represent.
+        
+        Reasons for rendering not being possible are varied and are up to the inheriting class, but include eg, a required input (cube, fchk) file not being given.
+        
+        This method returns nothing, but will raise a File_maker_exception exception if the rendering is not possible.
+        """ 
+        super().check_can_make()
+        
+        # Also make sure we have a dipole.
+        if self.dipole_moment is None:
+            raise File_maker_exception(self, "No dipole moment is available.")
+    
+
+class Transition_dipole_image_maker(Dipole_image_maker):
+    """
+    Class for creating TDM images.
+    """
+    
+    def check_can_make(self):
+        """
+        Check whether it is feasible to try and render the image(s) that we represent.
+        
+        Reasons for rendering not being possible are varied and are up to the inheriting class, but include eg, a required input (cube, fchk) file not being given.
+        
+        This method returns nothing, but will raise a File_maker_exception exception if the rendering is not possible.
+        """ 
+        super().check_can_make()
+        
+        # Also make sure we have a dipole.
+        if self.dipole_moment is None and self.magnetic_dipole_moment is None:
+            raise File_maker_exception(self, "No dipole moment is available.")
+        
+    @classmethod
+    def from_options(self, output, *, dipole_moment = None, magnetic_dipole_moment, cube_file = None, rotations = None, options, **kwargs):
+        """
+        Constructor that takes a dictionary of config like options.
+        """        
+        return self(
+            output,
+            cube_file = cube_file,
+            rotations = rotations,
+            dipole_moment = dipole_moment,
+            magnetic_dipole_moment = magnetic_dipole_moment,
+            auto_crop = options['rendered_image']['auto_crop'],
+            rendering_style = options['rendered_image']['rendering_style'],
+            resolution = options['rendered_image']['resolution'],
+            isovalue = options['rendered_image'][self.options_name]['isovalue'],
+            use_existing = options['rendered_image']['use_existing'],
+            dont_modify = not options['rendered_image']['enable_rendering'],
+            vmd_executable = options['external']['vmd'],
+            tachyon_executable = options['external']['tachyon'],
+            vmd_logging = options['logging']['vmd_logging'],
+            scaling = options['rendered_image']['transition_dipole_moment']['electric_scaling'],
+            magnetic_scaling = options['rendered_image']['transition_dipole_moment']['magnetic_scaling'],
+            **kwargs
+        )
+    
