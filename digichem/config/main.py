@@ -88,7 +88,16 @@ There are a number of valid options here (please see the cubegen manual), the mo
         ),
         difference_density = Options(help = "Specific options for excited states difference density plots.",
             isovalue = Option(help = "The isovalue to use for difference density plots.", type = float, default = 0.001)
-        )
+        ),
+        dipole_moment = Options(help = "Specific options for permanent dipole moment plots.",
+            scaling = Option(help = "The value (x) to scale the TDM by, where 1 D = x Å.", type = float, default = 1.0)
+            
+        ),
+        transition_dipole_moment = Options(help = "Specific options for transition dipole moment plots.",
+            electric_scaling = Option(help = "The value (x) to scale the TEDM by, where 1 D = x Å.", type = float, default = 5.0),
+            magnetic_scaling = Option(help = "The value (x) to scale the TMDM by, where 1 au = x Å.", type = float, default = 10.0),
+        ),
+            
     )
     
     orbital_diagram = Options(help = "Options that control the appearance of orbital energy diagrams.",
