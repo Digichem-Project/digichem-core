@@ -10,17 +10,21 @@ set translations [lindex $argv 3]
 # rotations        A string list of rotations to perform.
 set rotations [lindex $argv 4]
 # dipole_start    {x y z} coordinates of the start of the dipole.
-set dipole_start [lindex $argv 5]
+set dipole1_start [lindex $argv 5]
 # dipole_end    {x y z} coordinates of the end of the dipole.
-set dipole_end [lindex $argv 6]
+set dipole1_end [lindex $argv 6]
+# dipole_start    {x y z} coordinates of the start of the dipole.
+set dipole2_start [lindex $argv 7]
+# dipole_end    {x y z} coordinates of the end of the dipole.
+set dipole2_end [lindex $argv 8]
 # x0y0z0        A file name to write one of the output images to (in png format).
-set x0y0z0 [lindex $argv 7]
+set x0y0z0 [lindex $argv 9]
 # x90y0z0        A file name to write one of the output images to (in png format).
-set x90y0z0 [lindex $argv 8]
+set x90y0z0 [lindex $argv 10]
 # x0y90z0        A file name to write one of the output images to (in png format).
-set x0y90z0 [lindex $argv 9]
+set x0y90z0 [lindex $argv 11]
 # x45y45z45        A file name to write one of the output images to (in png format).
-set x45y45z45 [lindex $argv 10]
+set x45y45z45 [lindex $argv 12]
 
 # Load our common library.
 source $tcl_common
@@ -42,8 +46,15 @@ molecule modmaterial 0 $mol_handle Transparent
 standard_molecule_style 0 $mol_handle
 
 # Draw our dipole moment.
-draw color red
-draw arrow $dipole_start $dipole_end
+# Only add them if they are not zero.
+if {[lindex $dipole1_end 0] != 0 && [lindex $dipole1_end 1] != 0 && [lindex $dipole1_end 2] != 0} {
+    draw color red
+    draw arrow $dipole1_start $dipole1_end
+}
+if {[lindex $dipole2_end 0] != 0 && [lindex $dipole2_end 1] != 0 && [lindex $dipole2_end 2] != 0} {
+    draw color green
+    draw arrow $dipole2_start $dipole2_end
+}
 
 # And save our pictures.
 render_images $rotations $x0y0z0 $x90y0z0 $x0y90z0 $x45y45z45 
