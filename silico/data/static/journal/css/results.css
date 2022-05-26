@@ -1,13 +1,18 @@
-.reportBody {
+.section--results, .section--references, .section--tables {
 	column-count: 2;
 	column-gap: 15px;
 	text-align: justify;
 	/*padding-top: 15px;*/
 	font-size: 10px;
+	line-height: 1.5;
 }
 
 .section--separate {
 	break-before: page;
+}
+
+.section--tables, .section--wideTables {
+    line-height: 1.5;
 }
 
 /* General content holding body of the text/results etc. */
@@ -15,7 +20,7 @@
 	text-align: justify;
 	margin-bottom: 10px;
 	/* font-family: sans; */
-	line-height: 1.25;
+	line-height: 1.5;
 }
 
 .result {

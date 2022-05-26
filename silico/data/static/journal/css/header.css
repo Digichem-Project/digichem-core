@@ -61,7 +61,8 @@
 	width:70%;
 	vertical-align: middle;
 	display: inline-block;
-	line-height: normal;
+	/*line-height: normal;*/
+	line-height: 1.5;
 	font-size: 9px;
 }
 
