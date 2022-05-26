@@ -146,6 +146,10 @@
 		    		<h5 class="h5--tableHeader">Excited States</h5>
 		    		<%include file="/excited_states/table.mako" args="report = report"/>
 		    	%endif
+		    	%if len([excited_state.transition_dipole_moment for excited_state in report.result.excited_states if excited_state.transition_dipole_moment is not None]) > 0:
+		    	    <h5 class="h5--tableHeader">Transition Dipole Moments</h5>
+                    <%include file="/dipole_moment/table.mako" args="report = report"/>
+		    	%endif
 		    	%if len(report.result.spin_orbit_coupling) > 0:
 		    		<h5 class="h5--tableHeader">Spin-Orbit Coupling</h5>
 		    		<%include file="/SOC/table.mako" args="report = report"/>
