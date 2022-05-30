@@ -115,7 +115,7 @@
 					<%
 					abs_peaks = report.images['simulated_absorption_graph'].selected_peaks(0, 5)
 					%>
-					The most intense absorption ${inflector.plural("peak", len(abs_peaks))} ${inflector.plural("peak", len(abs_peaks))} calculated to be at ${andjoin(abs_peaks)} nm.
+					The most intense absorption ${inflector.plural("peak", len(abs_peaks))} ${inflector.plural("was", len(abs_peaks))} calculated to be at ${andjoin(abs_peaks)} nm.
 				% endif
 				## S(1) and T(1).
 				% if S1 is not None and T1 is not None:
