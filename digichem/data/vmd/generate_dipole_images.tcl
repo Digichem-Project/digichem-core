@@ -47,11 +47,11 @@ standard_molecule_style 0 $mol_handle
 
 # Draw our dipole moment.
 # Only add them if they are not zero.
-if {[lindex $dipole1_end 0] != 0 && [lindex $dipole1_end 1] != 0 && [lindex $dipole1_end 2] != 0} {
+if {[lindex $dipole1_end 0] != 0 || [lindex $dipole1_end 1] != 0 || [lindex $dipole1_end 2] != 0} {
     draw color red
     draw arrow $dipole1_start $dipole1_end
 }
-if {[lindex $dipole2_end 0] != 0 && [lindex $dipole2_end 1] != 0 && [lindex $dipole2_end 2] != 0} {
+if {[lindex $dipole2_end 0] != 0 || [lindex $dipole2_end 1] != 0 || [lindex $dipole2_end 2] != 0} {
     draw color green
     draw arrow $dipole2_start $dipole2_end
 }
