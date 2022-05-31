@@ -258,12 +258,12 @@ class Report():
             self.images['structure'] = Structure_image_maker.from_options(
                 Path(output_dir, "Structure", output_name + ".structure.jpg"),
                 cube_file = self.cubes['structure'],
+                rotations = self.rotations,
                 options = self.options)
             
-            self.images['aligned_structure'] = Structure_image_maker.from_options(
-                Path(output_dir, "Structure", output_name + ".structure.jpg"),
+            self.images['unaligned_structure'] = Structure_image_maker.from_options(
+                Path(output_dir, "Structure", output_name + ".unaligned_structure.jpg"),
                 cube_file = self.cubes['structure'],
-                rotations = self.rotations,
                 options = self.options)
         
         
