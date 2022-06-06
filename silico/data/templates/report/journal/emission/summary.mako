@@ -50,9 +50,9 @@
 		    <td class="resultsTable__value resultsTable__cell">${"{:0.2f}".format(emission.oscillator_strength) if emission.safe_get('oscillator_strength') is not None else "N/A"}</td>
 		</tr>
         <tr>
-			<td class="resultsTable__title resultsTable__cell">${emission.multiplicity_symbol}<sub>${emission.multiplicity_level}</sub> rate /s<sup>-1</sup></td>
+			<td class="resultsTable__title resultsTable__cell">${emission.multiplicity_symbol}<sub>${emission.multiplicity_level}</sub> rate</td>
 			%if emission_rate is not None:
-				<td class="resultsTable__value resultsTable__cell">${"{:.2e}".format(emission_rate)}</td>
+				<td class="resultsTable__value resultsTable__cell">${"{:.2e}".format(emission_rate)} /s<sup>-1</sup></td>
 			%else:
 				<td class="resultsTable__value resultsTable__cell">N/A</td>
 			%endif
