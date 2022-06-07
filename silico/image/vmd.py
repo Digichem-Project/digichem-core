@@ -421,7 +421,7 @@ class Orbital_image_maker(Structure_image_maker):
             ]
     
 
-class Differential_density_image_maker(Orbital_image_maker):
+class Difference_density_image_maker(Orbital_image_maker):
     
     # Name of the section where we get some specific configs.
     options_name = "difference_density"

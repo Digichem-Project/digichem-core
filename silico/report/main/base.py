@@ -5,7 +5,7 @@ from pathlib import Path
 # Silico imports.
 from silico.image.vmd import Spin_density_image_maker, Orbital_image_maker,\
     Combined_orbital_image_maker, Structure_image_maker, \
-    Density_image_maker, Differential_density_image_maker,\
+    Density_image_maker, Difference_density_image_maker,\
     Permanent_dipole_image_maker, Transition_dipole_image_maker
 from silico.image.orbitals import Orbital_diagram_maker
 from silico.exception.base import Result_unavailable_error
@@ -322,7 +322,7 @@ class Report():
                 
             # If we have difference density cubes, create images that can use them.
             if excited_state.state_symbol + "_difference_density" in self.cubes:
-                self.images[excited_state.state_symbol + "_difference_density"] = Differential_density_image_maker.from_options(
+                self.images[excited_state.state_symbol + "_difference_density"] = Difference_density_image_maker.from_options(
                     Path(output_dir, excited_state.state_symbol, output_name + ".{}_difference_density.jpg".format(excited_state.state_symbol)),
                     cube_file = self.cubes[excited_state.state_symbol + "_difference_density"],
                     rotations = self.rotations,
