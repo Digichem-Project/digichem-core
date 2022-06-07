@@ -158,7 +158,7 @@ class SLURM(Resumable_destination):
             if self._CPUs_per_task == "auto":
                 return self.program.calculation.num_CPUs if self.program.calculation.num_CPUs is not None else 1
             else:
-                return self._CPUs_per_task
+                return int(self._CPUs_per_task)
         
         @CPUs_per_task.setter
         def CPUs_per_task(self, value):
