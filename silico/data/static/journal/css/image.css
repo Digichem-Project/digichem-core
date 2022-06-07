@@ -44,7 +44,7 @@
 	/* padding: 0px 10px 0px 10px; */
 	font-style: italic;
 	display: inline-block;
-	font-size: 10px;
+	font-size: 9px;
 	text-align: justify;
 }
 
@@ -57,11 +57,14 @@
 
 .result_Image__caption--subImage {
 	position: absolute;
-	padding-top: 4px;
-	padding-left: 4px;
+	margin-top: 3px;
+	margin-left: 3px;
+	padding: 1px;
+	border-radius: 2px;
 	font-size: 11px;
 	/* font-weight: bold; */
 	font-style: italic;
+	background-color: rgba(255,255,255,0.5);
 }
 
 .resultImage__aligner {

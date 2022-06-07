@@ -5,9 +5,11 @@ import math
 from silico.result import Result_object
 from silico.result.angle import Angle
 
-class Dipole_moment(Result_object):
+class Dipole_moment_ABC(Result_object):
     """
-    Class that represents a dipole moment.
+    ABC that represents a dipole moment.
+    
+    See inheriting classes for concrete implementations (depending on whether they are permanent or transition, and electric or magnetic).
     """
     
     # A warning issued when attempting to merge non-equivalent objects
@@ -16,21 +18,20 @@ class Dipole_moment(Result_object):
     @property
     def magnitude(self):
         """
-        The dipole moment magnitude in debye.
+        The dipole moment total (root-sum-square of the dipole moment vector).
         
-        :deprecated: 'magnitude' is an inaccurate name for this attribute, use 'total' instead.
+        :deprecated: 'magnitude' is a somewhat misleading name for this attribute, use 'total' instead.
         """
         return self.total
-        
     
     @property
     def total(self):
         """
-        The dipole moment in debye.
+        The dipole moment total (root-sum-square of the dipole moment vector).
         """
         return math.sqrt( self.vector_coords[0] ** 2 + self.vector_coords[1] ** 2 + self.vector_coords[2] ** 2)
     
-    
+    # TODO: Look into why we record origin_coords, they probably don't do what the name suggests and probably aren't useful?
     def __init__(self, origin_coords, vector_coords, atoms = None):
         """
         Constructor for Dipole_moment objects.
@@ -107,13 +108,6 @@ class Dipole_moment(Result_object):
         return self.origin_coords == other.origin_coords and self.vector_coords == other.vector_coords
     
     @property
-    def coulomb_meters(self):
-        """
-        the magnitude of this dipole moment in Coulomb Meters.
-        """
-        return float(self) * 3.335640952e-30
-    
-    @property
     def X_axis_angle(self):
         """
         The angle between this dipole moment and the X axis of the atom set of the molecule.
@@ -136,7 +130,79 @@ class Dipole_moment(Result_object):
             return Angle(math.fabs(self.atoms.get_XY_plane_angle(self.origin_coords, self.vector_coords)), "rad")
         else:
             return None
+    
+    @property
+    def gaussian_cgs_vector(self):
+        """
+        The vector of this dipole moment in Gaussian-cgs units.
+        
+        Note that the sign of the vector will be reversed in Gaussian-cgs units.
+        See J. Phys. Chem. Lett. 2021, 21, 686-695.
+        """
+        return tuple(self.to_gaussian_cgs(coord) for coord in self.vector_coords)
+    
+    @property
+    def gaussian_cgs(self):
+        """
+        The total of this dipole moment in Gaussian-cgs units.
+        
+        Note that the sign of the vector will be reversed in Gaussian-cgs units.
+        See J. Phys. Chem. Lett. 2021, 21, 686-695.
+        """
+        cgs_vector = self.gaussian_cgs_vector
+        return math.sqrt( cgs_vector[0] **2 + cgs_vector[1] **2 + cgs_vector[2] **2 )
+    
+    def angle(self, other, cgs = True):
+        """
+        Find the angle between this dipole moment and another.
+        
+        :param cgs: Whether to find the angle in Gaussian-cgs units or standard units (the direction of magnetic dipole moments is reversed in the former).
+        """
+        return Angle(math.acos(self.cos_angle(other, cgs)))
+        
+    def cos_angle(self, other, cgs = True):
+        """
+        Find the cosine of the angle between this dipole moment and another.
+        
+        :param cgs: Whether to find the angle in Gaussian-cgs units or standard units (the direction of magnetic dipole moments is reversed in the former).
+        """
+        if cgs:
+            vector_a = self.gaussian_cgs_vector
+            vector_b = other.gaussian_cgs_vector
+        
+        else:
+            vector_a = self.vector_coords
+            vector_b = other.vector_coords
             
+        vector_a_total = math.sqrt( vector_a[0] **2 + vector_a[1] **2 + vector_a[2] **2 )
+        vector_b_total = math.sqrt( vector_b[0] **2 + vector_b[1] **2 + vector_b[2] **2 )
+        
+        try:
+            return (vector_a[0] * vector_b[0] + vector_a[1] * vector_b[1] + vector_a[2] * vector_b[2]) / (vector_a_total * vector_b_total)
+        except (FloatingPointError, ZeroDivisionError):
+            return 0
+            
+
+        
+class Electric_dipole_moment_mixin():
+    """
+    Mixin class for electric dipole moments.
+    """
+    
+    @property
+    def coulomb_meters(self):
+        """
+        The total of this dipole moment in Coulomb Meters.
+        """
+        return float(self) * 3.335640952e-30
+    
+    @classmethod
+    def D_to_au(self, value):
+        """
+        Convert an electric dipole moment in D to a.u.
+        """
+        return value / 2.541746473
+    
     @classmethod
     def from_parser(self, parser):
         """
@@ -150,4 +216,46 @@ class Dipole_moment(Result_object):
         except AttributeError:
             return None
     
+    @classmethod
+    def to_gaussian_cgs(self, value):
+        """
+        Convert an electric dipole moment in D to Gaussian-cgs units.
+        See J. Phys. Chem. Lett. 2021, 21, 686-695.
+        """
+        # cgs = au * e * a0
+        return self.D_to_au(value) * 4.80320425e-10 * 5.29177210903e-9
+
+
+class Magnetic_dipole_moment_mixin():
+    """
+    Mixin class for magnetic dipole moments.
+    """
+    
+    @property
+    def bohr_magnetons(self):
+        """
+        The total of this magnetic dipole moment in bohr magnetons.
+        """
+        return self.total * 2
+    
+    @property
+    def ampere_square_meters(self):
+        """
+        The total of this magnetic dipole moment in SI units.
+        """
+        return self.total * 1.8548e-23
+    
+    @classmethod
+    def to_gaussian_cgs(self, value):
+        """
+        Convert a magnetic dipole moment in a.u. to Gaussian-cgs units.
+        See J. Phys. Chem. Lett. 2021, 21, 686-695.
+        """
+        return value * -9.2740100783e-21
+
+        
+class Dipole_moment(Dipole_moment_ABC, Electric_dipole_moment_mixin):
+    """
+    Class that represents the (permanent) dipole moment of a molecule.
+    """
     

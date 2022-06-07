@@ -34,7 +34,7 @@
     	<%include file="/header.mako" args="report = report"/>
     	<%include file="/metadata/table.mako" args="report = report"/>
     	<h4>Summary Of Results</h4>
-    	<div class="reportBody">
+    	<div class="section section--results">
     		## Summaries.
     		%for energies in [report.result.SCF_energies, report.result.MP_energies, report.result.CC_energies]:
     			%if len(energies) > 0:
@@ -56,11 +56,14 @@
     		%endif
     		%if report.result.dipole_moment is not None:
     			<h5>Permanent Dipole Moment</h5>
-    			<%include file="/dipole_moment/summary.mako" args="dipole_moment = report.result.dipole_moment, report = report"/>
+    			<%include file="/dipole_moment/PDM_summary.mako" args="dipole_moment = report.result.dipole_moment, report = report"/>
     		%endif
     		%if report.result.transition_dipole_moment is not None:
-    			<h5>${report.result.transition_dipole_moment.excited_state.multiplicity_symbol}<sub>${report.result.transition_dipole_moment.excited_state.multiplicity_level}</sub> Transition Dipole Moment</h5>
-    			<%include file="/dipole_moment/summary.mako" args="dipole_moment = report.result.transition_dipole_moment, report = report"/>
+    		    <%
+    		    tdm = report.result.transition_dipole_moment
+    		    %>
+                <h5>${tdm.excited_state.multiplicity_symbol}<sub>${tdm.excited_state.multiplicity_level}</sub> Transition Dipole Moment</h5>
+                <%include file="/dipole_moment/TDM_summary.mako" args="dipole_moment = report.result.transition_dipole_moment, report = report"/>
     		%endif
     		%if len(report.result.vibrations) > 0:
     			<h5>Vibrations</h5>
@@ -106,10 +109,10 @@
 	    	<%include file="/geometry/geometry.mako" args="report = report"/>
 	    	%endif
 	    	%if report.result.dipole_moment is not None:
-	    	<%include file="/dipole_moment/dipole_moment.mako" args="dipole_moment = report.result.dipole_moment, report = report, image_name = 'dipole_moment'"/>
+	    	<%include file="/dipole_moment/PDM.mako" args="dipole_moment = report.result.dipole_moment, report = report"/>
 	    	%endif
 	    	%if report.result.transition_dipole_moment is not None:
-	    	<%include file="/dipole_moment/dipole_moment.mako" args="dipole_moment = report.result.transition_dipole_moment, report = report, image_name = '{}_dipole'.format(report.result.transition_dipole_moment.excited_state.state_symbol)"/>
+	    	<%include file="/dipole_moment/TDM.mako" args="dipole_moment = report.result.transition_dipole_moment, report = report"/>
 	    	%endif
 	    	%if len(report.result.molecular_orbitals) > 0:
 	    	<%include file="/orbital/orbitals.mako" args="report = report"/>
@@ -122,7 +125,7 @@
 	    	%endif
 	        <%include file="/emission/emission.mako" args="report = report"/>
 	    </div>
-	    <div class="section section--separate reportBody">
+	    <div class="section section--separate section--tables">
 	    	<h4>Tables of Results</h4>
 	    	%if len(report.result.alignment) > 0:
 	    		<h5 class="h5--tableHeader">Atom Coordinates</h5>
@@ -138,10 +141,14 @@
 	    	%endif
     	</div>
     	%if len(report.result.excited_states) > 0 or len(report.result.spin_orbit_coupling) > 0:
-	    	<div class="section section--separate">
+	    	<div class="section section--separate section--wideTables">
 		    	%if len(report.result.excited_states) > 0:
 		    		<h5 class="h5--tableHeader">Excited States</h5>
 		    		<%include file="/excited_states/table.mako" args="report = report"/>
+		    	%endif
+		    	%if len([excited_state.transition_dipole_moment for excited_state in report.result.excited_states if excited_state.transition_dipole_moment is not None]) > 0:
+		    	    <h5 class="h5--tableHeader">Transition Dipole Moments</h5>
+                    <%include file="/dipole_moment/table.mako" args="report = report"/>
 		    	%endif
 		    	%if len(report.result.spin_orbit_coupling) > 0:
 		    		<h5 class="h5--tableHeader">Spin-Orbit Coupling</h5>
@@ -149,7 +156,7 @@
 		    	%endif
 	    	</div>
     	%endif
-    	<div class="section reportBody">
+    	<div class="section section--references">
 	    	<h4>References</h4>
 	    	<table class="">
 	    		%for reference in report.captions.database['citation']:

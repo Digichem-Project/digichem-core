@@ -29,6 +29,7 @@ class Result_set(Result_object):
             atoms = None,
             alignment = None,
             dipole_moment = None,
+            transition_dipole_moments = None,
             molecular_orbitals = None,
             beta_orbitals = None,
             ground_state = None,
@@ -45,6 +46,7 @@ class Result_set(Result_object):
         :param SCF_energies: Optional Energy_list object of self-consistent field energies (SCF is the type of energy printed for normal HF and DFT).
         :param atoms: Optional Atom_list object of atom positions.
         :param dipole_moment: Optional dipole_moment object.
+        :param transition_dipole_moments: Optional list of TDMs.
         :param molecular_orbitals: Optional Molecular_orbital_list object.
         :param beta_orbitals: Optional Beta MOs. If this is not None, then molecular_orbitals is assumed to refer to the Alpha MOs.
         :param excited_states: Optional Excited_state_list object.
@@ -58,6 +60,7 @@ class Result_set(Result_object):
         self.MP_energies = MP_energies
         self.SCF_energies = SCF_energies
         self.dipole_moment = dipole_moment
+        self.transition_dipole_moments = transition_dipole_moments
         self.atoms = atoms
         self.alignment = alignment
         self.molecular_orbitals = molecular_orbitals
@@ -135,11 +138,33 @@ class Result_set(Result_object):
     
         
     @property
+    def electric_transition_dipole_moment(self):
+        """
+        The S1 electric dipole moment, commonly referred to as THE electric transition dipole moment (although this name is ambiguous).
+        
+        None is returned if the S1 dipole moment is not available.
+        """
+        tdm = self.transition_dipole_moment
+        if tdm is not None:
+            return tdm.electric
+        
+    @property
+    def magnetic_transition_dipole_moment(self):
+        """
+        The S1 magnetic dipole moment, commonly referred to as THE magnetic transition dipole moment (although this name is ambiguous).
+        
+        None is returned if the S1 dipole moment is not available.
+        """
+        tdm = self.transition_dipole_moment
+        if tdm is not None:
+            return tdm.magnetic
+
+    @property
     def transition_dipole_moment(self):
         """
-        The S1 dipole moment, commonly referred to as THE transition dipole moment (although this name is ambiguous).
+        The S1 dipole moment (both electric and magnetic), commonly referred to as THE transition dipole moment (although this name is ambiguous).
         
-        None is returned if the S1 dipole moment is not available.        
+        None is returned if the S1 dipole moment is not available.
         """
         try:
             S1 = self.excited_states.get_state("S(1)")
@@ -147,9 +172,4 @@ class Result_set(Result_object):
         except Result_unavailable_error:
             # No S1 available.
             return None
-
         
-    
-        
-    
-                

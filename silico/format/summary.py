@@ -420,7 +420,7 @@ class _Dipole_summary_format(Summary_format):
     """
     ALLOW_CRITERIA = True
     
-    def _extract_with_criteria(self, dipole_moment):
+    def _format_dipole(self, dipole_moment):
         """
         Convert a Result_set into an OrderedDict object.
         
@@ -431,9 +431,6 @@ class _Dipole_summary_format(Summary_format):
         
         angle_symbol = Angle.units_to_pretty_units(Angle._default_angle_units)
         return OrderedDict({
-            '{} Origin X coord /D'.format(dipole_moment.name): dipole_moment.origin_coords[0],
-            '{} Origin Y coord /D'.format(dipole_moment.name): dipole_moment.origin_coords[1],
-            '{} Origin Z coord /D'.format(dipole_moment.name): dipole_moment.origin_coords[2],
             '{} Vector X coord /D'.format(dipole_moment.name): dipole_moment.vector_coords[0],
             '{} Vector Y coord /D'.format(dipole_moment.name): dipole_moment.vector_coords[1],
             '{} Vector Z coord /D'.format(dipole_moment.name): dipole_moment.vector_coords[2],
@@ -449,6 +446,35 @@ class TDM_summary_format(_Dipole_summary_format):
     
     CLASS_HANDLE = silico.format.TDM_CLASS_HANDLE
     
+    def _format_dipole(self, dipole_moment):
+        if dipole_moment is None:
+            raise Result_unavailable_error("dipole moment", "there is no dipole of the requested type")
+        
+        angle_symbol = Angle.units_to_pretty_units(Angle._default_angle_units)
+        
+        return OrderedDict({
+            # Electric
+            "Electric {} vector x coord /D".format(dipole_moment.name): dipole_moment.electric.vector_coords[0],
+            "Electric {} vector y coord /D".format(dipole_moment.name): dipole_moment.electric.vector_coords[1],
+            "Electric {} vector z coord /D".format(dipole_moment.name): dipole_moment.electric.vector_coords[2], 
+            "Electric {} /D".format(dipole_moment.name): dipole_moment.electric.total,
+            "Electric {} x-axis angle /{}".format(dipole_moment.name, angle_symbol): float(Angle(dipole_moment.electric.X_axis_angle, output_units = Angle._default_angle_units)),
+            "Electric {} xy-plane angle /{}".format(dipole_moment.name, angle_symbol): float(Angle(dipole_moment.electric.XY_plane_angle, output_units = Angle._default_angle_units)),
+            # Magnetic
+            "Magnetic {} vector x coord /au".format(dipole_moment.name): dipole_moment.magnetic.vector_coords[0],
+            "Magnetic {} vector y coord /au".format(dipole_moment.name): dipole_moment.magnetic.vector_coords[1],
+            "Magnetic {} vector z coord /au".format(dipole_moment.name): dipole_moment.magnetic.vector_coords[2], 
+            "Magnetic {} /au".format(dipole_moment.name): dipole_moment.magnetic.total,
+            "Magnetic {} x-axis angle /{}".format(dipole_moment.name, angle_symbol): float(Angle(dipole_moment.magnetic.X_axis_angle, output_units = Angle._default_angle_units)),
+            "Magnetic {} xy-plane angle /{}".format(dipole_moment.name, angle_symbol): float(Angle(dipole_moment.magnetic.XY_plane_angle, output_units = Angle._default_angle_units)),
+            # Contrast
+            "Electric {} /esu⋅cm".format(dipole_moment.name): dipole_moment.electric.gaussian_cgs,
+            "Magnetic {} /erg⋅G-1".format(dipole_moment.name): dipole_moment.magnetic.gaussian_cgs,
+            "Electric & magnetic {} angle /{}".format(dipole_moment.name, angle_symbol): dipole_moment.angle().angle,
+            "Electric & magnetic {} cos(angle)".format(dipole_moment.name): dipole_moment.cos_angle(),
+            "Electric & magnetic {} dissymmetry factor".format(dipole_moment.name): dipole_moment.g_value,
+        })
+    
     def _extract_with_criteria(self, excited_state_id, *, result):
         """
         Convert a Result_set into an OrderedDict object.
@@ -457,14 +483,14 @@ class TDM_summary_format(_Dipole_summary_format):
         """
         # Get the dipole we've been asked for.
         # Criteria works the same as for excited states (because TDMs are stored under their respective ES).
-        dipole = result.excited_states.get_state(excited_state_id).transition_dipole_moment
-        return super()._extract_with_criteria(dipole_moment = dipole)
+        dipole_moment = result.excited_states.get_state(excited_state_id).transition_dipole_moment
+        return self._format_dipole(dipole_moment)
     
     def _extract(self, result):
         """
         Convert a Result_set into an OrderedDict object.
         """
-        return super()._extract_with_criteria(dipole_moment = result.transition_dipole_moment)
+        return self._format_dipole(dipole_moment = result.transition_dipole_moment)
     
 class PDM_summary_format(_Dipole_summary_format):
     """
@@ -477,7 +503,7 @@ class PDM_summary_format(_Dipole_summary_format):
         """
         Convert a Result_set into an OrderedDict object.
         """
-        return super()._extract_with_criteria(result.dipole_moment)
+        return super()._format_dipole(result.dipole_moment)
     
 class _Energy_summary_format(Summary_format):
     """

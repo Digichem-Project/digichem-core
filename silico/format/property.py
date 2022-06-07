@@ -321,17 +321,29 @@ class TDM_property_format(Property_table_format):
         """
         angle_symbol = Angle.units_to_pretty_units(Angle._default_angle_units)
         return OrderedDict({
-            "Excited state level": dipole_moment.excited_state.level,
-            "Excited state symbol": dipole_moment.excited_state.state_symbol,
-            "Origin X coord /D": dipole_moment.origin_coords[0],
-            "Origin Y coord /D": dipole_moment.origin_coords[1],
-            "Origin Z coord /D": dipole_moment.origin_coords[2],
-            "Vector X coord /D": dipole_moment.vector_coords[0],
-            "Vector Y coord /D": dipole_moment.vector_coords[1],
-            "Vector Z coord /D": dipole_moment.vector_coords[2],
-            "X-axis angle /{}".format(angle_symbol): float(Angle(dipole_moment.X_axis_angle, output_units = Angle._default_angle_units)),
-            "XY-plane angle /{}".format(angle_symbol): float(Angle(dipole_moment.XY_plane_angle, output_units = Angle._default_angle_units)), 
-            "Total /D": dipole_moment.total
+            # Meta
+            "Excited state level": dipole_moment.electric.excited_state.level,
+            "Excited state symbol": dipole_moment.electric.excited_state.state_symbol,
+            # Electric
+            "Electric dipole moment vector x coord /D": dipole_moment.electric.vector_coords[0],
+            "Electric dipole moment vector y coord /D": dipole_moment.electric.vector_coords[1],
+            "Electric dipole moment vector z coord /D": dipole_moment.electric.vector_coords[2], 
+            "Electric dipole moment /D": dipole_moment.electric.total,
+            "Electric dipole moment x-axis angle /{}".format(angle_symbol): float(Angle(dipole_moment.electric.X_axis_angle, output_units = Angle._default_angle_units)),
+            "Electric dipole moment xy-plane angle /{}".format(angle_symbol): float(Angle(dipole_moment.electric.XY_plane_angle, output_units = Angle._default_angle_units)),
+            # Magnetic
+            "Magnetic dipole moment vector x coord /au": dipole_moment.magnetic.vector_coords[0],
+            "Magnetic dipole moment vector y coord /au": dipole_moment.magnetic.vector_coords[1],
+            "Magnetic dipole moment vector z coord /au": dipole_moment.magnetic.vector_coords[2], 
+            "Magnetic dipole moment /au": dipole_moment.magnetic.total,
+            "Magnetic dipole moment x-axis angle /{}".format(angle_symbol): float(Angle(dipole_moment.magnetic.X_axis_angle, output_units = Angle._default_angle_units)),
+            "Magnetic dipole moment xy-plane angle /{}".format(angle_symbol): float(Angle(dipole_moment.magnetic.XY_plane_angle, output_units = Angle._default_angle_units)),
+            # Contrast
+            "Electric dipole moment /esu⋅cm": dipole_moment.electric.gaussian_cgs,
+            "Magnetic dipole moment /erg⋅G-1": dipole_moment.magnetic.gaussian_cgs,
+            "Electric & magnetic dipole moment angle /{}".format(angle_symbol): dipole_moment.angle().angle,
+            "Electric & magnetic dipole moment cos(angle)": dipole_moment.cos_angle(),
+            "Electric & magnetic dipole moment dissymmetry factor": dipole_moment.g_value,
         })
         
 class Excited_state_transitions_property_format(Property_table_format):

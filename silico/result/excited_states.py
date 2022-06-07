@@ -403,7 +403,7 @@ class Excited_state(Energy_state):
         :param energy: The energy of this excited state (in eV).
         :param oscillator_strength: The oscillator strength of this transition.
         :param transitions: The singly excited transitions which make up this transition.
-        :param transition_dipole_moment: Optional transition dipole of the excited state.
+        :param transition_dipole_moment: Optional transition dipole moment of the excited state.
         """
         super().__init__(level, multiplicity, multiplicity_level, energy)
         self.symmetry = symmetry
@@ -415,6 +415,7 @@ class Excited_state(Energy_state):
         # If we were given a TDM, set its excited state to ourself.
         if transition_dipole_moment is not None:
             transition_dipole_moment.set_excited_state(self)
+                
         self.transition_dipole_moment = transition_dipole_moment
         
     @classmethod
@@ -539,7 +540,7 @@ class Excited_state(Energy_state):
             
             # Loop through our data.
             for index, (symmetry, energy, oscillator_strength) in enumerate(excited_states_data):                    
-                # Relevant transition dipole moments.
+                # Relevant transition dipole moment.
                 try:
                     tdm = parser.results.transition_dipole_moments[index]
                 except IndexError:
