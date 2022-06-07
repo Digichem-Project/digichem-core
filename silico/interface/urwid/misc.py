@@ -76,7 +76,13 @@ class IntEditZero(urwid.numedit.IntegerEdit):
         
     def value(self):
         # Urwid returns a Decimal...
-        return int(super().value())
+        try:
+            return int(super().value())
+        except TypeError:
+            if super().value() is None:
+                return None
+            
+            raise
         
 class FloatEditZero(urwid.numedit.FloatEdit):
     """
