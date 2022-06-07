@@ -17,7 +17,7 @@
         max_HOMO_difference = math.inf
     
     # We need to work out which orbitals we're going to display.
-    # This isn't quite as simple as searching by HOMO/LUMO difference if we have both alpha and beta orbitals, because the orbital lists might not align (ie, AHOMO-10 = BHOMO-12).
+    # This isn't quite as simple as searching by HOMO-LUMO difference if we have both alpha and beta orbitals, because the orbital lists might not align (ie, AHOMO-10 = BHOMO-12).
     # Use handy method to determine our limits.
     min_orbital_level = molecular_orbitals.find_common_level(beta_orbitals, HOMO_difference = min_HOMO_difference)
     max_orbital_level = molecular_orbitals.find_common_level(beta_orbitals, HOMO_difference = max_HOMO_difference)

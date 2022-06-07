@@ -104,7 +104,7 @@ There are a number of valid options here (please see the cubegen manual), the mo
 Possible options are:
   - 'all': Limits are set so all orbitals are visible.
   - 'auto': Limits are set automatically so the 0 point (ie, 'X' axis), HOMO and LUMO are clearly visible.
-  - 'center': Like 'auto' except the lower limit is set more negative so the HOMO/LUMO are closer to the middle of the diagram.
+  - 'center': Like 'auto' except the lower limit is set more negative so the HOMO-LUMO are closer to the middle of the diagram.
   - a list of [y_min, y_max], where y_min is the most negative value on the Y axis, and y_max is the most positive value on the Y axis (both in eV).""", type = Auto_type, default = "auto" 
         ),
         full_axis_lines = Option(help = "If True, black lines are drawn around the boarder of the diagram. If False, a line is drawn for the Y axis but not for the other 3 sides of the diagram.", type = bool, default = False)

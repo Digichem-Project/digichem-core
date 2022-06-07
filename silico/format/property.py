@@ -173,7 +173,7 @@ class _Orbitals_property_format(Property_table_format):
         Extract a result set.
         """
         orbital_list = super()._extract(result)
-        # We sort so we decrease in energy, might seem a bit weird but helps in comparing HOMO/LUMO levels.
+        # We sort so we decrease in energy, might seem a bit weird but helps in comparing HOMO-LUMO levels.
         orbital_list.sort(key=lambda orb: orb['Level'], reverse=True)
         return orbital_list
         

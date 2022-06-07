@@ -196,7 +196,7 @@ class Molecular_orbital_list(Result_container):
             The orbital with the highest level that has no more than the given positive HOMO_difference.
         Across one or more orbital lists.
         
-        The method is useful for determining which orbitals to traverse between two limits from the HOMO/LUMO gap.
+        The method is useful for determining which orbitals to traverse between two limits from the HOMO-LUMO gap.
         
         :raises Result_unavailable_error: If all of the given orbital_lists (including this one) are empty.
         :param *other_lists: Optional lists to search. If none are given, then only this orbital_list is search.

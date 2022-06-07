@@ -33,7 +33,7 @@
     <div class="reportHeader reportHeader--minor reportHeader--results">${title}</div>
     <table class="results">
         <tr>
-            <td class="results__name">E<sub>HOMO/LUMO</sub>:</td>
+            <td class="results__name">E<sub>HOMO,LUMO</sub>:</td>
             %if HOMO_energy is not None and LUMO_energy is not None:
             <td class="results__value">${"{:0.2f}".format(LUMO_energy - HOMO_energy)} eV</td>
             %else:

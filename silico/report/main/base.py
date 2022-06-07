@@ -227,13 +227,13 @@ class Report():
                     molecular_orbitals = orbital_list,
                     options = self.options)
                 
-                # A version of the diagram with only the HOMO/LUMO
+                # A version of the diagram with only the HOMO-LUMO
                 self.images[spin_type + 'HOMO_LUMO_energies'] = Orbital_diagram_maker.from_options(
                     Path(output_dir, "Orbital Diagram", output_name + ".{}HOMO_LUMO.png".format(spin_type)),
                     molecular_orbitals = type(orbital_list)(orbital for orbital in orbital_list if orbital.HOMO_difference == 0 or orbital.HOMO_difference == 1),
                     options = self.options)
                 
-                # Also get our HOMO/LUMO combined image.
+                # Also get our HOMO-LUMO combined image.
                 # Get our FMOs.
                 HOMO = orbital_list.get_orbital(HOMO_difference = 0)
                 LUMO = orbital_list.get_orbital(HOMO_difference = 1)
@@ -246,7 +246,7 @@ class Report():
                     options = self.options)
                 
             except Result_unavailable_error:
-                # We couldn't find our HOMO/LUMO.
+                # We couldn't find our HOMO-LUMO.
                 pass
         
         

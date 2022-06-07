@@ -223,7 +223,7 @@ class _Orbitals_summary_format(Summary_format):
         return OrderedDict({
             #'HOMO{} energy /eV'.format(spin_type): getattr(result, self.ORBITAL_TYPE).HOMO_energy,
             #'LUMO{} energy /eV'.format(spin_type): getattr(result, self.ORBITAL_TYPE).LUMO_energy,
-            'HOMO/LUMO{} energy /eV'.format(spin_type): getattr(result, self.ORBITAL_TYPE).HOMO_LUMO_energy,
+            'HOMO-LUMO{} energy /eV'.format(spin_type): getattr(result, self.ORBITAL_TYPE).HOMO_LUMO_energy,
             'No. virtual orbitals{}'.format(spin_type): len([orbital for orbital in getattr(result, self.ORBITAL_TYPE) if orbital.HOMO_difference > 0]),
             'No. occupied orbitals{}'.format(spin_type): len([orbital for orbital in getattr(result, self.ORBITAL_TYPE) if orbital.HOMO_difference <= 0])
         })

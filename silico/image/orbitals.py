@@ -16,7 +16,7 @@ class Orbital_diagram_maker(OneD_graph_image_maker):
         :param output: A path to an output file to write to. The extension of this path is used to determine the format of the file (eg: png, jpeg).
         :param molecular_orbitals: A list of orbitals to plot.
         :param full_axis_lines: If False, a boundary line is drawn for the x axis but nowhere else. If True, boundary lines are drawn on all 4 sides of the plotting area.
-        :param y_limits: String controlling how the y axis limits are set. Options are 'all' for showing all orbitals, 'auto' for standard auto scaling showing the HOMO, LUMO and 0 point, or 'center' for placing the HOMO/LUMO gap in the center of the y axis. Alternatively, limits_method can be a tuple of (y_min, y_max) which will be used directly as axis limits.
+        :param y_limits: String controlling how the y axis limits are set. Options are 'all' for showing all orbitals, 'auto' for standard auto scaling showing the HOMO, LUMO and 0 point, or 'center' for placing the HOMO-LUMO gap in the center of the y axis. Alternatively, limits_method can be a tuple of (y_min, y_max) which will be used directly as axis limits.
         :param limits_fallback: If True, use simple_limits() if the chosen limits_method fails. If false, an exception is raised.
         """
         super().__init__(output, **kwargs)
@@ -115,7 +115,7 @@ class Orbital_diagram_maker(OneD_graph_image_maker):
             )
         
         if HOMO is not None and LUMO is not None:
-            # Now plot our dE HOMO/LUMO arrow.
+            # Now plot our dE HOMO-LUMO arrow.
             self.axes.annotate(
                 "",
                 xy = (start_x_pos, HOMO.energy),
@@ -123,7 +123,7 @@ class Orbital_diagram_maker(OneD_graph_image_maker):
                 arrowprops=dict(arrowstyle="<->")
             )
             
-            # And then our dE HOMO/LUMO energy.
+            # And then our dE HOMO-LUMO energy.
             self.axes.annotate(
                 "ΔE: {:0.2f} eV".format(LUMO.energy - HOMO.energy),
                 (x_pos, statistics.median([HOMO.energy, LUMO.energy])),
@@ -219,7 +219,7 @@ class Orbital_diagram_maker(OneD_graph_image_maker):
             else:
                 raise ValueError("Unknown limits method '{}'".format(self.limits_method))
         except Result_unavailable_error:
-            # HOMO/LUMO not available.
+            # HOMO-LUMO not available.
             if self.limits_fallback:
                 self.simple_limits()
             else:

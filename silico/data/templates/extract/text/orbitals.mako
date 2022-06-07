@@ -20,6 +20,6 @@
 ##
 HOMO /eV: ${"{:0.2f}".format(orbitals.HOMO_energy)}
 LUMO /eV: ${"{:0.2f}".format(orbitals.LUMO_energy)}
-HOMO/LUMO energy /eV: ${"{:0.2f}".format(orbitals.HOMO_LUMO_energy)}
+HOMO-LUMO energy /eV: ${"{:0.2f}".format(orbitals.HOMO_LUMO_energy)}
 No. virtual: ${len([orbital for orbital in orbitals if orbital.HOMO_difference > 0])}
 No. occupied: ${len([orbital for orbital in orbitals if orbital.HOMO_difference <= 0])}
