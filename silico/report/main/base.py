@@ -297,14 +297,26 @@ class Report():
             # Work out what we'll name our files.
             file_name = "{}_dipole".format(excited_state.state_symbol)
             sub_dir_name = "{} Transition Dipole Moment".format(excited_state.state_symbol)
+            
+            try:
+                tedm = excited_state.transition_dipole_moment.electric
+                tmdm = excited_state.transition_dipole_moment.magnetic
+            
+            except AttributeError:
+                if excited_state.transition_dipole_moment is None:
+                    tedm = None
+                    tmdm = None
+                
+                else:
+                    raise
                 
             # Get our image.
             if "structure" in self.cubes:
                 self.images[file_name] = Transition_dipole_image_maker.from_options(
                     Path(output_dir, sub_dir_name, output_name + ".{}.jpg".format(file_name)),
                     cube_file = self.cubes['structure'],
-                    dipole_moment = excited_state.transition_dipole_moment.electric,
-                    magnetic_dipole_moment = excited_state.transition_dipole_moment.magnetic,
+                    dipole_moment = tedm,
+                    magnetic_dipole_moment = tmdm,
                     rotations = self.rotations,
                     options = self.options)
                 
