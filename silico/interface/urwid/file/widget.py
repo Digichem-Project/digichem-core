@@ -5,7 +5,7 @@ import urwid
 import itertools
 
 # Silico imports.
-from silico.interface.urwid.tree.base import Flag_widget
+from silico.interface.urwid.tree import Flag_widget
 
 
 class File_tree_widget(Flag_widget):

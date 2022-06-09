@@ -58,6 +58,9 @@ if silico.frozen:
     # And also data.
     os.environ['BABEL_DATADIR'] = str(Path(sys._MEIPASS, "openbabel", "data", openbabel_version))
 
+# Setup the logger
+silico.logging.init_logger()
+
 
 ########################
 # Function Definitions #

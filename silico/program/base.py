@@ -9,7 +9,7 @@ from silico.exception.uncatchable import Signal_caught
 from silico.config.file.parser import Config_file_parser
 import silico.result.angle
 import silico.logging
-from silico.logging.base import set_logging_level
+from silico.logging import set_logging_level
 from silico.misc.argparse import Extend_action
 
 

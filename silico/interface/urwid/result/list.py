@@ -2,7 +2,7 @@
 import urwid
 
 # Silico imports.
-from silico.interface.urwid.row_list.base import Row_browser, Row_item,\
+from silico.interface.urwid.row_list import Row_browser, Row_item,\
     Row_widget
 from silico.interface.urwid.result.browser import Result_selector
 import silico.logging

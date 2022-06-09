@@ -4,7 +4,7 @@ import urwid
 # Silico imports.
 from silico.interface.urwid.setedit.configurable import Configurable_browser
 from silico.interface.urwid.layout import Pane
-from silico.interface.urwid.setedit.base import Paginated_settings_browser,\
+from silico.interface.urwid.setedit.edit import Paginated_settings_browser,\
     Setedit_editor_mixin
 from silico.interface.urwid.popup import Choices_edit
 from silico.interface.urwid.misc import Tab_pile
@@ -189,9 +189,9 @@ class Method_editor(Paginated_settings_browser):
     @property
     def method(self):
         return (
-            self.pages['Destination'].configurable,
-            self.pages['Program'].configurable,
-            self.pages['Calculation'].configurable,
+            self.page['Destination'].configurable,
+            self.page['Program'].configurable,
+            self.page['Calculation'].configurable,
         )
         
         

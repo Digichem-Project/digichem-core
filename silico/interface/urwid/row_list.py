@@ -7,12 +7,6 @@ import silico.logging
 from silico.interface.urwid.dialogue import Confirm_or_cancel_dialogue
 
 
-class Row_control():
-    """
-    A button to control a Row_item object.
-    """
-
-
 class Row_widget(urwid.WidgetPlaceholder):
     """
     A widget used for displaying a Row_item object.

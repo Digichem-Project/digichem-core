@@ -2,10 +2,10 @@
 
 # General imports.
 import urwid
+import warnings
 
 # Silico imports.
-from silico.interface.urwid.tree.base import Flag_widget
-import warnings
+from silico.interface.urwid.tree import Flag_widget
 
 
 class Loader_widget(Flag_widget):

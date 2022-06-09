@@ -8,7 +8,7 @@ import itertools
 # Silico imports.
 from silico.interface.urwid.setedit.widget import Setedit_widget
 from silico.interface.urwid.setedit.common import Setedit_widget_parent_mixin
-from silico.interface.urwid.pages import Pages
+from silico.interface.urwid.page import Pages
 from silico.logging.base import get_logger
 from silico.exception.configurable import Configurable_option_exception
 
@@ -200,12 +200,6 @@ class Setedit_browser(urwid.ListBox, Setedit_widget_parent_mixin, Setedit_editor
             
         return retval
 
-# This doesn't seem to be used and makes no sense anyway (what is method_editor?)
-#     def cancel_callback(self):
-#         """
-#         """
-#         return self.method_editor.discard()
-
 
 class Paginated_browser_mixin(Setedit_editor_mixin):
     """
@@ -278,7 +272,7 @@ class Paginated_settings_browser(Pages, Paginated_browser_mixin):
         """
         Refresh each of the pages of options.
         """
-        for page in self.pages.values():
+        for page in self.page.values():
             page.base_widget.refresh()
     
     def save(self, validate = True):
@@ -288,7 +282,7 @@ class Paginated_settings_browser(Pages, Paginated_browser_mixin):
         :param validate: Whether to validate the changes made.
         """
         # Save each of the individual browsers that we encapsulate.
-        for name, page in self.pages.items():
+        for name, page in self.page.items():
             # Don't validate here, if an option in a different page fails validation we will get stuck!
             page.base_widget.save(False)
             
@@ -303,7 +297,7 @@ class Paginated_settings_browser(Pages, Paginated_browser_mixin):
         current_page = self.current_page
         
         try:
-            for name, page in self.pages.items():
+            for name, page in self.page.items():
                 self.switch_page(name)
                 page.base_widget.validate_setedits()
             
@@ -311,7 +305,7 @@ class Paginated_settings_browser(Pages, Paginated_browser_mixin):
             # Try and switch to the page that matches the exception.
             # See if the option (or any of its parents) is a page.
             for parent in itertools.chain([parent.name for parent in e.option.parents], (e.option.name,)):
-                if parent in self.pages:
+                if parent in self.page:
                     self.switch_page(parent)
                     break
             
@@ -324,7 +318,7 @@ class Paginated_settings_browser(Pages, Paginated_browser_mixin):
         """
         Discard any changes made.
         """
-        for page in self.pages.values():
+        for page in self.page.values():
             page.base_widget.discard(False)
             
         self.save(False)
