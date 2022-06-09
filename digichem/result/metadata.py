@@ -1,4 +1,4 @@
-# Code for processing results from calculations and generating reports.
+"""Code for metadata regarding finished calculation results."""
 
 # General imports.
 from datetime import timedelta, datetime
@@ -12,6 +12,7 @@ from silico.exception import Result_unavailable_error
 from silico.result import Result_object
 from silico.misc.time import latest_datetime, total_timedelta
 from silico.misc.text import andjoin
+
 
 class Metadata(Result_object):
     """

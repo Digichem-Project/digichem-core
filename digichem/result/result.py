@@ -1,6 +1,7 @@
 # Code for processing results from calculations and generating reports.
 
 # General imports.
+import itertools
 
 # Silico imports.
 from silico.exception import Result_unavailable_error
@@ -9,8 +10,7 @@ from silico.result.alignment.AA import Average_angle
 from silico.result.alignment.FAP import Furthest_atom_pair
 from silico.result.alignment import Minimal
 from silico.result import Result_object
-import silico.result.excited_states
-import itertools
+import silico.result.excited_state
 
         
 class Result_set(Result_object):
@@ -108,7 +108,7 @@ class Result_set(Result_object):
         if "Excited States" in self.metadata.calculations:
             # Add multiplicity based on ES.
             mult = self.excited_states.group()
-            mult_strings = [silico.result.excited_states.Energy_state.multiplicity_number_to_string(multiplicity).capitalize() for multiplicity in mult]
+            mult_strings = [silico.result.excited_state.Energy_state.multiplicity_number_to_string(multiplicity).capitalize() for multiplicity in mult]
             if len(mult_strings) <= 2:
                 # Add the strings.
                 title += " ({})".format(", ".join(mult_strings))
@@ -116,7 +116,7 @@ class Result_set(Result_object):
                 # Add something non-specific.
                 title += " (Various Multiplicities)"
         else:
-            title += " ({})".format(silico.result.excited_states.Energy_state.multiplicity_number_to_string(self.metadata.multiplicity).capitalize())
+            title += " ({})".format(silico.result.excited_state.Energy_state.multiplicity_number_to_string(self.metadata.multiplicity).capitalize())
         return title
     
     @property

@@ -1,12 +1,15 @@
-# Classes for total system energies.
+"""Classes for total system energies."""
 from silico.result import Result_container
 import scipy.constants
 from silico.exception.base import Result_unavailable_error
 from silico.result import Unmergeable_container_mixin
 
+
 class Energy_list(Result_container, Unmergeable_container_mixin):
     """
-    Class that represents a list of calculated energies. Storing energies as a list is useful because optimisations will print energies at each step, and it can be useful to look back and see how the opt has progressed.
+    Class that represents a list of calculated energies.
+    
+    Storing energies as a list is useful because optimisations will print energies at each step, and it can be useful to look back and see how the opt has progressed.
     """
     
     # The type of energy; corresponds to the name of the attribute provided by cclib.
@@ -55,7 +58,7 @@ class Energy_list(Result_container, Unmergeable_container_mixin):
         """
         The 'final' energy in this list, useful for getting the final optimised energy.
         
-        :raises IndexError: If this list is empty.
+        :raises Result_unavailable_error: If this list is empty.
         """
         try:
             return self[-1]
@@ -104,7 +107,8 @@ class Energy_list(Result_container, Unmergeable_container_mixin):
             return self(getattr(parser.data, self.cclib_energy_type))
         except AttributeError:
             return self()
-    
+
+
 class SCF_energy_list(Energy_list):
     """
     List of Self-consistent field energies.
@@ -114,7 +118,8 @@ class SCF_energy_list(Energy_list):
     
     # A warning issued when attempting to merge non-equivalent objects
     MERGE_WARNING = "Attempting to merge list of SCF energies that are not identical; non-equivalent energies will be ignored"
-    
+
+
 class CC_energy_list(Energy_list):
     """
     List of coupled-cluster energies.
@@ -124,7 +129,8 @@ class CC_energy_list(Energy_list):
     
     # A warning issued when attempting to merge non-equivalent objects
     MERGE_WARNING = "Attempting to merge list of CC energies that are not identical; non-equivalent energies will be ignored"
-    
+
+
 class MP_energy_list(Energy_list):
     """
     List of Moller-Plesset energies.
@@ -151,7 +157,3 @@ class MP_energy_list(Energy_list):
         except IndexError:
             # No energy.
             return self()
-            
-    
-    
-    

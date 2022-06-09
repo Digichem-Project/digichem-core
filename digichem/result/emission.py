@@ -1,10 +1,9 @@
-from silico.result.excited_states import Excited_state
-from silico.result import Result_object
-from silico.exception.base import Silico_exception, Result_unavailable_error
-
-# General imports.
 import math
 from scipy.constants import epsilon_0, Planck, c
+
+from silico.result.excited_state import Excited_state
+from silico.result import Result_object
+from silico.exception.base import Silico_exception, Result_unavailable_error
 
 # Dirac constant.
 h_bar = Planck / (math.pi *2)
@@ -19,16 +18,25 @@ class Relaxed_excited_state(Excited_state):
     This class is for emission energies, which are typically lower in energy (because the excited state has relaxed). 
     """
     
-    def __init__(self, ground_state_result, excited_state_result, transition_type, excited_state = None):
+    def __init__(self,
+                 ground_state_result,
+                 excited_state_result,
+                 transition_type,
+                 excited_state = None,
+                 level = 1,
+                 multiplicity_level = 1,
+        ):
         """
         Constructor for Relaxed_excited_state objects.
         
         :param ground_state_result: A Result_set object representing the ground state.
         :param excited_state_result: A Result_set object representing the excited state.
-        :param excited_state: An optional Excited_state object. This is required (for example) in time dependent DFT where the total energy of excited_state_result is the ground state energy (at the excited state geometry).
         :param transition_type:  A string describing the type of transition, either 'adiabatic' (GS and ES relaxed) or 'vertical' (ES relaxed, GS @ ES geom).
+        :param excited_state: An optional Excited_state object. This is required (for example) in time dependent DFT where the total energy of excited_state_result is the ground state energy (at the excited state geometry).
+        :param level: The level (ordered index) of this excited state, this has no effect if excited_state is not None (in which case it is taken from the given excited state).
+        :param multiplicity_level: The ordered index of this excited state out of states with the same multiplicity, this has no effect if excited_state is not None (in which case it is taken from the given excited state).
         """
-        # We don't call the Excited_state constructor (yet) because it handles energy differently.
+        # TODO: We don't call the Excited_state constructor (yet) because it handles energy differently.
         Result_object.__init__(self)
         self.ground_state_result = ground_state_result
         self.excited_state_result = excited_state_result
@@ -42,8 +50,8 @@ class Relaxed_excited_state(Excited_state):
             self.transition_dipole_moment = self.excited_state.transition_dipole_moment
         else:
             # For now we assume this is the lowest possible excited state (may change in future).
-            self.level = 1
-            self.multiplicity_level = 1
+            self.level = level
+            self.multiplicity_level = multiplicity_level
             
             # We don't have a concept of oscillator strength (yet?).
             self.oscillator_strength = None

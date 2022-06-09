@@ -1,7 +1,7 @@
 import math
-from silico.result.atoms import Atom_list
+
+from silico.result.atom import Atom_list
 from silico.misc import Dynamic_parent
-import warnings
 
 class Alignment(Atom_list, Dynamic_parent):
     """

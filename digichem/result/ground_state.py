@@ -1,10 +1,12 @@
-# Contains classes for representing the ground state of our system.
-# This file is closely related to the excited_states.py file.
-# These definitions may change or move.
+"""
+Contains classes for representing the ground state of a system.
 
-from silico.result.excited_states import Energy_state
-from silico.exception.base import Result_unavailable_error
-from builtins import classmethod
+This file is closely related to the excited_states.py file.
+These definitions may change or move.
+"""
+
+from silico.result.excited_state import Energy_state
+
 
 class Ground_state(Energy_state):
     """
@@ -69,7 +71,3 @@ class Ground_state(Energy_state):
             return None
         # Return our constructed object.
         return self(charge, multiplicity, energy)
-    
-    
-    
-    
