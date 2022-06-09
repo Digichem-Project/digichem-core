@@ -7,7 +7,7 @@ from silico.interface.urwid.method.edit import Method_target_editor
 from silico.interface.urwid.layout import Pane
 from silico.interface.urwid.misc import Tab_pile
 from silico.submit.base import Method_target, parse_method_from_file
-from silico.interface.urwid.edit.popup import Method_target_picker , Output_edit
+from silico.interface.urwid.popup import Method_target_picker , Output_edit
 from silico.interface.urwid.setedit.base import Setedit_editor_mixin,\
     Paginated_settings_browser
 from silico.submit.destination.base import Destination_target

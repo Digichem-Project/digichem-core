@@ -6,7 +6,7 @@ from silico.interface.urwid.setedit.configurable import Configurable_browser
 from silico.interface.urwid.layout import Pane
 from silico.interface.urwid.setedit.base import Paginated_settings_browser,\
     Setedit_editor_mixin
-from silico.interface.urwid.edit.popup import Choices_edit
+from silico.interface.urwid.popup import Choices_edit
 from silico.interface.urwid.misc import Tab_pile
 from silico.interface.urwid.dialogue import Confirm_or_cancel_dialogue
 from silico.submit.calculation import Calculation_target

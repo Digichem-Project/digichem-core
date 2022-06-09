@@ -3,7 +3,7 @@ import urwid
 
 # Silico imports.
 from silico.exception.base import Silico_exception
-from silico.interface.urwid.edit.popup import File_edit, Choices_edit,\
+from silico.interface.urwid.popup import File_edit, Choices_edit,\
     Method_target_picker
 from silico.interface.urwid.setedit.common import Setedit_widget_parent_mixin
 

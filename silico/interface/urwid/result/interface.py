@@ -7,7 +7,7 @@ from silico.interface.urwid.program import Program_view
 from silico.config.configurable.option import Option
 from silico.interface.urwid.misc import Tab_pile
 from silico.interface.urwid.result.list import Result_list
-from silico.interface.urwid.edit.popup import Choices_edit, Output_edit
+from silico.interface.urwid.popup import Choices_edit, Output_edit
 from silico.format.text import Text_summary_group_format
 from silico.format.csv import CSV_property_group_format,\
     CSV_summary_group_format

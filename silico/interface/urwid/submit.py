@@ -8,7 +8,7 @@ from silico.interface.urwid.misc import Tab_pile
 from silico.interface.urwid.program import Program_view
 from silico.interface.urwid.coord.list import Coordinate_list
 from silico.interface.urwid.method.list import Method_list
-from silico.interface.urwid.edit.popup import Output_edit
+from silico.interface.urwid.popup import Output_edit
 from silico.interface.urwid.layout import Pane
 from silico.config.configurable.option import Option
 
