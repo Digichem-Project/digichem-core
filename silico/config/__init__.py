@@ -1,2 +1,2 @@
-#from .base import Config
-#from .base import Silico_options
+from .silico import Silico_options
+from .base import Config

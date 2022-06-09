@@ -7,8 +7,8 @@ import yaml
 import glob
 import itertools
 
-from silico.config.base import Config
-from silico.config.main import Silico_options
+from silico.config import Config
+from silico.config import Silico_options
 from silico.config.configurable.loader import Partial_loader, Update_loader,\
     Configurable_list
 from silico.config.configurable.loader import Single_loader
