@@ -10,7 +10,7 @@ from silico.misc.base import to_bool
 from silico.file.input import Silico_coords
 from silico.file.convert.babel import Openbabel_converter
 from silico.misc.file_wrapper import Multi_file_wrapper
-from silico.interface.urwid.convert.base import Convert_interface
+from silico.interface.urwid.convert import Convert_interface
 
 
 class Convert_program(Program):

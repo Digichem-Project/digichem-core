@@ -11,7 +11,7 @@ from silico.format.csv import CSV_summary_group_format,\
 from silico.format.table import Table_summary_group_format,\
     Property_table_group_format
 from silico.parser.base import parse_multiple_calculations
-from silico.interface.urwid.result.base import Result_interface
+from silico.interface.urwid.result import Result_interface
 from silico.result.multi.base import Merged
 
 
