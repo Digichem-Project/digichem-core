@@ -7,7 +7,7 @@ import urwid
 from silico.config.configurable.option import Option
 from silico.interface.urwid.file.list import File_list
 from silico.interface.urwid.misc import Tab_pile
-from silico.interface.urwid.main.program import Program_view
+from silico.interface.urwid.program import Program_view
 from silico.interface.urwid.edit.popup import Output_edit
 from silico.interface.urwid.layout import Pane
 from silico.interface.urwid.setedit.configurable import make_settings_page_from_configurable_option

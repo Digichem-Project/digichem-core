@@ -9,7 +9,7 @@ from silico.program.report import Report_program
 from silico.program.result import Result_program
 from silico.program.status import Status_program
 from silico.program.convert import Convert_program
-from silico.interface.urwid.main.base import Silico_window, Output_catcher
+from silico.interface.urwid.program import Silico_window, Output_catcher
 import silico.logging.base
 
 

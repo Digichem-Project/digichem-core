@@ -1,10 +1,7 @@
-# General import.
 import urwid
 from urwid.font import HalfBlock7x7Font
 import io
 
-# Silico import.
-import silico
 import silico.logging
 from silico.interface.urwid.setedit.configurable import make_paginated_configurable_browser
 from silico.interface.urwid.layout import Window, Pane, Sub_pane
@@ -14,6 +11,8 @@ from silico.interface.urwid.dialogue import Confirm_dialogue
 from silico.author import get_authorship_string
 from silico.interface.urwid.method.builder import Method_builder_menu
 from silico.interface.urwid.wrapper import Cancel
+from silico.interface.urwid.swap.swappable import Swappable
+from silico.interface.urwid.swap.top import Top
 
 
 class Silico_window(Window):
@@ -33,15 +32,14 @@ class Silico_window(Window):
         # Each key is an instance of each sub program.
         self._interfaces = {}
         
-        # Setup our window.
-        super().__init__(title = "Silico {}".format(silico.version), help = "Arrow Keys: Navigate  TAB: Next: SHIFT-TAB: Previous  ENTER: Select  ESC: Back")
+        # The top-most widget, a funky object that allows swapping back and forth between which widget is currently shown.
+        top = Top(None)
         
         # A widget which can be swapped to in order to change the main silico settings.        
-        self.settings_pane = Sub_pane(make_paginated_configurable_browser(self.program.config, self.top, on_change_callback = self.update_settings, page_selector_title = "Settings Type"), "Main Silico Settings")
+        self.settings_pane = Sub_pane(make_paginated_configurable_browser(program.config, top, on_change_callback = self.update_settings, page_selector_title = "Settings Type"), "Main Silico Settings")
         
         # A widget for creating new methods.
-        #self.method_builder = Method_builder(self.top, self.program.config)
-        self.method_builder = Method_builder_menu(self.top, self.program.config)
+        self.method_builder = Method_builder_menu(top, program.config)
         
         body = Tab_pile([
             ('pack', urwid.Padding(urwid.BigText("Silico", HalfBlock7x7Font()), align = "center", width = "clip")),
@@ -49,7 +47,10 @@ class Silico_window(Window):
             ('pack', urwid.Padding(self.get_menu(), align = "center", width = 45))
         ], focus_item = 2)
         
-        self.top.swap(urwid.Filler(body))
+        top.swap(urwid.Filler(body))
+        
+        # Setup our window.
+        super().__init__(top, title = "Silico {}".format(silico.version), help = "Arrow Keys: Navigate  TAB: Next: SHIFT-TAB: Previous  ENTER: Select  ESC: Back")
         
         # If we've got an initial program, swap to it now,
         if self.program.initial is not None:
@@ -154,7 +155,7 @@ class Silico_window(Window):
         :param palette: The palette to display with.
         """
         super().run_loop(palette)
-        
+
 
 class Output_catcher(io.StringIO):
     """
@@ -185,5 +186,67 @@ class Output_catcher(io.StringIO):
             self.truncate(0)
         
         return retval
+
+
+class Program_view(Swappable):
+    """
+    A widget for running a subprogram.
+    """
+    
+    def __init__(self, window, program):
+        """
+        Constructor for Program_view objects.
         
+        :param window: A Silico_window widget used for display.
+        :param program: A program object to run.
+        """
+        self.window = window
+        self.program = program
+        super().__init__(self.window.top, Sub_pane(self.get_body(), title = program.name))
+        
+    def get_body(self):
+        """
+        Get the widget used to display the body of this program.
+        
+        :returns: An urwid widget to display.
+        """
+        raise NotImplementedError("Implement in subclass")
+    
+    def setup(self):
+        """
+        Setup our program to ready it to be run.
+        """
+        # This default implementation does nothing.
+    
+    def submit(self):
+        """
+        Submit this program widget, running the program it wraps.
+        
+        :returns: True if program execution was successful, false otherwise.
+        """
+        try:
+            self.setup()
+            self.program.main()
+            self.post()
+            #return True
+            
+        except Exception:
+            logger = silico.logging.get_logger()
+            logger.exception("Sub-program {} stopped with error".format(self.program.command))
+            #return False
+        
+        except KeyboardInterrupt:
+            # The user wanted to stop.
+            logger = silico.logging.get_logger()
+            logger.error("Sub-program {} interrupted by user (ctrl-c)".format(self.program.command))
+            #return False
+        
+        # Return false to prevent swapping back.
+        return False
+        
+    def post(self):
+        """
+        Method called once our main program has finished running.
+        """
+        # This default implementation does nothing.
         

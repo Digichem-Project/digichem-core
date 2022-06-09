@@ -3,7 +3,7 @@ import urwid
 import shlex
 
 # Silico imports.
-from silico.interface.urwid.main.program import Program_view
+from silico.interface.urwid.program import Program_view
 from silico.config.configurable.option import Option
 from silico.interface.urwid.misc import Tab_pile
 from silico.interface.urwid.result.list import Result_list

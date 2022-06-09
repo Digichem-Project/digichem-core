@@ -2,7 +2,7 @@
 import urwid
 
 # Silico imports.
-from silico.interface.urwid.main.program import Program_view
+from silico.interface.urwid.program import Program_view
 from silico.interface.urwid.edit.popup import File_edit, Output_edit,\
     Choices_edit
 from silico.file.input import Silico_coords
