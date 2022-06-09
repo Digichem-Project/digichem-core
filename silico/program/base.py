@@ -23,7 +23,7 @@ class Program():
     name = "Silico"
     command = "(implement in subclass)"
     description = "computational chemistry management"
-    epilog = "{} V{}. Written by {}. Last updated {}.".format(name, silico.version, silico.author, silico.last_updated.strftime("%d/%m/%Y"))
+    epilog = "{} V{}. Written by {}. Last updated {}.".format(name, silico.__version__, silico.__author__, silico.last_updated.strftime("%d/%m/%Y"))
     usage = None
     help = None
     aliases = []

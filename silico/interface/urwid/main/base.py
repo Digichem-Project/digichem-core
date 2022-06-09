@@ -11,7 +11,7 @@ from silico.interface.urwid.layout import Window, Pane, Sub_pane
 from silico.program.status import Status_program
 from silico.interface.urwid.misc import Tab_pile
 from silico.interface.urwid.dialogue import Confirm_dialogue
-from silico.authors import get_authorship_string
+from silico.author import get_authorship_string
 from silico.interface.urwid.method.builder import Method_builder_menu
 from silico.interface.urwid.wrapper import Cancel
 

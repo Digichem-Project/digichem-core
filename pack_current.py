@@ -10,7 +10,7 @@ import shutil
 from datetime import datetime
 
 # The name of the archive.
-archive_name = silico.name + "-" + silico.version + "-source"
+archive_name = silico.__package__ + "-" + silico.__version__ + "-source"
 
 # Where we're going to write to
 dest = Path("../archives", archive_name)

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Main entry point to Silico.
+"""Main entry point to Silico."""
 
 # This should suppress a matplotlib warning when we compile with pyinstaller.
 import warnings
