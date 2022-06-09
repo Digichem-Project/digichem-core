@@ -7,7 +7,6 @@ from silico.exception.configurable import Configurable_exception
 
 # Silico imports.
 from silico.config.base import Auto_type
-from silico.config.configurable.loader import Configurable_list
 from silico.config.configurable.base import Configurable
 from silico.config.configurable.option import Option, Method_target_option
 from silico.config.configurable.options import Options
