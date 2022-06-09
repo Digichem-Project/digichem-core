@@ -10,7 +10,7 @@ import silico.logging
 from silico.submit.program import Program_target
 from silico.file.fchk import Chk_to_fchk
 from silico.config.configurable.option import Option
-from silico.parser.base import parse_calculation
+from silico.parser import parse_calculation
 from silico.file.input.chk import Chk_input
 
 class Gaussian(Program_target):

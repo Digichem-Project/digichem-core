@@ -4,7 +4,7 @@ import itertools
 import scipy.constants
 import scipy.signal
 
-import silico.result.excited_states
+import silico.result.excited_state
 from silico.exception.base import Silico_exception
 
 class Spectroscopy_graph():
@@ -233,7 +233,7 @@ class Absorption_emission_graph(Spectroscopy_graph):
         :return: A tuple of (nm, i), where i is intensity.
         """
         x, y = coord
-        return (silico.result.excited_states.Excited_state.energy_to_wavelength(x), self.jacobian(x, y) if use_jacobian else y)
+        return (silico.result.excited_state.Excited_state.energy_to_wavelength(x), self.jacobian(x, y) if use_jacobian else y)
         
     @classmethod
     def jacobian(self, E, f_E):

@@ -5,9 +5,7 @@ import shutil
 
 # Silico imports.
 import silico.logging
-
-# Silico imports.
-from silico.report.main import HTML_report
+from silico.report.html import HTML_report
 
 
 class PDF_report(HTML_report):

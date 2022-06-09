@@ -14,7 +14,7 @@ from silico.submit.program.base import Program_target
 from silico.config.configurable.option import Option
 from silico.exception.base import Submission_error
 from silico.misc.directory import copytree
-from silico.parser.base import parse_calculation
+from silico.parser import parse_calculation
 import silico
 from silico.file.input.directory import Calculation_directory_input
 

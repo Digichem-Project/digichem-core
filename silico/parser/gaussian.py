@@ -3,7 +3,7 @@ import pysoc.io.SOC
 from datetime import datetime, timedelta
 
 # Silico imports.
-from silico.parser.main import Parser
+from silico.parser.base import Parser
 import silico.logging
 from silico.exception.base import Result_unavailable_error
 import silico.file.types as file_types

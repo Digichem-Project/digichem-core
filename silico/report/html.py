@@ -6,7 +6,7 @@ import silico
 import shutil
 
 # Silico imports.
-from silico.report.main import Report
+from silico.report.base import Report
 from silico.misc.directory import copytree
 from silico.reference.cross_reference import Captions
 

@@ -3,11 +3,11 @@
 # Silico imports.
 from silico.result.result import Result_set
 from silico.result.metadata import Metadata
-from silico.result.atoms import Atom_list
+from silico.result.atom import Atom_list
 from silico.result.ground_state import Ground_state
-from silico.result.excited_states import Excited_state_list
+from silico.result.excited_state import Excited_state_list
 from silico.result.emission import Relaxed_excited_state
-from silico.result.molecular_orbitals import Molecular_orbital_list
+from silico.result.orbital import Molecular_orbital_list
 
 
 class Merged(Result_set):

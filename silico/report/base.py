@@ -12,9 +12,9 @@ from silico.exception.base import Result_unavailable_error
 from silico.image.excited_states import Excited_states_diagram_maker
 from silico.image.spectroscopy import Absorption_graph_maker,\
     Emission_graph_maker, Frequency_graph_maker
-from silico.result.excited_states import Excited_state_list
+from silico.result.excited_state import Excited_state_list
 from silico.image.graph import Convergence_graph_maker
-from silico.result.molecular_orbitals import Molecular_orbital_list
+from silico.result.orbital import Molecular_orbital_list
 import silico.report.image
 from silico.image.structure import Skeletal_image_maker
 from silico.file.input import Silico_coords

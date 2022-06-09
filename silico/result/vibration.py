@@ -6,6 +6,7 @@ from silico.result import Result_container
 from silico.result import Result_object
 from silico.result import Floatable_mixin, Unmergeable_container_mixin
 
+
 class Vibrations_list(Result_container, Unmergeable_container_mixin):
     """
     Class for representing a group of molecular vibrations.
@@ -26,7 +27,7 @@ class Vibrations_list(Result_container, Unmergeable_container_mixin):
         Get an Vibrations_list object from an output file parser.
         
         :param parser: An output file parser.
-        :return: An Vibrations_list object. The list will be empty if no vibration frequency data is available.
+        :return: A Vibrations_list object. The list will be empty if no vibration frequency data is available.
         """
         return self(Vibration.list_from_parser(parser))
 
@@ -40,7 +41,7 @@ class Vibration(Result_object, Floatable_mixin):
         """
         Vibration object constructor.
         
-        :param level: The level of the vibration.
+        :param level: The numerical index of the vibration.
         :param frequency: Frequency of the vibration (cm-1).
         :param intensity: Intensity of the vibration in IR (km mol-1)
         :param symmetry: Symmetry term of the vibration (string).

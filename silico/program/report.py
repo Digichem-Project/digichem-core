@@ -6,7 +6,7 @@ import itertools
 from silico.program.base import Program
 from silico.exception.base import Silico_exception
 from silico.parser import parse_calculations
-from silico.report.main.pdf import PDF_report
+from silico.report.pdf import PDF_report
 from silico.interface.urwid.report import Report_interface
 
 
