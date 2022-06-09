@@ -1,5 +1,3 @@
-# A list of locations where silico config files can be found.
-
 from pathlib import Path
 import pkg_resources
 

@@ -1,6 +1,4 @@
-#
-# Code for loading/reading/parsing config files and configurable files.
-#
+"""Code for loading/reading/parsing config files and configurable files."""
 
 from pathlib import Path
 import yaml
@@ -13,7 +11,7 @@ from silico.config.configurable.loader import Partial_loader, Update_loader,\
     Configurable_list
 from silico.config.configurable.loader import Single_loader
 from silico.exception.configurable import Configurable_loader_exception
-from silico.config.file.locations import master_config_path, system_config_location, user_config_location
+from silico.config.locations import master_config_path, system_config_location, user_config_location
 
 
 class Config_parser():

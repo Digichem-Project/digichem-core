@@ -7,7 +7,7 @@ from silico.config.base import Auto_type
 from silico.config.configurable.base import Configurable
 from silico.config.configurable.option import Option, Method_target_option
 from silico.config.configurable.options import Options
-from silico.config.file.locations import user_config_location
+from silico.config.locations import user_config_location
 from silico.misc.io import atomic_write
 from silico.submit.calculation.turbomole import Turbomole_memory
 
