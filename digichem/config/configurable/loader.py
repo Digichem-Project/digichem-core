@@ -1,7 +1,9 @@
-#
-# Classes that represent one or more configurables. Loaders construct real Configurable_class_target objects from one or more dict objects on demand.
-# Loaders are essentially a speed hack that means we don't have to construct 1000s of objects each time we start up.
-#
+"""
+Classes that represent one or more configurables.
+
+Loaders construct real Configurable_class_target objects from one or more dict objects on demand.
+Loaders are essentially a speed hack that means we don't have to construct 1000s of objects each time we start up.
+"""
 
 # General imports.
 import deepmerge
