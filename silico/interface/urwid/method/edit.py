@@ -189,9 +189,9 @@ class Method_editor(Paginated_settings_browser):
     @property
     def method(self):
         return (
-            self.page['Destination'].configurable,
-            self.page['Program'].configurable,
-            self.page['Calculation'].configurable,
+            self.pages['Destination'].configurable,
+            self.pages['Program'].configurable,
+            self.pages['Calculation'].configurable,
         )
         
         
