@@ -1,0 +1,30 @@
+
+Naphthalene_Optimisation_ADC_2__cc_pVDZ
+a ../Input/coord
+ired
+*
+b all cc-pVDZ
+*
+eht
+
+0
+
+scf
+iter
+100
+damp
+
+
+
+
+cc
+memory 2384
+cbas
+*
+ricc2
+adc(2)
+scs
+geoopt ADC(2) 
+*
+*
+*

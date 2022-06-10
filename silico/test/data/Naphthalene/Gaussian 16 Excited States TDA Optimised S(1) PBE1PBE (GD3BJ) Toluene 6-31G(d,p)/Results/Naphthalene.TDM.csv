@@ -1,0 +1,11 @@
+Excited state level,Excited state symbol,Electric dipole moment vector x coord /D,Electric dipole moment vector y coord /D,Electric dipole moment vector z coord /D,Electric dipole moment /D,Electric dipole moment x-axis angle /°,Electric dipole moment xy-plane angle /°,Magnetic dipole moment vector x coord /au,Magnetic dipole moment vector y coord /au,Magnetic dipole moment vector z coord /au,Magnetic dipole moment /au,Magnetic dipole moment x-axis angle /°,Magnetic dipole moment xy-plane angle /°,Electric dipole moment /esu⋅cm,Magnetic dipole moment /erg⋅G-1,Electric & magnetic dipole moment angle /°,Electric & magnetic dipole moment cos(angle),Electric & magnetic dipole moment dissymmetry factor
+1,S(1),0.0401595942734,-1.50574360948e-34,-2.4590659291e-18,0.040159594273400004,3.508354649267438e-15,3.508354649267438e-15,0.0,0.0,0.0,0.0,0.0,0.0,4.01595904089165e-20,0.0,90.0,0,0.0
+2,S(2),0.0,2.65104157134,-1.62329478737e-16,2.651041571339,90.0,3.508354649267438e-15,0.0,0.0,0.0,0.0,0.0,0.0,2.6510413162341705e-18,0.0,90.0,0,0.0
+3,S(3),0.0,0.0,0.0,0.0,0.0,0.0,2.37275317335e-17,2.37275317335e-17,0.3875,0.3875,90.0,90.0,0.0,3.59367890534125e-21,90.0,0,0.0
+4,S(4),9.81495400549,-3.68001832153e-32,-6.0099260033e-16,9.814954005489499,3.508354649267438e-15,3.508354649267438e-15,0.0,0.0,0.0,0.0,0.0,0.0,9.81495306101462e-18,0.0,90.0,0,0.0
+5,S(5),0.0,-4.11152909472,2.51758547273e-16,4.1115290947247995,90.0,3.508354649267438e-15,0.0,0.0,0.0,0.0,0.0,0.0,4.111528699079956e-18,0.0,90.0,0,0.0
+6,S(6),0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,90.0,0,0
+7,S(7),0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.2236,-1.36915512145e-17,0.2236,90.0,3.508354649267438e-15,0.0,2.07366865350788e-21,90.0,0,0.0
+8,S(8),0.0,0.0,0.0,0.0,0.0,0.0,-0.0321,1.20355722559e-34,1.96555811263e-18,0.0321,3.508354649267438e-15,3.508354649267438e-15,0.0,2.9769572351343e-22,90.0,0,0.0
+9,S(9),0.0,0.0,0.0,0.0,0.0,0.0,6.88129036441e-17,6.88129036441e-17,1.1238,1.1238,90.0,90.0,0.0,1.042213252599354e-20,90.0,0,0.0
+10,S(10),0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,90.0,0,0

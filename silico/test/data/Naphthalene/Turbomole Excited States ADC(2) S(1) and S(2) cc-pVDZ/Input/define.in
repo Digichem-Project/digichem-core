@@ -1,0 +1,34 @@
+
+Naphthalene_Excited_States_ADC_2__S_1__and_S_2__cc_pVDZ
+a ../Input/coord
+ired
+*
+b all cc-pVDZ
+*
+eht
+
+0
+
+scf
+iter
+100
+damp
+
+
+
+
+cc
+memory 2384
+cbas
+*
+ricc2
+adc(2)
+scs
+*
+exci
+irrep=a multiplicity=1 nexc=2
+spectrum states=all operators=diplen
+xgrad states=(a{1} 1-2)
+*
+*
+*

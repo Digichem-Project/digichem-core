@@ -1,0 +1,68 @@
+--------------------
+|     Metadata     |
+--------------------
+Name: Naphthalene
+Username: osl
+Date: 07/06/2022 16:39:10
+Duration: 4 m, 57 s
+Computational package: Gaussian (2016+C.01)
+Calculations: Optimisation, Frequencies
+Methods: DFT
+Functional: PBE1PBE
+Basis set: 6-31G(d,p)
+Multiplicity: Singlet
+Charge: 0
+Orbital spin: restricted
+Success: True
+Converged: True
+Calculation temperature /K: 298.15
+Calculation pressure /atm: 1.00
+
+-----------------------------------
+|     Vibrational Frequencies     |
+-----------------------------------
+No. vibrations: 48
+No. negative frequency: 0
+
+--------------------
+|     Geometry     |
+--------------------
+Formula: C10H8
+Exact mass /gmol-1: 128.0626
+Molar mass /gmol-1: 128.1705
+No. atoms: 18
+Alignment method: Minimal
+X extension /Å: 6.74
+Y extension /Å: 4.97
+Z extension /Å: 0.00
+Linearity ratio: 0.26
+Planarity ratio: 1.00
+
+----------------------
+|     SCF Energy     |
+----------------------
+No. of steps: 5
+Energy /eV: -10488.9903
+Energy /kJmol-1: -1012033.7160
+
+--------------------
+|     Orbitals     |
+--------------------
+HOMO /eV: -6.13
+LUMO /eV: -0.92
+HOMO-LUMO energy /eV: 5.21
+No. virtual: 156
+No. occupied: 34
+
+-----------------------------------
+|     Permanent Dipole Moment     |
+-----------------------------------
+Total /D: 0.00
+Origin X /D: 0.00
+Origin Y /D: 0.00
+Origin Z /D: 0.00
+Vector X /D: 0.00
+Vector Y /D: 0.00
+Vector Z /D: 0.00
+X axis angle /°: 0.00
+XY plane angle /°: 0.00

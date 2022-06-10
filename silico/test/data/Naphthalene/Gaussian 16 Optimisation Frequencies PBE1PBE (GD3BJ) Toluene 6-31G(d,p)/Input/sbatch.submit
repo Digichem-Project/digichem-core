@@ -1,0 +1,9 @@
+#!/bin/bash
+#SBATCH -J "Naphthalene Optimisation Frequencies PBE1PBE (GD3BJ) Toluene 6-31G(d,p) (Gaussian 16)"
+#SBATCH -p singlenode
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=4
+#SBATCH --mem-per-cpu=2750M
+#SBATCH --output="/gpfs1/home/osl/test/Naphthalene/Gaussian 16 Optimisation Frequencies PBE1PBE (GD3BJ) Toluene 6-31G(d,p)/Logs/silico.out"
+#SBATCH --error="/gpfs1/home/osl/test/Naphthalene/Gaussian 16 Optimisation Frequencies PBE1PBE (GD3BJ) Toluene 6-31G(d,p)/Logs/silico.out"
+exec silico-dev resume '/gpfs1/home/osl/test/Naphthalene/Gaussian 16 Optimisation Frequencies PBE1PBE (GD3BJ) Toluene 6-31G(d,p)/Input/silico.resume.pickle'

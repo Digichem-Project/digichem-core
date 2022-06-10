@@ -1,0 +1,67 @@
+--------------------
+|     Metadata     |
+--------------------
+Name: Naphthalene
+Username: osl
+Date: 07/06/2022 18:31:50
+Duration: 4 m, 57 s
+Computational package: Turbomole (7.5.0)
+Calculations: Optimisation
+Methods: HF, MP2
+Functional: None
+Basis set: cc-pVDZ
+Multiplicity: Singlet
+Charge: 0
+Orbital spin: restricted
+Success: True
+Converged: True
+
+--------------------
+|     Geometry     |
+--------------------
+Formula: C10H8
+Exact mass /gmol-1: None
+Molar mass /gmol-1: 128.1705
+No. atoms: 18
+Alignment method: Minimal
+X extension /Å: 6.80
+Y extension /Å: 5.02
+Z extension /Å: 0.00
+Linearity ratio: 0.26
+Planarity ratio: 1.00
+
+----------------------
+|     SCF Energy     |
+----------------------
+No. of steps: 7
+Energy /eV: -10432.3114
+Energy /kJmol-1: -1006565.0285
+
+---------------------
+|     MP Energy     |
+---------------------
+No. of steps: 14
+Energy /eV: -10467.1582
+Energy /kJmol-1: -1009927.2341
+
+--------------------
+|     Orbitals     |
+--------------------
+HOMO /eV: -7.78
+LUMO /eV: 2.37
+HOMO-LUMO energy /eV: 10.15
+No. virtual: 146
+No. occupied: 34
+
+-----------------------------------
+|     Permanent Dipole Moment     |
+-----------------------------------
+Total /D: 0.00
+Origin X /D: 0.00
+Origin Y /D: 0.00
+Origin Z /D: 0.00
+Vector X /D: 0.00
+Vector Y /D: 0.00
+Vector Z /D: 0.00
+X axis angle /°: 90.00
+XY plane angle /°: 84.81

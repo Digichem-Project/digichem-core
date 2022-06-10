@@ -1,0 +1,55 @@
+silico: INFO: Calculation start on 07/06/2022 16:30:27 
+silico: INFO: Calculation end on 07/06/2022 16:39:10
+silico: INFO: Calculation duration: 8 m, 42 s (522.82398 total seconds)
+silico: INFO: Converting gaussian/checkpoint file '/scratch/tmp/osl/687614c7f9f34b499f3563bb118274a9/Output/Naphthalene.chk' to gaussian/formatted-checkpoint file '/gpfs1/home/osl/test/Naphthalene/Gaussian 16 Optimisation Frequencies PBE1PBE (GD3BJ) Toluene 6-31G(d,p)/Output/Naphthalene.fchk'
+silico: INFO: Parsing calculation result '/gpfs1/home/osl/test/Naphthalene/Gaussian 16 Optimisation Frequencies PBE1PBE (GD3BJ) Toluene 6-31G(d,p)/Output/Naphthalene.log'
+silico: WARNING: UserWarning: 'MP' is not available; there is no energy of the requested type; skipping (for at least one result)
+silico: WARNING: UserWarning: 'CC' is not available; there is no energy of the requested type; skipping (for at least one result)
+silico: WARNING: UserWarning: 'orbitals' is not available; there are no orbitals of the requested type; skipping (for at least one result)
+silico: WARNING: UserWarning: 'dipole moment' is not available; there is no dipole of the requested type; skipping (for at least one result)
+silico: WARNING: UserWarning: 'excited states' is not available; there are no excited states; skipping (for at least one result)
+silico: WARNING: UserWarning: 'Vertical Emission' is not available; No vertical emission with mult 1 available; skipping (for at least one result)
+silico: WARNING: UserWarning: 'Vertical Emission' is not available; No vertical emission with mult 3 available; skipping (for at least one result)
+silico: WARNING: UserWarning: 'Adiabatic Emission' is not available; No adiabatic emission with mult 1 available; skipping (for at least one result)
+silico: WARNING: UserWarning: 'Adiabatic Emission' is not available; No adiabatic emission with mult 3 available; skipping (for at least one result)
+silico: WARNING: UserWarning: 'SOC' is not available; there is no spin-orbit coupling; skipping (for at least one result)
+silico: WARNING: UserWarning: 'MP energy' is not available; there is no MP energy; skipping (for at least one result)
+silico: WARNING: UserWarning: 'CC energy' is not available; there is no CC energy; skipping (for at least one result)
+silico: WARNING: UserWarning: 'Orbital' is not available; could not find orbital with criteria = '+0', label = 'None', HOMO_difference = 'None', level = 'None'; skipping (for at least one result)
+silico: WARNING: UserWarning: 'Orbital' is not available; could not find orbital with criteria = '+1', label = 'None', HOMO_difference = 'None', level = 'None'; skipping (for at least one result)
+silico: WARNING: UserWarning: 'Orbital Spin' is not available; There are no orbitals; skipping (for at least one result)
+silico: WARNING: UserWarning: 'Excited state' is not available; could not find excited state with symbol = 'None'; skipping (for at least one result)
+silico: WARNING: UserWarning: 'Spin-orbit coupling' is not available; could not find SOC between states with symbols 'S(0)' and 'T(1)'; skipping (for at least one result)
+silico: WARNING: UserWarning: 'Spin-orbit coupling' is not available; could not find SOC between states with symbols 'S(1)' and 'T(1)'; skipping (for at least one result)
+silico: WARNING: UserWarning: 'beta_orbitals' is not available; there are no items; skipping (for at least one result)
+silico: WARNING: UserWarning: 'MP_energies' is not available; there are no items; skipping (for at least one result)
+silico: WARNING: UserWarning: 'CC_energies' is not available; there are no items; skipping (for at least one result)
+silico: WARNING: UserWarning: 'excited_states' is not available; there are no items; skipping (for at least one result)
+silico: WARNING: UserWarning: 'transitions' is not available; there are no items; skipping (for at least one result)
+silico: WARNING: UserWarning: 'TDM' is not available; there are no items; skipping (for at least one result)
+silico: WARNING: UserWarning: 'absorptions' is not available; there are no items; skipping (for at least one result)
+silico: WARNING: UserWarning: 'spin_orbit_coupling' is not available; there are no items; skipping (for at least one result)
+silico: INFO: Parsing coordinate file '/gpfs1/home/osl/test/Naphthalene/Gaussian 16 Optimisation Frequencies PBE1PBE (GD3BJ) Toluene 6-31G(d,p)/Output/Naphthalene.log'
+silico: INFO: Rendering '/gpfs1/home/osl/test/Naphthalene/Gaussian 16 Optimisation Frequencies PBE1PBE (GD3BJ) Toluene 6-31G(d,p)/Report/image/Structure/Naphthalene.skeletal.png' to file(s)
+silico: INFO: Converting gaussian/formatted-checkpoint file '/gpfs1/home/osl/test/Naphthalene/Gaussian 16 Optimisation Frequencies PBE1PBE (GD3BJ) Toluene 6-31G(d,p)/Output/Naphthalene.fchk' to gaussian/cube file '/gpfs1/home/osl/test/Naphthalene/Gaussian 16 Optimisation Frequencies PBE1PBE (GD3BJ) Toluene 6-31G(d,p)/Report/image/HOMO/Naphthalene.HOMO.cube'
+silico: INFO: Rendering /gpfs1/home/osl/test/Naphthalene/Gaussian 16 Optimisation Frequencies PBE1PBE (GD3BJ) Toluene 6-31G(d,p)/Report/image/Structure/Naphthalene.structure.jpg to file(s)
+silico: INFO: Rendering '/gpfs1/home/osl/test/Naphthalene/Gaussian 16 Optimisation Frequencies PBE1PBE (GD3BJ) Toluene 6-31G(d,p)/Report/image/Naphthalene.SCF_graph.png' to file(s)
+silico: INFO: Converting gaussian/formatted-checkpoint file '/gpfs1/home/osl/test/Naphthalene/Gaussian 16 Optimisation Frequencies PBE1PBE (GD3BJ) Toluene 6-31G(d,p)/Output/Naphthalene.fchk' to gaussian/cube file '/gpfs1/home/osl/test/Naphthalene/Gaussian 16 Optimisation Frequencies PBE1PBE (GD3BJ) Toluene 6-31G(d,p)/Report/image/Density/Naphthalene.SCF.cube'
+silico: INFO: Rendering /gpfs1/home/osl/test/Naphthalene/Gaussian 16 Optimisation Frequencies PBE1PBE (GD3BJ) Toluene 6-31G(d,p)/Report/image/Density/Naphthalene.SCF.jpg to file(s)
+silico: INFO: Rendering /gpfs1/home/osl/test/Naphthalene/Gaussian 16 Optimisation Frequencies PBE1PBE (GD3BJ) Toluene 6-31G(d,p)/Report/image/Dipole Moment/Naphthalene.dipole.jpg to file(s)
+silico: INFO: Rendering '/gpfs1/home/osl/test/Naphthalene/Gaussian 16 Optimisation Frequencies PBE1PBE (GD3BJ) Toluene 6-31G(d,p)/Report/image/Orbital Diagram/Naphthalene.HOMO_LUMO.png' to file(s)
+silico: INFO: Rendering /gpfs1/home/osl/test/Naphthalene/Gaussian 16 Optimisation Frequencies PBE1PBE (GD3BJ) Toluene 6-31G(d,p)/Report/image/HOMO/Naphthalene.HOMO.jpg to file(s)
+silico: INFO: Converting gaussian/formatted-checkpoint file '/gpfs1/home/osl/test/Naphthalene/Gaussian 16 Optimisation Frequencies PBE1PBE (GD3BJ) Toluene 6-31G(d,p)/Output/Naphthalene.fchk' to gaussian/cube file '/gpfs1/home/osl/test/Naphthalene/Gaussian 16 Optimisation Frequencies PBE1PBE (GD3BJ) Toluene 6-31G(d,p)/Report/image/LUMO/Naphthalene.LUMO.cube'
+silico: INFO: Rendering /gpfs1/home/osl/test/Naphthalene/Gaussian 16 Optimisation Frequencies PBE1PBE (GD3BJ) Toluene 6-31G(d,p)/Report/image/LUMO/Naphthalene.LUMO.jpg to file(s)
+silico: INFO: Rendering /gpfs1/home/osl/test/Naphthalene/Gaussian 16 Optimisation Frequencies PBE1PBE (GD3BJ) Toluene 6-31G(d,p)/Report/image/HOMO LUMO/Naphthalene.HOMO_LUMO.jpg to file(s)
+silico: INFO: Rendering '/gpfs1/home/osl/test/Naphthalene/Gaussian 16 Optimisation Frequencies PBE1PBE (GD3BJ) Toluene 6-31G(d,p)/Report/image/Orbital Diagram/Naphthalene.orbitals.png' to file(s)
+silico: INFO: Rendering '/gpfs1/home/osl/test/Naphthalene/Gaussian 16 Optimisation Frequencies PBE1PBE (GD3BJ) Toluene 6-31G(d,p)/Report/image/Naphthalene.simulated_frequencies.png' to file(s)
+silico: INFO: Writing PDF file
+silico: INFO: Rendering '/gpfs1/home/osl/test/Naphthalene/Gaussian 16 Optimisation Frequencies PBE1PBE (GD3BJ) Toluene 6-31G(d,p)/Report/image/Structure/Naphthalene.skeletal.png' to file(s)
+silico: INFO: Rendering '/gpfs1/home/osl/test/Naphthalene/Gaussian 16 Optimisation Frequencies PBE1PBE (GD3BJ) Toluene 6-31G(d,p)/Report/image/Naphthalene.SCF_graph.png' to file(s)
+silico: INFO: Rendering '/gpfs1/home/osl/test/Naphthalene/Gaussian 16 Optimisation Frequencies PBE1PBE (GD3BJ) Toluene 6-31G(d,p)/Report/image/Orbital Diagram/Naphthalene.orbitals.png' to file(s)
+silico: INFO: Rendering '/gpfs1/home/osl/test/Naphthalene/Gaussian 16 Optimisation Frequencies PBE1PBE (GD3BJ) Toluene 6-31G(d,p)/Report/image/Naphthalene.simulated_frequencies.png' to file(s)
+silico: INFO: Writing PDF file
+silico: INFO: Rendering '/gpfs1/home/osl/test/Naphthalene/Gaussian 16 Optimisation Frequencies PBE1PBE (GD3BJ) Toluene 6-31G(d,p)/Report/image/Structure/Naphthalene.skeletal.png' to file(s)
+silico: INFO: Writing PDF file
+silico: INFO: Parsing coordinate file '/gpfs1/home/osl/test/Naphthalene/Gaussian 16 Optimisation Frequencies PBE1PBE (GD3BJ) Toluene 6-31G(d,p)/Output/Naphthalene.log'

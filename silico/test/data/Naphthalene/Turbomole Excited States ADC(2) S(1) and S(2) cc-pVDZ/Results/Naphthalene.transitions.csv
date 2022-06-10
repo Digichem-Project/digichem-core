@@ -1,0 +1,5 @@
+Excited state level,Excited state symbol,Starting orbital,Ending orbital,Probability
+1,S(1),HOMO-1,LUMO,0.49451836839999996
+1,S(1),HOMO,LUMO+1,0.48226080250000003
+2,S(2),HOMO,LUMO,0.9011894761
+2,S(2),HOMO-1,LUMO+1,0.08279430759999999

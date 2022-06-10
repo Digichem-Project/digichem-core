@@ -1,0 +1,88 @@
+$title
+Naphthalene_Excited_States_ADC_2__S_1__and_S_2__cc_pVDZ
+$symmetry c1
+$redundant    file=coord
+$user-defined bonds    file=coord
+$coord    file=coord
+$optimize
+ internal   on
+ redundant  on
+ cartesian  off
+ global     off
+ basis      off
+$atoms
+c  1-10                                                                        \
+   basis =c cc-pVDZ                                                            \
+   cbas  =c cc-pVDZ
+h  11-18                                                                       \
+   basis =h cc-pVDZ                                                            \
+   cbas  =h cc-pVDZ
+$basis    file=basis
+$scfmo   file=mos
+$closed shells
+ a       1-34                                   ( 2 )
+$scfiterlimit      100
+$scfconv        7
+$thize     0.10000000E-04
+$thime        5
+$scfdamp   start=  0.300  step=  0.050  min=  0.100
+$scfdump
+$scfintunit
+ unit=30       size=0        file=twoint
+$scfdiis
+$maxcor   2384 MiB  per_core
+$scforbitalshift  automatic=.1
+$drvopt
+   cartesian  on
+   basis      off
+   global     off
+   hessian    on
+   dipole     on
+   nuclear polarizability
+$interconversion  off
+   qconv=1.d-7
+   maxiter=25
+$coordinateupdate
+   dqmax=0.3
+   interpolate  on
+   statistics    5
+$forceupdate
+   ahlrichs numgeo=0  mingeo=3 maxgeo=4 modus=<g|dq> dynamic fail=0.3
+   threig=0.005  reseig=0.005  thrbig=3.0  scale=1.00  damping=0.0
+$forceinit on
+   diag=default
+$energy    file=energy
+$grad    file=gradient
+$forceapprox    file=forceapprox
+$denconv     0.10000000E-06
+$cbas    file=auxbasis
+$ricc2
+  adc(2)
+  scs   cos= 1.20000   css= 0.33333
+$excitations
+  irrep=a  multiplicity=  1  nexc=  2  npre=  0  nstart=  0
+  spectrum  states=all  operators=diplen
+  xgrad  states=(a{1} 1-2)
+$rundimensions
+   natoms=18
+   nbf(CAO)=190
+   nbf(AO)=180
+$last step     ricc2
+$orbital_max_rnorm 0.11538300955968E-05
+$last SCF energy change = -383.38039
+$charge from dscf
+         -0.000 (not to be modified here)
+$dipole from dscf
+  x     0.00001171519775    y    -0.00000000003508    z    -0.00000339995275    a.u.
+   | dipole | =    0.0000310060  debye
+$excitation_energies_CCS_____1^a___ file=exstates
+$excitation_energies_ADC(2)__1^a___ file=exstates
+$t2_norm_of_re0_ADC(2)__1^a___ file=exstates
+$<le0|re0>-overlap_ADC(2)__1^a___ file=exstates
+$<le01|re01>-overlap_ADC(2)__1^a___ file=exstates
+$<le02|re02>-overlap_ADC(2)__1^a___ file=exstates
+$tranprop_ADC(2)____1^a_____0_to_1^a_____1 file=exstates
+$tranprop_ADC(2)____1^a_____0_to_1^a_____2 file=exstates
+$exstprop_ADC(2)___1^a_____1 file=exstates
+$exstprop_ADC(2)___1^a_____2 file=exstates
+$end
