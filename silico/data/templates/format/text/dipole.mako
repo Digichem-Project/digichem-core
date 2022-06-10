@@ -23,11 +23,8 @@
 ##
 ##
 Total /D: ${"{:0.2f}".format(dipole_moment.magnitude)}
-Origin X /D: ${"{:0.2f}".format(dipole_moment.origin_coords[0])}
-Origin Y /D: ${"{:0.2f}".format(dipole_moment.origin_coords[1])}
-Origin Z /D: ${"{:0.2f}".format(dipole_moment.origin_coords[2])}
-Vector X /D: ${"{:0.2f}".format(dipole_moment.vector_coords[0])}
-Vector Y /D: ${"{:0.2f}".format(dipole_moment.vector_coords[1])}
-Vector Z /D: ${"{:0.2f}".format(dipole_moment.vector_coords[2])}
-X axis angle /${dipole_moment.X_axis_angle.pretty_units}: ${"{:0.2f}".format(dipole_moment.X_axis_angle.angle)}
-XY plane angle /${dipole_moment.XY_plane_angle.pretty_units}: ${"{:0.2f}".format(dipole_moment.XY_plane_angle.angle)}
+Vector x /D: ${"{:0.2f}".format(dipole_moment.vector_coords[0])}
+Vector y /D: ${"{:0.2f}".format(dipole_moment.vector_coords[1])}
+Vector z /D: ${"{:0.2f}".format(dipole_moment.vector_coords[2])}
+x axis angle /${dipole_moment.X_axis_angle.pretty_units}: ${"{:0.2f}".format(dipole_moment.X_axis_angle.angle)}
+xy plane angle /${dipole_moment.XY_plane_angle.pretty_units}: ${"{:0.2f}".format(dipole_moment.XY_plane_angle.angle)}
