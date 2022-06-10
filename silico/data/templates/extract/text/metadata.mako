@@ -2,7 +2,7 @@
 ##
 <%!
     from silico.exception import Result_unavailable_error
-    from silico.result.excited_states import Energy_state
+    from silico.result.excited_state import Energy_state
     from silico import misc
 %>\
 ##
