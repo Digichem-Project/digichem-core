@@ -2,7 +2,7 @@
 from pathlib import Path
 
 # Silico imports.
-from silico.report.image.main import Cube_setup, Partial_cube_setup
+from silico.report.image import Cube_setup, Partial_cube_setup
 from silico.file.cube import Turbomole_to_cube, Turbomole_to_spin_cube,\
     Turbomole_to_density_cube, Turbomole_to_orbital_cube,\
     Turbomole_to_anadens_cube
