@@ -58,23 +58,41 @@
         ###########
         %for excited_state, dipole_moment in [(excited_state, excited_state.transition_dipole_moment) for excited_state in report.result.excited_states]:
         <tr class="resultTable__row">
-            ##<td class="resultsTable__value resultsTable__cell">${excited_state.level}</td>
+##          Electric
+            %if dipole_moment.electric is not None:
             <td class="resultsTable__value resultsTable__cell">${excited_state.multiplicity_symbol}<sub>${excited_state.multiplicity_level}</sub></td>
             <td class="resultsTable__value resultsTable__cell">${"{:0.2f}, {:0.2f}, {:0.2f}".format(*dipole_moment.electric.vector_coords)}</td>
             <td class="resultsTable__value resultsTable__cell">${text_float(dipole_moment.electric.total)}</td>
             <td class="resultsTable__value resultsTable__cell">${"{:0.2f}".format(dipole_moment.electric.X_axis_angle.angle)}</td>
             <td class="resultsTable__value resultsTable__cell">${"{:0.2f}".format(dipole_moment.electric.XY_plane_angle.angle)}</td>
+            %else:
+                %for i in range(0, 4):
+                <td class="resultsTable__value resultsTable__cell">N/A</td>
+                %endfor
+            %endif
 ##          Magnetic
+            %if dipole_moment.magnetic is not None:
             <td class="resultsTable__value resultsTable__cell">${"{:0.2f}, {:0.2f}, {:0.2f}".format(*dipole_moment.magnetic.vector_coords)}</td>
             <td class="resultsTable__value resultsTable__cell">${text_float(dipole_moment.magnetic.total)}</td>
             <td class="resultsTable__value resultsTable__cell">${"{:0.2f}".format(dipole_moment.magnetic.X_axis_angle.angle)}</td>
             <td class="resultsTable__value resultsTable__cell">${"{:0.2f}".format(dipole_moment.magnetic.XY_plane_angle.angle)}</td>
+            %else:
+                %for i in range(0, 4):
+                <td class="resultsTable__value resultsTable__cell">N/A</td>
+                %endfor
+            %endif
 ##          Comparison
-            <td class="resultsTable__value resultsTable__cell">${"{:0.2e}".format(dipole_moment.electric.gaussian_cgs)}</td>
-            <td class="resultsTable__value resultsTable__cell">${"{:0.2e}".format(dipole_moment.magnetic.gaussian_cgs)}</td>
+            <td class="resultsTable__value resultsTable__cell">${"{:0.2e}".format(dipole_moment.electric.gaussian_cgs) if dipole_moment.electric is not None else "N/A"}</td>
+            <td class="resultsTable__value resultsTable__cell">${"{:0.2e}".format(dipole_moment.magnetic.gaussian_cgs) if dipole_moment.magnetic is not None else "N/A"}</td>
+            %if dipole_moment.magnetic is not None and dipole_moment.electric is not None:
             <td class="resultsTable__value resultsTable__cell">${"{:0.2f}".format(dipole_moment.angle().angle)}</td>
             <td class="resultsTable__value resultsTable__cell">${"{:0.2f}".format(dipole_moment.cos_angle())}</td>
             <td class="resultsTable__value resultsTable__cell">${text_float(dipole_moment.g_value, 3)}</td>
+            %else:
+                %for i in range(0, 3):
+                <td class="resultsTable__value resultsTable__cell">N/A</td>
+                %endfor
+            %endif
         </tr>
         %endfor
     </table>

@@ -103,6 +103,7 @@ class Transition_dipole_moment():
     A compound class that represents both the electric and magnetic components of a transition dipole moment.
     
     This class can also be used in most places where an electric TDM is expected, as it will pass references to TEDM attributes to the actual TEDM class.
+    If the object has only a TMDM and no TEDM, references will isntead be passed to the TMDM.
     """
     
     def __init__(self, electric = None, magnetic = None):
@@ -137,8 +138,11 @@ class Transition_dipole_moment():
         
     def __getattr__(self, name):
         # This check prevents infinite recursion when pickling, and is probably a sensible check anyway...
-        if name != "electric":
-            return getattr(self.electric, name)
+        if name != "electric" and name != "magnetic":
+            if self.electric is not None:
+                return getattr(self.electric, name)
+            else:
+                return getattr(self.magnetic, name)
         else:
             raise AttributeError(name)
             

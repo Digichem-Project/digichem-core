@@ -4,7 +4,7 @@ import warnings
 
 # Silico imports.
 from silico.misc.base import Dynamic_parent
-from silico.exception import Result_unavailable_error, Extractor_error
+from silico.exception import Result_unavailable_error, Format_error
 from silico.misc.file_wrapper import Multi_file_wrapper
 
 
@@ -39,7 +39,7 @@ class Result_format(Result_format_ABC):
             
         # Get upset if we weren't given any criteria and we need some.
         if len(self.criteria) == 0 and self.FORCE_CRITERIA:
-            raise Extractor_error(self, "criteria is required for this format")
+            raise Format_error(self, "criteria is required for this format")
         
         self.config = config
         
@@ -55,10 +55,10 @@ class Result_format(Result_format_ABC):
         """
         Set the criteria, a list of variables which act a filter for this format, modifying the information returned.
         
-        Note that not all formats support criteria, attempting to set criteria in such classes will result in Extractor_error.
+        Note that not all formats support criteria, attempting to set criteria in such classes will result in Format_error.
         """
         if not self.ALLOW_CRITERIA:
-            raise Extractor_error(self, "criteria is not supported for this format")
+            raise Format_error(self, "criteria is not supported for this format")
             
         self._criteria = value
         
@@ -79,7 +79,7 @@ class Result_format(Result_format_ABC):
                 except TypeError:
                     # This might be because we passed too many args to _extract, we can check by comparing how many args the function expects to how many we passed.
                     if len(self.criteria) > len([param for param in inspect.signature(self._extract_with_criteria).parameters.values() if param.kind == param.POSITIONAL_OR_KEYWORD]):
-                        raise Extractor_error(self, "too many criteria")
+                        raise Format_error(self, "too many criteria")
                         #raise TypeError("too many criteria given to {}".format(self.CLASS_HANDLE[0]))
                     else:
                         # Something else caused the error.

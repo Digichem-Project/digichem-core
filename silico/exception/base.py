@@ -113,14 +113,14 @@ class Submission_error(Silico_exception):
         return "Error submitting file '{}' to '{}'; {}".format(self.file_name, self.calculation.name, self.reason)
     
     
-class Extractor_error(Silico_exception):
+class Format_error(Silico_exception):
     """
-    Exceptions for when an error occurs during result extraction.
+    Exceptions for when an error occurs during result formatting.
     """
     
     def __init__(self, format, reason):
         """
-        Constructor for Extractor_error exception objects.
+        Constructor for Format_error exception objects.
         """
         self.format = format
         self.reason = reason

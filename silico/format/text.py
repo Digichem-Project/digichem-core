@@ -84,7 +84,7 @@ class Text_summary_format(Result_format):
         :return: The extracted results as a string.
         """
         # Get our template.
-        return TemplateLookup(directories = str(silico.default_template_directory())).get_template("/extract/text/{}".format(self.TEMPLATE)).render_unicode(
+        return TemplateLookup(directories = str(silico.default_template_directory())).get_template("/format/text/{}".format(self.TEMPLATE)).render_unicode(
             result_name = result.metadata.name if display_name else "",
             **(self._get_template_args(result) if len(template_args) == 0 else template_args)
         )
@@ -104,7 +104,7 @@ class TDM_text_summary_format(Text_summary_format):
     """
     CLASS_HANDLE = silico.format.TDM_CLASS_HANDLE
     ALLOW_CRITERIA = True
-    TEMPLATE = "dipole.mako"
+    TEMPLATE = "TDM.mako"
     TEMPLATE_ARGS ={'dipole_moment': 'transition_dipole_moment'}
     
     def _extract_with_criteria(self, excited_state_id, *, result, **kwargs):
