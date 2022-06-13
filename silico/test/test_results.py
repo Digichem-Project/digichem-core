@@ -30,9 +30,9 @@ def test_energy(gaussian_opt_result, gaussian_ES_result, gaussian_opt_ES_result)
     assert len(gaussian_opt_ES_result.SCF_energies) == 4
     
     # Check values.
-    assert gaussian_opt_result.SCF_energies.final == pytest.approx(-10488.9957109605)
-    assert gaussian_ES_result.SCF_energies.final == pytest.approx(-10488.9957109605)
-    assert gaussian_opt_ES_result.SCF_energies.final == pytest.approx(-10488.8888829536)
+    assert gaussian_opt_result.SCF_energies.final == pytest.approx(-10488.995711)
+    assert gaussian_ES_result.SCF_energies.final == pytest.approx(-10488.995711)
+    assert gaussian_opt_ES_result.SCF_energies.final == pytest.approx(-10488.888883)
     
     # Check other energies are empty.
     for result in [gaussian_opt_result, gaussian_ES_result, gaussian_opt_ES_result]:
