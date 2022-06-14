@@ -25,7 +25,7 @@ class Coordinate_widget(Row_widget):
         """
         Load the widget we'll use to display our main body.
         """
-        self.charge_edit = IntEditZero(("body", "charge:"), self.row_item._value.charge)
+        self.charge_edit = IntEditZero(("body", "charge:"), self.row_item._value.charge, allowNegative = True)
         self.mult_edit = IntEditZero(("body", "mult:"), self.row_item._value.multiplicity) 
         
         return urwid.Columns([
