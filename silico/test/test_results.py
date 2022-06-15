@@ -36,34 +36,23 @@ def turbomole_ADC2_triplets_result():
     return parse_calculation(Path(data_directory(), "Naphthalene/Turbomole Excited States ADC(2) T(1) and T(2) cc-pVDZ"))
 
 
-@pytest.mark.parametrize("result_set, num", [
-        (pytest.lazy_fixture("gaussian_SP_result"), 1),
-        (pytest.lazy_fixture("gaussian_opt_result"), 5),
-        (pytest.lazy_fixture("gaussian_ES_result"), 1),
+@pytest.mark.parametrize("result_set, num, final", [
+        (pytest.lazy_fixture("gaussian_SP_result"), 1, -10488.995711),
+        (pytest.lazy_fixture("gaussian_opt_result"), 5, -10488.995711),
+        (pytest.lazy_fixture("gaussian_ES_result"), 1, -10488.995711),
+        (pytest.lazy_fixture("gaussian_opt_ES_result"), 4, -10488.888883),
     ])
-def test_gaussian_energy(result_set, num):
+def test_energy(result_set, num, final):
     """Test the parsed energy is correct"""
     # These are DFT calcs, so only SCF energy is available.
     # The final energy in all cases should be the same (they are all the same structure).
-    assert result_set.SCF_energies.final == pytest.approx(-10488.995711)
+    assert result_set.SCF_energies.final == pytest.approx(final)
     
     # Check length, which will 1 for SP, and >1 for the opts.
     assert len(result_set.SCF_energies) == num
     
     assert len(result_set.MP_energies) == 0
     assert len(result_set.CC_energies) == 0
-
-
-def test_gaussian_opt_ES_energy(gaussian_opt_ES_result):
-    """Test the optimised excited state energy is correct"""
-    # This is technically the 'ground state energy';
-    # that is the energy of the geometry at the excited state,
-    # but assuming a ground state electronic configuration.
-    assert gaussian_opt_ES_result.SCF_energies.final == pytest.approx(-10488.888883)
-    
-    assert len(gaussian_opt_ES_result.SCF_energies) == 4
-    assert len(gaussian_opt_ES_result.MP_energies) == 0
-    assert len(gaussian_opt_ES_result.CC_energies) == 0
 
 
 @pytest.mark.parametrize("result_set", [
