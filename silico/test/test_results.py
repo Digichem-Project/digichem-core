@@ -141,3 +141,24 @@ def test_alignment(result_set, length, width, height):
     # Check params.
     assert result_set.alignment.get_linear_ratio() == pytest.approx(linear_ratio, abs=tolerance)
     assert result_set.alignment.get_planar_ratio() == pytest.approx(planar_ratio, abs=tolerance)
+
+
+@pytest.mark.parametrize("result_set, num_occ, num_unocc, homo, lumo", [
+        (pytest.lazy_fixture("gaussian_opt_result"), 34, 156, -6.13072481, -0.92437071),
+        (pytest.lazy_fixture("turbomole_ADC2_opt_result"), 34, 146, -7.78345591, 2.37048311)
+    ])
+def test_orbitals(result_set, num_occ, num_unocc, homo, lumo):
+    """Test the energies of the parsed MOs"""
+    # Check numbers.
+    assert len(result_set.molecular_orbitals) == num_occ + num_unocc
+    assert len(result_set.molecular_orbitals.occupied) == num_occ
+    assert len(result_set.molecular_orbitals.virtual) == num_unocc
+    
+    # Check energies.
+    assert result_set.molecular_orbitals.HOMO_energy == pytest.approx(homo)
+    assert result_set.molecular_orbitals.LUMO_energy == pytest.approx(lumo)
+    assert result_set.molecular_orbitals.HOMO_LUMO_energy == pytest.approx(lumo - homo)
+    
+    # Check ordering.
+    assert [orbital.level for orbital in result_set.molecular_orbitals] == list(range(1, num_occ + num_unocc +1))
+
