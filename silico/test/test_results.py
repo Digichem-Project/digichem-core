@@ -7,27 +7,31 @@ from silico.parser import parse_calculation
 from silico.test import data_directory
 
 
-@pytest.fixture
+@pytest.fixture(scope="module")
+def gaussian_SP_result():
+    return parse_calculation(Path(data_directory(), "Naphthalene/Gaussian 16 Single Point (Singlet) PBE1PBE (GD3BJ) Toluene 6-31G(d,p)"))
+
+@pytest.fixture(scope="module")
 def gaussian_opt_result():
     return parse_calculation(Path(data_directory(), "Naphthalene/Gaussian 16 Optimisation Frequencies PBE1PBE (GD3BJ) Toluene 6-31G(d,p)"))
 
-@pytest.fixture
+@pytest.fixture(scope="module")
 def gaussian_ES_result():
     return parse_calculation(Path(data_directory(), "Naphthalene/Gaussian 16 Excited States TDA 10 Singlets 10 Triplets PBE1PBE (GD3BJ) Toluene 6-31G(d,p)"))
 
-@pytest.fixture
+@pytest.fixture(scope="module")
 def gaussian_opt_ES_result():
     return parse_calculation(Path(data_directory(), "Naphthalene/Gaussian 16 Excited States TDA Optimised S(1) PBE1PBE (GD3BJ) Toluene 6-31G(d,p)"))
 
-@pytest.fixture
+@pytest.fixture(scope="module")
 def turbomole_ADC2_opt_result():
     return parse_calculation(Path(data_directory(), "Naphthalene/Turbomole Optimisation ADC(2) cc-pVDZ"))
 
-@pytest.fixture
+@pytest.fixture(scope="module")
 def turbomole_ADC2_singlets_result():
     return parse_calculation(Path(data_directory(), "Naphthalene/Turbomole Excited States ADC(2) S(1) and S(2) cc-pVDZ"))
 
-@pytest.fixture
+@pytest.fixture(scope="module")
 def turbomole_ADC2_triplets_result():
     return parse_calculation(Path(data_directory(), "Naphthalene/Turbomole Excited States ADC(2) T(1) and T(2) cc-pVDZ"))
 
