@@ -162,3 +162,28 @@ def test_orbitals(result_set, num_occ, num_unocc, homo, lumo):
     # Check ordering.
     assert [orbital.level for orbital in result_set.molecular_orbitals] == list(range(1, num_occ + num_unocc +1))
 
+
+@pytest.mark.parametrize("result_set, num, index, frequency, intensity", [
+        (pytest.lazy_fixture("gaussian_opt_result"), 48, 13, 806.2853, 121.0015),
+        (pytest.lazy_fixture("gaussian_SP_result"), 0, None, None, None),
+    ])
+def test_frequencies(result_set, num, index, frequency, intensity):
+    """Test the vibrational frequencies are correct"""
+    
+    # Check lengths.
+    assert len(result_set.vibrations) == num
+    assert len(result_set.vibrations.negative_frequencies) == 0
+
+    if index != None:
+        # Check one of the energies.
+        assert result_set.vibrations[index].frequency == pytest.approx(frequency)
+        assert result_set.vibrations[index].intensity == pytest.approx(intensity)
+        
+        # Check the frequencies are ordered.
+        indices = [freq.level for freq in result_set.vibrations]
+        assert indices == list(range(1, num+1))
+        
+    else:
+        with pytest.raises(IndexError):
+            result_set.vibrations[-1].frequency
+    
