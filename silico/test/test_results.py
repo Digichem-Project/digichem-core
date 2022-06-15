@@ -114,7 +114,7 @@ def test_atoms(result_set):
         (pytest.lazy_fixture("turbomole_ADC2_opt_result"), 6.8000171599, 5.0161488999, 0.0000475622),
         (pytest.lazy_fixture("turbomole_ADC2_singlets_result"), 6.8000171599, 5.0161488999, 0.0000475622),
         (pytest.lazy_fixture("turbomole_ADC2_triplets_result"), 6.8000171599, 5.0161488999, 0.0000475622),
-    ])    
+    ])
 def test_alignment(result_set, length, width, height):
     """Test the aligned atom positions are correct."""
     # Rounding errors plague parsing and conversion of atomic coordinates.
