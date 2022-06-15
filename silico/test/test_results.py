@@ -51,9 +51,22 @@ def test_SCF_energy(result_set, num, final):
     
     # Check length, which will be 1 for SP, and >1 for the opts.
     assert len(result_set.SCF_energies) == num
+
+
+@pytest.mark.parametrize("result_set, num, final", [
+        (pytest.lazy_fixture("turbomole_ADC2_opt_result"), 7, -10467.162645663258),
+        (pytest.lazy_fixture("turbomole_ADC2_singlets_result"), 1, -10467.162645663258),
+        (pytest.lazy_fixture("turbomole_ADC2_triplets_result"), 1, -10467.162645663258)
+    ])
+def test_MP_energy(result_set, num, final):
+    """Test the parsed energy is correct"""
+    assert result_set.MP_energies.final == pytest.approx(final)
     
-    assert len(result_set.MP_energies) == 0
-    assert len(result_set.CC_energies) == 0
+    # Check length, which will be 1 for SP, and >1 for the opts.
+    assert len(result_set.SCF_energies) == num
+    assert len(result_set.MP_energies) == num
+
+    
 
 
 @pytest.mark.parametrize("result_set", [
