@@ -2,6 +2,7 @@
 
 from pathlib import Path
 import itertools
+import pytest
 
 from silico.parser import parse_calculation
 from silico.test import data_directory
@@ -22,27 +23,26 @@ turbomole_files = [Path(data_directory(), datum) for datum in [
     ]]
 
 
-def test_parsing():
-    """Test whether we can parse various calc results"""
-    
-    for result_data in itertools.chain(gaussian_files, turbomole_files):
-        result = parse_calculation(result_data)
-        
-        assert isinstance(result, Result_set)
+@pytest.mark.parametrize("result_data", list(itertools.chain(gaussian_files, turbomole_files)))
+def test_parsing(result_data):
+    """Test whether we can parse various calc results."""
+    result = parse_calculation(result_data)
+    assert isinstance(result, Result_set)
+
         
 def test_multi_parsing():
-    """Test whether we can parse in parallel"""
+    """Test whether we can parse in parallel."""
     
     results = parse_multiple_calculations(*list(itertools.chain(gaussian_files, turbomole_files)))
     
     # Check length.
     assert len(results) == len(gaussian_files) + len(turbomole_files)
-    
-def test_merged_parsing():
+
+
+@pytest.mark.parametrize("data_set", [gaussian_files, turbomole_files])
+def test_merged_parsing(data_set):
     """Test whether we can parse and merge calc results."""
+    result = parse_calculations(*data_set)
     
-    for data_set in [gaussian_files, turbomole_files]:
-        result = parse_calculations(*data_set)
-        
-        assert isinstance(result, Result_set)
-        assert len(result.results) == 3
+    assert isinstance(result, Result_set)
+    assert len(result.results) == 3
