@@ -59,6 +59,7 @@ class Result_set(Result_object):
         self.pdm = pdm
         self.transition_dipole_moments = transition_dipole_moments
         self.atoms = atoms
+        # TODO: This is a slightly weird name for this attribute, rename?
         self.alignment = alignment
         self.orbitals = orbitals
         self.beta_orbitals = beta_orbitals
