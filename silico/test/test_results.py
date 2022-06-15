@@ -19,8 +19,20 @@ def gaussian_ES_result():
 def gaussian_opt_ES_result():
     return parse_calculation(Path(data_directory(), "Naphthalene/Gaussian 16 Excited States TDA Optimised S(1) PBE1PBE (GD3BJ) Toluene 6-31G(d,p)"))
 
+@pytest.fixture
+def turbomole_ADC2_opt_result():
+    return parse_calculation(Path(data_directory(), "Naphthalene/Turbomole Optimisation ADC(2) cc-pVDZ"))
 
-def test_energy(gaussian_opt_result, gaussian_ES_result, gaussian_opt_ES_result):
+@pytest.fixture
+def turbomole_ADC2_singlets_result():
+    return parse_calculation(Path(data_directory(), "Naphthalene/Turbomole Excited States ADC(2) S(1) and S(2) cc-pVDZ"))
+
+@pytest.fixture
+def turbomole_ADC2_triplets_result():
+    return parse_calculation(Path(data_directory(), "Naphthalene/Turbomole Excited States ADC(2) T(1) and T(2) cc-pVDZ"))
+
+
+def test_gaussian_energy(gaussian_opt_result, gaussian_ES_result, gaussian_opt_ES_result):
     """Test the parsed energies are correct."""
     
     # These are DFT calcs, so only SCF energy is available.
@@ -38,3 +50,24 @@ def test_energy(gaussian_opt_result, gaussian_ES_result, gaussian_opt_ES_result)
     for result in [gaussian_opt_result, gaussian_ES_result, gaussian_opt_ES_result]:
         assert len(result.MP_energies) == 0
         assert len(result.CC_energies) == 0
+        
+def test_turbomole_energy(turbomole_ADC2_opt_result, turbomole_ADC2_singlets_result, turbomole_ADC2_triplets_result):
+    """Test the parsed energies are correct."""
+    
+    # These are MP2 like calcs, so SCF and MP energies are available.
+    # Check length.
+    assert len(turbomole_ADC2_opt_result.SCF_energies) == 7
+    assert len(turbomole_ADC2_opt_result.MP_energies) == 7
+    assert len(turbomole_ADC2_singlets_result.SCF_energies) == 1
+    assert len(turbomole_ADC2_singlets_result.MP_energies) == 1
+    assert len(turbomole_ADC2_triplets_result.SCF_energies) == 1
+    assert len(turbomole_ADC2_triplets_result.MP_energies) == 1
+        
+def test_atoms():
+    """Test the parsed (unaligned) atoms are correct."""
+    
+    
+    
+    
+    
+    
