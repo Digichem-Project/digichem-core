@@ -41,14 +41,15 @@ def turbomole_ADC2_triplets_result():
         (pytest.lazy_fixture("gaussian_opt_result"), 5, -10488.995711),
         (pytest.lazy_fixture("gaussian_ES_result"), 1, -10488.995711),
         (pytest.lazy_fixture("gaussian_opt_ES_result"), 4, -10488.888883),
+        (pytest.lazy_fixture("turbomole_ADC2_opt_result"), 7, -10432.315825879925),
+        (pytest.lazy_fixture("turbomole_ADC2_singlets_result"), 1, -10432.315825879925),
+        (pytest.lazy_fixture("turbomole_ADC2_triplets_result"), 1, -10432.315825879925)
     ])
-def test_energy(result_set, num, final):
+def test_SCF_energy(result_set, num, final):
     """Test the parsed energy is correct"""
-    # These are DFT calcs, so only SCF energy is available.
-    # The final energy in all cases should be the same (they are all the same structure).
     assert result_set.SCF_energies.final == pytest.approx(final)
     
-    # Check length, which will 1 for SP, and >1 for the opts.
+    # Check length, which will be 1 for SP, and >1 for the opts.
     assert len(result_set.SCF_energies) == num
     
     assert len(result_set.MP_energies) == 0
