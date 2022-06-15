@@ -186,4 +186,13 @@ def test_frequencies(result_set, num, index, frequency, intensity):
     else:
         with pytest.raises(IndexError):
             result_set.vibrations[-1].frequency
+
+# @pytest.mark.parametrize("result_set, coord", [
+#         (pytest.lazy_fixture("gaussian_opt_result"), ()),
+#     ])
+# def test_pdm(result_set, coord):
+#     """Test the permanent dipole moment"""
+#     
+#     assert result_set.dipole_moment.vector_coords == pytest.approx(coord)
+    
     
