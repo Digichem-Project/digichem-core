@@ -66,7 +66,20 @@ def test_MP_energy(result_set, num, final):
     assert len(result_set.SCF_energies) == num
     assert len(result_set.MP_energies) == num
 
+
+@pytest.mark.parametrize("result_set, charge, mult, energy", [
+        (pytest.lazy_fixture("gaussian_opt_result"), 0, 1, -10488.995711),
+        (pytest.lazy_fixture("turbomole_ADC2_opt_result"), 0, 1, -10467.162645663258),
+    ])
+def test_ground_state(result_set, charge, mult, energy):
+    """Test the ground state properties"""
     
+    assert result_set.ground_state.charge == charge
+    assert result_set.ground_state.multiplicity == mult
+    # Ground states have zero excited state energy by definition.
+    assert result_set.ground_state.energy == 0.0
+    # This is the total energy.
+    assert result_set.ground_state.absolute_energy == pytest.approx(energy)
 
 
 @pytest.mark.parametrize("result_set", [
