@@ -24,6 +24,14 @@ def gaussian_opt_ES_result():
     return parse_calculation(Path(data_directory(), "Naphthalene/Gaussian 16 Excited States TDA Optimised S(1) PBE1PBE (GD3BJ) Toluene 6-31G(d,p)"))
 
 @pytest.fixture(scope="module")
+def gaussian_PDM_result():
+    return parse_calculation(Path(data_directory(), "Pyridine/Gaussian 16 Optimisation Frequencies PBE1PBE (GD3BJ) Toluene 6-31G(d,p)"))
+
+@pytest.fixture(scope="module")
+def gaussian_PDM_ES_result():
+    return parse_calculation(Path(data_directory(), "Pyridine/Gaussian 16 Excited States TDA Optimised S(1) PBE1PBE (GD3BJ) Toluene 6-31G(d,p)"))
+
+@pytest.fixture(scope="module")
 def turbomole_ADC2_opt_result():
     return parse_calculation(Path(data_directory(), "Naphthalene/Turbomole Optimisation ADC(2) cc-pVDZ"))
 
@@ -187,12 +195,12 @@ def test_frequencies(result_set, num, index, frequency, intensity):
         with pytest.raises(IndexError):
             result_set.vibrations[-1].frequency
 
-# @pytest.mark.parametrize("result_set, coord", [
-#         (pytest.lazy_fixture("gaussian_opt_result"), ()),
-#     ])
-# def test_pdm(result_set, coord):
-#     """Test the permanent dipole moment"""
-#     
-#     assert result_set.dipole_moment.vector_coords == pytest.approx(coord)
+@pytest.mark.parametrize("result_set, coord", [
+        (pytest.lazy_fixture("gaussian_PDM_result"), (0.0, 2.51035, 0.0)),
+    ])
+def test_pdm(result_set, coord):
+    """Test the permanent dipole moment"""
+     
+    assert result_set.dipole_moment.vector_coords == pytest.approx(coord)
     
     
