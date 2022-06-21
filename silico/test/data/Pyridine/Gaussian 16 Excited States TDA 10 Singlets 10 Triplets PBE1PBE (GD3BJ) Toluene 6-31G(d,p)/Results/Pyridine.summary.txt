@@ -1,0 +1,99 @@
+--------------------
+|     Metadata     |
+--------------------
+Name: Pyridine
+Username: osl
+Date: 15/06/2022 23:33:59
+Duration: 4 m, 13 s
+Computational package: Gaussian (2016+C.01)
+Calculations: Excited States
+Methods: DFT
+Functional: PBE1PBE
+Basis set: 6-31G(d,p)
+Multiplicity: Singlet
+Charge: 0
+Orbital spin: restricted
+Success: True
+
+--------------------
+|     Geometry     |
+--------------------
+Formula: C5NH5
+Exact mass /gmol-1: 79.0422
+Molar mass /gmol-1: 79.0999
+No. atoms: 11
+Alignment method: Minimal
+X extension /Å: 4.31
+Y extension /Å: 3.89
+Z extension /Å: 0.00
+Linearity ratio: 0.10
+Planarity ratio: 1.00
+
+----------------------
+|     SCF Energy     |
+----------------------
+No. of steps: 1
+Energy /eV: -6748.6129
+Energy /kJmol-1: -651142.1557
+
+--------------------
+|     Orbitals     |
+--------------------
+HOMO /eV: -7.28
+LUMO /eV: -0.51
+HOMO-LUMO energy /eV: 6.77
+No. virtual: 94
+No. occupied: 21
+
+-----------------------------------
+|     Permanent Dipole Moment     |
+-----------------------------------
+Total /D: 0.44
+Origin X /D: 0.00
+Origin Y /D: 0.00
+Origin Z /D: 0.00
+Vector X /D: 0.00
+Vector Y /D: -0.44
+Vector Z /D: 0.00
+X axis angle /°: 90.00
+XY plane angle /°: 0.13
+
+-----------------------------------------
+|     S(1) Transition Dipole Moment     |
+-----------------------------------------
+Total /D: 0.59
+Origin X /D: 0.00
+Origin Y /D: 0.00
+Origin Z /D: 0.00
+Vector X /D: 0.00
+Vector Y /D: -0.00
+Vector Z /D: 0.59
+X axis angle /°: 90.00
+XY plane angle /°: 89.98
+
+--------------------------
+|     Excited States     |
+--------------------------
+ΔE(ST) /eV: 0.80
+No. singlets: 10
+S(1) energy /eV: 5.07
+S(1) wavelength /nm: 244
+S(1) colour: Ultraviolet
+S(1) CIE X: 0.00
+S(1) CIE Y: 0.00
+S(1) oscillator strength: 0.01
+No. triplets: 10
+T(1) energy /eV: 4.28
+T(1) wavelength /nm: 290
+T(1) colour: Ultraviolet
+T(1) CIE X: 0.00
+T(1) CIE Y: 0.00
+T(1) oscillator strength: 0.00
+
+-------------------------------
+|     Spin-Orbit Coupling     |
+-------------------------------
+<S(0)|Hso|T(1)> /cm-1: 23.86
+<S(0)|λ|T(1)>: 0.00
+<S(1)|Hso|T(1)> /cm-1: 0.02
+<S(1)|λ|T(1)>: 0.00

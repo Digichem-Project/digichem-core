@@ -1,0 +1,11 @@
+Level,Symbol,Symmetry,Energy /eV,Wavelength /nm,Colour,CIE X,CIE Y,Oscillator strength,Transition 1 orbitals:,Transition 1 probability:,Transition 2 orbitals:,Transition 2 probability:,Transition 3 orbitals:,Transition 3 probability:,Transition 4 orbitals:,Transition 4 probability:
+1,S(1),Singlet-A,4.11720018002,301.137163636,Ultraviolet,0.0,0.0,0.0038,HOMO -> LUMO,0.99151362,,,,,,
+2,S(2),Singlet-A,4.6017002012,269.431281944,Ultraviolet,0.0,0.0,0.0,HOMO -> LUMO+1,0.9983410208,,,,,,
+3,S(3),Singlet-A,5.7361002508,216.147195851,Ultraviolet,0.0,0.0,0.0173,HOMO-1 -> LUMO,0.5979367368,HOMO-2 -> LUMO+1,0.3968692232,,,,
+4,S(4),Singlet-A,6.74310029483,183.868240145,Ultraviolet,0.0,0.0,0.0013,HOMO-2 -> LUMO,0.5785222178,HOMO-1 -> LUMO+1,0.3859338368,,,,
+5,S(5),Singlet-A,7.8174003418,158.600292952,Ultraviolet,0.0,0.0,0.8914,HOMO-2 -> LUMO+1,0.5615668242,HOMO-1 -> LUMO,0.3577057362,,,,
+6,S(6),Singlet-A,7.88020034455,157.336353154,Ultraviolet,0.0,0.0,0.7514,HOMO-1 -> LUMO+1,0.5311094048,HOMO-2 -> LUMO,0.3105035208,HOMO -> LUMO+2,0.09452552,,
+7,S(7),Singlet-A,7.8952003452,157.037431619,Ultraviolet,0.0,0.0,0.0,HOMO-3 -> LUMO,0.9918516168,,,,,,
+8,S(8),Singlet-A,8.44520036925,146.810250808,Ultraviolet,0.0,0.0,0.0051,HOMO-3 -> LUMO+1,0.9895712562,,,,,,
+9,S(9),Singlet-A,8.49450037141,145.958200026,Ultraviolet,0.0,0.0,0.1342,HOMO -> LUMO+2,0.853993805,HOMO-2 -> LUMO,0.0489782402,HOMO-4 -> LUMO,0.04228232,HOMO-1 -> LUMO+1,0.0323545922
+10,S(10),Singlet-A,8.73320038184,141.968800683,Ultraviolet,0.0,0.0,0.0006,HOMO -> LUMO+3,0.4958287362,HOMO-5 -> LUMO,0.4823977088,,,,
