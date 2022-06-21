@@ -1,0 +1,265 @@
+# General imports.
+import urwid
+
+# Silico imports.
+from silico.interface.urwid.dialogue import Output_dialogue
+from silico.interface.urwid.wrapper import Confirm_settings_cancel,\
+    Confirm_or_cancel, Confirm
+from silico.interface.urwid.swap.swappable import Swappable
+from silico.interface.urwid.layout import Pane, Sub_pane
+from silico.interface.urwid.setedit.configurable import Configurable_browser
+from silico.interface.urwid.setedit.base import Paginated_settings_browser
+
+
+class Top(urwid.WidgetPlaceholder):
+    """
+    A placeholder widget used for switching the top-most widget being rendered by urwid.
+    """
+    
+    def __init__(self, original_widget):
+        """
+        Constructor for Top widgets.
+        
+        :param original_widget: The main widget to wrap around. Must be given (use a placeholder if you require).
+        """
+        super().__init__(original_widget)
+        
+        self.current_top = urwid.WidgetPlaceholder(original_widget)
+        
+        # We keep track of two separate widget stacks, one for normal widgets and one for dialogues (which appear on top of normal widgets).
+        self.stack = []
+        self.dialogue_stack = []
+        
+        # A widget we'll use to popup and show program output.
+        self.output_widget = Output_dialogue(self)
+        
+    def set_top(self, original_widget):
+        """
+        Set the currently visible widget.
+        """
+        self.original_widget = original_widget
+        self.current_top.original_widget = original_widget
+        
+    def output(self, message, error = False):
+        """
+        Add text to the output widget and show it on top.
+        
+        :param message: The text to add.
+        :param error: Whether to show alternative formatting indicating an error.
+        """
+        # Urwid doesn't render tab characters, so we'll replace those.
+        message = message.replace('\t', '  ')
+        
+        # First, add our message to our widget.
+        self.output_widget.output(message, error)
+        
+        # Then swap to it if it's not already the top.
+        if len(self.dialogue_stack) == 0 or self.dialogue_stack[-1].top_w != self.output_widget:
+            self.popup(self.output_widget, width = ('relative', 100), height = ('relative', 100), left = 1, top = 1, right = 1, bottom = 2)
+            
+    def update_view(self):
+        """
+        Update the currently visible widget.
+        """
+        if len(self.dialogue_stack) > 0:
+            self.original_widget = self.dialogue_stack[-1]
+        
+        else:
+            self.original_widget = self.stack[-1]
+
+    def swap(self, original_widget):
+        """
+        Set a new widget as the top-most.
+        """
+        # First, add our new body to the stack.
+        self.stack.append(original_widget)
+        
+        # Also add as the topmost.
+        self.current_top.original_widget = original_widget
+        
+        # Update.
+        self.update_view()
+        
+    #def popup(self, dialogue, align = "center", width = ('relative', 80), valign = "middle", height = ('relative', 80), **kwargs):
+    def popup(self, dialogue, align = "center", width = 50, valign = "middle", height = 10, **kwargs):
+        """
+        Set a new dialogue popup as the top-most widget.
+        
+        In addition to the widget to show, this function takes the same arguments as the constructor for urwid Overlay widgets.
+        
+        :param dialogue: The widget to display as a popup.
+        """
+        # First, get an overlay widget to display both our top-most normal widget and our popup.
+        # We will use another placeholder widget for the underneath widget, so we can swap it out.
+        overlay = urwid.Overlay(dialogue, self.current_top, align = align, width = width, valign = valign, height = height, **kwargs)
+        
+        # Add the overlay to our dialogue stack.
+        self.dialogue_stack.append(overlay)
+        
+        # Update.
+        self.update_view()
+        
+    def get_settings_pane(self, swappable_widget):
+        """
+        Create a widget that can be used to change the  settings of a swappable widget.
+        
+        :param swappable_widget: The widget to create the new widget for.
+        """
+        additional_options = swappable_widget.additional_option_pages
+        # The overall title for use for the settings widget.
+        settings_title = swappable_widget.settings_title
+        
+        # First, get normal options from the widget (if there are any).
+        if swappable_widget.has_settings:
+            # The title to use depends on whether there are additional options or not.
+            title = settings_title if len(additional_options) == 0 else "general"
+            widget_options = Pane(Configurable_browser.from_configurable(swappable_widget.top, swappable_widget, swappable_widget.on_settings_change), title)
+        
+        else:
+            widget_options = None
+        
+        settings_pane = widget_options
+        if len(additional_options) > 0:
+            # We have some extra stuff to add.
+            # The first page will be the widget's own options.
+            pages = {'general': widget_options}
+            
+            # Then add the additional ones.
+            pages.update(additional_options)
+            
+            # Our settings_pane will now be paginated.
+            settings_pane = Sub_pane(Paginated_settings_browser(pages, "Settings Type"), settings_title)
+            
+        # Done.
+        return settings_pane
+            
+        
+    def wrap_with_controls(self, original_widget, cancel_callback = None, submit_callback = None):
+        """
+        Wrap a widget with controls (buttons).
+        
+        The buttons that are shown depend on whether submit_callback is given and whether orginal_widget is a Swappable that has options.
+        
+        :param cancel_callback: A function to call when the cancel button is pressed.
+        :param submit_callback: A function to call when the submit button is pressed.
+        :returns: A wrapped widget.
+        """
+        # TODO: cancel_callback and submit_callback should probably be defined on each class.
+        # If our widget is a Swappable and a submit_callback has not been given, we can use a default.
+        if isinstance(original_widget, Swappable) and submit_callback is None:
+            submit_callback = original_widget.submit
+        
+        # First decide which kind of wrapper to use.
+        # If we have options, use a Confirm_settings_cancel.
+        if isinstance(original_widget, Swappable) and original_widget.has_settings:
+            # Get a widget we can use to edit the settings of the main widget; we can't ask the Swappable class to do this because of circular import nonsense (some of the edit widgets are themselves Swappable).
+            settings_pane = self.get_settings_pane(original_widget)
+            window = Confirm_settings_cancel(original_widget, top = self, settings_widget = settings_pane, cancel_callback = cancel_callback, submit_callback = submit_callback)
+            
+        elif submit_callback is not None:
+            window = Confirm_or_cancel(original_widget, top = self, cancel_callback = cancel_callback, submit_callback = submit_callback)
+            
+        else:
+            window = Confirm(original_widget, top = self, submit_callback = cancel_callback)
+            
+        return window
+
+    def swap_into_window(self, original_widget, cancel_callback = None, submit_callback = None):
+        """
+        Wrap a widget with buttons and then set it as the top-most widget.
+        
+        :param cancel_callback: A function to call when the cancel button is pressed.
+        :param submit_callback: A function to call when the submit button is pressed.
+        """
+        window = self.wrap_with_controls(original_widget, cancel_callback, submit_callback)
+        
+        self.swap(window)
+        
+    def swap_into_overlayed_window(self, original_widget, cancel_callback = None, submit_callback = None, align = "center", width = ('relative', 100), valign = "middle", height = ('relative', 100), left = 1, top = 1, right = 1, bottom = 2, **kwargs):
+        """
+        Wrap a widget with control buttons and set it as the top-most widget in an overlay so that the previous top-most appears beneath it.
+        """
+        window = self.wrap_with_controls(original_widget, cancel_callback, submit_callback)
+        
+        # Don't use self.current_top here, we are about to become the new current_top so that would recurse infinitely.
+        overlay = urwid.Overlay(window, self.original_widget, align = align, width = width, valign = valign, height = height, left = left, top = top, right = right, bottom = bottom, **kwargs)
+        
+        self.swap(overlay)
+
+    def back(self):
+        """
+        Remove the current top-most widget and set the last in its place.
+        
+        If there are no more widgets to go back to, urwid.ExitMainLoop will be raised.
+        
+        :param number: The number of times to go back.
+        :return: The widget just removed, for convenience.
+        """
+        if len(self.dialogue_stack) > 0:
+            # Close the top-most dialogue.
+            self.close_popup()
+            
+        else:
+            # Close the top-most real widget.
+            self.close_widget()
+            
+    def close_widget(self):
+        """
+        Close the top-most currently viewable non-popup.
+        """
+        try:
+            # Remove the top-most real widget.
+            self.stack.pop()
+            
+            # Update our current_top.
+            self.current_top.original_widget = self.stack[-1]
+            
+            # Update.
+            self.update_view()
+            
+        except IndexError:
+            # The stack is empty.
+            raise urwid.ExitMainLoop()
+            
+    def close_popup(self, popup = None):
+        """
+        Close the top-most currently viewable popup.
+        """
+        # If we've been given a widget to close, close that one.
+        if popup is not None:
+            try:
+                self.dialogue_stack.pop([True if overlay.top_w == popup else False for overlay in self.dialogue_stack].index(True))
+            
+            #TOOD: This might be catching the wrong exception?
+            except ValueError:
+                # Give a slightly more descriptive error.
+                raise IndexError("close_popup() called but widget '{}' is not currently visible".format(popup)) from None
+            
+        else:
+            try:
+                # Remove the top-most dialogue widget.
+                self.dialogue_stack.pop()
+                
+            except IndexError:
+                # Give a slightly more descriptive error.
+                raise IndexError("close_popup() called but no popups are currently visible")
+        
+        # Update our view.
+        self.update_view()
+        
+    def keypress(self, size, key):
+        """
+        Handler for keypress events.
+        """
+        # Allow children to intercept first.
+        key = super().keypress(size, key)
+        
+        if key == "esc":
+            if len(self.dialogue_stack) > 0:
+                self.close_popup()
+                
+            else:
+                self.back()
+        
+        else:
+            return key

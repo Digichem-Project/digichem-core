@@ -4,8 +4,9 @@ from pathlib import Path
 
 # Silico imports.
 from silico.image.vmd import Spin_density_image_maker, Orbital_image_maker,\
-    Combined_orbital_image_maker, Structure_image_maker, Dipole_image_maker,\
-    Density_image_maker
+    Combined_orbital_image_maker, Structure_image_maker, \
+    Density_image_maker, Difference_density_image_maker,\
+    Permanent_dipole_image_maker, Transition_dipole_image_maker
 from silico.image.orbitals import Orbital_diagram_maker
 from silico.exception.base import Result_unavailable_error
 from silico.image.excited_states import Excited_states_diagram_maker
@@ -15,6 +16,10 @@ from silico.result.excited_states import Excited_state_list
 from silico.image.graph import Convergence_graph_maker
 from silico.result.molecular_orbitals import Molecular_orbital_list
 import silico.report.image
+from silico.image.structure import Skeletal_image_maker
+from silico.file.input import Silico_coords
+from silico.report.image.turbomole.base import Turbomole_anadens_setup
+
 
 class Report():
     """
@@ -25,6 +30,10 @@ class Report():
         """
         Constructor for Report objects.
         
+        This Report class is calculation program agnostic, which is important because the results from multiple different calculation programs can be merged together and supplied as a merged result.
+        However, image generation is deeply integrated with the calculation program that produced the individual results, so that is handled separately by Cube_setup objects which do depend on each calculation program type.
+        
+        :param result: A parsed result set object to render a report of.
         :param options: A silico Config dictionary which contains various options that control the appearance of this report.
         """    
         # Save our result set object.
@@ -49,7 +58,7 @@ class Report():
             excited_state_transition_threshold = options['report']['orbital_image']['et_transition_threshold']
         )            
         
-        # Get image makers for each metadata.
+        # Get cube makers for each metadata.
         # We need to be careful with what we request from each image maker, especially for Turbomole
         # eg, We can't just ask for orbitals from all Turbomole makers because this is wasteful if 
         # we only need spin images from one of the makers; Turbomole will still render the orbital images
@@ -59,16 +68,21 @@ class Report():
         #
         # We also move backwards through our results, this ensures that earlier calculations have precedence.
         self.image_setters = []
-        for index, metadata in enumerate(reversed(self.result.metadatas)):
+        for index, result in enumerate(reversed(self.result.results)):
             # Only request orbitals from the main result (first, but remember we are travelling backwards thro metadatas).
             do_orbitals = index == len(self.result.metadatas) -1
             # Only request spin images if available.
-            do_spin = metadata.multiplicity != 1 and metadata.orbital_spin_type == "unrestricted"
+            do_spin = result.metadata.multiplicity != 1 and result.metadata.orbital_spin_type == "unrestricted"
             
             # Setup.
             self.image_setters.append(
-                silico.report.image.from_metadata(self, metadata = metadata, do_orbitals = do_orbitals, do_spin = do_spin, options = options, calculation = calculation)
+                silico.report.image.from_result(self, result = result, do_orbitals = do_orbitals, do_spin = do_spin, options = options, calculation = calculation)
             )
+            
+        # Also create a cube setter for anadens cubes.
+        # Anadens cubes are specific to calculations performed with Turbomole, but they are handled differently because they require multiple calculations (a ground state and excited state) to work.
+        # Even if no Turbomole calculations are available here, this class will function fine.
+        self.image_setters.append(Turbomole_anadens_setup(self, options = options, calculation = calculation))
             
         
     @property
@@ -213,13 +227,13 @@ class Report():
                     molecular_orbitals = orbital_list,
                     options = self.options)
                 
-                # A version of the diagram with only the HOMO/LUMO
+                # A version of the diagram with only the HOMO-LUMO
                 self.images[spin_type + 'HOMO_LUMO_energies'] = Orbital_diagram_maker.from_options(
                     Path(output_dir, "Orbital Diagram", output_name + ".{}HOMO_LUMO.png".format(spin_type)),
                     molecular_orbitals = type(orbital_list)(orbital for orbital in orbital_list if orbital.HOMO_difference == 0 or orbital.HOMO_difference == 1),
                     options = self.options)
                 
-                # Also get our HOMO/LUMO combined image.
+                # Also get our HOMO-LUMO combined image.
                 # Get our FMOs.
                 HOMO = orbital_list.get_orbital(HOMO_difference = 0)
                 LUMO = orbital_list.get_orbital(HOMO_difference = 1)
@@ -232,7 +246,7 @@ class Report():
                     options = self.options)
                 
             except Result_unavailable_error:
-                # We couldn't find our HOMO/LUMO.
+                # We couldn't find our HOMO-LUMO.
                 pass
         
         
@@ -244,25 +258,36 @@ class Report():
             self.images['structure'] = Structure_image_maker.from_options(
                 Path(output_dir, "Structure", output_name + ".structure.jpg"),
                 cube_file = self.cubes['structure'],
+                rotations = self.rotations,
                 options = self.options)
             
-            self.images['aligned_structure'] = Structure_image_maker.from_options(
-                Path(output_dir, "Structure", output_name + ".structure.jpg"),
+            self.images['unaligned_structure'] = Structure_image_maker.from_options(
+                Path(output_dir, "Structure", output_name + ".unaligned_structure.jpg"),
                 cube_file = self.cubes['structure'],
-                rotations = self.rotations,
                 options = self.options)
         
         
             #######################
             # Dipole moment (PDM) #
             #######################
-            self.images['dipole_moment'] = Dipole_image_maker.from_options(
+            self.images['dipole_moment'] = Permanent_dipole_image_maker.from_options(
                 Path(output_dir, "Dipole Moment", output_name + ".dipole.jpg"),
                 cube_file = self.cubes['structure'],
                 dipole_moment = self.result.dipole_moment,
                 rotations = self.rotations,
                 options = self.options)
-        
+            
+        ################
+        # 2D Structure #
+        ################
+        self.images['skeletal'] = Skeletal_image_maker.from_options(
+            Path(output_dir, "Structure", output_name + ".skeletal.png"),
+            coords = Silico_coords.from_xyz(self.result.atoms.to_xyz()),
+            options = self.options
+            )
+        # NOTE: We ask for the skeletal image here because if report: front_page == "rendered" (the default), then this image is never created.
+        # This could be a shame for the user as the image might be useful even if it's not used in the report (and it takes no time to make so).
+        self.images['skeletal'].get_image()
         
         ####################################################
         # Excited states & transition dipole moments (TDM) #
@@ -272,15 +297,51 @@ class Report():
             # Work out what we'll name our files.
             file_name = "{}_dipole".format(excited_state.state_symbol)
             sub_dir_name = "{} Transition Dipole Moment".format(excited_state.state_symbol)
+            
+            try:
+                tedm = excited_state.transition_dipole_moment.electric
+                tmdm = excited_state.transition_dipole_moment.magnetic
+            
+            except AttributeError:
+                if excited_state.transition_dipole_moment is None:
+                    tedm = None
+                    tmdm = None
+                
+                else:
+                    raise
                 
             # Get our image.
             if "structure" in self.cubes:
-                self.images[file_name] = Dipole_image_maker.from_options(
+                self.images[file_name] = Transition_dipole_image_maker.from_options(
                     Path(output_dir, sub_dir_name, output_name + ".{}.jpg".format(file_name)),
                     cube_file = self.cubes['structure'],
-                    dipole_moment = excited_state.transition_dipole_moment,
+                    dipole_moment = tedm,
+                    magnetic_dipole_moment = tmdm,
                     rotations = self.rotations,
                     options = self.options)
+                
+            # If we have difference density cubes, create images that can use them.
+            if excited_state.state_symbol + "_difference_density" in self.cubes:
+                self.images[excited_state.state_symbol + "_difference_density"] = Difference_density_image_maker.from_options(
+                    Path(output_dir, excited_state.state_symbol, output_name + ".{}_difference_density.jpg".format(excited_state.state_symbol)),
+                    cube_file = self.cubes[excited_state.state_symbol + "_difference_density"],
+                    rotations = self.rotations,
+                    options = self.options
+                )
+                
+            # If we have NTO cubes, create images for those too.
+            if excited_state.state_symbol + "_NTO_occ" in self.cubes and excited_state.state_symbol + "_NTO_unocc" in self.cubes:
+                self.images[excited_state.state_symbol + "_NTO"] = Combined_orbital_image_maker.from_options(
+                    Path(output_dir, excited_state.state_symbol, output_name + ".{}_NTO.jpg".format(excited_state.state_symbol)),
+                    # For NTOs, we swap the apparent HOMO and LUMO.
+                    # This is because we're really interested in how the excited state compares to the ground (rather than the reverse),
+                    # So we'll set the HOMO to the orbital containing the excited electron.
+                    HOMO_cube_file = self.cubes[excited_state.state_symbol + "_NTO_unocc"],
+                    LUMO_cube_file = self.cubes[excited_state.state_symbol + "_NTO_occ"],
+                    rotations = self.rotations,
+                    options = self.options
+                )
+                
             
         # Also set our states diagram.
         self.images['excited_state_energies'] = Excited_states_diagram_maker.from_options(
@@ -316,6 +377,7 @@ class Report():
                 self.images['simulated_{}_{}_emission_graph'.format(emission.transition_type, emission.state_symbol)] = Emission_graph_maker.from_options(
                     Path(output_dir, output_name + ".simulated_{}_{}_emission_spectrum.png".format(emission.transition_type, emission.state_symbol)),
                     excited_states = Excited_state_list([emission]),
+                    adjust_zero = True,
                     options = self.options)
                     
         

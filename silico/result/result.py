@@ -10,6 +10,7 @@ from silico.result.alignment.FAP import Furthest_atom_pair
 from silico.result.alignment import Minimal
 from silico.result import Result_object
 import silico.result.excited_states
+import itertools
 
         
 class Result_set(Result_object):
@@ -28,6 +29,7 @@ class Result_set(Result_object):
             atoms = None,
             alignment = None,
             dipole_moment = None,
+            transition_dipole_moments = None,
             molecular_orbitals = None,
             beta_orbitals = None,
             ground_state = None,
@@ -44,6 +46,7 @@ class Result_set(Result_object):
         :param SCF_energies: Optional Energy_list object of self-consistent field energies (SCF is the type of energy printed for normal HF and DFT).
         :param atoms: Optional Atom_list object of atom positions.
         :param dipole_moment: Optional dipole_moment object.
+        :param transition_dipole_moments: Optional list of TDMs.
         :param molecular_orbitals: Optional Molecular_orbital_list object.
         :param beta_orbitals: Optional Beta MOs. If this is not None, then molecular_orbitals is assumed to refer to the Alpha MOs.
         :param excited_states: Optional Excited_state_list object.
@@ -52,12 +55,14 @@ class Result_set(Result_object):
         """
         super().__init__()
         self.metadata = metadata
-        self.metadatas = (self.metadata,)
+        self.results = (self,)
         self.CC_energies = CC_energies
         self.MP_energies = MP_energies
         self.SCF_energies = SCF_energies
         self.dipole_moment = dipole_moment
+        self.transition_dipole_moments = transition_dipole_moments
         self.atoms = atoms
+        # TODO: This is a slightly weird name for this attribute, rename?
         self.alignment = alignment
         self.molecular_orbitals = molecular_orbitals
         self.beta_orbitals = beta_orbitals
@@ -68,7 +73,32 @@ class Result_set(Result_object):
         self.vertical_emission = {}
         self.adiabatic_emission = {}
         self.spin_orbit_coupling = spin_orbit_coupling
+        
+    @property
+    def metadatas(self):
+        """
+        Property providing access to the list of metadatas of the calculations that were merged together.
+        """
+        return [result.metadata for result in self.results]
     
+    @property
+    def level_of_theory(self):
+        """
+        A short-hand summary of the methods and basis sets used.
+        """
+        methods = []
+        basis_sets = []
+        for metadata in self.metadatas:
+            if len(metadata.converted_methods) > 0:
+                method = metadata.converted_methods[-1]
+#             for method in metadata.converted_methods:
+                if method not in methods:
+                    methods.append(method)
+                
+            if metadata.basis_set is not None and metadata.basis_set not in basis_sets:
+                basis_sets.append(metadata.basis_set)
+                        
+        return "/".join(itertools.chain(methods, basis_sets))
     
     @property
     def title(self):
@@ -109,11 +139,33 @@ class Result_set(Result_object):
     
         
     @property
+    def electric_transition_dipole_moment(self):
+        """
+        The S1 electric dipole moment, commonly referred to as THE electric transition dipole moment (although this name is ambiguous).
+        
+        None is returned if the S1 dipole moment is not available.
+        """
+        tdm = self.transition_dipole_moment
+        if tdm is not None:
+            return tdm.electric
+        
+    @property
+    def magnetic_transition_dipole_moment(self):
+        """
+        The S1 magnetic dipole moment, commonly referred to as THE magnetic transition dipole moment (although this name is ambiguous).
+        
+        None is returned if the S1 dipole moment is not available.
+        """
+        tdm = self.transition_dipole_moment
+        if tdm is not None:
+            return tdm.magnetic
+
+    @property
     def transition_dipole_moment(self):
         """
-        The S1 dipole moment, commonly referred to as THE transition dipole moment (although this name is ambiguous).
+        The S1 dipole moment (both electric and magnetic), commonly referred to as THE transition dipole moment (although this name is ambiguous).
         
-        None is returned if the S1 dipole moment is not available.        
+        None is returned if the S1 dipole moment is not available.
         """
         try:
             S1 = self.excited_states.get_state("S(1)")
@@ -121,9 +173,4 @@ class Result_set(Result_object):
         except Result_unavailable_error:
             # No S1 available.
             return None
-
         
-    
-        
-    
-                

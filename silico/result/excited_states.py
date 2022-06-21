@@ -3,13 +3,16 @@ from itertools import filterfalse, zip_longest
 import numpy
 import colour
 import math
+import warnings
+import itertools
 
 # Silico imports.
 from silico.result import Result_container
 from silico.result import Result_object
 from silico.exception.base import Result_unavailable_error
 from silico.result.base import Floatable_mixin
-import itertools
+from silico.misc.text import andjoin
+
 
 class Excited_state_list(Result_container):
     """
@@ -33,6 +36,18 @@ class Excited_state_list(Result_container):
         T1 = self.get_state("T(1)")
         # Calculate their difference.))
         return float(S1) - float(T1)
+    
+    @property
+    def multiplicity_strings(self):
+        """
+        Get a string describing the different multiplicities of the excited states of this list.
+        """
+        group = self.group()
+        mults = []
+        for excited_states in group.values():
+            mults.append(excited_states[0].multiplicity_string)
+            
+        return andjoin(mults)
     
     def difference(self, state1, state2):
         """
@@ -104,9 +119,23 @@ class Excited_state_list(Result_container):
             except KeyError:
                 # No list exists yet.
                 grouped_excited_states[excited_state.multiplicity] = type(self)([excited_state])
-                
-        # Return.
-        return grouped_excited_states
+        
+        # Sorting hack for old version of python that didn't technically support sorted dicts (although the sort order was secretly maintained).
+        # Just make a new dict that is sorted from the start:
+        sorted_group = {}
+        for mult in sorted(grouped_excited_states):
+            sorted_group[mult] = grouped_excited_states[mult]
+        
+        return sorted_group
+    
+    def group_pairs(self):
+        """
+        Return all the unique pair combinations of the different multiplicities of this list.
+        
+        :returns: A two membered tuple, where the first element is a list of pairs of multiplicities [(1, 2), (1, 3), (2, 3)] etc, and the second is a grouped dictionary of multiplicites (see group()).
+        """
+        group = self.group()
+        return (list(itertools.combinations(group, 2)), group)
     
     @property
     def num_singlets(self):
@@ -158,7 +187,33 @@ class Excited_state_list(Result_container):
             # Set mult and total level.
             state.multiplicity_level = multiplicities[state.multiplicity]
             state.level = total_level
-            
+
+    @classmethod
+    def merge(self, *multiple_lists, **kwargs):
+        """
+        Merge multiple lists of of the same type into a single, ordered list.
+         
+        Note that this method will return a new list object, but will modify the contained objects (eg, object.level) in place.
+        Inheriting classes may safely override this method.
+        """
+        # A dictionary where each key is a multiplcity and each value is a list of excited states with that mult.
+        multiplicities = {}
+        for excited_states in multiple_lists:
+            group = excited_states.group()
+            for multiplicity in group:
+                if multiplicity not in multiplicities:
+                    # Firt time we've seen this mult, add.
+                    multiplicities[multiplicity] = group[multiplicity]
+                
+                else:
+                    # Already got this type of excited states.
+                    warnings.warn("Attempting to merge excited states of multiplicity '{}' but this multiplcity has already been provided by an earlier result, ignoring".format(multiplicity))
+        
+        merged = self(itertools.chain(*multiplicities.values()), **kwargs)
+        merged.sort()
+        merged.assign_levels()
+        return merged
+
 
 class Excited_state_transition(Result_object):
     """
@@ -237,7 +292,7 @@ class Energy_state(Result_object, Floatable_mixin):
     
     # Colour categories.
     colors = [
-        {"max": 400, "name": "UV"},
+        {"max": 400, "name": "Ultraviolet"},
         {"max": 420, "name": "Violet"},
         {"max": 470, "name": "Blue"},
         {"max": 505, "name": "Cyan"},
@@ -245,7 +300,7 @@ class Energy_state(Result_object, Floatable_mixin):
         {"max": 595, "name": "Yellow"},
         {"max": 625, "name": "Orange"},
         {"max": 740, "name": "Red"},
-        {"max": float("inf"), "name": "IR"}    
+        {"max": float("inf"), "name": "Infrared"}    
     ]
     
     def __init__(self, level, multiplicity, multiplicity_level, energy):
@@ -328,7 +383,7 @@ class Energy_state(Result_object, Floatable_mixin):
         A short hand notation to identify this excited state.
         
         If the multiplicity is well defined (singlet, doublet, triplet etc), the symbol starts with an appropriate letter (S, D, T etc), otherwise a numeric multiplicity is used. The symbol ends with an integer in brackets, indicating the excited state's level.
-        eg, S1 is the first singlet excited state, S2 is the second and so on.
+        eg, S(1) is the first singlet excited state, S(2) is the second and so on.
         """
         return "{}({})".format(self.multiplicity_symbol, self.multiplicity_level)
 
@@ -348,7 +403,7 @@ class Excited_state(Energy_state):
         :param energy: The energy of this excited state (in eV).
         :param oscillator_strength: The oscillator strength of this transition.
         :param transitions: The singly excited transitions which make up this transition.
-        :param transition_dipole_moment: Optional transition dipole of the excited state.
+        :param transition_dipole_moment: Optional transition dipole moment of the excited state.
         """
         super().__init__(level, multiplicity, multiplicity_level, energy)
         self.symmetry = symmetry
@@ -360,6 +415,7 @@ class Excited_state(Energy_state):
         # If we were given a TDM, set its excited state to ourself.
         if transition_dipole_moment is not None:
             transition_dipole_moment.set_excited_state(self)
+                
         self.transition_dipole_moment = transition_dipole_moment
         
     @classmethod
@@ -402,6 +458,13 @@ class Excited_state(Energy_state):
         except FloatingPointError:
             # Our energy is zero.
             raise Result_unavailable_error('excited state wavelength', "excited state '{}' energy is 0 eV".format(self.state_symbol))
+        
+    @property
+    def joules(self):
+        """
+        The energy of this excited state in Joules.
+        """
+        return self.energy * 1.602176634e-19
         
     @property
     def color(self):
@@ -477,7 +540,7 @@ class Excited_state(Energy_state):
             
             # Loop through our data.
             for index, (symmetry, energy, oscillator_strength) in enumerate(excited_states_data):                    
-                # Relevant transition dipole moments.
+                # Relevant transition dipole moment.
                 try:
                     tdm = parser.results.transition_dipole_moments[index]
                 except IndexError:

@@ -1,5 +1,8 @@
 from silico.submit.calculation import Calculation_target
 from silico.config.configurable.option import Option
+from silico.exception.configurable import Configurable_exception
+from silico.submit.base import Memory
+
 
 class Calculation_series(Calculation_target):
     """
@@ -12,19 +15,22 @@ class Calculation_series(Calculation_target):
     calculation_IDs = Option(
         "calculations",
         help = "A list of calculations to perform in series",
-        choices = lambda option, configurable: [name for calc in configurable.calculations for name in calc.NAMES],
         required = True,
-        type = tuple
+        type = None,
+        list_type = list,
+        # TODO: Need to add some way to actually edit properly; each item can be an int, a string or a list.
+        no_edit = True
     )
     
-    def configure(self, CONFIGS, **kwargs):
-        """
-        Configure this Series calculation.
-        """
-        self.calculations = CONFIGS
-        super().configure(CONFIGS = CONFIGS, **kwargs)
-        
-    def expand(self):
+    memory = Option(help = "Force each calculation in this series to use this amount of memory", default = None, type = Memory)
+    num_CPUs = Option(help = "Force each calculation in this series to use this many CPUs", default = None, type = int)
+    _combined_report_name = Option("combined_report_name", help = "The name to use for the folder in which the combined report for this series calculation will be written", default = None)
+            
+    @property
+    def combined_report_name(self):
+        return self._combined_report_name if self._combined_report_name is not None else self.name
+    
+    def expand(self, calculations):
         """
         Expand this calculation target if it represents multiple real calcs.
         
@@ -32,5 +38,23 @@ class Calculation_series(Calculation_target):
         
         :return: A list of ready-to-go calculation targets.
         """
-        #self.calculations = [Calculation_target.from_name_in_configs(calculation_name, configs, silico_options = silico_options, available_basis_sets = available_basis_sets) for calculation_name in calculations]
-        return [self.calculations.get_config(ID) for ID in self.calculation_IDs]
+        calcs = []
+        
+        for tag_path in self.calculation_IDs:
+            try:
+                # Get the calc we represent.
+                calc = calculations.resolve(tag_path)
+                
+            except Exception as e:
+                raise Configurable_exception(self, "Could not expand to real calculation with TAG path '{}'".format(tag_path)) from e
+                
+            # Overwrite the memory and CPUs if given.
+            if self.num_CPUs is not None:
+                calc.num_CPUs = self.num_CPUs
+        
+            if self.memory is not None:
+                calc.memory = self.memory
+            
+            calcs.append(calc)
+        
+        return calcs

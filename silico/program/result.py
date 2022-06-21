@@ -1,234 +1,157 @@
-# The cresult (Result Extraction) program.
-# This program is designed to extract results from gaussian calculations and display/save them as more convenient formats.
-
 # General imports.
-from multiprocessing import Pool
-from itertools import filterfalse
-from functools import partial
-import logging
-import signal
+import os
 
 # Silico imports.
-import silico.program
-from silico.misc.base import List_grouper
-from silico.extract.text import Text_summary_group_extractor
-from silico.extract.csv import CSV_summary_group_extractor, Long_CSV_group_extractor
-from silico.extract.table import Table_summary_group_extractor, Long_table_group_extractor
+from silico.program.base import Program
 from silico.exception.base import Silico_exception
-import silico.parser
 from silico.result.alignment.base import Alignment
+from silico.format.text import Text_summary_group_format
+from silico.format.csv import CSV_summary_group_format,\
+    CSV_property_group_format
+from silico.format.table import Table_summary_group_format,\
+    Property_table_group_format
+from silico.parser.base import parse_multiple_calculations
+from silico.interface.urwid.result.base import Result_interface
+from silico.result.multi.base import Merged
 
-# Printable name of this program.
-NAME = "Calculation Result Extractor"
-DESCRIPTION = "extract results from calculation output files and convert them to more convenient intermediate formats"
-EPILOG = "{} V{}. Written by {}. Last updated {}.".format(NAME, silico.version, silico.author, silico.last_updated.strftime("%d/%m/%Y"))
-USAGE = """%(prog)s [options] file1.log [file2.log...] [-a %%FORMAT file.tbl] [-b %%FORMAT file.tbl] [-c %%FORMAT file.csv] [-d %%FORMAT file.csv] [-t %%FORMAT file.txt]
-   eg: %(prog)s file1.log -t %%META %%GEOM %%ATOMS
-   eg: %(prog)s *.log -c results.csv
-   eg: %(prog)s *.log -a %%META %%ORB=+2,+1,+0,-1 | less -S"""
 
-def list_known_sections(extractor_groups):
+class Result_program(Program):
     """
-    Helper function, called when -l or --list is specified.
+    The Silico result parsing program.
     """
-    for extractor_group in extractor_groups:
-        # Get a list of sections.
-        for extractor_class in extractor_group.recursive_subclasses():
-            if hasattr(extractor_class, 'CLASS_HANDLE'):
-                print(extractor_class.CLASS_HANDLE[0])
     
+    name = "Calculation Result Parser"
+    command = "result"
+    aliases = ["R", "res"]
+    description = "extract results from calculation output files and convert them to more convenient intermediate formats"
+    help = "Parse results"
+
+
+    @classmethod
+    def arguments(self, sub_parsers_object):
+        """
+        Add this program's arguments to an argparser subparsers object.
         
-def _get_result_set(filename, alignment_class):
-    """
-    Helper function, designed to be called in parallel to read input files.
-    """
-    logger = logging.getLogger(silico.logger_name)
-    # First open our file.
-    try:
-        return silico.parser.from_log_files(filename).process(alignment_class)
-    except Exception:
-            logger.warning("Unable to parse calculation result file '{}'; skipping".format(filename), exc_info = True)
+        :param sub_parsers_object: An argparser subparsers object to add to (as returned by add_subparsers().
+        :returns: The argparser object (which supports add_argument()).
+        """
+        sub_parser = super().arguments(sub_parsers_object)
+        
+        sub_parser.add_argument("log_files", help = "a (number of) calculation result file(s) (.log) to extract results from", nargs = "*", default = [])
+        sub_parser.add_argument("-m", "--merge", help = "whether to merge the given calculation log files into a single result, presenting a summary of the merged data rather than each calculation separately", action = "store_true")
+         
+        sub_parser.add_argument("-x", "--stop", help = "stop on missing properties rather than ignoring them", action = "store_true", default = False)
+        sub_parser.add_argument("-C", "--num_CPUs", help = "the number of CPUs to use in parallel to parse given log_files, defaults to the number of CPUs on the system", type = int, nargs = "?", default = os.cpu_count())
+        
+        output_group = sub_parser.add_argument_group("output format", "the format to write results to. Only one option from the following may be chosen")
+        output_format = output_group.add_mutually_exclusive_group()
+        output_format.add_argument("-t", "--text", help = "human readable text format; shows various summaries of results for each result file", dest = "format", action = "store_const", const = Text_summary_group_format, default = Text_summary_group_format)
+        output_format.add_argument("-c", "--csv", help = "CSV tabular format; shows one row per result; useful for comparing many results at once", dest = "format", action = "store_const", const = CSV_summary_group_format)
+        output_format.add_argument("-d", "--csv-property", help = "CSV property format; shows a separate table for each property (atoms, MOs etc); one row for each item (atom, orbital etc)", dest = "format", action = "store_const", const = CSV_property_group_format)
+        output_format.add_argument("-a", "--table", help = "tabulated text format; the same as -c but formatted with an ASCII table, recommended that output be piped to 'less -S'", dest = "format", action = "store_const", const = Table_summary_group_format)
+        output_format.add_argument("-b", "--table-property", help = "tabulated property text format; the same as -d but formatted with an ASCII table", dest = "format", action = "store_const", const = Property_table_group_format)
+        
+        sub_parser.add_argument("-f", "--filters", help = "a list of filters to restrict which data is parsed (SCF, MOS, atoms etc)", nargs = "*", default = [])
+        
+        sub_parser.add_argument("-O", "--output", help = "a filename/path to write results to. If none is give, results will be written to stdout, which can also be explicitly requested with '-'", default = "-")
+    
+        return sub_parser
+    
+    def __init__(self, results, args, config, logger):
+        """
+        Constructor for submit programs.
+        
+        :param results: A list of result sets to format.
+        """
+        super().__init__(args = args, config = config, logger = logger)
+        self.results = results
 
-def _get_extractor_group_class(argument_group):
-    """
-    Helper function, retrieves an extractor class.
-    """
-    # TODO: We can ditch this function, just have the argparse action thingy set the class there and then.
-    if argument_group is None or "-t" in argument_group.option_strings:
-        return Text_summary_group_extractor
-    elif "-c" in argument_group.option_strings:
-        return CSV_summary_group_extractor
-    elif "-d" in argument_group.option_strings:
-        return Long_CSV_group_extractor
-    elif "-a" in argument_group.option_strings:
-        return Table_summary_group_extractor
-    elif "-b" in argument_group.option_strings:
-        return Long_table_group_extractor
-    else:
-        raise NotImplementedError("TODO")
-    
-def _split_file_names(names):
-    """
-    Take a list of file names (as would be given on the command line) and determine which are files and which are sections.
-    
-    Sections are defined as starting with a '%' character and instruct the extractor which parts of the result set to extract.
-    Sections can include the '=' character, with string following it being interpreted as filters for that section. Multiple filters are separated by commas (',').
-    File names are everything else and are paths to files to write to. The name '-' (a single dash) is also recognised as stdout.
-    
-    :param names: The list of names to split.
-    :return: A tuple of (file_names, sections). Each section is a dict of the form {'name', 'sub_criteria'}. Sub_criteria is a list of strings.
-    """
-    # We're going to split our 'names' into those that are file names (paths) and those that represent extractors (which extract/write certain parts of our result object).
-    file_names = []
-    sections = []
-    
-    # Iterate through our list.
-    for name in names:
-        # The percent % character is what to look for.
-        if name[:1] != "%":
-            # This is a file name.
-            file_names.append(name)
-        elif name[:2] == "%%":
-            # This is also a file name (double % is the escape mechanism, it means a file name that happens to start with a %).
-            file_names.append(name[1:])
-        else:
-            # This is a section name.
-            # Split on '=', the part before is the name of a section (which should match a CLASS_HANDLE), parts after are criteria to pass to that section class.
-            equals_split = name.split("=", maxsplit = 1)
+    @classmethod
+    def load_from_argparse(self, args, config, logger):
+        """
+        Create a Program object from the data provided by argparse.
+        
+        :param args: The command-line arguments the program was started with.
+        :param config: A loaded Silico config object.
+        :param logger: The logger to use for output.
+        """
+        # Get our alignment class.
+        self.alignment = Alignment.from_class_handle(config['alignment'])
+        
+        # Parse the log files we've been given (in parallel).
+        # Get our list of results. Do this in parallel.
+        try:
+            results = parse_multiple_calculations(*args.log_files, alignment_class = self.alignment, init_func = self.subprocess_init, processes = args.num_CPUs)
             
-            # The name is the first part (remembering to remove the starting %.
-            section_name = equals_split[0].strip()[1:]
+        except Exception:
+            raise Silico_exception("Failed to read calculation files")
+                
+        return self(results, args = args, config = config, logger = logger)
+    
+    def process_filters(self, filter_strings):
+        """
+        Process a list of filter strings, each of which identifies a formatter.
+        
+        :param filter_strings: A list of strings to process.
+        :returns: A list of dictionaries of {'name', 'sub_criteria'}
+        """
+        # A list of dictionaries of {'name', 'sub_criteria'}
+        requested_filters = []
+        
+        # Iterate through our list.
+        for filter_string in filter_strings:
+            # Split on '=', the part before is the name of a section (which should match a CLASS_HANDLE), parts after are criteria to pass to that section class.
+            equals_split = filter_string.split("=", maxsplit = 1)
+            
+            # The name is the first part.
+            filter_name = equals_split[0].strip()
             
             # The remainder are criteria, separated by commas (',').
             criteria = [[sub_criterion.strip() for sub_criterion in criterion.split(';')] for criterion in equals_split[1].split(',')] if len(equals_split) > 1 else [[]]
             
             # Add to our list of sections.
-            sections.extend([{'name': section_name, 'sub_criteria': sub_criteria} for sub_criteria in criteria])
+            requested_filters.extend([{'name': filter_name, 'sub_criteria': sub_criteria} for sub_criteria in criteria])
             
-    return (file_names, sections)
-
-def arguments(subparsers):
-    """
-    Add this program's arguments to an argparser object.
-    """
-    parser = subparsers.add_parser("result",
-        description = DESCRIPTION,
-        parents = [silico.program.standard_args],
-        usage = USAGE,
-        epilog = EPILOG,
-        help = "Extract results"
-    )
-    # Set main function.
-    parser.set_defaults(func = main)
+        return requested_filters
     
-    parser.add_argument("calculation_files", help = "calculation result files (.log etc) to extract results from", nargs = "*", default = [])
+    def load_interface(self, window):
+        """
+        Get the interface widget we'll use for display.
         
-    parser.add_argument("-i", "--ignore", help = "ignore missing sections rather than stopping with an error", action = "store_true")
-    
-    # Now process our output formats. The list of understood formats is generated automatically from the classes that inherit from silico.result.output.base.Output
-    output_formats = parser.add_argument_group("output formats", "Specify output formats to write results to. Optionally give a number of filenames after the format (eg, -t output1.results output2.results) to write to those filenames, otherwise output is written to stdout. stdout can also be explicitly requested using the dash ('-') character (eg, -t -). Additionally, subsections can be requested by specifying the name of the section preceded by a percent ('%') character (eg, -t atoms.text %GEOM)")
-    
-    # Add our known formats
-    output_formats.add_argument("-t", dest = "outputs", metavar = ("%FORMAT", "file.txt"), help = "human readable text format; shows various summaries of results for each result file", nargs = "*", default = [], action = List_grouper)
-    output_formats.add_argument("-c", dest = "outputs", metavar = ("%FORMAT", "file.csv"), help = "CSV tabular format; shows one row per result; useful for comparing many results at once", nargs = "*", action = List_grouper)
-    output_formats.add_argument("-d", dest = "outputs", metavar = ("%FORMAT", "file.csv"), help = "CSV summary format; shows a separate table for each property (atoms, MOs etc); one row for each item (atom, orbital etc)", nargs = "*", action = List_grouper)
-    output_formats.add_argument("-a", dest = "outputs", metavar = ("%FORMAT", "file.tbl"), help = "tabulated text format; the same as -c but formatted with an ASCII table, recommended that output piped to 'less -S'", nargs = "*", action = List_grouper)
-    output_formats.add_argument("-b", dest = "outputs", metavar = ("%FORMAT", "file.tbl"), help = "tabulated summary text format; the same as -d but formatted with an ASCII table", nargs = "*", action = List_grouper)
+        :param window The parent window object.
+        """
+        return Result_interface(window, self)
 
-def main(args):
-    """
-    Main entry point for the resume program.
-    """
-    silico.program.main_wrapper(_main, args = args)
-
-def _subprocess_init(*args, **kwargs):
-    """
-    Init function for subprocess workers.
-    """
-    # We unset the silico signal handler for SIGTERM because subprocess.pool appears to use this for communication.
-    # Perhaps we should unset all silico signal handlers in children?
-    signal.signal(signal.SIGTERM, signal.SIG_DFL)
-
-def _main(args, config, logger):
-    """
-    Inner portion of main (wrapped by a try-catch-log hacky boi).
-    """
-    # First, process our args.
-    extractor_groups = []
+    def main(self):
+        """
+        Logic for our program.
+        """
+        # Get upset if we have no log files.
+        if len(self.results) == 0:
+            raise Silico_exception("No result files specified/available")
         
-    # If we've not been given any outputs, use a default.
-    if len(args.outputs) == 0:
-        args.outputs.append({
-            'group': None,
-            'values': []
-            })
-    
-    # We do this first because reading all the calc files can be very slow, and if there is an error in the extractors section then it will be all wasted.
-    try:
-        for argument in args.outputs:
-            # This is the 'name' of the argument as given to argparse, eg 'text', 'table' etc,
-            argument_group = argument['group']
-            # Files is the list of options given to argparse, it is a mixture of file paths and section names ('%GEOM' for example)
-            argument_files = argument['values']
-            
-            # Decide on which top-level class to use.
-            # We'll store this in a dict for later.
-            extractor_group = {}
-            
-            # We'll call from_class_handle() on this class to get a list of classes which will get our output for us.
-            extractor_group_cls =_get_extractor_group_class(argument_group)
+        # Also if we have no-where to write to.
+        if self.args.output is None:
+            raise Silico_exception("No output location specified")
         
-            # Split our 'files' into real files and sections.
-            output_file_paths, output_sections = _split_file_names(argument_files)
-            
-            # Save the files for later.
-            extractor_group['output_file_paths'] = output_file_paths
+        # Process our given filters, splitting each into the filter name and associated filters.
+        requested_filters = self.process_filters(self.args.filters)
         
-            # Now get a list of extractor classes that the user has asked for.
-            extractors = [extractor_group_cls.from_class_handle(output_section['name'])(*output_section['sub_criteria'], ignore = args.ignore if args.ignore is True else None, config = config) for output_section in output_sections]
+        # First, get the individual parsers that the user asked for (these are based on the values given to the --filters option).
+        formats = [self.args.format.from_class_handle(requested_filter['name'])(*requested_filter['sub_criteria'], ignore = not self.args.stop, config = self.config) for requested_filter in requested_filters]
+        
+        # Now get our main formating object.
+        output_format = self.args.format(*formats, ignore = not self.args.stop, config = self.config)
             
-            # Now get our main extractor, which takes out list of sub extractors as an argument to its constructor, and save it for later.
-            extractor_group['extractor'] = extractor_group_cls(*extractors, ignore = args.ignore if args.ignore is True else None, config = config)
+        # Merge results if we've been asked to.
+        if self.args.merge:
+            results = [Merged.from_results(*self.results, alignment_class = self.alignment)]
+        else:
+            results = self.results
+        
+        # Now process.
+        try:
+            output_format.write(results, (self.args.output,))
             
-            # Add to our list.
-            extractor_groups.append(extractor_group)
-    except Exception:
-        raise Silico_exception("Failed to process extraction commands")
-    
-    # Get upset if we've got nothing to read.
-    if len(args.calculation_files) == 0:
-        raise Silico_exception("No calculation files to read (input files should appear before -a -b -c -d or -t options)")
-    
-    # Get our alignment class.
-    alignment_class = Alignment.from_class_handle(config['alignment'])
-    
-    # Get our list of results. Do this in parallel.
-    try:
-        with Pool(initializer = _subprocess_init) as pool:
-            results = list(
-                filterfalse(lambda x: x is None,
-                    pool.map(
-                        partial(
-                            _get_result_set,
-                            alignment_class = alignment_class,
-                        ),
-                        args.calculation_files
-                    )
-                )
-            )
-    except Exception:
-        raise Silico_exception("Failed to read calculation files")
-    
-    # Now process.
-    try:
-        for extractor_group in extractor_groups:
-            # If we don't have any files, add stdout as a default
-            if len(extractor_group['output_file_paths']) == 0:
-                extractor_group['output_file_paths'].append("-")    
-            
-            # Finally, write to each of the given paths.
-            extractor_group['extractor'].write(results, extractor_group['output_file_paths'])    
-    except Exception:
-        raise Silico_exception("Failed to read calculation files")
-
-    
+        except Exception as e:
+            raise Silico_exception("Failed to parse/write results") from e

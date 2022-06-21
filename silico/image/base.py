@@ -9,7 +9,7 @@ class Image_maker(File_maker):
     # Text description of our output file type, used for error messages etc. This can be changed by inheriting classes.
     output_file_type = "image"
     
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, enable_rendering = True, **kwargs):
         """
         General constructor for Image_maker objects.
         
@@ -19,7 +19,7 @@ class Image_maker(File_maker):
         :param dont_modify: Flag that modifies how image creation works. If True, no new images will be written to file.
         :param use_existing: Flag that modifies how image creation works. If True, existing files will be preferentially used if available (set to False to force overwriting existing files).
         """
-        super().__init__(*args, existing_file = None, **kwargs)
+        super().__init__(*args, existing_file = None, dont_modify = not enable_rendering, **kwargs)
         
     def get_image(self, name = 'file'):
         """
@@ -40,7 +40,7 @@ class Image_maker(File_maker):
         """
         A short message that may (depending on log-level) be printed to the user before make_files() is called.
         """
-        return "Rendering {} to file(s)".format(self.output)
+        return "Rendering '{}' to file(s)".format(self.output)
     
     
         

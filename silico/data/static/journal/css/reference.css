@@ -1,0 +1,40 @@
+.reference {
+    break-inside: avoid;
+}
+
+.reference__number {
+	font-weight: bold;
+	margin-right: 2px;
+	vertical-align: top;
+}
+
+.reference__body {
+	vertical-align: top;
+}
+
+.reference__link {
+	color: inherit;
+	text-decoration: none;
+}
+
+.reference__authors {
+	display: inline;
+}
+
+.reference__journal {
+	display: inline;
+	font-style: italic;
+}
+
+.reference__year {
+	display: inline;
+}
+
+.reference__volume {
+	display: inline;
+	font-weight: bold;
+}
+
+.reference__pages {
+	display: inline;
+}

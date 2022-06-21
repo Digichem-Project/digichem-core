@@ -1,9 +1,118 @@
+# General imports.
 from pathlib import Path
-from logging import getLogger
-from silico.exception.base import File_maker_exception, Silico_exception
-import silico
 
-class File_maker():
+# Silico imports.
+import silico.logging
+from silico.exception.base import File_maker_exception, Silico_exception
+
+class File_maker_ABC():
+    """
+    ABC for file maker classes.
+    
+    These classes make file(s) on the fly, they are mostly used for image rendering (and making the prerequisite files for image rendering).
+    
+    Do not try to init an instance of this class yourself; use a real one below (or elsewhere).
+    """
+    #####################################
+    # To be implemented in sub classes. #
+    #####################################
+    
+    def __init__(self, output):
+        """
+        :param output:  The filename/path to the new file (this path doesn't need to point to a real file yet; we will use this path to write to).
+        """
+        self.output = output
+        self.file_path = {'file': self.output}
+    
+    def get_file(self, name = 'file'):
+        """
+        Get the path to one of the files that this class represents, converting from our input file and writing to file first if necessary.
+        """
+        raise NotImplementedError("get_file() is not implemented in this ABC")
+    
+    def delete(self, lazy = False):
+        """
+        Delete the file(s) described by this object.
+        """
+        raise NotImplementedError("delete() is not implemented in this ABC")
+    
+    #################################
+    # Implemented in this sub-class #
+    #################################
+        
+    def safe_get_file(self, name = 'file'):
+        """
+        Get the path to one of the files that this class represents, converting from our input file and writing to file first if necessary.
+        
+        The functioning of this method is controlled by the dont_modify & use_existing flags.
+        
+        You can also use the normal python attribute mechanism (either through getattr() or dot notation) to get these paths.
+        
+        :raises KeyError: If name is not the name of one of the files this class represents.
+        :param name: The name of a file to get. Depends on the paths in self.file_path.
+        :return: A pathlib Path object pointing to the file represented by name, or None if no file could be created.
+        """
+        try:
+            return self.get_file(name)
+        
+        except Exception:
+            silico.logging.get_logger().error("Unable to get file '{}'".format(self.file_path[name]), exc_info = True)
+            return None
+    
+    def relative_path(self, file_name = 'file', *, output_base):
+        """
+        Get the relative path to the file (or one of the files) represented by this object.
+        
+        The path is relative to the directory where we write our file, called the output_base.
+        
+        :param file_name: The name of one of the files that we represent to get the path of, this can be excluded if we only represent one file.
+        :param output_base: Pathlib Path to the base directory to get a relative path to.
+        :return: A relative Path object to the file.
+        """
+        # First get the file's real path (this could trigger rendering).        
+        file_path = self.safe_get_file(file_name)
+        
+        # Return None if that doesn't work (eg, because dont_modify = True and use_existing = False) to match the rest of the class.
+        if file_path is None:
+            return None
+                        
+        # And return a relative path (this can still raise exceptions).
+        return file_path.relative_to(output_base)
+
+    
+    def __str__(self):
+        return str(self.safe_get_file())
+
+
+class Dummy_file_maker(File_maker_ABC):
+    """
+    A dummy file maker that will always fail to make any files.
+    
+    This class is useful where it is not possible to construct a real file maker object, where instead an instance of this class can be seamlessly used instead.
+    """
+
+    def __init__(self, output, message):
+        """
+        :param output: The path to the file this class is not creating.
+        :param message: The reason why this dummy file maker is being used.
+        """
+        super().__init__(output)
+        self.message = message
+        
+    def get_file(self, name = 'file'):
+        """
+        Get the path to one of the files that this class represents, converting from our input file and writing to file first if necessary.
+        """
+        raise File_maker_exception(self, self.message)
+    
+    def delete(self, lazy = False):
+        """
+        Delete the file(s) described by this object.
+        """
+        return False
+    
+
+class File_maker(File_maker_ABC):
     """
     Superclass for classes that automatically create files when needed.
     """
@@ -27,11 +136,11 @@ class File_maker():
             
             # Force set dont_modify = True so we don't overwrite the input that the user has given us.
             dont_modify = True
-            getLogger(silico.logger_name).debug("Setting dont_modify == True to prevent overwrite of user specified {} file '{}'".format(self.output_file_type, existing_file))
+            silico.logging.get_logger().debug("Setting dont_modify == True to prevent overwrite of user specified {} file '{}'".format(self.output_file_type, existing_file))
             
             # Check
             if not existing_file.exists():
-                getLogger(silico.logger_name).warning("The given {} file '{}' does not appear to exist".format(self.output_file_type, existing_file))
+                silico.logging.get_logger().warning("The given {} file '{}' does not appear to exist".format(self.output_file_type, existing_file))
                 # Continue anyway.
             
             # Set our output appropriately, and continue as normal.
@@ -40,33 +149,13 @@ class File_maker():
             # Convert to path.
             output = Path(output)
         
-        self.output = output
         self.dont_modify = dont_modify
         self.use_existing = use_existing
         
         # A flag of whether we have already created our output file.
         self.done_file_creation = False
         
-        # This dictionary contains pathlib Path objects to the file(s) that this class represents.
-        # Inheriting classes can change this if they represent multiple files, in which case each key should be the name that will be used to access the file.
-        self.file_path = {'file': self.output}
-        
-    def safe_get_file(self, name = 'file', log = True):
-        """
-        Get the path to one of the files that this class represents, converting from our input file and writing to file first if necessary.
-        
-        The functioning of this method is controlled by the dont_modify & use_existing flags.
-        
-        You can also use the normal python attribute mechanism (either through getattr() or dot notation) to get these paths.
-        
-        :raises KeyError: If name is not the name of one of the files this class represents.
-        :param name: The name of a file to get. Depends on the paths in self.file_path.
-        :return: A pathlib Path object pointing to the file represented by name, or None if no file could be created.
-        """
-        try:
-            return self.get_file(name)
-        except Exception:
-            getLogger(silico.logger_name).error("Unable to get file '{}'".format(self.file_path[name]), exc_info = True)
+        super().__init__(output)
     
     def get_file(self, name = 'file'):
         """
@@ -90,7 +179,7 @@ class File_maker():
                 # There is obviously a race condition here, but we're not making any guarantee to the calling function that the file really exists (or even what it is), we're only checking to see if we need to create a new file or not.
                 if self.file_path[name].exists():
                     # File exists, return its path.
-                    #getLogger(silico.logger_name).debug("Using existing {} file '{}'".format(self.output_file_type, self.file_path[name]))
+                    #silico.logging.get_logger().debug("Using existing {} file '{}'".format(self.output_file_type, self.file_path[name]))
                     return self.file_path[name]
             
             # There are no files we can use. If we're allowed, write new files.
@@ -105,6 +194,13 @@ class File_maker():
             else:
                 raise File_maker_exception(self, "Not creating file because dont_modify is True")
     
+    @property
+    def creation_message(self):
+        """
+        A short message that may (depending on log-level) be printed to the user before make_files() is called.
+        """
+        return "Generating {} file '{}'".format(self.output_file_type, self.output)
+    
     def check_can_make(self):
         """
         Check whether it is feasible to try and create the files(s) that we represent.
@@ -114,13 +210,6 @@ class File_maker():
         This method returns nothing, but will raise an File_maker_exception exception if the rendering is not possible.
         """
         pass
-    
-    @property
-    def creation_message(self):
-        """
-        A short message that may (depending on log-level) be printed to the user before make_files() is called.
-        """
-        return "Generating {} file '{}'".format(self.output_file_type, self.output)
     
     def make(self):
         """
@@ -136,7 +225,7 @@ class File_maker():
         self.check_can_make()
 
         # Print a debug message (because lots can go wrong next and this step an be quite slow).    
-        getLogger(silico.logger_name).info(self.creation_message)
+        silico.logging.get_logger().info(self.creation_message)
         
         # Make our parent folder(s).
         try:
@@ -159,7 +248,6 @@ class File_maker():
         This method will try to delete all files represented by this object, even if exceptions are raised during deletion of an earlier file.
         If lazy is not True, note that it is the last caught exception (from the last file deletion that went wrong) that is re-raised.
         
-        :raises 
         :param lazy: If true, no exceptions are raised if file deletion is not possible.
         :return: True if all files were deleted successfully, False otherwise.
         """
@@ -194,30 +282,6 @@ class File_maker():
         Make the files(s) described by this object. Inheriting classes should write their own implementation.
         """
         pass
-    
-    def relative_path(self, file_name = 'file', *, output_base):
-        """
-        Get the relative path to the file (or one of the files) represented by this object.
-        
-        The path is relative to the directory where we write our file, called the output_base.
-        
-        :param file_name: The name of one of the files that we represent to get the path of, this can be excluded if we only represent one file.
-        :param output_base: Pathlib Path to the base directory to get a relative path to.
-        :return: A relative Path object to the file.
-        """
-        # First get the file's real path (this could trigger rendering).        
-        file_path = self.safe_get_file(file_name)
-        
-        # Return None if that doesn't work (eg, because dont_modify = True and use_existing = False) to match the rest of the class.
-        if file_path is None:
-            return None
-                        
-        # And return a relative path (this can still raise exceptions).
-        return file_path.relative_to(output_base)
-
-    
-    def __str__(self):
-        return str(self.safe_get_file())
 
 
 class File_converter(File_maker):

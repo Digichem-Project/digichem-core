@@ -4,48 +4,23 @@ import copy
 
 from silico.submit.structure.flag import Flag
 from silico.exception.base import Submission_error
-from silico.submit import Configurable_target, Memory
+from silico.submit import Memory
 from silico.config.configurable.option import Option
 from silico.config.configurable.options import Options
-from silico.file.convert import Silico_input
+from silico.file.input import Silico_coords
+from silico.submit.base import Method_target
+from silico.file.input.directory import Calculation_directory_input
 
-def _merge_silico_options(option, configurable, silico_options):
-    """
-    Helper function, called to merge specific silico options with the global set.
-    """
-    # Deep copy silico_options (because we're going to merge it).
-    combined_silico_options = copy.deepcopy(configurable.global_silico_options)
-    
-    # Merge silico_options with the global options.
-    combined_silico_options = configurable.merge_dict(silico_options, combined_silico_options)
-                
-    return combined_silico_options
 
-class Calculation_target(Configurable_target):
+class Calculation_target(Method_target):
     """
     Abstract top-level class for calculation targets.
     """
     # Top level Configurable for calculations.
     CLASS_HANDLE = ("calculation",)
+    TYPE = Option(default = "calculation", no_edit = True)
     
-    # Configurable options.
-    parents = Option(
-        "programs",
-        help = "A list of programs that this calculation is compatible with",
-        required = True,
-        type = list)
-    
-    def configure(self, available_basis_sets, silico_options, **kwargs):
-        """
-        Configure this calculation.
-        
-        :param available_basis_sets: List (possibly empty) of known external basis sets.
-        :param silico_options: Global Silico options (note that this is not the per-calculation Option of the same name, but the actual global Silico options with which the former will be merged).
-        """
-        self.available_basis_sets = available_basis_sets
-        self.global_silico_options = silico_options
-        super().configure(**kwargs)
-    
+            
     @classmethod
     def safe_name(self, file_name):
         """
@@ -60,7 +35,7 @@ class Calculation_target(Configurable_target):
         safe_chars = "._"
         return "".join([char if char.isalnum() or char in safe_chars else "_" for char in file_name])
     
-    def expand(self):
+    def expand(self, calculations):
         """
         Expand this calculation target if it represents multiple real calcs.
         
@@ -68,41 +43,38 @@ class Calculation_target(Configurable_target):
                 
         :return: A list of ready-to-go calculation targets.
         """
-        raise NotImplementedError()
+        raise NotImplementedError("ABC Calculation_target cannot be expanded")
 
     @classmethod
-    def link(self, calculation_list):
+    def link(self, methods, *, global_silico_options, prepare_only = False):
         """
         Prepare a number of Calculation_target objects for submission by creating an ordered, linked list.
         
-        :param calculation_list: A list of 3-membered tuples (method, program, calculation) that are to be prepared. 
-        :return: A 3-membered tuple of (method, program, calculation) that is to be submitted first.
+        :param methods: A list of 3-membered tuples (destination, program, calculation) that are to be prepared.
+        :param global_silico_options: A dict like object of default options to use for the calculations that will be linked. Note that the options given here can be overridden by specific options given to each calculation...
+        :return: The method (a 3-membered tuple of (destination, program, calculation)) that is to be submitted first.
         """
         first = None
         previous = None
         
         # These objects are class templates.
-        for method_t, program_t, calculation_t in calculation_list:
-            # Finalize the method and program.
-            # We don't force here.
-            # TODO: We shouldn't be finalizing here...
-            method_t.finalize(False)
-            program_t.finalize(False)
-            
-            # Expand calculation (because the 'calculation' could actually be a meta-calc representing multiple real calcs.
-            for expanded_calculation_t in calculation_t.expand():
-                # Finalize the calc.
-                expanded_calculation_t.finalize(False)
+        for destination_t, program_t, calculation_t in methods:
+            # Expand calculation (because the 'calculation' could actually be a meta-calc representing multiple real calcs).
+            for expanded_calculation_t in calculation_t.expand(global_silico_options.calculations):
                 
-                # Init the method, prog and calc.
+                # Init the destination, prog and calc.
                 # This also links the three together.
-                method = method_t()
-                prog = program_t(method)
-                calc = expanded_calculation_t(prog)
+                destination = destination_t()
+                prog = program_t(destination)
+                calc = expanded_calculation_t(prog, global_silico_options = global_silico_options, prepare_only = prepare_only)
+                
+                # TODO: Need to ensure that the given calculation and program objects are compatible.
+                # This is tricky because of circular imports,
+                # probably means we should refactor our organisation of programs and calculations
                 
                 # If the calc was part of a series, set the series name.
                 if "Series" in calculation_t.CLASS_HANDLE:
-                    calc.series_name = calculation_t.NAME
+                    calc.series_name = calculation_t.combined_report_name
                 
                 # Keep track of the first.
                 if first is None:
@@ -118,6 +90,34 @@ class Calculation_target(Configurable_target):
         # Return the first calculation in the chain.
         return first
 
+
+class AI_calculation_mixin():
+    """
+    Abstract mixin class for calculation types that are ab-initio (from first principles).
+    """
+    
+    _multiplicity = Option("multiplicity", help = "Forcibly set the molecule multiplicity. Leave blank to use the multiplicity given in the input file", default = None, type = int)
+    _charge = Option("charge", help = "Forcibly set the molecule charge. Leave blank to use the charge given in the input file", default = None, type = float)
+    
+    @property
+    def charge(self):
+        """
+        The molecule/system charge that we'll actually be using in the calculation.
+        
+        Unlike the charge attribute, this property will translate "auto" to the actual charge to be used.
+        """
+        return int(self._charge if self._charge is not None else self.input_coords.implicit_charge)
+    
+    @property
+    def multiplicity(self):
+        """
+        The molecule/system multiplicity that we'll actually be using in the calculation.
+        
+        Unlike the multiplicity attribute, this property will translate "auto" to the actual multiplicity to be used.
+        """
+        return int(self._multiplicity if self._multiplicity is not None else self.input_coords.implicit_multiplicity)
+
+
 class Concrete_calculation(Calculation_target):
     """
     Top-level class for real calculations.
@@ -130,12 +130,12 @@ class Concrete_calculation(Calculation_target):
     INPUT_FILE_TYPES = []
     
     # Configurable options.
-    memory = Option(help = "The amount of memory to use for the calculation", required = True, type = Memory, rawtype = str)
+    memory = Option(help = "The amount of memory to use for the calculation", required = True, type = Memory)
     _num_CPUs = Option("num_CPUs", help = "An integer specifying the number of CPUs to use for this calculation", default = 1, type = int)
     scratch_options = Options(
         help = "Options that control the use of the scratch directory",
         use_scratch = Option(help = "Whether to use a scratch directory. False will disable the scratch directory, and is not recommended", default = True, type = bool),
-        path = Option(help = "Path to the top of the scratch directory. For each calculation, a sub-directory will be created under this path", default = "/scratch", type = str),
+        path = Option(help = "Path to the top of the scratch directory. For each calculation, a sub-directory will be created under this path. Note that some calculation programs (Gaussian16 at least) cannot handle whitespace in this path.", default = "/scratch", type = str),
         use_username = Option(help = "Whether to create a subdirectory for each user", default = True, type = bool),
         keep = Option(help = "Whether to copy any leftover files from the scratch directory once the calculation has completed successfully", default = False, type = bool),
         rescue = Option(help = "Whether to copy files from the scratch directory if the calculation fails or stops unexpectedly", default = True, type = bool),
@@ -156,27 +156,35 @@ class Concrete_calculation(Calculation_target):
         default = {},
         type = dict
     )
-
-    @property
-    def silico_options(self):
-        """
-        Get the specific silico options to this calculation.
         
-        This property is a speed-hack; it combines global and specific silico_options the first time it is called and caches the results.
+    @property
+    def mem_per_CPU(self):
         """
-        try:
-            return self._silico_options
-        except AttributeError:
-            # First time.
-            # Deep copy silico_options (because we're going to merge it).
-            self._silico_options = copy.deepcopy(self.global_silico_options)
-            
-            # Merge silico_options with the global options.
-            self._silico_options = self.merge_dict(self.custom_silico_options, self._silico_options)
-                        
-            return self._silico_options
+        Get the amount of memory to assign (per CPU).
+        """
+        return Memory(float(self.memory) / self._num_CPUs)
     
-    def expand(self):
+    @property
+    def num_CPUs(self):
+        """
+        The number of CPUs to use for the calculation, this (roughly ?) translates to the number of worker processes that will be used.
+        
+        This property will translate 'auto' into a number of CPUs, use _num_CPUs if this is not desirable.
+        """
+        if self._num_CPUs == "auto":
+            return self.get_available_CPUs()
+        else:
+            return self._num_CPUs
+    
+    @num_CPUs.setter
+    def num_CPUs(self, value):
+        """
+        Set the number of CPUs to use for the calculation. In addition to an exact integer amount, the string "auto" can also be supplied, in which case all available CPUs will be used.
+        """
+        # Set.
+        self._num_CPUs = value
+    
+    def expand(self, calculations):
         """
         Expand this calculation target if it represents multiple real calcs.
         
@@ -184,6 +192,7 @@ class Concrete_calculation(Calculation_target):
         
         This default implementation simply returns the same object.
         
+        :param calculations: A Configurable_list of other calculations that this calculation could expand into.
         :return: A list of ready-to-go calculation targets.
         """
         return (self,)
@@ -198,11 +207,13 @@ class Concrete_calculation(Calculation_target):
         Inner class for calculations.
         """
         
-        def __init__(self, program):
+        def __init__(self, program, *, global_silico_options, prepare_only = False):
             """
             Constructor for calculation objects.
             
             :param program: A Program_target_actual object to submit to.
+            :param global_silico_options: A dict like object of options to use for this calculation. Note that the options given here can be overridden by specific options given to this calculation...
+            :param prepare_only: Whether to only prepare this calculation and not perform it. 
             """    
             # Next is a linked list of Calculation_targets. We will call submit() on next once this object has been submitted.
             self.next = None
@@ -210,11 +221,31 @@ class Concrete_calculation(Calculation_target):
             self.output = None
             self.input_coords = None
             self.program = program
-            self.validate_parent(program)
+            self.global_silico_options = global_silico_options
             self.program.calculation = self
             # If this calculation was chosen as part of a series (meta-calc), this is the name of that series.
             # If this calc was chosen as an individual, this will be None.
             self.series_name = None
+            self.prepare_only = prepare_only
+
+        @property
+        def silico_options(self):
+            """
+            Get the specific silico options to this calculation.
+            
+            This property is a speed-hack; it combines global and specific silico_options the first time it is called and caches the result.
+            """
+            try:
+                return self._silico_options
+            except AttributeError:
+                # First time.
+                # Deep copy silico_options (because we're going to merge it).
+                self._silico_options = copy.deepcopy(self.global_silico_options)
+                
+                # Merge silico_options with the global options.
+                self._silico_options.deep_merge(self.custom_silico_options)
+                            
+                return self._silico_options
         
         @property
         def scratch_directory(self):
@@ -233,7 +264,7 @@ class Concrete_calculation(Calculation_target):
                 directory += "/" + getpass.getuser()
             
             # Make a path and return.
-            return Path(directory, self.program.method.unique_name)
+            return Path(directory, self.program.destination.unique_name)
         
         @property
         def molecule_name(self):
@@ -242,70 +273,69 @@ class Concrete_calculation(Calculation_target):
             
             This name is 'safe' for Gaussian and other sensitive programs.
             """
-            return self.safe_name(self.input_coords.name)
+            return self.safe_name(self.input_coords.implicit_name)
         
         @property
         def descriptive_name(self):
             """
             Get a name that describes the calculation and file together.
             """
-            return "{} {}".format(self.molecule_name, self.NAME)
-        
-        @property
-        def mem_per_CPU(self):
-            """
-            Get the amount of memory to assign (per CPU).
-            """
-            return Memory(float(self.memory) / self._num_CPUs)
-        
-        @property
-        def num_CPUs(self):
-            """
-            The number of CPUs to use for the calculation, this (roughly ?) translates to the number of worker processes that will be used.
+            return "{} {}".format(self.molecule_name, self.name)
             
-            This property will translate 'auto' into a number of CPUs, use _num_CPUs if this is not desirable.
-            """
-            if self._num_CPUs == "auto":
-                return self.get_available_CPUs()
-            else:
-                return self._num_CPUs
-        
-        @num_CPUs.setter
-        def num_CPUs(self, value):
-            """
-            Set the number of CPUs to use for the calculation. In addition to an exact integer amount, the string "auto" can also be supplied, in which case all available CPUs will be used.
-            """
-            # Set.
-            self._num_CPUs = value
-            
-        def prepare(self, output, input_coords):
+        def prepare(self, output, input_coords, additional_files = None):
             """
             Prepare this calculation for submission.
             
             :param output: Path to a directory to perform the calculation in.
-            :param input_coords: A Silico_input object containing the coordinates on which the calculation will be performed.
+            :param input_coords: A Silico_coords object containing the coordinates on which the calculation will be performed.
+            :param additional_files: An optional list of paths to additional files required for the calculation. These files will be copied into the output directory without modification. In addition, each 'path' can be a tuple where the first item is the path to an additional file and the second is a new file name (relative to the calculation dir) to copy to.
             """
             # Because we normally run the program in a different environment to where we are currently, we need to load all input files we need into memory so they can be pickled.
             self.output = output
             self.input_coords = input_coords
+            # TODO: Improve handling of additional files.
+            # In general, this implementation is fine, but it will fail if the pickled file is moved to another machine before resuming (for example), because the files will be left behind.
+            # We don't currently support this functionality, but one day we might...
+            additional_files = additional_files if additional_files is not None else []
+            self.additional_files = []
+            for additional_file in additional_files:
+                # Files that have not been given an explicit destination name will have one auto set.
+                if not isinstance(additional_file, tuple):
+                    self.additional_files.append((additional_file, Path(additional_file).name))
+                
+                else:
+                    self.additional_files.append(additional_file)
+                
             
-        def prepare_from_calculation(self, output, calculation):
+        def prepare_from_calculation(self, output, calculation, additional_files = None, directory = False):
             """
             Alternative submission constructor that gets the input coordinates from a previously finished calc.
             
             :param output: Path to a directory to perform the calculation in.
             :param calculation: A previously submitted calculation.
+            :param additional_files: An optional list of paths to additional files required for the calculation. These files will be copied into the output directory without modification. In addition, each 'path' can be a tuple where the first item is the path to an additional file and the second is a new file name (relative to the calculation dir) to copy to.
+            :param directory: If True, the entire Output directory of the given calculation is used as input, useful for restarting previous calculations etc. If False (the default), only the output coords of the given calculation are used.
             """
-            self.prepare_from_file(
-                output,
-                calculation.program.next_coords,
-                input_format = calculation.OUTPUT_COORD_TYPE,
-                molecule_name = calculation.molecule_name,
-                molecule_charge = calculation.input_coords.charge,
-                molecule_multiplicity = calculation.input_coords.multiplicity,
-                # Don't gen3D or add H (we want to use of output coordinates exactly as-is).
-                gen3D = False
-            )
+            if not directory:
+                self.prepare_from_file(
+                    output,
+                    calculation.program.next_coords,
+                    input_format = calculation.OUTPUT_COORD_TYPE,
+                    molecule_name = calculation.molecule_name,
+                    molecule_charge = calculation.input_coords.charge,
+                    molecule_multiplicity = calculation.input_coords.multiplicity,
+                    # Don't gen3D or add H (we want to use output coordinates exactly as-is).
+                    gen3D = False,
+                    additional_files = additional_files
+                )
+                
+            else:
+                self.prepare_from_directory(
+                    output,
+                    calculation.program.destination.calc_dir.output_directory,
+                    molecule_name = calculation.molecule_name,
+                    additional_files = additional_files
+                )
             
         def prepare_from_file(self,
             output,
@@ -315,7 +345,8 @@ class Concrete_calculation(Calculation_target):
             gen3D = None,
             molecule_name = None,
             molecule_charge = None,
-            molecule_multiplicity = None):
+            molecule_multiplicity = None,
+            additional_files = None):
             """
             Alternative submission constructor that first reads in an input file.
             
@@ -325,17 +356,32 @@ class Concrete_calculation(Calculation_target):
             :param molecule_name: Optional molecule name to use for the new calculation. If None, a name will be chosen based on the given file.
             :param molecule_charge: optional molecule charge to use for the new calculation. If None, a charge will be taken from the given file or otherwise a default will be used.
             :param molecule_multiplicity: optional molecule multiplicity to use for the new calculation. If None, a multiplicity will be taken from the given file or otherwise a default will be used.
+            :param additional_files: An optional list of paths to additional files required for the calculation. These files will be copied into the output directory without modification. In addition, each 'path' can be a tuple where the first item is the path to an additional file and the second is a new file name (relative to the calculation dir) to copy to.
             """    
             # First, try and convert our given input file to the universal silico input format.
             try:
                 # Load file.
-                input_coords = Silico_input.from_file(input_file_path, input_format, name = molecule_name, charge = molecule_charge, multiplicity = molecule_multiplicity, gen3D = gen3D)
+                input_coords = Silico_coords.from_file(input_file_path, input_format, name = molecule_name, charge = molecule_charge, multiplicity = molecule_multiplicity, gen3D = gen3D)
             except Exception:
                 raise Submission_error(self, "failed to prepare input file (input format may not be supported)", file_name = input_file_path)
             
             # Prep normally.
-            self.prepare(output, input_coords)
+            self.prepare(output, input_coords, additional_files = additional_files)
             
+        def prepare_from_directory(self, output, calculation_directory, *, molecule_name = None, additional_files = None):
+            """
+            Alternative submission constructor that uses an existing calculation directory as input.
+            
+            :param output: Path to a directory to perform the calculation in.
+            :param calculation_directory: Path to an existing calculation directory to use as input.
+            :param molecule_name: Optional molecule name to use for the new calculation. If None, a name will be chosen based on the given file.
+            :param additional_files:  An optional list of paths to additional files required for the calculation. These files will be copied into the output directory without modification. In addition, each 'path' can be a tuple where the first item is the path to an additional file and the second is a new file name (relative to the calculation dir) to copy to.
+            """
+            # Get the input file.
+            input_file = Calculation_directory_input(calculation_directory, molecule_name)
+            
+            # Prep normally.
+            self.prepare(output, input_file, additional_files = additional_files)
             
         def submit(self):
             """
@@ -348,12 +394,12 @@ class Concrete_calculation(Calculation_target):
                 
             except Exception:
                 # Something went wrong, set the error flag.
-                self.program.method.calc_dir.set_flag(Flag.ERROR)
-                self.program.method.calc_dir.set_flag(Flag.DONE)
+                self.program.destination.calc_dir.set_flag(Flag.ERROR)
+                self.program.destination.calc_dir.set_flag(Flag.DONE)
                 raise
             
             # Can't put this in finally because it will catch Submission_paused...
-            self.program.method.calc_dir.set_flag(Flag.DONE)
+            self.program.destination.calc_dir.set_flag(Flag.DONE)
             
             # We don't wrap our own submit_post() in flags because this method submits the next calculation; any errors that occur relate to the new submission, not this one which has just finished.        
             self.post()
@@ -364,7 +410,7 @@ class Concrete_calculation(Calculation_target):
             
             If there are any more calculations in the chain; we will call submit() on the next here.
             """
-            if self.next is not None:
+            if self.next is not None and not self.prepare_only:
                 # We have another calculation to do.
                 # Submit our output file.
                 try:                    
@@ -377,73 +423,3 @@ class Concrete_calculation(Calculation_target):
                     
                 except Exception:
                     raise Submission_error(self, "failed to submit to next calculation in chain")
-    
-    
-class Directory_calculation_mixin():
-    """
-    A class for calculations that take an existing calculation directory as input, instead of a molecule/geometry.
-    """
-    
-    DIRECTORY_CALCULATION = True
-    
-    ############################
-    # Class creation mechanism #
-    ############################
-    
-    class _actual(Calculation_target._actual):
-        """
-        Inner class for calculations.
-        """
-        
-        def __init__(self, *args, **kwargs):
-            """
-            Constructor for calculation objects.
-            
-            :param program: A Program_target_actual object to submit to.
-            """    
-            super().__init__(*args, **kwargs)
-            
-            self.input = None
-        
-        
-        def prepare(self, output, input, input_coords):
-            """
-            Prepare this calculation for submission.
-            
-            :param output: Path to a directory to perform the calculation in.
-            :param input: A directory containing existing calculation files to run.
-            :param molecule_name: A name that refers to the system under study (eg, Benzene etc).
-            """
-            # Because we normally run the program in a different environment to where we are currently, we need to load all input files we need into memory so they can be pickled.
-            self.output = output
-            self.input = input
-            self.input_coords = input_coords
-        
-        def prepare_from_file(self,
-            output,
-            input,
-            *,
-            molecule_name):
-            """
-            Alternative submission constructor that first reads in an input file.
-            
-            :param output: Path to a directory to perform the calculation in.
-            :param input: A directory containing existing calculation files to run.
-            :param molecule_name: A name that refers to the system under study (eg, Benzene etc).s
-            """
-            # Prep normally.
-            self.prepare(output, input, molecule_name = molecule_name)
-            
-        def prepare_from_calculation(self, output, calculation):
-            """
-            Alternative submission constructor that gets the input coordinates from a previously finished calc.
-            
-            :param output: Path to a directory to perform the calculation in.
-            :param calculation: A previously submitted calculation.
-            """
-            self.prepare_from_file(
-                output,
-                calculation.program.method.calc_dir.output_directory,
-                molecule_name = calculation.molecule_name
-            )
-    

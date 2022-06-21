@@ -1,0 +1,40 @@
+# The base for gaussian calculations.
+class_name: Gaussian
+TAG: Gaussian
+SUB_TYPE: pseudo
+
+# Gaussian calculation options.
+
+# If True, a formated checkpoint file (.fchk) will be created automatically after the calculation has finished.
+convert_chk: True
+
+# If False, the .chk file will be deleted automatically.
+# False is mostly safe here as the .chk/.fchk conversion is mostly reversible, however know that there is some data that is lost converting from .chk to .fchk (data needed to calculate NTOs, for example).
+keep_chk: False
+
+# These options are added to the Gaussian route section with only minor modification:
+#       Options of the form 'Foo: Bar' will become 'Foo=Bar'
+#       Options of the form 'Foo: ""'  will become 'Foo'
+#   Options of the form 'Foo: null' will be deleted (useful for unsetting something from a default).
+# You can add any option here that you like (though if the option is not recognised by Gaussian then the calculation will not complete successfully).
+keywords:
+    # Controls how symmetry is used in the calculation. There are many options here (again, see the Gaussian manual), but generally either 'Tight' or 'Loose' is sufficient for most cases. Tight is the default; loose is "designed for use with suboptimal input geometries" (https://gaussian.com/symmetry/).
+    Symmetry: Tight
+
+    # Among other things, the Population option controls how much information is printed in the calculation log file (but does not affect the .chk file?). Regular or Full are the most likely options.
+#    Population: Full
+    Population: Regular
+
+    # This option controls which density to use with the Population option. 'Current' is generally what you want, but alternatives may be required for eg MP2.
+    Density: Current
+
+# The names of configs to go to next.
+NEXT:
+ - Gaussian Single Point Singlet
+ - Gaussian Optimisation
+ - Gaussian Optimisation Frequencies
+ - Gaussian Optimisation Frequencies Unrestricted Triplet
+ - Gaussian Frequencies
+ - Gaussian Excited States
+
+

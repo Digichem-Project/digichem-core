@@ -15,14 +15,14 @@ class Merged(Result_set):
     A type of result set that represents one or more separate calculations merged into one result set.
     """
     
-    def __init__(self, metadatas, *args, vertical_emission = None, adiabatic_emission = None, **kwargs):
+    def __init__(self, results, *args, vertical_emission = None, adiabatic_emission = None, **kwargs):
         """
         Constructor for Merged result sets.
         :param vertical_emission: An optional dictionary of Relaxed_excited_state objects representing vertical emission energies (one for each multiplicity).
         :param adiabatic_emission: An optional dictionary of Relaxed_excited_state objects representing vertical adiabatic energies (one for each multiplicity).
         """
         super().__init__(*args, **kwargs)
-        self.metadatas = metadatas
+        self.results = results
         self.vertical_emission = vertical_emission if vertical_emission is not None else {}
         self.adiabatic_emission = adiabatic_emission if vertical_emission is not None else {}
             
@@ -61,7 +61,7 @@ class Merged(Result_set):
         
         merged_results =  self(
             metadata = merged_metadata,
-            metadatas = metadatas,
+            results = results,
             ground_state = ground_state,
             atoms = atoms,
             alignment = alignment,

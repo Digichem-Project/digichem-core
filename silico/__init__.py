@@ -1,12 +1,15 @@
+# General imports.
 from datetime import datetime
 from pathlib import Path
 import pkg_resources
 import os
 import sys
-import silico.base
 import PIL.Image
 
+# Silico imports.
+import silico.logging
 from .base import init_obabel
+
 
 PIL.Image.MAX_IMAGE_PIXELS = None
 
@@ -14,27 +17,20 @@ PIL.Image.MAX_IMAGE_PIXELS = None
 name = "silico"
 # Brief description.
 description = "Silico Computational Chemistry Package"
-# Whether this is a development version.
-development = True
 # Version information.
-major_version = 0
-minor_version = 20
-revision = 6
-version_number = "{}.{}.{}".format(major_version, minor_version, revision)
+major_version = 1
+minor_version = 0
+revision = 0
+prerelease = 32
+# Whether this is a development version.
+development = prerelease is not None
 # The full version number of this package.
-version = "{}{}".format(version_number, "-dev" if development else "")
+version = "{}.{}.{}{}".format(major_version, minor_version, revision, "-pre.{}".format(prerelease) if development else "")
 # The bloke who wrote this.
 author = "Oliver Lee"
 # Program date (when we were last updated).
-_last_updated_string = "11/02/2021"
+_last_updated_string = "11/02/2022"
 last_updated = datetime.strptime(_last_updated_string, "%d/%m/%Y")
-
-
-# The name of the logger that will be used by silico.
-logger_name = "silico"
-
-# Init the logger.
-silico.base.init_logger(logger_name)
 
 # Decide on whether we are frozen or not.
 # The sys attribute 'frozen' is our flag, '_MEIPASS' is the dir location.
@@ -43,6 +39,14 @@ if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
     frozen = True
 else:
     frozen = False
+    
+# Setup openbabel library location.
+init_obabel()
+    
+
+########################
+# Function Definitions #
+########################
 
 def default_template_directory():
     return Path(pkg_resources.resource_filename('silico', 'data/templates'))

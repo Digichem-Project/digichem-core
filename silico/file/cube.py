@@ -3,7 +3,6 @@
 # General imports.
 from pathlib import Path
 import subprocess
-from logging import getLogger
 import tempfile
 import shutil
 import os
@@ -12,11 +11,13 @@ import os
 from silico.exception.base import File_maker_exception
 from silico.file import File_converter
 import silico.file.types as file_types
-import silico
-from silico.submit.method.local import Series
-from silico.submit.calculation.turbomole import get_orbital_calc, Turbomole_memory
-from silico.file.base import File_maker
+import silico.logging
+from silico.submit.destination.local import Series
+from silico.submit.calculation.turbomole import make_orbital_calc, Turbomole_memory,\
+    make_anadens_calc
+from silico.file.base import File_maker, Dummy_file_maker
 from silico.submit import Memory
+
 
 class Fchk_to_cube(File_converter):
     """
@@ -30,16 +31,13 @@ class Fchk_to_cube(File_converter):
        - The requirement on these .fchk files is unnecessary as the data is also available in the .log file, but cubegen cannot read it.
     """
     
-    # 'Path' to the cubegen executable.
-    cubegen_executable = "cubegen"
-    
     # Text description of our input file type, used for error messages etc.
     #input_file_type = "fchk"
     input_file_type = file_types.gaussian_fchk_file
     # Text description of our output file type, used for error messages etc.
     output_file_type = file_types.gaussian_cube_file
     
-    def __init__(self, *args, fchk_file = None, cubegen_type = "MO", orbital = "HOMO", npts = 0, cube_file = None, memory = None, **kwargs):
+    def __init__(self, *args, fchk_file = None, cubegen_type = "MO", orbital = "HOMO", npts = 0, cube_file = None, memory = None, cubegen_executable = "cubegen", **kwargs):
         """
         Constructor for Fchk_to_cube objects.
         
@@ -59,6 +57,7 @@ class Fchk_to_cube(File_converter):
         self.npts = npts
         memory = memory if memory is not None else "3 GB"
         self.memory = Memory(memory)
+        self.cubegen_executable = cubegen_executable
         
     @classmethod
     def from_options(self, output, *, fchk_file = None, cubegen_type = "MO", orbital = "HOMO", options, **kwargs):
@@ -70,8 +69,9 @@ class Fchk_to_cube(File_converter):
             fchk_file = fchk_file,
             cubegen_type = cubegen_type,
             orbital = orbital,
-            npts = options['molecule_image']['orbital']['cube_grid_size'],
-            dont_modify = options['image']['dont_modify'],
+            npts = options['rendered_image']['orbital']['cube_grid_size'],
+            dont_modify = not options['rendered_image']['enable_rendering'],
+            cubegen_executable = options['external']['cubegen'],
             **kwargs
         )
             
@@ -109,7 +109,7 @@ class Fchk_to_cube(File_converter):
         else:
             # Everything appeared to go ok.
             # Dump cubegen output if we're in debug.
-            getLogger(silico.logger_name).debug(cubegen_proc.stdout)
+            silico.logging.get_logger().debug(cubegen_proc.stdout)
 
 
 
@@ -143,8 +143,9 @@ class Fchk_to_spin_cube(Fchk_to_cube):
             output,
             fchk_file = fchk_file,
             spin_density = spin_density,
-            npts = options['molecule_image']['spin']['cube_grid_size'],
-            dont_modify = options['image']['dont_modify'],
+            npts = options['rendered_image']['spin']['cube_grid_size'],
+            dont_modify = not options['rendered_image']['enable_rendering'],
+            cubegen_executable = options['external']['cubegen'],
             **kwargs
         )
         
@@ -179,10 +180,14 @@ class Fchk_to_density_cube(Fchk_to_cube):
             output,
             fchk_file = fchk_file,
             density_type = density_type,
-            npts = options['molecule_image']['density']['cube_grid_size'],
-            dont_modify = options['image']['dont_modify'],
+            npts = options['rendered_image']['density']['cube_grid_size'],
+            dont_modify = not options['rendered_image']['enable_rendering'],
+            cubegen_executable = options['external']['cubegen'],
             **kwargs
         )
+        
+
+# TODO: This module is fast becoming Turbomole centric, may be wise to move some of these classes somewhere else.
         
 class Turbomole_to_orbital_cube(File_maker):
     """
@@ -194,7 +199,6 @@ class Turbomole_to_orbital_cube(File_maker):
         Constructor for Turbomole_to_orbital_cube.
         
         :param turbomole_to_cube: A Turbomole_to_cube object.
-        :param irrep: 
         """
         self.turbomole_to_cube = turbomole_to_cube
         self.orbital = orbital
@@ -295,7 +299,7 @@ class Turbomole_to_cube(File_converter):
     # Text description of our output file type, used for error messages etc.
     output_file_type = file_types.gaussian_cube_file
     
-    def __init__(self, *args, calculation_directory = None, calc_t, prog_t, orbitals = [], density, spin, **kwargs):
+    def __init__(self, *args, calculation_directory = None, calc_t, prog_t, orbitals = [], density, spin, silico_options, **kwargs):
         """
         Constructor for Turbomole_to_cube objects.
         
@@ -308,11 +312,13 @@ class Turbomole_to_cube(File_converter):
         """
         super().__init__(*args, **kwargs)
         
+        # Save our global silico options (we'll need it when creating our calcs).
+        self.silico_options = silico_options
+        
         # Save our input calc dir.
         self.input_file = Path(calculation_directory) if calculation_directory is not None else None
         
         # The orbitals we've been asked to make.
-        #self.orbitals = [orbital.level for orbital in orbitals]
         self.orbitals = orbitals
         
         # Set paths to the cube files we'll be making.
@@ -326,50 +332,46 @@ class Turbomole_to_cube(File_converter):
             # Total density.
             self.file_path['SCF'] = Path(self.output, "td.cub")
         
-        # Save our calculation, program and method templates.
-        # We use an in series method so we will block while the calc runs.
-        self.method_t = Series({
-            "TYPE": "method",
-            "CLASS": "series",
-            "NAME": "Orbital cubes"
-        })
-        self.method_t.configure(ID = None)
-        self.method_t.finalize()
+        # Save our calculation, program and destination templates.
+        # We use an in series destination so we will block while the calc runs.
+        self.destination_t = Series(
+            name = "Orbital cubes"
+        )
+        self.destination_t.finalize()
             
         # Given calc program.
         self.prog_t = prog_t
-        self.prog_t.parents = [self.method_t.NAME]
         
         # Given calc.
         self.calc_t = calc_t
         
     @classmethod
-    def from_options(self, *args, calculation_directory = None, orbitals = [], density = True, spin = False, options, **kwargs):
+    def from_options(self, output, *args, calculation_directory = None, orbitals = [], density = True, spin = False, options, **kwargs):
         """
         Constructor that takes a dictionary of config like options.
         """
         # First, get our program.
-        prog_t = options.programs.get_config(options['report']['turbomole']['program'])
+        prog_t = options['report']['turbomole']['program']
+        
+        # Give up if no program available.
+        if prog_t is None:
+            return Dummy_file_maker(output, "No program definition is available (set the report: turbomole: program: option)")
         
         calculation_directory = calculation_directory.resolve() if calculation_directory is not None else None
         
         # Next, generate our calculation.
-        calc_t = get_orbital_calc(
+        calc_t = make_orbital_calc(
             name = calculation_directory,
             memory = Turbomole_memory(options['report']['turbomole']['memory']),
             num_CPUs = options['report']['turbomole']['num_CPUs'],
             orbitals = [orbital.total_level for orbital in orbitals],
             density = density or spin,
-            program_name = prog_t.NAME,
             options = options
            )
         
-        # Make them ready.
-        calc_t.finalize()
-        prog_t.finalize()
-        
         # And continue.
         return self(
+            output,
             *args,
             calculation_directory = calculation_directory,
             calc_t = calc_t.inner_cls,
@@ -377,7 +379,8 @@ class Turbomole_to_cube(File_converter):
             orbitals = orbitals,
             density = density,
             spin = spin,
-            dont_modify = options['image']['dont_modify'],
+            dont_modify = not options['rendered_image']['enable_rendering'],
+            silico_options = options,
             **kwargs
         )
         
@@ -387,17 +390,17 @@ class Turbomole_to_cube(File_converter):
         Create a Turbomole cube maker from an existing Turbomole calculation.
         """
         calc_t = turbomole_calculation.orbital_calc(orbitals = [orbital.total_level for orbital in orbitals], density = density or spin)
-        calc_t.finalize()
         
         return self(
             *args,
-            calculation_directory = calculation_directory if calculation_directory is not None else turbomole_calculation.program.method.calc_dir.output_directory,
+            calculation_directory = calculation_directory if calculation_directory is not None else turbomole_calculation.program.destination.calc_dir.output_directory,
             calc_t = calc_t.inner_cls,
             prog_t = type(turbomole_calculation.program),
             orbitals = orbitals,
             density = density,
             spin = spin,
-            dont_modify = options['image']['dont_modify'],
+            dont_modify = not options['rendered_image']['enable_rendering'],
+            silico_options = options,
             **kwargs
         )
         
@@ -413,13 +416,13 @@ class Turbomole_to_cube(File_converter):
         # To generate cubes, we need to run the dscf Turbomole module after setting some control options.
         
         # Link.
-        method = self.method_t()
-        prog = self.prog_t(method)
-        calc = self.calc_t(prog)
+        destination = self.destination_t()
+        prog = self.prog_t(destination)
+        calc = self.calc_t(prog, global_silico_options = self.silico_options)
         
         # We'll write our calc to a tempdir.
         with tempfile.TemporaryDirectory() as tempdir:
-            calc.prepare_from_file(tempdir, self.input_file, molecule_name = "Orbitals")
+            calc.prepare_from_directory(tempdir, self.input_file, molecule_name = "Orbitals")
             
             # Go.
             try:
@@ -435,7 +438,7 @@ class Turbomole_to_cube(File_converter):
             
             # Move created cube files to our output dir.
             for file, file_path in self.file_path.items():
-                src = Path(method.calc_dir.output_directory, file_path.name)
+                src = Path(destination.calc_dir.output_directory, file_path.name)
                 dst = file_path
                  
                 # Can't use src.rename() because tmp may be on a different device.
@@ -444,5 +447,142 @@ class Turbomole_to_cube(File_converter):
                 except FileNotFoundError as e:
                     # The requested cube wasn't where we expected; either the calculation didn't do what we ask, or the requested cube isn't made by the calc.
                     raise File_maker_exception(self, "The requested cube file could not be found, perhaps it is not generated by this type of calculation?") from e
-                    
+                
+                
+class Turbomole_to_anadens_cube(File_converter):
+    """
+    Class for converting Turbomole calculation output to cubes generated by the $anadens data group.
+    """
+    
+    # Text description of our input file type, used for error messages etc.
+    input_file_type = "Turbomole Directory"
+    # Text description of our output file type, used for error messages etc.
+    output_file_type = file_types.gaussian_cube_file
+    
+    # The name of the two density files to calculate from.
+    # We will always use the same file names because 'weird' characters (eg whitespace) will break Turbomole...)
+    first_density_file_name = "first.cao"
+    second_density_file_name = "second.cao"
+    # The file name we'll ask the $anadens data group to write to.
+    anadens_file_name = "anadens.cub"
+    
+    def __init__(self, *args, calculation_directory = None, first_density, second_density, calc_t, prog_t, silico_options, **kwargs):
+        """
+        Constructor for Turbomole_to_cube objects.
         
+        See Image_maker for a full signature.
+        
+        :param output: Path to the file where the new cube file will be written.
+        :param calculation_directory: Path to an existing and previously completed Turbomole calculation. At least one of the two density files should have been written by this calculation.
+        :param first_density: Path to one of the two density files to calculate from.
+        :param second_density: Path to the other of the two density files to calculate from.
+        :param calc_t: The calculation template that will be run to calculate the new density.
+        :param prog_t: The program template that will be run to calculate the new density.
+        :param silico_options: Global silico options.
+        """
+        super().__init__(*args, input_file = calculation_directory, **kwargs)
+        
+        # Save our global silico options (we'll need it when creating our calcs).
+        self.silico_options = silico_options
+        
+        # Also save the paths to the two density files (we'll need to copy these into the actual calc directory).
+        self.first_density = first_density
+        self.second_density = second_density
+        
+        # Save our calculation, program and destination templates.
+        # We use an in series destination so we will block while the calc runs.
+        self.destination_t = Series(
+            name = "Anadens cube"
+        )
+        self.destination_t.finalize()
+            
+        # Given calc program.
+        self.prog_t = prog_t
+        
+        # Given calc.
+        self.calc_t = calc_t
+        
+    @classmethod
+    def from_options(self, output, *args, calculation_directory, first_density, second_density, operator = "-",  options, **kwargs):
+        """
+        Constructor that takes a dictionary of config like options.
+        """
+        # First, get our program.
+        prog_t = options['report']['turbomole']['program']
+        
+        # Give up if no program available.
+        if prog_t is None:
+            return Dummy_file_maker(output, "No program definition is available (set the report: turbomole: program: option)")
+        
+        calculation_directory = calculation_directory.resolve()
+        
+        # Next, generate our calculation.
+        calc_t = make_anadens_calc(
+            name = calculation_directory,
+            memory = Turbomole_memory(options['report']['turbomole']['memory']),
+            num_CPUs = options['report']['turbomole']['num_CPUs'],
+            first_density = self.first_density_file_name,
+            second_density = self.second_density_file_name,
+            file_name = self.anadens_file_name,
+            operator = operator
+        )
+        
+        # And continue.
+        return self(
+            output,
+            *args,
+            calculation_directory = calculation_directory,
+            first_density = first_density,
+            second_density = second_density,
+            calc_t = calc_t.inner_cls,
+            prog_t = prog_t.inner_cls,
+            silico_options = options,
+            **kwargs
+        )
+        
+    @classmethod
+    def from_calculation(self, *args, turbomole_calculation, calculation_directory, first_density, second_density, operator = "-", options, **kwargs):
+        """
+        Create a Turbomole cube maker from an existing Turbomole calculation.
+        """
+        calc_t = turbomole_calculation.anadens_calc(self.first_density_file_name, self.second_density_file_name, self.anadens_file_name, operator)
+        
+        return self(
+            *args,
+            calculation_directory = calculation_directory if calculation_directory is not None else turbomole_calculation.program.destination.calc_dir.output_directory,
+            first_density = first_density,
+            second_density = second_density,
+            calc_t = calc_t.inner_cls,
+            prog_t = type(turbomole_calculation.program),
+            silico_options = options,
+            **kwargs
+        )
+        
+    def make_files(self):
+        """
+        Make the files referenced by this object.
+        """
+        # Link.
+        destination = self.destination_t()
+        prog = self.prog_t(destination)
+        calc = self.calc_t(prog, global_silico_options = self.silico_options)
+        
+        # We'll write our calc to a tempdir.
+        with tempfile.TemporaryDirectory() as tempdir:
+            calc.prepare_from_directory(tempdir, self.input_file, molecule_name = "Anadens", additional_files = [(self.first_density, self.first_density_file_name), (self.second_density, self.second_density_file_name)])
+            
+            # Go.
+            try:
+                calc.submit()
+            except Exception as e:
+                raise File_maker_exception(self, "Failed to make Turbomole cube files") from e
+            
+            # Move the (hopefully) created output file to our real destination.
+            try:
+                src = Path(destination.calc_dir.output_directory, self.anadens_file_name)
+                dst = self.output
+                shutil.move(src, dst, copy_function = shutil.copy)
+                
+            except FileNotFoundError as e:
+                raise File_maker_exception(self, "The requested anadens cube file could not be found, perhaps the calculation was setup incorrectly?") from e
+            

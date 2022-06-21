@@ -260,18 +260,3 @@ class RSC_format_software(RSC_format):
         Get a list of the sections that make up a reference of this style.
         """
         return [self.authors, self.title, self.publisher, self.year]
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    

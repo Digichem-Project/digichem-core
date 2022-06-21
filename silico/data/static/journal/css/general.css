@@ -1,0 +1,62 @@
+@page {
+    size: A4 portrait;
+    /* Changing this breaks weasyprint layout in some ways, may need to adjust some width values. */
+    margin: 2cm 1.5cm 2cm 1.5cm;
+}
+
+* {
+	/* outline: 1px solid red; */
+	box-sizing: border-box;
+}
+
+body {
+	font-family: 'dejavu serif';
+	font-size: 11px;
+	margin: 0px;
+	padding: 0px;
+	margin-top: 0px;
+	line-height: 1.25;
+}
+
+sub, sup {
+	/* This appears to be broken in current weasyprint. */
+	/* Just use an explicit size for now. *. */
+    /*font-size: xx-small */
+    font-size: 7px;
+    /* Prevents the line from being widened when there's a sub or sup tag. */
+    line-height: 0;
+}
+
+h1, .h1 {
+	font-size: 20px;
+	margin: 0px 0px 5px 0px;
+}
+
+h4, .h4 {
+	font-weight: bold;
+	margin: 0px 0px 5px 0px;
+	break-after: avoid;
+	font-size: 13px;
+	text-transform: capitalize;
+}
+
+h5, .h5 {
+	font-weight: bold;
+	margin: 0px 0px 0px 0px;
+	break-after: avoid;
+	font-size: 11px;
+	text-transform: capitalize;
+}
+
+.h5--tableHeader {
+	padding-top: 5px;
+}
+
+.iblock {
+	display: inline-block;
+}
+
+.nocap {
+	display: inline;
+	text-transform: none;
+}

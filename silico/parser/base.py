@@ -1,6 +1,9 @@
 # General imports.
 import cclib.parser.gaussianparser
 import cclib.parser.turbomoleparser
+import multiprocessing.pool
+from functools import partial
+from itertools import filterfalse
 
 # Silico imports.
 from silico.parser.main import Parser
@@ -10,6 +13,8 @@ from silico.misc.base import is_iter
 from silico.result.multi.base import Merged
 from silico.result.alignment import Minimal
 from silico.result.result import Result_set
+from silico.exception.base import Silico_exception
+import silico.logging
 
 def class_from_log_files(*log_files):
     """
@@ -19,7 +24,12 @@ def class_from_log_files(*log_files):
     found_log_files = Parser.find_log_files(log_files[0])
     
     # We'll use cclib to guess the file type for us.
-    log_file_type = type(cclib.io.ccopen([str(found_log_file) for found_log_file in found_log_files]))
+    try:
+        log_file_type = type(cclib.io.ccopen([str(found_log_file) for found_log_file in found_log_files]))
+        
+    except Exception as e:
+        # cclib couldn't figure out the file type, it probably wasn't a .log file.
+        raise Silico_exception("Could not determine file type of file(s): '{}'; are your sure these are computational log files?".format(", ".join((str(log_file) for log_file in log_files)))) from e
     
     # Either get a more complex parser if we have one, or just return the base parser.
     if log_file_type == cclib.parser.gaussianparser.Gaussian:
@@ -50,6 +60,57 @@ def parse_calculation(*log_files, alignment_class = None, **aux_files):
         alignment_class = Minimal
             
     return from_log_files(*log_files, **aux_files).process(alignment_class)
+
+def multi_parser(log_file, alignment_class):
+        """
+        The inner function which will be called in parallel to parse files.
+        """
+        try:
+            return parse_calculation(log_file, alignment_class = alignment_class)
+            
+        except Exception:
+            silico.logging.get_logger().warning("Unable to parse calculation result file '{}'; skipping".format(log_file), exc_info = True)
+
+def parse_multiple_calculations(*log_files, alignment_class = None, pool = None, init_func = None, init_args = None, processes = 1):
+    """
+    Parse a number of separate calculation results in parallel.
+    
+    If the argument 'pool' is not given, a multiprocessing.pool object will first be created using the arguments init_func and num_CPUs.
+    
+    :param log_files: A number of calculation result files corresponding to different calculations.
+    :param alignment_class: An optional alignment class to use to reorientate the molecule.
+    :param pool: An optional subprocessing.pool object to use for parallel parsing.
+    :param init_func: An optional function to call to init each newly created process.
+    :param processes: The max number of processes to create the new pool object with; if the number of given log_files is less than processes, then len(log_files) will be used instead.
+    """
+    if len(log_files) == 0:
+        # Give up now.
+        return []
+    
+    if len(log_files) < processes:
+        processes = len(log_files)
+    
+    # Sort out our pool if we need to.
+    own_pool = False
+    if pool is None:
+        own_pool = True
+        pool = multiprocessing.Pool(processes, initializer = init_func, initargs = init_args if init_args is not None else [])
+        #pool = multiprocessing.pool.ThreadPool(processes)
+    
+    # Do some parsing.
+    try:
+        results = list(
+            filterfalse(lambda x: x is None,
+                pool.map(partial(multi_parser, alignment_class = alignment_class), log_files)
+            )
+        )
+        
+        return results
+    
+    finally:
+        # Do some cleanup if we need to.
+        if own_pool:
+            pool.close()
     
 def parse_calculations(*results, alignment_class = None, aux_files = None):
     """
@@ -106,9 +167,3 @@ def parse_calculations(*results, alignment_class = None, aux_files = None):
         return Merged.from_results(*parsed_results, alignment_class = alignment_class)
     else:
         return parsed_results[0]
-            
-        
-        
-        
-        
-    

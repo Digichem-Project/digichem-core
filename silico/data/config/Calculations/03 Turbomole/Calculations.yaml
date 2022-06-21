@@ -1,0 +1,67 @@
+TAG: Turbomole Calculations
+SUB_TYPE: pseudo
+NEXT:
+    - Turbomole Single Point
+    - Turbomole Optimisation
+    - Turbomole Optimisation Frequency
+    - Turbomole Frequency
+    - Turbomole Excited States
+
+
+---
+
+
+TAG: Turbomole Optimisation
+SUB_TYPE: partial
+ALIAS: Optimisation
+
+NEXT:
+    - Turbomole Molecular Mechanics
+    - Turbomole DFT Opt
+    - Turbomole CC2 Opt
+    - Turbomole ADC(2) Opt
+    - Turbomole MP2 Opt
+
+
+---
+
+
+TAG: Turbomole Optimisation Frequency
+SUB_TYPE: partial
+ALIAS: Optimisation Frequency
+
+modules:
+    - jobex -level scf -c 100 -keep
+    - aoforce
+
+NEXT:
+    - Turbomole Functionals
+
+
+---
+
+
+TAG: Turbomole Frequency
+SUB_TYPE: partial
+ALIAS: Frequency
+
+modules:
+    - dscf
+    - aoforce
+
+NEXT:
+    - Turbomole Functionals
+
+
+---
+
+
+TAG: Turbomole Excited States
+SUB_TYPE: partial
+ALIAS: Excited States
+
+NEXT:
+    - Turbomole TDA
+    - Turbomole TD-DFT
+    - Turbomole CC2 Excited States
+    - Turbomole ADC(2) Excited States

@@ -1,6 +1,13 @@
 from silico.result.excited_states import Excited_state
 from silico.result import Result_object
-from silico.exception.base import Silico_exception
+from silico.exception.base import Silico_exception, Result_unavailable_error
+
+# General imports.
+import math
+from scipy.constants import epsilon_0, Planck, c
+
+# Dirac constant.
+h_bar = Planck / (math.pi *2)
 
 
 class Relaxed_excited_state(Excited_state):
@@ -31,8 +38,8 @@ class Relaxed_excited_state(Excited_state):
             # If we have an excited state we can inherit certain properties from it.
             self.level = self.excited_state.level
             self.multiplicity_level = excited_state.multiplicity_level
-            
             self.oscillator_strength = self.excited_state.oscillator_strength
+            self.transition_dipole_moment = self.excited_state.transition_dipole_moment
         else:
             # For now we assume this is the lowest possible excited state (may change in future).
             self.level = 1
@@ -40,6 +47,7 @@ class Relaxed_excited_state(Excited_state):
             
             # We don't have a concept of oscillator strength (yet?).
             self.oscillator_strength = None
+            self.transition_dipole_moment = None
             
         self.transition_type = transition_type
         
@@ -260,3 +268,16 @@ class Relaxed_excited_state(Excited_state):
         else:
             return "phosphorescence"
         
+    @property
+    def emission_rate(self):
+        """
+        The rate of emission (k(F) or k(Phos) etc) from this excited state.
+        """
+        try:
+            return ((4 * self.joules **3) / (3 * epsilon_0 * h_bar **4 * c **3) ) * self.transition_dipole_moment.coulomb_meters **2
+        except Exception:
+            if self.transition_dipole_moment is None:
+                raise Result_unavailable_error("emission_rate", "there is no transition dipole moment associated with this emission") from None
+            
+            else:
+                raise

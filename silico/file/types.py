@@ -59,6 +59,7 @@ class File_type():
 # Known file types.
 log_file = File_type("log", "general", [".log"])
 gaussian_chk_file = File_type("checkpoint", "gaussian", [".chk"])
+gaussian_NTO_chk_file = File_type("NTO-checkpoint", "gaussian", [".chk"])
 gaussian_fchk_file = File_type("formatted-checkpoint", "gaussian", [".fchk"])
 gaussian_rwf_file = File_type("read-write", "gaussian", [".rwf"])
 gaussian_cube_file = File_type("cube", "gaussian", [".cube", ".cub"])

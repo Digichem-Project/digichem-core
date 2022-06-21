@@ -1,0 +1,30 @@
+TAG: SLURM Base
+SUB_TYPE: update
+NEXT:
+    - Normal SLURM
+    - Long SLURM
+
+
+---
+
+
+TAG: Normal SLURM
+
+partition: batch
+time: 5-00:00:00
+
+NEXT:
+    - Programs Base
+
+
+---
+
+
+TAG: Long SLURM
+
+partition: Long
+time: 21-00:00:00
+
+NEXT:
+    - Programs Base
+

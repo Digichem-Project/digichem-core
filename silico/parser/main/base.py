@@ -1,5 +1,4 @@
 # General imports.
-from logging import getLogger
 from pathlib import Path
 import cclib.io
 from glob import iglob
@@ -13,7 +12,8 @@ from silico.result.molecular_orbitals import Molecular_orbital_list,\
 from silico.result.metadata import Metadata
 from silico.result.result import Result_set
 from silico.result.atoms import Atom_list
-from silico.result.transition_dipole_moment import Transition_dipole_moment
+from silico.result.transition_dipole_moment import Electric_transition_dipole_moment,\
+    Magnetic_transition_dipole_moment, Transition_dipole_moment
 from silico.result.excited_states import Excited_state_list
 from silico.result.energy import CC_energy_list, MP_energy_list, SCF_energy_list
 from silico.result.ground_state import Ground_state
@@ -21,7 +21,8 @@ from silico.result.spin_orbit_coupling import SOC_list
 from silico.result.dipole_moment import Dipole_moment
 from silico.result.vibrations import Vibrations_list
 from silico.exception.base import Silico_exception
-import silico
+import silico.logging
+from silico.result.emission import Relaxed_excited_state
 
 class Parsed_data():
     """
@@ -99,41 +100,50 @@ class Parser(Result_set):
         """
         hint = Path(hint)
         
-        # First, find our parent dir.
-        # hint may actually be a dir.
-        if hint.is_dir():
-            # Look for all .log files.
-            parent = hint
-            log_files = [Path(found_log_file) for found_log_file in iglob(str(Path(parent, "*.log")))]
-            # Remove any 'silico.log' files as we know these are not calc log files.
-            # We don't actually write 'silico.log' files anymore either (we use silico.out instead),
-            # but older versions did...
-            log_files = [log_file for log_file in log_files if log_file.name != "silico.log"]
-        else:
-            parent = hint.parent
-            log_files = [hint]
-                            
-        # Try and find job files.
-        # These files have names like 'job.0', 'job.1' etc, ending in 'job.last'.
-        for number in itertools.count():
-            # Get the theoretical file name.
-            job_file_path = Path(parent, "job.{}".format(number))
-            
-            # See if it exists (and isn't the log_file given to us).
-            if job_file_path.exists():
-                # Add to list.
-                log_files.append(job_file_path)
+        attempt = 1
+        while attempt < 2:
+            attempt += 1
+            # First, find our parent dir.
+            # hint may actually be a dir.
+            if hint.is_dir():
+                # Look for all .log files.
+                parent = hint
+                log_files = [Path(found_log_file) for found_log_file in iglob(str(Path(parent, "*.log")))]
+                # Remove any 'silico.log' files as we know these are not calc log files.
+                # We don't actually write 'silico.log' files anymore either (we use silico.out instead),
+                # but older versions did...
+                log_files = [log_file for log_file in log_files if log_file.name != "silico.log"]
             else:
-                # We've found all the numbered files.
-                break
+                parent = hint.parent
+                log_files = [hint]
+                                
+            # Try and find job files.
+            # These files have names like 'job.0', 'job.1' etc, ending in 'job.last'.
+            for number in itertools.count():
+                # Get the theoretical file name.
+                job_file_path = Path(parent, "job.{}".format(number))
+                
+                # See if it exists (and isn't the log_file given to us).
+                if job_file_path.exists():
+                    # Add to list.
+                    log_files.append(job_file_path)
+                else:
+                    # We've found all the numbered files.
+                    break
+                        
+            # Look for other files.
+            for maybe_file_name in ("basis", "control", "mos", "alpha", "beta", "coord", "gradient", "aoforce", "job.last"):
+                maybe_file_path = Path(parent, maybe_file_name)
+                
+                if maybe_file_path.exists():
+                    # Found it.
+                    log_files.append(maybe_file_path)
                     
-        # Look for other files.
-        for maybe_file_name in ("basis", "control", "mos", "alpha", "beta", "coord", "gradient", "aoforce", "job.last"):
-            maybe_file_path = Path(parent, maybe_file_name)
-            
-            if maybe_file_path.exists():
-                # Found it.
-                log_files.append(maybe_file_path)
+            # If we have no log files, and there's a directory called Output that we can use, try again using that as the hint.
+            if len(log_files) == 0 and hint.is_dir() and Path(hint, "Output").is_dir():
+                hint = Path(hint, "Output")
+                attempt -= 1
+                
         
         return log_files
     
@@ -191,7 +201,7 @@ class Parser(Result_set):
         # We start by using cclib to get most of the data we need.
         
         # Output a message (because this is slow).
-        getLogger(silico.logger_name).info("Parsing calculation result '{}'".format(self.description))
+        silico.logging.get_logger().info("Parsing calculation result '{}'".format(self.description))
         
         # Use cclib to open our log files.
         # ccread will accept a list of log files to read, but will sometimes choke if the list contains only one entry,
@@ -258,7 +268,9 @@ class Parser(Result_set):
         self.results.alignment = alignment_class.from_parser(self)
         self.results.atoms = Atom_list.from_parser(self)
         
-        # TDM.
+        # TEDM and TMDM.
+        #self.results.transition_dipole_moments = Electric_transition_dipole_moment.list_from_parser(self)
+        #self.results.magnetic_transition_dipole_moments = Magnetic_transition_dipole_moment.list_from_parser(self)
         self.results.transition_dipole_moments = Transition_dipole_moment.list_from_parser(self)
         
         # Excited states.
@@ -284,8 +296,11 @@ class Parser(Result_set):
         # PDM
         self.results.dipole_moment = Dipole_moment.from_parser(self)
         
-        # Finally, frequencies.
+        # Frequencies.
         self.results.vibrations = Vibrations_list.from_parser(self)
+        
+        # Finally, try and set emission.
+        self.results.vertical_emission, self.results.adiabatic_emission = Relaxed_excited_state.guess_from_results(self.results)
         
         # Return the populated result set for convenience.
         return self.results

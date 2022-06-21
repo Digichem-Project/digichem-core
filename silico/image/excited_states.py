@@ -64,7 +64,7 @@ class Excited_states_diagram_maker(OneD_graph_image_maker):
             ground_state = ground_state,
             show_dest = options['excited_states_diagram']['show_dest'],
             y_limits = options['excited_states_diagram']['y_limits'],
-            dont_modify = options['image']['dont_modify'],
+            enable_rendering = options['excited_states_diagram']['enable_rendering'],
             **kwargs
         )
             

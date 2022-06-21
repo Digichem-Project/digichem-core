@@ -1,0 +1,36 @@
+.formula {
+	text-align: center;
+	display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 2px;
+    margin-bottom: 2px;
+}
+
+.formula__content {
+	margin-left: auto;
+	margin-right: auto;
+}
+
+.fraction {
+	display: inline-table;
+	vertical-align: middle;
+}
+
+.fraction__numerator .fraction__cell {
+	border-bottom: 1px solid black;
+	padding-bottom: 2px;
+	margin-bottom: 2px;
+}
+
+.fraction__cell {
+
+}
+
+.fraction__numerator, .fraction__denominator {
+	display: table-row;
+}
+
+.formula__caption {
+	float: right;
+}

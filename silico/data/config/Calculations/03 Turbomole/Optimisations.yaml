@@ -1,0 +1,103 @@
+TAG: Turbomole Molecular Mechanics
+ALIAS: Molecular Mechanics
+SUB_TYPE: partial
+
+NEXT:
+    - Turbomole UFF
+
+
+---
+
+
+TAG: Turbomole UFF
+ALIAS: UFF
+class_name: Turbomole-UFF
+    
+# UFF has no concept of SCF
+scf: null
+
+# Memory and CPU.
+memory: 1GB
+num_CPUs: 1
+
+# No need to use scratch for UFF.
+scratch_options:
+    use_scratch: False
+    
+# No need for reports.
+write_report: False
+write_summary: False
+
+# Convergence criteria.
+econv: 0.10D-10
+gconv: 0.10D-10
+maxcycle: 500
+
+
+---
+
+
+TAG: Turbomole DFT Opt
+SUB_TYPE: pseudo
+
+modules:
+    - jobex -level scf -c 100 -keep
+
+NEXT:
+    - Turbomole Functionals
+    
+    
+---
+
+
+TAG: Turbomole MP2 Opt
+ALIAS: MP2
+SUB_TYPE: partial
+
+modules:
+    - jobex -level cc2 -c 100 -keep
+    
+# Turn on optimisation.
+cc_geoopt:
+    wavefunction: MP2
+
+NEXT:
+    - Turbomole MP2
+
+
+---
+
+
+TAG: Turbomole CC2 Opt
+ALIAS: CC2
+SUB_TYPE: partial
+
+modules:
+    - jobex -level cc2 -c 100 -keep
+    
+# Turn on optimisation.
+cc_geoopt:
+    wavefunction: cc2
+
+NEXT:
+    - Turbomole CC2
+
+
+---
+
+
+TAG: Turbomole ADC(2) Opt
+ALIAS: ADC(2)
+SUB_TYPE: partial
+
+modules:
+    - jobex -level cc2 -c 100 -keep
+
+# Turn on optimisation.
+cc_geoopt:
+    wavefunction: ADC(2)
+
+NEXT:
+    - Turbomole ADC(2)
+
+

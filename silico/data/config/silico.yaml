@@ -1,1 +1,430 @@
 # Master silico config file. Uncomment and change options here to affect everyone.
+#
+# General silico options.
+# The default alignment method to use, MIN: minimal, FAP: furthest atom pair, AA: average angle.
+#alignment: MIN
+#
+# The default angle units to use, deg: degrees, rad: radians.
+#angle_units: deg
+#
+# Options specifying paths to various external programs that silico may use. If no path is given, then these programs will simply be executed by name (so relying on OS path resolution to find the necessary executables, which is normally fine.)
+#external:
+#    # Gaussian's formchk utility https://gaussian.com/formchk/
+#    formchk: formchk
+#    # Gaussian's cubegen utility https://gaussian.com/cubegen/
+#    cubegen: cubegen
+#    # VMD (Visual Molecular Dynamics), used for rendering molecules https://www.ks.uiuc.edu/Research/vmd/
+#    vmd: vmd
+#    # The tachyon ray-tracing library, performs the actual rendering. Tachyon is typically packaged with VMD, but often isn't added to the path automatically 
+#    tachyon: tachyon
+#    
+#image:
+#    # Set to True to disable image rendering.
+#    dont_modify: False
+#    
+# Options relating to output of errors messages etc.
+#logging:
+#    # The level of messages to output, one of OFF (no logging at all), CRITICAL (fewest messages), ERROR, WARNING, INFO or DEBUG (most messages).
+#    # Note that the final logging level is determined by combining both 'log_level' and 'verbose', so a 'log_level' of 'OFF' and 'verbose' of '2' is equal to 'ERROR'.
+#    log_level: INFO
+#    # Increase the verbosity of the program by this amount. Each integer increase of verbosity will increase 'log_level' by 1 degree.
+#    # Note that verbosity is mostly used on the command line rather than in config files (where it is more convenient to set log_level directly).
+#    verbose: 0
+#
+# Options for controlling the appearance of 3D molecule images.
+#rendered_image:
+#    # If True, previously created files will be reused. If False, new images will rendered, replacing the old.
+#    # This is on by default for 3D rendered images because they are expensive (time-consuming) to render.
+#    use_existing: True
+#    
+#    # The render/display mode, changes the appearance of rendered molecules/orbitals.
+#    # Possible options are:
+#    #   pastel: The default style, uses light, pastel-ish colours for orbitals with low transparency. Normal atom colours.
+#    #   light-pastel: Similar to pastel, but with lighter orbital colours.
+#    #   dark-pastel: Similar to pastel, but with darker orbital colours, reminiscant of the 'sharp' style.
+#    #   sharp: Orbitals are darkly coloured around their edge but have high transparency in their center. Normal atom colours.
+#    #   gaussian: A style attempting to mimic that of GaussView.
+#    #   vesta: A style attempting to mimic that of VESTA.
+#    rendering_style: pastel
+#    # Whether to enable  automatic cropping of excess whitespace around the border of generated images.
+#    # If False, overall image rendering is likely to take less time, but molecules may only occupy a small portion of the true image.
+#    auto_crop: True
+#    # The target resolution for rendered images. Higher values will increase image quality, at the cost of increased render time and file size.
+#    resolution: 1024
+#    
+#    # Specific options for orbital density images.
+#    orbital:
+#        # The size of grid used to generate Gaussian cube files.
+#        # This option is passed to cubegen as the 'npts' argument (https://gaussian.com/cubegen/) and controls how detailed MO surfaces are.
+#        # Note that generating cube files can take up the majority of total rendering time.
+#        # There are a number of valid options here (please see the cubegen manual), the most common options are listed here:
+#        #    - 0: The default grid size
+#        #    - -2: The 'Coarse' grid, this is the lowest quality grid (and is in fact similar to the default option). It is probably adequate for most uses.
+#        #    - -3: The 'Medium' grid, twice the size of the 'Coarse' grid and taking roughly 10x as long. This option is probably adequate for most publication purposes.
+#        #    - -4: The 'Fine' grid, twice the size again of 'Medium' and taking a further, rough 10x as long. This option can also consume large amounts of file space, and is probably unnecessary for most purposes.
+#        cube_grid_size: 0
+#        # The isovalue to use for rendering orbital density.
+#        isovalue: 0.02
+#      
+#    # Specific options for spin density images.
+#    spin:
+#        # Same as cube_grid_size but specifically for spin density cubes.
+#        # As cubes of this type are rendered with a smaller isovalue, it is often necessary to use a larger grid size than normal to maintain quality.
+#        cube_grid_size: -3
+#        # Same as isovalue but specifically for spin density.
+#        isovalue: 0.0004
+#        
+#    # Specific options for total density images.
+#    density:
+#        # Same as cube_grid_size but specifically for density cubes.
+#        # As cubes of this type are rendered with a smaller isovalue, it is often necessary to use a larger grid size than normal to maintain quality.
+#        cube_grid_size: 0
+#        # Same as isovalue but specifically for density.
+#        isovalue: 0.02
+#   
+# These options control the appearance of orbital energy diagrams.
+#orbital_diagram:
+#    # The method used to set the min/max limits of the Y axis.
+#    # Possible options are:
+#    #   - 'all': Limits are set so all orbitals are visible.
+#    #   - 'auto': Limits are set automatically so the 0 point (ie, 'X' axis), HOMO and LUMO are clearly visible.
+#    #   - 'center': Like 'auto' except the lower limit is set more negative so the HOMO-LUMO are closer to the middle of the diagram.
+#    #   - a list of [y_min, y_max], where y_min is the most negative value on the Y axis, and y_max is the most positive value on the Y axis (both in eV).
+#    y_limits: auto
+#    # If True, black lines are drawn around the boarder of the diagram. If False, a line is drawn for the Y axis but not for the other 3 sides of the diagram.
+#    full_axis_lines: False
+#   
+#excited_states_diagram:
+#    # The method used to set the min/max limits of the Y axis.
+#    # Possible options are:
+#    #   - 'all': Limits are set so all excited states are visible.
+#    #   - 'auto': Limits are set automatically so the lowest excited state of each multiplicity is clearly visible (S1, D1, T1, Q1... N1 etc).
+#    #   - a list of [y_min, y_max], where y_min is the most negative value on the Y axis, and y_max is the most positive value on the Y axis (both in eV).
+#    y_limits: all
+#    # Whether or not to show the dEst label
+#    show_dest: True
+#
+# Options for controlling the appearance of simulated UV-Vis like absorption spectra.
+#absorption_spectrum:
+#    # The method used to set the min/max limits of the Y axis.
+#    # Possible options are:
+#    #   - 'auto': Limits are set automatically so all peaks are clearly visible.
+#    #   - a list of [y_min, y_max], where y_min is the most negative value on the Y axis, and y_max is the most positive value on the Y axis (both in oscillator strength).
+#    y_limits: auto
+#    # The method used to set the min/max limits of the X axis.
+#    # Possible options are:
+#    #   - 'auto': Limits are set automatically so all peaks are clearly visible.
+#    #   - a list of [x_min, x_max], where x_min is the most negative value on the X axis, and x_max is the most positive value on the X axis (both in nm).
+#    x_limits: auto
+#    # The maximum image width in pixels.
+#    # Absorption graphs will grow/shrink their width to fit available data, keeping a constant scale (constant pixels to nm ratio) but only up to this maximum.
+#    # To disable the maximum width, set to null.
+#    max_width: 1200
+#    # The minimum oscillator strength that a peak must have to be shown in the graph, as a fraction ofthe highest peak.
+#    # Set to 0 for no cutoff (all peaks shown), which may results in the graph being extended well beyond the drawn peaks (because many peaks are too small to see.
+#    # This option has no effect when using manual x limits.
+#    peak_cutoff: 0.01
+#    # The amount (in nm) to extend the x axis past the highest/lowest energy peak.
+#    x_padding: 40
+#    # The full-width at half-maximum; changes how wide the drawn peaks are. Note that the choice of peak width is essentially arbitrary; only the peak height is given by calculation.
+#    # Units are eV.
+#    fwhm: 0.4
+#    # The minimum y value to plot using the Gaussian function (controls how close to the x axis we draw the gaussian) as a fraction of the max peak height.
+#    gaussian_cutoff: 0.001
+#    # The spacing between x values to plot using the Gaussian function, in eV. Values that are too large will result in 'curves' made up of a series of straight edges.
+#    gaussian_resolution: 0.01
+#    # Whether or not to use the jacobian transformation to correctly scale the y-axis (see J. Phys. Chem. Lett. 2014, 5, 20, 3497)
+#    use_jacobian: True
+#    # Whether to plot vertical bars for each excited state.
+#    plot_bars: True
+#    # Whether to plot individual Gaussian functions for each excited state.
+#    plot_peaks: False
+#    # Whether to plot the sum of all Gaussian functions (most closely simulates a real UV-Vis).   
+#    plot_cumulative_peak: True
+#
+# Options for controlling the appearance of simulated emission spectra.
+# emission_spectrum and absorption_spectrum take the same options.
+#emission_spectrum:
+#    # The method used to set the min/max limits of the Y axis.
+#    # Possible options are:
+#    #   - 'auto': Limits are set automatically so all peaks are clearly visible.
+#    #   - a list of [y_min, y_max], where y_min is the most negative value on the Y axis, and y_max is the most positive value on the Y axis (both in oscillator strength).
+#    y_limits: auto
+#    # The method used to set the min/max limits of the X axis.
+#    # Possible options are:
+#    #   - 'auto': Limits are set automatically so all peaks are clearly visible.
+#    #   - a list of [x_min, x_max], where x_min is the most negative value on the X axis, and x_max is the most positive value on the X axis (both in nm).
+#    x_limits: auto
+#    # The maximum image width in pixels.
+#    # Absorption graphs will grow/shrink their width to fit available data, keeping a constant scale (constant pixels to nm ratio) but only up to this maximum.
+#    # To disable the maximum width, set to null.
+#    max_width: 1200
+#    # The minimum oscillator strength that a peak must have to be shown in the graph, as a fraction ofthe highest peak.
+#    # Set to 0 for no cutoff (all peaks shown), which may results in the graph being extended well beyond the drawn peaks (because many peaks are too small to see.
+#    # This option has no effect when using manual x limits.
+#    peak_cutoff: 0.01
+#    # The amount (in nm) to extend the x axis past the highest/lowest energy peak.
+#    x_padding: 80
+#    # The full-width at half-maximum; changes how wide the drawn peaks are. Note that the choice of peak width is essentially arbitrary; only the peak height is given by calculation.
+#    # Units are eV.
+#    fwhm: 0.4
+#    # The minimum y value to plot using the Gaussian function (controls how close to the x axis we draw the gaussian) as a fraction of the max peak height.
+#    gaussian_cutoff: 0.001
+#    # The spacing between x values to plot using the Gaussian function, in eV. Values that are too large will result in 'curves' made up of a series of straight edges.
+#    gaussian_resolution: 0.01
+#    # Whether or not to use the jacobian transformation to correctly scale the y-axis (see J. Phys. Chem. Lett. 2014, 5, 20, 3497)
+#    use_jacobian: True
+#    # Whether to plot vertical bars for each excited state.
+#    plot_bars: True
+#    # Whether to plot individual Gaussian functions for each excited state.
+#    plot_peaks: False
+#    # Whether to plot the sum of all Gaussian functions (most closely simulates a real UV-Vis).   
+#    plot_cumulative_peak: True
+#   
+# Options for controlling the appearance of simulated IR like vibrational frequency spectra.
+#IR_spectrum:
+#    # The method used to set the min/max limits of the Y axis.
+#    # Possible options are:
+#    #   - 'auto': Limits are set automatically so all peaks are clearly visible.
+#    #   - a list of [y_min, y_max], where y_min is the most negative value on the Y axis, and y_max is the most positive value on the Y axis (both in km/mol).
+#    y_limits: auto
+#    # The method used to set the min/max limits of the X axis.
+#    # Possible options are:
+#    #   - 'auto': Limits are set automatically so all peaks are clearly visible.
+#    #   - a list of [x_min, x_max], where x_min is the most negative value on the X axis, and x_max is the most positive value on the X axis (both in cm-1).
+#    x_limits: auto
+#    # The full-width at half-maximum; changes how wide the drawn peaks are. Note that the choice of peak width is essentially arbitrary; only the peak height is given by calculation.
+#    # Units are cm-1.
+#    fwhm: 80
+#    # The maximum image width in pixels.
+#    # IR spectra will grow/shrink their width to fit available data, keeping a constant scale (constant pixels to nm ratio) but only up to this maximum.
+#    # To disable the maximum width, set to null.
+#    max_width: 1500
+#    # The minimum y value to plot using the Gaussian function (controls how close to the x axis we draw the gaussian) as a fraction of the max peak height.
+#    gaussian_cutoff: 0.001
+#    # The spacing between x values to plot using the Gaussian function, in eV. Values that are too large will result in 'curves' made up of a series of straight edges.
+#    gaussian_resolution: 1
+#
+# Options for controlling the generation of calculation reports.
+#report:
+#    # Sub options for Turbomole reports.
+#    turbomole:
+#        # The number of CPUs to generate cubes.
+#        num_CPUs: 1
+#        # The amount of memory with which to generate cubes.
+#        memory: 1GB
+#        # The name of a program definition to use to create cubes.
+#        program: Turbomole
+#
+#    # Whether to delete intermediate files that are written during the report generation process.
+#    # Intermediate files include:
+#    #    - .cube files.
+#    #    - .fchk files.
+#    #    - .html files.
+#    #    - .css files.
+#    # Note that this option will only delete new files written by the program; existing files given by the user are never deleted.
+#    cleanup: True
+#    
+#    # The next two options control how many orbitals to print in the MO table.
+#    #   These numbers are relative to the HOMO for both the min and max.
+#    #   null can be specified for either/both the min/max to print all available orbitals in that direction.
+#    #   If both alpha and beta orbitals are available (for unrestricted calculations, for example), then additional orbitals may be printed outside of the given min/max to ensure the given value is met for both sets of orbitals. This is common for triplet calculations, where the alpha and beta frontier MOs are at different levels.
+#    #   Examples:
+#    #     min: -10, max: 16: From HOMO-10 to LUMO+15 inclusive (total of 27 orbitals).
+#    #     min: null, max: 11: All orbitals with energy less than or equal to LUMO+10.
+#    #     min: 0, max: 1: HOMO and LUMO only.
+#    orbital_table:
+#        # The highest orbital to show in the molecular orbital table.
+#        max: 16
+#        # The lowest orbital to show in the molecular orbital table.
+#        min: -15
+#      
+#    # The next set of options specify which orbitals to render 3D images of. The default is the HOMO and LUMO.
+#    # Orbitals can be specified by level (an index starting at 1 for the most negative orbital, useful if you want images of a particular orbital) and/or by distance from the HOMO (useful for more day-to-day operation.
+#    # In addition, excited_state_transition_threshold: can be used to add orbitals that are involved in an excited state transition with a probability above a certain threshold.
+#    # Duplicates will be automatically ignored, as will orbitals specified here that are not actually available in the calculation result file.
+#    # Alpha and beta are set separately. Beta will be ignored if there are no beta orbitals available. 
+#    # Example:
+#    #    orbital_levels:
+#    #      - 5
+#    #    orbital_distance:
+#    #      - -1
+#    #      - 0
+#    #      - 1
+#    #    excited_state_transition_threshold: 0.1
+#    #    Would render orbital 5, HOMO-1, HOMO, LUMO and any orbitals involved in an excited state transition with a probability 0.1 or greater.
+#    orbital_image:
+#        # Include orbitals involved in an excited state transition with a probability of this value or greater.
+#        et_transition_threshold: 0.1
+#        
+#        # Include orbitals by level.
+#        orbital_levels: null
+#        beta_levels: null
+#        
+#        # Include orbitals by distance from the HOMO.
+#        orbital_distances:
+#           - 0
+#           - 1
+#        beta_distances:
+#           - 0
+#           - 1
+#         
+#    # Options that control how many vibrational frequencies to list in the frequencies table. 
+#    frequency_table:
+#        # The most negative frequency to show in the table (remember that frequencies can go negative). 'null' is for no limit. Units are cm-1.
+#        min_frequency: null
+#        # The most positive frequency to show in the table. 'null' is for no limit. Units are cm-1.
+#        max_frequency: null
+#        # The maximum number of frequencies to show in the table.
+#        max_num: null
+
+# TODO: This needs to be moved to kennedy own config.
+report:
+    gaussian:
+        program: Gaussian 16
+        scratch_path: /scratch/tmp
+    turbomole:
+        program: Turbomole
+
+
+# Colour palette for urwid interfaces.
+palette:
+    # Please see http://urwid.org/manual/displayattributes.html for allowed combinations.
+    body:
+        # Foreground.
+        - black
+        # Background.
+        - light gray
+    
+    pane:
+        - black, bold
+        - light gray
+    
+    pane--dialogue:
+        - white, bold
+        - dark blue
+    
+    pane--dialogue--error:
+        - yellow, bold
+        - dark blue
+        
+    pane--focus:
+        - dark blue
+        - light gray
+    
+    bold:
+        - black, bold
+        - light gray
+        
+    bold italics:
+        - black, bold, italics
+        - light gray
+        
+    focus:
+        - light gray
+        - dark blue
+        - standout
+    
+    node--focus:
+        - light gray
+        - dark blue
+        - standout
+    
+    node--warning:
+        - dark red
+        - light gray
+    
+    node--warning--focus:
+        - dark red
+        - dark blue
+    
+    node--flagged:
+        - white
+        - black
+    
+    node--flagged--focus:
+        - dark cyan
+        - black
+        
+    header:
+        - light gray, bold
+        - dark blue
+        - standout
+    
+    footer:
+        - light gray
+        - dark blue
+        - standout
+        
+    editable:
+        - dark blue
+        - light gray
+    
+    dialogue:
+        - white
+        - dark blue
+        
+    dialogue--editable:
+        - dark cyan, bold
+        - dark blue
+        
+    title:
+        - white, bold
+        - dark blue
+    
+    
+    # Buttons.        
+    button--good:
+        - white
+        - dark green
+    
+    button--good--focus:
+        - white, bold
+        - dark green
+    
+    button:
+        - white
+        - dark gray
+    
+    button--focus:
+        - white, bold
+        - dark gray
+    
+    button--small:
+        - black, bold
+        - light gray
+        
+    button--small--selected:
+        - black, bold, underline
+        - light gray
+    
+    button--small--focus:
+        - dark blue
+        - light gray
+        
+    button--small--selected--focus:
+        - dark blue, underline
+        - light gray
+    
+    button--settings:
+        - white
+        - brown
+    
+    button--settings--focus:
+        - white, bold
+        - brown
+        
+    button--bad:
+        - white
+        - dark red
+    
+    button--bad--focus:
+        - white, bold
+        - dark red
+    
+    button--bad--small:
+        - light red, bold
+        - light gray
+        
+
+            

@@ -1,0 +1,58 @@
+TAG: Turbomole Functionals
+SUB_TYPE: pseudo
+
+NEXT:
+    - Turbomole PBE0 (GD3BJ)
+    - Turbomole B3-LYP (GD3BJ)
+    - Turbomole M06-2X (GD3)
+
+
+---
+
+
+TAG: Turbomole PBE0 (GD3BJ)
+SUB_TYPE: partial
+ALIAS: PBE0 (GD3BJ)
+
+dft:
+    functional: PBE0
+
+dispersion:
+    dsp: GD3BJ
+
+NEXT:
+    - Turbomole Basis Sets
+
+
+---
+
+
+TAG: Turbomole B3-LYP (GD3BJ)
+SUB_TYPE: partial
+ALIAS: B3LYP (GD3BJ)
+
+dft:
+    functional: B3-LYP
+
+dispersion:
+    dsp: GD3BJ
+
+NEXT:
+    - Turbomole Basis Sets
+
+
+---
+
+
+TAG: Turbomole M06-2X (GD3)
+ALIAS: M062X (GD3)
+SUB_TYPE: partial
+
+dft:
+    functional: M06-2X
+
+dispersion:
+    dsp: GD3
+
+NEXT:
+    - Turbomole Basis Sets

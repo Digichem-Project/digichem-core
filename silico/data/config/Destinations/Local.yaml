@@ -1,0 +1,23 @@
+TAG: Series
+ALIAS: Local (series)
+
+hidden: True
+
+class_name: series
+
+NEXT:
+    - Programs Base
+
+
+---
+
+
+TAG: Parallel
+ALIAS: Local (parallel)
+
+hidden: True
+
+class_name: parallel
+
+NEXT:
+    - Programs Base

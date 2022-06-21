@@ -1,73 +1,113 @@
 # General imports.
-import numpy
-import argparse
 from pathlib import Path
 import dill
-#import pickle as dill
-from logging import getLogger
 
 # Silico imports.
-import silico.program
+from silico.program.base import Program
+import silico.logging
 from silico.exception.uncatchable import Submission_paused
 from silico.exception.base import Silico_exception
 
-# This script is part of the silico resume mechanism. It is called as part of silico submit automatically, you would not normally run this script yourself.
 
-# Printable name of this program.
-NAME = "Silico submission resume"
-DESCRIPTION = "resume an in-progress silico submission"
-EPILOG = "{} V{}. Written by {}. Last updated {}.".format(NAME, silico.version, silico.author, silico.last_updated.strftime("%d/%m/%Y"))
-
-def arguments(subparsers):
+class Resume_program(Program):
     """
-    Add this program's arguments to an argparser object.
+    The Silico method status program.
     """
-    parser = subparsers.add_parser("resume",
-        description = DESCRIPTION,
-        epilog = EPILOG,
-        help = "Resume submission (used automatically by part of the submission mechanism)"
-    )
-    # Set main function.
-    parser.set_defaults(func = main)
     
-    parser.add_argument("resume_file", help = "Path to the file to resume from (this should be a pickled calculation class)", type = Path)
-
-def main(args):
-    """
-    Main entry point for the resume program.
-    """
-    # ----- Program init -----
+    name = "Silico submission resume"
+    command = "resume"
+    description = "resume an in-progress silico submission"
+    help = "Resume submission (used automatically by part of the submission mechanism)"
+    
+    
+    def __init__(self, destination, *, args, config, logger):
+        """
+        Constructor for resume programs.
         
-    # Load the pickled class.
-    with open(args.resume_file, "rb") as pickle_file:
-        method = dill.load(pickle_file)
-
-    # Delete the pickled file to clean up (also prevents us running twice on the same file, which would be bad. Maybe we should do some file locking anyway?)
-    try:
-        args.resume_file.unlink()
-    except Exception:
-        getLogger(silico.logger_name).error("Failed to delete pickle file", exc_info = True)
+        :param destination: A destination_target object from which submission will resume.
+        :param args: The command-line arguments the program was started with.
+        :param config: A loaded Silico config object.
+        :param logger: The logger to use for output.
+        """
+        super().__init__(args = args, config = config, logger = logger)
+        self.destination = destination
         
-    # Set program stuff.
-    silico.program.init_from_config(getLogger(silico.logger_name), method.program.calculation.silico_options)
-    silico.program.init_signals(getLogger(silico.logger_name))
+        # Delete the pickled file to clean up (also prevents us running twice on the same file, which would be bad. Maybe we should do some file locking anyway?)
+        try:
+            args.resume_file.unlink()
+        except Exception:
+            logger.error("Failed to delete pickle file", exc_info = True)
+        
+    @classmethod
+    def init_from_argparse(self, args):
+        """
+        Perform program setup from the data provided by argparse.
+        
+        :param args: Argparser object.
+        :return: A tuple of (args, config, logger).
+        """
+        # First, sort out our logger.
+        logger = silico.logging.get_logger()
+        
+        # Load our pickled class.
+        with open(args.resume_file, "rb") as pickle_file:
+            destination = dill.load(pickle_file)
+            
+        # Setup program wide stuff.
+        self.program_init(args, destination.program.calculation.silico_options, logger)
+        
+        return (destination, args, destination.program.calculation.silico_options, logger)
     
-    # Set numpy errors (not sure why this isn't the default...)
-    numpy.seterr(invalid = 'raise', divide = 'raise')
+    @classmethod
+    def load_from_argparse(self, destination, args, config, logger):
+        """
+        Create a program instance.
+        
+        :param args: The command-line arguments the program was started with.
+        :param config: A loaded Silico config object.
+        :param logger: The logger to use for output.
+        """
+        return self(destination, args = args, config = config, logger = logger)
     
-    return silico.program.run(_main, method = method)
-
-
-def _main(method):
-    """
-    Main entry point for the resume program.
-    """
-    # And resume.
-    try:
-        method.resume()
-    except Submission_paused:
-        # This is fine.
-        pass
-    except Exception:
-        raise Silico_exception("Error during submission")
-
+    @classmethod
+    def from_argparse(self, args):
+        """
+        Create a Program object from the data provided by argparse.
+        """
+        destination, args, config, logger = self.init_from_argparse(args)
+        return self.load_from_argparse(destination, args, config, logger)
+    
+    @classmethod
+    def arguments(self, sub_parsers_object):
+        """
+        Add this program's arguments to an argparser subparsers object.
+        
+        :param sub_parsers_object: An argparser subparsers object to add to (as returned by add_subparsers().
+        :returns: The argparser object (which supports add_argument()).
+        """
+        sub_parser = sub_parsers_object.add_parser("resume",
+            description = self.description,
+            epilog = self.epilog,
+            help = self.help
+        )
+        # Set main function.
+        sub_parser.set_defaults(prog_cls = self)
+        
+        sub_parser.add_argument("resume_file", help = "Path to the file to resume from (this should be a pickled destination class)", type = Path)
+    
+        return sub_parser
+    
+    def main(self):
+        """
+        Logic for our program.
+        """
+        try:
+            self.destination.resume()
+        except Submission_paused:
+            # This is fine.
+            pass
+        except Exception:
+            raise Silico_exception("Error during submission")
+        
+        
+        

@@ -1,9 +1,0 @@
-This directory contains config files for freezing (compiling) with the excellent PyInstaller.
-
-Freezing is particularly useful for silico because many of the servers/clusters it is designed to run on do not have functioning python installations, or are otherwise missing dependencies that are hard to satisfy without root/sudo access (Openbabel v3 and Weasyprint both fall under this category because they depend on binaries external to python).
-
-CentOS/Redhat are the main OSes supported, but only because they are common choices for server clusters. It is relatively trivial to freeze against a different OS, you simply need a functioning virtual (or real) machine that accurately mirrors the target system. Minor alterations to the relative pyinstaller specs may be required, particularly to locate required binaries.
-
-Silico will compile happily on CentOS 7.7 (and derivatives) and later.
-Silico will compile with limited functionality on CentOS 6.10; all programs will function as normal except creport (it does not seem possible to satisfy weasyprint's dependencies at present).
-Compiling against older systems has not been attempted; but so long as Python 3.6 is available it should be possible.

@@ -1,0 +1,52 @@
+@page {
+    size: A4 portrait;
+    margin: 1cm 1.5cm;
+}
+
+* {
+	/* outline: 1px solid red; */
+}
+
+body {
+    font-size: 10px;
+}
+
+.header {
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    right: 0px;
+    height: 0.5cm;
+    border-bottom: 3px solid black;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.header--bad {
+	border-bottom: 3px solid #de2d00
+}
+
+.report__info {
+	float: left;
+	display: inline-block;
+    font-weight: bold;
+    margin-right: 5px;
+}
+
+.report__title {
+	text-align: right;
+	display: inline-block;
+    font-style: italic;
+    font-size: 10px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    position: fixed;
+    left: 150px;
+    right: 0px;
+    top: 0px;
+    right: 0px;
+    /* width: 70%; */
+    /*margin-top: 1px;*/
+}

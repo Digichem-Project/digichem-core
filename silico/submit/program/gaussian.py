@@ -1,25 +1,30 @@
-from silico.submit.program import Program_target
+# General imports.
 from pathlib import Path
 import subprocess
-import silico
 from mako.lookup import TemplateLookup
-from logging import getLogger
+import shutil
+import warnings
+
+# Silico imports.
+import silico.logging
+from silico.submit.program import Program_target
 from silico.file.fchk import Chk_to_fchk
 from silico.config.configurable.option import Option
 from silico.parser.base import parse_calculation
+from silico.file.input.chk import Chk_input
 
 class Gaussian(Program_target):
     """
     Top level class for submitting calculations to Gaussian.
     """
     
-    CLASS_HANDLE = ("gaussian",)
+    CLASS_HANDLE = ("Gaussian",)
     
     # Configurable options.
     executable = Option(help = "Name/path of the main Gaussian executable", required = True, type = str)
-    root_environ_name = Option(help = "The name of the environmental variable Gaussian looks for to find 'gaussian_root'", required = True, type = str)
-    gaussian_root = Option(help = "Path to the directory one above where gaussian is installed", required = True, type = str)
-    gaussian_init_file = Option(help = "Path to the gaussian .profile script which is run to set-up gaussian", required = True, type = str)
+    root_environ_name = Option(help = "The name of the environmental variable Gaussian looks for to find 'root'", required = True, type = str)
+    root = Option(help = "Path to the directory where gaussian is installed", required = True, type = Path)
+    init_file = Option(help = "Path to the gaussian .profile script which is run to set-up gaussian", required = True, type = str)
         
         
     ############################
@@ -42,14 +47,14 @@ class Gaussian(Program_target):
             """
             Path to the (ready-to-go) input file. Note that although this is known as the com file, it may infact have any extension (.com and .gjf are most common).
             """
-            return Path(self.method.calc_dir.input_directory, self.calculation.com_file_name)
+            return Path(self.destination.calc_dir.input_directory, self.calculation.com_file_name)
     
         @property
         def log_file_path(self):
             """
             Default path to the .log output file written to by Gaussian, see log_file_path for where the log file is currently.
             """
-            return Path(self.method.calc_dir.output_directory, self.calculation.com_file_name).with_suffix(".log")
+            return Path(self.destination.calc_dir.output_directory, self.calculation.com_file_name).with_suffix(".log")
     
         @property
         def calc_output_file_path(self):
@@ -66,28 +71,20 @@ class Gaussian(Program_target):
             Path to the output coordinate file that should be used for any subsequent calculations.
             """
             return self.log_file_path
-    
-    
-#         @property
-#         def chk_file_path(self):
-#             """
-#             Path to the Gaussian checkpoint .chk file written to by Gaussian.
-#             """
-#             return Path(self.method.calc_dir.output_directory, self.calculation.chk_file_name)
-#         
-#         @property
-#         def rwf_file_path(self):
-#             """
-#             Path to the Gaussian read-write .rwf file written to by Gaussian.
-#             """
-#             return Path(self.method.calc_dir.output_directory, self.calculation.rwf_file_name)
             
         @property
         def fchk_file_path(self):
             """
             Path to the formatted checkpoint .fchk file.
             """
-            return Path(self.method.calc_dir.output_directory, self.calculation.chk_file_name).with_suffix(".fchk")
+            return Path(self.destination.calc_dir.output_directory, self.calculation.chk_file_name).with_suffix(".fchk")
+        
+        @property
+        def formchk_executable(self):
+            """
+            Path to the formchk executable of this Gaussian installation.
+            """
+            return Path(self.root, 'formchk')
     
         def pre(self):
             """
@@ -107,8 +104,20 @@ class Gaussian(Program_target):
                 self.rwf_file_path = Path(self.scratch_output, self.calculation.rwf_file_name)
             else:
                 # Not using scratch output, .rwf and .chk will be in normal output dir.
-                self.chk_file_path = Path(self.method.calc_dir.output_directory, self.calculation.chk_file_name)
-                self.rwf_file_path = Path(self.method.calc_dir.output_directory, self.calculation.rwf_file_name)
+                self.chk_file_path = Path(self.destination.calc_dir.output_directory, self.calculation.chk_file_name)
+                self.rwf_file_path = Path(self.destination.calc_dir.output_directory, self.calculation.rwf_file_name)
+                
+            # If we're submitting from a chk file, move that to the correct location now.
+            if isinstance(self.calculation.input_coords, Chk_input):
+                shutil.copy(self.calculation.input_coords.chk_file, self.chk_file_path)
+                
+            # Do some sanity checking on the scratch directory (because Gaussian is likely to fail with bizarre errors if this is wrong).
+            if self.calculation.scratch_directory is None:
+                warnings.warn("Use of the scratch directory has been disabled. This is not recommended for Gaussian calculations and will likely lead to calculation failure.")
+            
+            elif " " in str(self.calculation.scratch_directory):
+                # TODO: Maybe check against a whitelist rather than a blacklist?
+                warnings.warn("The scratch directory '{}' contains whitespace. This is not supported by the Gaussian program and will likely lead to calculation failure.")
     
         def calculate(self):
             """
@@ -134,26 +143,34 @@ class Gaussian(Program_target):
             Post submission method.
             """
             # Chk/fchk management. Do this before making report (in super()) to avoid making fchk twice.
+            chk_conversion_success = True
             try:
                 # Create an fchk file if asked.
                 if self.calculation.convert_chk:
-                    fchk_file = Chk_to_fchk(self.fchk_file_path, chk_file = self.chk_file_path, memory = self.calculation.memory)
+                    fchk_file = Chk_to_fchk(self.fchk_file_path, chk_file = self.chk_file_path, memory = self.calculation.memory, formchk_executable = self.formchk_executable)
                     fchk_file.get_file()
             except Exception:
-                getLogger(silico.logger_name).error("Failed to create fchk file", exc_info = True)
-            else:
+                silico.logging.get_logger().error("Failed to create fchk file", exc_info = True)
+                chk_conversion_success = False
+            
+            # Use our parent to create result and report files.
+            super().post()
+                
+            # Now process results and reports (in case we need .chk or .rwf file, which will be deleted in but a moment).
+            if chk_conversion_success:
                 try:
-                    # Now delete the chk file if we were asked to.
+                    # Now delete the chk file if we were asked to (but only if the conversion to fchk was successful).
                     if not self.calculation.keep_chk:
                         self.chk_file_path.unlink()
                 except FileNotFoundError:
                     # We can ignore not finding the file; we were trying to get rid of it anyway.
                     pass
                 except Exception:
-                    getLogger(silico.logger_name).error("Failed to delete chk file", exc_info = True)
+                    silico.logging.get_logger().error("Failed to delete chk file", exc_info = True)
             
-            # Use our parent to create result and report files.
-            super().post()
+            else:
+                # Let the user know we're ignoring their request.
+                silico.logging.get_logger().warning("Not deleting chk file because conversion to fchk was not successful")
             
             # Remove rwf if we've been asked to.
             try:
@@ -163,7 +180,7 @@ class Gaussian(Program_target):
                 # We can ignore not finding the file; we were trying to get rid of it anyway.
                 pass
             except Exception:
-                getLogger(silico.logger_name).error("Failed to delete rwf file", exc_info = True)
+                silico.logging.get_logger().error("Failed to delete rwf file", exc_info = True)
                 
         def cleanup(self, success):
             """
@@ -172,8 +189,8 @@ class Gaussian(Program_target):
             
             # Update file locations.
             # Regardless of whether we were using scratch output or not, all files should now be in the normal output dir (or have been deleted).
-            self.chk_file_path = Path(self.method.calc_dir.output_directory, self.calculation.chk_file_name)
-            self.rwf_file_path = Path(self.method.calc_dir.output_directory, self.calculation.rwf_file_name)
+            self.chk_file_path = Path(self.destination.calc_dir.output_directory, self.calculation.chk_file_name)
+            self.rwf_file_path = Path(self.destination.calc_dir.output_directory, self.calculation.rwf_file_name)
             
         def get_result(self):
             """

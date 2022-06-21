@@ -1,0 +1,78 @@
+SUB_TYPE: pseudo
+TAG: Gaussian Functionals
+
+NEXT:
+    - Gaussian PBE1PBE (GD3BJ)
+    - Gaussian B3LYP (GD3BJ)
+    - Gaussian CAM-B3LYP (GD3BJ)
+    - Gaussian M062X (GD3)
+    - Gaussian wB97XD (GD2)
+
+
+---
+
+
+SUB_TYPE: partial
+TAG: Gaussian PBE1PBE (GD3BJ)
+ALIAS: PBE1PBE (GD3BJ)
+
+DFT:
+    functional: PBE1PBE
+    empirical_dispersion: GD3BJ
+
+NEXT: [Gaussian Solvents]
+
+
+---
+
+
+SUB_TYPE: partial
+TAG: Gaussian CAM-B3LYP (GD3BJ)
+ALIAS: CAM-B3LYP (GD3BJ)
+
+DFT:
+    functional: CAM-B3LYP
+    empirical_dispersion: GD3BJ
+
+NEXT: [Gaussian Solvents]
+
+
+---
+
+
+SUB_TYPE: partial
+TAG: Gaussian B3LYP (GD3BJ)
+ALIAS: B3LYP (GD3BJ)
+
+DFT:
+    functional: B3LYP
+    empirical_dispersion: GD3BJ
+
+NEXT: [Gaussian Solvents]
+
+
+---
+
+
+SUB_TYPE: partial
+TAG: Gaussian M062X (GD3)
+ALIAS: M062X (GD3)
+
+DFT:
+    functional: M062X
+    empirical_dispersion: GD3
+
+NEXT: [Gaussian Solvents]
+
+
+---
+
+
+SUB_TYPE: partial
+TAG: Gaussian wB97XD (GD2)
+ALIAS: wB97XD (GD2)
+
+DFT:
+    functional: wB97XD
+
+NEXT: [Gaussian Solvents]

@@ -1,0 +1,11 @@
+Name,Description
+PENDING,The calculation has been submitted but has not yet begun.
+STARTED,"The calculation has begun. This flag is never deleted, so it is useful for confirming that the calculation at least started, even if it did not finish."
+RUNNING,The calculation is currently ongoing.
+SUCCESS,The calculation finished successfully.
+CONVERGED,The optimisation converged successfully (only used for optimisations).
+NOT_CONVERGED,The optimisation did not converge successfully (only used for optimisations).
+CLEANUP,The calculation has finished (successfully or otherwise) and Silico is currently performing clean up.
+ERROR,The calculation has stopped because an error occurred.
+POST,The calculation has finished and Silico is currently performing post analysis.
+DONE,"All work (including post-analysis) has been completed; Silico will not make any changes after this flag. It is safe to move, download or delete the calculation folder."
