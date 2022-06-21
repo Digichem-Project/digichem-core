@@ -3,8 +3,8 @@
 --------------------
 Name: Naphthalene
 Username: osl
-Date: 15/06/2022 14:52:56
-Duration: 24 s
+Date: 21/06/2022 17:25:47
+Duration: 10 s
 Computational package: Gaussian (2016+C.01)
 Calculations: Single Point
 Methods: DFT
@@ -49,11 +49,8 @@ No. occupied: 34
 |     Permanent Dipole Moment     |
 -----------------------------------
 Total /D: 0.00
-Origin X /D: 0.00
-Origin Y /D: 0.00
-Origin Z /D: 0.00
-Vector X /D: 0.00
-Vector Y /D: 0.00
-Vector Z /D: 0.00
-X axis angle /°: 0.00
-XY plane angle /°: 0.00
+Vector x /D: 0.00
+Vector y /D: 0.00
+Vector z /D: 0.00
+x axis angle /°: 0.00
+xy plane angle /°: 0.00

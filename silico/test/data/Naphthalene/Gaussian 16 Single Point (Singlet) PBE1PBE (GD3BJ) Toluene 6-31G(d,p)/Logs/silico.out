@@ -1,7 +1,7 @@
-silico: INFO: Calculation start on 15/06/2022 14:52:12 
-silico: INFO: Calculation end on 15/06/2022 14:52:57
-silico: INFO: Calculation duration: 45 s (45.078102 total seconds)
-silico: INFO: Converting gaussian/checkpoint file '/scratch/tmp/osl/ddfd76e12e9442d08b1d8f2f725586fa/Output/Naphthalene.chk' to gaussian/formatted-checkpoint file '/gpfs1/home/osl/test/Naphthalene/Gaussian 16 Single Point (Singlet) PBE1PBE (GD3BJ) Toluene 6-31G(d,p)/Output/Naphthalene.fchk'
+silico: INFO: Calculation start on 21/06/2022 17:25:25 
+silico: INFO: Calculation end on 21/06/2022 17:25:47
+silico: INFO: Calculation duration: 21 s (21.894873 total seconds)
+silico: INFO: Converting gaussian/checkpoint file '/scratch/tmp/osl/fd06ce56e21a4fa58b98aa919d433b1f/Output/Naphthalene.chk' to gaussian/formatted-checkpoint file '/gpfs1/home/osl/test/Naphthalene/Gaussian 16 Single Point (Singlet) PBE1PBE (GD3BJ) Toluene 6-31G(d,p)/Output/Naphthalene.fchk'
 silico: INFO: Parsing calculation result '/gpfs1/home/osl/test/Naphthalene/Gaussian 16 Single Point (Singlet) PBE1PBE (GD3BJ) Toluene 6-31G(d,p)/Output/Naphthalene.log'
 silico: WARNING: UserWarning: 'vibrations' is not available; there are no vibrational frequencies; skipping (for at least one result)
 silico: WARNING: UserWarning: 'MP' is not available; there is no energy of the requested type; skipping (for at least one result)
