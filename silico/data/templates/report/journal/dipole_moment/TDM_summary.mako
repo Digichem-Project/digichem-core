@@ -88,7 +88,7 @@
         </tr>
         <tr class="resultsTable__row">
             <td class="resultsTable__title resultsTable__cell">θ<sub>μ,m</sub></td>
-            %if dipole_moment.angle() is not None:
+            %if dipole_moment.magnetic is not None and dipole_moment.electric is not None:
                 <td class="resultsTable__value resultsTable__cell">${"{:0.2f} {}".format(dipole_moment.angle().angle, dipole_moment.angle().pretty_units)}</td>
             %else:
                 <td class="resultsTable__value resultsTable__cell">N/A</td>
@@ -96,7 +96,7 @@
         </tr>
         <tr class="resultsTable__row">
             <td class="resultsTable__title resultsTable__cell">cos(θ<sub>μ,m</sub>)</td>
-            %if dipole_moment.cos_angle() is not None:
+            %if dipole_moment.magnetic is not None and dipole_moment.electric is not None:
                 <td class="resultsTable__value resultsTable__cell">${"{:0.2f}".format(dipole_moment.cos_angle())}</td>
             %else:
                 <td class="resultsTable__value resultsTable__cell">N/A</td>
@@ -104,7 +104,7 @@
         </tr>
         <tr class="resultsTable__row">
             <td class="resultsTable__title resultsTable__cell">g<sub>lum</sub></td>
-            %if dipole_moment.angle is not None:
+            %if dipole_moment.magnetic is not None and dipole_moment.electric is not None:
                 <td class="resultsTable__value resultsTable__cell">${text_float(dipole_moment.g_value, 3)}</td>
             %else:
                 <td class="resultsTable__value resultsTable__cell">N/A</td>

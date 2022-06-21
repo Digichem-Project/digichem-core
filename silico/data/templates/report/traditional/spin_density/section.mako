@@ -33,8 +33,8 @@
 <div class="section">
     <h2 class="section__header">Spin Density</h2>
     <div class="section__body section__body--orbital">
-    	<%include file="/density/plot.mako" args="image_name = 'positive_spin_density', caption = 'Positive spin density ' + alpha_designation + ' (isovalue: '+ report.images['positive_spin_density'].isovalue + ')', report = report"/>
-    	<%include file="/density/plot.mako" args="image_name = 'negative_spin_density', caption = 'Negative spin density ' + beta_designation + ' (isovalue: '+ report.images['negative_spin_density'].isovalue + ')', report = report"/>
-    	<%include file="/density/plot.mako" args="image_name = 'spin_density', caption = 'Positive ' + alpha_designation + ' (' + report.images['spin_density'].primary_colour + ') & negative ' + beta_designation + ' (' + report.images['spin_density'].secondary_colour + ') spin density (isovalue: ' + report.images['spin_density'].isovalue + ')', report = report"/>
+    	<%include file="/density/plot.mako" args="image_name = 'positive_spin_density', caption = 'Positive spin density ' + alpha_designation + ' (isovalue: '+ str(report.images['positive_spin_density'].isovalue) + ')', report = report"/>
+    	<%include file="/density/plot.mako" args="image_name = 'negative_spin_density', caption = 'Negative spin density ' + beta_designation + ' (isovalue: '+ str(report.images['negative_spin_density'].isovalue) + ')', report = report"/>
+    	<%include file="/density/plot.mako" args="image_name = 'spin_density', caption = 'Positive ' + alpha_designation + ' (' + report.images['spin_density'].primary_colour + ') & negative ' + beta_designation + ' (' + report.images['spin_density'].secondary_colour + ') spin density (isovalue: ' + str(report.images['spin_density'].isovalue) + ')', report = report"/>
     </div>
 </div>
