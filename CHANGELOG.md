@@ -1,7 +1,1011 @@
+- 2022-06-07: Bumped pre-release
+- 2022-06-07: Fixed some more instances of differential to difference
+- 2022-06-07: Fixed another crash generating reports when no TDMs are available
+- 2022-06-07: Replaced various instances of HOMO/LUMO with HOMO-LUMO or HOMO,LUMO as appropriate
+- 2022-06-07: Bumped pre-release no.
+- 2022-06-07: Merge branch 'v1-mag' into v1-devel
+- 2022-06-07: Fixed the CPUs_per_task property not returning ints
+- 2022-06-07: Fixed the IntEditZero widget not being able to return None
+- 2022-06-06: Moved units for fluorescence rate in summary section
+- 2022-05-31: Bumped pre-release number
+- 2022-05-31: Fixed a bug where dipole moments would not be rendered if any of the three coords were 0 (instead of all three being 0)
+- 2022-05-31: Bumped pre-release number
+- 2022-05-31: Renamed the 'aligned_structure' image to simply 'structure' and renamed the 'structure' image to 'unaligned_structure'. The latter is not currently used
+- 2022-05-31: Fixed a crash rendering new style reports when no TDM info is available
+- 2022-05-30: Fixed repetition of 'peak(s)' instead of 'peak(s) were/was' in report abstract
+- 2022-05-26: Bumped pre-release number
+- 2022-05-26: Added prettier sub-image labels (A: etc) with semi-transparent backgrounds
+- 2022-05-26: Various font size and line spacing changes to new report
+- 2022-05-26: Updated some CSS class names
+- 2022-05-26: Updated caption for TDM summary table
+- 2022-05-26: Added table of TDM results to reports
+- 2022-05-25: Updated summary format with new magnetic TDM data
+- 2022-05-25: Updated property format for TDM with new magnetic data
+- 2022-05-25: Removed debugging line from report template
+- 2022-05-25: Fixed __getattr__ of transition dipole moments not being picklable
+- 2022-05-25: Removed unused import
+- 2022-05-25: Fixed two divide by zero bugs in calculating TDM angles and g-values
+- 2022-05-25: Updated report template to use new sub-templates
+- 2022-05-25: Expanded report sections on TDM and PDM
+- 2022-05-25: Updated report object to use new dipole image makers
+- 2022-05-25: Added future todo re. dipole origin coords
+- 2022-05-25: Expanded capacity of dipole image plotters to handle both electric and magnetic dipoles simultaneously
+- 2022-05-25: Added scaling options for PDM, TEDM and TMDM
+- 2022-05-25: Changed some lengthy descriptions for symbols in excited states summary and added table captions to explain symbols in TDM and excited states summaries
+- 2022-05-24: Updated TDM summary section to show electric and magnetic TDM together, also added g(lum)
+- 2022-05-24: Modified handling of TDM, added calculation of g(lum) values
+- 2022-05-24: Added new summary section for TEDM and TMDM
+- 2022-05-24: Added Gaussian-cgs units for both electric and magnetic dipole moments
+- 2022-05-23: Added parsing and results for magnetic transition dipole moments
+- 2022-05-23: Changed level of theory property to only show the highest method
+- 2022-05-23: Fixed No. of sig figs in CIE coords in summary section
+- 2022-05-23: Merge branch 'v1.x' into v1-reports
+- 2022-05-23: Merge branch 'doc' into v1-reports
+- 2022-05-18: Fixed title for SOC summary section
+- 2022-05-18: Added dejavu-serif font files for systems where they are absent
+- 2022-05-18: Bumped pre-release number
+- 2022-05-18: Changed default font of journal reports from generic 'serif' to 'dejavu serif'
+- 2022-05-18: Added missing SOC summary section to journal reports.
+- 2022-05-18: Slightly improved handling of file saving widgets (show full path for default and smarter detection between files and folders)
+- 2022-05-18: Improvements to submit doc
+- 2022-05-16: Merge branch 'doc' into v1.x
+- 2022-05-15: Renamed differential_folder in traditional report to difference_density
+- 2022-05-13: Updated method file section
+- 2022-05-13: Reordered imports in slurm
+- 2022-05-13: Updated dist script to remove __pycache__ dirs and .pyc and .pyo files
+- 2022-05-12: Bumped prerelease number
+- 2022-05-12: Fixed various bugs around editing, saving and using BSE basis sets
+- 2022-05-12: Fixed options not being saved properly when editing method parts
+- 2022-05-12: Fixed a crash when editing method parts
+- 2022-05-12: Various restructuring to submit section of manual
+- 2022-05-12: Fixed plural typo
+- 2022-05-12: Fixed header title from The Sub-Programs to The Subprograms
+- 2022-05-12: Updated About Silico section of doc
+- 2022-05-12: Changed 'sub-program' to 'subprogram
+- 2022-05-12: Renamed Introduction to Using Silico section to Silico Basics
+- 2022-05-12: Added a changes since previous section to doc
+- 2022-05-12: Added features section to doc
+- 2022-05-12: Restructured and improved intro section to manual
+- 2022-05-12: Added improved authorship info to doc
+- 2022-05-12: Tweaked quick ref section on molecule terminology
+- 2022-05-10: Fixed various instances of 'differential density' to 'difference density'
+- 2022-05-10: Fixed a bug where the phrase 'permanent dipole moment' appeared in the wrong place in reports
+- 2022-05-06: Bumped pre-release to 23
+- 2022-05-06: Merge branch 'doc' into v1.x
+- 2022-05-06: Finished initial version of quick reference guide
+- 2022-05-02: Added a .summary.csv file to the Results folder
+- 2022-05-02: Fixed number of sig figs in CIE coords in emissin section of journal reports
+- 2022-05-02: The summary result file now has the .summary.txt file extension rather than .summary to aid reading on windows machines
+- 2022-04-28: Updated quick reference
+- 2022-04-25: Added the silico_command option to SLURM destinations to allow multiple simultaneous silico installations
+- 2022-04-25: Improved description of NTOs and differential density plots in journal reports to include hole/electron labels
+- 2022-04-25: Control_wrapper widgets now switch to the 'back' button after the 'confirm' button is presssed (helps prevent duplicate submission etc)
+- 2022-04-21: Updated quick reference with sphinx
+- 2022-04-21: Fixed indendation
+- 2022-04-14: Added (temporary) kennedy config options
+- 2022-04-14: Improved level_of_theory property to not show repeat methods and basis sets
+- 2022-04-14: Fixe CIE coords using too many decimals in report summary
+- 2022-04-14: Initial work on updates quick reference guide
+- 2022-04-14: Rearranged order of authors
+- 2022-04-11: Added a method picker for the report: guassian: program option and added support for when no definition is available
+- 2022-04-11: Added support for rendering reports when no Turbomole installation is available to render cubes
+- 2022-04-11: Added File_maker_ABC and Dummy_file_maker classes
+- 2022-04-11: Altered the help text for 'turbomole''program'
+- 2022-04-11: Added todo to feature potential bug re. frequencies in new style reports
+- 2022-04-11: Merge branch 'v1.x' into doc
+- 2022-04-11: Various WIP improvements to DOC
+- 2022-04-11: Tweaked Option_setedit to use get_from_dict() rather than dump(), which seems more appropriate (but may have weird side-effects)
+- 2022-04-11: Removed some kennedy specific details from the main config file
+- 2022-04-11: Improved (but only a bit) parsing of main silico config file
+- 2022-04-11: Added handling for configurable options that reference the method library
+- 2022-04-08: Fixed typo in gaussian empirical_disperion option
+- 2022-04-08: Expanded todo
+- 2022-04-08: Output_edit widgets now show a warning when confirm is clicked but nothing has been chosen
+- 2022-04-07: Fixed tag_hierarchy actually returning a list of ALIASES and added new alias_hierarchy to mimic this old behaviour
+- 2022-04-07: Added some missing documentation from config show
+- 2022-04-07: Fixed imports for config show
+- 2022-04-07: Fixed the config show program so it now works properly
+- 2022-04-06: Added new exception for when an overlong tag path is given
+- 2022-04-06: Updated config valdiate program
+- 2022-04-06: Added the config show program to show names and codes for configurables
+- 2022-04-06: Updated loaders that used to contain / in their tag name
+- 2022-04-06: Added deprecation information for ID_splitter
+- 2022-04-06: Added check that loader tag names don't contain forward slash
+- 2022-04-06: Added better support for parsing tag lists specified on command line
+- 2022-04-06: Improved description of gen3D option
+- 2022-04-06: Fixed some capitalization in general silico options
+- 2022-04-06: get_argparser() function to help with documentation
+- 2022-04-06: Slightly expanded the help for the -c option of silico submit
+- 2022-04-06: Changed the calculation_files argument of silico submit to coordinate_files
+- 2022-04-06: Fixed description for the submit program
+- 2022-04-06: Updated to doc
+- 2022-04-06: Rearranged intro section
+- 2022-04-06: Added prefixing $ to code samples in doc
+- 2022-04-04: Finished initial version of sphinx submit tutorial
+- 2022-04-01: Renamed submit.rst to tutorial.rst
+- 2022-04-01: Further initial edits to sphinx doc
+- 2022-04-01: Bumped pre-release number
+- 2022-04-01: Fixed a crash rendering journal reports when all oscillator strengths == 0
+- 2022-04-01: Fixed the rollback mechanic for single (non paginated) configurable editors
+- 2022-04-01: Changed short code of interactive program from i to I (to match the -I option)
+- 2022-03-31: Bumped pre-release number to 21
+- 2022-03-31: Combined reports are now written in both styles
+- 2022-03-31: Updated dependencies to include inflect
+- 2022-03-31: Added initial sphinx documentation
+- 2022-03-31: Updated submission program to write both styles of report
+- 2022-03-31: Added summary result formats for emission
+- 2022-03-31: Moved report_style argument for reports from __init__ to _write()
+- 2022-03-31: Fixed bug in traditional vibrations template using wrong peaks method
+- 2022-03-31: Updated completion to support current list of sub programs
+- 2022-03-31: Added style argument to the report program to allow choosing between new style journal reports (default) and old style traditional
+- 2022-03-31: Fixed rendering message for image makers not showing file path in quote marks
+- 2022-03-31: Removed unused imports
+- 2022-03-31: ΔEst to ΔE(ST)
+- 2022-03-29: Added emission rate constant to emission template
+- 2022-03-29: Added calculation of kfl (and kp) to methodology section
+- 2022-03-29: Fixed dipole moment summary table not using text_float()
+- 2022-03-29: Added styles for formatting formula
+- 2022-03-29: Fixed the figure number appearing outside the caption div in the geometry plot template
+- 2022-03-28: Added references section
+- 2022-03-28: Updated excited states template link and added tables to journal report
+- 2022-03-28: Updated template references in main journal style
+- 2022-03-28: Added summary section to main journal style template
+- 2022-03-28: Updated short hand for references
+- 2022-03-28: Moved accidentally moved static files
+- 2022-03-28: Added updated styles for journal reports
+- 2022-03-28: Added template for references section
+- 2022-03-28: Added excited states summary template
+- 2022-03-28: Added level of theory to journal report header
+- 2022-03-28: Removed some abbreviations from the excited states section (because they are now described in the methodology section
+- 2022-03-28: Added summary template for dipole moments
+- 2022-03-28: Added template for formatting dipole moment titles
+- 2022-03-28: Added summary template for emission energy
+- 2022-03-28: Improved caption for simulated UV-Vis graph, including handling graphs with no y axis
+- 2022-03-28: Added use of text_float function for dEst
+- 2022-03-28: Added summary report for energy
+- 2022-03-28: Added methodology section to journal reports
+- 2022-03-28: Added summary template for geometry
+- 2022-03-28: Added molecular formula template for journal reports
+- 2022-03-28: Added atom table template
+- 2022-03-28: Added summary template for MOs
+- 2022-03-28: Added summary template for vibrations
+- 2022-03-28: Moved old SOC template for journal
+- 2022-03-28: Added MO table template for journal report
+- 2022-03-28: Added vibrational frequency table template for journal report
+- 2022-03-28: Added SOC section to new journal report
+- 2022-03-28: Moved dipole moment template to new sub folder
+- 2022-03-28: Moved emission template to new sub folder
+- 2022-03-28: Moved energy template to new sub folder
+- 2022-03-28: Moved vibrations template to new sub folder
+- 2022-03-28: Moved accidentally moved NTO folder
+- 2022-03-23: Added adjust_zero = True for simulated emission spectra
+- 2022-03-23: Removed old, unused code
+- 2022-03-23: Removed excess whitespace
+- 2022-03-23: Added support for setting arb axes in spectroscopy graphs
+- 2022-03-22: Switched to using floats over flexbox in journal report header (because the latter had problems with weasyprint)
+- 2022-03-22: Added better plural support for absorption peaks in the abstract section of journal style reports
+- 2022-03-22: Added initial emission energy section to journal style reports
+- 2022-03-21: Added new mockup of silico logo
+- 2022-03-21: Added new journal styles
+- 2022-03-21: Removed old file
+- 2022-03-21: Updated base of journal style report to include new sections
+- 2022-03-21: Added excited states section to journal style report
+- 2022-03-21: Added spin density section to journal style report
+- 2022-03-21: Added PDM/TDM section to journal style report
+- 2022-03-21: Updated header section of journal reports to unclude better text inflection
+- 2022-03-21: Added MO section to journal style report
+- 2022-03-21: Added vibrational frequency section to journal style report
+- 2022-03-21: Added metadata section to journal style report
+- 2022-03-21: Added geometry section to journal style report
+- 2022-03-21: Added SCF/MP/CC energy section to journal style report
+- 2022-03-21: Added handling for when adding page header and footer to pages that have not been rendered properly by weasyprint
+- 2022-03-21: Added captions object to HTML reports
+- 2022-03-21: Added Captions class for storing and retrieving figure, table etc captions in the correct order
+- 2022-03-21: Added the method_type and human_method_type properties to alignment methods
+- 2022-03-21: Updated doc for multiplicity_symbol() method
+- 2022-03-21: Changed  UV and IR excited state colour names to full names (ultraviolet and infrared)
+- 2022-03-21: Added group_pairs() method to excited_states result sets which returns all the unique combinations of mults. The group() function now also returns a dictionary which is ordered by the mults.
+- 2022-03-21: Added the is_occupied property to molecular_orbital result objects as well as the occupied and virtual properties to molecular_orbitals result sets
+- 2022-03-21: Added level_of_theory property to result metadata (a summary of method/functional and basis set)
+- 2022-03-21: Removed debugging line that forced rendering of one of the NTOs
+- 2022-03-21: The skeletal image is now always rendered even if it's not used in the body of the report
+- 2022-03-21: Swapped from skeletal to rendered as default front page image
+- 2022-03-21: Updated isovalue used for differential density to 0.001 (was 0.01) to imporve clarity
+- 2022-03-11: Fixed loading stylesheets from incorrect location
+- 2022-03-11: Initial implementation of the journal report style
+- 2022-03-11: Fixed andjoin()
+- 2022-03-11: Renamed /page/page_header.mako template to /page/header.mako
+- 2022-03-11: Fixed Excited_state_list multiplicity_strings property
+- 2022-03-11: Fixed human_energy_type of Energy_list not being a property
+- 2022-03-11: Tweaked human_calculations_string property
+- 2022-03-11: Added converted_methods property to metadata
+- 2022-03-11: Moved level_of_theory property to Result_set so it now works
+- 2022-03-11: Removed debug line
+- 2022-03-11: Merge branch 'v1.x' into reports
+- 2022-03-11: Initial preparation for adding new report style
+- 2022-03-11: Added silico.misc.text.andjoin() function
+- 2022-03-11: Also linked tachyon logging to the new config option vmd_logging
+- 2022-03-11: Added missing comma
+- 2022-03-11: Bumped pre-release num
+- 2022-03-11: Fixed the gaussian prepare() method using the wrong signature
+- 2022-03-11: Added better support for gaussian keywords
+- 2022-03-11: Fixed the chk file being deleted before it could be used in an auto report to generate NTOs
+- 2022-03-11: Fixed a bug in checking whether there is whitespace in the gaussian scratch dir
+- 2022-03-11: Fixed merged calc results which were broken because the metadatas property
+- 2022-03-11: Fixed a bug where deleting a configurable option would fail
+- 2022-03-11: Added new config option to control printing of vmd rendering output (previously it was linked to the log level)
+- 2022-03-10: Added support for specifying scratch dir when using Gaussian to make NTOs
+- 2022-03-10: Bumped pre-release
+- 2022-03-10: Turned on scratch dir for making Turbomole NTOs (because Gaussian is broken without it)
+- 2022-03-10: Added error checking for common Gaussian and Turbomole whitespace related crashes
+- 2022-03-10: Removed unused comment
+- 2022-03-10: Added support for generating NTO images
+- 2022-03-10: Updated gaussian input file generator to support calculations without coordinates
+- 2022-03-10: Added options for running post Gaussian calcs to generate NTOs
+- 2022-03-10: Merged calculation results now keep track of the individual calculations they were merged from
+- 2022-03-10: Fixed typo
+- 2022-03-10: Added better support for the free-form keywords option for Gaussian calcs
+- 2022-03-10: Removed unused code
+- 2022-03-10: Added Chk_to_NTO_chk converter class
+- 2022-03-10: Removed lingering doc line
+- 2022-03-10: Added support for making fchk files from Chk_file maker objects
+- 2022-03-10: Added NTO chk as a known file type
+- 2022-03-10: Added Chk_input class for submitting calculations from a gaussian chk file
+- 2022-03-10: Fixed a bug in Gaussian.prepare()
+- 2022-03-10: Added abstract mixin class to provide charge and multiplicity options
+- 2022-03-10: The basis set option of Turbomole calculations is no longer required
+- 2022-03-10: Removed old Directory_calculation classes and replaced with new Calculation_directory_input class
+- 2022-03-10: Moved Silico_coords object to new module: silico.file.input. Renamed auto_name property of Silico_coords to implicit_name (and moved to new ABC)
+- 2022-03-10: Merge branch 'diff-den' into v1.x
+- 2022-03-10: Added option to control isovalue used for plotting diff den plots
+- 2022-03-10: Added support for differential density images to reports, also minor refactoring of report templates (probably more to follow)
+- 2022-03-10: Added Turbomole_anadens_setup class for doing what it says (to reports)
+- 2022-03-10: Minor refactoring of report Image_setup (now Cube_setup) hierarchy
+- 2022-03-10: Removed unused code
+- 2022-03-10: Added Differential_density_image_maker for creating differential density images from Turbomole calcs
+- 2022-03-10: Added the no_edit argument to the configurable Options class
+- 2022-03-10: Added MP2 optimisation with ricc2
+- 2022-03-10: Added ability to parse silico calculation directories (those that contain the 'Output' folder)
+- 2022-03-10: Removed unused line
+- 2022-03-10: Added parsing of Turbomole .cao auxiliary files (into metadata)
+- 2022-03-10: Added ability to merge metadata auxiliary_files
+- 2022-03-10: Cleaned up exception raised when unable to create a calc dir
+- 2022-03-10: Added support for Turbomole's ricc2's  data group
+- 2022-03-10: Added initial support for submitting additional files, files that are coppied unmodified into the calc dir
+- 2022-03-09: Added a fix for urwid IntegerEdit widgets returning Decimals
+- 2022-03-09: Added fix for urwid float edit not supporting floats
+- 2022-03-09: Fixed inconsistant handling of charge and multiplicity as either int or float (both are now int)
+- 2022-03-08: Bumped pre-release number
+- 2022-03-08: Fixed a bug where setting num_CPUs in a series calc did not affect the underlying calcs
+- 2022-03-08: Added additional support for making differential density plots with anadens
+- 2022-03-07: Moved quick reference
+- 2022-03-07: Bumped pre-release number
+- 2022-03-07: Fixed Unresolvable_tag_path_error exceptions not excluding parts of the tag path that are None
+- 2022-03-07: Fixed crash when logging errors in urwid interface with blank whitespace
+- 2022-03-07: Finished implementation of PREVIOUS and PARENTS tags which was apparently left half functional
+- 2022-03-07: An exception is now raised when no class_name is given in a configurable (this was previously disabled for unknown reasons, might get reverted)
+- 2022-03-07: Removed extra whitespace
+- 2022-03-07: Fixed configurables not catching extra options
+- 2022-03-07: Fixed signature of expand in Calculation_target ABC incase it gets called accidentally
+- 2022-02-25: Updated auto calcs to replace unused methods
+- 2022-02-25: Bumped pre-release
+- 2022-02-25: Added smarter merging for excited states so only new multiplicities are merged
+- 2022-02-25: Added support for parsing emission energies when only a single calculation result is present
+- 2022-02-25: Fixed typo confusing vertical and adiabatic emission
+- 2022-02-25: Added more descriptive and consistent names for emission energy sections
+- 2022-02-25: Bumped pre-release number
+- 2022-02-25: Fixed a bug where paginated setedit browsers could not overwrite a previously set option with an invalid value
+- 2022-02-25: The option is now stored in the configurable option exception object
+- 2022-02-24: Added merge results button to results interface
+- 2022-02-24: Fixed old debugging line
+- 2022-02-24: Added emission rate to reports
+- 2022-02-24: Removed unused code
+- 2022-02-24: Added emission rate to text format
+- 2022-02-24: Removed unused code
+- 2022-02-24: Added emission to text format
+- 2022-02-24: Added emission_rate property to emission class
+- 2022-02-24: Added joules property to excited state class
+- 2022-02-24: Added coulomb_meters property to dipole moment class
+- 2022-02-24: Fixed emission calculations using 'on' option instead of 'calculate'
+- 2022-02-22: Bumped pre-release
+- 2022-02-22: Added --merge option to the result sub-program
+- 2022-02-22: Added TDM to emission object
+- 2022-02-22: Added better description for arguments to SOC object
+- 2022-02-22: Removed unused import
+- 2022-02-22: Removed old code
+- 2022-02-21: Bumped pre-release
+- 2022-02-21: Expanded config options, particularly with regards to image rendering, added option to control rendering backend for skeletal images, added option to control the image used on the front page of reports
+- 2022-02-21: Updated dependencies script to install into a conda env
+- 2022-02-21: Edited main progam entry point to call python3 rather than specific python3.8 (especially because some installs might not have python3.8
+- 2022-02-21: Added dist_current script
+- 2022-02-21: Bumped pre-release number
+- 2022-02-21: Fixed silico coord format saving mult and charge as Decimal
+- 2022-02-21: Added Logs directory
+- 2022-02-21: Fixed error reporting confusion with Paths vs str when parsing log files that do not exist
+- 2022-02-20: Bumped prerelease number
+- 2022-02-20: Fixed local destinations using the same scratch directory for multiple submissions
+- 2022-02-20: Removed old commented code
+- 2022-02-20: Fixed typo
+- 2022-02-20: Added prepare_only option to the submit progam to allow submitting as a dry-run (only creates folder structure and input files
+- 2022-02-20: Made to sure to pass str to rdkit rather than pathlib Path
+- 2022-02-20: Fixed a bug where the skeletal structure image would not be rendered if aligned_structure was missing
+- 2022-02-20: Added support for freezing with a conda env
+- 2022-02-17: Improved error reporting when RDKit is not available
+- 2022-02-17: Removed unused imports from main program
+- 2022-02-17: Logging is now set to debug before importing begins to catch import errors
+- 2022-02-17: init_obabel() is now called by __init__.py
+- 2022-02-16: Added RDKit and dill to references
+- 2022-02-16: Bumped pre-release number
+- 2022-02-16: Added Skeletal structure to report front page (partially addresses #49)
+- 2022-02-16: Added Skeletal_image_maker class for creating 2D depictions of molecules
+- 2022-02-16: Added to_xyz() method to Result Atom_list class
+- 2022-02-16: Fixed whitespace
+- 2022-02-16: to_format() method of Silico_coords class now supports writing directly to file
+- 2022-02-16: Renamed Silico_input class to Silico_coords
+- 2022-02-16: Added support to Openbabel converters to write directly to file and to png
+- 2022-02-16: fixed typo
+- 2022-02-16: Changed name of HAVE_BINDINGS module variable to more specific HAVE_PYBEL
+- 2022-02-16: Shortened the file names used for combined reports to address #51
+- 2022-02-15: Fixed formatting error in quick ref
+- 2022-02-15: Bumped pre-release to 7
+- 2022-02-15: Initial updates to quick ref guide to V1.x
+- 2022-02-15: Changed default save location of method builder to 'method.sim'
+- 2022-02-14: Updated author information to include Campbell's middle initials
+- 2022-02-14: Improved messages when submitting files
+- 2022-02-14: Removed extra whitespace from gaussian input file
+- 2022-02-14: Added basis_set_exchange data when freezing
+- 2022-02-14: Bumped pre-release number
+- 2022-02-14: Added to_type() method to configurable options
+- 2022-02-14: Configurables now deepcopy their initial dict of configurable options to stop strange behaviours
+- 2022-02-14: Bumped pre-release number
+- 2022-02-14: Added missing options to gaussian excited states for PySOC
+- 2022-02-14: Fixed handling of Gaussian keywords that do not take any options
+- 2022-02-14: Readded using 'm' key to open method editor
+- 2022-02-14: Bumped pre-release number
+- 2022-02-14: Fixed Gaussian TDA and TD calculations not handling multiplicity properly when generating the input file
+- 2022-02-14: Moved the turbomole intel_AVX2_fix option to be a sub-option of ricc2
+- 2022-02-14: Removed unused property effective_core_potentials from main silico config object
+- 2022-02-14: Merge branch 'master' into stable-test
+- 2022-02-14: Fixed series calculations not wrapping some tag names in quotes. Replaced arrows character that is unprintable (on windows) with ->
+- 2022-02-14: Removed bigmem partition which is currently unavailable
+- 2022-02-14: Tweaked message when submitting calcs
+- 2022-02-12: Bumped pre-release number
+- 2022-02-12: Warnings are now correctly issued when expanding part of a method with a custom warning set
+- 2022-02-12: Added missing confirm argument to various on_settings_change() callbacks
+- 2022-02-12: Fixed tabs in yaml file
+- 2022-02-12: Added execute bit flag to script
+- 2022-02-12: Bumped version
+- 2022-02-12: Slight tweak to exception raising when failing to retreive status
+- 2022-02-12: Fixed retrieving staus in the method browser
+- 2022-02-12: Added script to enable kenendy configs
+- 2022-02-12: Set kennedy destinations as on by default
+- 2022-02-12: Removed locking around logging
+- 2022-02-12: Added Kennedy specific configs
+- 2022-02-12: Added missing new line to gaussian input files
+- 2022-02-11: Updated dependencies
+- 2022-02-11: Renamed 'compile' directory to 'freeze'
+- 2022-02-11: Removed custom dump_func for Series memory option
+- 2022-02-11: Silico settings are no longer saved to file when pressing cancel
+- 2022-02-11: Fixed a crash when saving settings put the parent directory does not exist
+- 2022-02-11: Updated date modified
+- 2022-02-11: Added custom argparse extend action class for python versions where it is not supported natively
+- 2022-02-10: Expanded library of SP Turbomole calcs
+- 2022-02-10: Expanded Gaussian calc methods in the library
+- 2022-02-10: Added error handling for NEXT options which are not lists
+- 2022-02-10: Fixed configurable loaders crashing on empty configs
+- 2022-02-10: Added choices to Turbomole model option
+- 2022-02-10: Added better support for post HF methods with Gaussian
+- 2022-02-10: Fixed (?) formatting bug where the page header would be truncated even if there was sufficient space
+- 2022-02-10: Removed old config options
+- 2022-02-10: Created DFT option for Gaussian calcs and added empirical_dispersion
+- 2022-02-10: Removed old reference to basis_sets in main silico config
+- 2022-02-10: Updated final page of report template
+- 2022-02-10: Switched to using dump() to retrieve edit values in setedit (possibly review)
+- 2022-02-10: Removed whitespace
+- 2022-02-10: Added elements property to Silico_input file objects
+- 2022-02-10: Added support for basis set exchange basis sets (for Gaussian so far) and removed old legacy code providing the same functionality
+- 2022-02-10: Added edit_vtype argument to configurable options to explicitly choose a setedit widget type
+- 2022-02-10: Added error handling for when a configurable option has an exclusion set but it cannot be found
+- 2022-02-10: Added better error reporting when parsing method files which are incomplete
+- 2022-02-10: Allowed the method builder to write methods which are incomplete (missing segments)
+- 2022-02-10: Updated access to method builder from the main menu
+- 2022-02-10: Added doc
+- 2022-02-10: Added recovery for when parsing a method ID that is not recognised with the method builder
+- 2022-02-10: Added Method_builder_menu widget to act as access to a method builder
+- 2022-02-10: Added initially_from_library argument to method builder widget constructor
+- 2022-02-10: Added can_choose_multiple argument to constructor for method browsers
+- 2022-02-10: Whitespace tweak (?)
+- 2022-02-10: Fixed error reporting when closing a named widget which is not currently visible
+- 2022-02-10: Added new Cancel wrapper widget
+- 2022-02-10: Renamed the validate() method of Setedit_editor_mixin to validate_setedits to avoid conflict with the same method inherited from the Configurable class
+- 2022-02-10: Fixed method list widgets not accessing the correct method library
+- 2022-02-10: Added future todo
+- 2022-02-10: Added can_choose_multiple argument to Method_target_picker popups
+- 2022-02-10: Added __eq__() method to Memory objects to allow comparison
+- 2022-02-10: Removed debugging line
+- 2022-02-10: The save() method of the main silico config object now uses dump() rather than _configurable_options directly
+- 2022-02-10: Changed the type of the option report: memory to Turbomole_memory
+- 2022-02-10: Added resolve argument to parse_method_from_file to control whether to convert string/list/int IDs to their equivalent methods or not
+- 2022-02-10: Modified configurable dump() method to only dump builtin types, converting other types to str
+- 2022-02-09: Added button in main menu for the method builder
+- 2022-02-09: Added Method_builder widget to allow writing new methods to file
+- 2022-02-09: Expanded method editor widget to support changing the configurable class (or even creating one from scratch)
+- 2022-02-09: Removed unused import
+- 2022-02-09: added explanation for method argument in Loader_node_mixin
+- 2022-02-09: Added future todo
+- 2022-02-09: Expanded functionality of method browser to allow browsing only one type of method at a time
+- 2022-02-09: Fixed Method_target_picker not returning full loader path
+- 2022-02-09: Added doc to functions
+- 2022-02-09: Added Paginated_browser_mixin class
+- 2022-02-09: Exposed default_file_name argument to Output_edit popup widget
+- 2022-02-09: Added underline formatting for configurable options that are required
+- 2022-02-09: Added todo warning about exception catching in Top widget
+- 2022-02-09: Fixed Tab_pile allowing focus to be set on child widgets which are not selectable()
+- 2022-02-09: Capitalised class handle of Gaussian (program)
+- 2022-02-09: Added todo to allow editing of series calcs
+- 2022-02-09: Removed unused import
+- 2022-02-09: Better handling of method parts when parsing from file
+- 2022-02-09: Removed default for method_target class_name because it interfered with dump() and replaced with equivalent in __init__()
+- 2022-02-09: Added bold italics urwid attribute
+- 2022-02-09: Improved error message when processing a configurable ID that has a wrong type
+- 2022-02-09: Added explicit argument to configurable dump() function
+- 2022-02-09: Added dump_func for memory config option
+- 2022-02-09: Added dump() function to convert configurables to plain (nested) dicts; replaced deprecated rawtype argument with dump_func
+- 2022-02-08: Fixed a bug where Output_selector widgets ignored the default_file_name argument
+- 2022-02-07: Added Method_target_picker widget for selecting parts of a method as a popup
+- 2022-02-07: The known_handles() method of Dynamic_parent objects now returns an ordered list
+- 2022-02-07: Fixed various bugs when running gaussian calculations
+- 2022-02-07: Fixed using deepmerge.always_merger incorrectly in Gaussian calculations
+- 2022-02-07: Fixed calculation targets merging silico options incorrectly
+- 2022-02-07: Whitespace
+- 2022-02-07: Update method list item edit buttons to call cancel_callback() instead of discard() directly
+- 2022-02-07: Removed unused import
+- 2022-02-07: Added ability to change the class of a method target in the method editor
+- 2022-02-07: Renamed 'top' attribute to 'page' in Pages widget (to prevent confusion with the normal 'top' attribute of various widgets)
+- 2022-02-07: Split up confirm() method from validate() in Configurable_browser
+- 2022-02-07: Fixed configurable browsers choking when given newly created configurables
+- 2022-02-07: Standardised submit_callback() and cancel_callback() methods of setedit browsers
+- 2022-02-07: Fixed not being able to change the inner body of a Pane
+- 2022-02-07: Added change_callback argument to Choices_edit widgets
+- 2022-02-07: Fixed lack of quote in some series tag lists
+- 2022-02-07: Removed unused code
+- 2022-02-07: Fixed a bug where type was partially ignored when a configurable option also had list_type set
+- 2022-02-07: Added no_none option for configurable options to disallow None values
+- 2022-02-07: Improved recovery when dealing with configurables that don't have a name set
+- 2022-02-07: Added str type to the class_name option
+- 2022-02-07: Added deep_merge() method to configurables
+- 2022-02-04: Added Setedit_editor_mixin class to act as ABC
+- 2022-02-04: Added value property to Row_item class
+- 2022-02-04: Updated method list to reflect changes to edited method names etc
+- 2022-02-04: Changed -dev to -pre in version info
+- 2022-02-04: Added focus attribute for authorship button
+- 2022-02-04: Improved error messages when linking loaders
+- 2022-02-04: Added support for the PREVIOUS option in config loaders (acts like NEXT but in reverse)
+- 2022-02-04: Set initial log level to DEBUG to give better error reporting during startup
+- 2022-02-04: Added error message when giving options with the command line -S option that are formatted wrong
+- 2022-02-04: Added authorship widget to main menu
+- 2022-02-03: Further support for method files
+- 2022-02-03: Improved error message when failing to load a configurable from tag
+- 2022-02-03: Added todo
+- 2022-02-03: Added support for method files
+- 2022-02-03: Added Invalid_method_parent exception (currently unused)
+- 2022-02-03: Fixed typo
+- 2022-02-03: Added todo
+- 2022-02-03: Added whitespace
+- 2022-02-03: Changed options called 'on' to 'calculate' to avoid automatic conversion issues with on -> True
+- 2022-02-03: Added file_name argument to constructor for configurables
+- 2022-02-02: Added manual method code button to Method_list widget
+- 2022-02-02: Added method code widget to Method_browser widgets (currently unused)
+- 2022-02-02: Fixed using wrong urwid attribute
+- 2022-02-02: Added new edit dialogue widget
+- 2022-02-02: Removed unused urwid attributes
+- 2022-02-02: Removed weird wrapping of Swappable contents with Pane
+- 2022-02-02: Added import for set_logging_level() into silico.logging
+- 2022-02-02: Changing logging options interactively now updates log level
+- 2022-02-02: Removed Enhanced_tree_selector_class (in readiness for a better mechanism)
+- 2022-02-02: Added short and one-letter codes for each of the main silico sub-programs
+- 2022-02-02: Series calculations can now overwrite the CPUs and memory of the calcs that they represent
+- 2022-02-02: Removed unused code
+- 2022-02-02: Removed extra whitespace
+- 2022-02-02: Added no_edit flags to various TYPE options
+- 2022-02-02: Fixed file browsers not correctly triggering on_settings_change()
+- 2022-02-02: Slightly expanded error message when attempting to interactively running a sub-program without an interface
+- 2022-02-02: Removed unused import
+- 2022-02-02: Added defaults for some command-line arguments to the convert program
+- 2022-02-02: Added interface for file conversion sub-program
+- 2022-02-02: File_edit classes can now disallow selection of folders
+- 2022-02-02: Added input_formats() and output_formats() class methods to Silico_input class
+- 2022-02-02: Fixed typo
+- 2022-02-01: Added info string for change settings button
+- 2022-02-01: Removed unused class
+- 2022-02-01: Added initial functional interface for status program
+- 2022-02-01: Fixed typo in interface help
+- 2022-02-01: Removed some unused code
+- 2022-02-01: Fixed not calling configurable.validate() when rolling back settings in the settings editor
+- 2022-02-01: Added missing default to result stop_on_missing option
+- 2022-02-01: Added missing default from report_type option
+- 2022-02-01: Fixed pruning of None values in configurable options
+- 2022-02-01: Removed unused imports
+- 2022-02-01: Fixed config options and files specified on the command line being ignored
+- 2022-02-01: Fixed bug in vmd image maker caused by typo
+- 2022-02-01: Changed grammar of comment
+- 2022-02-01: Removed old todo
+- 2022-02-01: Added reset button to setting browsers
+- 2022-02-01: Paginated settings browsers now swich to the page that failed validation when an incorrect option value is given by the user
+- 2022-02-01: Fixed a bug where cancelling editing configurable options would not actually reset changed values
+- 2022-02-01: Added additional options to report interface
+- 2022-02-01: Added refresh() method to configurable settings browsers so multiple browsers can safely edit the same configurable
+- 2022-02-01: Removed unused imports
+- 2022-02-01: Added make_settings_page_from_configurable_option() function
+- 2022-02-01: Added additional_option_pages property to Swappable widgets to expand settings page functionality
+- 2022-02-01: Added method to Pages widget to get title of the current page
+- 2022-02-01: Streamlined switch page function of the Pages widget
+- 2022-02-01: Fixed typo in dialogue output title
+- 2022-01-31: Changed appearance of Solo_sub_editor widget
+- 2022-01-31: Fixed Swappable error message referencing an old class name
+- 2022-01-31: Removed unused Swappable_browser widget
+- 2022-01-31: Added new function to automatically generate a paginated settings browser from a configurable
+- 2022-01-31: Added future TODO regarding image sub option
+- 2022-01-27: Added initial help text for interactive windows
+- 2022-01-27: Updated main settings browser to use paginated browser
+- 2022-01-27: Updates to reflect updated Configurable_browser
+- 2022-01-27: Updated top to using generic Configurable_browser object after deletion of redundant Swappable_browser
+- 2022-01-27: Updated to using new callback mechanism
+- 2022-01-27: Replaced placeholder submit method when editing methods
+- 2022-01-27: Moved method editor widget
+- 2022-01-27: Added todo
+- 2022-01-27: Fixed a bug saving the value from dict editors because of weird property setter inheritance
+- 2022-01-27: Various improvements to the Pages widget
+- 2022-01-27: General improvements and alterations to setedit and particularly configurable edits; added paginated settings editor
+- 2022-01-27: Removed old todo
+- 2022-01-27: Added num_child_options property to configurable options
+- 2022-01-27: Added initial interface for status program
+- 2022-01-27: Fixed typo
+- 2022-01-26: Removed unused palette.yaml file
+- 2022-01-26: Fixed incorrect find-and-replace change for default value of 'title' for Pages widgets
+- 2022-01-26: Created new interface.urwid.layout for general layout widgets, renamed old Section (and Sub_section) widgets to match.
+- 2022-01-26: Sub-programs are now no-longer reloaded when global options are changed.
+- 2022-01-26: Added error reporting when failing to load calculation results in the interactive result program
+- 2022-01-26: Removed command line arguments to silico report that are duplicates of existing config options
+- 2022-01-21: Fixed set_logging_level() using incorrect parameter
+- 2022-01-19: Fixed a crash when using dict editor setedits
+- 2022-01-19: Fixed a bug trying to access the default value of config options that are required (have no default)
+- 2022-01-19: Sub-programs are now automatically reloaded when main silico settings are changed
+- 2022-01-19: Gaussian programs now use their own formchk version when converting files
+- 2022-01-19: Removed some unused properties of the Gaussian program class
+- 2022-01-19: Renamed some configurable attributes of the Gaussian program class
+- 2022-01-19: Fixed typo
+- 2022-01-19: File converter programs no longer rely on class attributes for paths to executables
+- 2022-01-19: Moved function used to set logging level to logging module
+- 2022-01-15: Fixed calling user specified callback when saving configurable options when something went wrong
+- 2022-01-15: Improved access for setedits to their default value
+- 2022-01-15: Changed chaining of if-else statements for readability
+- 2022-01-15: Fixed setedit widgets adding too many dividers
+- 2022-01-15: Removed commented code
+- 2022-01-15: List editor sub widgets now have an attribute to their parent editor
+- 2022-01-15: Setedit's str_to_value is no longer a classmethod
+- 2022-01-15: List editor widgets can now handle None values
+- 2022-01-15: Removed unnused method
+- 2022-01-15: Fixed setedit widgets adding too many dividers
+- 2022-01-15: Configurable options now no longer save values that are equivalent to their default (instead using the actual default)
+- 2022-01-15: Fixed certain options in main silico config not using list types correctly
+- 2022-01-15: Added better support for list types for configurable options
+- 2022-01-15: Fixed ordering of imports
+- 2022-01-15: Saving config options to file now uses atomic write
+- 2022-01-15: Added new atomic_write function for writing files pseudo atomically
+- 2022-01-12: Settings are now saved to disk when edited interactively
+- 2022-01-12: Expanded on TODO message
+- 2022-01-12: Added sass
+- 2022-01-12: Added better (ish) error message when failing to parse config files
+- 2022-01-12: Removed unused code
+- 2022-01-12: Fixed typo
+- 2022-01-12: Added ability to save modified config options
+- 2022-01-12: Removed unused code and comments
+- 2022-01-11: Changed sorting of configurable options to ignore case
+- 2022-01-11: Added the ability to change main silico settings from the inerative main menu
+- 2022-01-11: Updates to settings widgets allowing better handling of sub options, improved roll-back support and the ability to reset options to their default by deleting the current value
+- 2022-01-11: Added #todo comment to Top class
+- 2022-01-11: Fixed typo in peak_cutoff option
+- 2022-01-11: Added some missing functionality from configurable options re. sub options
+- 2021-12-16: Options_mapping objects now inherit from MutableMapping ABC
+- 2021-12-16: Fixed plot_cumulative_peak(s) typo
+- 2021-12-15: Allowed accessing the main silico config object as a dict
+- 2021-12-15: The main silico config object is now a configurable; removed the now unecessary .default.yaml config file.
+- 2021-12-14: Added initial implementation of output location widget
+- 2021-12-14: Added logging message before writing pdf report files
+- 2021-12-14: Fixed can_choose_multiple not doing anything
+- 2021-12-14: Added output options to the submit program
+- 2021-12-14: Tweaked description of the -x flag to result
+- 2021-12-13: Removed unused imports
+- 2021-12-13: Added output options to the report interface
+- 2021-12-13: Changed the default output location for the report program to "./Report"
+- 2021-12-13: Fixed incorrect interpretation of return values from program interface submit() method; False is now always returned (to prevent the window from closing).
+- 2021-12-13: Removed the '--ignore' option to the result program and instead replaced it with its opposite, '--stop' (ie, ignore is now the default)
+- 2021-12-13: A warning is now issued when formatting results when a certain property is not available.
+- 2021-12-13: Renamed the 'properties' argument for the result program to 'filters'
+- 2021-12-13: Expanded result parsing interface
+- 2021-12-13: Fixed using wrong named args to class constructor
+- 2021-12-13: Removed unused import
+- 2021-12-10: Standardized return values from sub programs
+- 2021-12-10: Added missing update() method to File_edit widgets
+- 2021-12-10: Tweaked description of result program
+- 2021-12-10: Moved popup edit widgets into their own file
+- 2021-12-09: Tweaked logging message when starting to generate a report.
+- 2021-12-09: Added logging for result program
+- 2021-12-09: Added basic functionality for interactive result parsing
+- 2021-12-09: Added molecule names to interactive result window
+- 2021-12-08: Refactored logging
+- 2021-12-08: Renamed file for result program interface.
+- 2021-12-08: Temporarily (hopefully) removed multiprocess parsing of results in the interactive result program (because it breaks logging to urwid)
+- 2021-12-08: The 'r' key can now be used to manually refresh a directory in the file browser.
+- 2021-12-08: Closing a directory in the file browser will now refresh it's contents on next open by default
+- 2021-12-07: Refactoring of various widget classes; add initial interface for Result program.
+- 2021-12-07: Added known_handles() method to Dynamic_parent class
+- 2021-11-30: Removed devel flag
+- 2021-11-30: Removed quotes from @font-face url() and local() css functions to avoid weasyprint issue 1246
+- 2021-11-26: Removed unnused function
+- 2021-11-26: Increased default number of CPUs with ricc2 following resolution of #36.
+- 2021-11-26: Added fix for #36 by adding option to set MKL_ENABLE_INSTRUCTIONS=SSE4_2
+- 2021-11-26: Simplified result program interface.
+- 2021-11-26: Changed --option alias from -o to -O for submit for consistency with other programs
+- 2021-11-26: Added new parsing function to bulk parse log files in parallel
+- 2021-11-26: Fixed typo
+- 2021-11-26: Added 'MOS' as a handle for parsing alpha orbitals from results
+- 2021-11-26: Some initial cleanup of the messy 'extractor' code (also renamed to 'format')
+- 2021-11-26: Tweaked whitespace
+- 2021-11-26: Fixed bug in result program with using wrong logger object
+- 2021-11-26: Removed unnused list function (silico result)
+- 2021-11-26: Renamed calculation_files command line argument to log_files (for consistency with other sub-programs)
+- 2021-11-26: Tweaked logging when loading coords interactively
+- 2021-11-26: Renamed report interface widget
+- 2021-11-26: Rename submit interface widget
+- 2021-11-26: Added logging call when parsing coord files
+- 2021-11-26: Improved access to the silico logging object
+- 2021-11-25: Added new choices setedit widget
+- 2021-11-25: Added catch for ctrl-c when running subprograms
+- 2021-11-25: Added new Widget_dialogue widget for use in popups
+- 2021-11-25: Removed debugging line
+- 2021-11-25: Added better error reporting when cclib raises an exception trying to determine the type of computation log file
+- 2021-11-25: Method widgets do not require an excplicit top arguemnt (they already have access to one)
+- 2021-11-25: Sub-programs that raise exceptions during excecution will no longer cause the interactive program to close
+- 2021-11-24: Added new File_editor setedit widget for picking files
+- 2021-11-23: Fixed row_list missing default value_from_node() method
+- 2021-11-23: Fixed default post() method accepting incorrect arguemnts
+- 2021-11-23: File selector widgets now support selecting directories and files
+- 2021-11-23: Fixed getting values from file list widgets
+- 2021-11-23: Fixed crash when sub-programs are switched interactively and specific command line arguments have been given.
+- 2021-11-23: Fixed the --name option to silico report which previously did nothing.
+- 2021-11-23: Fixed typo in setting up report program from interface
+- 2021-11-23: Added ability to select folders in report interface
+- 2021-11-23: Added output confirmation when finished submitting calcs
+- 2021-11-23: Disconnected stdin from vmd to prevent vmd accepting user input and pausing mid-rendering
+- 2021-11-23: Added #todo: to cleanup result parsing
+- 2021-11-22: Tweaked text for method browser
+- 2021-11-22: Added method code selector for method browsers
+- 2021-11-22: Added manual file selector to coord browser widgets
+- 2021-11-22: Added option to change title alignment in section widgets
+- 2021-11-22: Added new selector ABC class for more useful tree widgets
+- 2021-11-22: Added selected property to flaggable tree widgets
+- 2021-11-22: Refactored row list widgets to make intention of methods more clear
+- 2021-11-22: Changes to view widgets to make them more extendable
+- 2021-11-22: Fixed typo
+- 2021-11-22: Fixed turbomole calculations using whole memory rather than memory per CPU
+- 2021-11-17: Added potential fix for #21
+- 2021-11-16: Renaming
+- 2021-11-16: Report program now sets options correctly.
+- 2021-11-16: Removed unused defaults.
+- 2021-11-16: Fixed submit program interface not setting output correctly.
+- 2021-11-16: Split functionality of file browser into multiple files; added ability to show or hide hidden files.
+- 2021-11-16: Added new tree walker class which takes of care of nodes dissapearing when in focus
+- 2021-11-16: Rearranged imports
+- 2021-11-16: Moved some program functionality to the base Program class
+- 2021-11-16: The contents of the output widget is now dumped to output on program close (so error messages aren't lost)
+- 2021-11-16: The interactive subprogram now takes cares of supplying the correct type of argparse object to the called sub program
+- 2021-11-16: Fixed typos
+- 2021-11-16: Tweaked report program
+- 2021-11-16: Tweaked signature of submit program
+- 2021-11-15: Fixed typo
+- 2021-11-15: Added remove button to row list pointers which can delete all items present.
+- 2021-11-15: Rearranged imports
+- 2021-11-15: Changed default size for popup widgets
+- 2021-11-15: Increased displayed size of output widget
+- 2021-11-15: Rearranged imports
+- 2021-11-15: Converted tab chars to whitespace when outputting to output widget
+- 2021-11-15: Updated Output widget to discard old output on close
+- 2021-11-15: Expanded default max_length for output widgets to 500
+- 2021-11-15: Added (empty) loop attribute to Window widgets
+- 2021-11-15: Updated Row_list widgets to new error handling
+- 2021-11-15: Turned off pybel warnings (but kept errors) when running interactively
+- 2021-11-15: Rearranged imports
+- 2021-11-15: Output catcher now takes the silico window as argument rather than the top widget
+- 2021-11-15: SLURM status now shoes the % of empty nodes
+- 2021-11-15: Added some comments re. future content
+- 2021-11-15: Disabled pybel errors and warnings when converting files (prevents output from messing up urwid scren).
+- 2021-11-08: Removed devel flag
+- 2021-11-08: Removed call to debugger
+- 2021-11-08: Fixed loading report program interface.
+- 2021-11-08: Fixed bug when program exits from ctrl-c
+- 2021-11-08: Overhauled startup for interactive programs
+- 2021-11-08: Fixed error in File_list widget
+- 2021-11-08: Fixed handling of esc button in Top widget
+- 2021-11-05: Tab_pile widgets can now be nested correctly
+- 2021-11-05: Added popup when finished submitting calcs
+- 2021-11-05: Updated dialogue widgets
+- 2021-11-05: Added debugging line
+- 2021-11-05: Removed debugging
+- 2021-11-05: Updated for compatability with new Top widget
+- 2021-11-05: Added redirection of stdout and stderr to urwid widget when running in interactive mode
+- 2021-11-05: Update Top widget to better support overlays and popups
+- 2021-11-04: Added functionality for swapping top widget behind an overlay
+- 2021-11-04: Refactored dialogue widgets
+- 2021-11-03: Fixed accidentally passing validate_now both True and False when loading configurables
+- 2021-11-03: Updated to urwid interfaces.
+- 2021-11-03: Added widget for generating reports.
+- 2021-11-03: Updates to program interface
+- 2021-11-03: Switched to using auto_name in description_name()
+- 2021-11-03: Fixed merging of silico options in calculation objects
+- 2021-11-03: Updated turbomole cube making programs
+- 2021-11-03: Removed unneeded import
+- 2021-11-03: Added default options for submission methods
+- 2021-11-03: Removed obsolete node_printer
+- 2021-11-03: Added exception when attempting to render molecules with render_style is None
+- 2021-11-03: Updated file makers to support newer style method objects
+- 2021-11-03: Fixed file hierarchy
+- 2021-11-03: Switched old style NAME to name
+- 2021-11-03: resolve() can now take a single tag as an argument
+- 2021-11-03: resolve() no longer returns both the configurable and loader path (because the latter is already available as an attribute of the configurable)
+- 2021-11-03: Configurable loaders no longer call validate() or configure_auto_name() (the configurable does it itself)
+- 2021-11-03: Added __new__ method to inner class of configurable class targets to prevent overwriting configurable options
+- 2021-11-03: Added try/catch block for configurable description()
+- 2021-11-03: Configurable_class_target objects now call configure_auto_name() in __init__
+- 2021-11-03: changed validate_now default value to True
+- 2021-11-02: Updated documentation
+- 2021-11-02: Removed excess whitespace
+- 2021-11-02: Added support for default submit() method for Progam_view widgets
+- 2021-11-02: Fixed implementation of resolve_method() method
+- 2021-11-02: Expanded configurable_class_loader description() method to include the ID if available
+- 2021-11-02: Removed obsolete self.validate_parent method
+- 2021-11-02: Fixed converting turbomole coord files to silico input (.si) using 'coord' as the molecule name.
+- 2021-11-02: Silico_input objects now remember the file they were loaded from.
+- 2021-11-02: Fixed turbomole singlepoint ricc calculation configs
+- 2021-11-02: Overhauled subprogram interface
+- 2021-11-01: Refactored file browser position
+- 2021-11-01: Refactored method browser location
+- 2021-11-01: Added missing __init__.py files
+- 2021-11-01: Added files for report interface
+- 2021-11-01: Rearranged imports
+- 2021-11-01: File browser wdiget now correctly shows the current dir as expanded
+- 2021-10-29: Renamed some variables in the method link() method
+- 2021-10-29: Various updates to the urwid calculation submitter widget
+- 2021-10-29: Added initial argument for Row_list widgets
+- 2021-10-29: Tweaked imports
+- 2021-10-29: Added default charge and multiplicity options for the coordinate loader widget
+- 2021-10-29: Tweaked View widget
+- 2021-10-29: Tweaked imports
+- 2021-10-29: Added FloatEditZero class
+- 2021-10-29: Tweaked imports
+- 2021-10-29: Moved section widget to separate files
+- 2021-10-29: Moved urwid base file
+- 2021-10-29: Removed unnused file
+- 2021-10-29: Tweaked imports
+- 2021-10-29: Added methods for parsing method IDs
+- 2021-10-29: Improved parsing of identifiers for methods
+- 2021-10-29: Changed subprogram implementation to a new, class based one
+- 2021-10-27: Added support for _save() method
+- 2021-10-27: Overhauled setedit widget support for configurables
+- 2021-10-27: Removed unused Configurable_editor
+- 2021-10-27: Added function that will be called on View objects when settings are changed
+- 2021-10-27: Moved configurable settings browser
+- 2021-10-27: The topmost node in the method browser is shown expanded by default
+- 2021-10-27: Added mechanism to show/hide hidden nodes in the method browser
+- 2021-10-27: Prevented destinations and programs from being accidentally selected in the method browser; added method to call when settings are changed
+- 2021-10-27: Gave the title attribute for urwid Sections a default and added mechanism for swapping inner body.
+- 2021-10-27: Reordered imports.
+- 2021-10-27: Added is_selectable() method to tree widgets which can be overriden in child classes
+- 2021-10-27: Added smarter selection of display attributes for tree widget
+- 2021-10-27: Fixed Configurable_exceptions not actually supporting new style configurables
+- 2021-10-27: Added description property to Configurables (not just Configurable_class_loaders)
+- 2021-10-27: Moved part of construction for Configurables to __new__
+- 2021-10-27: Expanded urwid palette
+- 2021-10-27: Temp dest destination with a warning for debug
+- 2021-10-26: Added attr for tree nodes with warnings set.
+- 2021-10-26: Bumped version number
+- 2021-10-26: Fixed a bug rendering SCF density image from gaussian calculations with non-singlet multiplicity (fixed #46)
+- 2021-10-20: Added Configurable_browser widget
+- 2021-10-20: Changed default callback
+- 2021-10-20: Fixed Top widget using incorrect wrapper
+- 2021-10-20: Added default save() method for Setedit_browsers
+- 2021-10-20: Refactores init for Setedit objects from Configurable options
+- 2021-10-20: Fixed typo
+- 2021-10-20: Added reset() method to setedit widgets
+- 2021-10-20: Created coord_browser object
+- 2021-10-20: Added settings to method browser
+- 2021-10-20: Tweaks to configurable editor widgets
+- 2021-10-20: Moved Window widget
+- 2021-10-20: Improvements to top swapping mechanism
+- 2021-10-20: Renamed settings_browser attribute to settings_editor
+- 2021-10-20: Added palette options for settings buttons
+- 2021-10-20: Fixed validate() not being a member of Configurable()
+- 2021-10-20: Refactored Configurable logic:  - Created new base class 'Configurable' which is purely for object wanting to have Option objects as attributes.  - Renamed old 'Configurable' class to 'Configurable_class_target' which subclasses the new 'Configurable class. This class is for loading options from file and creating real classes from those options.  - Other minor changes to relfect
+- 2021-10-20: Added show_hidden parameter to get_concrete_children()
+- 2021-10-20: Fixed destinations raising NotImplementedError instead of NotImplementedError()
+- 2021-10-20: The methods of the method browser are shown expanded by default
+- 2021-10-20: Added support for showing destination status in method browser.
+- 2021-10-20: Fixed incorrectly returning back twice when pressing esc
+- 2021-10-20: Altered setedit widgets to give better separation between widgets and logic
+- 2021-10-19: Added default action for back buttons
+- 2021-10-19: Removed trailing whitespace
+- 2021-10-19: Added new configurable editor widget
+- 2021-10-19: Removed old treewidget classes
+- 2021-10-19: Added new settings editor widgets and removed old classes
+- 2021-10-19: Added urwid Pages widget for scolling through multiple pages.
+- 2021-10-18: Added Confirm_settings_cancel wrapper widget
+- 2021-10-18: Added option to change the title for file browser objects.
+- 2021-10-18: Refactoring of treelist
+- 2021-10-18: Added higher level Row_browser object
+- 2021-10-18: Changed default alignment of buttons for Row_items
+- 2021-10-18: Added dialogue box to Row_list objects
+- 2021-10-18: Disabled additional spacing between Row_item objects
+- 2021-10-18: Added formula property to Silico_input objects
+- 2021-10-15: Added error argument to Confirm_or_cancel_dialogue
+- 2021-10-15: Updates to coordinate loader widget
+- 2021-10-15: Updated to mechanism behind the file browser.
+- 2021-10-15: Added IntEditZero widget to allow setting zeroes
+- 2021-10-15: Expanded urwid palette
+- 2021-10-15: Removed debuging
+- 2021-10-15: Row_list now uses the ModifiedList interface
+- 2021-10-15: Updated styling for Row_list objects
+- 2021-10-15: Separated out urwid Top interface
+- 2021-10-15: Separated and expanded urwid dialogue interface.
+- 2021-10-14: Fixed bug getting next and previous in Row_list
+- 2021-10-14: Improved formatting of buttons.
+- 2021-10-14: Swappable_windows now process 'esc' key correctly
+- 2021-10-14: Switched Swapping_window to use a Tab_pile instead of normal pile
+- 2021-10-14: Enhanced Top widget with option to wrap new widgets with cancel/submit controls.
+- 2021-10-14: Fixed add_func for Row_list pointers
+- 2021-10-14: Added focus attributes to Row_item controls
+- 2021-10-14: Fixed typo
+- 2021-10-14: Updates for Row_list widgets
+- 2021-10-14: Added Row_list widget as part of submission interface
+- 2021-10-13: Updates to the Gaussian input file parser.
+- 2021-10-13: WIP
+- 2021-10-13: Added first implementation of file browser widget
+- 2021-10-12: Swithched to using Blank widget
+- 2021-10-12: Added highlighting to calbox pointer
+- 2021-10-12: Fixed navigation in method browser between calcbox and browser
+- 2021-10-12: Added new Section objects to method browser
+- 2021-10-12: Cleanup
+- 2021-10-12: Added urwid Section widget
+- 2021-10-12: Refactoring of method browser
+- 2021-10-12: Improved urwid swappable mechanism
+- 2021-10-12: Removed spacer after the last item in a calcbox.
+- 2021-10-12: Added Blank urwid widget.
+- 2021-10-11: Added functionality to base urwid interface classes
+- 2021-10-11: Cleanup up method browser
+- 2021-10-11: Fixed initial focus on calcboxes so now they track the insertion pointer by default.
+- 2021-10-11: Added pointer to calcboxes which indicates where the next method will be added in the list.
+- 2021-10-11: Added support for space and enter as keys to expand/contract the calculation browser
+- 2021-10-11: calcbox items now store their position widget
+- 2021-10-11: Expanded description for method
+- 2021-10-11: Updated calculation browser to new style
+- 2021-10-11: Expanded urwid palette
+- 2021-10-11: Removed 'from None' when raising exceptions for not finding class names
+- 2021-10-10: Fixed index() not retuning anything
+- 2021-10-10: Improved implementation of Dynamic_parent(); ignoring inheritance
+- 2021-10-10: Added index() method to configurables
+- 2021-10-10: Moved confiurable options of configurable to top of the class
+- 2021-10-10: Combined tag_hierarchy and file_hierarchy into more convenient file_list property (configurables)
+- 2021-10-10: Fixed calculation base config not being pseudo
+- 2021-10-08: Added support for the unrestricted option for Gaussian calcs
+- 2021-10-08: Fixed renaming of gaussian 'options' to 'keywords'
+- 2021-10-08: Fixed ALIAS not being deleted before a configurable is resolved
+- 2021-10-08: Removed unused options
+- 2021-10-08: Expanded default urwid palette
+- 2021-10-08: Added urwid_palette shortcut to the main silico config object
+- 2021-10-08: Moved yaml_to_palette() method
+- 2021-10-08: Minor refactoring to configurable loaders
+- 2021-10-08: Added index_of_path() method to configurables
+- 2021-10-08: Fixed missing links in Gaussian and Turbomole calcs
+- 2021-10-07: Added functionality to configurable ALIAS
+- 2021-10-07: Fixed broken Turbomole configs.
+- 2021-10-07: Fixed missing SUB_TYPE from some config files.
+- 2021-10-07: Removed unused 'categories' option and replaced with 'ALIAS'
+- 2021-10-07: Updated series calculations to use correct loader methods
+- 2021-10-07: Fixed the get_concrete_children() method
+- 2021-10-07: Added methods property to the main silico config object
+- 2021-10-07: Added functionality to link configurable loaders to child loaders of a different type using NEXT
+- 2021-09-30: Updated and improved configurable loader resolve interface
+- 2021-09-27: Added get_concrete_children() method to configurable loaders.
+- 2021-09-27: Removed unnused method from configurable laoder
+- 2021-09-27: Renamed Configurable.CLASS to Configurable.class_name
+- 2021-09-15: WIP updates to calc browser; changed links between destination/program and program/calc to be be top down (previously was bottom up)
+- 2021-09-14: Fixed turbomole parser not using default metadata parsing method
+- 2021-09-14: Set dev flag
+- 2021-09-14: Added 'user' as a new attribute of result metadata, representing the username of the user who carried out the calculation.
+- 2021-09-03: Prepared calculation browser for updates.
+- 2021-09-03: Cleanup submit program after new naming scheme
+- 2021-09-03: cleanup
+- 2021-09-03: Renamed submission 'method' to 'destination'
+- 2021-09-03: Expanded functionality of Gaussian Keyword class
+- 2021-09-03: Added class to represent Gaussian Keywords.
+- 2021-09-03: Added new implementation for handling gaussian keywords
+- 2021-08-31: Cleanup
+- 2021-08-31: Tweaked calculation expand() method
+- 2021-08-31: finalize() is now called by configurable loaders
+- 2021-08-31: Added default implementation of resolve_by_tags()
+- 2021-08-31: Removed unused import
+- 2021-08-26: Tidied up constructor
+- 2021-08-26: Fixed typo
+- 2021-08-26: Updated series calculations mechanism
+- 2021-08-26: Cleanup
+- 2021-08-26: Changed ordering of calculations
+- 2021-08-26: Fixed typo
+- 2021-08-26: Added two missing calcs to Gaussian series
+- 2021-08-26: Readded Turbomole series calcs
+- 2021-08-26: Tweaked error message for unresolvable tag paths
+- 2021-08-26: Readded Gaussian series calculations
+- 2021-08-26: Readded gaussian calcs to list
+- 2021-08-26: Added Gaussian Optimisation Frequencies Unrestricted Triplet to list of calcs
+- 2021-08-26: Imrpoved error reporting when trying to resolve TAG paths
+- 2021-08-25: Added ability to resolve partial configurables by TAG names
+- 2021-08-25: Made TAGs mandatory for configurables
+- 2021-08-18: WIP
+- 2021-08-13: File names are now added to a configurable's hierachy even if missing a TAG
+- 2021-08-13: Fixed odd whitespace
+- 2021-08-13: Added TAG to base calculations config
+- 2021-08-13: Fixes for new Turbomole calc configs
+- 2021-08-13: Added default file locations to gaussian program configs
+- 2021-08-13: Configurable options can now be unset by setting their value to null
+- 2021-08-12: Replaced default _validate lambda function with method
+- 2021-08-12: Added validate argument to configurable loader resolve()
+- 2021-08-12: Tweaks to validate subprogram
+- 2021-08-12: Moved init function for multiprocessing
+- 2021-08-12: Swapped inheritance for Missing_option_exceptions to better represent functionality.
+- 2021-08-12: Missing_option_exceptions are now raised from None to aid clarity
+- 2021-08-12: Removed unused exception
+- 2021-08-12: Fixed formatting of Missing_option_exceptions to better match that of other similar exceptions
+- 2021-08-12: Fixed full_name() returning an additional ':' separator
+- 2021-08-12: Improved formatting of configurable exceptions
+- 2021-08-11: Wrapped config options with the name "on" in speech marks to prevent automatic conversion to True
+- 2021-08-11: Added automatic case conversion for configurable options with choices
+- 2021-08-11: Fixed typo in configs
+- 2021-08-11: Added improved error reporting for configurable options with choices set; simplified choices
+- 2021-08-11: Wrapped config options with the name "on" in speech marks to prevent automatic conversion to True
+- 2021-08-11: Fixed a bug where Gas Phase calcs were listed twice.
+- 2021-08-11: Improved configurables error reporting: errors now include a full file list and nested options show the names of their parents.
+- 2021-08-10: The config validate program now correctly accepts a default argument for the type of configurable to be validated
+- 2021-08-06: Added config validate program
+- 2021-08-06: Updated modified date
+- 2021-08-06: Added support for iteration over Configurable_loader objects
+- 2021-08-06: Removed unnused config split program
+- 2021-08-06: Removed old configs
+- 2021-08-06: Fixed program wide -S and --config_files options
+- 2021-08-06: Changed default value of Config_file_parser.load() not_exists_ok to False
+- 2021-08-06: Updated config files to v1 format
+- 2021-08-06: Added support for update configurables
+- 2021-08-05: Added TODO for configurable categories formating
+- 2021-08-05: Fixed a bug removing special options from configurables when they weren't actually present
+- 2021-08-05: Added support for formatting characters in configurable categories; moved some configurable options to lowercase (NAME, CATEGORY etc); general cleanup
+- 2021-08-05: Cleanup and removed old classes
+- 2021-08-05: Cleaned up and removed old Configurable_list class
+- 2021-08-05: Cleaned up an removed whitespace
+- 2021-08-05: Added new error class for configurable loaders
+- 2021-08-04: Removed himl and replaced with more flexible configurable parsing.
+- 2021-08-04: Added more convenient handling of different calculation types for gaussian (opt, freq, TDA etc).
+- 2021-07-29: Updated changelog
+- 2021-07-29: Updated documentation to v0.19.6
+- 2021-07-29: Added command to auto generate CHANGELOG.md file
 - 2021-07-29: Updated quick reference with ADC(2)
 - 2021-07-29: Added new documentation showing change in common calc codes.
+- 2021-07-21: Added initial implementation of config split program.
+- 2021-07-21: Updated refactored import
 - 2021-07-20: Removed dev flag
 - 2021-07-20: Merge branch 'devel'
+- 2021-07-20: Added new config split sub program.
+- 2021-07-20: Restructuring of config IO
+- 2021-07-20: Removed unused import
+- 2021-07-20: Update desc of result program
+- 2021-05-20: Overhauled implementation of configurables; implemented hierarchical YAML
 - 2021-06-24: Fixed a bug where the SUCCESS flag could be set even if a calulcation had failed.
 - 2021-06-24: Suppresed warnings from obabel when not in DEBUG logging level.
 - 2021-06-14: Bump version
@@ -10,6 +1014,7 @@
 - 2021-05-31: Bumped version
 - 2021-05-31: Fixed typo in SOC csv results
 - 2021-05-23: Fixed calculation of dipole moments
+- 2021-05-17: Made versioning more semantic.
 - 2021-05-14: Changed folder structure for combi reports
 - 2021-05-13: Fixed a python 3.6 vs 3.8 related bug when parsing results.
 - 2021-05-13: Bumped version number
