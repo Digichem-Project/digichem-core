@@ -1,0 +1,6 @@
+TAG: Destination Base
+SUB_TYPE: pseudo
+NEXT:
+    - SLURM Base
+    - Series
+    - Parallel

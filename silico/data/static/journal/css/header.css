@@ -1,0 +1,80 @@
+.header {
+	
+}
+
+.header__titleArea {
+	/* display: flex; */
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.header__titleArea::after {
+	clear: both;
+	content: "";
+	display: block;
+}
+
+.header__logo {
+	height: 70px;
+	display: inline-block;
+	margin-right: 15px;
+	float: left;
+}
+
+.header__info {
+	display: inline;
+}
+
+.header__authors {
+	margin-bottom: 10px;
+	font-size: 15px;
+	/* display: inline; */
+}
+
+.header__date {
+	margin-bottom: 5px;
+	font-size: 11px;
+	/* display: inline;
+	margin-left: 50px; */
+}
+
+
+.header__authors, .header__date {
+	display: inline;
+	font-size: 15px;
+}
+
+.header__title {
+	text-transform: capitalize;
+	margin-bottom: 10px;
+	margin-top: 0px;
+}
+
+
+.abstract {
+
+}
+
+.abstract__body {
+	/* float: left; */
+	text-align: justify;
+	width:70%;
+	vertical-align: middle;
+	display: inline-block;
+	/*line-height: normal;*/
+	line-height: 1.5;
+	font-size: 9px;
+}
+
+.abstract__imageArea {
+	/* float: left; */
+	width: 29.9999%;
+	/* margin-right: 10px; */
+	padding-right: 10px;
+	vertical-align: middle;
+	display: inline-block;
+}
+
+.abstract__image {
+	width: 100%;
+}

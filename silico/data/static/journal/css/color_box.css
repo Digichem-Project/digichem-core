@@ -1,0 +1,7 @@
+.colorBox {
+	height: 9px;
+    width: 9px;
+    border: 1px solid black;
+    display: inline-block;
+    vertical-align: middle;
+}

@@ -1,0 +1,88 @@
+TAG: Gaussian Methods
+SUB_TYPE: pseudo
+
+NEXT:
+    - Gaussian Functionals
+    - Gaussian Post-HF Methods
+
+
+---
+
+
+# Post-HF methods
+TAG: Gaussian Post-HF Methods
+SUB_TYPE: pseudo
+
+NEXT:
+    - Gaussian MP2
+    - Gaussian MP3
+    - Gaussian MP4
+    - Gaussian MP5
+    - Gaussian CCD
+    - Gaussian CCSD
+   
+   
+---
+
+SUB_TYPE: partial
+TAG: Gaussian MP2
+ALIAS: MP2
+
+post_HF_method: MP2
+
+NEXT: [Gaussian Basis Sets]
+   
+   
+---
+
+SUB_TYPE: partial
+TAG: Gaussian MP3
+ALIAS: MP3
+
+post_HF_method: MP3
+
+NEXT: [Gaussian Basis Sets]
+   
+   
+---
+
+SUB_TYPE: partial
+TAG: Gaussian MP4
+ALIAS: MP4
+
+post_HF_method: MP4
+
+NEXT: [Gaussian Basis Sets]
+   
+   
+---
+
+SUB_TYPE: partial
+TAG: Gaussian MP5
+ALIAS: MP5
+
+post_HF_method: MP5
+
+NEXT: [Gaussian Basis Sets]
+   
+   
+---
+
+SUB_TYPE: partial
+TAG: Gaussian CCD
+ALIAS: CCD
+
+post_HF_method: CCD
+
+NEXT: [Gaussian Basis Sets]
+
+   
+---
+
+SUB_TYPE: partial
+TAG: Gaussian CCSD
+ALIAS: CCSD
+
+post_HF_method: CCSD
+
+NEXT: [Gaussian Basis Sets]

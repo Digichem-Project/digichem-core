@@ -109,8 +109,8 @@ class Calculation_directory(Silico_directory):
         """
         return self(
             Molecule_directory.from_calculation(calculation),
-            calculation.program.NAME,
-            self.safe_name(calculation.NAME),
+            calculation.program.name,
+            self.safe_name(calculation.name),
             create = create,
             program_sub_folder = calculation.structure['program_sub_folder'],
             prepend_program_name = calculation.structure['prepend_program_name'],
@@ -180,6 +180,13 @@ class Calculation_directory(Silico_directory):
         Flags are empty text files where the name of the file conveys information about the state of the calculation (STARTED, SUCCESS, ERROR etc)
         """
         return Path(str(self) + "/Flags")
+    
+    @property
+    def log_directory(self):
+        """
+        Full path to the logging directory.
+        """
+        return Path(str(self) + "/Logs")
         
         
     def set_flag(self, flag, safe = True):
@@ -245,7 +252,7 @@ class Calculation_directory(Silico_directory):
         """
         Full path to the file to which info should be logged.
         """
-        return Path(str(self) + "/Output/silico.out")
+        return Path(self.log_directory, "silico.out")
     
     def create_structure(self, adjust = False):
         """
@@ -255,29 +262,16 @@ class Calculation_directory(Silico_directory):
         """
         retval = 0
         
-#         # First try and make our base directory.
-#         counter = 1
-#         dir_name = self.name
-#         while True:
-#             try:
-#                 self.name = dir_name + " {}".format(str(counter).zfill(2)) if counter != 1 else dir_name
-#                 self.path.mkdir(parents = True)
-#                 break
-#             except FileExistsError:
-#                 if adjust:
-#                     counter +=1
-#                 else:
-#                     raise
-
         self.name = smkdir(self.path, 1 if not adjust else math.inf).name
         
+        sub_dirs = [self.input_directory, self.output_directory, self.flag_directory, self.log_directory]
         
-        for sub_dir in [self.input_directory, self.output_directory, self.flag_directory]:
+        for sub_dir in sub_dirs:
             try:
                 sub_dir.mkdir(parents = True)
             except FileExistsError:
                 retval += 1
-        return retval != 3
+        return retval != len(sub_dirs)
         
         
         

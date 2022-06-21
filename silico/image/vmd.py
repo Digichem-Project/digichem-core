@@ -3,10 +3,8 @@
 from pathlib import Path
 import subprocess
 import math
-from logging import getLogger
 from PIL import Image
 import numpy as np
-import logging
 import pkg_resources
 from uuid import uuid4
 import os
@@ -15,7 +13,6 @@ from math import fabs
 # Silico imports.
 from silico.exception.base import File_maker_exception
 from silico.file import File_converter
-import silico
 
 class VMD_image_maker(File_converter):
     """
@@ -29,9 +26,9 @@ class VMD_image_maker(File_converter):
     # The filename extension to use for molecule scene files produced by vmd.
     scene_file_extension = ".scene"
     # 'Path' to the vmd executable.
-    vmd_execuable = "vmd"
+    #vmd_executable = "vmd"
     # 'Path' to the tachyon executable.
-    tachyon_executable = "tachyon"
+    #tachyon_executable = "tachyon"
     # The initial resolution at which an image is rendered. This test image will then be discarded once relevant info has been extracted.
     test_resolution = 300
     
@@ -43,7 +40,9 @@ class VMD_image_maker(File_converter):
     # Name of the section where we get some specific configs.
     options_name = "orbital"
     
-    def __init__(self, *args, cube_file = None, rotations = None, auto_crop = True, rendering_style = "pastel", resolution = 1024, also_make_png = True, isovalue = 0.2, **kwargs):
+    def __init__(self, *args, cube_file = None, rotations = None, auto_crop = True, rendering_style = "pastel", resolution = 1024, also_make_png = True, isovalue = 0.2, 
+                 vmd_executable = "vmd", tachyon_executable = "tachyon", vmd_logging = False,
+                 **kwargs):
         """
         Constructor for Image_maker objects.
         
@@ -55,6 +54,9 @@ class VMD_image_maker(File_converter):
         :param resolution: The max width or height of the rendered images in pixels.
         :param also_make_png: If True, additional images will be rendered in PNG format. This option is useful to generate higher quality images alongside more portable formats. If 'output' is a .png file, then it is wise to set this option to False (otherwise two png files will be rendered, which is a waste).
         :param isovalue: The isovalue to use for rendering isosurfaces. Has no effect when rendering only atoms.
+        :param vmd_executable: 'Path' to the vmd executable to use for image rendering. Defaults to relying on the command 'vmd'.
+        :param tachyon_executable: 'Path' to the tachyon executable to use for image rendering. Defaults to relying on the command 'tachyon'.
+        :param vmd_logging: Whether to print output from vmd.
         """
         super().__init__(*args, input_file = cube_file, **kwargs)
         # Save our translations list.
@@ -69,8 +71,19 @@ class VMD_image_maker(File_converter):
         self.rendering_style = rendering_style
         self.target_resolution = resolution
         self.also_make_png = also_make_png
-        self.isovalue = isovalue        
-                
+        self.isovalue = isovalue
+        
+        # Save executable paths.
+        self.vmd_executable = vmd_executable
+        self.tachyon_executable = tachyon_executable
+        
+        self.vmd_logging = vmd_logging
+        
+        
+        if self.rendering_style is None:
+            # Panic time.
+            raise ValueError("rendering_style must not be None")
+        
         # The colours we will be using for rendering (depends on rendering_stype and is only for reference; the actual definition of each style is in VMD).
         if self.rendering_style == "gaussian":
             self.primary_colour = "green"
@@ -105,12 +118,15 @@ class VMD_image_maker(File_converter):
             output,
             cube_file = cube_file,
             rotations = rotations,
-            auto_crop = options['molecule_image']['auto_crop'],
-            rendering_style = options['molecule_image']['rendering_style'],
-            resolution = options['molecule_image']['resolution'],
-            isovalue = options['molecule_image'][self.options_name]['isovalue'],
-            use_existing = options['molecule_image']['use_existing'],
-            dont_modify = options['image']['dont_modify'],
+            auto_crop = options['rendered_image']['auto_crop'],
+            rendering_style = options['rendered_image']['rendering_style'],
+            resolution = options['rendered_image']['resolution'],
+            isovalue = options['rendered_image'][self.options_name]['isovalue'],
+            use_existing = options['rendered_image']['use_existing'],
+            dont_modify = not options['rendered_image']['enable_rendering'],
+            vmd_executable = options['external']['vmd'],
+            tachyon_executable = options['external']['tachyon'],
+            vmd_logging = options['logging']['vmd_logging'],
             **kwargs
         )
         
@@ -253,15 +269,16 @@ class VMD_image_maker(File_converter):
             return subprocess.run(
                 self.VMD_signature,
                 # We normally capture and discard stdout (because VMD is VERY verbose), but if we're at a suitable log level, we'll print it.
-                # Nothing useful appears to be printed to stderr, so we'll treat it the same as stdout.
-                stdout = subprocess.DEVNULL if getLogger(silico.logger_name).level > logging.DEBUG else None,
+                # Nothing useful appears to be printed to stderr, so we'll treat it the same as stdout.,
+                stdin = subprocess.DEVNULL,
+                stdout = subprocess.DEVNULL if not self.vmd_logging else None,
                 stderr = subprocess.STDOUT,
                 universal_newlines = True,
                 # VMD has a tendency to sigsegv when closing with VMDNOOPTIX set to on (even tho everything is fine) so we can't check retval sadly.
                 #check = True
             )
         except FileNotFoundError:
-            raise File_maker_exception(self, "Could not locate vmd executable '{}'".format(self.vmd_execuable))
+            raise File_maker_exception(self, "Could not locate vmd executable '{}'".format(self.vmd_executable))
         
     def run_tachyon_renderer(self, scene_file, tga_file, resolution):
         """
@@ -290,7 +307,7 @@ class VMD_image_maker(File_converter):
                         "-res", "{}".format(resolution), "{}".format(resolution),
                         "-o", tmpfile_name
                     ],
-                    stdout = subprocess.DEVNULL if getLogger(silico.logger_name).level > logging.DEBUG else None,
+                    stdout = subprocess.DEVNULL if not self.vmd_logging else None,
                     stderr = subprocess.STDOUT,
                     universal_newlines = True,
                     check = True,
@@ -358,7 +375,7 @@ class Structure_image_maker(VMD_image_maker):
         The arguments which we'll pass to VMD, inheriting classes can implement this method if they have a different VMD call signature.
         """
         return [
-                "{}".format(self.vmd_execuable),
+                "{}".format(self.vmd_executable),
                 "-dispdev", "none",
                 "-e", "{}".format(self.vmd_script_path),
                 "-args",
@@ -387,7 +404,7 @@ class Orbital_image_maker(Structure_image_maker):
         The arguments which we'll pass to VMD, inheriting classes can implement this method if they have a different VMD call signature.
         """
         return [
-                "{}".format(self.vmd_execuable),
+                "{}".format(self.vmd_executable),
                 "-dispdev", "none",
                 "-e", "{}".format(self.vmd_script_path),
                 "-args",
@@ -403,7 +420,13 @@ class Orbital_image_maker(Structure_image_maker):
                 "{}".format(self.file_path['x45y45z45'].with_suffix(self.scene_file_extension))
             ]
     
+
+class Difference_density_image_maker(Orbital_image_maker):
     
+    # Name of the section where we get some specific configs.
+    options_name = "difference_density"
+
+
 class Spin_density_image_maker(Orbital_image_maker):
     """
     Class for creating spin density images.
@@ -430,7 +453,7 @@ class Spin_density_image_maker(Orbital_image_maker):
         The arguments which we'll pass to VMD, inheriting classes can implement this method if they have a different VMD call signature.
         """
         return [
-                "{}".format(self.vmd_execuable),
+                "{}".format(self.vmd_executable),
                 "-dispdev", "none",
                 "-e", "{}".format(self.vmd_script_path),
                 "-args",
@@ -487,7 +510,7 @@ class Density_image_maker(Orbital_image_maker):
         The arguments which we'll pass to VMD, inheriting classes can implement this method if they have a different VMD call signature.
         """
         return [
-                "{}".format(self.vmd_execuable),
+                "{}".format(self.vmd_executable),
                 "-dispdev", "none",
                 "-e", "{}".format(self.vmd_script_path),
                 "-args",
@@ -534,12 +557,15 @@ class Combined_orbital_image_maker(VMD_image_maker):
             HOMO_cube_file = HOMO_cube_file,
             LUMO_cube_file = LUMO_cube_file,
             rotations = rotations,
-            auto_crop = options['molecule_image']['auto_crop'],
-            rendering_style = options['molecule_image']['rendering_style'],
-            resolution = options['molecule_image']['resolution'],
-            isovalue = options['molecule_image'][self.options_name]['isovalue'],
-            use_existing = options['molecule_image']['use_existing'],
-            dont_modify = options['image']['dont_modify'],
+            auto_crop = options['rendered_image']['auto_crop'],
+            rendering_style = options['rendered_image']['rendering_style'],
+            resolution = options['rendered_image']['resolution'],
+            isovalue = options['rendered_image'][self.options_name]['isovalue'],
+            use_existing = options['rendered_image']['use_existing'],
+            dont_modify = not options['rendered_image']['enable_rendering'],
+            vmd_executable = options['external']['vmd'],
+            tachyon_executable = options['external']['tachyon'],
+            vmd_logging = options['logging']['vmd_logging'],
             **kwargs
         )
     
@@ -562,7 +588,7 @@ class Combined_orbital_image_maker(VMD_image_maker):
         The arguments which we'll pass to VMD, inheriting classes can implement this method if they have a different VMD call signature.
         """
         return [
-            "{}".format(self.vmd_execuable),
+            "{}".format(self.vmd_executable),
             "-dispdev", "none",
             "-e", "{}".format(self.vmd_script_path),
             "-args",
@@ -579,6 +605,7 @@ class Combined_orbital_image_maker(VMD_image_maker):
             "{}".format(self.file_path['x45y45z45'].with_suffix(self.scene_file_extension))
         ]
 
+
     
 class Dipole_image_maker(Structure_image_maker):
     """
@@ -587,34 +614,109 @@ class Dipole_image_maker(Structure_image_maker):
     
     vmd_script ="generate_dipole_images.tcl"
     
-    def __init__(self, *args, dipole_moment = None, **kwargs):
+    
+    def __init__(self, *args, dipole_moment = None, magnetic_dipole_moment = None, scaling = 1, magnetic_scaling = 1, **kwargs):
         """
         Constructor for Dipole_image_maker objects.
         
         :param output: Path to write to. See the constructor for VMD_image_maker for how this works.
         :param cube_file: A Gaussian cube file to use to render the new images.
         :param dipole_moment: A Dipole_moment object that will be rendered as a red arrow in the scene.
+        :param magnetic_dipole_moment: A second dipole moment object that will be rendered as a blue arrow in the scene.
+        :param scaling: A factor to scale the dipole moment by.
+        :param magnetic_scaling: A factor to scale the magnetic dipole moment by.
         :param *args: See the constructor for VMD_image_maker for further options.
         :param **kwargs: See the constructor for VMD_image_maker for further options.
         """
         super().__init__(*args, **kwargs)
-        self. dipole_moment = dipole_moment
+        self.dipole_moment = dipole_moment
+        self.magnetic_dipole_moment = magnetic_dipole_moment
+        self.scaling = scaling
+        self.magnetic_scaling = magnetic_scaling
+        self.electric_arrow_colour = "red"
+        self.magnetic_arrow_colour = "green"
+
+    def get_coords(self, dipole, scaling):
+        if dipole is None:
+            return ( (0.0,0.0,0.0), (0.0,0.0,0.0))
+        
+        else:
+            return (
+                tuple([coord * scaling for coord in dipole._origin_coords]),
+                tuple([coord * scaling for coord in dipole._vector_coords])
+            ) 
+        
+    @property
+    def VMD_signature(self):
+        """
+        The arguments which we'll pass to VMD, inheriting classes can implement this method if they have a different VMD call signature.
+        """
+        return [
+            "{}".format(self.vmd_executable),
+            "-dispdev", "none",
+            "-e", "{}".format(self.vmd_script_path),
+            "-args",
+            "{}".format(self.input_file),
+            "{}".format(self.tcl_common_path),
+            "{}".format(self.rendering_style),
+            "{}".format(self.prepared_translations),
+            "{}".format(self.prepared_rotations),
+            # We don't use the normal origin_coords/vector_coords because these are already rotated, while we want/need to do this rotation with the camera in VMD.
+            # Hence use _origin_coords/_vector_coods, which aren't rotated.
+            # Dipole 1 (electric).
+            "{} {} {}".format(*self.get_coords(self.dipole_moment, self.scaling)[0]),
+            "{} {} {}".format(*self.get_coords(self.dipole_moment, self.scaling)[1]),
+            # Dipole 2 (magnetic).
+            "{} {} {}".format(*self.get_coords(self.magnetic_dipole_moment, self.magnetic_scaling)[0]),
+            "{} {} {}".format(*self.get_coords(self.magnetic_dipole_moment, self.magnetic_scaling)[1]),
+            "{}".format(self.file_path['x0y0z0'].with_suffix(self.scene_file_extension)),
+            "{}".format(self.file_path['x90y0z0'].with_suffix(self.scene_file_extension)),
+            "{}".format(self.file_path['x0y90z0'].with_suffix(self.scene_file_extension)),
+            "{}".format(self.file_path['x45y45z45'].with_suffix(self.scene_file_extension))
+        ]
+
+    
+class Permanent_dipole_image_maker(Dipole_image_maker):
+    """
+    Class for creating dipole images.
+    """
+    
+    def __init__(self, *args, dipole_moment = None, scaling = 1, **kwargs):
+        """
+        Constructor for Dipole_image_maker objects.
+        
+        :param output: Path to write to. See the constructor for VMD_image_maker for how this works.
+        :param cube_file: A Gaussian cube file to use to render the new images.
+        :param dipole_moment: A Dipole_moment object that will be rendered as a red arrow in the scene.
+        :param scaling: A factor to scale the dipole moment by.
+        :param *args: See the constructor for VMD_image_maker for further options.
+        :param **kwargs: See the constructor for VMD_image_maker for further options.
+        """
+        super().__init__(*args, dipole_moment = dipole_moment, scaling = scaling, **kwargs)
         
     @classmethod
-    def from_image_options(self, output, *, cube_file, dipole_moment = None, existing_file = None, rotations = None, options = None, **kwargs):
+    def from_options(self, output, *, dipole_moment = None, cube_file = None, rotations = None, options, **kwargs):
         """
-        An alternative constructor that discards any additional keyword arguments.
-        """
+        Constructor that takes a dictionary of config like options.
+        """        
         return self(
-            output, 
+            output,
             cube_file = cube_file,
-            dipole_moment = dipole_moment,
-            existing_file = existing_file,
             rotations = rotations,
-            **self._get_config(options['molecule_image']),
-            **options['image']
+            dipole_moment = dipole_moment,
+            auto_crop = options['rendered_image']['auto_crop'],
+            rendering_style = options['rendered_image']['rendering_style'],
+            resolution = options['rendered_image']['resolution'],
+            isovalue = options['rendered_image'][self.options_name]['isovalue'],
+            use_existing = options['rendered_image']['use_existing'],
+            dont_modify = not options['rendered_image']['enable_rendering'],
+            vmd_executable = options['external']['vmd'],
+            tachyon_executable = options['external']['tachyon'],
+            vmd_logging = options['logging']['vmd_logging'],
+            scaling = options['rendered_image']['dipole_moment']['scaling'],
+            **kwargs
         )
-        
+    
     def check_can_make(self):
         """
         Check whether it is feasible to try and render the image(s) that we represent.
@@ -628,29 +730,49 @@ class Dipole_image_maker(Structure_image_maker):
         # Also make sure we have a dipole.
         if self.dipole_moment is None:
             raise File_maker_exception(self, "No dipole moment is available.")
-        
-        
-    @property
-    def VMD_signature(self):
+    
+
+class Transition_dipole_image_maker(Dipole_image_maker):
+    """
+    Class for creating TDM images.
+    """
+    
+    def check_can_make(self):
         """
-        The arguments which we'll pass to VMD, inheriting classes can implement this method if they have a different VMD call signature.
+        Check whether it is feasible to try and render the image(s) that we represent.
+        
+        Reasons for rendering not being possible are varied and are up to the inheriting class, but include eg, a required input (cube, fchk) file not being given.
+        
+        This method returns nothing, but will raise a File_maker_exception exception if the rendering is not possible.
+        """ 
+        super().check_can_make()
+        
+        # Also make sure we have a dipole.
+        if self.dipole_moment is None and self.magnetic_dipole_moment is None:
+            raise File_maker_exception(self, "No dipole moment is available.")
+        
+    @classmethod
+    def from_options(self, output, *, dipole_moment = None, magnetic_dipole_moment, cube_file = None, rotations = None, options, **kwargs):
         """
-        return [
-            "{}".format(self.vmd_execuable),
-            "-dispdev", "none",
-            "-e", "{}".format(self.vmd_script_path),
-            "-args",
-            "{}".format(self.input_file),
-            "{}".format(self.tcl_common_path),
-            "{}".format(self.rendering_style),
-            "{}".format(self.prepared_translations),
-            "{}".format(self.prepared_rotations),
-            # We don't use the normal origin_coords/vector_coords because these are already rotated, while we want/need to do this rotation with the camera in VMD.
-            # Hence use _origin_coords/_vector_coods, which aren't rotated.
-            "{} {} {}".format(self.dipole_moment._origin_coords[0], self.dipole_moment._origin_coords[1], self.dipole_moment._origin_coords[2]),
-            "{} {} {}".format(self.dipole_moment._vector_coords[0], self.dipole_moment._vector_coords[1], self.dipole_moment._vector_coords[2]),
-            "{}".format(self.file_path['x0y0z0'].with_suffix(self.scene_file_extension)),
-            "{}".format(self.file_path['x90y0z0'].with_suffix(self.scene_file_extension)),
-            "{}".format(self.file_path['x0y90z0'].with_suffix(self.scene_file_extension)),
-            "{}".format(self.file_path['x45y45z45'].with_suffix(self.scene_file_extension))
-        ]
+        Constructor that takes a dictionary of config like options.
+        """        
+        return self(
+            output,
+            cube_file = cube_file,
+            rotations = rotations,
+            dipole_moment = dipole_moment,
+            magnetic_dipole_moment = magnetic_dipole_moment,
+            auto_crop = options['rendered_image']['auto_crop'],
+            rendering_style = options['rendered_image']['rendering_style'],
+            resolution = options['rendered_image']['resolution'],
+            isovalue = options['rendered_image'][self.options_name]['isovalue'],
+            use_existing = options['rendered_image']['use_existing'],
+            dont_modify = not options['rendered_image']['enable_rendering'],
+            vmd_executable = options['external']['vmd'],
+            tachyon_executable = options['external']['tachyon'],
+            vmd_logging = options['logging']['vmd_logging'],
+            scaling = options['rendered_image']['transition_dipole_moment']['electric_scaling'],
+            magnetic_scaling = options['rendered_image']['transition_dipole_moment']['magnetic_scaling'],
+            **kwargs
+        )
+    

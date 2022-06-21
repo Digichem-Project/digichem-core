@@ -35,6 +35,20 @@ class Energy_list(Result_container, Unmergeable_container_mixin):
         """
         # Energies don't have levels.
         pass
+    
+    @property
+    def human_energy_type(self):
+        """
+        Human readable name of this type of energy (for example, self-consistent field).
+        """
+        if self.energy_type == "SCF":
+            return "self-consistent field"
+        elif self.energy_type == "MP":
+            return "Møller–Plesset"
+        elif self.energy_type == "CC":
+            return "coupled-cluster"
+        else:
+            raise ValueError("Unrecognised energy type {}".format(self.energy_type))
 
     @property
     def final(self):

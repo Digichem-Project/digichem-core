@@ -1,0 +1,214 @@
+from silico.interface.urwid.misc import Tab_pile
+import urwid
+
+class Control_wrapper(Tab_pile):
+    """
+    Abstract class for classes that wrap widgets with forwards/backwards controls.
+    """
+    
+    def __init__(self, body, top, cancel_callback = None):
+        """
+        Constructor for Control_wrapper objects.
+        
+        :param body: The inner widget to wrap.
+        :param top: The topmost widget to use for navigation.
+        """
+        self.body = body
+        self.top = top
+        self.cancel_callback = self.convert_callback(cancel_callback)
+        
+        self.controls = urwid.Columns(self.get_controls())
+        
+        super().__init__([
+            self.body,
+            ('pack', self.controls)
+        ])
+
+    def convert_callback(self, callback):
+        """
+        Convert certain values which can be interpreted as a function into a real function.
+        
+        The interpretation is as follows:
+            - int: A number of steps to call back() on the top widget.
+            - otherwise: A functiojn to call.
+            
+        :returns: The possibly new callback function.
+        """
+        def back_callback():
+            for iter in range(0, callback):
+                self.top.close_widget(callback)
+                
+            # Stop going back any further.
+            return False
+        
+        if isinstance(callback, int):
+            return back_callback
+        
+        else:
+            return callback
+        
+    def keypress(self, size, key):
+        """
+        Handler for keypress events.
+        """
+        # Allow children to intercept first.
+        key = super().keypress(size, key)
+        
+        if key == "esc":
+            self.cancel()
+        
+        else:
+            return key
+        
+    def back(self):
+        """
+        Function called to close this wrapper.
+        
+        This method exists to be overriden by eg Dialogue widgets.
+        """
+        self.top.close_widget()
+        
+    def cancel(self):
+        """
+        Function called when the back button is pressed.
+        """
+        if self.cancel_callback is not None:
+            if self.cancel_callback() is not False:
+                self.back()
+        
+        else:
+            # Go back by default.
+            self.back()
+        
+    def get_controls(self):
+        raise NotImplementedError("Implement in subclass")
+
+
+class Confirm_or_cancel(Control_wrapper):
+    """
+    A widget wrapper that provides a cancel and a confirm button.
+    """
+    
+    def __init__(self, body, top, cancel_callback = None, submit_callback = None):
+        """
+        Constructor for Confirm_or_cancel objects.
+        
+        :param body: The inner widget to display.
+        :param top: The topmost widget to use for navigation.
+        :param cancel_callback: A function that will be called when the cancel button is pressed. If this function returns False, the top-most widget will not be swapped back.
+        :param submit_callback: A function that will be called when the submit button is pressed. If this function returns False, the top-most widget will not be swapped back.
+        """
+        self.submit_callback = self.convert_callback(submit_callback)
+        
+        super().__init__(body, top, cancel_callback = cancel_callback)
+
+    def get_controls(self):
+        """
+        Get the buttons used to control this widget.
+        """
+        return [
+            urwid.AttrMap(urwid.Button("Back", lambda button: self.cancel()), "button", "button--focus"),
+            urwid.AttrMap(urwid.Button("Confirm", lambda button: self.submit()), "button--good", "button--good--focus")
+        ]
+
+    def submit(self):
+        """
+        Function called when the submit button is pressed.
+        """
+        if self.submit_callback is not None:
+            self.controls.set_focus(0)
+            if self.submit_callback() is not False:
+                self.back()
+
+class Confirm_settings_cancel(Control_wrapper):
+    """
+    A widget wrapper that provides three buttons.
+    """
+    
+    def __init__(self, body, top, settings_widget, cancel_callback = None, submit_callback = None):
+        """
+        Constructor for Confirm_or_cancel objects.
+        
+        :param body: The inner widget to display.
+        :param top: The topmost widget to use for navigation.
+        :param settings_widget: A widget to set as the current top when the Settings button is selected.
+        :param cancel_callback: A function that will be called when the cancel button is pressed. If this function returns False, the top-most widget will not be swapped back.
+        :param submit_callback: A function that will be called when the submit button is pressed. If this function returns False, the top-most widget will not be swapped back.
+        """
+        self.submit_callback = self.convert_callback(submit_callback)
+        self.settings_widget = settings_widget
+                
+        super().__init__(body, top, cancel_callback = cancel_callback)
+    
+    def get_controls(self):
+        """
+        Get the buttons used to control this widget.
+        """
+        return [
+            urwid.AttrMap(urwid.Button("Back", lambda button: self.cancel()), "button", "button--focus"),
+            urwid.AttrMap(urwid.Button("Settings", lambda button: self.settings()), "button--settings", "button--settings--focus"),
+            urwid.AttrMap(urwid.Button("Confirm", lambda button: self.submit()), "button--good", "button--good--focus")
+        ]
+        
+    def settings(self):
+        """
+        Function called when the settings button is pressed.
+        """
+        self.settings_widget.base_widget.refresh()
+        self.top.swap_into_window(self.settings_widget, cancel_callback = self.settings_widget.base_widget.discard, submit_callback = self.settings_widget.base_widget.confirm_callback)
+        
+    def submit(self):
+        """
+        Function called when the submit button is pressed.
+        """
+        if self.submit_callback is not None:
+            self.controls.set_focus(0)
+            if self.submit_callback() is not False:
+                self.back()
+    
+    def keypress(self, size, key):
+        """
+        Handler for keypress events.
+        """
+        # Allow children to intercept first.
+        key = super().keypress(size, key)
+        
+        if key in ["s", "S"]:
+            self.settings()
+        
+        return key
+
+
+class Confirm(Control_wrapper):
+    """
+    A widget wrapper that provides a single button.
+    """
+    
+    def __init__(self, body, top, submit_callback = None):
+        super().__init__(body, top, cancel_callback = submit_callback)
+    
+    def get_controls(self):
+        """
+        Get the buttons used to control this widget.
+        """
+        return [
+            urwid.AttrMap(urwid.Button("Confirm", lambda button: self.cancel()), "button--good", "button--good--focus")
+        ]
+        
+        
+class Cancel(Control_wrapper):
+    """
+    A widget wrapper that provides a single cancel button.
+    """
+    
+    def __init__(self, body, top, submit_callback = None):
+        super().__init__(body, top, cancel_callback = submit_callback)
+    
+    def get_controls(self):
+        """
+        Get the buttons used to control this widget.
+        """
+        return [
+            urwid.AttrMap(urwid.Button("Back", lambda button: self.top.back()), "button", "button--focus")
+        ]
+    

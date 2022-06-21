@@ -1,24 +1,27 @@
+# General imports.
 import subprocess
 from subprocess import CalledProcessError
-from silico.exception.base import Silico_exception
-from logging import getLogger
-import silico
 import re
 import os
 import copy
 from pathlib import Path
 
+# Silico imports.
+from silico.exception.base import Silico_exception
+import silico.logging
+
+
 # Try and load openbabel bindings.
-HAVE_BINDINGS = False
+HAVE_PYBEL = False
 try:
     from openbabel import pybel
-    HAVE_BINDINGS = True
+    HAVE_PYBEL = True
 except ModuleNotFoundError:
     # No bindings, carry on.
-    getLogger(silico.logger_name).debug("Could not load python pybel bindings; falling back to obabel executable", exc_info = True)
+    silico.logging.get_logger().debug("Could not load python pybel bindings; falling back to obabel executable", exc_info = True)
 except Exception:
     # Some other error occurred; print an error but continue.
-    getLogger(silico.logger_name).error("Found but could not load python pybel bindings; falling back to obabel executable", exc_info = True)
+    silico.logging.get_logger().error("Found but could not load python pybel bindings; falling back to obabel executable", exc_info = True)
     
 
 class Openbabel_converter():
@@ -49,7 +52,7 @@ class Openbabel_converter():
     @classmethod
     def type_from_file_name(self, input_file_name):
         """
-        Get the type of a fail based on its file name.
+        Get the type of a file based on its file name.
         
         This method largely uses the file extension (.com, .tmol etc), with a few other simple rules.
         """
@@ -121,7 +124,7 @@ class Openbabel_converter():
         
         The only exception is for the cdx format for which Obabel_converter is always returned (because of bug https://github.com/openbabel/openbabel/issues/1690 which still seems to be plaguing us in mid-2020).
         """
-        if not HAVE_BINDINGS or input_file_type.lower() == "cdx":
+        if not HAVE_PYBEL or input_file_type.lower() == "cdx":
             return Obabel_converter
         else:
             return Pybel_converter
@@ -130,72 +133,91 @@ class Openbabel_converter():
 
 # Babel_convert doesn't inherit from File_converter because we are only interested in reading to/from stdin/out (which File_converter doesn't support)
 #TODO: Add stdin/stdout support to File_converter
-if HAVE_BINDINGS:
+if HAVE_PYBEL:
     class Pybel_converter(Openbabel_converter):
         """
         Wrapper class for pybel
         
         """            
         
-        def convert(self, output_file_type, *, gen3D = None, charge = None, multiplicity = None):
+        def convert(self, output_file_type, output_file = None, *, gen3D = None, charge = None, multiplicity = None):
             """
             Convert the input file wrapped by this class to the designated output_file_type.
             
             :param output_file_type: The file type to convert to.
+            :param output_file: Optional file name to write to. If not given, the converted file will be returned as a string (or binary string depending on format).
             :param gen3D: If True and the loaded molecule does not have 3D coordinates, these will be generated (this will scramble atom coordinates).
             :param charge: Optional charge of the output format.
             :param multiplicity: Optional multiplicity of the output format.
-             :return: The converted file.
+            :return: The converted file, or None if output_file is not None.
             """
-            # For Pybel, gen3D defaults to True, because we'll only use gen3d if not already in 3D.
-            gen3D = gen3D if gen3D is not None else True
+            output_file = str(output_file) if output_file is not None else None
+            if output_file is None and output_file_type == "png":
+                raise ValueError("output_file must not be None if format is png")
             
-            # Get upset if input_file_type is empty (because openbabel acts weird when it is).
-            if self.input_file_type is None or self.input_file_type == "":
-                raise TypeError("Cannot convert file; input_file_type '{}' is None or empty".format(self.input_file_type))
-            
-            # Read in the molecule(s) in the given file.
             try:
-                # This is a generator.
-                # Use a different func depending on whether we're reading from file or memory.
-                if self.input_file is not None:
-                    # Reading from memory.
-                    molecule = pybel.readstring(self.input_file_type, str(self.input_file))
-                else: 
-                    # Readfile gives us an iterator of molecules...
-                    molecules = pybel.readfile(self.input_file_type, str(self.input_file_path))
-                    
-                    # ...but we're only ever interested in one.
-                    # Try and get the first molecule.
-                    try:
-                        molecule = next(molecules)
-                    except StopIteration:
-                        raise Silico_exception("Cannot read file '{}'; file does not contain any molecules".format(self.input_name))
-                    
-                    
-            except Exception as e:
-                raise Silico_exception("Failed to parse file '{}'".format(self.input_name)) from e
-            
-            if charge is not None:
-                molecule.OBMol.SetTotalCharge(charge)
+                # Stop logging from pybel, we'll handle that ourselves.
+                pybel.ob.obErrorLog.StopLogging()
                 
-            if multiplicity is not None:
-                molecule.OBMol.SetTotalSpinMultiplicity(multiplicity)
-            
-            # If we got a 2D (or 1D) format, convert to 3D (but warn that we are doing so.)
-            if molecule.dim != 3 and gen3D:
-                # We're missing 3D coords.
-                getLogger(silico.logger_name).warning("Generating 3D coordinates from {}D file '{}'; this will scramble atom coordinates".format(molecule.dim, self.input_name))
-                molecule.localopt()
+                # For Pybel, gen3D defaults to True, because we'll only use gen3d if not already in 3D.
+                gen3D = gen3D if gen3D is not None else True
                 
-            if self.add_H:
-                # Add hydrogens.
-                #getLogger(silico.logger_name).info("Adding any missing hydrogens to structure loaded from file '{}'".format(self.input_name))
-                molecule.addh()
+                # Get upset if input_file_type is empty (because openbabel acts weird when it is).
+                if self.input_file_type is None or self.input_file_type == "":
+                    raise TypeError("Cannot convert file; input_file_type '{}' is None or empty".format(self.input_file_type))
+                
+                # Read in the molecule(s) in the given file.
+                try:
+                    # This is a generator.
+                    # Use a different func depending on whether we're reading from file or memory.
+                    if self.input_file is not None:
+                        # Reading from memory.
+                        molecule = pybel.readstring(self.input_file_type, str(self.input_file))
+                    else: 
+                        # Readfile gives us an iterator of molecules...
+                        molecules = pybel.readfile(self.input_file_type, str(self.input_file_path))
+                        
+                        # ...but we're only ever interested in one.
+                        # Try and get the first molecule.
+                        try:
+                            molecule = next(molecules)
+                        except StopIteration:
+                            raise Silico_exception("Cannot read file '{}'; file does not contain any molecules".format(self.input_name)) from None
+                        
+                        
+                except Exception as e:
+                    raise Silico_exception("Failed to parse file '{}'".format(self.input_name)) from e
+                
+                if charge is not None:
+                    molecule.OBMol.SetTotalCharge(charge)
+                    
+                if multiplicity is not None:
+                    molecule.OBMol.SetTotalSpinMultiplicity(multiplicity)
+                
+                # If we got a 2D (or 1D) format, convert to 3D (but warn that we are doing so.)
+                if molecule.dim != 3 and gen3D:
+                    # We're missing 3D coords.
+                    silico.logging.get_logger().warning("Generating 3D coordinates from {}D file '{}'; this will scramble atom coordinates".format(molecule.dim, self.input_name))
+                    molecule.localopt()
+                    
+                if self.add_H:
+                    # Add hydrogens.
+                    #silico.logging.get_logger().info("Adding any missing hydrogens to structure loaded from file '{}'".format(self.input_name))
+                    molecule.addh()
+                
+                # Now convert and return
+                # If the format is png, use the draw() method instead because write() is bugged.
+                if output_file_type == "png":
+                    molecule.draw(False, output_file)
+                else:
+                    return molecule.write(output_file_type, output_file, overwrite = True)
             
-            # Now convert and return
-            return molecule.write(output_file_type)
-            
+            finally:
+                # Start logging again.
+                pybel.ob.obErrorLog.StartLogging()
+                #pybel.ob.obErrorLog.SetOutputLevel(log_level)
+
+
 class Obabel_converter(Openbabel_converter):
     """
     Wrapper class for openbabel.
@@ -210,15 +232,18 @@ class Obabel_converter(Openbabel_converter):
     # 'Path' to the obabel executable.
     obabel_execuable = "obabel"        
     
-    def convert(self, output_file_type, *, gen3D = None, charge = None, multiplicity = None):
+    def convert(self, output_file_type, output_file = None, *, gen3D = None, charge = None, multiplicity = None):
         """
         Convert the input file wrapped by this class to the designated output_file_type.
          
+        :param output_file_type: The file type to convert to.
+        :param output_file: Optional file name to write to. If not given, the converted file will be returned as a string (or binary string depending on format).
         :param gen3D: If True and the loaded molecule does not have 3D coordinates, these will be generated (this will scramble atom coordinates).        
-         :param output_file_type: The file type to convert to.
         :param charge:  Optional charge of the output format.
-         :return: The converted file.
+        :param multiplicity: Optional multiplicity of the output format.
+        :return: The converted file, or None if output_file is not None.
         """
+        output_file = str(output_file) if output_file is not None else None
         # For Obabel, gen3D defaults to False, because we can't determine ahead of time whether we're in 3D or not (unless format is cdx, which is always 2D).
         if gen3D is None:
             if self.input_file_type.lower() == "cdx":
@@ -228,23 +253,24 @@ class Obabel_converter(Openbabel_converter):
         
         if charge is not None:
             # We can't set charge with obabel sadly.
-            getLogger(silico.logger_name).warning("Unable to set charge '{}' of molecule loaded from file '{}' with obabel converter".format(charge, self.input_name))
+            silico.logging.get_logger().warning("Unable to set charge '{}' of molecule loaded from file '{}' with obabel converter".format(charge, self.input_name))
             
         if multiplicity is not None:
             # We can't set charge with obabel sadly.
-            getLogger(silico.logger_name).warning("Unable to set multiplicity '{}' of molecule loaded from file '{}' with obabel converter".format(multiplicity, self.input_name))
+            silico.logging.get_logger().warning("Unable to set multiplicity '{}' of molecule loaded from file '{}' with obabel converter".format(multiplicity, self.input_name))
         
         # Run
-        return self.run_obabel(output_file_type, gen3D = gen3D)
+        return self.run_obabel(output_file_type, output_file, gen3D = gen3D)
         
-    def run_obabel(self, output_file_type, *, gen3D):
+    def run_obabel(self, output_file_type, output_file, *, gen3D):
         """
-         Run obabel, converting the input file wrapped by this class to the designated output_file_type.
-         
-         :param gen3D: If True and the loaded molecule does not have 3D coordinates, these will be generated (this will scramble atom coordinates).        
-         :param output_file_type: The file type to convert to.                  
-         :return: The converted file.
-         """
+        Run obabel, converting the input file wrapped by this class to the designated output_file_type.
+        
+        :param output_file_type: The file type to convert to.
+        :param output_file: Optional file name to write to. If not given, the converted file will be returned as a string (or binary string depending on format).
+        :param gen3D: If True and the loaded molecule does not have 3D coordinates, these will be generated (this will scramble atom coordinates).
+        :return: The converted file.
+        """
         # The signature we'll use to run obabel.
         sig = [self.obabel_execuable]
         
@@ -260,13 +286,17 @@ class Obabel_converter(Openbabel_converter):
         
         # Add gen3D command if we've been asked to.
         if gen3D:
-            getLogger(silico.logger_name).warning("Generating 3D coordinates from file '{}'; this will scramble atom coordinates".format(self.input_name))
+            silico.logging.get_logger().warning("Generating 3D coordinates from file '{}'; this will scramble atom coordinates".format(self.input_name))
             sig.append("--gen3D")
         
         # Add H if we've been asked.    
         if self.add_H:
-            #getLogger(silico.logger_name).info("Adding any missing hydrogens to structure loaded from file '{}'".format(self.input_name))
+            #silico.logging.get_logger().info("Adding any missing hydrogens to structure loaded from file '{}'".format(self.input_name))
             sig.append("-h")
+            
+        # If a file to write to has been given, set it.
+        if output_file is not None:
+            sig.extend(['-O', output_file])
         
         # There are several openbabel bugs re. the chem draw format; one of them occurs when we are frozen and have set the BABEL_LIBDIR env variable.
         # The workaround is to temp unset BABEL_LIBDIR.
@@ -302,4 +332,4 @@ class Obabel_converter(Openbabel_converter):
             raise Silico_exception("obabel command did not appear to complete successfully") from CalledProcessError(done_process.returncode, " ".join(done_process.args), done_process.stdout, done_process.stderr)
         
         # Return our output.
-        return done_process.stdout
+        return done_process.stdout if output_file is None else None

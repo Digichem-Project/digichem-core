@@ -110,7 +110,7 @@ class Submission_error(Silico_exception):
         """
         Stringify this error.
         """
-        return "Error submitting file '{}' to '{}'; {}".format(self.file_name, self.calculation.NAME, self.reason)
+        return "Error submitting file '{}' to '{}'; {}".format(self.file_name, self.calculation.name, self.reason)
     
     
 class Extractor_error(Silico_exception):
@@ -118,16 +118,16 @@ class Extractor_error(Silico_exception):
     Exceptions for when an error occurs during result extraction.
     """
     
-    def __init__(self, extractor, reason):
+    def __init__(self, format, reason):
         """
         Constructor for Extractor_error exception objects.
         """
-        self.extractor = extractor
+        self.format = format
         self.reason = reason
         
     def __str__(self):
         """
         Stringify this error.
         """
-        return "{} ({}); {}".format(type(self.extractor).__name__, ", ".join(getattr(self.extractor, 'CLASS_HANDLE', [])), self.reason)
+        return "{} ({}); {}".format(type(self.format).__name__, ", ".join(getattr(self.format, 'CLASS_HANDLE', [])), self.reason)
     

@@ -2,10 +2,13 @@
 from weasyprint import HTML
 from mako.lookup import TemplateLookup
 import shutil
-import silico
+
+# Silico imports.
+import silico.logging
 
 # Silico imports.
 from silico.report.main import HTML_report
+
 
 class PDF_report(HTML_report):
     """
@@ -50,6 +53,8 @@ class PDF_report(HTML_report):
         # We also need an absolute path for weasyprint.
         self.absolute_pdf_file_path = self.pdf_file.resolve()
 
+        silico.logging.get_logger().info("Writing PDF file")
+        
         # Now render our finished pages.
         main_doc = HTML(self.report_html_file, base_url=str(self.absolute_pdf_file_path)).render()
 
@@ -67,7 +72,7 @@ class PDF_report(HTML_report):
         :return: A Weasyprint pre-rendered representation of an html element.
         """
         # We recompute the header and footer for each page so we can update page numbers etc.
-        html_text = TemplateLookup(directories = self.template_dir, strict_undefined = True).get_template(template_file).render_unicode(report = self, *args, **kwargs)
+        html_text = TemplateLookup(directories = self.template_directory(self.report_style), strict_undefined = True).get_template(template_file).render_unicode(report = self, *args, **kwargs)
         
         html = HTML(
             string=html_text,
@@ -96,12 +101,16 @@ class PDF_report(HTML_report):
         for page_number, page in enumerate(main_doc.pages):
             page_body = self.get_element(page._page_box.all_children(), 'body')
             
+            if page_body is None:
+                # Couldn't find the body element...
+                continue
+            
             # Should we display error colors?
             error = not self.result.metadata.success or self.result.metadata.optimisation_converged == False
             
             # Get our header and footer.
-            header_body = self._compute_overlay_element('/page/page_header.mako', error = error)
-            footer_body = self._compute_overlay_element('/page/page_footer.mako', prog_version = self.prog_version, page_number = page_number +1, pages = len(main_doc.pages), error = error)
+            header_body = self._compute_overlay_element('/page/header.mako', error = error)
+            footer_body = self._compute_overlay_element('/page/footer.mako', prog_version = self.prog_version, page_number = page_number +1, pages = len(main_doc.pages), error = error)
             
             # Disable header and footer fot atoms mini-reports (for now).
             

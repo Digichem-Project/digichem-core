@@ -68,9 +68,9 @@ class Spin_orbit_coupling(Result_object, Floatable_mixin):
         
         :param singlet_state: The singlet excited state this coupling is between.
         :param triplet_state: The triplet excited state this coupling is between.
-        :param positive_one: SOC with quantum number +1 in cm-1.
-        :param zero: SOC with quantum number 0 in cm-1.
-        :param negative_one: SOC with quantum number -1 in cm-1.
+        :param positive_one: SOC between the singlet state and triplet sub-state with quantum number +1 in cm-1.
+        :param zero: SOC between the singlet state and triplet sub-state with quantum number 0 in cm-1.
+        :param negative_one: SOC between the singlet state and triplet sub-state with quantum number -1 in cm-1.
         """
         self.singlet_state = singlet_state
         self.triplet_state = triplet_state

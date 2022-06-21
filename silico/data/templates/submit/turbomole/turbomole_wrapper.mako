@@ -36,7 +36,7 @@ unset TURBOTMPDIR
 <%include file="wrapper.mako"/>\
 ##
 ## If we've been asked to, set the allowed MKL instruction set.
-%if program.calculation.intel_AVX2_fix:
+%if program.calculation.ricc2['intel_AVX2_fix']:
 ##
 export MKL_ENABLE_INSTRUCTIONS=SSE4_2
 ##

@@ -1,0 +1,52 @@
+TAG: Turbomole MP2
+SUB_TYPE: pseudo
+ALIAS: MP2
+
+num_CPUs: 32
+memory: 80GB
+
+ricc2:
+    intel_AVX2_fix: True
+    model: mp2
+
+NEXT:
+    - Turbomole Correlation Consistent Basis Sets
+
+
+---
+
+
+TAG: Turbomole ADC(2)
+SUB_TYPE: pseudo
+ALIAS: SCS-ADC(2)
+
+num_CPUs: 32
+memory: 80GB
+
+ricc2:
+    intel_AVX2_fix: True
+    model: adc(2)
+    scs: scs
+
+NEXT:
+    - Turbomole Correlation Consistent Basis Sets
+
+
+---
+
+
+TAG: Turbomole CC2
+SUB_TYPE: pseudo
+ALIAS: SCS-CC2
+
+num_CPUs: 32
+memory: 80GB
+
+ricc2:
+    intel_AVX2_fix: True
+    model: cc2
+    scs: scs
+
+NEXT:
+    - Turbomole Correlation Consistent Basis Sets
+

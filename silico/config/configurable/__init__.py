@@ -1,1 +1,1 @@
-from .base import Configurable, Configurable_list
+from .base import Configurable

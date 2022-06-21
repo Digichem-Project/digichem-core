@@ -1,0 +1,81 @@
+SUB_TYPE: partial
+TAG: Gaussian Single Point Singlet
+ALIAS: Single Point (Singlet)
+
+multiplicity: 1
+
+NEXT:
+    - Gaussian Methods
+
+
+---
+
+
+SUB_TYPE: partial
+TAG: Gaussian Optimisation
+ALIAS: Optimisation
+
+optimisation:
+    calculate: True
+
+NEXT:
+    - Gaussian Methods
+
+
+---
+
+
+SUB_TYPE: partial
+TAG: Gaussian Optimisation Frequencies
+ALIAS: Optimisation Frequencies
+
+optimisation:
+    calculate: True
+frequency:
+    calculate: True
+
+NEXT:
+    - Gaussian Methods
+
+---
+
+
+SUB_TYPE: partial
+TAG: Gaussian Optimisation Frequencies Unrestricted Triplet
+ALIAS: Optimisation Frequencies Unrestricted Triplet
+
+optimisation:
+    calculate: True
+frequency:
+    calculate: True
+multiplicity: 3
+unrestricted: True
+
+NEXT:
+    - Gaussian Methods
+
+
+---
+
+
+SUB_TYPE: partial
+TAG: Gaussian Frequencies
+ALIAS: Frequencies
+
+frequency:
+    calculate: True
+
+NEXT:
+    - Gaussian Methods
+
+
+---
+
+
+SUB_TYPE: partial
+TAG: Gaussian Excited States
+ALIAS: Excited States
+NEXT:
+    - Gaussian TDA
+    - Gaussian TD-DFT
+

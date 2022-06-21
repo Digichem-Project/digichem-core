@@ -20,7 +20,7 @@
 ##
 ## dEst (if available).
 %if excited_states.safe_get('singlet_triplet_energy') is not None:
-ΔEst /eV: ${"{:0.2f}".format(excited_states.singlet_triplet_energy)}
+ΔE(ST) /eV: ${"{:0.2f}".format(excited_states.singlet_triplet_energy)}
 %endif
 ##
 ## Now print something interesting about lowest state of each mult.

@@ -62,6 +62,20 @@ class Molecular_orbital_list(Result_container):
         LUMO = self.get_orbital(HOMO_difference = 1)
         # Return the difference.
         return float(LUMO) - float(HOMO)
+    
+    @property
+    def occupied(self):
+        """
+        Return a new Molecular_orbital_list containing only the occupied orbitals of this list.
+        """
+        return type(self)([orbital for orbital in self if orbital.is_occupied])
+    
+    @property
+    def virtual(self):
+        """
+        Return a new Molecular_orbital_list containing only the virtual (unoccupied) orbitals of this list.
+        """
+        return type(self)([orbital for orbital in self if not orbital.is_occupied])
 
     @property
     def spin_type(self):
@@ -182,7 +196,7 @@ class Molecular_orbital_list(Result_container):
             The orbital with the highest level that has no more than the given positive HOMO_difference.
         Across one or more orbital lists.
         
-        The method is useful for determining which orbitals to traverse between two limits from the HOMO/LUMO gap.
+        The method is useful for determining which orbitals to traverse between two limits from the HOMO-LUMO gap.
         
         :raises Result_unavailable_error: If all of the given orbital_lists (including this one) are empty.
         :param *other_lists: Optional lists to search. If none are given, then only this orbital_list is search.
@@ -320,6 +334,13 @@ class Molecular_orbital(Result_object, Floatable_mixin):
         # This needs to be set outside of this constructor, because it relies on multiple lists of orbitals being completed.
         # Total level is the index +1 of this orbital out of both alpha and beta orbitals (for restricted this will == level).
         self.total_level = None
+        
+    @property
+    def is_occupied(self):
+        """
+        Determine whether this orbital is occupied.
+        """
+        return self.HOMO_difference <= 0
             
     def __float__(self):
         return float(self.energy)

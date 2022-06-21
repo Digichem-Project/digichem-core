@@ -1,0 +1,25 @@
+@font-face {
+    font-family: "DejaVu Serif";
+    src: local(DejaVu Serif),
+         url(../../static/font/dejavu-serif/DejaVuSerif-webfont.woff) format("woff");
+    font-weight: normal;
+    font-style: normal;
+}
+@font-face {
+    font-family: "DejaVu Serif";
+    src: url(../../static/font/dejavu-serif/DejaVuSerif-Bold-webfont.woff) format("woff");
+    font-weight: bold;
+    font-style: normal;
+}
+@font-face {
+    font-family: "DejaVu Serif";
+    src: url(../../static/font/dejavu-serif/DejaVuSerif-Italic-webfont.woff) format("woff");
+    font-weight: normal;
+    font-style: italic;
+}
+@font-face {
+    font-family: "DejaVu Serif";
+    src: url(../../static/font/dejavu-serif/DejaVuSerif-BoldItalic-webfont.woff) format("woff");
+    font-weight: bold;
+    font-style: italic;
+}

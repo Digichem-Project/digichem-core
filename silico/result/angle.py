@@ -25,7 +25,7 @@ class Angle():
         Constructor for angle objects.
         
         :param angle: The numerical value of the angle. Note that this will be stored internally in radians under the 'radians' attribute, and as degrees under 'degrees'.
-        :param angle_units: The units of the angle, either "rad" for radians or "deg" for degrees. If angle is an Angle object, angle_units is ignored and determine automatically. Otherwise and if angle_units is None, "rad" is assumed as the default.
+        :param angle_units: The units of the angle, either "rad" for radians or "deg" for degrees. If angle is an Angle object, angle_units is ignored and determined automatically. Otherwise and if angle_units is None, "rad" is assumed as the default.
         :param output_units: The units to use when accessing the angle, either "def" to use the class default 'default_angle_units', "rad" for radians or "deg" for degrees. This can be changed post init by setting the 'units' property.
         """
         if isinstance(angle, Angle):

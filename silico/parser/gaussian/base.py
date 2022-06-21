@@ -1,11 +1,10 @@
 # General imports.
 import pysoc.io.SOC
-from logging import getLogger
 from datetime import datetime, timedelta
 
 # Silico imports.
 from silico.parser.main import Parser
-import silico
+import silico.logging
 from silico.exception.base import Result_unavailable_error
 import silico.file.types as file_types
 
@@ -21,10 +20,6 @@ class Gaussian_parser(Parser):
             file_types.gaussian_fchk_file: "fchk_file",
             file_types.gaussian_rwf_file: "rwf_file"
         }
-    
-    ## Headers that indicate certain data is about to be printed.
-    #TDM_HEADER = " Ground to excited state transition electric dipole moments (Au):\n"
-    
         
     def parse(self):
         """
@@ -34,13 +29,13 @@ class Gaussian_parser(Parser):
         super().parse()
         
         # Output a message (because this is slow).
-        getLogger(silico.logger_name).debug("Secondary parsing calculation result '{}'".format(self.description))
+        silico.logging.get_logger().debug("Secondary parsing calculation result '{}'".format(self.description))
                             
         # Next try and get SOC.
         try:
             self.parse_SOC()
         except Exception:
-            getLogger(silico.logger_name).debug("Cannot parse SOC from output file '{}'".format(self.log_file_path), exc_info = True)
+            silico.logging.get_logger().debug("Cannot parse SOC from output file '{}'".format(self.log_file_path), exc_info = True)
         
         # All done.
         return self.data
@@ -84,66 +79,6 @@ class Gaussian_parser(Parser):
                 elif self.CPU_HEADER in log_file_line:
                     # This line looks like: "Will use up to   10 processors via shared memory."
                     self.data.metadata['numcpus'] = int(log_file_line.split()[4])
-    
-    
-#     def parse_transition_dipole_moments(self):
-#         """
-#         Parse transition dipole moments.
-#         """
-#         # Each calculation may calculate TDMs multiple times (for example in an optimisation + excited state).
-#         transition_dipole_groups = []
-#         
-#         # Open our file.
-#         with open(self.log_file_path, "rt") as log_file:
-#             # Loop through our lines, looking for a specific line of text.
-#             #found = False
-#             for log_file_line in log_file:
-#                 # Look for our key string.
-#                 # It might be better to look for a substring rather than the whole string? Need to benchmark.
-#                 if log_file_line == self.TDM_HEADER:
-#                     # We found our header.
-#                     
-#                     # The next line should be the table header, so we can skip it.
-#                     log_file.readline()
-#                     
-#                     # Now loop through, splitting on white space.
-#                     transition_dipoles = []
-#                     for log_file_line in log_file:
-#                         # Split on whitespace.
-#                         split_line = log_file_line.split()
-#                         
-#                         try:
-#                             # Add into our list.
-#                             transition_dipoles.append({
-#                                 'state_level': int(split_line[0]),
-#                                 'origin_coords': (0.0, 0.0, 0.0),
-#                                 'vector_coords': (
-#                                     self.au_to_debye(float(split_line[1])),
-#                                     self.au_to_debye(float(split_line[2])),
-#                                     self.au_to_debye(float(split_line[3]))
-#                                 )
-#                                 })
-#                         except (ValueError, IndexError):
-#                             # No more data.
-#                             break
-#                     
-#                     # Add this set of transition dipoles to our big list.
-#                     transition_dipole_groups.append(transition_dipoles)
-#         
-#         # If we have no TDMs, get upset.
-#         if len(transition_dipole_groups) == 0:
-#             raise Result_unavailable_error("Transition dipole moment", "There is no transition dipole moment data")
-# 
-#         # We're only interested in the last group of TDMs.
-#         transition_dipoles = transition_dipole_groups[-1]
-#         
-#         # Sort our list of TDMs (probably unnecessary).
-#         transition_dipoles.sort(key = lambda dipole: dipole['state_level'])
-#         
-#         # Now split into a list for cclib.
-#         # This is a list of the vector coords of each TDM (we assumed the origin is 0,0,0).
-#         self.data.etmoments = [tdm['vector_coords'] for tdm in transition_dipoles]
-            
             
             
     def parse_SOC(self):
@@ -151,13 +86,10 @@ class Gaussian_parser(Parser):
         Parse spin-orbit coupling using PySOC.
         """
         # For SOC, we need both .log and .rwf file.
+        # No need to check for these tho; pysoc does that for us.
         # We also need etsyms to decide which excited state is which.
-        if "rwf_file" not in self.aux_files:
-            pass
-            #raise Result_unavailable_error("Spin-orbit coupling", "There is no .rwf file available")
-        elif not hasattr(self.data, "etsyms"):
+        if not hasattr(self.data, "etsyms"):
             raise Result_unavailable_error("Spin-orbit coupling", "There are no excited states available")
-        
         
         # Get a PySOC parser.
         soc_calculator = pysoc.io.SOC.Calculator(self.log_file_path, rwf_file_name = self.aux_files['rwf_file'])

@@ -1,70 +1,69 @@
-# Silico imports.
-import silico.program
-from silico.exception.base import Silico_exception
+# General imports.
 import tabulate
 
+# Silico imports.
+from silico.program.base import Program
+from silico.exception.base import Silico_exception
 
-# Printable name of this program.
-NAME = "Method status"
-DESCRIPTION = "check status of known submission methods"
-EPILOG = "{} V{}. Written by {}. Last updated {}.".format(NAME, silico.version, silico.author, silico.last_updated.strftime("%d/%m/%Y"))
 
-def arguments(subparsers):
+class Status_program(Program):
     """
-    Add this program's arguments to an argparser object.
+    The Silico method status program.
     """
-    parser = subparsers.add_parser(
-        'status',
-        description = DESCRIPTION,
-        parents = [silico.program.standard_args],
-        epilog = EPILOG,
-        help = "Check status")
-    # Set main function.
-    parser.set_defaults(func = main)
     
-    parser.add_argument("methods", help = "Selected methods to show status for", nargs = "*", default = ())
+    name = "Method status"
+    command = "status"
+    aliases = ["S", "sta"]
+    description = "check status of known submission methods"
+    help = "Check status"
     
-
-def main(args):
-    """
-    Main entry point for the resume program.
-    """
-    silico.program.main_wrapper(_main, args = args)
-
-def _main(args, config, logger):
-    """
-    Inner portion of main (wrapped by a try-catch-log hacky boi).
-    """
-    # Load our calculation definitions.
-    try:
-        config.resolve()
-        known_methods = config.methods
-    except Exception:
-        raise Silico_exception("Failed to load calculation methods")
-    
-    # Now get the one's we've been asked to list.
-    if len(args.methods) == 0:
-        # None specified, use all.
-        methods = known_methods
+    @classmethod
+    def arguments(self, sub_parsers_object):
+        """
+        Add this program's arguments to an argparser subparsers object.
         
-    else:
-        methods = type(known_methods)([known_methods.get_config(method_id) for method_id in args.methods])
+        :param sub_parsers_object: An argparser subparsers object to add to (as returned by add_subparsers().
+        :returns: The argparser object (which supports add_argument()).
+        """
+        sub_parser = super().arguments(sub_parsers_object)
         
-    # Build a table of status to show.
-    statuses = []
-    for method in methods:
+        sub_parser.add_argument("methods", help = "Selected methods to show status for", nargs = "*", default = ())
+    
+        return sub_parser
+    
+    def main(self):
+        """
+        Logic for our program.
+        """
+        # Load our calculation definitions.
         try:
-            status = method.status
-        except NotImplementedError:
-            # No status for this method.
-            status = "N/A (status not available)"
+            known_methods = self.config.methods
+            
         except Exception:
-            status = "Error retrieving status"
-            logger.error("Failed to fetch status information for method '{}'".format(method.NAME), exc_info = True)
+            raise Silico_exception("Failed to load calculation methods")
+        
+        # Now get the one's we've been asked to list.
+        if len(self.args.methods) == 0:
+            # None specified, use all.
+            methods = known_methods
             
-        statuses.append((method.ID, method.NAME, status))
+        else:
+            methods = type(known_methods)([known_methods.get_config(method_id) for method_id in self.args.methods])
             
-    # Print with tabulate.
-    print(tabulate.tabulate(statuses, ("ID", "Name", "Status")))
-    
-    
+        # Build a table of status to show.
+        statuses = []
+        for method in methods:
+            try:
+                status = method.status
+            except NotImplementedError:
+                # No status for this method.
+                status = "N/A (status not available)"
+            except Exception:
+                status = "Error retrieving status"
+                self.logger.error("Failed to fetch status information for method '{}'".format(method.name), exc_info = True)
+                
+            statuses.append((method.description, status))
+                
+        # Print with tabulate.
+        print(tabulate.tabulate(statuses, ("Description", "Status")))
+        

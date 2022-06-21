@@ -1,22 +1,19 @@
 # General imports.
 import subprocess
-from logging import getLogger
 import os
+from pathlib import Path
 
 # Silico imports.
 from silico.file import File_converter
 from silico.exception.base import File_maker_exception
 import silico.file.types as file_types
-import silico
+import silico.logging
 from silico.submit import Memory
 
 class Chk_to_fchk(File_converter):
     """
     Class for creating Gaussian fchk files from Gaussian chk files.
     """
-        
-    # 'Path' to the formchk executable.
-    formchk_executable = "formchk"
     
     # Text description of our input file type, used for error messages etc.
     #input_file_type = "chk"
@@ -25,7 +22,7 @@ class Chk_to_fchk(File_converter):
     #output_file_type = "fchk"
     output_file_type = file_types.gaussian_fchk_file
     
-    def __init__(self, *args, chk_file = None, fchk_file = None, memory = None, **kwargs):
+    def __init__(self, *args, chk_file = None, fchk_file = None, memory = None, formchk_executable = "formchk", **kwargs):
         """
         Constructor for Chk_to_fchk objects.
         
@@ -35,19 +32,23 @@ class Chk_to_fchk(File_converter):
         :param chk_file: Optional chk_file to use to generate this fchk file.
         :param fchk_file: An optional file path to an existing fchk file to use. If this is given (and points to an actual file), then a new fchk will not be made and this file will be used instead.
         :param memory: The amount of memory for formchk to use.
+        :param formchk_executable: 'Path' to the executable to use for formchk.
         """
         super().__init__(*args, input_file = chk_file, existing_file = fchk_file, **kwargs)
         memory = memory if memory is not None else "3 GB"
         self.memory = Memory(memory)
+        self.formchk_executable = formchk_executable
         
     def make_files(self):
         """
         Make the files referenced by this object.
         """
+        input_file = Path(str(self.input_file))
+        
         # The signature we'll use to call formchk.
         signature = [
             "{}".format(self.formchk_executable),
-            self.input_file.name,
+            input_file.name,
             str(self.output.absolute())
         ]
         
@@ -61,7 +62,7 @@ class Chk_to_fchk(File_converter):
                 stdout = subprocess.PIPE,
                 stderr = subprocess.STDOUT,
                 universal_newlines = True,
-                cwd = str(self.input_file.parent),
+                cwd = str(input_file.parent),
                 env = dict(os.environ, GAUSS_MEMDEF = str(self.memory))
                 )
         except FileNotFoundError:
@@ -74,5 +75,5 @@ class Chk_to_fchk(File_converter):
         else:
             # Everything appeared to go ok.
             # Dump formchk output if we're in debug.
-            getLogger(silico.logger_name).debug(formchk_proc.stdout)
+            silico.logging.get_logger().debug(formchk_proc.stdout)
             

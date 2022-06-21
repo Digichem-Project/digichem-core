@@ -2,13 +2,16 @@
 
 # General imports.
 from datetime import timedelta, datetime
+import math
+import itertools
+from deepmerge import conservative_merger
+from pathlib import Path
 
 # Silico imports.
 from silico.exception import Result_unavailable_error
 from silico.result import Result_object
-import math
 from silico.misc.time import latest_datetime, total_timedelta
-import itertools
+from silico.misc.text import andjoin
 
 class Metadata(Result_object):
     """
@@ -95,6 +98,26 @@ class Metadata(Result_object):
         self.temperature = temperature
         self.pressure = pressure
         self.orbital_spin_type = orbital_spin_type
+    
+    # TODO: This is more than a bit clumsy and in general the handling of names should be improved.
+    @property
+    def molecule_name(self):
+        return Path(self.name).name if self.name is not None else None
+    
+    @property
+    def level_of_theory(self):
+        """
+        A short-hand summary of the methods and basis sets used.
+        """
+        theories = []
+        if len(self.converted_methods) > 0:
+            #theories.extend(self.converted_methods)
+            theories.append(self.converted_methods[-1])
+            
+        if self.basis_set is not None:
+            theories.append(self.basis_set)
+            
+        return("/".join(theories))
         
     @classmethod
     def merge(self, *multiple_metadatas):
@@ -102,6 +125,13 @@ class Metadata(Result_object):
         Merge multiple metadata objects into a single metadata.
         """
         return Merged_metadata.from_metadatas(*multiple_metadatas)
+    
+    @property
+    def converted_methods(self):
+        """
+        Similar to the methods attribute but where DFT is replaced with the actual functional used.
+        """
+        return [self.functional if method == "DFT" and self.functional is not None else method for method in self.methods if method is not None]
         
     @property
     def identity(self):
@@ -109,14 +139,11 @@ class Metadata(Result_object):
         A dictionary of critical attributes that identify a calculation.
         """
         # Get our list of methods, replacing 'DFT' with the functional used if available.
-        methods = [self.functional if method == "DFT" and self.functional is not None else method for method in self.methods if method is not None]
         return {
             "package": self.package,
             "calculations": self.calculations_string,
-            "methods": ", ".join(methods) if len(methods) > 0 else None,
+            "methods": ", ".join(self.converted_methods) if len(self.converted_methods) > 0 else None,
             "basis": self.basis_set,
-            #"multiplicity": self.multiplicity,
-            #"charge": self.charge
         }
         
     @property
@@ -161,6 +188,30 @@ class Metadata(Result_object):
         Get the list of calculation methods as a single string, or None if there are no methods set.
         """
         return ", ".join(self.methods) if len(self.methods) != 0 else None
+    
+    @property
+    def human_calculations_string(self):
+        """
+        A version of calculations_string that is more pleasant to read.
+        """
+        calculations = []
+        if "Single Point" in self.calculations:
+            calculations.append("single point energy")
+        
+        if "Optimisation" in self.calculations:
+            calculations.append("optimised structure")
+            
+        if "Frequencies" in self.calculations:
+            calculations.append("vibrational frequencies")
+            
+        if "Excited States" in self.calculations:
+            calculations.append("excited states")
+            
+        if len(calculations) == 0:
+            # Use a generic term.
+            calculations.append("properties")
+        
+        return andjoin(calculations)
             
     @classmethod
     def get_calculation_types_from_cclib(self, ccdata):
@@ -318,6 +369,12 @@ class Merged_metadata(Metadata):
         merged_metadata.orbital_spin_type = multiple_metadatas[0].orbital_spin_type
         merged_metadata.charge = multiple_metadatas[0].charge
         merged_metadata.multiplicity = multiple_metadatas[0].multiplicity
+        
+        # CAREFULLY merge aux files, so that later files do not overwrite earlier ones.
+        # This is useful behaviour because it matches how other results are merged, so certain aux files
+        # (turbomole density files) will still match their respective results.
+        for metadata in multiple_metadatas:
+            merged_metadata.auxiliary_files = conservative_merger.merge(merged_metadata.auxiliary_files, metadata.auxiliary_files)
         
         return merged_metadata
     

@@ -8,6 +8,7 @@ import shutil
 # Silico imports.
 from silico.report.main import Report
 from silico.misc.directory import copytree
+from silico.reference.cross_reference import Captions
 
 class HTML_report(Report):
     """
@@ -23,22 +24,19 @@ class HTML_report(Report):
         """
         super().__init__(*args, **kwargs)
         
-        # Set our template dir. Eventually this will be changeable by the user so they can use their own templates.
-        self.template_dir = self.default_template_directory
-        self.src_static_dir = self.default_src_static_directory
         self.report_html_file = None
         self.report_type = None
+        self.report_style = None
+        # An object used in templates for recording captions and references.
+        self.captions = Captions()
     
-    @property
-    def default_template_directory(self):
-        #return Path(pkg_resources.resource_filename('silico', 'data/templates'))
-        return Path(silico.default_template_directory(), "report")
+    def template_directory(self, report_style):
+        return Path(silico.default_template_directory(), "report", report_style)
     
-    @property
-    def default_src_static_directory(self):
-        return Path(pkg_resources.resource_filename('silico', 'data/static'))
+    def src_static_directory(self, report_style):
+        return Path(pkg_resources.resource_filename('silico', str(Path('data/static', report_style))))
     
-    def _write(self, output, *, report_type = None, **kwargs):
+    def _write(self, output, *, report_type = "full", report_style = "journal", **kwargs):
         """
         Write this HTML_report to file.
         
@@ -52,7 +50,8 @@ class HTML_report(Report):
         self.static_dir = Path(self.report_html_file.parents[0], "static")
         
         # The type of report.
-        self.report_type = report_type if report_type is not None else "full"
+        self.report_type = report_type
+        self.report_style = report_style
         if self.report_type == "full":
             report_template = self.FULL_REPORT_NAME
         elif self.report_type == "atoms":
@@ -61,7 +60,7 @@ class HTML_report(Report):
             raise TypeError("Unknown report type '{}'".format(self.report_type))
         
         # Now get and load our template.
-        template_body = TemplateLookup(directories = str(self.template_dir)).get_template("/report/{}".format(report_template)).render_unicode(report = self)
+        template_body = TemplateLookup(directories = str(self.template_directory(self.report_style))).get_template("/report/{}".format(report_template)).render_unicode(report = self)
         
         try:
             # Write our template to file.
@@ -91,7 +90,7 @@ class HTML_report(Report):
 #         )
         # Be aware of #21
         # We only want to copy data, nothing else.
-        copytree(str(self.src_static_dir), str(self.static_dir), copy_function = shutil.copyfile)
+        copytree(str(self.src_static_directory(self.report_style)), str(self.static_dir), copy_function = shutil.copyfile)
         
         # Done.
         
