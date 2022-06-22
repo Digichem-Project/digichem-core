@@ -28,6 +28,10 @@ def gaussian_PDM_result():
     return parse_calculation(Path(data_directory(), "Pyridine/Gaussian 16 Optimisation Frequencies PBE1PBE (GD3BJ) Toluene 6-31G(d,p)"))
 
 @pytest.fixture(scope="module")
+def gaussian_TDM_result():
+    return parse_calculation(Path(data_directory(), "Pyridine/Gaussian 16 Excited States TDA 10 Singlets 10 Triplets PBE1PBE (GD3BJ) Toluene 6-31G(d,p)"))
+
+@pytest.fixture(scope="module")
 def gaussian_PDM_ES_result():
     return parse_calculation(Path(data_directory(), "Pyridine/Gaussian 16 Excited States TDA Optimised S(1) PBE1PBE (GD3BJ) Toluene 6-31G(d,p)"))
 
@@ -194,27 +198,49 @@ def test_frequencies(result_set, num, index, frequency, intensity):
     else:
         with pytest.raises(IndexError):
             result_set.vibrations[-1].frequency
+            
 
-
-@pytest.mark.parametrize("result_set, coord, axis_angle, plane_angle", [
-        (pytest.lazy_fixture("gaussian_PDM_result"), (0.0, 2.5103, 0.0), 90.0, 0.0),
-        (pytest.lazy_fixture("gaussian_PDM_ES_result"), (0.0001, -0.6147, 0.0001), 90.0, 0.0),
-    ])
-def test_pdm(result_set, coord, axis_angle, plane_angle):
-    """Test the permanent dipole moment"""
-     
+def check_dipole(dipole_moment, coords):
+    """
+    Helper function to check a dipole moment (PDM, TEDM or TMDM) matches some expected values.
+    """
     # Pytest bug #9921 prevents this comparison from working for now...
     #assert result_set.dipole_moment.vector_coords == pytest.approx(coord)
     for coord_index in range(0,3):
         # Reorientation of the geometry adds some inaccuracy in our comparison with the log file
-        assert result_set.dipole_moment.vector_coords[coord_index] == pytest.approx(coord[coord_index], abs=1e-4)
+        assert dipole_moment.vector_coords[coord_index] == pytest.approx(coords[coord_index], abs=1e-4)
         
     # Check total
-    assert result_set.dipole_moment.total == pytest.approx((coord[0] **2 + coord[1] **2 + coord[2] **2) **0.5)
+    assert dipole_moment.total == pytest.approx((coords[0] **2 + coords[1] **2 + coords[2] **2) **0.5, abs=1e-4)
+
+
+@pytest.mark.parametrize("result_set, coords, axis_angle, plane_angle", [
+        (pytest.lazy_fixture("gaussian_PDM_result"), (0.0, 2.5103, 0.0), 90.0, 0.0),
+        (pytest.lazy_fixture("gaussian_PDM_ES_result"), (0.0001, -0.6147, 0.0001), 90.0, 0.0),
+    ])
+def test_pdm(result_set, coords, axis_angle, plane_angle):
+    """Test the permanent dipole moment"""
+     
+    check_dipole(result_set.dipole_moment, coords)
     
     # Check angles
     assert float(result_set.dipole_moment.X_axis_angle) == pytest.approx(axis_angle, abs=1e-2)
     assert float(result_set.dipole_moment.XY_plane_angle) == pytest.approx(plane_angle, abs=1e-2)
+
+
+@pytest.mark.parametrize("result_set, number, S1_TEDM, S1_TMDM", [
+        (pytest.lazy_fixture("gaussian_TDM_result"), 20, (0.0, -0.0003, 0.5879), (0.6909, 0.0, 0.0))
+    ])
+def test_tdm(result_set, number, S1_TEDM, S1_TMDM):
+    """Test transition dipole moments"""
+    # Check number of dipoles.
+    assert len([excited_state.transition_dipole_moment for excited_state in result_set.excited_states if excited_state.transition_dipole_moment is not None]) == number
+    
+    # Check the S1 moments are correct.
+    S1_TDM = result_set.excited_states.get_state("S(1)").transition_dipole_moment
+    
+    check_dipole(S1_TDM.electric, S1_TEDM)
+    check_dipole(S1_TDM.magnetic, S1_TMDM)
     
     
     
