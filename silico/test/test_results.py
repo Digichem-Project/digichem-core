@@ -196,11 +196,11 @@ def test_frequencies(result_set, num, index, frequency, intensity):
             result_set.vibrations[-1].frequency
 
 
-@pytest.mark.parametrize("result_set, coord", [
-        (pytest.lazy_fixture("gaussian_PDM_result"), (0.0, 2.5103, 0.0)),
-        (pytest.lazy_fixture("gaussian_PDM_ES_result"), (0.0001, -0.6147, 0.0001)),
+@pytest.mark.parametrize("result_set, coord, axis_angle, plane_angle", [
+        (pytest.lazy_fixture("gaussian_PDM_result"), (0.0, 2.5103, 0.0), 90.0, 0.0),
+        (pytest.lazy_fixture("gaussian_PDM_ES_result"), (0.0001, -0.6147, 0.0001), 90.0, 0.0),
     ])
-def test_pdm(result_set, coord):
+def test_pdm(result_set, coord, axis_angle, plane_angle):
     """Test the permanent dipole moment"""
      
     # Pytest bug #9921 prevents this comparison from working for now...
@@ -211,5 +211,10 @@ def test_pdm(result_set, coord):
         
     # Check total
     assert result_set.dipole_moment.total == pytest.approx((coord[0] **2 + coord[1] **2 + coord[2] **2) **0.5)
+    
+    # Check angles
+    assert float(result_set.dipole_moment.X_axis_angle) == pytest.approx(axis_angle, abs=1e-2)
+    assert float(result_set.dipole_moment.XY_plane_angle) == pytest.approx(plane_angle, abs=1e-2)
+    
     
     
