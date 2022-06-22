@@ -195,12 +195,21 @@ def test_frequencies(result_set, num, index, frequency, intensity):
         with pytest.raises(IndexError):
             result_set.vibrations[-1].frequency
 
+
 @pytest.mark.parametrize("result_set, coord", [
-        (pytest.lazy_fixture("gaussian_PDM_result"), (0.0, 2.51035, 0.0)),
+        (pytest.lazy_fixture("gaussian_PDM_result"), (0.0, 2.5103, 0.0)),
+        (pytest.lazy_fixture("gaussian_PDM_ES_result"), (0.0001, -0.6147, 0.0001)),
     ])
 def test_pdm(result_set, coord):
     """Test the permanent dipole moment"""
      
-    assert result_set.dipole_moment.vector_coords == pytest.approx(coord)
+    # Pytest bug #9921 prevents this comparison from working for now...
+    #assert result_set.dipole_moment.vector_coords == pytest.approx(coord)
+    for coord_index in range(0,3):
+        # Reorientation of the geometry adds some inaccuracy in our comparison with the log file
+        assert result_set.dipole_moment.vector_coords[coord_index] == pytest.approx(coord[coord_index], abs=1e-4)
+        
+    # Check total
+    assert result_set.dipole_moment.total == pytest.approx((coord[0] **2 + coord[1] **2 + coord[2] **2) **0.5)
     
     
