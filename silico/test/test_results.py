@@ -40,6 +40,10 @@ def gaussian_PDM_ES_result():
     return parse_calculation(Path(data_directory(), "Pyridine/Gaussian 16 Excited States TDA Optimised S(1) PBE1PBE (GD3BJ) Toluene 6-31G(d,p)"))
 
 @pytest.fixture(scope="module")
+def turbomole_radical_anion_result():
+    return parse_calculation(Path(data_directory(), "Benzene Anion/Turbomole Optimisation Frequency PBE0 (GD3BJ) 6-31G**"))
+
+@pytest.fixture(scope="module")
 def turbomole_ADC2_opt_result():
     return parse_calculation(Path(data_directory(), "Naphthalene/Turbomole Optimisation ADC(2) cc-pVDZ"))
 
@@ -88,6 +92,9 @@ def test_MP_energy(result_set, num, final):
 @pytest.mark.parametrize("result_set, charge, mult, energy", [
         (pytest.lazy_fixture("gaussian_opt_result"), 0, 1, -10488.995711),
         (pytest.lazy_fixture("turbomole_ADC2_opt_result"), 0, 1, -10467.162645663258),
+        # Radical anions.
+        (pytest.lazy_fixture("gaussian_radical_anion_result"), -1, 2, -6310.537803021298),
+        (pytest.lazy_fixture("turbomole_radical_anion_result"), -1, 2, -6310.4569545463946),
     ])
 def test_ground_state(result_set, charge, mult, energy):
     """Test the ground state properties"""
