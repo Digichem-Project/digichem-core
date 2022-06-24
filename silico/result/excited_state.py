@@ -526,47 +526,44 @@ class Excited_state(Energy_state):
         :param parser: An output file parser.
         :return: A list of Excited_state objects in the same order as given in cclib.
         """
-        try:
-            # List of excited states.
-            excited_states = []
-            
-            # Assemble cclib's various arrays into a single list.
-            # If we're missing etoscs, that's ok.
-            etoscsc = getattr(parser.data, "etoscs", [])
-            excited_states_data = list(zip_longest(parser.data.etsyms, parser.data.etenergies, etoscsc, fillvalue = 0.0))
-            
-            # First get our transitions.
-            transitions = Excited_state_transition.list_from_parser(parser)
-            
-            # Loop through our data.
-            for index, (symmetry, energy, oscillator_strength) in enumerate(excited_states_data):                    
-                # Relevant transition dipole moment.
-                try:
-                    tdm = parser.results.transition_dipole_moments[index]
-                except IndexError:
-                    tdm = None
-                    
-                # Get and append our object.
-                # We'll set level and mult level once we've got all our objects, so just use None for now.
-                excited_states.append(
-                    self(
-                        level = None,
-                        multiplicity = Excited_state.get_multiplicity_from_symmetry(symmetry),
-                        multiplicity_level = None,
-                        symmetry = symmetry,
-                        energy = self.wavenumbers_to_energy(energy),
-                        oscillator_strength = oscillator_strength,
-                        transitions = transitions[index] if len(transitions) != 0 else [],
-                        transition_dipole_moment = tdm
-                    )
+        # List of excited states.
+        excited_states = []
+        
+        # Assemble cclib's various arrays into a single list.
+        # If we're missing etoscs, that's ok.
+        etoscsc = getattr(parser.data, "etoscs", [])
+        excited_states_data = list(zip_longest(parser.data.etsyms, parser.data.etenergies, etoscsc, fillvalue = 0.0))
+        
+        # First get our transitions.
+        transitions = Excited_state_transition.list_from_parser(parser)
+        
+        # Loop through our data.
+        for index, (symmetry, energy, oscillator_strength) in enumerate(excited_states_data):                    
+            # Relevant transition dipole moment.
+            try:
+                tdm = parser.results.transition_dipole_moments[index]
+            except IndexError:
+                tdm = None
+                
+            # Get and append our object.
+            # We'll set level and mult level once we've got all our objects, so just use None for now.
+            excited_states.append(
+                self(
+                    level = None,
+                    multiplicity = Excited_state.get_multiplicity_from_symmetry(symmetry),
+                    multiplicity_level = None,
+                    symmetry = symmetry,
+                    energy = self.wavenumbers_to_energy(energy),
+                    oscillator_strength = oscillator_strength,
+                    transitions = transitions[index] if len(transitions) != 0 else [],
+                    transition_dipole_moment = tdm
                 )
-            
-            # Now assign total and multiplicity levels which we skipped earlier.
-            Excited_state_list.assign_levels(excited_states)
-            
-            # All done, return our list.
-            return excited_states
-        except AttributeError:
-            return []
+            )
+        
+        # Now assign total and multiplicity levels which we skipped earlier.
+        Excited_state_list.assign_levels(excited_states)
+        
+        # All done, return our list.
+        return excited_states
 
     
