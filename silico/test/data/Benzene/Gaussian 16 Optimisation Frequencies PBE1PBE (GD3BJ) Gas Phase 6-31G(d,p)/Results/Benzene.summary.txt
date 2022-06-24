@@ -1,0 +1,76 @@
+--------------------
+|     Metadata     |
+--------------------
+Name: Benzene
+Username: osl
+Date: 20/06/2022 17:16:54
+Duration: 2 m, 13 s
+Computational package: Gaussian (2016+C.01)
+Calculations: Optimisation, Frequencies
+Methods: DFT
+Functional: PBE1PBE
+Basis set: 6-31G(d,p)
+Multiplicity: Doublet
+Charge: -1
+Orbital spin: unrestricted
+Success: True
+Converged: True
+Calculation temperature /K: 298.15
+Calculation pressure /atm: 1.00
+
+-----------------------------------
+|     Vibrational Frequencies     |
+-----------------------------------
+No. vibrations: 30
+No. negative frequency: 2
+Negative frequency 1 /cm-1: -299.12
+Negative frequency 2 /cm-1: -220.12
+
+--------------------
+|     Geometry     |
+--------------------
+Formula: C6H6 -
+Exact mass /gmol-1: 78.0469
+Molar mass /gmol-1: 78.1118
+No. atoms: 12
+Alignment method: Minimal
+X extension /Å: 5.04
+Y extension /Å: 4.51
+Z extension /Å: 0.00
+Linearity ratio: 0.11
+Planarity ratio: 1.00
+
+----------------------
+|     SCF Energy     |
+----------------------
+No. of steps: 5
+Energy /eV: -6310.5381
+Energy /kJmol-1: -608874.3599
+
+----------------------------
+|     Orbitals (alpha)     |
+----------------------------
+HOMO /eV: 3.83
+LUMO /eV: 6.27
+HOMO-LUMO energy /eV: 2.44
+No. virtual: 98
+No. occupied: 22
+
+---------------------------
+|     Orbitals (beta)     |
+---------------------------
+HOMO /eV: -0.02
+LUMO /eV: 6.34
+HOMO-LUMO energy /eV: 6.36
+No. virtual: 99
+No. occupied: 21
+
+-----------------------------------
+|     Permanent Dipole Moment     |
+-----------------------------------
+Total /D: 0.00
+Vector x /D: 0.00
+Vector y /D: 0.00
+Vector z /D: 0.00
+x axis angle /°: 0.00
+xy plane angle /°: 0.00
