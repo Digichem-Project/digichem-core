@@ -201,16 +201,20 @@ def test_frequencies(result_set, num, index, frequency, intensity):
         with pytest.raises(IndexError):
             result_set.vibrations[-1].frequency
             
+def check_float_list(test_list, expected_list, abs = 1e-4):
+    """
+    Helper function to compare to lists of floats.
+    """
+    # Pytest bug #9921 prevents this comparison from working for now...
+    #assert test_list == pytest.approx(expected_list, abs=abs)
+    for list_index in range(0,len(expected_list)):
+        assert test_list[list_index] == pytest.approx(expected_list[list_index], abs=abs)
 
 def check_dipole(dipole_moment, coords):
     """
     Helper function to check a dipole moment (PDM, TEDM or TMDM) matches some expected values.
     """
-    # Pytest bug #9921 prevents this comparison from working for now...
-    #assert result_set.dipole_moment.vector_coords == pytest.approx(coord)
-    for coord_index in range(0,3):
-        # Reorientation of the geometry adds some inaccuracy in our comparison with the log file
-        assert dipole_moment.vector_coords[coord_index] == pytest.approx(coords[coord_index], abs=1e-4)
+    check_float_list(dipole_moment.vector_coords, coords)
         
     # Check total
     assert dipole_moment.total == pytest.approx((coords[0] **2 + coords[1] **2 + coords[2] **2) **0.5, abs=1e-4)
@@ -241,8 +245,28 @@ def test_tdm(result_set, number, S1_TEDM, S1_TMDM):
     # Check the S1 moments are correct.
     S1_TDM = result_set.excited_states.get_state("S(1)").transition_dipole_moment
     
+    # Check coords and magnitude.
     check_dipole(S1_TDM.electric, S1_TEDM)
     check_dipole(S1_TDM.magnetic, S1_TMDM)
     
+@pytest.mark.parametrize("result_set, state, g_lum", [
+        (pytest.lazy_fixture("gaussian_TDM_result"), "S(5)", -0.995)
+    ])
+def test_g_lum(result_set, state, g_lum):
+    """Test calculation of G(lum) values for circularly polarized light."""
     
+    TDM = result_set.excited_states.get_state(state).transition_dipole_moment
     
+    TEDM = TDM.electric.gaussian_cgs_vector
+    TMDM = TDM.magnetic.gaussian_cgs_vector
+    
+    # Test values in Gaussian-CGS units.))
+    check_float_list(TEDM, tuple(254.35e-20 * i for i in TEDM))
+    check_float_list(TMDM, tuple(-0.97401e-20 * i for i in TMDM))
+    
+    # Check angle.
+    angle = (TEDM[0] * TMDM[0] + TEDM[1] * TMDM[1] + TEDM[2] * TMDM[2]) / ( ((TEDM[0]**2 + TEDM[1] **2 + TEDM[2] **2)**0.5) * ((TMDM[0]**2 + TMDM[1] **2 + TMDM[2] **2)**0.5) )
+    assert TDM.cos_angle() == pytest.approx(angle)
+    
+    # Check g_lum
+    assert TDM.g_value == pytest.approx(g_lum, abs=1e-3)
