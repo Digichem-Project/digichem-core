@@ -120,8 +120,11 @@ class Transition_dipole_moment():
         """
         Set the excited state object that we belong to.
         """
-        self.electric.set_excited_state(excited_state)
-        self.magnetic.set_excited_state(excited_state)
+        if self.electric is not None:
+            self.electric.set_excited_state(excited_state)
+        
+        if self.magnetic is not None:
+            self.magnetic.set_excited_state(excited_state)
     
     @classmethod
     def list_from_parser(self, parser):
