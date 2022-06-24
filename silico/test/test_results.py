@@ -200,7 +200,8 @@ def test_frequencies(result_set, num, index, frequency, intensity):
     else:
         with pytest.raises(IndexError):
             result_set.vibrations[-1].frequency
-            
+
+
 def check_float_list(test_list, expected_list, abs = 1e-4):
     """
     Helper function to compare to lists of floats.
@@ -248,7 +249,8 @@ def test_tdm(result_set, number, S1_TEDM, S1_TMDM):
     # Check coords and magnitude.
     check_dipole(S1_TDM.electric, S1_TEDM)
     check_dipole(S1_TDM.magnetic, S1_TMDM)
-    
+
+
 @pytest.mark.parametrize("result_set, state, g_lum", [
         (pytest.lazy_fixture("gaussian_TDM_result"), "S(5)", -0.995)
     ])
