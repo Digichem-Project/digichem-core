@@ -1,0 +1,38 @@
+
+Naphthalene_Excited_States_TDA_10_Singlets_PBE0__GD3BJ__6_31G__
+a ../Input/coord
+ired
+*
+b all 6-31G**
+*
+eht
+
+0
+
+scf
+iter
+100
+damp
+
+
+
+
+dft
+on
+func pbe0
+*
+ex
+ciss
+*
+a 10
+*
+rpacor 20000
+*
+n
+dsp
+bj
+*
+cc
+memory 2384
+*
+*
