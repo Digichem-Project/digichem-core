@@ -197,7 +197,8 @@ def test_orbitals(result_set, num_occ, num_unocc, homo, lumo):
 
 
 @pytest.mark.parametrize("result_set, num_occ, num_unocc, homo, lumo", [
-        (pytest.lazy_fixture("gaussian_radical_anion_result"), (22, 21), (98, 99), (3.832451319, -0.0157826027), (6.268142298, 6.34270149))
+        (pytest.lazy_fixture("gaussian_radical_anion_result"), (22, 21), (98, 99), (3.832451319, -0.0157826027), (6.268142298, 6.34270149)),
+        (pytest.lazy_fixture("turbomole_radical_anion_result"), (22, 21), (92, 93), (3.825336056180260069, 0.0034865153882969327284), (6.275672672175910627, 6.387468734183322283))
     ])
 def test_unrestricted_orbitals(result_set, num_occ, num_unocc, homo, lumo):
     """Test the energies of unrestricted orbitals"""
