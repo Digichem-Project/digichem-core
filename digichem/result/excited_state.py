@@ -532,15 +532,7 @@ class Excited_state(Energy_state):
         # Assemble cclib's various arrays into a single list.
         # If we're missing etoscs, that's ok.
         etoscsc = getattr(parser.data, "etoscs", [])
-        
-        try:
-            excited_states_data = list(zip_longest(parser.data.etsyms, parser.data.etenergies, etoscsc, fillvalue = 0.0))
-        
-        except AttributeError:
-            if not hasattr(parser.data, "etsyms") or not hasattr(parser.data, "etenergies"):
-                return []
-            else:
-                raise
+        excited_states_data = list(zip_longest(parser.data.etsyms, parser.data.etenergies, etoscsc, fillvalue = 0.0))
         
         # First get our transitions.
         transitions = Excited_state_transition.list_from_parser(parser)
