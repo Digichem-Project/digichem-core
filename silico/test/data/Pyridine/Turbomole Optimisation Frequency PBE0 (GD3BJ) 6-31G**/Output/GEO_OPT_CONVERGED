@@ -1,0 +1,24 @@
+CONVERGENCY CRITERIA FULFILLED IN CYCLE 8
+
+ energy change  : actual value =  -0.3200E-06 threshold =   0.1000E-05
+ geom. gradient : actual value =   0.1371E-03 threshold =   0.1000E-02
+
+Job ended at   Fri 24 Jun 12:20:29 BST 2022
+  on machine     kennedy42
+  by user        osl
+  in directory   /gpfs1/home/osl/test/Pyridine/Turbomole Optimisation Frequency PBE0 (GD3BJ) 6-31G**/Output
+  
+job.start file had been created with details about the job type: 
+
+Fri 24 Jun 12:20:06 BST 2022
+jobex WAS CALLED AS: jobex -level scf -c 100 -keep
+AN OPTIMIZATION WITH MAX. 100 CYCLES WILL BE PERFORMED
+CONVERGENCY CRITERION FOR TOTAL SCF-ENERGY IS 10**(-6)
+CONVERGENCY CRITERION FOR MAXIMUM NORM OF SCF-ENERGY GRADIENT IS 10**(-3)
+CONVERGENCY CRITERION FOR MAXIMUM NORM OF BASIS SET GRADIENT IS 10**(-3)
+PROCEDURE WILL START WITH A dscf like STEP
+LOAD MODULES WILL BE TAKEN FROM DIRECTORY /gpfs1/apps/software/TURBOMOLE//bin/em64t-unknown-linux-gnu_smp
+DSCF  = /gpfs1/apps/software/TURBOMOLE//bin/em64t-unknown-linux-gnu_smp/dscf
+GRAD  = /gpfs1/apps/software/TURBOMOLE//bin/em64t-unknown-linux-gnu_smp/grad
+STATPT = /gpfs1/apps/software/TURBOMOLE//bin/em64t-unknown-linux-gnu_smp/statpt
+

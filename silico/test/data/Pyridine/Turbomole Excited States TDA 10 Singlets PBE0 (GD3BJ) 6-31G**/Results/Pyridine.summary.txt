@@ -1,0 +1,56 @@
+--------------------
+|     Metadata     |
+--------------------
+Name: Pyridine
+Username: osl
+Date: 24/06/2022 12:24:30
+Duration: 13 s
+Computational package: Turbomole (7.5.0)
+Calculations: Excited States
+Methods: DFT
+Functional: PBE0
+Basis set: 6-31G**
+Multiplicity: Singlet
+Charge: 0
+Orbital spin: restricted
+Success: True
+
+--------------------
+|     Geometry     |
+--------------------
+Formula: C5NH5
+Exact mass /gmol-1: None
+Molar mass /gmol-1: 79.0999
+No. atoms: 11
+Alignment method: Minimal
+X extension /Å: 4.31
+Y extension /Å: 3.88
+Z extension /Å: 0.00
+Linearity ratio: 0.10
+Planarity ratio: 1.00
+
+----------------------
+|     SCF Energy     |
+----------------------
+No. of steps: 1
+Energy /eV: -6748.4564
+Energy /kJmol-1: -651127.0544
+
+--------------------
+|     Orbitals     |
+--------------------
+HOMO /eV: -7.17
+LUMO /eV: -0.47
+HOMO-LUMO energy /eV: 6.71
+No. virtual: 88
+No. occupied: 21
+
+-----------------------------------
+|     Permanent Dipole Moment     |
+-----------------------------------
+Total /D: 2.20
+Vector x /D: -0.00
+Vector y /D: -2.20
+Vector z /D: -0.00
+x axis angle /°: 89.98
+xy plane angle /°: 0.01
