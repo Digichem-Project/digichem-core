@@ -291,7 +291,8 @@ def test_pdm(result_set, coords, axis_angle, plane_angle):
 
 
 @pytest.mark.parametrize("result_set, number, S1_TEDM, S1_TMDM", [
-        (pytest.lazy_fixture("gaussian_TDM_result"), 20, (0.0, -0.0003, 0.5879), (0.6909, 0.0, 0.0))
+        (pytest.lazy_fixture("gaussian_TDM_result"), 20, (0.0, -0.0003, 0.5879), (0.6909, 0.0, 0.0)),
+        (pytest.lazy_fixture("turbomole_ES_singlets_result"), 10, (0.000108, 0.000021, 0.002004), (0.002457, -0.000001, -0.000001))
     ])
 def test_tdm(result_set, number, S1_TEDM, S1_TMDM):
     """Test transition dipole moments"""
