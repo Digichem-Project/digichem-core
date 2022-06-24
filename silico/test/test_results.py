@@ -52,6 +52,10 @@ def turbomole_ES_triplets_result():
     return parse_calculation(Path(data_directory(), "Naphthalene/Turbomole Excited States TDA 10 Triplets PBE0 (GD3BJ) 6-31G**"))
 
 @pytest.fixture(scope="module")
+def turbomole_PDM_result():
+    return parse_calculation(Path(data_directory(), "Pyridine/Turbomole Optimisation Frequency PBE0 (GD3BJ) 6-31G**"))
+
+@pytest.fixture(scope="module")
 def turbomole_radical_anion_result():
     return parse_calculation(Path(data_directory(), "Benzene Anion/Turbomole Optimisation Frequency PBE0 (GD3BJ) 6-31G**"))
 
@@ -274,6 +278,7 @@ def check_dipole(dipole_moment, coords):
 @pytest.mark.parametrize("result_set, coords, axis_angle, plane_angle", [
         (pytest.lazy_fixture("gaussian_PDM_result"), (0.0, 2.5103, 0.0), 90.0, 0.0),
         (pytest.lazy_fixture("gaussian_PDM_ES_result"), (0.0001, -0.6147, 0.0001), 90.0, 0.0),
+        (pytest.lazy_fixture("turbomole_PDM_result"), (-0.000743401, -2.20405438, -0.000494493), 90.0, 0.0),
     ])
 def test_pdm(result_set, coords, axis_angle, plane_angle):
     """Test the permanent dipole moment"""
@@ -281,8 +286,8 @@ def test_pdm(result_set, coords, axis_angle, plane_angle):
     check_dipole(result_set.dipole_moment, coords)
     
     # Check angles
-    assert float(result_set.dipole_moment.X_axis_angle) == pytest.approx(axis_angle, abs=1e-2)
-    assert float(result_set.dipole_moment.XY_plane_angle) == pytest.approx(plane_angle, abs=1e-2)
+    assert float(result_set.dipole_moment.X_axis_angle) == pytest.approx(axis_angle, abs=1e-1)
+    assert float(result_set.dipole_moment.XY_plane_angle) == pytest.approx(plane_angle, abs=1e-1)
 
 
 @pytest.mark.parametrize("result_set, number, S1_TEDM, S1_TMDM", [
