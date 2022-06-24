@@ -5,7 +5,7 @@
 <%!
     import colour
     import numpy
-    from silico.result.excited_states import Excited_state
+    from silico.result.excited_state import Excited_state
 %>
 
 <div class=tableBorder>

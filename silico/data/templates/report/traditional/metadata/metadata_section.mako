@@ -1,7 +1,7 @@
 ## -*- coding: utf-8 -*-
 
 <%!
-    from silico.result.excited_states import Energy_state
+    from silico.result.excited_state import Energy_state
     import datetime
 %>
 
