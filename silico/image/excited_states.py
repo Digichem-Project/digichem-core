@@ -1,10 +1,11 @@
-from silico.image.graph import OneD_graph_image_maker
 from matplotlib import ticker
 from matplotlib.ticker import FuncFormatter
-#from silico.result.excited_states import Excited_state, Excited_state_list
-import silico.result.excited_state
 from itertools import chain
 import math
+
+from silico.image.graph import OneD_graph_image_maker
+#from silico.result.excited_state import Excited_state, Excited_state_list
+import silico.result.excited_state
 
 class Excited_states_diagram_maker(OneD_graph_image_maker):
     """

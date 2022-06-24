@@ -4,7 +4,7 @@
 
 <%!
 	from silico.misc.text import text_float, andjoin
-	from silico.result.excited_states import Energy_state
+	from silico.result.excited_state import Energy_state
 	import inflect
 %>
 
