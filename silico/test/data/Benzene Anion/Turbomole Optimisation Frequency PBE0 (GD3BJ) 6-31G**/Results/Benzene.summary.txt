@@ -1,0 +1,72 @@
+--------------------
+|     Metadata     |
+--------------------
+Name: Benzene
+Username: osl
+Date: 24/06/2022 12:21:56
+Duration: 2 m, 12 s
+Computational package: Turbomole (7.5.0)
+Calculations: Optimisation, Frequencies
+Methods: DFT
+Functional: PBE0
+Basis set: 6-31G**
+Multiplicity: Doublet
+Charge: -1
+Orbital spin: unrestricted
+Success: True
+Converged: True
+
+-----------------------------------
+|     Vibrational Frequencies     |
+-----------------------------------
+No. vibrations: 30
+No. negative frequency: 0
+
+--------------------
+|     Geometry     |
+--------------------
+Formula: C6H6 -
+Exact mass /gmol-1: None
+Molar mass /gmol-1: 78.1118
+No. atoms: 12
+Alignment method: Minimal
+X extension /Å: 4.98
+Y extension /Å: 4.72
+Z extension /Å: 0.05
+Linearity ratio: 0.05
+Planarity ratio: 0.99
+
+----------------------
+|     SCF Energy     |
+----------------------
+No. of steps: 24
+Energy /eV: -6310.4572
+Energy /kJmol-1: -608866.5592
+
+----------------------------
+|     Orbitals (alpha)     |
+----------------------------
+HOMO /eV: 3.83
+LUMO /eV: 6.28
+HOMO-LUMO energy /eV: 2.45
+No. virtual: 92
+No. occupied: 22
+
+---------------------------
+|     Orbitals (beta)     |
+---------------------------
+HOMO /eV: 0.00
+LUMO /eV: 6.39
+HOMO-LUMO energy /eV: 6.38
+No. virtual: 93
+No. occupied: 21
+
+-----------------------------------
+|     Permanent Dipole Moment     |
+-----------------------------------
+Total /D: 0.04
+Vector x /D: -0.02
+Vector y /D: 0.03
+Vector z /D: -0.00
+x axis angle /°: 49.10
+xy plane angle /°: 4.17
