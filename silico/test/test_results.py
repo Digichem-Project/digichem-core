@@ -40,6 +40,18 @@ def gaussian_PDM_ES_result():
     return parse_calculation(Path(data_directory(), "Pyridine/Gaussian 16 Excited States TDA Optimised S(1) PBE1PBE (GD3BJ) Toluene 6-31G(d,p)"))
 
 @pytest.fixture(scope="module")
+def turbomole_opt_result():
+    return parse_calculation(Path(data_directory(), "Naphthalene/Turbomole Optimisation Frequency PBE0 (GD3BJ) 6-31G**"))
+
+@pytest.fixture(scope="module")
+def turbomole_ES_singlets_result():
+    return parse_calculation(Path(data_directory(), "Naphthalene/Turbomole Excited States TDA 10 Singlets PBE0 (GD3BJ) 6-31G**"))
+
+@pytest.fixture(scope="module")
+def turbomole_ES_triplets_result():
+    return parse_calculation(Path(data_directory(), "Naphthalene/Turbomole Excited States TDA 10 Triplets PBE0 (GD3BJ) 6-31G**"))
+
+@pytest.fixture(scope="module")
 def turbomole_radical_anion_result():
     return parse_calculation(Path(data_directory(), "Benzene Anion/Turbomole Optimisation Frequency PBE0 (GD3BJ) 6-31G**"))
 
@@ -217,6 +229,7 @@ def test_unrestricted_orbitals(result_set, num_occ, num_unocc, homo, lumo):
 @pytest.mark.parametrize("result_set, num, index, frequency, intensity", [
         (pytest.lazy_fixture("gaussian_opt_result"), 48, 13, 806.2853, 121.0015),
         (pytest.lazy_fixture("gaussian_SP_result"), 0, None, None, None),
+        (pytest.lazy_fixture("turbomole_opt_result"), 48, 13, 805.28, 103.77),
     ])
 def test_frequencies(result_set, num, index, frequency, intensity):
     """Test the vibrational frequencies are correct"""
