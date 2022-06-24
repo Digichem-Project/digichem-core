@@ -16,6 +16,10 @@ def gaussian_opt_result():
     return parse_calculation(Path(data_directory(), "Naphthalene/Gaussian 16 Optimisation Frequencies PBE1PBE (GD3BJ) Toluene 6-31G(d,p)"))
 
 @pytest.fixture(scope="module")
+def gaussian_radical_anion_result():
+    return parse_calculation(Path(data_directory(), "Benzene Anion/Gaussian 16 Optimisation Frequencies PBE1PBE (GD3BJ) Gas Phase 6-31G(d,p)"))
+
+@pytest.fixture(scope="module")
 def gaussian_ES_result():
     return parse_calculation(Path(data_directory(), "Naphthalene/Gaussian 16 Excited States TDA 10 Singlets 10 Triplets PBE1PBE (GD3BJ) Toluene 6-31G(d,p)"))
 
@@ -157,24 +161,49 @@ def test_alignment(result_set, length, width, height):
     assert result_set.alignment.get_planar_ratio() == pytest.approx(planar_ratio, abs=tolerance)
 
 
+def check_orbitals(orbitals, num_occ, num_unocc, homo, lumo):
+    """Helper function for checking orbital energies"""
+    # Check numbers.
+    assert len(orbitals) == num_occ + num_unocc
+    assert len(orbitals.occupied) == num_occ
+    assert len(orbitals.virtual) == num_unocc
+    
+    # Check energies.
+    assert orbitals.HOMO_energy == pytest.approx(homo)
+    assert orbitals.LUMO_energy == pytest.approx(lumo)
+    assert orbitals.HOMO_LUMO_energy == pytest.approx(lumo - homo)
+    
+    # Check ordering.
+    assert [orbital.level for orbital in orbitals] == list(range(1, num_occ + num_unocc +1))
+
+
 @pytest.mark.parametrize("result_set, num_occ, num_unocc, homo, lumo", [
         (pytest.lazy_fixture("gaussian_opt_result"), 34, 156, -6.13072481, -0.92437071),
         (pytest.lazy_fixture("turbomole_ADC2_opt_result"), 34, 146, -7.78345591, 2.37048311)
     ])
 def test_orbitals(result_set, num_occ, num_unocc, homo, lumo):
     """Test the energies of the parsed MOs"""
-    # Check numbers.
-    assert len(result_set.molecular_orbitals) == num_occ + num_unocc
-    assert len(result_set.molecular_orbitals.occupied) == num_occ
-    assert len(result_set.molecular_orbitals.virtual) == num_unocc
+    check_orbitals(result_set.molecular_orbitals, num_occ, num_unocc, homo, lumo)
     
-    # Check energies.
-    assert result_set.molecular_orbitals.HOMO_energy == pytest.approx(homo)
-    assert result_set.molecular_orbitals.LUMO_energy == pytest.approx(lumo)
-    assert result_set.molecular_orbitals.HOMO_LUMO_energy == pytest.approx(lumo - homo)
+    # Check spin labels
+    assert result_set.molecular_orbitals.spin_type == "none"
+
+
+@pytest.mark.parametrize("result_set, num_occ, num_unocc, homo, lumo", [
+        (pytest.lazy_fixture("gaussian_radical_anion_result"), (22, 21), (98, 99), (3.832451319, -0.0157826027), (6.268142298, 6.34270149))
+    ])
+def test_unrestricted_orbitals(result_set, num_occ, num_unocc, homo, lumo):
+    """Test the energies of unrestricted orbitals"""
+    # Check overall length.
+    assert len(result_set.molecular_orbitals) == len(result_set.beta_orbitals)
     
-    # Check ordering.
-    assert [orbital.level for orbital in result_set.molecular_orbitals] == list(range(1, num_occ + num_unocc +1))
+    # Check each set of orbitals.
+    check_orbitals(result_set.molecular_orbitals, num_occ[0], num_unocc[0], homo[0], lumo[0])
+    check_orbitals(result_set.beta_orbitals, num_occ[1], num_unocc[1], homo[1], lumo[1])
+    
+    # Check spin labels
+    assert result_set.molecular_orbitals.spin_type == "alpha"
+    assert result_set.beta_orbitals.spin_type == "beta"
 
 
 @pytest.mark.parametrize("result_set, num, index, frequency, intensity", [
