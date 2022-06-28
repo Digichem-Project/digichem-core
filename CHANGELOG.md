@@ -1,3 +1,35 @@
+- 2022-06-27: Added some error checking on the return value when parsing coordinates with rdkit
+- 2022-06-27: Fixed incorrect hole/electron labels in NTO diagrams
+- 2022-06-27: Merge branch 'devel' into bugfix
+- 2022-06-27: Bumper pre-release
+- 2022-06-27: Fixed lingering references to aligned_structure
+- 2022-06-27: Merge branch 'master' into bugfix
+- 2022-06-24: Bumped pre-release no.
+- 2022-06-24: Fixed a bug setting the owning excited state of a TDM
+- 2022-06-24: Increased number of CPUs used for optimised excited states calcs to 16
+- 2022-06-21: Added ignore file
+- 2022-06-21: Added ignore file
+- 2022-06-21: Added ignore file
+- 2022-06-21: Merge branch 'devel'
+- 2022-06-21: Updated changelog
+- 2022-06-21: Merge branch 'v1-devel' into devel
+- 2022-06-21: Merge branch 'v1.x'
+- 2022-06-20: Bumped pre-release number
+- 2022-06-17: Fixed issue #55, the output location set by the report program would be fixed and unchangeable once the first report had been written
+- 2022-06-17: Fixed a bug rendering unrestricted traditional reports
+- 2022-06-17: Updated dist script to make use of git archive
+- 2022-06-17: Bumped pre-release number
+- 2022-06-17: Added the '--exit-status' argument to the submit program to control the return status
+- 2022-06-15: Removed use of the unsupported GD3BJ dispersion correction for the wB97XD functional
+- 2022-06-15: Added todo re. alignment attribute
+- 2022-06-15: Edited bash autocompletion to handle spaces in file names; came to term with my own lack of skill in bash
+- 2022-06-14: Added the ability to specify negative charges in the coord widget
+- 2022-06-13: Added DMF to gaussian solvent list
+- 2022-06-10: Added labels to SOC summary table
+- 2022-06-10: Updated report templates to handle when only the TEDM is available (and not TMDM)
+- 2022-06-10: Added new text format template for extended TDM properties, renamed 'extract' templte folder to 'format'.
+- 2022-06-10: Renamed old Extractor_error exception class to Format_error
+- 2022-06-10: Updated TDM object to pass attrbiute gets to the magnetic dipole if not electric is available
 - 2022-06-07: Bumped pre-release
 - 2022-06-07: Fixed some more instances of differential to difference
 - 2022-06-07: Fixed another crash generating reports when no TDMs are available
@@ -70,6 +102,8 @@
 - 2022-05-12: Tweaked quick ref section on molecule terminology
 - 2022-05-10: Fixed various instances of 'differential density' to 'difference density'
 - 2022-05-10: Fixed a bug where the phrase 'permanent dipole moment' appeared in the wrong place in reports
+- 2022-05-06: Merge branch 'devel'
+- 2022-05-06: Moved missing free .spec file
 - 2022-05-06: Bumped pre-release to 23
 - 2022-05-06: Merge branch 'doc' into v1.x
 - 2022-05-06: Finished initial version of quick reference guide
@@ -77,6 +111,7 @@
 - 2022-05-02: Fixed number of sig figs in CIE coords in emissin section of journal reports
 - 2022-05-02: The summary result file now has the .summary.txt file extension rather than .summary to aid reading on windows machines
 - 2022-04-28: Updated quick reference
+- 2022-04-25: Added the silico_command option to SLURM destinations to allow multiple simultaneous silico installations
 - 2022-04-25: Added the silico_command option to SLURM destinations to allow multiple simultaneous silico installations
 - 2022-04-25: Improved description of NTOs and differential density plots in journal reports to include hole/electron labels
 - 2022-04-25: Control_wrapper widgets now switch to the 'back' button after the 'confirm' button is presssed (helps prevent duplicate submission etc)
@@ -641,6 +676,7 @@
 - 2021-12-08: Closing a directory in the file browser will now refresh it's contents on next open by default
 - 2021-12-07: Refactoring of various widget classes; add initial interface for Result program.
 - 2021-12-07: Added known_handles() method to Dynamic_parent class
+- 2021-12-03: MOs will now still be parsed even if the number of symmetries and energies do not match.
 - 2021-11-30: Removed devel flag
 - 2021-11-30: Removed quotes from @font-face url() and local() css functions to avoid weasyprint issue 1246
 - 2021-11-26: Removed unnused function
