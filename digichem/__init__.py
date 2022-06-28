@@ -6,11 +6,22 @@ import pkg_resources
 import os
 import sys
 
-import silico.log
+# Deal with obabel early.
+from .base import init_obabel
 
-####################
-# Package metadata.#
-####################
+# Decide on whether we are frozen or not.
+# The sys attribute 'frozen' is our flag, '_MEIPASS' is the dir location.
+# https://pyinstaller.readthedocs.io/en/stable/runtime-information.html#run-time-information
+if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
+    frozen = True
+else:
+    frozen = False
+
+# Setup openbabel library location.
+init_obabel(frozen)
+
+# Silico imports.
+import silico.logging
 
 
 # Version information.
@@ -36,36 +47,7 @@ __author__ = "The Silico Dev Team"
 # Program date (when we were last updated). This is changed automatically.
 _last_updated_string = "12/12/1234"
 last_updated = datetime.strptime(_last_updated_string, "%d/%m/%Y")
-
-
-# Set-up openbabel.
-#
-# This must be done prior to an obabel import.
-#     
-# When frozen with pyinstaller we take a version of the openbabel C library with us (along with the relevant python bindings of course).
-# This library is split into several .so files corresponding to the various formats obabel supports, and while the main libopenbabel.so file is found automatically, these supplementary library files are not.
-# So, when we are frozen, we manually set the location of these library files so openbabel will work.
-# If we are not frozen we do not do this as we expect openbabel to be correctly configured.
-# The sys attribute 'frozen' is our flag, '_MEIPASS' is the dir location.
-# https://pyinstaller.readthedocs.io/en/stable/runtime-information.html#run-time-information
-if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
-    frozen = True
-else:
-    frozen = False
-
-openbabel_version = "3.0.0"
-# The sys attribute 'frozen' is our flag, '_MEIPASS' is the dir location.
-# https://pyinstaller.readthedocs.io/en/stable/runtime-information.html#run-time-information
-if silico.frozen:
-    # We need to tell openbabel where its library components are.
-    os.environ['BABEL_LIBDIR'] = str(Path(sys._MEIPASS, "openbabel", "lib", openbabel_version))
     
-    # And also data.
-    os.environ['BABEL_DATADIR'] = str(Path(sys._MEIPASS, "openbabel", "data", openbabel_version))
-
-# Setup the logger
-silico.log.init_logger()
-
 
 ########################
 # Function Definitions #
