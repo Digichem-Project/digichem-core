@@ -1,8 +1,8 @@
-TAG: Program Base
+TAG: Programs Base
 SUB_TYPE: update
 
 # These are the destinations that this program is compatible with.
-destinations:
+PARENTS:
     - slurm-long
 
 
