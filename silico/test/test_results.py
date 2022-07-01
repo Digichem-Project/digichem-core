@@ -56,6 +56,10 @@ def turbomole_PDM_result():
     return parse_calculation(Path(data_directory(), "Pyridine/Turbomole Optimisation Frequency PBE0 (GD3BJ) 6-31G**"))
 
 @pytest.fixture(scope="module")
+def turbomole_TDM_result():
+    return parse_calculation(Path(data_directory(), "Pyridine/Turbomole Excited States TDA 10 Singlets PBE0 (GD3BJ) 6-31G**"))
+
+@pytest.fixture(scope="module")
 def turbomole_radical_anion_result():
     return parse_calculation(Path(data_directory(), "Benzene Anion/Turbomole Optimisation Frequency PBE0 (GD3BJ) 6-31G**"))
 
@@ -290,21 +294,39 @@ def test_pdm(result_set, coords, axis_angle, plane_angle):
     assert float(result_set.dipole_moment.XY_plane_angle) == pytest.approx(plane_angle, abs=1e-1)
 
 
-@pytest.mark.parametrize("result_set, number, S1_TEDM, S1_TMDM", [
-        (pytest.lazy_fixture("gaussian_TDM_result"), 20, (0.0, -0.0003, 0.5879), (0.6909, 0.0, 0.0)),
-        (pytest.lazy_fixture("turbomole_ES_singlets_result"), 10, (0.000108, 0.000021, 0.002004), (0.002457, -0.000001, -0.000001))
+@pytest.mark.parametrize("result_set, number, TDM", [
+        (pytest.lazy_fixture("gaussian_TDM_result"), 20, (0.0, -0.0003, 0.5879)),
+        (pytest.lazy_fixture("turbomole_TDM_result"), 10, (-0.000628, -0.000132, 0.558096))
     ])
-def test_tdm(result_set, number, S1_TEDM, S1_TMDM):
+def test_tedm(result_set, number, TDM):
     """Test transition dipole moments"""
     # Check number of dipoles.
-    assert len([excited_state.transition_dipole_moment for excited_state in result_set.excited_states if excited_state.transition_dipole_moment is not None]) == number
+    assert len([excited_state.transition_dipole_moment for excited_state in result_set.excited_states if excited_state.transition_dipole_moment.electric is not None]) == number
     
     # Check the S1 moments are correct.
     S1_TDM = result_set.excited_states.get_state("S(1)").transition_dipole_moment
     
     # Check coords and magnitude.
-    check_dipole(S1_TDM.electric, S1_TEDM)
-    check_dipole(S1_TDM.magnetic, S1_TMDM)
+    check_dipole(S1_TDM.electric, TDM)
+
+
+@pytest.mark.parametrize("result_set, number, TDM", [
+        (pytest.lazy_fixture("gaussian_TDM_result"), 20, (0.6909, 0.0, 0.0)),
+        (pytest.lazy_fixture("turbomole_TDM_result"), 10, (0.002457, -0.000001, -0.000001))
+    ])
+def test_tmdm(result_set, number, TDM):
+    """Test transition dipole moments"""
+    if result_set.metadata.package == "Turbomole":
+        pytest.skip("Turbomole does not yet support parsing TMDM")
+    
+    # Check number of dipoles.
+    assert len([excited_state.transition_dipole_moment for excited_state in result_set.excited_states if excited_state.transition_dipole_moment.magnetic is not None]) == number
+    
+    # Check the S1 moments are correct.
+    S1_TDM = result_set.excited_states.get_state("S(1)").transition_dipole_moment
+    
+    # Check coords and magnitude.
+    check_dipole(S1_TDM.magnetic, TDM)
 
 
 @pytest.mark.parametrize("result_set, state, g_lum", [
