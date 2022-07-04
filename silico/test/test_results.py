@@ -2,6 +2,7 @@
 
 import pytest
 from pathlib import Path
+import scipy.constants
 
 from silico.parser import parse_calculation
 from silico.test import data_directory
@@ -341,3 +342,34 @@ def test_g_lum(result_set, state, g_lum):
     
     # Check g_lum
     assert TDM.g_value == pytest.approx(g_lum, abs=1e-3)
+
+
+@pytest.mark.parametrize("result_set, num_singlets, num_triplets, dest, state_label, state_index, state_symmetry, state_energy, state_f", [
+        (pytest.lazy_fixture("gaussian_ES_result"), 10, 10, 1.6231, "S(2)", 7, "Singlet-B1U", 4.7387, 0.1168)
+    ])
+def test_excited_states(result_set, num_singlets, num_triplets, dest, state_label, state_index, state_symmetry, state_energy, state_f):
+    """Test excited states"""
+    
+    # Check number of states.
+    assert result_set.excited_states.num_singlets == num_singlets
+    assert result_set.excited_states.num_triplets == num_triplets
+    
+    # Check singlet-triplet splitting energy (dE(ST)).
+    assert result_set.excited_states.singlet_triplet_energy == pytest.approx(dest, abs=1e-4)
+    
+    # Now check a specific state.
+    state = result_set.excited_states.get_state(state_label)
+    assert state.level == state_index
+    assert state.symmetry == state_symmetry
+    assert state.energy == pytest.approx(state_energy, abs=1e-4)
+    assert state.oscillator_strength == pytest.approx(state_f, abs=1e-4)
+    
+    # Check wavelength.
+    # e in J
+    joule_energy = state_energy * scipy.constants.physical_constants['electron volt'][0]
+    # wavelength in m
+    meter_wavelength = (scipy.constants.Planck * scipy.constants.c) / joule_energy
+    # wavelength in nm
+    wavelength = meter_wavelength *1000000000
+    
+    assert state.wavelength == pytest.approx(wavelength, abs=1e-4)
