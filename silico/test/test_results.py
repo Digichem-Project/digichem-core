@@ -7,6 +7,7 @@ import scipy.constants
 from silico.parser import parse_calculation
 from silico.test import data_directory
 from silico.test.util import check_float_list
+from silico.parser.util import parse_calculations
 
 
 @pytest.fixture(scope="module")
@@ -52,6 +53,13 @@ def turbomole_ES_singlets_result():
 @pytest.fixture(scope="module")
 def turbomole_ES_triplets_result():
     return parse_calculation(Path(data_directory(), "Naphthalene/Turbomole Excited States TDA 10 Triplets PBE0 (GD3BJ) 6-31G**"))
+
+@pytest.fixture(scope="module")
+def turbomole_ES_result():
+    return parse_calculations(
+        Path(data_directory(), "Naphthalene/Turbomole Excited States TDA 10 Singlets PBE0 (GD3BJ) 6-31G**"),
+        Path(data_directory(), "Naphthalene/Turbomole Excited States TDA 10 Triplets PBE0 (GD3BJ) 6-31G**")
+    )
 
 @pytest.fixture(scope="module")
 def turbomole_PDM_result():
@@ -345,7 +353,8 @@ def test_g_lum(result_set, state, g_lum):
 
 
 @pytest.mark.parametrize("result_set, num_singlets, num_triplets, dest, state_label, state_index, state_symmetry, state_energy, state_f", [
-        (pytest.lazy_fixture("gaussian_ES_result"), 10, 10, 1.6231, "S(2)", 7, "Singlet-B1U", 4.7387, 0.1168)
+        (pytest.lazy_fixture("gaussian_ES_result"), 10, 10, 1.6231, "S(2)", 7, "Singlet-B1U", 4.7387, 0.1168),
+        (pytest.lazy_fixture("turbomole_ES_result"), 10, 10, 1.6298, "S(2)", 7, "Singlet-A", 4.790868037954573, 0.0805)
     ])
 def test_excited_states(result_set, num_singlets, num_triplets, dest, state_label, state_index, state_symmetry, state_energy, state_f):
     """Test excited states"""
