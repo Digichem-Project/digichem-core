@@ -6,7 +6,7 @@ import scipy.constants
 
 from silico.parser import parse_calculation
 from silico.test import data_directory
-from silico.test.util import check_float_list, check_dipole
+from silico.test.util import check_float_list, check_dipole, check_orbitals
 from silico.parser.util import parse_calculations
 
 
@@ -196,22 +196,6 @@ def test_alignment(result_set, length, width, height):
     # Check params.
     assert result_set.alignment.get_linear_ratio() == pytest.approx(linear_ratio, abs=tolerance)
     assert result_set.alignment.get_planar_ratio() == pytest.approx(planar_ratio, abs=tolerance)
-
-
-def check_orbitals(orbitals, num_occ, num_unocc, homo, lumo):
-    """Helper function for checking orbital energies"""
-    # Check numbers.
-    assert len(orbitals) == num_occ + num_unocc
-    assert len(orbitals.occupied) == num_occ
-    assert len(orbitals.virtual) == num_unocc
-    
-    # Check energies.
-    assert orbitals.HOMO_energy == pytest.approx(homo)
-    assert orbitals.LUMO_energy == pytest.approx(lumo)
-    assert orbitals.HOMO_LUMO_energy == pytest.approx(lumo - homo)
-    
-    # Check ordering.
-    assert [orbital.level for orbital in orbitals] == list(range(1, num_occ + num_unocc +1))
 
 
 @pytest.mark.parametrize("result_set, num_occ, num_unocc, homo, lumo", [
