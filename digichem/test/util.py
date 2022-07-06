@@ -21,3 +21,19 @@ def check_dipole(dipole_moment, coords):
         
     # Check total
     assert dipole_moment.total == pytest.approx((coords[0] **2 + coords[1] **2 + coords[2] **2) **0.5, abs=1e-4)
+
+
+def check_orbitals(orbitals, num_occ, num_unocc, homo, lumo):
+    """Helper function for checking orbital energies"""
+    # Check numbers.
+    assert len(orbitals) == num_occ + num_unocc
+    assert len(orbitals.occupied) == num_occ
+    assert len(orbitals.virtual) == num_unocc
+    
+    # Check energies.
+    assert orbitals.HOMO_energy == pytest.approx(homo)
+    assert orbitals.LUMO_energy == pytest.approx(lumo)
+    assert orbitals.HOMO_LUMO_energy == pytest.approx(lumo - homo)
+    
+    # Check ordering.
+    assert [orbital.level for orbital in orbitals] == list(range(1, num_occ + num_unocc +1))
