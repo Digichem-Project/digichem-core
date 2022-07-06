@@ -27,6 +27,13 @@ def gaussian_ES_result():
     return parse_calculation(Path(data_directory(), "Naphthalene/Gaussian 16 Excited States TDA 10 Singlets 10 Triplets PBE1PBE (GD3BJ) Toluene 6-31G(d,p)"))
 
 @pytest.fixture(scope="module")
+def gaussian_emission_result():
+    return parse_calculations(
+        Path(data_directory(), "Naphthalene/Gaussian 16 Optimisation Frequencies PBE1PBE (GD3BJ) Toluene 6-31G(d,p)"),
+        Path(data_directory(), "Naphthalene/Gaussian 16 Excited States TDA Optimised S(1) PBE1PBE (GD3BJ) Toluene 6-31G(d,p)"),
+    )
+
+@pytest.fixture(scope="module")
 def gaussian_opt_ES_result():
     return parse_calculation(Path(data_directory(), "Naphthalene/Gaussian 16 Excited States TDA Optimised S(1) PBE1PBE (GD3BJ) Toluene 6-31G(d,p)"))
 
@@ -377,4 +384,24 @@ def test_excited_state_transitions(result_set, state_index, transition_index, st
     assert transition.ending_mo.level == end_orbital
     assert transition.coefficient == pytest.approx(coefficient)
     assert transition.probability == pytest.approx(coefficient **2)
+
+
+@pytest.mark.parametrize("result_set, transition_type, multiplicity, emission_type, energy, oscillator_strength, rate", [
+        (pytest.lazy_fixture("gaussian_emission_result"), "adiabatic", 1, "fluorescence", -10484.449482954, 0.0, 312658.74889),
+    ])
+def test_emission(result_set, transition_type, multiplicity, emission_type, energy, oscillator_strength, rate):
+    # TODO: Testing of fluorescence rate should be moved to another module (where other calculated properties can be tested).
+    if transition_type == "adiabatic":
+        emission = result_set.adiabatic_emission[multiplicity]
+        
+    else:
+        emission = result_set.vertical_emission[multiplicity]
+        
+    # Test some general properties.
+    assert emission.transition_type == transition_type
+    assert emission.emission_type == emission_type
     
+    # Test numerical properties.
+    assert emission.excited_energy == pytest.approx(energy)
+    assert emission.oscillator_strength == pytest.approx(oscillator_strength)
+    assert emission.emission_rate == pytest.approx(rate)
