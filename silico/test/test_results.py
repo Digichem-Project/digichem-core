@@ -6,7 +6,7 @@ import scipy.constants
 
 from silico.parser import parse_calculation
 from silico.test import data_directory
-from silico.test.util import check_float_list
+from silico.test.util import check_float_list, check_dipole
 from silico.parser.util import parse_calculations
 
 
@@ -268,15 +268,6 @@ def test_frequencies(result_set, num, index, frequency, intensity):
     else:
         with pytest.raises(IndexError):
             result_set.vibrations[-1].frequency
-
-def check_dipole(dipole_moment, coords):
-    """
-    Helper function to check a dipole moment (PDM, TEDM or TMDM) matches some expected values.
-    """
-    check_float_list(dipole_moment.vector_coords, coords)
-        
-    # Check total
-    assert dipole_moment.total == pytest.approx((coords[0] **2 + coords[1] **2 + coords[2] **2) **0.5, abs=1e-4)
 
 
 @pytest.mark.parametrize("result_set, coords, axis_angle, plane_angle", [
