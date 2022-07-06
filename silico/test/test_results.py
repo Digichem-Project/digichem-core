@@ -382,3 +382,22 @@ def test_excited_states(result_set, num_singlets, num_triplets, dest, state_labe
     wavelength = meter_wavelength *1000000000
     
     assert state.wavelength == pytest.approx(wavelength, abs=1e-4)
+
+
+@pytest.mark.parametrize("result_set, state_index, transition_index, start_orbital, end_orbital, coefficient", [
+        (pytest.lazy_fixture("gaussian_ES_result"), 1, 1, 34, 35, 0.957238734),
+        (pytest.lazy_fixture("gaussian_ES_result"), 1, 2, 32, 37, 0.186520627),
+        (pytest.lazy_fixture("gaussian_ES_result"), 1, 3, 33, 36, 0.175928167),
+    ])
+def test_excited_state_transitions(result_set, state_index, transition_index, start_orbital, end_orbital, coefficient):
+    """Test excited state transitions."""
+    
+    state = result_set.excited_states[state_index -1]
+    transition = state.transitions[transition_index -1]
+    
+    assert transition.level == transition_index
+    assert transition.starting_mo.level == start_orbital
+    assert transition.ending_mo.level == end_orbital
+    assert transition.coefficient == pytest.approx(coefficient)
+    assert transition.probability == pytest.approx(coefficient **2)
+    
