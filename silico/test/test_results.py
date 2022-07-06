@@ -388,6 +388,8 @@ def test_excited_states(result_set, num_singlets, num_triplets, dest, state_labe
         (pytest.lazy_fixture("gaussian_ES_result"), 1, 1, 34, 35, 0.957238734),
         (pytest.lazy_fixture("gaussian_ES_result"), 1, 2, 32, 37, 0.186520627),
         (pytest.lazy_fixture("gaussian_ES_result"), 1, 3, 33, 36, 0.175928167),
+        (pytest.lazy_fixture("turbomole_ES_result"), 2, 1, 33, 35, 0.772657751),
+        (pytest.lazy_fixture("turbomole_ES_result"), 2, 2, 34, 36, 0.618869938),
     ])
 def test_excited_state_transitions(result_set, state_index, transition_index, start_orbital, end_orbital, coefficient):
     """Test excited state transitions."""
