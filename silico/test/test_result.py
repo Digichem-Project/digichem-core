@@ -386,10 +386,11 @@ def test_excited_state_transitions(result_set, state_index, transition_index, st
     assert transition.probability == pytest.approx(coefficient **2)
 
 
-@pytest.mark.parametrize("result_set, transition_type, multiplicity, emission_type, energy, oscillator_strength, rate", [
-        (pytest.lazy_fixture("gaussian_emission_result"), "adiabatic", 1, "fluorescence", -10484.449482954, 0.0, 312658.74889),
+@pytest.mark.parametrize("result_set, transition_type, multiplicity, emission_type, energy, excited_energy, oscillator_strength, rate", [
+        (pytest.lazy_fixture("gaussian_emission_result"), "adiabatic", 1, "fluorescence", 4.542828007, -10484.452882954, 0.0, 312658.74889),
+        (pytest.lazy_fixture("gaussian_emission_result"), "vertical", 1, "fluorescence", 4.4360, -10484.452882954, 0.0, 291116.171714),
     ])
-def test_emission(result_set, transition_type, multiplicity, emission_type, energy, oscillator_strength, rate):
+def test_emission(result_set, transition_type, multiplicity, emission_type, energy, excited_energy, oscillator_strength, rate):
     # TODO: Testing of fluorescence rate should be moved to another module (where other calculated properties can be tested).
     if transition_type == "adiabatic":
         emission = result_set.adiabatic_emission[multiplicity]
@@ -402,6 +403,7 @@ def test_emission(result_set, transition_type, multiplicity, emission_type, ener
     assert emission.emission_type == emission_type
     
     # Test numerical properties.
-    assert emission.excited_energy == pytest.approx(energy)
+    assert emission.energy == pytest.approx(energy)
+    assert emission.excited_energy == pytest.approx(excited_energy)
     assert emission.oscillator_strength == pytest.approx(oscillator_strength)
     assert emission.emission_rate == pytest.approx(rate)
