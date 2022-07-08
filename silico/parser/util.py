@@ -6,6 +6,8 @@ import cclib.parser.turbomoleparser
 import multiprocessing
 from functools import partial
 from itertools import filterfalse
+from pathlib import Path
+import itertools
 
 # Silico imports.
 from silico.parser.base import Parser
@@ -17,6 +19,8 @@ from silico.result.alignment import Minimal
 from silico.result.result import Result_set
 from silico.exception.base import Silico_exception
 import silico.logging
+import shutil
+import tempfile
 
 
 def class_from_log_files(*log_files):
@@ -61,8 +65,40 @@ def parse_calculation(*log_files, alignment_class = None, **aux_files):
     """
     if alignment_class is None:
         alignment_class = Minimal
+        
+    # Handle archives.
+    # Get a list of supported archive formats.
+    formats = list(itertools.chain(*[extensions for name, extensions, desc in shutil.get_unpack_formats()]))
+    
+    new_log_files = []
+    temp_dirs = []
+    
+    try:
+        for log_file in log_files:
+            log_file = Path(log_file)
             
-    return from_log_files(*log_files, **aux_files).process(alignment_class)
+            if "".join(log_file.suffixes) in formats:
+                # This is an archive format.
+                # Get a temp dir to extact to.
+                tempdir = tempfile.TemporaryDirectory()
+                temp_dirs.append(tempdir)
+                
+                # Extract to it.
+                shutil.unpack_archive(log_file, tempdir.name)
+                
+                # Add any files/directories that were unpacked.
+                new_log_files.extend(Path(tempdir.name).glob("*"))
+                
+            else:
+                # Non-archive file, add normally.
+                new_log_files.append(log_file)
+            
+        return from_log_files(*new_log_files, **aux_files).process(alignment_class)
+    
+    finally:
+        # Cleanup any temp dirs.
+        for tempdir in temp_dirs:
+            tempdir.cleanup()
 
 def multi_parser(log_file, alignment_class):
         """
