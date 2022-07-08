@@ -11,15 +11,15 @@ from silico.parser import parse_multiple_calculations, parse_calculations
 
 
 gaussian_files = [Path(data_directory(), datum) for datum in [
-        'Naphthalene/Gaussian 16 Optimisation Frequencies PBE1PBE (GD3BJ) Toluene 6-31G(d,p)',
-        'Naphthalene/Gaussian 16 Excited States TDA 10 Singlets 10 Triplets PBE1PBE (GD3BJ) Toluene 6-31G(d,p)',
-        'Naphthalene/Gaussian 16 Excited States TDA Optimised S(1) PBE1PBE (GD3BJ) Toluene 6-31G(d,p)',  
+        'Naphthalene/Gaussian 16 Optimisation Frequencies PBE1PBE (GD3BJ) Toluene 6-31G(d,p).tar.gz',
+        'Naphthalene/Gaussian 16 Excited States TDA 10 Singlets 10 Triplets PBE1PBE (GD3BJ) Toluene 6-31G(d,p).tar.gz',
+        'Naphthalene/Gaussian 16 Excited States TDA Optimised S(1) PBE1PBE (GD3BJ) Toluene 6-31G(d,p).tar.gz',  
     ]]
 
 turbomole_files = [Path(data_directory(), datum) for datum in [
-        'Naphthalene/Turbomole Optimisation ADC(2) cc-pVDZ',
-        'Naphthalene/Turbomole Excited States ADC(2) S(1) and S(2) cc-pVDZ',
-        'Naphthalene/Turbomole Excited States ADC(2) T(1) and T(2) cc-pVDZ',
+        'Naphthalene/Turbomole Optimisation ADC(2) cc-pVDZ.tar.gz',
+        'Naphthalene/Turbomole Excited States ADC(2) S(1) and S(2) cc-pVDZ.tar.gz',
+        'Naphthalene/Turbomole Excited States ADC(2) T(1) and T(2) cc-pVDZ.tar.gz',
     ]]
 
 
