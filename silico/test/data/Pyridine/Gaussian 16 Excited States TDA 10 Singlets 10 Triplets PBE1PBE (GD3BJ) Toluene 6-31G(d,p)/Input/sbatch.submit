@@ -1,9 +1,0 @@
-#!/bin/bash
-#SBATCH -J "Pyridine Excited States TDA 10 Singlets 10 Triplets PBE1PBE (GD3BJ) Toluene 6-31G(d,p) (Gaussian 16)"
-#SBATCH -p singlenode
-#SBATCH --ntasks=1
-#SBATCH --cpus-per-task=4
-#SBATCH --mem-per-cpu=2750M
-#SBATCH --output="/gpfs1/home/osl/test/Pyridine/Gaussian 16 Excited States TDA 10 Singlets 10 Triplets PBE1PBE (GD3BJ) Toluene 6-31G(d,p)/Logs/silico.out"
-#SBATCH --error="/gpfs1/home/osl/test/Pyridine/Gaussian 16 Excited States TDA 10 Singlets 10 Triplets PBE1PBE (GD3BJ) Toluene 6-31G(d,p)/Logs/silico.out"
-exec silico resume '/gpfs1/home/osl/test/Pyridine/Gaussian 16 Excited States TDA 10 Singlets 10 Triplets PBE1PBE (GD3BJ) Toluene 6-31G(d,p)/Input/silico.resume.pickle'

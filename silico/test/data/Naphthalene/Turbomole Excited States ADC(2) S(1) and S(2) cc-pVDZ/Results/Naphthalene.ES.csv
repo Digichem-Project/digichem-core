@@ -1,3 +1,0 @@
-Level,Symbol,Symmetry,Energy /eV,Wavelength /nm,Colour,CIE X,CIE Y,Oscillator strength,Transition 1 orbitals:,Transition 1 probability:,Transition 2 orbitals:,Transition 2 probability:
-1,S(1),Singlet-A,4.37072964624,283.669337773,Ultraviolet,0.0,0.0,0.00016219,HOMO-1 -> LUMO,0.49451836839999996,HOMO -> LUMO+1,0.48226080250000003
-2,S(2),Singlet-A,5.01003755158,247.471595087,Ultraviolet,0.0,0.0,0.08803946,HOMO -> LUMO,0.9011894761,HOMO-1 -> LUMO+1,0.08279430759999999
