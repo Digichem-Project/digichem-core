@@ -1,5 +1,0 @@
-silico/test/data/2_thiothymine/**/*.log filter=lfs diff=lfs merge=lfs -text
-silico/test/data/2_thiothymine/**/*.lchk filter=lfs diff=lfs merge=lfs -text
-silico/test/data/2_thiothymine/**/*.chk filter=lfs diff=lfs merge=lfs -text
-silico/test/data/2_thiothymine/**/*.fchk filter=lfs diff=lfs merge=lfs -text
-silico/test/data/2_thiothymine/**/*.rwf filter=lfs diff=lfs merge=lfs -text
