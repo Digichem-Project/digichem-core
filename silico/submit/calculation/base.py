@@ -4,7 +4,7 @@ import copy
 
 from silico.submit.structure.flag import Flag
 from silico.exception.base import Submission_error
-from silico.submit import Memory
+from silico.submit.memory import Memory
 from silico.config.configurable.option import Option
 from silico.config.configurable.options import Options
 from silico.file.input import Silico_coords

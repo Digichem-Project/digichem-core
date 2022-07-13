@@ -2,7 +2,7 @@ import silico.file.types as file_types
 from silico.file.base import File_converter, Dummy_file_maker
 from silico.submit.destination.local import Series
 from silico.submit.calculation.gaussian import make_NTO_calc
-from silico.submit.base import Memory
+from silico.submit.memory import Memory
 import tempfile
 from silico.file.input.chk import Chk_input
 from silico.exception.base import File_maker_exception

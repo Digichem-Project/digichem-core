@@ -6,7 +6,7 @@ from pathlib import Path
 from silico.submit.calculation.base import Concrete_calculation,\
     AI_calculation_mixin
 from silico.config.configurable.option import Option
-from silico.submit.base import Memory
+from silico.submit.memory import Memory
 import silico
 from silico.config.configurable.options import Options
 from silico.file.input.directory import Calculation_directory_input
