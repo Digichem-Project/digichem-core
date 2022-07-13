@@ -1,7 +1,7 @@
 from uuid import uuid4
 
 # Silico imports.
-from silico.submit.structure.directory import Calculation_directory
+from silico.submit.directory import Calculation_directory
 from silico.exception import Submission_error
 from silico.submit.base import Method_target
 from silico.config.configurable.option import Option

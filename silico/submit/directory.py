@@ -193,7 +193,7 @@ class Calculation_directory(Silico_directory):
         """
         Set a flag file.
         
-        Possible flags can be found in silico.submit.structure.flag.
+        Possible flags can be found in silico.submit.flag.
         
         :param flag: The flag to set (a Flag enum member). If the flag is already set; this is a noop.
         :param safe: If True, this method will not raise exceptions.
@@ -211,7 +211,7 @@ class Calculation_directory(Silico_directory):
         """
         Determine whether a flag file has been set or not.
         
-        Possible flags can be found in silico.submit.structure.flag.
+        Possible flags can be found in silico.submit.flag.
         
         :param flag: The flag to check (a Flag enum member).
         :param safe: If True, this method will not raise exceptions.
@@ -228,9 +228,9 @@ class Calculation_directory(Silico_directory):
     
     def del_flag(self, flag):
         """
-        Unset a flag file. Possible flags can be found in silico.submit.structure.flag.
+        Unset a flag file. Possible flags can be found in silico.submit.flag.
         
-        Possible flags can be found in silico.submit.structure.flag.
+        Possible flags can be found in silico.submit.flag.
         
         :param flag: The flag to unset (a Flag enum member). If the flag is not already set; this is a noop.
         """

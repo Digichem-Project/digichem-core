@@ -7,7 +7,7 @@ import textwrap
 
 # Silico imports.
 from silico import misc
-from silico.submit.structure.flag import Flag
+from silico.submit.flag import Flag
 from silico.file.convert.babel import Openbabel_converter
 from silico.exception.base import Submission_error
 from silico.exception.uncatchable import Signal_caught
@@ -18,7 +18,7 @@ from silico.parser import parse_calculation
 from silico.report.pdf import PDF_report
 from silico.parser import parse_calculations
 from silico.misc.io import smkdir
-from silico.submit.structure.directory import Silico_directory
+from silico.submit.directory import Silico_directory
 from silico.submit.base import Method_target
 from silico.config.configurable.option import Option
 from silico.format.text import Text_summary_group_format

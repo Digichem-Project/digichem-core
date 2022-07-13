@@ -2,7 +2,7 @@ from silico.exception.uncatchable import Submission_paused
 import dill
 #import pickle as dill
 from pathlib import Path
-from silico.submit.structure.flag import Flag
+from silico.submit.flag import Flag
 from silico.submit.destination import Destination_target
 
 class Resumable_destination(Destination_target):
