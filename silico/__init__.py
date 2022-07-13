@@ -8,10 +8,10 @@ import sys
 
 import silico.logging
 
-
 ####################
 # Package metadata.#
 ####################
+
 
 # Version information.
 major_version = 1
