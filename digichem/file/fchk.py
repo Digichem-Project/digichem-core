@@ -8,7 +8,7 @@ from silico.file import File_converter
 from silico.exception.base import File_maker_exception
 import silico.file.types as file_types
 import silico.logging
-from silico.submit import Memory
+from silico.submit.memory import Memory
 
 class Chk_to_fchk(File_converter):
     """
