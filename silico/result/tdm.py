@@ -166,6 +166,8 @@ class Transition_dipole_moment():
     def g_value(self):
         """
         Return the 'g value'; the dissymmerty factor of this transition dipole moment.
+        
+        This calculation is based on J. Phys. Chem. Lett. 2021, 12, 1, 686–695.
         """
         try:
             return (4 * self.electric.gaussian_cgs * self.magnetic.gaussian_cgs * self.cos_angle(True)) / (self.electric.gaussian_cgs **2 + self.magnetic.gaussian_cgs **2)
