@@ -280,6 +280,8 @@ class Relaxed_excited_state(Excited_state):
     def emission_rate(self):
         """
         The rate of emission (k(F) or k(Phos) etc) from this excited state.
+        
+        Calculated according to Shizu, K., Kaji, H. Commun Chem 5, 53 (2022).
         """
         try:
             return ((4 * self.joules **3) / (3 * epsilon_0 * h_bar **4 * c **3) ) * self.transition_dipole_moment.coulomb_meters **2
