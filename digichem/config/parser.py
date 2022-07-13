@@ -6,7 +6,7 @@ import glob
 import itertools
 
 from silico.config import Config
-from silico.config import Silico_options
+from silico.config.silico import Silico_options
 from silico.config.configurable.loader import Partial_loader, Update_loader,\
     Configurable_list
 from silico.config.configurable.loader import Single_loader
