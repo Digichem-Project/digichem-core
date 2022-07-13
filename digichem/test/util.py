@@ -1,7 +1,11 @@
 """Common testing utilities and convenience functions."""
 
 import pytest
+from silico.config.parser import Config_file_parser
 
+@pytest.fixture(scope="package")
+def silico_options():
+    return Config_file_parser.silico_options()
 
 def check_float_list(test_list, expected_list, abs = 1e-4):
     """
