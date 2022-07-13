@@ -42,11 +42,6 @@ from silico.program.submit import Submit_program
 from silico.program.base import Program
 
 
-# Make configurables available
-from silico.submit.destination import *
-from silico.submit.program import *
-from silico.submit.calculation import *
-
 # A list of each of the sub programs we know about.
 PROGRAMS = [
     Config_program,
