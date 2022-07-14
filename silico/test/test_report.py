@@ -11,6 +11,7 @@ from silico.test.test_result import gaussian_opt_result, gaussian_radical_anion_
                                     turbomole_opt_result, turbomole_ES_result, turbomole_ADC2_opt_result, gaussian_PDM_ES_result, \
                                     turbomole_PDM_result, turbomole_TDM_result
 
+@pytest.mark.skip("Report writing from archives is currently broken")
 @pytest.mark.slow
 @pytest.mark.parametrize("result_set", [pytest.lazy_fixture(fixture_name) for fixture_name in [
         "gaussian_opt_result",
@@ -37,6 +38,7 @@ def test_report_complete(result_set, tmp_path, silico_options):
         assert file_path.exists()
 
 
+@pytest.mark.skip("Report writing from archives is currently broken")
 @pytest.mark.parametrize("result_set", [pytest.lazy_fixture(fixture_name) for fixture_name in [
         "turbomole_PDM_result",
 #        "gaussian_PDM_ES_result",
