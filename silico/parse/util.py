@@ -8,6 +8,10 @@ from functools import partial
 from itertools import filterfalse
 from pathlib import Path
 import itertools
+import shutil
+import tempfile
+import collections
+import warnings
 
 # Silico imports.
 from silico.parse.base import Parser
@@ -19,8 +23,6 @@ from silico.result.alignment import Minimal
 from silico.result.result import Result_set
 from silico.exception.base import Silico_exception
 import silico.logging
-import shutil
-import tempfile
 
 
 def class_from_log_files(*log_files):
@@ -66,39 +68,10 @@ def parse_calculation(*log_files, alignment_class = None, **aux_files):
     if alignment_class is None:
         alignment_class = Minimal
         
-    # Handle archives.
-    # Get a list of supported archive formats.
-    formats = list(itertools.chain(*[extensions for name, extensions, desc in shutil.get_unpack_formats()]))
-    
-    new_log_files = []
-    temp_dirs = []
-    
-    try:
-        for log_file in log_files:
-            log_file = Path(log_file)
-            
-            if "".join(log_file.suffixes) in formats:
-                # This is an archive format.
-                # Get a temp dir to extact to.
-                tempdir = tempfile.TemporaryDirectory()
-                temp_dirs.append(tempdir)
-                
-                # Extract to it.
-                shutil.unpack_archive(log_file, tempdir.name)
-                
-                # Add any files/directories that were unpacked.
-                new_log_files.extend(Path(tempdir.name).glob("*"))
-                
-            else:
-                # Non-archive file, add normally.
-                new_log_files.append(log_file)
-            
-        return from_log_files(*new_log_files, **aux_files).process(alignment_class)
-    
-    finally:
-        # Cleanup any temp dirs.
-        for tempdir in temp_dirs:
-            tempdir.cleanup()
+    # Open files for reading (handles archives for us).
+    with open_for_parsing(*log_files) as open_log_files:
+        
+        return from_log_files(*open_log_files, **aux_files).process(alignment_class)
 
 def multi_parser(log_file, alignment_class):
         """
@@ -206,3 +179,79 @@ def parse_calculations(*results, alignment_class = None, aux_files = None):
         return Merged.from_results(*parsed_results, alignment_class = alignment_class)
     else:
         return parsed_results[0]
+
+
+class open_for_parsing():
+    """
+    A context manager for opening log files for parsing. Returns a list of pathlib.Path objects suitable for parsing.
+    
+    Currently, the main purpose of this context manager is to intelligently handle unpacking of archives (.zip, .tar etc) for parsing.
+    """
+    
+    def __init__(self, *log_files):
+        log_files = [Path(log_file).resolve() for log_file in log_files]
+        
+        # Check we haven't been given any duplicate log files.
+        # This is just for convenience, if duplicates have been given the user has probably made a mistake.               
+        duplicates = [path for path, number in collections.Counter(log_files).items() if number > 1]
+        
+        for duplicate in duplicates:
+            warnings.warn("Ignoring duplicate log file: ".format(duplicate))
+        
+        # Remove duplicates but retain order.
+        self.log_files = list(dict.fromkeys(log_files).keys())
+        
+        # A list of tempfile.TemporaryDirectory objects that should be closed when we are finished.
+        self.temp_dirs = []
+    
+    @property
+    def archive_formats(self):
+        """
+        Get a list of supported archive formats.
+        """
+        return list(itertools.chain(*[extensions for name, extensions, desc in shutil.get_unpack_formats()]))
+        
+    def __enter__(self):
+        """
+        'Open' files for reading.
+        """
+        new_log_files = []
+        
+        formats = self.archive_formats
+        
+        for log_file in self.log_files:
+            
+            if "".join(log_file.suffixes) in formats:
+                # This is an archive format.
+                # Get a temp dir to extact to.
+                tempdir = tempfile.TemporaryDirectory()
+                self.temp_dirs.append(tempdir)
+                
+                # Extract to it.
+                shutil.unpack_archive(log_file, tempdir.name)
+                
+                # Add any files/directories that were unpacked.
+                new_log_files.extend(Path(tempdir.name).glob("*"))
+                
+            else:
+                # Non-archive file, add normally.
+                new_log_files.append(log_file)
+            
+        return new_log_files
+    
+    def cleanup(self):
+        """
+        Perform cleanup of any open files.
+        
+        Alias for __exit__().
+        """
+        return self.__exit__()
+    
+    def __exit__(self, exc_type = None, exc_value = None, traceback = None):
+        """
+        'Close' any open files.
+        """
+        for tempdir in self.temp_dirs:
+            tempdir.cleanup()
+        
+        
