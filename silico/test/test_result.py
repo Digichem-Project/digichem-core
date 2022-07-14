@@ -5,7 +5,7 @@ from pathlib import Path
 import scipy.constants
 
 from silico.parser import parse_calculation
-from silico.test import data_directory
+from silico.test.util import data_directory
 from silico.test.util import check_float_list, check_dipole, check_orbitals
 from silico.parser.util import parse_calculations
 

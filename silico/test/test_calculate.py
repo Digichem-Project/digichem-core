@@ -3,7 +3,7 @@
 import pytest
 from pathlib import Path
 
-from silico.test import data_directory
+from silico.test.util import data_directory
 from silico.parser.util import parse_calculation
 
 
