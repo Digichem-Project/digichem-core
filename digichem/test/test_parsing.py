@@ -5,7 +5,7 @@ import itertools
 import pytest
 
 from silico.parser import parse_calculation
-from silico.test import data_directory
+from silico.test.util import data_directory
 from silico.result import Result_set
 from silico.parser import parse_multiple_calculations, parse_calculations
 
