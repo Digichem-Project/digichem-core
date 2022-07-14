@@ -4,10 +4,10 @@ from pathlib import Path
 import itertools
 import pytest
 
-from silico.parser import parse_calculation
+from silico.parse import parse_calculation
 from silico.test.util import data_directory
 from silico.result import Result_set
-from silico.parser import parse_multiple_calculations, parse_calculations
+from silico.parse import parse_multiple_calculations, parse_calculations
 
 
 gaussian_files = [Path(data_directory(), datum) for datum in [
