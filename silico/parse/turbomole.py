@@ -6,7 +6,7 @@ import glob, pathlib
 import warnings
 
 # Silico imports.
-from silico.parser.base import Parser
+from silico.parse.base import Parser
 
 
 class Turbomole_parser(Parser):

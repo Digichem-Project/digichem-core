@@ -14,9 +14,9 @@ from silico.exception.uncatchable import Signal_caught
 from silico.file.input import Silico_coords
 from silico.misc.directory import copytree
 import silico.misc.io
-from silico.parser import parse_calculation
+from silico.parse import parse_calculation
 from silico.report.pdf import PDF_report
-from silico.parser import parse_calculations
+from silico.parse import parse_calculations
 from silico.misc.io import smkdir
 from silico.submit.directory import Silico_directory
 from silico.submit.base import Method_target

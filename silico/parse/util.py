@@ -10,9 +10,9 @@ from pathlib import Path
 import itertools
 
 # Silico imports.
-from silico.parser.base import Parser
-from silico.parser.gaussian import Gaussian_parser
-from silico.parser.turbomole import Turbomole_parser
+from silico.parse.base import Parser
+from silico.parse.gaussian import Gaussian_parser
+from silico.parse.turbomole import Turbomole_parser
 from silico.misc.base import is_iter
 from silico.result.multi import Merged
 from silico.result.alignment import Minimal

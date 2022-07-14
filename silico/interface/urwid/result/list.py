@@ -6,7 +6,7 @@ from silico.interface.urwid.row_list import Row_browser, Row_item,\
     Row_widget
 from silico.interface.urwid.result.browser import Result_selector
 import silico.logging
-from silico.parser import  parse_calculation
+from silico.parse import  parse_calculation
 from silico.result.alignment.base import Alignment
 
 
