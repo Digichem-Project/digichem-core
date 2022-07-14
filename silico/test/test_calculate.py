@@ -9,7 +9,7 @@ from silico.parser.util import parse_calculation
 
 @pytest.fixture(scope="module")
 def formaldehyde_SOC_result():
-    return parse_calculation(Path(data_directory(), "formaldehyde/Gaussian 09 Excited States TD-DFT 4 Singlets 4 Triplets B3LYP Gas Phase TZVP.tar.gz"))
+    return parse_calculation(Path(data_directory(), "Formaldehyde/Gaussian 09 Excited States TD-DFT 4 Singlets 4 Triplets B3LYP Gas Phase TZVP.tar.gz"))
 
 
 @pytest.mark.parametrize("result_set, singlet, triplet, SOC", [
