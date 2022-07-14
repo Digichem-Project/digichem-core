@@ -1,7 +1,17 @@
 """Common testing utilities and convenience functions."""
 
 import pytest
+from pathlib import Path
+import pkg_resources
+
 from silico.config.parser import Config_file_parser
+
+
+def data_directory():
+    """
+    Get a path to the test data directory.
+    """
+    return Path(pkg_resources.resource_filename('silico', 'test/data'))
 
 @pytest.fixture(scope="package")
 def silico_options():
