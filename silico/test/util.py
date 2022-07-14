@@ -13,9 +13,17 @@ def data_directory():
     """
     return Path(pkg_resources.resource_filename('silico', 'test/data'))
 
+
+# Input files.
+benzene_cdx = Path(data_directory(), "Input", "Benzene.cdx")
+pyridine_cml = Path(data_directory(), "Input", "Pyridine.cml")
+cyclopentane_com = Path(data_directory(), "Input", "Cyclopentane.com")
+
+
 @pytest.fixture(scope="package")
 def silico_options():
     return Config_file_parser.silico_options()
+
 
 def check_float_list(test_list, expected_list, abs = 1e-4):
     """
