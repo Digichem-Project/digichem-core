@@ -14,6 +14,7 @@
         <meta charset="utf-8"/>
         <%
         stylesheets = [
+            "page.css",
             "font.css",
         	"general.css",
         	"results.css",
@@ -23,7 +24,7 @@
         	"color_box.css",
         	"citation.css",
         	"reference.css",
-        	"formula.css"
+        	"formula.css",
         ]
         %>
         %for stylesheet in stylesheets:
@@ -31,6 +32,11 @@
         %endfor
     </head>
     <body>
+        ## Page header and footer.
+        ## These elements are running so won't acually render here.
+        <%include file="/page/header.mako" args="report = report"/>
+        <%include file="/page/footer.mako" args="report = report"/>
+        ## Page contents
     	<%include file="/header.mako" args="report = report"/>
     	<%include file="/metadata/table.mako" args="report = report"/>
     	<h4>Summary Of Results</h4>

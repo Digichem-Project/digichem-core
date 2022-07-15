@@ -1,13 +1,14 @@
-<%page args="report, error" />
+<%page args="report" />
 
-<html>
-    <head>
-        <link rel="stylesheet" type="text/css" href="static/css/page_header.css">
-    </head>
-    <div class="header ${"header--bad" if error else ""}">
-    	<div class="report__info">Silico Calculation Report</div>
-        <div class="report__title">  
+<%
+    error = not report.result.metadata.success or report.result.metadata.optimisation_converged == False
+%>
+
+<div class="pageHeader ${"pageHeader--bad" if error else ""}">
+    <div class="pageHeader__body">
+        <div class="pageHeader__info">Silico Calculation Report</div>
+        <div class="pageHeader__title">  
             ${report.result.metadata.name} - ${report.result.title}
         </div>
     </div>
-</html>
+</div>

@@ -28,7 +28,7 @@
 	%endif
 	%if energy.energy_type in report.images:
 	A plot of the total ${energy.energy_type} electron density is shown in figure ${report.captions("figure", energy.energy_type)}.
-	%endif
+	%endif 
 	%if len(energy) > 1 and '{}_convergence_graph'.format(energy.energy_type) in report.images:
 	<div class="resultImage resultImage--graph">
 		<img class="resultImage__image" src="${report.relative_image('{}_convergence_graph'.format(energy.energy_type))}">

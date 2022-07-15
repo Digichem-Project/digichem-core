@@ -1,0 +1,110 @@
+@page {
+    size: A4 portrait;
+    /* Changing this breaks weasyprint layout in some ways, may need to adjust some width values. */
+    margin: 2cm 1.5cm 2cm 1.5cm;
+    
+    @top-center {
+        content: element(pageHeader);
+        width: 100%;
+    }
+    
+    @bottom-center {
+        content: element(pageFooter);
+        width: 100%;
+    }
+}
+
+/* .pageHeader, .pageHeader * {
+    outline: 1px solid red; 
+} */
+
+.pageHeader {
+    position: running(pageHeader);
+    font-size: 8px;
+    width: 100%;
+    
+}
+
+.pageHeader__body {
+    border-bottom: 3px solid black;
+    position: fixed;
+    top: 0.5px;
+    left: 0px;
+    right: 0px;
+    height: 0.6cm;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.pageHeader--bad {
+    border-bottom: 3px solid #de2d00
+}
+
+.pageHeader__info {
+    float: left;
+    display: inline-block;
+    font-weight: bold;
+    margin-right: 5px;
+    font-size: 9px;
+}
+
+.pageHeader__title {
+    float:right;
+    text-align: right;
+    display: inline-block;
+    font-style: italic;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    position: fixed;
+    left: 150px;
+    right: 0px;
+    top: 0px;
+    right: 0px;
+}
+
+ /* .pageFooter, .pageFooter * {
+    outline: 1px solid red; 
+} */
+
+.pageFooter {
+    position: running(pageFooter);
+    font-size: 9px;
+    width: 100%;
+    height: 100%;
+    
+}
+
+.pageFooter__body {
+    border-top: 3px solid black;
+    padding-top: 8px;
+    margin-top: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+}
+
+.pageFooter--bad {
+    border-color: #de2d00
+}
+
+.pageFooter__name {
+}
+
+.pageFooter__calcs {
+    
+}
+
+.pageFooter__page {
+}
+
+.pageFooter__pageCounter {
+    display: inline;
+    content: counter(page);
+}
+
+.pageFooter__pageCount {
+    display: inline;
+    content: counter(pages);
+}

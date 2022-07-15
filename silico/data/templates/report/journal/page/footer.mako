@@ -1,16 +1,18 @@
-<%page args="prog_version, page_number, pages, error"/>
+<%page args="report"/>
 
-<html>
-    <head>
-## There appears to be a bizarre bug in some part of weasyprint (for CentOS 7.7) that makes @font-face broken for header and footer.
-##        <link rel="stylesheet" type="text/css" href="static/css/font.css">
-        <link rel="stylesheet" type="text/css" href="static/css/page_footer.css">
-    </head>
-    <footer class="footer ${"footer--bad" if error else ""}">
-        <div class="footer__name">Silico ${prog_version}</div>
-        <div class="footer__calcs"></div>
+<%
+    error = not report.result.metadata.success or report.result.metadata.optimisation_converged == False
+    page_number = 1
+    pages = 10
+%>
+
+<div class="pageFooter ${"pageFooter--bad" if error else ""}">
+    <div class="pageFooter__body">
+        <div class="pageFooter__name">Silico ${report.prog_version}</div>
+        <div class="pageFooter__calcs"></div>
         %if pages > 1:
-        <div class="footer__page">Page ${page_number} of ${pages}</div>
+        <div class="pageFooter__page">Page <span class="pageFooter__pageCounter"></span>
+        of <span class="pageFooter__pageCount"></span></div>
         %endif
-    </footer>
-</html>
+    </div>
+</div>
