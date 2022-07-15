@@ -10,8 +10,8 @@ from silico.report.main import HTML_report
 
 
 # Check weasy version.
-if version.parse(weasyprint.VERSION) < version.parse("54.3"):
-    warnings.warn("Weasyprint version < 54.3 is only partially supported. Some elements may display incorrectly.")
+if version.parse(weasyprint.VERSION) < version.parse("54.2"):
+    warnings.warn("Weasyprint version < 54.2 is only partially supported. Some elements of PDF reports may display incorrectly.")
 
 
 class PDF_report(HTML_report):
