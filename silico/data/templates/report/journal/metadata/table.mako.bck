@@ -2,7 +2,7 @@
 
 <%!
 	from silico import misc
-	from silico.result.excited_states import Energy_state
+	from silico.result.excited_state import Energy_state
 %>
 
 <div class="resultsTable resultsTable--complete">

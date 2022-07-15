@@ -4,7 +4,7 @@ import pathlib
 import urwid
 
 # Silico imports.
-from silico.interface.urwid.row_list.base import Row_item, Row_widget,\
+from silico.interface.urwid.row_list import Row_item, Row_widget,\
     Row_browser
 from silico.interface.urwid.file.browser import File_selector
 

@@ -1,10 +1,6 @@
-# General widget classes for laying out content.
+"""General widget classes for laying out content."""
 
-# General imports.
 import urwid
-
-# Silico imports.
-import silico.interface.urwid.swap.top
 
 
 class Window(urwid.Frame):
@@ -14,18 +10,18 @@ class Window(urwid.Frame):
     A window contains a header and footer, which are generally static, and an inner body which can swap between various other widgets.
     """
     
-    def __init__(self, body = None, title = "", help = ""):
+    def __init__(self, top = None, title = "", help = ""):
         """
         Constructor for Window widgets.
         
-        :param body: The body of the window, must be a Swappable class. The body can be accessed (and changed) at top.original_widget. If None is give, the body must be set before rendering.
+        :param top: A Top widget to use as the main display widget.
         :param title: Title of this window.
         :param help: Help text to display this window.
         """
         self.header_text = urwid.Text(title, align = "center")
         self.footer_text = urwid.Text(help, align = "center")
         
-        self.top = silico.interface.urwid.swap.top.Top(body)
+        self.top = top
         self.loop = None
             
         super().__init__(urwid.AttrMap(self.top, "body"), header = urwid.AttrMap(self.header_text, "header"), footer = urwid.AttrMap(self.footer_text, "footer"))

@@ -7,8 +7,8 @@ from silico.interface.urwid.method.edit import Method_target_editor
 from silico.interface.urwid.layout import Pane
 from silico.interface.urwid.misc import Tab_pile
 from silico.submit.base import Method_target, parse_method_from_file
-from silico.interface.urwid.edit.popup import Method_target_picker , Output_edit
-from silico.interface.urwid.setedit.base import Setedit_editor_mixin,\
+from silico.interface.urwid.popup import Method_target_picker , Output_edit
+from silico.interface.urwid.setedit.edit import Setedit_editor_mixin,\
     Paginated_settings_browser
 from silico.submit.destination.base import Destination_target
 from silico.submit.calculation.base import Calculation_target
@@ -219,9 +219,9 @@ class Method_builder(Swappable, Setedit_editor_mixin):
         
         # Build a method dict.
         method = {
-            'destination': self.editor.pages['Destination'].dump(),
-            'program': self.editor.pages['Program'].dump(),
-            'calculation': self.editor.pages['Calculation'].dump()    
+            'destination': self.editor.page['Destination'].dump(),
+            'program': self.editor.page['Program'].dump(),
+            'calculation': self.editor.page['Calculation'].dump()    
         }
         
         # Open the file pointed at by the output widget.

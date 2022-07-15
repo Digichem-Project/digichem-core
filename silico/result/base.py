@@ -235,11 +235,10 @@ class Result_container(list, Result_object):
         else:
             return self.merge_default(*multiple_lists, **kwargs)
     
-    # TODO: Redundant?
-    def __getitem__(self, key):
-        try:
-            return list.__getitem__(self, key)
-        except IndexError:
-            raise
-    
-        
+#     # TODO: Redundant?
+#     def __getitem__(self, key):
+#         try:
+#             return list.__getitem__(self, key)
+#         except IndexError:
+#             raise
+#

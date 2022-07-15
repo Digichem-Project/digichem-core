@@ -3,7 +3,7 @@
 <%!
     import math
     from itertools import zip_longest
-    from silico.result.molecular_orbitals import Molecular_orbital_list
+    from silico.result.orbital import Molecular_orbital_list
 %>
 
 <%page args="molecular_orbitals, beta_orbitals, min_HOMO_difference = None, max_HOMO_difference = None"/>

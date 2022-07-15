@@ -1,7 +1,9 @@
-#
-# Classes that represent one or more configurables. Loaders construct real Configurable_class_target objects from one or more dict objects on demand.
-# Loaders are essentially a speed hack that means we don't have to construct 1000s of objects each time we start up.
-#
+"""
+Classes that represent one or more configurables.
+
+Loaders construct real Configurable_class_target objects from one or more dict objects on demand.
+Loaders are essentially a speed hack that means we don't have to construct 1000s of objects each time we start up.
+"""
 
 # General imports.
 import deepmerge
@@ -14,6 +16,12 @@ from silico.exception.base import Silico_exception
 from silico.config.configurable.base import Configurable_class_target
 from silico.config.configurable.identifier import ID_splitter
 from silico.misc.base import is_int, is_iter
+
+# Make methods available. We do this because our loaders are going to eventually ask for one of these classes.
+# TODO: Importing all this here feels weird, perhaps this file should be moved to the submit package?
+import silico.submit.destination
+import silico.submit.program
+import silico.submit.calculation
 
 
 class Configurable_loader():

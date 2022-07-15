@@ -5,6 +5,7 @@ import math
 from silico.result import Result_object
 from silico.result.angle import Angle
 
+
 class Dipole_moment_ABC(Result_object):
     """
     ABC that represents a dipole moment.
@@ -181,9 +182,8 @@ class Dipole_moment_ABC(Result_object):
             return (vector_a[0] * vector_b[0] + vector_a[1] * vector_b[1] + vector_a[2] * vector_b[2]) / (vector_a_total * vector_b_total)
         except (FloatingPointError, ZeroDivisionError):
             return 0
-            
 
-        
+
 class Electric_dipole_moment_mixin():
     """
     Mixin class for electric dipole moments.
@@ -253,7 +253,7 @@ class Magnetic_dipole_moment_mixin():
         """
         return value * -9.2740100783e-21
 
-        
+
 class Dipole_moment(Dipole_moment_ABC, Electric_dipole_moment_mixin):
     """
     Class that represents the (permanent) dipole moment of a molecule.

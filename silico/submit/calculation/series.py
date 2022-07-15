@@ -1,7 +1,7 @@
 from silico.submit.calculation import Calculation_target
 from silico.config.configurable.option import Option
 from silico.exception.configurable import Configurable_exception
-from silico.submit.base import Memory
+from silico.submit.memory import Memory
 
 
 class Calculation_series(Calculation_target):

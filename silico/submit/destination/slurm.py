@@ -9,7 +9,7 @@ from subprocess import CalledProcessError
 # Silico imports.
 import silico
 from silico.exception import Submission_error, Silico_exception
-from silico.submit import Memory
+from silico.submit.memory import Memory
 from silico.submit.destination.resume import Resumable_destination
 from silico.config.configurable.option import Option
 from silico.misc.base import is_int

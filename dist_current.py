@@ -12,7 +12,7 @@ import itertools
 import shutil
 
 # The name of the archive.
-archive_name = silico.name + "-" + silico.version
+archive_name = silico.__package__ + "-" + silico.__version__
 
 # Where we're going to write to
 dest = Path("../dist", archive_name)

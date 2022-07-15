@@ -16,7 +16,7 @@ from silico.submit.destination.local import Series
 from silico.submit.calculation.turbomole import make_orbital_calc, Turbomole_memory,\
     make_anadens_calc
 from silico.file.base import File_maker, Dummy_file_maker
-from silico.submit import Memory
+from silico.submit.memory import Memory
 
 
 class Fchk_to_cube(File_converter):

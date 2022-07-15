@@ -4,7 +4,7 @@
 
 <%!
 	from silico import misc
-	from silico.result.excited_states import Energy_state
+	from silico.result.excited_state import Energy_state
 	from silico.misc.text import text_integer, andjoin, ordinal_suffix
 	import inflect
 %>

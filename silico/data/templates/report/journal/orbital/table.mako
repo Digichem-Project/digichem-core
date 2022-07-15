@@ -3,7 +3,7 @@
 <%!
     import math
     from itertools import zip_longest
-    from silico.result.molecular_orbitals import Molecular_orbital_list
+    from silico.result.orbital import Molecular_orbital_list
 %>
 
 <%page args="report"/>

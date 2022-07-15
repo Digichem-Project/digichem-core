@@ -1,15 +1,14 @@
 # Code for editing configurables.
 
 # General imports.
+import urwid
 
 # Silico imports.
-from silico.interface.urwid.setedit.base import Setedit_browser, Setedit,\
+from silico.interface.urwid.setedit.edit import Setedit_browser, Setedit,\
     Paginated_settings_browser
-from silico.exception.base import Silico_exception
 from silico.interface.urwid.setedit.widget import Solo_sub_editor
 from silico.interface.urwid.layout import Pane
 from silico.interface.urwid.dialogue import Confirm_or_cancel_dialogue
-import urwid
 from silico.exception.configurable import Missing_option_exception
 
 

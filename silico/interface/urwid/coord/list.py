@@ -3,7 +3,7 @@
 import urwid
 
 # Silico imports.
-from silico.interface.urwid.row_list.base import Row_item, Row_widget,\
+from silico.interface.urwid.row_list import Row_item, Row_widget,\
     Row_browser
 from silico.file.input import Silico_coords
 from silico.interface.urwid.misc import IntEditZero

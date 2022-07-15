@@ -8,7 +8,7 @@ from silico.interface.urwid.wrapper import Confirm_settings_cancel,\
 from silico.interface.urwid.swap.swappable import Swappable
 from silico.interface.urwid.layout import Pane, Sub_pane
 from silico.interface.urwid.setedit.configurable import Configurable_browser
-from silico.interface.urwid.setedit.base import Paginated_settings_browser
+from silico.interface.urwid.setedit.edit import Paginated_settings_browser
 
 
 class Top(urwid.WidgetPlaceholder):

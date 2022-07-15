@@ -70,8 +70,6 @@ class Options_mixin():
         for unexpected_key in set(dict_obj).difference(self.OPTIONS):
             # Although this looks like a loop, we will obviously only raise the first exception.
             raise Configurable_exception(owning_obj, "unrecognised option '{}'".format(unexpected_key))
-    
-    
 
 
 class Configurable(Options_mixin):
@@ -155,7 +153,6 @@ class Configurable(Options_mixin):
                 dump[option.name] = option.dump(self, self._configurable_options, explicit = explicit)
                 
         return dump
-            
 
 
 class Configurable_class_target(Dynamic_parent, Configurable):

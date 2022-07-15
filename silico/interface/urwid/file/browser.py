@@ -2,11 +2,10 @@
 # This code is adapted from the example file browser included with urwid, originally written by Rob Lanphier.
 
 # General imports.
-import urwid
 import pathlib
 
 # Silico imports.
-from silico.interface.urwid.tree.base import Flaggable_tree_list_box,\
+from silico.interface.urwid.tree import Flaggable_tree_list_box,\
     Flaggable_tree_walker
 from silico.config.configurable.option import Option
 from silico.interface.urwid.file.node import Directory_node
