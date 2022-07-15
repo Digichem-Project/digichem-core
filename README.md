@@ -27,7 +27,7 @@ Silico currently supports the following:
  - Turbomole
  
 #### Python
- - Python >= 3.6 (and above)
+ - Python >= 3.7
  
 #### Operating Systems
  - Linux
