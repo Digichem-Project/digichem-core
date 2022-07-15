@@ -8,7 +8,7 @@ by automating and/or simplifying the computational pipepline.
  - Handling of the entire submission process from start to finish. The user does not not need to write batch/submission files or worry about calling the CC programs themselves.
  - Separation of the concepts of ‘starting geometries’ (coordinates) and ‘calculation options’ (methods) into separate logical units.
  - Support for ca. 150 different input coordinate formats. Any of these formats can be used interchangeably with any of the supported CC programs.
- - Introduction of the concept of calculation ‘methods’ which define all aspects of a computation (except any starting geometries). Support for specifying methods as individual files (in a program-independent format) or by selecting from an internal database.
+ - Introduction of the concept of calculation ‘methods’ which define all aspects of a computation (except any starting geometries). Support for specifying methods as individual files (in program-independent, YAML format) or by selecting from an internal database.
  - Support for submitting multiple input coordinates simultaneously, facilitating large scale computational screens with ease.
  - Support for queueing multiple methods sequentially to support compound jobs in which one calculation depends on the output geometry of another.
  - Automated parsing and analysis of completed calculation results and saving of the resulting data to formats which can be easily read and processed by the user, including plain text and comma-separated values (CSV).
