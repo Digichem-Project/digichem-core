@@ -3,5 +3,5 @@
 from pathlib import Path
 import pkg_resources
 
-import silico.logging
-silico.logging.set_logging_level("DEBUG")
+import silico.log
+silico.log.set_logging_level("DEBUG")
