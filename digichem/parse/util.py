@@ -22,7 +22,7 @@ from silico.result.multi import Merged
 from silico.result.alignment import Minimal
 from silico.result.result import Result_set
 from silico.exception.base import Silico_exception
-import silico.logging
+import silico.log
 
 
 def class_from_log_files(*log_files):
@@ -81,7 +81,7 @@ def multi_parser(log_file, alignment_class):
             return parse_calculation(log_file, alignment_class = alignment_class)
             
         except Exception:
-            silico.logging.get_logger().warning("Unable to parse calculation result file '{}'; skipping".format(log_file), exc_info = True)
+            silico.log.get_logger().warning("Unable to parse calculation result file '{}'; skipping".format(log_file), exc_info = True)
 
 def parse_multiple_calculations(*log_files, alignment_class = None, pool = None, init_func = None, init_args = None, processes = 1):
     """

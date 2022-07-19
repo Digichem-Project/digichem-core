@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 
 # Silico imports.
 from silico.parse.base import Parser
-import silico.logging
+import silico.log
 from silico.exception.base import Result_unavailable_error
 import silico.file.types as file_types
 
@@ -29,13 +29,13 @@ class Gaussian_parser(Parser):
         super().parse()
         
         # Output a message (because this is slow).
-        silico.logging.get_logger().debug("Secondary parsing calculation result '{}'".format(self.description))
+        silico.log.get_logger().debug("Secondary parsing calculation result '{}'".format(self.description))
                             
         # Next try and get SOC.
         try:
             self.parse_SOC()
         except Exception:
-            silico.logging.get_logger().debug("Cannot parse SOC from output file '{}'".format(self.log_file_path), exc_info = True)
+            silico.log.get_logger().debug("Cannot parse SOC from output file '{}'".format(self.log_file_path), exc_info = True)
         
         # All done.
         return self.data

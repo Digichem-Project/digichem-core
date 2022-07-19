@@ -7,7 +7,7 @@ import pwd
 import os
 
 # Silico imports
-import silico.logging
+import silico.log
 from silico.result.orbital import Molecular_orbital_list,\
     Beta_orbital
 from silico.result.metadata import Metadata
@@ -196,7 +196,7 @@ class Parser(Result_set):
         # We start by using cclib to get most of the data we need.
         
         # Output a message (because this is slow).
-        silico.logging.get_logger().info("Parsing calculation result '{}'".format(self.description))
+        silico.log.get_logger().info("Parsing calculation result '{}'".format(self.description))
         
         # Use cclib to open our log files.
         # ccread will accept a list of log files to read, but will sometimes choke if the list contains only one entry,
