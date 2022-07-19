@@ -9,7 +9,7 @@ import itertools
 from silico.interface.urwid.setedit.widget import Setedit_widget
 from silico.interface.urwid.setedit.common import Setedit_widget_parent_mixin
 from silico.interface.urwid.page import Pages
-from silico.logging import get_logger
+from silico.log import get_logger
 from silico.exception.configurable import Configurable_option_exception
 
 

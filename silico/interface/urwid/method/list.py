@@ -6,7 +6,7 @@ from silico.interface.urwid.row_list import Row_item, Row_widget,\
     Row_browser, Row_pointer, Row_pointer_widget
 from silico.interface.urwid.method.browser import Method_selector
 from silico.interface.urwid.method.edit import Method_editor
-import silico.logging
+import silico.log
 from silico.interface.urwid.dialogue import Edit_dialogue
 from silico.interface.urwid.file.browser import File_selector
 from silico.submit.base import parse_method_from_file
@@ -188,7 +188,7 @@ class Method_pointer_widget(Row_pointer_widget):
             
             except Exception:
                 # Something went wrong, most probably the given code is no good.
-                silico.logging.get_logger().error("Failed to resolve method identified by code '{}'".format(code), exc_info = True)
+                silico.log.get_logger().error("Failed to resolve method identified by code '{}'".format(code), exc_info = True)
         
         # Clear our edit widget.
         self.code_popup.edit.edit_text = ""
@@ -203,7 +203,7 @@ class Method_pointer_widget(Row_pointer_widget):
             
             except Exception:
                 # Something went wrong, most probably the given code is no good.
-                silico.logging.get_logger().error("Failed to parse method file '{}'".format(method_file), exc_info = True)
+                silico.log.get_logger().error("Failed to parse method file '{}'".format(method_file), exc_info = True)
                 
         self.file_selector.browser.reset()
     

@@ -24,8 +24,8 @@ if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
 
 # Increase verbosity of logging to catch errors during setup.
 # This will be altered once config data has been loaded.
-import silico.logging
-silico.logging.set_logging_level("DEBUG")
+import silico.log
+silico.log.set_logging_level("DEBUG")
 
 # General imports.
 #import pydevd;pydevd.settrace()
@@ -87,7 +87,7 @@ def main():
     args = parser.parse_args()
     
     # Get our logger.
-    logger = silico.logging.get_logger()
+    logger = silico.log.get_logger()
     
     try:
         # First, get our chosen subprogram.

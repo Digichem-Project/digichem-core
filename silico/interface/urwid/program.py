@@ -2,7 +2,7 @@ import urwid
 from urwid.font import HalfBlock7x7Font
 import io
 
-import silico.logging
+import silico.log
 from silico.interface.urwid.setedit.configurable import make_paginated_configurable_browser
 from silico.interface.urwid.layout import Window, Pane, Sub_pane
 from silico.program.status import Status_program
@@ -63,7 +63,7 @@ class Silico_window(Window):
         :param confirm: Whether the settings were updated because they were changed (True) or because they were rolled back (False).
         """
         # Update logging.
-        silico.logging.set_logging_level(self.program.config['logging']['log_level'], self.program.config['logging']['verbose'])
+        silico.log.set_logging_level(self.program.config['logging']['log_level'], self.program.config['logging']['verbose'])
         
         # Save modified settings to file.
         if confirm:
@@ -231,13 +231,13 @@ class Program_view(Swappable):
             #return True
             
         except Exception:
-            logger = silico.logging.get_logger()
+            logger = silico.log.get_logger()
             logger.exception("Sub-program {} stopped with error".format(self.program.command))
             #return False
         
         except KeyboardInterrupt:
             # The user wanted to stop.
-            logger = silico.logging.get_logger()
+            logger = silico.log.get_logger()
             logger.error("Sub-program {} interrupted by user (ctrl-c)".format(self.program.command))
             #return False
         

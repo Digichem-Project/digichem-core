@@ -11,7 +11,7 @@ import os
 from silico.exception.base import File_maker_exception
 from silico.file import File_converter
 import silico.file.types as file_types
-import silico.logging
+import silico.log
 from silico.submit.destination.local import Series
 from silico.submit.calculation.turbomole import make_orbital_calc, Turbomole_memory,\
     make_anadens_calc
@@ -109,7 +109,7 @@ class Fchk_to_cube(File_converter):
         else:
             # Everything appeared to go ok.
             # Dump cubegen output if we're in debug.
-            silico.logging.get_logger().debug(cubegen_proc.stdout)
+            silico.log.get_logger().debug(cubegen_proc.stdout)
 
 
 

@@ -14,7 +14,7 @@ from silico.submit.destination.base import Destination_target
 from silico.submit.calculation.base import Calculation_target
 from silico.submit.program.base import Program_target
 from silico.interface.urwid.swap.swappable import Swappable
-import silico.logging
+import silico.log
 from silico.interface.urwid.file.browser import File_selector
 from silico.interface.urwid.dialogue import Confirm_or_cancel_dialogue
 
@@ -48,7 +48,7 @@ class Method_target_builder(Tab_pile, Setedit_editor_mixin):
                 initial = method_library.resolve(initial) if initial is not None else None
             
             except Exception:
-                silico.logging.get_logger().error("Failed to resolve {} identified by ID '{}'".format(method_type, initial), exc_info = True)
+                silico.log.get_logger().error("Failed to resolve {} identified by ID '{}'".format(method_type, initial), exc_info = True)
                 initial = None
             
         self.library_picker_widget = Method_target_picker(top, method_library, initial = initial if initially_from_library else None)
@@ -107,7 +107,7 @@ class Method_target_builder(Tab_pile, Setedit_editor_mixin):
             if (self.from_library and self.library_picker_widget.value is None) or (not self.from_library and self.editor.configurable is None):
                 # No configurable has been chosen yet.
                 #raise Exception("No {} has been chosen".format(self.method_type)) from None
-                silico.logging.get_logger().warning("No {} has been chosen; this part of the method will be left blank".format(self.method_type))
+                silico.log.get_logger().warning("No {} has been chosen; this part of the method will be left blank".format(self.method_type))
                 return None
             
             else:
@@ -199,10 +199,10 @@ class Method_builder(Swappable, Setedit_editor_mixin):
         """
         try:
             self.write()
-            silico.logging.get_logger().info("Saved method to file '{}' successfully".format(self.output_widget.value))
+            silico.log.get_logger().info("Saved method to file '{}' successfully".format(self.output_widget.value))
         
         except Exception:
-            silico.logging.get_logger().error("Failed to write method to file", exc_info = True)
+            silico.log.get_logger().error("Failed to write method to file", exc_info = True)
             return False
             
     def write(self):
@@ -328,7 +328,7 @@ class Method_builder_menu(Swappable):
             method = parse_method_from_file(method_file_path, self.method_library, resolve = False)
             
         except Exception:
-            silico.logging.get_logger().error("Failed to parse method file '{}'".format(method_file_path), exc_info = True)
+            silico.log.get_logger().error("Failed to parse method file '{}'".format(method_file_path), exc_info = True)
             return
         
         # TODO: This swapping is a bit clumsy.

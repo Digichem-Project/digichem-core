@@ -1,5 +1,5 @@
 # Silico logging.
-import silico.logging
+import silico.log
 
 # General imports.
 # rdkit is an optional, hidden import
@@ -56,12 +56,12 @@ class Skeletal_image_maker(Image_maker):
                 
             except ModuleNotFoundError:
                 # Missing rdkit module.
-                silico.logging.get_logger().warning("Failed to import module 'rdkit', falling back to openbabel for 2D structure images", exc_info = True)
+                silico.log.get_logger().warning("Failed to import module 'rdkit', falling back to openbabel for 2D structure images", exc_info = True)
                 render_backend = 'obabel'
             
             except Exception:
                 # Something went wrong.
-                silico.logging.get_logger().error("An error occurred trying to import module 'rdkit', falling back to openbabel for 2D structure images", exc_info = True)
+                silico.log.get_logger().error("An error occurred trying to import module 'rdkit', falling back to openbabel for 2D structure images", exc_info = True)
                 render_backend = 'obabel'
 
 

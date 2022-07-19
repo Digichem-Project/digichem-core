@@ -31,7 +31,7 @@ from silico.format.property import Atoms_property_format,\
     Absorption_spectrum_property_format,\
     Absorption_energy_spectrum_property_format, SOC_property_format,\
     Vibrations_property_format, IR_spectrum_property_format
-import silico.logging
+import silico.log
 
 
 class Program_target(Method_target):
@@ -178,7 +178,7 @@ class Program_target(Method_target):
             self.start_date = datetime.datetime.now()
             
             # Log.
-            silico.logging.get_logger().info("Calculation start on {} ".format(misc.date_to_string(self.start_date)))
+            silico.log.get_logger().info("Calculation start on {} ".format(misc.date_to_string(self.start_date)))
         
         def end(self, success = True):
             """
@@ -199,13 +199,13 @@ class Program_target(Method_target):
                 message = message.format(misc.date_to_string(self.end_date)) 
                 
                 if success:
-                    silico.logging.get_logger().info(message)
+                    silico.log.get_logger().info(message)
                 else:
-                    silico.logging.get_logger().error(message)
+                    silico.log.get_logger().error(message)
                     
                 # Work out how much time has passed.
                 self.duration = datetime.timedelta(seconds = self.end_timer - self.start_timer)
-                silico.logging.get_logger().info("Calculation duration: {} ({} total seconds)".format(misc.timedelta_to_string(self.duration), self.duration.total_seconds()))
+                silico.log.get_logger().info("Calculation duration: {} ({} total seconds)".format(misc.timedelta_to_string(self.duration), self.duration.total_seconds()))
                 
                 # Unset our running flag.
                 self.destination.calc_dir.del_flag(Flag.RUNNING)
@@ -266,7 +266,7 @@ class Program_target(Method_target):
                     except Exception:
                         # Some other error occurred that prevented us from deleting the scratch.
                         # This is odd, annoying and possibly evidence of a bug, but shouldn't stop us from continuing.
-                        silico.logging.get_logger().warning("Failed to delete scratch directory '{}'".format(self.calculation.scratch_directory), exc_info = True)
+                        silico.log.get_logger().warning("Failed to delete scratch directory '{}'".format(self.calculation.scratch_directory), exc_info = True)
                     
                 # Done cleanup.
                 self.destination.calc_dir.del_flag(Flag.CLEANUP)
@@ -302,7 +302,7 @@ class Program_target(Method_target):
                     # The scratch folder already existing is actually pretty serious; it's supposed to be unique to us, so if it already exists something's probably gone wrong.
                     # However, some SLURM implementations automatically create our scratch dir for us; because this scenario is common (?), we currently print a warning and continue.
                     # This may change in the future.
-                    silico.logging.get_logger().warning("Could not create scratch directory '{}' because it already exists; continuing anyway".format(self.calculation.scratch_directory)) 
+                    silico.log.get_logger().warning("Could not create scratch directory '{}' because it already exists; continuing anyway".format(self.calculation.scratch_directory)) 
                 except Exception:
                     raise Submission_error(self, "unable to create scratch directory")
             
@@ -444,19 +444,19 @@ class Program_target(Method_target):
                 try:
                     self.write_summary_files()
                 except Exception:
-                    silico.logging.get_logger().warning("Failed to write calculation result summary files", exc_info = True)
+                    silico.log.get_logger().warning("Failed to write calculation result summary files", exc_info = True)
                 
             # Write XYZ file.
             try:
                 self.write_xyz_file()
             except Exception:
-                silico.logging.get_logger().warning("Failed to write XYZ result file", exc_info = True)
+                silico.log.get_logger().warning("Failed to write XYZ result file", exc_info = True)
                 
             # Write .si file.
             try:
                 self.write_si_file()
             except Exception:
-                silico.logging.get_logger().warning("Failed to write silico (.si) result file", exc_info = True)
+                silico.log.get_logger().warning("Failed to write silico (.si) result file", exc_info = True)
                 
             # Similarly, if we've been asked to write a report, do that.
             if self.calculation.write_report:
@@ -464,14 +464,14 @@ class Program_target(Method_target):
                 try:
                     self.write_report_files()
                 except Exception:
-                    silico.logging.get_logger().warning("Failed to write calculation report", exc_info = True)
+                    silico.log.get_logger().warning("Failed to write calculation report", exc_info = True)
                 
                 # Additionally, if we're the last calculation of a series, write a combined report.
                 # write_combi_report_files() will do nothing if we are not the last in series.
                 try:
                     self.write_combi_report_files()
                 except Exception:
-                    silico.logging.get_logger().warning("Failed to write combined calculation report", exc_info = True)
+                    silico.log.get_logger().warning("Failed to write combined calculation report", exc_info = True)
                 
         
         def write_summary_files(self):

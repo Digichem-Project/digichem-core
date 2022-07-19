@@ -7,7 +7,7 @@ from pathlib import Path
 from silico.file import File_converter
 from silico.exception.base import File_maker_exception
 import silico.file.types as file_types
-import silico.logging
+import silico.log
 from silico.submit.memory import Memory
 
 class Chk_to_fchk(File_converter):
@@ -75,5 +75,5 @@ class Chk_to_fchk(File_converter):
         else:
             # Everything appeared to go ok.
             # Dump formchk output if we're in debug.
-            silico.logging.get_logger().debug(formchk_proc.stdout)
+            silico.log.get_logger().debug(formchk_proc.stdout)
             
