@@ -6,7 +6,7 @@ import pkg_resources
 import os
 import sys
 
-import silico.logging
+import silico.log
 
 ####################
 # Package metadata.#
@@ -64,7 +64,7 @@ if silico.frozen:
     os.environ['BABEL_DATADIR'] = str(Path(sys._MEIPASS, "openbabel", "data", openbabel_version))
 
 # Setup the logger
-silico.logging.init_logger()
+silico.log.init_logger()
 
 
 ########################
