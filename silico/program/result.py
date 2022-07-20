@@ -13,6 +13,7 @@ from silico.format.table import Table_summary_group_format,\
 from silico.parse import parse_multiple_calculations
 from silico.interface.urwid.result import Result_interface
 from silico.result.multi import Merged
+from silico.format.yaml import To_yaml
 
 
 class Result_program(Program):
@@ -50,6 +51,8 @@ class Result_program(Program):
         output_format.add_argument("-d", "--csv-property", help = "CSV property format; shows a separate table for each property (atoms, MOs etc); one row for each item (atom, orbital etc)", dest = "format", action = "store_const", const = CSV_property_group_format)
         output_format.add_argument("-a", "--table", help = "tabulated text format; the same as -c but formatted with an ASCII table, recommended that output be piped to 'less -S'", dest = "format", action = "store_const", const = Table_summary_group_format)
         output_format.add_argument("-b", "--table-property", help = "tabulated property text format; the same as -d but formatted with an ASCII table", dest = "format", action = "store_const", const = Property_table_group_format)
+        
+        output_format.add_argument("-y", "--yaml", help = "yaml format", dest = "format", action = "store_const", const = To_yaml, default = To_yaml)
         
         sub_parser.add_argument("-f", "--filters", help = "a list of filters to restrict which data is parsed (SCF, MOS, atoms etc)", nargs = "*", default = [])
         
