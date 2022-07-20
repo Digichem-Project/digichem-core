@@ -173,3 +173,9 @@ class Result_set(Result_object):
             # No S1 available.
             return None
         
+    def dump(self):
+        return {
+            "atoms": self.atoms.dump(),
+        }
+        
+        
