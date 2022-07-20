@@ -240,6 +240,41 @@ class Atom(Result_object):
         """
         # Atoms are considered equal if they are the same element in the same position.
         return self.element == other.element and self.coords == other.coords
+            
+    def distance(self, foreign_atom):
+        """
+        Get the distance between this atom and another atom.
+        
+        :return: The distance. The units depend on the units of the atoms' coordinates. If the two atoms have coordinates of different units, then you will obviously get bizarre results.
+        """
+        
+        return math.sqrt( (self.coords[0] - foreign_atom.coords[0])**2 + (self.coords[1] - foreign_atom.coords[1])**2 + (self.coords[2] - foreign_atom.coords[2])**2)
+    
+    def dump(self):
+        """
+        Get a representation of this result object in yaml format.
+        """
+        return {
+            "element": self.element.number,
+            "coords": {
+                "value": [float(coord) for coord in self.coords],
+                "units": "Å"
+            },
+            "mass": {
+                "value": float(self.mass),
+                "units": "g mol^-1"
+            }
+        }
+        
+    @classmethod
+    def list_from_dump(self, data, result_set):
+        """
+        Get a list of instances of this class from its dumped representation.
+        
+        :param data: The data to parse.
+        :param result_set: The partially constructed result set which is being populated.
+        """
+        return [self(atom_dict['element'], atom_dict['coords']['value'], atom_dict['mass']['value']) for atom_dict in data['atoms']]
     
     @classmethod
     def list_from_parser(self, parser):
@@ -271,14 +306,5 @@ class Atom(Result_object):
         
         # Loop through and rebuild our objects.
         return [self(atomic_number, tuple(coords), mass) for atomic_number, coords, mass in zip_data]
-
-            
-    def distance(self, foreign_atom):
-        """
-        Get the distance between this atom and another atom.
         
-        :return: The distance. The units depend on the units of the atoms' coordinates. If the two atoms have coordinates of different units, then you will obviously get bizarre results.
-        """
-        
-        return math.sqrt( (self.coords[0] - foreign_atom.coords[0])**2 + (self.coords[1] - foreign_atom.coords[1])**2 + (self.coords[2] - foreign_atom.coords[2])**2)
         
