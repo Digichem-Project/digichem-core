@@ -252,7 +252,7 @@ class Atom(Result_object):
     
     def dump(self):
         """
-        Get a representation of this result object in yaml format.
+        Get a representation of this result object in primitive format.
         """
         return {
             "element": self.element.number,
