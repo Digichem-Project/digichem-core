@@ -107,6 +107,22 @@ class Energy_list(Result_container, Unmergeable_container_mixin):
             return self(getattr(parser.data, self.cclib_energy_type))
         except AttributeError:
             return self()
+        
+    def dump(self):
+        """
+        Get a representation of this result object in primitive format.
+        """
+        return [{"value": float(energy), "units": "eV"} for energy in self]
+        
+    @classmethod
+    def list_from_dump(self, data, result_set):
+        """
+        Get a list of instances of this class from its dumped representation.
+        
+        :param data: The data to parse.
+        :param result_set: The partially constructed result set which is being populated.
+        """
+        return [self(energy['value']) for energy in data[self.energy_type.lower()+"-energies"]]
 
 
 class SCF_energy_list(Energy_list):
