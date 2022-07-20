@@ -6,6 +6,7 @@ import math
 import itertools
 from deepmerge import conservative_merger
 from pathlib import Path
+import copy
 
 # Silico imports.
 from silico.exception import Result_unavailable_error
@@ -360,6 +361,25 @@ class Metadata(Result_object):
         }
         
         return attr_dict
+    
+    @classmethod
+    def from_dump(self, data, result_set):
+        """
+        Get n instance of this class from its dumped representation.
+        
+        :param data: The data to parse.
+        :param result_set: The partially constructed result set which is being populated.
+        """
+        # Assemble our args to pass to the constructor.
+        # Most of these can be used from the metadata dict as is.
+        kwargs = copy.deepcopy(data.metadata)
+        
+        # For more complex fields, use the data item.
+        for attr in ['date', 'duration', 'temperature', "pressure"]:
+            if attr in data.metadata[attr]:
+                kwargs[attr] = data.metadata[attr]['value']
+        
+        return self(**kwargs)
 
 
 class Merged_metadata(Metadata):
