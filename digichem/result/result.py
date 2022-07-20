@@ -175,6 +175,7 @@ class Result_set(Result_object):
         
     def dump(self):
         return {
+            "metadata": self.metadata.dump(),
             "atoms": self.atoms.dump(),
         }
         
