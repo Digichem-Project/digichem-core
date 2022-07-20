@@ -420,6 +420,34 @@ class Molecular_orbital(Result_object, Floatable_mixin):
     # The index used to access data from cclib (which always has two lists, one for alpha one for beta).
     ccdata_index = 0
     
+    def dump(self):
+        """
+        Get a representation of this result object in primitive format.
+        """
+        return {
+            "label": self.label,
+            "index": self.level,
+            "homo distance": int(self.HOMO_difference),
+            "energy": {
+                "value": float(self.energy),
+                "units": "eV"
+            },
+            "symmetry": self.symmetry,
+            "symmetry index": self.symmetry_level
+        }
+        
+    @classmethod
+    def list_from_dump(self, data, result_set):
+        """
+        Get a list of instances of this class from its dumped representation.
+        
+        :param data: The data to parse.
+        :param result_set: The partially constructed result set which is being populated.
+        """
+        dict_key = "orbitals" if self.spin_type == "none" or self.spin_type == "alpha" else "beta orbitals"
+        
+        return [self(orbital_dict['index'], orbital_dict['homo distance'], orbital_dict['energy'], orbital_dict['symmetry'], orbital_dict['symmetry index']) for orbital_dict in data[dict_key]]
+    
     @classmethod
     def list_from_parser(self, parser):
         """
