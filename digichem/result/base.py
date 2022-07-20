@@ -3,6 +3,7 @@ import scipy.constants
 import warnings
 import itertools
 import math
+import yaml
 
 # Silico imports.
 from silico.exception.base import Result_unavailable_error
@@ -94,6 +95,26 @@ class Result_object():
             warnings.warn(self.MERGE_WARNING)
             
         return multiple_objects[0]
+    
+    def dump(self):
+        """
+        Abstract function that is called to dump the value of the result object to a primitive type, suitable for serializing with yaml.
+        
+        For real objects, this will normally be a dict with (at least) the following items:
+         - 'value': The value of the result (for example, 34.5.
+         - 'units': The units of the result (for example, k m^-s).
+        """
+        raise NotImplementedError("Implement in subclass")
+    
+    def to_yaml(self):
+        """
+        Abstract function that is called to convert this calculation result to yaml.
+        
+        Real objects should implement this function so that it returns a dictionary of at least the following items:
+         - 'value': The value of the result (for example, 34.5.
+         - 'units': The units of the result (for example, k m^-s).
+        """
+        return yaml.dump(self.dump())
         
 
 class Floatable_mixin():
@@ -234,4 +255,7 @@ class Result_container(list, Result_object):
             return self.false_merge(*multiple_lists, **kwargs)
         else:
             return self.merge_default(*multiple_lists, **kwargs)
+        
+    def dump(self):
+        return [item.dump() for item in self]
     
