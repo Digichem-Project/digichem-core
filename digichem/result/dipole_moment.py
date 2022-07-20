@@ -204,19 +204,6 @@ class Electric_dipole_moment_mixin():
         return value / 2.541746473
     
     @classmethod
-    def from_parser(self, parser):
-        """
-        Construct a Dipole_moment object from an output file parser.
-        
-        :param parser: An output file parser.
-        :result: A single Dipole_moment object, or None if no dipole information is available.
-        """
-        try:
-            return self(parser.data.moments[0], parser.data.moments[1], parser.results.alignment)
-        except AttributeError:
-            return None
-    
-    @classmethod
     def to_gaussian_cgs(self, value):
         """
         Convert an electric dipole moment in D to Gaussian-cgs units.
@@ -258,4 +245,50 @@ class Dipole_moment(Dipole_moment_ABC, Electric_dipole_moment_mixin):
     """
     Class that represents the (permanent) dipole moment of a molecule.
     """
+    
+    def dump(self):
+        """
+        Get a representation of this result object in primitive format.
+        """
+        return {
+            "total": {
+                "value": self.total,
+                "units": "D"
+            },
+            "vector": {
+                "value": [float(coord) for coord in self.vector_coords],
+                "units": "D"
+            },
+            "x-angle": {
+                "value": self.X_axis_angle.angle,
+                "units": self.X_axis_angle.units
+            },
+            "xy-angle": {
+                "value": self.XY_plane_angle.angle,
+                "units": self.XY_plane_angle.units
+            }
+        }
+        
+    @classmethod
+    def from_dump(self, data, result_set):
+        """
+        Get a list of instances of this class from its dumped representation.
+        
+        :param data: The data to parse.
+        :param result_set: The partially constructed result set which is being populated.
+        """
+        return self([0.0,0.0,0.0], data['dpm']['vector']['value'], atoms = result_set.alignment)
+    
+    @classmethod
+    def from_parser(self, parser):
+        """
+        Construct a Dipole_moment object from an output file parser.
+        
+        :param parser: An output file parser.
+        :result: A single Dipole_moment object, or None if no dipole information is available.
+        """
+        try:
+            return self(parser.data.moments[0], parser.data.moments[1], parser.results.alignment)
+        except AttributeError:
+            return None
     
