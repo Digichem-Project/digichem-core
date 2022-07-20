@@ -178,6 +178,9 @@ class Result_set(Result_object):
             "metadata": self.metadata.dump(),
             "atoms": self.atoms.dump(),
             "pdm": self.dipole_moment.dump(),
+            "cc-energies": self.CC_energies.dump(),
+            "mp-energies": self.MP_energies.dump(),
+            "scf-energies": self.SCF_energies.dump(),
         }
         
         
