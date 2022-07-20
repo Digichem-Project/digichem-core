@@ -177,6 +177,7 @@ class Result_set(Result_object):
         return {
             "metadata": self.metadata.dump(),
             "atoms": self.atoms.dump(),
+            "pdm": self.dipole_moment.dump(),
         }
         
         
