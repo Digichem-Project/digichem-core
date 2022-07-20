@@ -10,7 +10,8 @@ from pathlib import Path
 # Silico imports.
 from silico.exception import Result_unavailable_error
 from silico.result import Result_object
-from silico.misc.time import latest_datetime, total_timedelta
+from silico.misc.time import latest_datetime, total_timedelta, date_to_string,\
+    timedelta_to_string
 from silico.misc.text import andjoin
 
 
@@ -315,6 +316,50 @@ class Metadata(Result_object):
         except AttributeError:
             # There is no metadata available, give up.
             raise Result_unavailable_error("Metadata", "no metadata is available")
+        
+    def dump(self):
+        """
+        Get a representation of this result object in primitive format.
+        """
+        # Most attributes we can just dump as is.
+        attrs = [
+            "name",
+            "user",
+            "package",
+            "package_version",
+            "calculations",
+            "success",
+            "methods",
+            "functional",
+            "basis_set",
+            "charge",
+            "multiplicity",
+            "optimisation_converged",
+            "orbital_spin_type"
+        ]
+        attr_dict = {attr: getattr(self, attr) for attr in attrs}
+        
+        # Add some more complex stuff.
+        attr_dict['date'] = {
+            "value": self.date.timestamp() if self.date is not None else None,
+            "units": "s",
+            "string": date_to_string(self.date) if self.date is not None else None
+        }
+        attr_dict['duration'] = {
+            "value": self.duration.total_seconds() if self.duration is not None else None,
+            "units": "s",
+            "string": timedelta_to_string(self.duration) if self.duration is not None else None
+        }
+        attr_dict["temperature"] = {
+            "value": self.temperature,
+            "units": "K"
+        }
+        attr_dict["pressure"] = {
+            "value": self.pressure,
+            "units": "atm"
+        }
+        
+        return attr_dict
 
 
 class Merged_metadata(Metadata):
