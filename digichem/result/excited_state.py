@@ -240,6 +240,17 @@ class Excited_state_transition(Result_object):
         The probability of this transition.
         """
         return self.coefficient **2
+    
+    def dump(self):
+        """
+        Get a representation of this result object in primitive format.
+        """
+        return {
+            "start": self.starting_mo.dump(),
+            "end": self.ending_mo.dump(),
+            "coefficient": float(self.coefficient),
+            "probability": float(self.probability **2)
+        }
         
     @classmethod
     def list_from_parser(self, parser):
@@ -517,6 +528,25 @@ class Excited_state(Energy_state):
             
         # Now convert to 0 -> 255 and return.
         return [int(clr * 255) for clr in rgb]
+    
+    def dump(self):
+        """
+        Get a representation of this result object in primitive format.
+        """
+        return {
+            "index": self.level,
+            "multiplicity": self.multiplicity,
+            "multiplicity index": self.multiplicity_level,
+            "symmetry": self.symmetry,
+            "energy": {
+                "value": float(self.energy),
+                "units": "eV"
+            },
+            "oscillator strength": float(self.oscillator_strength),
+            "transitions": [tran.dump() for tran in self.transitions],
+            "tdm": self.transition_dipole_moment.dump() if self.transition_dipole_moment is not None else None,
+            "symbol": self.state_symbol,
+        }
         
     @classmethod
     def list_from_parser(self, parser):
