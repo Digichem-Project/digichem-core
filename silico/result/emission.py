@@ -38,6 +38,12 @@ class Relaxed_excited_state(Excited_state):
         """
         # TODO: We don't call the Excited_state constructor (yet) because it handles energy differently.
         Result_object.__init__(self)
+        
+        # TODO: Add support for these.
+        self.symmetry = None
+        self.transitions = []
+        
+        
         self.ground_state_result = ground_state_result
         self.excited_state_result = excited_state_result
         self.excited_state = excited_state
