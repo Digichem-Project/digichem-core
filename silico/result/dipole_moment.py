@@ -211,6 +211,29 @@ class Electric_dipole_moment_mixin():
         """
         # cgs = au * e * a0
         return self.D_to_au(value) * 4.80320425e-10 * 5.29177210903e-9
+    
+    def dump(self):
+        """
+        Get a representation of this result object in primitive format.
+        """
+        return {
+            "total": {
+                "value": self.total,
+                "units": "D"
+            },
+            "vector": {
+                "value": [float(coord) for coord in self.vector_coords],
+                "units": "D"
+            },
+            "x-angle": {
+                "value": self.X_axis_angle.angle,
+                "units": self.X_axis_angle.units
+            },
+            "xy-angle": {
+                "value": self.XY_plane_angle.angle,
+                "units": self.XY_plane_angle.units
+            }
+        }
 
 
 class Magnetic_dipole_moment_mixin():
@@ -239,12 +262,6 @@ class Magnetic_dipole_moment_mixin():
         See J. Phys. Chem. Lett. 2021, 21, 686-695.
         """
         return value * -9.2740100783e-21
-
-
-class Dipole_moment(Dipole_moment_ABC, Electric_dipole_moment_mixin):
-    """
-    Class that represents the (permanent) dipole moment of a molecule.
-    """
     
     def dump(self):
         """
@@ -253,11 +270,11 @@ class Dipole_moment(Dipole_moment_ABC, Electric_dipole_moment_mixin):
         return {
             "total": {
                 "value": self.total,
-                "units": "D"
+                "units": "au"
             },
             "vector": {
                 "value": [float(coord) for coord in self.vector_coords],
-                "units": "D"
+                "units": "au"
             },
             "x-angle": {
                 "value": self.X_axis_angle.angle,
@@ -268,6 +285,15 @@ class Dipole_moment(Dipole_moment_ABC, Electric_dipole_moment_mixin):
                 "units": self.XY_plane_angle.units
             }
         }
+
+
+class Dipole_moment(Dipole_moment_ABC, Electric_dipole_moment_mixin):
+    """
+    Class that represents the (permanent) dipole moment of a molecule.
+    """
+    
+    def dump(self):
+        return Electric_dipole_moment_mixin.dump(self)
         
     @classmethod
     def from_dump(self, data, result_set):

@@ -51,6 +51,9 @@ class Electric_transition_dipole_moment(Transition_dipole_moment_ABC, Electric_d
         super().__init__(*args, **kwargs)
         self.electromagnetic_type = "electric"
         
+    def dump(self):
+        return Electric_dipole_moment_mixin.dump(self)
+        
     @classmethod
     def list_from_parser(self, parser):
         """
@@ -79,6 +82,9 @@ class Magnetic_transition_dipole_moment(Transition_dipole_moment_ABC, Magnetic_d
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.electromagnetic_type = "magnetic"
+        
+    def dump(self):
+        return Magnetic_dipole_moment_mixin.dump(self)
     
     @classmethod
     def list_from_parser(self, parser):
@@ -125,6 +131,15 @@ class Transition_dipole_moment():
         
         if self.magnetic is not None:
             self.magnetic.set_excited_state(excited_state)
+            
+    def dump(self):
+        """
+        Get a representation of this result object in primitive format.
+        """
+        return {
+            "electric": self.electric.dump() if self.electric is not None else None,
+            "magnetic": self.magnetic.dump() if self.magnetic is not None else None
+        }
     
     @classmethod
     def list_from_parser(self, parser):
