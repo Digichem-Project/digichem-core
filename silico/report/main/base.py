@@ -35,6 +35,7 @@ class Report():
         
         :param result: A parsed result set object to render a report of.
         :param options: A silico Config dictionary which contains various options that control the appearance of this report.
+        :param calculation: An optional calculation class about which this report is being written. This is used by the submission mechanism to reuse certain calculation options when, for example, calculating Turbomole cube files and Gaussian NTOs etc.
         """    
         # Save our result set object.
         self.result = result
@@ -333,11 +334,8 @@ class Report():
             if excited_state.state_symbol + "_NTO_occ" in self.cubes and excited_state.state_symbol + "_NTO_unocc" in self.cubes:
                 self.images[excited_state.state_symbol + "_NTO"] = Combined_orbital_image_maker.from_options(
                     Path(output_dir, excited_state.state_symbol, output_name + ".{}_NTO.jpg".format(excited_state.state_symbol)),
-                    # For NTOs, we swap the apparent HOMO and LUMO.
-                    # This is because we're really interested in how the excited state compares to the ground (rather than the reverse),
-                    # So we'll set the HOMO to the orbital containing the excited electron.
-                    HOMO_cube_file = self.cubes[excited_state.state_symbol + "_NTO_unocc"],
-                    LUMO_cube_file = self.cubes[excited_state.state_symbol + "_NTO_occ"],
+                    HOMO_cube_file = self.cubes[excited_state.state_symbol + "_NTO_occ"],
+                    LUMO_cube_file = self.cubes[excited_state.state_symbol + "_NTO_unocc"],
                     rotations = self.rotations,
                     options = self.options
                 )

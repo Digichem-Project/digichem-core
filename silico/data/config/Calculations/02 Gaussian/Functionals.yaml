@@ -6,7 +6,7 @@ NEXT:
     - Gaussian B3LYP (GD3BJ)
     - Gaussian CAM-B3LYP (GD3BJ)
     - Gaussian M062X (GD3)
-    - Gaussian wB97XD (GD3BJ)
+    - Gaussian wB97XD (GD2)
 
 
 ---
@@ -69,11 +69,10 @@ NEXT: [Gaussian Solvents]
 
 
 SUB_TYPE: partial
-TAG: Gaussian wB97XD (GD3BJ)
-ALIAS: wB97XD (GD3BJ)
+TAG: Gaussian wB97XD (GD2)
+ALIAS: wB97XD (GD2)
 
 DFT:
     functional: wB97XD
-    empirical_dispersion: GD3BJ
 
 NEXT: [Gaussian Solvents]
