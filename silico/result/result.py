@@ -186,7 +186,9 @@ class Result_set(Result_object):
             "beta orbitals": self.beta_orbitals.dump(),
             "excited states": self.excited_states.dump(),
             "soc": self.spin_orbit_coupling.dump(),
-            "vibrations": self.vibrations.dump()
+            "vibrations": self.vibrations.dump(),
+            "adiabatic emission": {key:value.dump() for key,value in self.adiabatic_emission.items()},
+            "vertical emission": {key:value.dump() for key,value in self.vertical_emission.items()}
         }
         
         
