@@ -185,6 +185,7 @@ class Result_set(Result_object):
             "orbitals": self.molecular_orbitals.dump(),
             "beta orbitals": self.beta_orbitals.dump(),
             "excited states": self.excited_states.dump(),
+            "soc": self.spin_orbit_coupling.dump()
         }
         
         

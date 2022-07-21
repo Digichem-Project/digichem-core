@@ -78,6 +78,23 @@ class Spin_orbit_coupling(Result_object, Floatable_mixin):
         self.zero = zero
         self.negative_one = negative_one
         
+    def dump(self):
+        """
+        Get a representation of this result object in primitive format.
+        """
+        return {
+            "singlet": self.singlet_state.state_symbol,
+            "triplet": self.triplet_state.state_symbol,
+            "soc": {
+                "units": "c m^-1",
+                "value": [self.positive_one, self.zero, self.negative_one],
+            },
+            "rss": {
+                "units": "c m^-1",
+                "value": [self.root_sum_square],
+            }
+        }
+        
     @classmethod
     def list_from_parser(self, parser):
         """
