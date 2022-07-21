@@ -70,7 +70,7 @@ def test_report_merged(result_path, tmp_path, silico_options):
 
     ])
 def test_pdf_writing(result_path, tmp_path, silico_options):
-    """Test writing a report from existing image files."""
+    """Test writing a report with existing image files."""
     # Unpack the archive.
     with open_for_parsing(Path(data_directory(), result_path)) as log_files:
         result_set = parse_calculation(*log_files)
