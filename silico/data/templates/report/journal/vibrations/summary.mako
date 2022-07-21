@@ -37,18 +37,18 @@
         </tr>
         <tr class="resultsTable__row">
             <td class="resultsTable__title resultsTable__cell">No. negative frequencies</td>
-            %if len(vibrations.negative_frequencies) == 0:
-                <td class="resultsTable__value resultsTable__cell resultsTable__value--good">${len(vibrations.negative_frequencies)}</td>
+            %if len(vibrations.negative) == 0:
+                <td class="resultsTable__value resultsTable__cell resultsTable__value--good">${len(vibrations.negative)}</td>
             %else:
-            <td class="resultsTable__value resultsTable__cell resultsTable__value--bad">${len(vibrations.negative_frequencies)}</td>
+            <td class="resultsTable__value resultsTable__cell resultsTable__value--bad">${len(vibrations.negative)}</td>
             %endif
         </tr>
         <tr class="resultsTable__row">
             <td class="resultsTable__title resultsTable__cell">Negative frequencies</td>
             <td class="resultsTable__value resultsTable__cell">
-            	%if len(vibrations.negative_frequencies) > 0:
-	            	${andjoin(["{:0.2f}".format(vibration.frequency) for vibration in vibrations.negative_frequencies[:max_neg_freq]])}
-	            	%if len(vibrations.negative_frequencies) > max_neg_freq:
+            	%if len(vibrations.negative) > 0:
+	            	${andjoin(["{:0.2f}".format(vibration.frequency) for vibration in vibrations.negative[:max_neg_freq]])}
+	            	%if len(vibrations.negative) > max_neg_freq:
 	            	...
 	            	%endif
 	            	cm<sup>-1</sup>

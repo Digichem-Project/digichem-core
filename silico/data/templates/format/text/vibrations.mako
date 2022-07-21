@@ -15,9 +15,9 @@
 ##
 ##
 No. vibrations: ${len(vibrations)}
-No. negative frequency: ${len(vibrations.negative_frequencies)}
+No. negative frequency: ${len(vibrations.negative)}
 ##
 ## We'll now show all negative vibrations.
-%for index, vibration in enumerate(vibrations.negative_frequencies):
+%for index, vibration in enumerate(vibrations.negative):
 Negative frequency ${index+1} /cm-1: ${"{:0.2f}".format(vibration.frequency)}
 %endfor

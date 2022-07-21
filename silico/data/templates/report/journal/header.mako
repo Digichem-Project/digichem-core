@@ -105,7 +105,7 @@
 			% if len(report.result.vibrations) > 0:
 			## TODO: This will fail if there are no vibrations with intensity above 0 (unlikely but probable); need to safe_get_file() first.
 			The most intense vibrational frequencies ${inflector.plural("was", len(report.images['simulated_IR_graph'].selected_peaks(0, 5)))} calculated to be at ${andjoin(report.images['simulated_IR_graph'].selected_peaks(0, 5))} cm<sup>-1</sup>,
-			and there ${inflector.plural("was", len(report.result.vibrations.negative_frequencies))} ${text_integer(len(report.result.vibrations.negative_frequencies))} negative frequencies.
+			and there ${inflector.plural("was", len(report.result.vibrations.negative))} ${text_integer(len(report.result.vibrations.negative))} negative frequencies.
 			% endif
 			##
 			## Excited states.

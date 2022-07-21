@@ -272,7 +272,7 @@ class Vibrations_summary_format(Summary_format):
         
         return OrderedDict({
             'No. vibrations': len(result.vibrations),
-            'No. negative frequencies': len(result.vibrations.negative_frequencies)
+            'No. negative frequencies': len(result.vibrations.negative)
         })
         
 class Excited_states_summary_format(Summary_format):
