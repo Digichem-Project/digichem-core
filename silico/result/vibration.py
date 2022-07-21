@@ -65,6 +65,23 @@ class Vibration(Result_object, Floatable_mixin):
         A float representation of this object.
         """
         return float(self.frequency)
+    
+    def dump(self):
+        """
+        Get a representation of this result object in primitive format.
+        """
+        return {
+            "index": self.level,
+            "frequency": {
+                "value": float(self.frequency),
+                "units": "c m^-1",
+            },
+            "intensity": {
+                "value": float(self.intensity),
+                "units": "km mol^-1"
+            },
+            "symmetry": self.symmetry
+        }
         
     @classmethod
     def list_from_parser(self, parser):
