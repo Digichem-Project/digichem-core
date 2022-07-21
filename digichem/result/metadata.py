@@ -337,7 +337,7 @@ class Metadata(Result_object):
             "optimisation_converged",
             "orbital_spin_type"
         ]
-        attr_dict = {attr: getattr(self, attr) for attr in attrs}
+        attr_dict = {attr.replace("_", " "): getattr(self, attr) for attr in attrs}
         
         # Add some more complex stuff.
         attr_dict['date'] = {
