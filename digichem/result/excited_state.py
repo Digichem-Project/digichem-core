@@ -246,8 +246,8 @@ class Excited_state_transition(Result_object):
         Get a representation of this result object in primitive format.
         """
         return {
-            "start": self.starting_mo.dump(),
-            "end": self.ending_mo.dump(),
+            "start": self.starting_mo.label,
+            "end": self.ending_mo.label,
             "coefficient": float(self.coefficient),
             "probability": float(self.probability **2)
         }
