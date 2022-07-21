@@ -95,6 +95,7 @@ class Metadata(Result_object):
         self.methods = methods if methods is not None else []
         self.functional = functional
         self.basis_set = basis_set
+        # TODO: charge and mult should be deprecated here, they are available in ground_state.
         self.charge = charge
         self.multiplicity = multiplicity
         self.optimisation_converged = optimisation_converged
