@@ -30,15 +30,6 @@ edited_date = datetime.today()
 # First copy our source to an appropriate folder name
 distutils.dir_util.copy_tree("./", str(dest))
 
-# Delete any __pycache__ dirs and .pyc or .pyo files.
-# # First __pycache__
-# for pycachedir in dest.rglob("__pycache__"):
-#     shutil.rmtree(pycachedir)
-# 
-# for pycachefile in itertools.chain(dest.rglob("*.pyc"), dest.rglob("*.pyo")):
-#     pycachefile.unlink()
-
-
 version_file_contents = ""
 version_file_path = Path(dest, "silico/__init__.py")
 with open(version_file_path, "r") as version_file:
@@ -61,14 +52,7 @@ with open(version_file_path, "w") as version_file:
     # Write everything.
     version_file.writelines(version_file_contents)
 
-# Use the tar program.
-#subprocess.run(
-#    ["tar", "-czf", str(dest) + ".tar.gz", str(dest)]
-#)
-# subprocess.run(
-#     ["tar", "-czf", archive_name + ".tar.gz", archive_name],
-#     cwd = str(dest.parent)
-# )
+# Use git --archive to package
 subprocess.run(
     ["git", "archive", "HEAD", "--prefix={}/".format(archive_name), "-o", "../{}.tar.gz".format(archive_name)],
     cwd = str(dest)
@@ -76,7 +60,3 @@ subprocess.run(
 
 # Delete the folder.
 shutil.rmtree(str(dest))
-
-# # And create a new blank updates file.
-# with open("updates", "wt") as updates_file:
-#     pass
