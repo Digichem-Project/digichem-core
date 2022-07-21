@@ -1,5 +1,6 @@
 # General imports.
 from itertools import zip_longest
+import warnings
 
 # Silico imports.
 from silico.result import Result_container
@@ -16,6 +17,14 @@ class Vibrations_list(Result_container, Unmergeable_container_mixin):
         
     @property
     def negative_frequencies(self):
+        """
+        Get a Vibrations_list object of the vibrations in this list that have negative frequencies (they are imaginary).
+        """
+        warnings.warn("negative_frequencies is deprecated, use negative instead")
+        return self.negative
+    
+    @property
+    def negative(self):
         """
         Get a Vibrations_list object of the vibrations in this list that have negative frequencies (they are imaginary).
         """
