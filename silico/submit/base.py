@@ -6,7 +6,7 @@ import yaml
 # Silico imports.
 from silico.config.configurable.option import Option
 from silico.config.configurable.base import Configurable_class_target
-import silico.logging
+import silico.log
 from silico.exception.configurable import Configurable_loader_exception
 
 
@@ -59,7 +59,7 @@ def parse_method_from_file(file_name, method_library, resolve = True):
     
     # Give a warning if there's anything extra.
     if len(raw) > 0:
-        silico.logging.get_logger().warning("Ignoring additional data found in method file '{}':\n{}".format(file_name, raw))
+        silico.log.get_logger().warning("Ignoring additional data found in method file '{}':\n{}".format(file_name, raw))
         
     method = {}
     

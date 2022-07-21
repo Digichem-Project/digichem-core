@@ -2,7 +2,6 @@ import warnings
 import logging
 import sys
 import textwrap
-from multiprocessing import Lock
 from subprocess import CalledProcessError
 
 # The handler object silico uses for logging.
@@ -10,9 +9,6 @@ LOGGING_HANDLER = None
 
 # The name of the silico logger, can be passed to logging.get_logger() to get the silico logging object.
 LOGGER_NAME = "silico"
-
-# This probably isn't necessary.
-LOGGER_LOCK = Lock()
 
 
 def init_logger():

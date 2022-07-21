@@ -8,7 +8,7 @@ import silico.interface.urwid.file.browser
 import silico.interface.urwid.file.output
 from silico.interface.urwid.dialogue import Widget_dialogue
 from silico.interface.urwid.method.browser import Method_selector
-import silico.logging
+import silico.log
 from pathlib import Path
 
 
@@ -256,7 +256,7 @@ class Output_edit(File_edit):
         
         # If there's nothing selected, show a warning.
         if self.value is None:
-            silico.logging.get_logger().warning("No output location has been selected")
+            silico.log.get_logger().warning("No output location has been selected")
             return False
         
 class Method_target_picker(Popup_edit):

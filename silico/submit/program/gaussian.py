@@ -6,7 +6,7 @@ import shutil
 import warnings
 
 # Silico imports.
-import silico.logging
+import silico.log
 from silico.submit.program import Program_target
 from silico.file.fchk import Chk_to_fchk
 from silico.config.configurable.option import Option
@@ -150,7 +150,7 @@ class Gaussian(Program_target):
                     fchk_file = Chk_to_fchk(self.fchk_file_path, chk_file = self.chk_file_path, memory = self.calculation.memory, formchk_executable = self.formchk_executable)
                     fchk_file.get_file()
             except Exception:
-                silico.logging.get_logger().error("Failed to create fchk file", exc_info = True)
+                silico.log.get_logger().error("Failed to create fchk file", exc_info = True)
                 chk_conversion_success = False
             
             # Use our parent to create result and report files.
@@ -166,11 +166,11 @@ class Gaussian(Program_target):
                     # We can ignore not finding the file; we were trying to get rid of it anyway.
                     pass
                 except Exception:
-                    silico.logging.get_logger().error("Failed to delete chk file", exc_info = True)
+                    silico.log.get_logger().error("Failed to delete chk file", exc_info = True)
             
             else:
                 # Let the user know we're ignoring their request.
-                silico.logging.get_logger().warning("Not deleting chk file because conversion to fchk was not successful")
+                silico.log.get_logger().warning("Not deleting chk file because conversion to fchk was not successful")
             
             # Remove rwf if we've been asked to.
             try:
@@ -180,7 +180,7 @@ class Gaussian(Program_target):
                 # We can ignore not finding the file; we were trying to get rid of it anyway.
                 pass
             except Exception:
-                silico.logging.get_logger().error("Failed to delete rwf file", exc_info = True)
+                silico.log.get_logger().error("Failed to delete rwf file", exc_info = True)
                 
         def cleanup(self, success):
             """

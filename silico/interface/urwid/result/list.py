@@ -5,7 +5,7 @@ import urwid
 from silico.interface.urwid.row_list import Row_browser, Row_item,\
     Row_widget
 from silico.interface.urwid.result.browser import Result_selector
-import silico.logging
+import silico.log
 from silico.parse import  parse_calculation
 from silico.result.alignment.base import Alignment
 
@@ -84,7 +84,7 @@ class Result_list(Row_browser):
         Add selected files to our list.
         """
         # Get the logger item we'll use for communication.
-        logger = silico.logging.get_logger()
+        logger = silico.log.get_logger()
         logger.info("Parsing calculation results")
         
         # Get the chosen alignment class.

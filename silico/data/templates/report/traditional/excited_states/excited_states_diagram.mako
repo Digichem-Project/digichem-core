@@ -1,7 +1,7 @@
 ## -*- coding: utf-8 -*-
 
 <%!
-    import silico.logging
+    import silico.log
 %>
 
 <%page args="excited_states, report, energies_image_name"/>
@@ -14,7 +14,7 @@
     try:
         dimensions = report.images[energies_image_name].get_constrained_size(max_width, max_height)
     except Exception:
-        silico.logging.get_logger().error("Could not load image", exc_info = True)
+        silico.log.get_logger().error("Could not load image", exc_info = True)
         dimensions = None
     # Now we open our diagram with 
 %>

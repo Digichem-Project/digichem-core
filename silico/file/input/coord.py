@@ -7,7 +7,7 @@ from openbabel import pybel
 from silico.exception.base import Silico_exception
 from silico.file.convert.gaussian import Gaussian_input_parser
 from silico.file.convert.babel import Openbabel_converter
-import silico.logging
+import silico.log
 from silico.file.input import Input_file
 
 # Custom formats to allow literal strings in yaml output.
@@ -109,7 +109,7 @@ class Silico_coords(Input_file):
         :param name: Name of the system/molecule.
         """
         file_name = Path(file_name)
-        silico.logging.get_logger().info("Parsing coordinate file '{}'".format(file_name))
+        silico.log.get_logger().info("Parsing coordinate file '{}'".format(file_name))
         
         # Get the file format.
         if file_type is None:

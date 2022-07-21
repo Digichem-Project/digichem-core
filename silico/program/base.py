@@ -8,8 +8,8 @@ import signal
 from silico.exception.uncatchable import Signal_caught
 from silico.config.parser import Config_file_parser
 import silico.result.angle
-import silico.logging
-from silico.logging import set_logging_level
+import silico.log
+from silico.log import set_logging_level
 from silico.misc.argparse import Extend_action
 
 
@@ -49,7 +49,7 @@ class Program():
         :return: A tuple of (args, config, logger).
         """
         # First, sort out our logger.
-        logger = silico.logging.get_logger()
+        logger = silico.log.get_logger()
         
         # Next, load all our config files.
         config = self.get_silico_config(args)
