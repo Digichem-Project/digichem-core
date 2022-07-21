@@ -35,6 +35,7 @@ class Report():
         
         :param result: A parsed result set object to render a report of.
         :param options: A silico Config dictionary which contains various options that control the appearance of this report.
+        :param calculation: An optional calculation class about which this report is being written. This is used by the submission mechanism to reuse certain calculation options when, for example, calculating Turbomole cube files and Gaussian NTOs etc.
         """    
         # Save our result set object.
         self.result = result

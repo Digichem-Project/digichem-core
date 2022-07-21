@@ -113,12 +113,12 @@ class Report_program(Program):
                 pdf_file = Path(self.args.output, default_base_name)
             
         # Now make (compile?) and save our report.
-        self.logger.info("Generating report '{}'...".format(self.args.pdf_file))
+        self.logger.info("Generating report '{}'...".format(pdf_file))
         try:
             report.write(pdf_file, report_type = self.args.type, report_style = self.args.style)
         except Exception as e:
-            raise Silico_exception("Failed to generate report '{}'".format(self.args.pdf_file)) from e
+            raise Silico_exception("Failed to generate report '{}'".format(pdf_file)) from e
         
         # Done.
-        self.logger.info("Done generating report '{}'".format(self.args.pdf_file))
+        self.logger.info("Done generating report '{}'".format(pdf_file))
         
