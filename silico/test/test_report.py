@@ -21,7 +21,7 @@ def make_report(result_path, tmp_path, silico_options):
 
 
 @pytest.mark.slow
-@pytest.mark.parametrize("result_set", [
+@pytest.mark.parametrize("result_path", [
         "Benzene Anion/Gaussian 16 Optimisation Frequencies PBE1PBE (GD3BJ) Gas Phase 6-31G(d,p).tar.gz"
      ])
 def test_report_complete(result_path, tmp_path, silico_options):
@@ -37,12 +37,12 @@ def test_report_complete(result_path, tmp_path, silico_options):
             
 
 @pytest.mark.slow
-@pytest.mark.parametrize("result_set", [
+@pytest.mark.parametrize("result_path", [
         [
             "Pyridine/Gaussian 16 Optimisation Frequencies PBE1PBE (GD3BJ) Toluene 6-31G(d,p).tar.gz",
             "Pyridine/Gaussian 16 Excited States TDA 10 Singlets 10 Triplets PBE1PBE (GD3BJ) Toluene 6-31G(d,p).tar.gz",
             "Pyridine/Gaussian 16 Excited States TDA Optimised S(1) PBE1PBE (GD3BJ) Toluene 6-31G(d,p).tar.gz",
-        ]
+        ],
         [
             "Pyridine/Turbomole Optimisation Frequency PBE0 (GD3BJ) 6-31G**.tar.gz"
             "Pyridine/Turbomole Excited States TDA 10 Triplets PBE0 (GD3BJ) 6-31G**.tar.gz",
