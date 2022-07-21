@@ -34,6 +34,20 @@ class Ground_state(Energy_state):
         Is this ground state object equal to another?
         """
         return self.charge == other.charge and self.multiplicity == other.multiplicity and self.energy == other.energy
+        
+    def dump(self):
+        """
+        Get a representation of this result object in primitive format.
+        """
+        dump_dict = super().dump()
+        dump_dict.update({
+            "charge": self.charge,
+            "multiplicity": self.multiplicity
+        })
+        # The 'energy' field from Energy_state is an excited state energy, relative to the ground state (so is always 0).
+        # Replace with total energy.
+        dump_dict['energy']['value'] = float(self.absolute_energy)
+        return dump_dict
     
     @classmethod
     def from_parser(self, parser):

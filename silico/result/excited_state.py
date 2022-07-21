@@ -397,6 +397,22 @@ class Energy_state(Result_object, Floatable_mixin):
         eg, S(1) is the first singlet excited state, S(2) is the second and so on.
         """
         return "{}({})".format(self.multiplicity_symbol, self.multiplicity_level)
+    
+    def dump(self):
+        """
+        Get a representation of this result object in primitive format.
+        """
+        return {
+            "index": self.level,
+            "multiplicity": self.multiplicity,
+            "multiplicity index": self.multiplicity_level,
+            "energy": {
+                "value": float(self.energy),
+                "units": "eV"
+            },
+            "symbol": self.state_symbol,
+        }
+
 
 class Excited_state(Energy_state):
     """
@@ -527,26 +543,20 @@ class Excited_state(Energy_state):
             rgb = [clr / max(rgb) for clr in rgb]
             
         # Now convert to 0 -> 255 and return.
-        return [int(clr * 255) for clr in rgb]
+        return [int(clr * 255) for clr in rgb]    
     
     def dump(self):
         """
         Get a representation of this result object in primitive format.
         """
-        return {
-            "index": self.level,
-            "multiplicity": self.multiplicity,
-            "multiplicity index": self.multiplicity_level,
+        dump_dict = super().dump()
+        dump_dict.update({
             "symmetry": self.symmetry,
-            "energy": {
-                "value": float(self.energy),
-                "units": "eV"
-            },
             "oscillator strength": float(self.oscillator_strength),
             "transitions": [tran.dump() for tran in self.transitions],
             "tdm": self.transition_dipole_moment.dump() if self.transition_dipole_moment is not None else None,
-            "symbol": self.state_symbol,
-        }
+        })
+        return dump_dict
         
     @classmethod
     def list_from_parser(self, parser):

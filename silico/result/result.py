@@ -181,6 +181,7 @@ class Result_set(Result_object):
             "cc energies": self.CC_energies.dump(),
             "mp energies": self.MP_energies.dump(),
             "scf energies": self.SCF_energies.dump(),
+            "ground state": self.ground_state.dump(),
             "orbitals": self.molecular_orbitals.dump(),
             "beta orbitals": self.beta_orbitals.dump(),
             "excited states": self.excited_states.dump(),
