@@ -334,8 +334,6 @@ class Metadata(Result_object):
             "methods",
             "functional",
             "basis_set",
-            "charge",
-            "multiplicity",
             "optimisation_converged",
             "orbital_spin_type"
         ]
