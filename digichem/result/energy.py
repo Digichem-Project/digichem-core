@@ -57,7 +57,7 @@ class Energies(Result_object):
         """
         return {
             "final": {
-                "value": float(self.value),
+                "value": float(self.final),
                 "units": "eV"
             },
             "scf": self.scf.dump(),
