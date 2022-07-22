@@ -1,5 +1,4 @@
 import argparse
-import math
 
 def to_bool(booly):
     """
