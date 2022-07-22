@@ -105,17 +105,7 @@ class Result_object():
          - 'units': The units of the result (for example, k m^-s).
         """
         raise NotImplementedError("Implement in subclass")
-    
-    def to_yaml(self):
-        """
-        Abstract function that is called to convert this calculation result to yaml.
-        
-        Real objects should implement this function so that it returns a dictionary of at least the following items:
-         - 'value': The value of the result (for example, 34.5.
-         - 'units': The units of the result (for example, k m^-s).
-        """
-        return yaml.dump(self.dump())
-        
+
 
 class Floatable_mixin():
     """
