@@ -3,6 +3,67 @@ from silico.result import Result_container
 import scipy.constants
 from silico.exception.base import Result_unavailable_error
 from silico.result import Unmergeable_container_mixin
+from silico.result import Result_object
+
+class Energies(Result_object):
+    """
+    Class that holds all the energies calculated from a computation.
+    """
+    
+    def __init__(self, scf = None, mp = None, cc = None):
+        """
+        :param scf: List of self-consistent field energies.
+        :param mp: List of Moller-Plesset energies.
+        :param cc: List of coupled cluster energies.
+        """
+        self.scf =  SCF_energy_list(scf)
+        self.mp = MP_energy_list(mp)
+        self.cc = CC_energy_list(cc)
+        
+    @property
+    def final(self):
+        """
+        The total energy of this calculation.
+        
+        This convenience property is the energy at the highest level of theory available (CC > MP > SCF).
+        
+        :raises Result_unavailable_error: If no total energy is available.
+        """
+        # Try CC first.
+        if len(self.cc) > 0:
+            return self.cc.final
+        elif len(self.mp) > 0:
+            return self.mp.final
+        else:
+            return self.scf.final
+    
+    @classmethod
+    def from_parser(self, parser):
+        """
+        Get an Energies object from an output file parser.
+        
+        :param parser: An output file parser.
+        :return: The populated Energies object.
+        """
+        return self(
+            cc = CC_energy_list.from_parser(parser),
+            mp = MP_energy_list.from_parser(parser),
+            scf = SCF_energy_list.from_parser(parser)
+        )
+    
+    def dump(self):
+        """
+        Get a representation of this result object in primitive format.
+        """
+        return {
+            "final": {
+                "value": float(self.value),
+                "units": "eV"
+            },
+            "scf": self.scf.dump(),
+            "mp": self.mp.dump(),
+            "cc": self.cc.dump()
+        }
 
 
 class Energy_list(Result_container, Unmergeable_container_mixin):

@@ -48,11 +48,11 @@ class Merged(Result_set):
         
         # Merge remaining attributes.
         attrs = {}
-        for attr in ["cc_energies", "mp_energies", "scf_energies", "pdm", "excited_states", "vibrations", "soc"]:
+        for attr in ["energies", "pdm", "excited_states", "vibrations", "soc"]:
             attrs[attr] = type(getattr(results[0], attr)).merge(*[getattr(result, attr) for result in results])
         
         # Get a new ground state.
-        ground_state = Ground_state.from_energies(merged_metadata.charge, merged_metadata.multiplicity, attrs['cc_energies'], attrs['mp_energies'], attrs['scf_energies'])
+        ground_state = Ground_state.from_energies(merged_metadata.charge, merged_metadata.multiplicity, attrs['energies'].cc, attrs['energies'].mp, attrs['energies'].scf)
         
         # Build new list of energy states.
         energy_states = Excited_state_list()
