@@ -37,7 +37,7 @@
     text-overflow: ellipsis;
 }
 
-.pageHeader--bad {
+.pageHeader--bad .pageHeader__body {
     border-bottom: 3px solid #de2d00
 }
 
@@ -85,7 +85,7 @@
     align-items: start;
 }
 
-.pageFooter--bad {
+.pageFooter--bad .pageFooter__body {
     border-color: #de2d00
 }
 
