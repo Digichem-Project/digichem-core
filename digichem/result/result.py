@@ -11,6 +11,7 @@ from silico.result.alignment.FAP import Furthest_atom_pair
 from silico.result.alignment import Minimal
 from silico.result import Result_object
 import silico.result.excited_state
+import warnings
 
         
 class Result_set(Result_object):
@@ -23,20 +24,20 @@ class Result_set(Result_object):
     def __init__(
             self,
             metadata = None,
-            CC_energies = None,
-            MP_energies = None,
-            SCF_energies = None,
+            cc_energies = None,
+            mp_energies = None,
+            scf_energies = None,
             atoms = None,
             alignment = None,
-            dipole_moment = None,
+            pdm = None,
             transition_dipole_moments = None,
-            molecular_orbitals = None,
+            orbitals = None,
             beta_orbitals = None,
             ground_state = None,
             excited_states = None,
             energy_states = None,
             vibrations = None,
-            spin_orbit_coupling = None):
+            soc = None):
         """
         Constructor for Result_set objects.
         
@@ -45,25 +46,25 @@ class Result_set(Result_object):
         :param MP_energies: Optional Energy_list object of Moller-Plesset energies.
         :param SCF_energies: Optional Energy_list object of self-consistent field energies (SCF is the type of energy printed for normal HF and DFT).
         :param atoms: Optional Atom_list object of atom positions.
-        :param dipole_moment: Optional dipole_moment object.
+        :param pdm: Optional dipole_moment object.
         :param transition_dipole_moments: Optional list of TDMs.
-        :param molecular_orbitals: Optional Molecular_orbital_list object.
+        :param orbitals: Optional Molecular_orbital_list object.
         :param beta_orbitals: Optional Beta MOs. If this is not None, then molecular_orbitals is assumed to refer to the Alpha MOs.
         :param excited_states: Optional Excited_state_list object.
         :param vibrations: Optional molecular Vibrations object.
-        :param spin_orbit_coupling: A list of spin_orbit_coupling.
+        :param soc: A list of spin_orbit_coupling.
         """
         super().__init__()
         self.metadata = metadata
         self.results = (self,)
-        self.CC_energies = CC_energies
-        self.MP_energies = MP_energies
-        self.SCF_energies = SCF_energies
-        self.dipole_moment = dipole_moment
+        self.cc_energies = cc_energies
+        self.mp_energies = mp_energies
+        self.scf_energies = scf_energies
+        self.pdm = pdm
         self.transition_dipole_moments = transition_dipole_moments
         self.atoms = atoms
         self.alignment = alignment
-        self.molecular_orbitals = molecular_orbitals
+        self.orbitals = orbitals
         self.beta_orbitals = beta_orbitals
         self.ground_state = ground_state
         self.excited_states = excited_states
@@ -71,7 +72,67 @@ class Result_set(Result_object):
         self.vibrations = vibrations
         self.vertical_emission = {}
         self.adiabatic_emission = {}
-        self.spin_orbit_coupling = spin_orbit_coupling
+        self.soc = soc
+        
+    @property
+    def CC_energies(self):
+        warnings.warn("CC_energies is deprecated, use cc_energies instead", DeprecationWarning)
+        return self.cc_energies
+    
+    @CC_energies.setter
+    def CC_energies(self, value):
+        warnings.warn("CC_energies is deprecated, use cc_energies instead", DeprecationWarning)
+        self.cc_energies = value
+    
+    @property
+    def MP_energies(self):
+        warnings.warn("MP_energies is deprecated, use mp_energies instead", DeprecationWarning)
+        return self.mp_energies
+    
+    @MP_energies.setter
+    def MP_energies(self, value):
+        warnings.warn("MP_energies is deprecated, use mp_energies instead", DeprecationWarning)
+        self.mp_energies = value
+    
+    @property
+    def SCF_energies(self):
+        warnings.warn("SCF_energies is deprecated, use scf_energies instead", DeprecationWarning)
+        return self.scf_energies
+    
+    @SCF_energies.setter
+    def SCF_energies(self, value):
+        warnings.warn("SCF_energies is deprecated, use scf_energies instead", DeprecationWarning)
+        self.scf_energies = value
+        
+    @property
+    def molecular_orbitals(self):
+        warnings.warn("molecular_orbitals is deprecated, use orbitals instead", DeprecationWarning)
+        return self.orbitals
+    
+    @molecular_orbitals.setter
+    def molecular_orbitals(self, value):
+        warnings.warn("molecular_orbitals is deprecated, use orbitals instead", DeprecationWarning)
+        self.orbitals = value
+        
+    @property
+    def spin_orbit_coupling(self):
+        warnings.warn("spin_orbit_coupling is deprecated, use soc instead", DeprecationWarning)
+        return self.soc
+    
+    @spin_orbit_coupling.setter
+    def spin_orbit_coupling(self, value):
+        warnings.warn("spin_orbit_coupling is deprecated, use soc instead", DeprecationWarning)
+        self.soc = value
+        
+    @property
+    def dipole_moment(self):
+        warnings.warn("dipole_moment is deprecated, use pdm instead", DeprecationWarning)
+        return self.pdm
+    
+    @dipole_moment.setter
+    def dipole_moment(self, value):
+        warnings.warn("dipole_moment is deprecated, use pdm instead", DeprecationWarning)
+        self.pdm = value
         
     @property
     def metadatas(self):
@@ -178,17 +239,17 @@ class Result_set(Result_object):
             "metadata": self.metadata.dump(),
             "atoms": self.atoms.dump(),
             "pdm": self.dipole_moment.dump(),
-            "cc energies": self.CC_energies.dump(),
-            "mp energies": self.MP_energies.dump(),
-            "scf energies": self.SCF_energies.dump(),
+            "cc_energies": self.cc_energies.dump(),
+            "mp_energies": self.mp_energies.dump(),
+            "scf_energies": self.scf_energies.dump(),
             "ground state": self.ground_state.dump(),
-            "orbitals": self.molecular_orbitals.dump(),
+            "orbitals": self.orbitals.dump(),
             "beta orbitals": self.beta_orbitals.dump(),
             "excited states": self.excited_states.dump(),
             "soc": self.spin_orbit_coupling.dump(),
             "vibrations": self.vibrations.dump(),
-            "adiabatic emission": {key:value.dump() for key,value in self.adiabatic_emission.items()},
-            "vertical emission": {key:value.dump() for key,value in self.vertical_emission.items()}
+            "adiabatic_emission": {key:value.dump() for key,value in self.adiabatic_emission.items()},
+            "vertical_emission": {key:value.dump() for key,value in self.vertical_emission.items()}
         }
         
         
