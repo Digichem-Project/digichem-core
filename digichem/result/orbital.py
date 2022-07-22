@@ -101,6 +101,23 @@ class Molecular_orbital_list(Result_container):
         
         Only one of the criteria should be specified.
         
+        :deprecated: Use find() instead.
+        :raises Result_unavailable_error: If the requested MO could not be found.
+        :param criteria: A string describing the orbital to get. The meaning of criteria is determined automatically based on its content. If criteria begins with '+' or '-' then it is used as a HOMO_difference. Otherwise, if criteria is a valid integer, then it is used as a level. Otherwise, criteria is assumed to be an orbital label.
+        :param label: The label of the orbital to get.
+        :param HOMO_difference: The distance from the HOMO of the orbital to get.
+        :param level: The level of the orbital to get.
+        :return: The Molecular_orbital object.
+        """
+        warnings.warn("get_orbital is deprecated, use find() instead", DeprecationWarning)
+        return self.find(criteria, label = label, HOMO_difference = HOMO_difference, level = level, allow_empty = False)[0]
+    
+    def find(self, criteria = None, *, label = None, HOMO_difference = None, level = None):
+        """
+        Retrieve an orbital based on some property.
+        
+        Only one of the criteria should be specified.
+        
         :raises Result_unavailable_error: If the requested MO could not be found.
         :param criteria: A string describing the orbital to get. The meaning of criteria is determined automatically based on its content. If criteria begins with '+' or '-' then it is used as a HOMO_difference. Otherwise, if criteria is a valid integer, then it is used as a level. Otherwise, criteria is assumed to be an orbital label.
         :param label: The label of the orbital to get.
@@ -109,13 +126,9 @@ class Molecular_orbital_list(Result_container):
         :return: The Molecular_orbital object.
         """
         # Use the search() method to do our work for us.
-        try:
-            return self.search(criteria, label = label, HOMO_difference = HOMO_difference, level = level)[0]
-        except IndexError:
-            #raise ValueError("Unable to find orbital '{}'".format(label))
-            raise Result_unavailable_error("Orbital", "could not find orbital with criteria = '{}', label = '{}', HOMO_difference = '{}', level = '{}'".format(criteria, label, HOMO_difference, level))
+        return self.search(criteria, label = label, HOMO_difference = HOMO_difference, level = level, allow_empty = False)[0]
     
-    def search(self, criteria = None, *, label = None, HOMO_difference = None, level = None):
+    def search(self, criteria = None, *, label = None, HOMO_difference = None, level = None, allow_empty = True):
         """
         Attempt to retrieve a number of orbitals based on some property.
         
@@ -155,7 +168,23 @@ class Molecular_orbital_list(Result_container):
             raise ValueError("Missing criteria to search by; specify one of 'criteria', 'label', 'HOMO_difference' or 'level'")
         
         # Now search.
-        return type(self)(filterfalse(filter_func, self))
+        found = type(self)(filterfalse(filter_func, self))
+        
+        # Possibly panic if the list is empty.
+        if not allow_empty and len(found) == 0:
+            # Work out what we searched for to give better error.
+            if label is not None:
+                criteria_string = "label = '{}'".format(label)
+            
+            elif HOMO_difference is not None:
+                criteria_string = "HOMO difference = '{}'".format(HOMO_difference)
+            
+            elif level is not None:
+                criteria_string = "index = '{}'".format(level)
+            
+            raise Result_unavailable_error("Orbital", "could not find orbital with {}".format(criteria_string))
+        
+        return found
     
     def ordered(self):
         """
