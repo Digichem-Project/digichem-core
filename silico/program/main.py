@@ -35,7 +35,7 @@ from silico.program.config.main import Config_program
 from silico.program.convert import Convert_program
 from silico.program.interactive import Interactive_program
 from silico.program.report import Report_program
-from silico.program.result import Result_program
+from silico.program.result import Result_program, Yaml_result_program
 from silico.program.resume import Resume_program
 from silico.program.status import Status_program
 from silico.program.submit import Submit_program
@@ -49,6 +49,7 @@ PROGRAMS = [
     Interactive_program,
     Report_program,
     Result_program,
+    Yaml_result_program,
     Resume_program,
     Status_program,
     Submit_program]
