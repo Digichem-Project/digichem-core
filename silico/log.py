@@ -62,6 +62,10 @@ def set_logging_level(log_level, verbose = None):
         
         # And set.
         logger.setLevel(new_level)
+        
+#     # Adjust warnings if necessary.
+#     if logger.level == 10:
+#         warnings.simplefilter('always', DeprecationWarning)
 
 
 def get_logger():
