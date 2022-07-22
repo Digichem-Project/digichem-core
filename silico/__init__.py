@@ -6,9 +6,22 @@ import os
 import sys
 import PIL.Image
 
+# Deal with obabel early.
+from .base import init_obabel
+
+# Decide on whether we are frozen or not.
+# The sys attribute 'frozen' is our flag, '_MEIPASS' is the dir location.
+# https://pyinstaller.readthedocs.io/en/stable/runtime-information.html#run-time-information
+if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
+    frozen = True
+else:
+    frozen = False
+
+# Setup openbabel library location.
+init_obabel(frozen)
+
 # Silico imports.
 import silico.logging
-from .base import init_obabel
 
 
 PIL.Image.MAX_IMAGE_PIXELS = None
@@ -31,17 +44,6 @@ author = "Oliver Lee"
 # Program date (when we were last updated).
 _last_updated_string = "11/02/2022"
 last_updated = datetime.strptime(_last_updated_string, "%d/%m/%Y")
-
-# Decide on whether we are frozen or not.
-# The sys attribute 'frozen' is our flag, '_MEIPASS' is the dir location.
-# https://pyinstaller.readthedocs.io/en/stable/runtime-information.html#run-time-information
-if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
-    frozen = True
-else:
-    frozen = False
-    
-# Setup openbabel library location.
-init_obabel()
     
 
 ########################

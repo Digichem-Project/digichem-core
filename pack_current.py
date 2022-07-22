@@ -42,33 +42,19 @@ with open(version_file_path, "r") as version_file:
 		# Replace our last modified string.
 		if "_last_updated_string = " in line:
 			new_line = '_last_updated_string = "{}"\n'.format(edited_date.strftime("%d/%m/%Y"))
-		else:
-			pass
-			# And our dev label.
-			#new_line = line.replace("development = True", "development = False")
 		
 		# Replace our line.
 		version_file_contents[line_num] = new_line
-		
-	#version_file_contents = [line.replace("development = True", "development = False") for line in version_file_contents]
 	
 with open(version_file_path, "w") as version_file:
 	# Write everything.
 	version_file.writelines(version_file_contents)
 
-# Use the tar program.
-#subprocess.run(
-#	["tar", "-czf", str(dest) + ".tar.gz", str(dest)]
-#)
+# Use git --archive to package
 subprocess.run(
-    ["tar", "-czf", archive_name + ".tar.gz", archive_name],
-    cwd = str(dest.parent)
+    ["git", "archive", "HEAD", "--prefix={}/".format(archive_name), "-o", "../{}.tar.gz".format(archive_name)],
+    cwd = str(dest)
 )
-
 
 # Delete the folder.
 shutil.rmtree(str(dest))
-
-# # And create a new blank updates file.
-# with open("updates", "wt") as updates_file:
-# 	pass
