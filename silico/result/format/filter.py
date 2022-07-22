@@ -1,4 +1,4 @@
-from silico.misc.base import is_int
+from silico.misc.base import is_number, to_number
 from builtins import isinstance
 from silico.result.base import Result_object
 
@@ -25,13 +25,19 @@ class Result_filter():
         data = None
         
         for filter in self.filters:
+            if is_number(filter):
+                num_filter = to_number(filter)
+                
+            else:
+                num_filter = filter
+            
             # If the current item is a list and we have an int, use as an index.
-            if isinstance(cur_item, list) and is_int(filter):
-                child = cur_item[int(filter)]
+            if isinstance(cur_item, list) and isinstance(num_filter, int):
+                child = cur_item[num_filter]
                 # If this child object is not a Result_object but the parent is, use the dumped version instead.
                 # (because we have to call dump() at some point, and we can't at any point in the child).
                 if not isinstance(child, Result_object) and isinstance(cur_item, Result_object):
-                    cur_item = cur_item.dump()[int(filter)]
+                    cur_item = cur_item.dump()[num_filter]
                 
                 else:
                     cur_item = child
@@ -48,11 +54,14 @@ class Result_filter():
             # Else, assume filter is a key for a dict.
             # If we are already a dict, just get the item
             elif isinstance(cur_item, dict):
-                cur_item = cur_item[filter]
+                # If the filter looks like an int, make it a real one.
+                # NOTE: This is mostly necessary for supporting emission results,
+                # which are stored in a dict
+                cur_item = cur_item[num_filter]
             
             # Otherwise, dump the current item to a dict and continue.
             else:
-                cur_item = cur_item.dump()[filter]
+                cur_item = cur_item.dump()[num_filter]
         
         if isinstance(cur_item, Result_object):
             data = cur_item.dump()
