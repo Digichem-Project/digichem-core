@@ -138,12 +138,13 @@ class Molecular_orbital_list(Result_container):
         :param label: The label of the orbitals to get.
         :param HOMO_difference: The distance from the HOMO of the orbitals to get.
         :param level: The level of the orbitals to get.
+        :param allow_empty: If False and no matching orbitals can be found, raise a Result_unavailable_error.
         :return: A (possibly empty) Molecular_orbital_list object.
         """
         # If we've been given a generic criteria, decide what it is actually talking about.        
         if criteria is not None:
             try:                
-                # If our string start with a sing (+ or -) then it's a HOMO_difference.
+                # If our string start with a sign (+ or -) then it's a HOMO_difference.
                 if criteria[:1] == "+" or criteria[:1] == "-":
                     HOMO_difference = int(criteria)
                 # If its and integer (or a string that looks like one), then its a level.
