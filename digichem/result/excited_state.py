@@ -61,8 +61,7 @@ class Excited_state_list(Result_container):
         states = (self.get_state(state_symbol = state1).energy, self.get_state(state_symbol = state2).energy)
         return max(states) - min(states)
     
-        
-    def get_state(self, criteria = None, *, state_symbol = None, level = None, mult_level = None):
+    def find(self, criteria = None, *, state_symbol = None, level = None, mult_level = None):
         """
         Retrieve a particular excited state from its state symbol (S(1), T(1) etc.).
         
@@ -101,6 +100,9 @@ class Excited_state_list(Result_container):
         except Exception:
             raise Result_unavailable_error("Excited state", "could not find excited state with symbol = '{}'".format(state_symbol))
         
+    def get_state(self, *args, **kwargs):
+        warnings.warn("get_state() is deprecated use find() instead", DeprecationWarning)
+        return self.get_state(*args, **kwargs)
     
     def group(self):
         """
