@@ -13,6 +13,17 @@ class SOC_list(Result_container):
     An augmented list containing spin orbit coupling.
     """
     
+    def find(self, criteria):
+        """
+        """
+        states = criteria.split(",")
+        
+        # Check we have two states.
+        if len(states) != 2:
+            raise ValueError("SOC can only be found between exactly 2 states, not {} states.".format(len(states)))
+        
+        return self.between(*states)
+    
     def between(self, state1, state2, **kwargs):
         """
         Return the spin-orbit coupling object between the two states with given symbols.
