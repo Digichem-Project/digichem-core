@@ -15,7 +15,7 @@ from silico.result.result import Result_set
 from silico.result.atom import Atom_list
 from silico.result.tdm import Transition_dipole_moment
 from silico.result.excited_state import Excited_state_list
-from silico.result.energy import CC_energy_list, MP_energy_list, SCF_energy_list
+from silico.result.energy import Energies
 from silico.result.ground_state import Ground_state
 from silico.result.soc import SOC_list
 from silico.result.dipole_moment import Dipole_moment
@@ -272,9 +272,7 @@ class Parser(Result_set):
         self.results.excited_states = Excited_state_list.from_parser(self)
         
         # Energies.
-        self.results.CC_energies = CC_energy_list.from_parser(self)
-        self.results.MP_energies = MP_energy_list.from_parser(self)
-        self.results.SCF_energies = SCF_energy_list.from_parser(self)
+        self.results.energies = Energies.from_parser(self)
         
         # Our ground state.
         self.results.ground_state = Ground_state.from_parser(self)

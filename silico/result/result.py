@@ -24,9 +24,7 @@ class Result_set(Result_object):
     def __init__(
             self,
             metadata = None,
-            cc_energies = None,
-            mp_energies = None,
-            scf_energies = None,
+            energies = None,
             atoms = None,
             alignment = None,
             pdm = None,
@@ -42,9 +40,7 @@ class Result_set(Result_object):
         Constructor for Result_set objects.
         
         :param metadata: Optional Metadata result object.
-        :param CC_energies: Optional Energy_list object of coupled-cluster energies.
-        :param MP_energies: Optional Energy_list object of Moller-Plesset energies.
-        :param SCF_energies: Optional Energy_list object of self-consistent field energies (SCF is the type of energy printed for normal HF and DFT).
+        :param energies: Energies result object.
         :param atoms: Optional Atom_list object of atom positions.
         :param pdm: Optional dipole_moment object.
         :param transition_dipole_moments: Optional list of TDMs.
@@ -57,9 +53,7 @@ class Result_set(Result_object):
         super().__init__()
         self.metadata = metadata
         self.results = (self,)
-        self.cc_energies = cc_energies
-        self.mp_energies = mp_energies
-        self.scf_energies = scf_energies
+        self.energies = energies
         self.pdm = pdm
         self.transition_dipole_moments = transition_dipole_moments
         self.atoms = atoms
@@ -76,33 +70,33 @@ class Result_set(Result_object):
         
     @property
     def CC_energies(self):
-        warnings.warn("CC_energies is deprecated, use cc_energies instead", DeprecationWarning)
-        return self.cc_energies
+        warnings.warn("CC_energies is deprecated, use energies.cc instead", DeprecationWarning)
+        return self.energies.cc
     
     @CC_energies.setter
     def CC_energies(self, value):
-        warnings.warn("CC_energies is deprecated, use cc_energies instead", DeprecationWarning)
-        self.cc_energies = value
+        warnings.warn("CC_energies is deprecated, use energies.cc instead", DeprecationWarning)
+        self.energies.cc = value
     
     @property
     def MP_energies(self):
-        warnings.warn("MP_energies is deprecated, use mp_energies instead", DeprecationWarning)
-        return self.mp_energies
+        warnings.warn("MP_energies is deprecated, use energies.mp instead", DeprecationWarning)
+        return self.energies.mp
     
     @MP_energies.setter
     def MP_energies(self, value):
-        warnings.warn("MP_energies is deprecated, use mp_energies instead", DeprecationWarning)
-        self.mp_energies = value
+        warnings.warn("MP_energies is deprecated, use energies.mp instead", DeprecationWarning)
+        self.energies.mp = value
     
     @property
     def SCF_energies(self):
-        warnings.warn("SCF_energies is deprecated, use scf_energies instead", DeprecationWarning)
-        return self.scf_energies
+        warnings.warn("SCF_energies is deprecated, use energies.scf instead", DeprecationWarning)
+        return self.energies.scf
     
     @SCF_energies.setter
     def SCF_energies(self, value):
-        warnings.warn("SCF_energies is deprecated, use scf_energies instead", DeprecationWarning)
-        self.scf_energies = value
+        warnings.warn("SCF_energies is deprecated, use energies.scf instead", DeprecationWarning)
+        self.energies.scf = value
         
     @property
     def molecular_orbitals(self):
@@ -189,13 +183,8 @@ class Result_set(Result_object):
         
         :raises Result_unavailable_error: If no total energy is available.
         """
-        # Try CC first.
-        if len(self.CC_energies) > 0:
-            return self.CC_energies.final
-        elif len(self.MP_energies) > 0:
-            return self.MP_energies.final
-        else:
-            return self.SCF_energies.final
+        warnings.warn("energy is deprecated, use energies.final instead", DeprecationWarning)
+        return self.energies.final
     
         
     @property
@@ -239,9 +228,7 @@ class Result_set(Result_object):
             "metadata": self.metadata.dump(),
             "atoms": self.atoms.dump(),
             "pdm": self.dipole_moment.dump(),
-            "cc_energies": self.cc_energies.dump(),
-            "mp_energies": self.mp_energies.dump(),
-            "scf_energies": self.scf_energies.dump(),
+            "energies": self.energies.dump(),
             "ground state": self.ground_state.dump(),
             "orbitals": self.orbitals.dump(),
             "beta orbitals": self.beta_orbitals.dump(),
