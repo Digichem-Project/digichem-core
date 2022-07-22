@@ -67,8 +67,8 @@ class Config_parser():
         :param config: Dictionary of config options.
         """
         return Config(config, FILE_NAME = self.config_path)
-    
-        
+
+
 class Config_file_parser(Config_parser):
     """
     Class for loading config files.
