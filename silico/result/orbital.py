@@ -110,7 +110,7 @@ class Molecular_orbital_list(Result_container):
         :return: The Molecular_orbital object.
         """
         warnings.warn("get_orbital is deprecated, use find() instead", DeprecationWarning)
-        return self.find(criteria, label = label, HOMO_difference = HOMO_difference, level = level, allow_empty = False)[0]
+        return self.find(criteria, label = label, HOMO_difference = HOMO_difference, level = level)
     
     def find(self, criteria = None, *, label = None, HOMO_difference = None, level = None):
         """
