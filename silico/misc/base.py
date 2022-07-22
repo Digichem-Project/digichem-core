@@ -16,6 +16,17 @@ def to_bool(booly):
             raise Exception("Could not convert '{}' to bool".format(booly))
     else:
         return bool(booly)
+def is_float(value):
+    """
+    Determine whether a variable has a valid float representation.
+    
+    :returns: True or False.
+    """
+    try:
+        float(value)
+        return True
+    except ValueError:
+        return False
 
 def is_int(value):
     """
