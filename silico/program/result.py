@@ -16,6 +16,7 @@ from silico.result.multi import Merged
 from silico.format.yaml import To_yaml
 from silico.result.format.filter import Result_filter
 from silico.result.format.yaml import Yaml_dumper
+from silico.result.format.csv import CSV_dumper
 
 
 class Result_program(Program):
@@ -190,12 +191,8 @@ class Yaml_result_program(Program):
         
         output_group = sub_parser.add_argument_group("output format", "the format to write results to. Only one option from the following may be chosen")
         output_format = output_group.add_mutually_exclusive_group()
-        output_format.add_argument("-y", "--yaml", help = "yaml format", dest = "format", action = "store_const", const = To_yaml, default = To_yaml)
-        output_format.add_argument("-t", "--text", help = "human readable text format; shows various summaries of results for each result file", dest = "format", action = "store_const", const = Text_summary_group_format)
-        output_format.add_argument("-c", "--csv", help = "CSV tabular format; shows one row per result; useful for comparing many results at once", dest = "format", action = "store_const", const = CSV_summary_group_format)
-        output_format.add_argument("-d", "--csv-property", help = "CSV property format; shows a separate table for each property (atoms, MOs etc); one row for each item (atom, orbital etc)", dest = "format", action = "store_const", const = CSV_property_group_format)
-        output_format.add_argument("-a", "--table", help = "tabulated text format; the same as -c but formatted with an ASCII table, recommended that output be piped to 'less -S'", dest = "format", action = "store_const", const = Table_summary_group_format)
-        output_format.add_argument("-b", "--table-property", help = "tabulated property text format; the same as -d but formatted with an ASCII table", dest = "format", action = "store_const", const = Property_table_group_format)
+        output_format.add_argument("-y", "--yaml", help = "yaml format", dest = "format", action = "store_const", const = Yaml_dumper, default = Yaml_dumper)
+        output_format.add_argument("-c", "--csv", help = "CSV tabular format; shows one row per result; useful for comparing many results at once", dest = "format", action = "store_const", const = CSV_dumper)
         
         
         
@@ -290,8 +287,7 @@ class Yaml_result_program(Program):
         
         filters = [Result_filter(filter_string) for filter_string in self.args.filters]
         
-        dumper = Yaml_dumper(filters)
+        dumper = self.args.format(filters)
         
-        for result in results:
-            print(dumper.dump(result), end="")
+        print(dumper.dump(results), end="")
     
