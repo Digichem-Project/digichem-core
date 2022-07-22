@@ -102,7 +102,7 @@ class Excited_state_list(Result_container):
         
     def get_state(self, *args, **kwargs):
         warnings.warn("get_state() is deprecated use find() instead", DeprecationWarning)
-        return self.get_state(*args, **kwargs)
+        return self.find(*args, **kwargs)
     
     def group(self):
         """
