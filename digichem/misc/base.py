@@ -16,6 +16,19 @@ def to_bool(booly):
             raise Exception("Could not convert '{}' to bool".format(booly))
     else:
         return bool(booly)
+    
+def to_number(value):
+    """
+    Convert a variable to an int or float representation.
+    """
+    try:
+        return int(value)
+    
+    except ValueError:
+        pass
+    
+    return float(value)
+    
 def is_number(value):
     """
     Determine whether a variable has a valid int or float representation.
