@@ -35,14 +35,18 @@ class Result_filter():
             
             # If the current item is a list (or has a 'values' item) and we have an int, use as an index.
             if (isinstance(cur_item, list) or isinstance(cur_item, dict) and "values" in cur_item) and isinstance(num_filter, int):
-                child = cur_item[num_filter] if isinstance(cur_item, list) else cur_item["values"][num_filter]
-                # If this child object is not a Result_object but the parent is, use the dumped version instead.
-                # (because we have to call dump() at some point, and we can't at any point in the child).
-                if not isinstance(child, Result_object) and isinstance(cur_item, Result_object):
-                    cur_item = cur_item.dump()[num_filter]
+                try:
+                    child = cur_item[num_filter] if isinstance(cur_item, list) else cur_item["values"][num_filter]
+                    # If this child object is not a Result_object but the parent is, use the dumped version instead.
+                    # (because we have to call dump() at some point, and we can't at any point in the child).
+                    if not isinstance(child, Result_object) and isinstance(cur_item, Result_object):
+                        cur_item = cur_item.dump()[num_filter]
+                    
+                    else:
+                        cur_item = child
                 
-                else:
-                    cur_item = child
+                except IndexError:
+                    raise IndexError("filter '{}' is out of range".format(num_filter)) from None
                 
             # Else, if the filter is the name of an attribute of current item, use that.
             # Likewise to above, if this child item does not have a dump() function, get the dumped equivalent instead.
