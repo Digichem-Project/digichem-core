@@ -215,6 +215,29 @@ class Excited_state_list(Result_container):
         merged.sort()
         merged.assign_levels()
         return merged
+    
+    def dump(self):
+        dump_dict = {
+            "values": super().dump()
+        }
+        
+        # Add extra properties.
+        mult_pairs, mults = self.group_pairs()
+        
+        # Number of states of each multiplicity.
+        for mult, states in mults.items():
+            dump_dict['No. {}'.format(Energy_state.multiplicity_number_to_string(mult))] = len(states)
+            
+        # DeST and other values.
+        for mult_pair in mult_pairs:
+            state1 = mults[mult_pair[0]][0]
+            state2 = mults[mult_pair[1]][0]
+            dump_dict['ΔE({}{})'.format(state1.multiplicity_symbol, state2.multiplicity_symbol)] = {
+                "value": float(state1.energy - state2.energy),
+                "units": "eV"
+            }
+            
+        return dump_dict
 
 
 class Excited_state_transition(Result_object):
