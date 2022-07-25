@@ -33,9 +33,9 @@ class Result_filter():
             else:
                 num_filter = filter
             
-            # If the current item is a list and we have an int, use as an index.
-            if isinstance(cur_item, list) and isinstance(num_filter, int):
-                child = cur_item[num_filter]
+            # If the current item is a list (or has a 'values' item) and we have an int, use as an index.
+            if (isinstance(cur_item, list) or isinstance(cur_item, dict) and "values" in cur_item) and isinstance(num_filter, int):
+                child = cur_item[num_filter] if isinstance(cur_item, list) else cur_item["values"][num_filter]
                 # If this child object is not a Result_object but the parent is, use the dumped version instead.
                 # (because we have to call dump() at some point, and we can't at any point in the child).
                 if not isinstance(child, Result_object) and isinstance(cur_item, Result_object):
