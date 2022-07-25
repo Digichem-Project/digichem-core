@@ -23,6 +23,8 @@ class Result_filter():
         cur_item = result
         # The data we've filtered.
         data = None
+        # The header/name of the current item.
+        header = self.filters
         
         for filter in self.filters:
             if is_number(filter):
@@ -64,7 +66,12 @@ class Result_filter():
                 cur_item = cur_item.dump()[num_filter]
         
         if isinstance(cur_item, Result_object):
-            data = cur_item.dump()
+            cur_item = cur_item.dump()
+            
+        # Add header.
+        if len(header) > 0:
+            data = {":".join(header): cur_item}
+        
         else:
             data = cur_item
         
