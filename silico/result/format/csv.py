@@ -49,7 +49,7 @@ class CSV_dumper(Result_dumper):
                     item.pop("value")
                 
                 flat_child = self.flatten(item)
-                flat_result.update({"{}_{}".format(name, child_name): value for child_name, value in flat_child.items()})
+                flat_result.update({"{}:{}".format(name, child_name): value for child_name, value in flat_child.items()})
             
             else:
                 flat_result[name] = item
