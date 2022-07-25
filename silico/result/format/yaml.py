@@ -25,7 +25,15 @@ class Yaml_dumper(Result_dumper):
     
     def process(self, dumped_results):
         
-        data = yaml.safe_dump_all([inner_data for data in dumped_results for inner_data in data], allow_unicode=True)
+        #data = yaml.safe_dump_all([inner_data for data in dumped_results for inner_data in data], allow_unicode=True)
+        # A list (per result) of dicts.
+        pre_data = []
+        for dumped_result in dumped_results:
+            pre_data.append({})
+            for dumped_dict in dumped_result:
+                pre_data[-1].update(dumped_dict)
+                
+        data = yaml.safe_dump_all(pre_data)
         
         # Yaml will insist on appending the document end marker if datum consists
         # only of a simple literal (eg just a string or float).
