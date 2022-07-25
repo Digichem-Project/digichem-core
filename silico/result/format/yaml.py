@@ -33,7 +33,7 @@ class Yaml_dumper(Result_dumper):
             for dumped_dict in dumped_result:
                 pre_data[-1].update(dumped_dict)
                 
-        data = yaml.safe_dump_all(pre_data)
+        data = yaml.safe_dump_all(pre_data, allow_unicode = True)
         
         # Yaml will insist on appending the document end marker if datum consists
         # only of a simple literal (eg just a string or float).
