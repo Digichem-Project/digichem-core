@@ -428,14 +428,14 @@ class Energy_state(Result_object, Floatable_mixin):
         Get a representation of this result object in primitive format.
         """
         return {
+            "symbol": self.state_symbol,
             "index": self.level,
             "multiplicity": self.multiplicity,
             "multiplicity index": self.multiplicity_level,
             "energy": {
                 "value": float(self.energy),
                 "units": "eV"
-            },
-            "symbol": self.state_symbol,
+            }
         }
 
 
@@ -576,6 +576,12 @@ class Excited_state(Energy_state):
         """
         dump_dict = super().dump()
         dump_dict.update({
+            "wavelength": {
+                "value": float(self.wavelength),
+                "units": "nm"
+            },
+            "colour": self.color,
+            "CIE": tuple([float(val) for val in self.CIE_xy]),
             "symmetry": self.symmetry,
             "oscillator strength": float(self.oscillator_strength),
             "transitions": [tran.dump() for tran in self.transitions],
