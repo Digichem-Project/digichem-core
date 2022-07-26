@@ -70,18 +70,6 @@ class Result_filter():
             else:
                 # Panic, we don't know what to filter by.
                 raise ValueError("Unable to filter by '{}'".format(filter))
-
-#             # Else, assume filter is a key for a dict.
-#             # If we are already a dict, just get the item
-#             elif isinstance(cur_item, dict):
-#                 # If the filter looks like an int, make it a real one.
-#                 # NOTE: This is mostly necessary for supporting emission results,
-#                 # which are stored in a dict
-#                 cur_item = cur_item[num_filter]
-#             
-#             # Otherwise, dump the current item to a dict and continue.
-#             else:
-#                 cur_item = cur_item.dump()[num_filter]
         
         if isinstance(cur_item, Result_object):
             cur_item = cur_item.dump()
