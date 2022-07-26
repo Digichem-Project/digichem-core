@@ -186,7 +186,8 @@ class Yaml_result_program(Program):
         sub_parser.add_argument("log_files", help = "a (number of) calculation result file(s) (.log) to extract results from", nargs = "*", default = [])
         sub_parser.add_argument("-m", "--merge", help = "whether to merge the given calculation log files into a single result, presenting a summary of the merged data rather than each calculation separately", action = "store_true")
          
-        sub_parser.add_argument("-x", "--stop", help = "stop on missing properties rather than ignoring them", action = "store_true", default = False)
+        sub_parser.add_argument("-i", "--ignore", help = "ignore missing properties rather than stopping", action = "store_true", default = False)
+        sub_parser.add_argument("-n", "--none", help = "return an empty value when a missing property is encountered rather than returning nothing at all", action = "store_true", default = False)
         sub_parser.add_argument("-C", "--num_CPUs", help = "the number of CPUs to use in parallel to parse given log_files, defaults to the number of CPUs on the system", type = int, nargs = "?", default = os.cpu_count())
         
         output_group = sub_parser.add_argument_group("output format", "the format to write results to. Only one option from the following may be chosen")
@@ -285,7 +286,7 @@ class Yaml_result_program(Program):
         else:
             results = self.results
         
-        filters = [Result_filter(filter_string) for filter_string in self.args.filters]
+        filters = [Result_filter(filter_string, allow_error = self.args.ignore, return_none = self.args.none) for filter_string in self.args.filters]
         
         dumper = self.args.format(filters)
         
