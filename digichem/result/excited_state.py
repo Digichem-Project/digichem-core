@@ -98,7 +98,17 @@ class Excited_state_list(Result_container):
         try:
             return next(filterfalse(filter_func, self))
         except Exception:
-            raise Result_unavailable_error("Excited state", "could not find excited state with symbol = '{}'".format(state_symbol))
+            # Determine what we searched by for better error reporting.
+            if state_symbol is not None:
+                criteria_string = "symbol = '{}'".format(state_symbol)
+                
+            elif level is not None:
+                criteria_string = "level = '{}'".format(level)
+                
+            else:
+                criteria_string = "mult_level = '{}'".format(mult_level)
+                
+            raise Result_unavailable_error("Excited state", "could not find excited state with {}".format(criteria_string)) from None
         
     def get_state(self, *args, **kwargs):
         warnings.warn("get_state() is deprecated use find() instead", DeprecationWarning)
