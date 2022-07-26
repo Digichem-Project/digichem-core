@@ -4,32 +4,10 @@ import io
 
 from silico.result.format.base import Result_dumper
 import itertools
+import tabulate
 
 
-class CSV_dumper(Result_dumper):
-    """
-    """
-        
-    def process(self, dumped_results):
-        # First, flatten our data ready for writing.
-        flat_results = []
-        
-        for dumped_result in dumped_results:
-            flat_results.append(self.flatten_results(dumped_result))
-            
-        headers = list(itertools.chain(*[list(flat_result.keys()) for flat_result in flat_results]))
-        
-        headers = list(dict.fromkeys(headers))
-        
-        
-        stream = io.StringIO()
-        writer = csv.DictWriter(stream, headers)
-        
-        writer.writeheader()
-        for flat_result in flat_results:
-            writer.writerow(flat_result)
-            
-        return stream.getvalue()
+class Table_dumper_ABC(Result_dumper):
         
     def flatten(self, dumped_result):
         """
@@ -66,3 +44,47 @@ class CSV_dumper(Result_dumper):
             flat_result.update(self.flatten(filtered))
                 
         return flat_result
+
+class Tabulate_dumper(Table_dumper_ABC):
+    """
+    """
+    
+    def process(self, dumped_results):
+        # First, flatten our data ready for writing.
+        flat_results = []
+        
+        for dumped_result in dumped_results:
+            flat_results.append(self.flatten_results(dumped_result))
+            
+        headers = list(itertools.chain(*[list(flat_result.keys()) for flat_result in flat_results]))
+        
+        headers = list(dict.fromkeys(headers))
+        
+        return tabulate.tabulate(flat_results, headers = "keys") + "\n"
+    
+    
+
+class CSV_dumper(Table_dumper_ABC):
+    """
+    """
+        
+    def process(self, dumped_results):
+        # First, flatten our data ready for writing.
+        flat_results = []
+        
+        for dumped_result in dumped_results:
+            flat_results.append(self.flatten_results(dumped_result))
+            
+        headers = list(itertools.chain(*[list(flat_result.keys()) for flat_result in flat_results]))
+        
+        headers = list(dict.fromkeys(headers))
+        
+        
+        stream = io.StringIO()
+        writer = csv.DictWriter(stream, headers)
+        
+        writer.writeheader()
+        for flat_result in flat_results:
+            writer.writerow(flat_result)
+            
+        return stream.getvalue()

@@ -16,7 +16,7 @@ from silico.result.multi import Merged
 from silico.format.yaml import To_yaml
 from silico.result.format.filter import Result_filter
 from silico.result.format.yaml import Yaml_dumper
-from silico.result.format.csv import CSV_dumper
+from silico.result.format.table import Tabulate_dumper, CSV_dumper
 
 
 class Result_program(Program):
@@ -194,6 +194,7 @@ class Yaml_result_program(Program):
         output_format = output_group.add_mutually_exclusive_group()
         output_format.add_argument("-y", "--yaml", help = "yaml format", dest = "format", action = "store_const", const = Yaml_dumper, default = Yaml_dumper)
         output_format.add_argument("-c", "--csv", help = "CSV tabular format; shows one row per result; useful for comparing many results at once", dest = "format", action = "store_const", const = CSV_dumper)
+        output_format.add_argument("-t", "--table", help = "text table format; shows one row per result; useful for comparing many results at once", dest = "format", action = "store_const", const = Tabulate_dumper)
         
         
         
