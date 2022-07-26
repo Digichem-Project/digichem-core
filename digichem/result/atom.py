@@ -261,7 +261,7 @@ class Atom(Result_object):
                 "units": "Å"
             },
             "mass": {
-                "value": float(self.mass),
+                "value": float(self.mass) if self.mass is not None else None,
                 "units": "g mol^-1"
             }
         }
