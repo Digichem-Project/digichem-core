@@ -53,7 +53,6 @@ class Vibrations_list(Result_container, Unmergeable_container_mixin):
             
             #spectrum_data = [({"value": float(x), "units": "c m^-1"}, {"value":float(y), "units": "km mol^-1"}) for x,y in spectrum_data]
             spectrum_data = [{"x":{"value": float(x), "units": "c m^-1"}, "y": {"value":float(y), "units": "km mol^-1"}} for x,y in spectrum_data]
-            
             spectrum_peaks = [{"x":{"value": float(x), "units": "c m^-1"}, "y": {"value":float(y), "units": "km mol^-1"}} for x, y in spectrum.peaks(silico_options['IR_spectrum']['fwhm'], silico_options['IR_spectrum']['gaussian_resolution'], silico_options['IR_spectrum']['gaussian_cutoff'])]
         
         except Exception:
@@ -71,7 +70,7 @@ class Vibrations_list(Result_container, Unmergeable_container_mixin):
         }
         return dump_dict
 
-    
+
 class Vibration(Result_object, Floatable_mixin):
     """
     Class for representing vibrational frequencies.
