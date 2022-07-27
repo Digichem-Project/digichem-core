@@ -39,6 +39,14 @@ class Vibrations_list(Result_container, Unmergeable_container_mixin):
         :return: A Vibrations_list object. The list will be empty if no vibration frequency data is available.
         """
         return self(Vibration.list_from_parser(parser))
+    
+    def dump(self):
+        dump_dict = {
+            "num_vibrations": len(self),
+            "num_negative": len(self.negative),
+            "values": super().dump()
+        }
+        return dump_dict
 
     
 class Vibration(Result_object, Floatable_mixin):
