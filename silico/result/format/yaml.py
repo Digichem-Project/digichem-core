@@ -7,22 +7,6 @@ class Yaml_dumper(Result_dumper):
     Dump a result set object to yaml text.
     """
     
-    def dump(self, results):
-        data = []
-        
-        for result in results:
-            datum = []
-            # If no filters, just get everything.
-            if len(self.filters) == 0:
-                datum.append(result.dump(silico_options))
-            
-            for filter in self.filters:
-                datum.append(filter.filter(result))
-                
-            data.append(datum)
-                
-        return self.process(data)
-    
     def process(self, dumped_results):
         
         #data = yaml.safe_dump_all([inner_data for data in dumped_results for inner_data in data], allow_unicode=True)
