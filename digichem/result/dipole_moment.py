@@ -293,7 +293,7 @@ class Dipole_moment(Dipole_moment_ABC, Electric_dipole_moment_mixin):
     """
     
     def dump(self, silico_options):
-        return Electric_dipole_moment_mixin.dump(self)
+        return Electric_dipole_moment_mixin.dump(self, silico_options)
         
     @classmethod
     def from_dump(self, data, result_set):
