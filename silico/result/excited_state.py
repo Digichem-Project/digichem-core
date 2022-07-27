@@ -236,7 +236,7 @@ class Excited_state_list(Result_container):
         
         # Number of states of each multiplicity.
         for mult, states in mults.items():
-            dump_dict['No. {}'.format(Energy_state.multiplicity_number_to_string(mult))] = len(states)
+            dump_dict['num_{}'.format(Energy_state.multiplicity_number_to_string(mult))] = len(states)
             
         # DeST and other values.
         for mult_pair in mult_pairs:
