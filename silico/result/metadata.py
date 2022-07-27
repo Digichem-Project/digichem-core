@@ -330,12 +330,12 @@ class Metadata(Result_object):
             "package",
             "package_version",
             "calculations",
-            "success",
             "methods",
             "functional",
             "basis_set",
+            "orbital_spin_type",
+            "success",
             "optimisation_converged",
-            "orbital_spin_type"
         ]
         attr_dict = {attr.replace("_", " "): getattr(self, attr) for attr in attrs}
         
