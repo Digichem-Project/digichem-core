@@ -438,10 +438,10 @@ class Energy_state(Result_object, Floatable_mixin):
         Get a representation of this result object in primitive format.
         """
         return {
-            "symbol": self.state_symbol,
             "index": self.level,
+            "symbol": self.state_symbol,
             "multiplicity": self.multiplicity,
-            "multiplicity index": self.multiplicity_level,
+            "multiplicity_index": self.multiplicity_level,
             "energy": {
                 "value": float(self.energy),
                 "units": "eV"
