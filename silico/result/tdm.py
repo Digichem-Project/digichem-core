@@ -165,10 +165,13 @@ class Transition_dipole_moment(Result_object):
     def __getattr__(self, name):
         # This check prevents infinite recursion when pickling, and is probably a sensible check anyway...
         if name != "electric" and name != "magnetic":
-            if self.electric is not None:
-                return getattr(self.electric, name)
-            else:
-                return getattr(self.magnetic, name)
+            try:
+                if self.electric is not None:
+                    return getattr(self.electric, name)
+                else:
+                    return getattr(self.magnetic, name)
+            except AttributeError as e:
+                raise AttributeError(name) from e
         else:
             raise AttributeError(name)
             
