@@ -55,7 +55,7 @@ class Electric_transition_dipole_moment(Transition_dipole_moment_ABC, Electric_d
         self.electromagnetic_type = "electric"
         
     def dump(self, silico_options):
-        return Electric_dipole_moment_mixin.dump(self)
+        return Electric_dipole_moment_mixin.dump(self, silico_options)
         
     @classmethod
     def list_from_parser(self, parser):
@@ -87,7 +87,7 @@ class Magnetic_transition_dipole_moment(Transition_dipole_moment_ABC, Magnetic_d
         self.electromagnetic_type = "magnetic"
         
     def dump(self, silico_options):
-        return Magnetic_dipole_moment_mixin.dump(self)
+        return Magnetic_dipole_moment_mixin.dump(self, silico_options)
     
     @classmethod
     def list_from_parser(self, parser):
@@ -146,8 +146,8 @@ class Transition_dipole_moment(Result_object):
                 "value": float(self.angle().angle) if self.electric is not None and self.magnetic is not None else None,
                 "units": self.angle().units if self.electric is not None and self.magnetic is not None else None,
             },
-            "cos_angle": self.cos_angle() if self.electric is not None and self.magnetic is not None else None,
-            "dissymmetry_factor": self.safe_get('g_value')
+            "cos_angle": float(self.cos_angle()) if self.electric is not None and self.magnetic is not None else None,
+            "dissymmetry_factor": float(self.g_value) if self.safe_get('g_value') is not None else None
         }
     
     @classmethod
