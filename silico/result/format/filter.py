@@ -7,17 +7,19 @@ class Result_filter():
     Class for filtering data form a result set object.
     """
     
-    def __init__(self, filter_string, allow_error = False, return_none= False):
+    def __init__(self, filter_string, silico_options, allow_error = False, return_none= False):
         """
         Constructor for filter objects.
         
         :param filter_string: A string, delimited by colons (':'), which specifies what to filter by.
+        :param silico_options: A silico options config dict which may control dumping of data.
         :param allow_error: If False and the requested filter cannot be satisfied (probably because the data could not be found), an exception is raised.
         :param return_none: If allow_error is False and an error is raised, whether to return an empty dict (False) or a dict with its value set to None (True).
         """
         # TODO: This splitting is fine for now but is very naive;
         # we offer no support for semi-colons in filter names (escaping etc).
         self.filters = filter_string.split(":")
+        self.silico_options = silico_options
         self.allow_error = allow_error
         self.return_none = return_none
         
@@ -48,7 +50,7 @@ class Result_filter():
                         # If this child object is not a Result_object but the parent is, use the dumped version instead.
                         # (because we have to call dump() at some point, and we can't at any point in the child).
                         if not isinstance(child, Result_object) and isinstance(cur_item, Result_object):
-                            cur_item = cur_item.dump()[num_filter]
+                            cur_item = cur_item.dump(self.silico_options)[num_filter]
                         
                         else:
                             cur_item = child
@@ -61,15 +63,15 @@ class Result_filter():
                 elif hasattr(cur_item, filter) and isinstance(getattr(cur_item, filter), Result_object):
                     cur_item = getattr(cur_item, filter)
                 
-                # Else, if the filter is the name of a key in either cur_item or cur_item.dump(), use that.
+                # Else, if the filter is the name of a key in either cur_item or cur_item.dump(silico_options), use that.
                 elif isinstance(cur_item, dict):
                     # If the filter looks like an int, make it a real one.
                     # NOTE: This is mostly necessary for supporting emission results,
                     # which are stored in a dict
                     cur_item = cur_item[num_filter]
                     
-                elif num_filter in cur_item.dump():
-                    cur_item = cur_item.dump()[num_filter]
+                elif num_filter in cur_item.dump(self.silico_options):
+                    cur_item = cur_item.dump(self.silico_options)[num_filter]
                 
                 # Else, if our current item has a find method, use that.
                 elif hasattr(cur_item, "find"):
@@ -96,7 +98,7 @@ class Result_filter():
                 
         
         if isinstance(cur_item, Result_object):
-            cur_item = cur_item.dump()
+            cur_item = cur_item.dump(self.silico_options)
             
         # Add header.
         if len(header) > 0:

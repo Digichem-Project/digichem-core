@@ -223,20 +223,20 @@ class Result_set(Result_object):
             # No S1 available.
             return None
         
-    def dump(self):
+    def dump(self, silico_options):
         return {
-            "metadata": self.metadata.dump(),
-            "atoms": self.atoms.dump(),
-            "pdm": self.dipole_moment.dump(),
-            "energies": self.energies.dump(),
-            "ground_state": self.ground_state.dump(),
-            "orbitals": self.orbitals.dump(),
-            "beta_orbitals": self.beta_orbitals.dump(),
-            "excited_states": self.excited_states.dump(),
-            "soc": self.spin_orbit_coupling.dump(),
-            "vibrations": self.vibrations.dump(),
-            "adiabatic_emission": {key:value.dump() for key,value in self.adiabatic_emission.items()},
-            "vertical_emission": {key:value.dump() for key,value in self.vertical_emission.items()}
+            "metadata": self.metadata.dump(silico_options),
+            "ground_state": self.ground_state.dump(silico_options),
+            "energies": self.energies.dump(silico_options),
+            "atoms": self.alignment.dump(silico_options),
+            "orbitals": self.orbitals.dump(silico_options),
+            "beta_orbitals": self.beta_orbitals.dump(silico_options),
+            "pdm": self.dipole_moment.dump(silico_options),
+            "excited_states": self.excited_states.dump(silico_options),
+            "soc": self.spin_orbit_coupling.dump(silico_options),
+            "vibrations": self.vibrations.dump(silico_options),
+            "adiabatic_emission": {key:value.dump(silico_options) for key,value in self.adiabatic_emission.items()},
+            "vertical_emission": {key:value.dump(silico_options) for key,value in self.vertical_emission.items()}
         }
         
         

@@ -212,7 +212,7 @@ class Electric_dipole_moment_mixin():
         # cgs = au * e * a0
         return self.D_to_au(value) * 4.80320425e-10 * 5.29177210903e-9
     
-    def dump(self):
+    def dump(self, silico_options):
         """
         Get a representation of this result object in primitive format.
         """
@@ -263,7 +263,7 @@ class Magnetic_dipole_moment_mixin():
         """
         return value * -9.2740100783e-21
     
-    def dump(self):
+    def dump(self, silico_options):
         """
         Get a representation of this result object in primitive format.
         """
@@ -292,7 +292,7 @@ class Dipole_moment(Dipole_moment_ABC, Electric_dipole_moment_mixin):
     Class that represents the (permanent) dipole moment of a molecule.
     """
     
-    def dump(self):
+    def dump(self, silico_options):
         return Electric_dipole_moment_mixin.dump(self)
         
     @classmethod

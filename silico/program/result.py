@@ -287,7 +287,7 @@ class Yaml_result_program(Program):
         else:
             results = self.results
         
-        filters = [Result_filter(filter_string, allow_error = self.args.ignore, return_none = self.args.none) for filter_string in self.args.filters]
+        filters = [Result_filter(filter_string, silico_options = self.config, allow_error = self.args.ignore, return_none = self.args.none) for filter_string in self.args.filters]
         
         dumper = self.args.format(filters)
         

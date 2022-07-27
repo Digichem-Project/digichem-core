@@ -298,11 +298,11 @@ class Relaxed_excited_state(Excited_state):
             else:
                 raise
     
-    def dump(self):
+    def dump(self, silico_options):
         """
         Get a representation of this result object in primitive format.
         """
-        dump_dict = super().dump()
+        dump_dict = super().dump(silico_options)
         dump_dict.update({
             "emission_type": self.emission_type,
             "emission_rate": {

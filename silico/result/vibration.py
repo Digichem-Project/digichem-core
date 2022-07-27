@@ -97,7 +97,7 @@ class Vibration(Result_object, Floatable_mixin):
         """
         return float(self.frequency)
     
-    def dump(self):
+    def dump(self, silico_options):
         """
         Get a representation of this result object in primitive format.
         """

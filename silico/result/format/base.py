@@ -14,7 +14,7 @@ class Result_dumper():
             datum = []
             # If no filters, just get everything.
             if len(self.filters) == 0:
-                datum.append(result.dump())
+                datum.append(result.dump(silico_options))
             
             for filter in self.filters:
                 datum.append(filter.filter(result))
