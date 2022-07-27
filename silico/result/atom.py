@@ -33,7 +33,7 @@ class Atom_list(Result_container, Unmergeable_container_mixin):
             return sum([atom.mass for atom in self])
         except TypeError:
             # Exact mass not available.
-            raise Result_unavailable_error("Exact mass")
+            raise Result_unavailable_error("Exact mass") from None
         
     @property
     def molar_mass(self):
@@ -172,6 +172,36 @@ class Atom_list(Result_container, Unmergeable_container_mixin):
         # The 'primary' axis is the adjacent side of our triangle, which we can get with pythagoras.
         primary_axis = math.sqrt( (end_coord[0] - start_coord[0])**2 + (end_coord[1] - start_coord[1])**2 )
         return self.get_theta(secondary_axis, primary_axis)
+    
+    def dump(self):
+        dump_dict = {
+            "formula": self.formula_string,
+            "exact_mass": {
+                "value": self.mass if self.safe_get("mass") is not None else None,
+                "units": "g mol^-1" 
+            },
+            "molar_mass": {
+                "value": self.molar_mass,
+                "units": "g mol^-1",
+                },
+            "num_atoms": len(self),
+            "x-extension": {
+                "value": self.X_length,
+                "units": "Å"
+            },
+            "y-extension": {
+                "value": self.Y_length,
+                "units": "Å"
+            },
+            "z-extension": {
+                "value": self.Z_length,
+                "units": "Å"
+            },
+            "linearity_ratio": self.get_linear_ratio(),
+            "planarity_ratio": self.get_planar_ratio(),
+            "values": super().dump(),
+        }
+        return dump_dict
     
     @classmethod
     def from_parser(self, parser):
