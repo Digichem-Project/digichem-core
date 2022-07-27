@@ -39,15 +39,20 @@ class Ground_state(Energy_state):
         """
         Get a representation of this result object in primitive format.
         """
-        dump_dict = super().dump()
-        dump_dict.update({
+        parent_dict = super().dump()
+        return {
+            "index": parent_dict['index'],
+            "symbol": parent_dict['symbol'],
             "charge": self.charge,
-            "multiplicity": self.multiplicity
-        })
-        # The 'energy' field from Energy_state is an excited state energy, relative to the ground state (so is always 0).
-        # Replace with total energy.
-        dump_dict['energy']['value'] = float(self.absolute_energy)
-        return dump_dict
+            "multiplicity": parent_dict['multiplicity'],
+            "multiplicity_index": parent_dict['multiplicity_index'],
+            # The 'energy' field from Energy_state is an excited state energy, relative to the ground state (so is always 0).
+            # Replace with total energy.
+            "energy": {
+                "value": float(self.absolute_energy),
+                "units": "eV"
+            }
+        }
     
     @classmethod
     def from_parser(self, parser):
