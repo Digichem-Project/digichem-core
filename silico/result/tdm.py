@@ -1,6 +1,7 @@
 # Silico imports.
 from silico.result.dipole_moment import Electric_dipole_moment_mixin, Dipole_moment_ABC, Magnetic_dipole_moment_mixin
 from silico.result.base import Result_object
+from silico.exception.base import Result_unavailable_error
 
 import itertools
 
@@ -197,5 +198,10 @@ class Transition_dipole_moment(Result_object):
         """
         try:
             return (4 * self.electric.gaussian_cgs * self.magnetic.gaussian_cgs * self.cos_angle(True)) / (self.electric.gaussian_cgs **2 + self.magnetic.gaussian_cgs **2)
+        
         except (FloatingPointError, ZeroDivisionError):
             return 0
+        
+        except AttributeError:
+            raise Result_unavailable_error("g_value", "transition electric or transition magnetic dipole moment is not available") from None
+
