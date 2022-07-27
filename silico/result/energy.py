@@ -173,7 +173,14 @@ class Energy_list(Result_container, Unmergeable_container_mixin):
         """
         Get a representation of this result object in primitive format.
         """
-        return [{"value": float(energy), "units": "eV"} for energy in self]
+        return {
+            "num_steps": len(self),
+            "final": {
+                "value": float(self.final) if len(self) > 0 else None,
+                "units": "eV"
+            },
+            "values": [{"value": float(energy), "units": "eV"} for energy in self]
+        }
         
     @classmethod
     def list_from_dump(self, data, result_set):
