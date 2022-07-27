@@ -297,3 +297,17 @@ class Relaxed_excited_state(Excited_state):
             
             else:
                 raise
+    
+    def dump(self):
+        """
+        Get a representation of this result object in primitive format.
+        """
+        dump_dict = super().dump()
+        dump_dict.update({
+            "emission_type": self.emission_type,
+            "emission_rate": {
+                "value": self.emission_rate,
+                "units": "s^-1"
+            }
+        })
+        return dump_dict
