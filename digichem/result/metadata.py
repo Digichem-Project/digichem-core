@@ -319,7 +319,7 @@ class Metadata(Result_object):
             # There is no metadata available, give up.
             raise Result_unavailable_error("Metadata", "no metadata is available")
         
-    def dump(self):
+    def dump(self, silico_options):
         """
         Get a representation of this result object in primitive format.
         """

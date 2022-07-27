@@ -68,6 +68,7 @@ class SOC_list(Result_container):
             
         return super().sort(key = key, **kwargs)
 
+
 class Spin_orbit_coupling(Result_object, Floatable_mixin):
     """
     Class that represents spin-orbit coupling between two states.
@@ -89,7 +90,7 @@ class Spin_orbit_coupling(Result_object, Floatable_mixin):
         self.zero = zero
         self.negative_one = negative_one
         
-    def dump(self):
+    def dump(self, silico_options):
         """
         Get a representation of this result object in primitive format.
         """

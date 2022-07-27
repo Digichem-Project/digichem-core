@@ -173,7 +173,7 @@ class Atom_list(Result_container, Unmergeable_container_mixin):
         primary_axis = math.sqrt( (end_coord[0] - start_coord[0])**2 + (end_coord[1] - start_coord[1])**2 )
         return self.get_theta(secondary_axis, primary_axis)
     
-    def dump(self):
+    def dump(self, silico_options):
         dump_dict = {
             "formula": self.formula_string,
             "exact_mass": {
@@ -199,7 +199,7 @@ class Atom_list(Result_container, Unmergeable_container_mixin):
             },
             "linearity_ratio": self.get_linear_ratio(),
             "planarity_ratio": self.get_planar_ratio(),
-            "values": super().dump(),
+            "values": super().dump(silico_options),
         }
         return dump_dict
     
@@ -280,7 +280,7 @@ class Atom(Result_object):
         
         return math.sqrt( (self.coords[0] - foreign_atom.coords[0])**2 + (self.coords[1] - foreign_atom.coords[1])**2 + (self.coords[2] - foreign_atom.coords[2])**2)
     
-    def dump(self):
+    def dump(self, silico_options):
         """
         Get a representation of this result object in primitive format.
         """

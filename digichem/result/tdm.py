@@ -54,7 +54,7 @@ class Electric_transition_dipole_moment(Transition_dipole_moment_ABC, Electric_d
         super().__init__(*args, **kwargs)
         self.electromagnetic_type = "electric"
         
-    def dump(self):
+    def dump(self, silico_options):
         return Electric_dipole_moment_mixin.dump(self)
         
     @classmethod
@@ -86,7 +86,7 @@ class Magnetic_transition_dipole_moment(Transition_dipole_moment_ABC, Magnetic_d
         super().__init__(*args, **kwargs)
         self.electromagnetic_type = "magnetic"
         
-    def dump(self):
+    def dump(self, silico_options):
         return Magnetic_dipole_moment_mixin.dump(self)
     
     @classmethod
@@ -134,13 +134,13 @@ class Transition_dipole_moment(Result_object):
         if self.magnetic is not None:
             self.magnetic.set_excited_state(excited_state)
             
-    def dump(self):
+    def dump(self, silico_options):
         """
         Get a representation of this result object in primitive format.
         """
         return {
-            "electric": self.electric.dump() if self.electric is not None else None,
-            "magnetic": self.magnetic.dump() if self.magnetic is not None else None,
+            "electric": self.electric.dump(silico_options) if self.electric is not None else None,
+            "magnetic": self.magnetic.dump(silico_options) if self.magnetic is not None else None,
             "angle": {
                 "value": float(self.angle().angle) if self.electric is not None and self.magnetic is not None else None,
                 "units": self.angle().units if self.electric is not None and self.magnetic is not None else None,

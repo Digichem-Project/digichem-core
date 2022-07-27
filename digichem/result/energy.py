@@ -51,7 +51,7 @@ class Energies(Result_object):
             scf = SCF_energy_list.from_parser(parser)
         )
     
-    def dump(self):
+    def dump(self, silico_options):
         """
         Get a representation of this result object in primitive format.
         """
@@ -60,9 +60,9 @@ class Energies(Result_object):
                 "value": float(self.final),
                 "units": "eV"
             },
-            "scf": self.scf.dump(),
-            "mp": self.mp.dump(),
-            "cc": self.cc.dump()
+            "scf": self.scf.dump(silico_options),
+            "mp": self.mp.dump(silico_options),
+            "cc": self.cc.dump(silico_options)
         }
 
 
@@ -169,7 +169,7 @@ class Energy_list(Result_container, Unmergeable_container_mixin):
         except AttributeError:
             return self()
         
-    def dump(self):
+    def dump(self, silico_options):
         """
         Get a representation of this result object in primitive format.
         """

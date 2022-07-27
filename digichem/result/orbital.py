@@ -335,7 +335,7 @@ class Molecular_orbital_list(Result_container):
         """
         return math.isclose(MO.energy, other_MO.energy) and MO.level == other_MO.level and MO.spin_type == other_MO.spin_type
     
-    def dump(self):
+    def dump(self, silico_options):
         dump_dict = {
             "ΔE(HOMO-LUMO)": {
                 "value": self.HOMO_LUMO_energy if self.safe_get("HOMO_LUMO_energy") else None,
@@ -343,7 +343,7 @@ class Molecular_orbital_list(Result_container):
             },
             "num_occupied": len(self.occupied),
             "num_virtual": len(self.virtual),
-            "values": super().dump(),
+            "values": super().dump(silico_options),
         }
         return dump_dict
     
@@ -462,7 +462,7 @@ class Molecular_orbital(Result_object, Floatable_mixin):
     # The index used to access data from cclib (which always has two lists, one for alpha one for beta).
     ccdata_index = 0
     
-    def dump(self):
+    def dump(self, silico_options):
         """
         Get a representation of this result object in primitive format.
         """

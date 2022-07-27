@@ -226,9 +226,9 @@ class Excited_state_list(Result_container):
         merged.assign_levels()
         return merged
     
-    def dump(self):
+    def dump(self, silico_options):
         dump_dict = {
-            "values": super().dump()
+            "values": super().dump(silico_options)
         }
         
         # Add extra properties.
@@ -276,7 +276,7 @@ class Excited_state_transition(Result_object):
         """
         return self.coefficient **2
     
-    def dump(self):
+    def dump(self, silico_options):
         """
         Get a representation of this result object in primitive format.
         """
@@ -433,7 +433,7 @@ class Energy_state(Result_object, Floatable_mixin):
         """
         return "{}({})".format(self.multiplicity_symbol, self.multiplicity_level)
     
-    def dump(self):
+    def dump(self, silico_options):
         """
         Get a representation of this result object in primitive format.
         """
@@ -580,11 +580,11 @@ class Excited_state(Energy_state):
         # Now convert to 0 -> 255 and return.
         return [int(clr * 255) for clr in rgb]    
     
-    def dump(self):
+    def dump(self, silico_options):
         """
         Get a representation of this result object in primitive format.
         """
-        dump_dict = super().dump()
+        dump_dict = super().dump(silico_options)
         dump_dict.update({
             "wavelength": {
                 "value": float(self.wavelength),
@@ -594,8 +594,8 @@ class Excited_state(Energy_state):
             "CIE": tuple([float(val) for val in self.CIE_xy]),
             "symmetry": self.symmetry,
             "oscillator strength": float(self.oscillator_strength),
-            "transitions": [tran.dump() for tran in self.transitions],
-            "tdm": self.transition_dipole_moment.dump() if self.transition_dipole_moment is not None else None,
+            "transitions": [tran.dump(silico_options) for tran in self.transitions],
+            "tdm": self.transition_dipole_moment.dump(silico_options) if self.transition_dipole_moment is not None else None,
         })
         return dump_dict
         

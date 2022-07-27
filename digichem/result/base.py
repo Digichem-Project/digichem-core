@@ -96,7 +96,7 @@ class Result_object():
             
         return multiple_objects[0]
     
-    def dump(self):
+    def dump(self, silico_options):
         """
         Abstract function that is called to dump the value of the result object to a primitive type, suitable for serializing with yaml.
         
@@ -246,6 +246,6 @@ class Result_container(list, Result_object):
         else:
             return self.merge_default(*multiple_lists, **kwargs)
         
-    def dump(self):
-        return [item.dump() for item in self]
+    def dump(self, silico_options):
+        return [item.dump(silico_options) for item in self]
     
