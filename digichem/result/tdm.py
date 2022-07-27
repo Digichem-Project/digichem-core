@@ -1,5 +1,7 @@
 # Silico imports.
 from silico.result.dipole_moment import Electric_dipole_moment_mixin, Dipole_moment_ABC, Magnetic_dipole_moment_mixin
+from silico.result.base import Result_object
+
 import itertools
 
 
@@ -104,7 +106,7 @@ class Magnetic_transition_dipole_moment(Transition_dipole_moment_ABC, Magnetic_d
             return []
 
 
-class Transition_dipole_moment():
+class Transition_dipole_moment(Result_object):
     """
     A compound class that represents both the electric and magnetic components of a transition dipole moment.
     
