@@ -12,6 +12,8 @@ from silico.result import Result_object
 from silico.exception.base import Result_unavailable_error
 from silico.result.base import Floatable_mixin
 from silico.misc.text import andjoin
+from silico.result.spectroscopy import Spectroscopy_graph,\
+    Absorption_emission_graph
 
 
 class Excited_state_list(Result_container):
@@ -227,8 +229,44 @@ class Excited_state_list(Result_container):
         return merged
     
     def dump(self, silico_options):
+        # Get spectrum data.
+        # For excited states, we dump two spectra. One in nm, one in eV (which have different scaling).
+        spectrum_nm = Absorption_emission_graph.from_excited_states(self, use_jacobian = silico_options['absorption_spectrum']['use_jacobian'])
+        spectrum_ev = Spectroscopy_graph([(excited_state.energy, excited_state.oscillator_strength) for excited_state in self])
+        
+        try:
+            spectrum_nm_data = spectrum_nm.plot_cumulative_gaussian(silico_options['absorption_spectrum']['fwhm'], silico_options['absorption_spectrum']['gaussian_resolution'], silico_options['absorption_spectrum']['gaussian_cutoff'])
+            y_units = "a.u." if silico_options['absorption_spectrum']['use_jacobian'] else "oscillator_strength"
+            
+            spectrum_nm_data = [{"x":{"value": float(x), "units": "nm"}, "y": {"value":float(y), "units": y_units}} for x,y in spectrum_nm_data]
+            spectrum_nm_peaks = [{"x":{"value": float(x), "units": "nm"}, "y": {"value":float(y), "units": y_units}} for x, y in spectrum_nm.peaks(silico_options['absorption_spectrum']['fwhm'], silico_options['absorption_spectrum']['gaussian_resolution'], silico_options['absorption_spectrum']['gaussian_cutoff'])]
+        
+        except Exception:
+            spectrum_nm_data = []
+            spectrum_nm_peaks = []
+        
+        try:
+            spectrum_ev_data = spectrum_ev.plot_cumulative_gaussian(silico_options['absorption_spectrum']['fwhm'], silico_options['absorption_spectrum']['gaussian_resolution'], silico_options['absorption_spectrum']['gaussian_cutoff'])
+            
+            spectrum_ev_data = [{"x":{"value": float(x), "units": "eV"}, "y": {"value":float(y), "units": "oscillator_strength"}} for x,y in spectrum_ev_data]
+            spectrum_ev_peaks = [{"x":{"value": float(x), "units": "eV"}, "y": {"value":float(y), "units": "oscillator_strength"}} for x, y in spectrum_ev.peaks(silico_options['absorption_spectrum']['fwhm'], silico_options['absorption_spectrum']['gaussian_resolution'], silico_options['absorption_spectrum']['gaussian_cutoff'])]
+        
+        except Exception:
+            spectrum_ev_data = []
+            spectrum_ev_peaks = []
+        
         dump_dict = {
-            "values": super().dump(silico_options)
+            "values": super().dump(silico_options),
+            "spectrum": {
+                "nm": {
+                    "values": spectrum_nm_data,
+                    "peaks": spectrum_nm_peaks
+                },
+                "ev": {
+                    "values": spectrum_ev_data,
+                    "peaks": spectrum_ev_peaks
+                }    
+            }
         }
         
         # Add extra properties.
