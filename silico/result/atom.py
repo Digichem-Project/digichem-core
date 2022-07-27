@@ -177,7 +177,7 @@ class Atom_list(Result_container, Unmergeable_container_mixin):
         dump_dict = {
             "formula": self.formula_string,
             "exact_mass": {
-                "value": self.safe_get("mass"),
+                "value": float(self.mass) if self.safe_get("mass") is not None else None,
                 "units": "g mol^-1" 
             },
             "molar_mass": {
@@ -186,19 +186,19 @@ class Atom_list(Result_container, Unmergeable_container_mixin):
                 },
             "num_atoms": len(self),
             "x-extension": {
-                "value": self.X_length,
+                "value": float(self.X_length),
                 "units": "Å"
             },
             "y-extension": {
-                "value": self.Y_length,
+                "value": float(self.Y_length),
                 "units": "Å"
             },
             "z-extension": {
-                "value": self.Z_length,
+                "value": float(self.Z_length),
                 "units": "Å"
             },
-            "linearity_ratio": self.get_linear_ratio(),
-            "planarity_ratio": self.get_planar_ratio(),
+            "linearity_ratio": float(self.get_linear_ratio()),
+            "planarity_ratio": float(self.get_planar_ratio()),
             "values": super().dump(silico_options),
         }
         return dump_dict
