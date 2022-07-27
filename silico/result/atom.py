@@ -177,7 +177,7 @@ class Atom_list(Result_container, Unmergeable_container_mixin):
         dump_dict = {
             "formula": self.formula_string,
             "exact_mass": {
-                "value": self.mass if self.safe_get("mass") is not None else None,
+                "value": self.safe_get("mass"),
                 "units": "g mol^-1" 
             },
             "molar_mass": {
