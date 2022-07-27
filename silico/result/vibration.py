@@ -6,6 +6,7 @@ import warnings
 from silico.result import Result_container
 from silico.result import Result_object
 from silico.result import Floatable_mixin, Unmergeable_container_mixin
+from silico.result.spectroscopy import Spectroscopy_graph
 
 
 class Vibrations_list(Result_container, Unmergeable_container_mixin):
@@ -40,11 +41,33 @@ class Vibrations_list(Result_container, Unmergeable_container_mixin):
         """
         return self(Vibration.list_from_parser(parser))
     
-    def dump(self):
+    @property
+    def spectrum(self):
+        return Spectroscopy_graph.from_vibrations(self)
+    
+    def dump(self, silico_options):
+        spectrum = self.spectrum
+        
+        try:
+            spectrum_data = spectrum.plot_cumulative_gaussian(silico_options['IR_spectrum']['fwhm'], silico_options['IR_spectrum']['gaussian_resolution'], silico_options['IR_spectrum']['gaussian_cutoff'])
+            
+            #spectrum_data = [({"value": float(x), "units": "c m^-1"}, {"value":float(y), "units": "km mol^-1"}) for x,y in spectrum_data]
+            spectrum_data = [{"x":{"value": float(x), "units": "c m^-1"}, "y": {"value":float(y), "units": "km mol^-1"}} for x,y in spectrum_data]
+            
+            spectrum_peaks = [{"x":{"value": float(x), "units": "c m^-1"}, "y": {"value":float(y), "units": "km mol^-1"}} for x, y in spectrum.peaks(silico_options['IR_spectrum']['fwhm'], silico_options['IR_spectrum']['gaussian_resolution'], silico_options['IR_spectrum']['gaussian_cutoff'])]
+        
+        except Exception:
+            spectrum_data = []
+            spectrum_peaks = []
+        
         dump_dict = {
             "num_vibrations": len(self),
             "num_negative": len(self.negative),
-            "values": super().dump()
+            "values": super().dump(silico_options),
+            "spectrum": {
+                "values": spectrum_data,
+                "peaks": spectrum_peaks
+            }
         }
         return dump_dict
 
