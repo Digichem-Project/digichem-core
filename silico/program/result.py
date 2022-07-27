@@ -291,5 +291,5 @@ class Yaml_result_program(Program):
         
         dumper = self.args.format(filters)
         
-        print(dumper.dump(results), end="")
+        print(dumper.dump(results, self.config), end="")
     

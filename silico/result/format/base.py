@@ -7,7 +7,7 @@ class Result_dumper():
     def __init__(self, filters):
         self.filters = filters
         
-    def dump(self, results):
+    def dump(self, results, silico_options):
         data = []
         
         for result in results:
