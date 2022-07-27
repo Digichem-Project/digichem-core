@@ -140,7 +140,13 @@ class Transition_dipole_moment(Result_object):
         """
         return {
             "electric": self.electric.dump() if self.electric is not None else None,
-            "magnetic": self.magnetic.dump() if self.magnetic is not None else None
+            "magnetic": self.magnetic.dump() if self.magnetic is not None else None,
+            "angle": {
+                "value": float(self.angle().angle) if self.electric is not None and self.magnetic is not None else None,
+                "units": self.angle().units if self.electric is not None and self.magnetic is not None else None,
+            },
+            "cos_angle": self.cos_angle() if self.electric is not None and self.magnetic is not None else None,
+            "dissymmetry_factor": self.safe_get('g_value')
         }
     
     @classmethod
