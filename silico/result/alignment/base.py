@@ -237,6 +237,11 @@ class Alignment(Atom_list, Dynamic_parent):
         
         for atom in self:
             print("{}, {}, {}, {}".format(atom.element, atom.coords[0], atom.coords[1], atom.coords[2]))
+            
+    def dump(self):
+        dump_dict = super().dump()
+        dump_dict['alignment_method'] = self.human_method_type
+        return dump_dict
     
     
 #     @classmethod
