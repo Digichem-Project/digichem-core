@@ -8,6 +8,19 @@ import tabulate
 
 
 class Table_dumper_ABC(Result_dumper):
+    """
+    ABC for classes that dump result sets to tabulated formats.
+    """
+    
+    @classmethod
+    def get_headers(self, table):
+        """
+        Return a list of unique keys from a list of dicts.
+        """
+        # Get headers.
+        headers = list(itertools.chain(*[list(flat_result.keys()) for flat_result in table]))
+        # Make unique.
+        return list(dict.fromkeys(headers))
     
     def tabulate_data(self, dumped_results):
         """
@@ -74,43 +87,23 @@ class Table_dumper_ABC(Result_dumper):
 
 class Tabulate_dumper(Table_dumper_ABC):
     """
+    Class for dumping a result set to a text table.
     """
     
     def process(self, dumped_results):
-#         # First, flatten our data ready for writing.
-#         flat_results = []
-#         
-#         for dumped_result in dumped_results:
-#             flat_results.append(self.flatten_results(dumped_result))
-#             
-#         headers = list(itertools.chain(*[list(flat_result.keys()) for flat_result in flat_results]))
-#         
-#         headers = list(dict.fromkeys(headers))
-        
-        
-        
-        headers, flat_results = self.tabulate_data(dumped_results)
+        flat_results = self.tabulate_data(dumped_results)
         
         return tabulate.tabulate(flat_results, headers = "keys") + "\n"
 
 
 class CSV_dumper(Table_dumper_ABC):
     """
+    Class for dumping a result set to a CSV table.
     """
         
     def process(self, dumped_results):
-#         # First, flatten our data ready for writing.
-#         flat_results = []
-#         
-#         for dumped_result in dumped_results:
-#             flat_results.append(self.flatten_results(dumped_result))
-#             
-#         headers = list(itertools.chain(*[list(flat_result.keys()) for flat_result in flat_results]))
-#         
-#         headers = list(dict.fromkeys(headers))
-        
-        headers, flat_results = self.tabulate_data(dumped_results)
-        
+        flat_results = self.tabulate_data(dumped_results)
+        headers = self.get_headers(flat_results)
         
         stream = io.StringIO()
         writer = csv.DictWriter(stream, headers)
