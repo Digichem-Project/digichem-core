@@ -63,7 +63,8 @@ class Table_dumper_ABC(Result_dumper):
             
             if isinstance(item, dict):
                 if "value" in item and "units" in item:
-                    flat_result[name + " / " + item['units']] = item['value']
+                    # TODO: What if units is None? Skip?
+                    flat_result["{} / {}".format(name, item['units'])] = item['value']
                     item.pop("units")
                     item.pop("value")
                 
@@ -77,10 +78,11 @@ class Table_dumper_ABC(Result_dumper):
             
     def flatten_results(self, dumped_result):
         """
-        Flatten a recursive list and/or dict so it can be printed as a single, non-nested, row.
+        Flatten a list of dicts so it can be printed as a single, non-nested, row.
         """
         flat_result = {}
         
+        # Dumped result is a list of dicts, each item in the list is one filtered result.
         for filtered in dumped_result:
             flat_result.update(self.flatten(filtered))
                 
