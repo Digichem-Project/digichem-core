@@ -22,6 +22,17 @@ class Table_dumper_ABC(Result_dumper):
         # Make unique.
         return list(dict.fromkeys(headers))
     
+    def join_lists(self, table):
+        """
+        Convert any table cells that contain lists to a nicer text form.
+        """
+        for row in table:
+            for col, cell in row.items():
+                if isinstance(cell, list) or isinstance(cell, tuple):
+                    row[col] = ", ".join([str(subitem) for subitem in cell])
+                    
+        return table
+    
     def tabulate_data(self, dumped_results):
         """
         Take a list of lists of dicts of dumped results and return a list of dicts in flattened 'table' format.
@@ -29,24 +40,15 @@ class Table_dumper_ABC(Result_dumper):
         :returns: A tuple of the table headers and data.
         """
         # First, flatten our data ready for writing.
-        flat_results = []
+        table = []
         
         for dumped_result in dumped_results:
-            flat_results.append(self.flatten_results(dumped_result))
+            table.append(self.flatten_results(dumped_result))
             
         # Look for any remaining lists and convert to a text form.
-        for flat_result in flat_results:
-            for name, item in flat_result.items():
-                if isinstance(item, list) or isinstance(item, tuple):
-                    flat_result[name] = ", ".join([str(subitem) for subitem in item])
-                    
-        # Get headers.
-        headers = list(itertools.chain(*[list(flat_result.keys()) for flat_result in flat_results]))
-        # Make unique.
-        headers = list(dict.fromkeys(headers))
+        table = self.join_lists(table)
         
-        return headers, flat_results
-
+        return table
 
     def flatten(self, dumped_result):
         """
