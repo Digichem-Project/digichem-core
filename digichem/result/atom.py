@@ -287,8 +287,18 @@ class Atom(Result_object):
         return {
             "element": self.element.number,
             "coords": {
-                "value": [float(coord) for coord in self.coords],
-                "units": "Å"
+                "x": {
+                    "value": float(self.coords[0]),
+                    "units": "Å", 
+                },
+                "y": {
+                    "value": float(self.coords[1]),
+                    "units": "Å", 
+                },
+                "z": {
+                    "value": float(self.coords[2]),
+                    "units": "Å", 
+                }
             },
             "mass": {
                 "value": float(self.mass) if self.mass is not None else None,
