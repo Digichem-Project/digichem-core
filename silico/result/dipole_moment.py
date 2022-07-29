@@ -181,12 +181,67 @@ class Dipole_moment_ABC(Result_object):
             return (vector_a[0] * vector_b[0] + vector_a[1] * vector_b[1] + vector_a[2] * vector_b[2]) / (vector_a_total * vector_b_total)
         except (FloatingPointError, ZeroDivisionError):
             return 0
+        
+    def dump(self, silico_options):
+        """
+        Get a representation of this result object in primitive format.
+        """
+        return {
+            "total": {
+                "value": self.total,
+                "units": self.units
+            },
+            "origin": {
+                "x": {
+                    "value": float(self.origin_coords[0]),
+                    "units": "Å",
+                },
+                "y": {
+                    "value": float(self.origin_coords[1]),
+                    "units": "Å",
+                },
+                "z": {
+                    "value": float(self.origin_coords[2]),
+                    "units": "Å",
+                }
+            },
+            "vector": {
+                "x": {
+                    "value": float(self.vector_coords[0]),
+                    "units": self.units
+                },
+                "y": {
+                    "value": float(self.vector_coords[1]),
+                    "units": self.units
+                },
+                "z": {
+                    "value": float(self.vector_coords[2]),
+                    "units": self.units
+                },
+            },
+            "x-angle": {
+                "value": self.X_axis_angle.angle,
+                "units": self.X_axis_angle.units
+            },
+            "xy-angle": {
+                "value": self.XY_plane_angle.angle,
+                "units": self.XY_plane_angle.units
+            }
+        }
 
 
 class Electric_dipole_moment_mixin():
     """
     Mixin class for electric dipole moments.
     """
+    
+    @property
+    def units(self):
+        """
+        The units of this dipole moment object.
+        """
+        # Debye
+        return "D"
     
     @property
     def coulomb_meters(self):
@@ -210,35 +265,19 @@ class Electric_dipole_moment_mixin():
         """
         # cgs = au * e * a0
         return self.D_to_au(value) * 4.80320425e-10 * 5.29177210903e-9
-    
-    def dump(self, silico_options):
-        """
-        Get a representation of this result object in primitive format.
-        """
-        return {
-            "total": {
-                "value": self.total,
-                "units": "D"
-            },
-            "vector": {
-                "value": [float(coord) for coord in self.vector_coords],
-                "units": "D"
-            },
-            "x-angle": {
-                "value": self.X_axis_angle.angle,
-                "units": self.X_axis_angle.units
-            },
-            "xy-angle": {
-                "value": self.XY_plane_angle.angle,
-                "units": self.XY_plane_angle.units
-            }
-        }
 
 
 class Magnetic_dipole_moment_mixin():
     """
     Mixin class for magnetic dipole moments.
     """
+    
+    @property
+    def units(self):
+        """
+        The units of this dipole moment object.
+        """
+        return "a.u."
     
     @property
     def bohr_magnetons(self):
@@ -261,38 +300,12 @@ class Magnetic_dipole_moment_mixin():
         See J. Phys. Chem. Lett. 2021, 21, 686-695.
         """
         return value * -9.2740100783e-21
-    
-    def dump(self, silico_options):
-        """
-        Get a representation of this result object in primitive format.
-        """
-        return {
-            "total": {
-                "value": self.total,
-                "units": "au"
-            },
-            "vector": {
-                "value": [float(coord) for coord in self.vector_coords],
-                "units": "au"
-            },
-            "x-angle": {
-                "value": self.X_axis_angle.angle,
-                "units": self.X_axis_angle.units
-            },
-            "xy-angle": {
-                "value": self.XY_plane_angle.angle,
-                "units": self.XY_plane_angle.units
-            }
-        }
 
 
 class Dipole_moment(Dipole_moment_ABC, Electric_dipole_moment_mixin):
     """
     Class that represents the (permanent) dipole moment of a molecule.
     """
-    
-    def dump(self, silico_options):
-        return Electric_dipole_moment_mixin.dump(self, silico_options)
         
     @classmethod
     def from_dump(self, data, result_set):
