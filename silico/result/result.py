@@ -2,6 +2,7 @@
 
 # General imports.
 import itertools
+import warnings
 
 # Silico imports.
 from silico.exception import Result_unavailable_error
@@ -11,7 +12,7 @@ from silico.result.alignment.FAP import Furthest_atom_pair
 from silico.result.alignment import Minimal
 from silico.result import Result_object
 import silico.result.excited_state
-import warnings
+from silico.result.emission import Emissions
 
         
 class Result_set(Result_object):
@@ -35,7 +36,8 @@ class Result_set(Result_object):
             excited_states = None,
             energy_states = None,
             vibrations = None,
-            soc = None):
+            soc = None,
+            emission = None):
         """
         Constructor for Result_set objects.
         
@@ -64,9 +66,8 @@ class Result_set(Result_object):
         self.excited_states = excited_states
         self.energy_states = energy_states
         self.vibrations = vibrations
-        self.vertical_emission = {}
-        self.adiabatic_emission = {}
         self.soc = soc
+        self.emission = emission if emission is not None else Emissions()
         
     @property
     def CC_energies(self):
@@ -127,6 +128,26 @@ class Result_set(Result_object):
     def dipole_moment(self, value):
         warnings.warn("dipole_moment is deprecated, use pdm instead", DeprecationWarning)
         self.pdm = value
+        
+    @property
+    def vertical_emission(self):
+        warnings.warn("vertical_emission is deprecated, use emission.vertical instead", DeprecationWarning)
+        return self.emission.vertical
+    
+    @vertical_emission.setter
+    def vertical_emission(self, value):
+        warnings.warn("vertical_emission is deprecated, use emission.vertical instead", DeprecationWarning)
+        self.emission.vertical = value
+    
+    @property
+    def adiabatic_emission(self):
+        warnings.warn("adiabatic_emission is deprecated, use emission.adiabatic instead", DeprecationWarning)
+        return self.emission.adiabatic
+    
+    @adiabatic_emission.setter
+    def adiabatic_emission(self, value):
+        warnings.warn("adiabatic_emission is deprecated, use emission.adiabatic instead", DeprecationWarning)
+        self.emission.adiabatic = value
         
     @property
     def metadatas(self):
@@ -235,8 +256,7 @@ class Result_set(Result_object):
             "excited_states": self.excited_states.dump(silico_options),
             "soc": self.spin_orbit_coupling.dump(silico_options),
             "vibrations": self.vibrations.dump(silico_options),
-            "adiabatic_emission": {key:value.dump(silico_options) for key,value in self.adiabatic_emission.items()},
-            "vertical_emission": {key:value.dump(silico_options) for key,value in self.vertical_emission.items()}
+            "emission": self.emission.dump(silico_options)
         }
         
         
