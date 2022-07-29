@@ -1,10 +1,10 @@
-from builtins import isinstance
-import csv
-import io
+from silico.result.format.filter import Result_filter
 
 from silico.result.format.base import Result_dumper
 import itertools
 import tabulate
+import csv
+import io
 
 
 class Table_dumper_ABC(Result_dumper):
