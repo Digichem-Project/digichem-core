@@ -467,15 +467,15 @@ class Molecular_orbital(Result_object, Floatable_mixin):
         Get a representation of this result object in primitive format.
         """
         return {
-            "label": self.label,
             "index": self.level,
-            "homo distance": int(self.HOMO_difference),
+            "label": self.label,
+            "homo_distance": int(self.HOMO_difference),
             "energy": {
                 "value": float(self.energy),
                 "units": "eV"
             },
             "symmetry": self.symmetry,
-            "symmetry index": self.symmetry_level
+            "symmetry_index": self.symmetry_level
         }
         
     @classmethod
