@@ -1,4 +1,5 @@
 from silico.result.format.table import Table_dumper_ABC
+from silico.result.format.filter import Result_filter
 
 import tabulate
 import io
@@ -9,6 +10,23 @@ class Table_property_dumper_ABC(Table_dumper_ABC):
     """
     ABC for result dumpers that print tables of one type of result (a table of orbitals, atoms, excited states etc).
     """
+    
+    @property
+    def default_filters(self):
+        """
+        Return a list of filter objects that will be used by default (when none are specified explicitly).
+        """
+        return [Result_filter(filter_string, self.silico_options, allow_error = True) for filter_string in [
+            "energies:cc",
+            "energies:mp",
+            "energies:scf",
+            "atoms",
+            "orbitals",
+            "beta_orbitals",
+            "excited_states",
+            "soc",
+            "vibrations",
+        ]]
     
     def tabulate_data(self, dumped_results):
         """
