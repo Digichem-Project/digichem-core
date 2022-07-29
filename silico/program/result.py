@@ -16,7 +16,7 @@ from silico.result.multi import Merged
 from silico.format.yaml import To_yaml
 from silico.result.format.filter import Result_filter
 from silico.result.format.yaml import Yaml_dumper
-from silico.result.format.table import Tabulate_dumper, CSV_dumper
+from silico.result.format.table import Tabulate_dumper, CSV_dumper, Text_dumper
 from silico.result.format.property import Tabulate_property_dumper,\
     CSV_property_dumper
 
@@ -199,7 +199,7 @@ class Yaml_result_program(Program):
         output_format.add_argument("-t", "--table", help = "text table format; shows one row per result; useful for comparing many results at once", dest = "format", action = "store_const", const = Tabulate_dumper)
         output_format.add_argument("-d", "--csv-property", help = "text property table format; shows one property per table", dest = "format", action = "store_const", const = CSV_property_dumper)
         output_format.add_argument("-a", "--table-property", help = "text property table format; shows one property per table", dest = "format", action = "store_const", const = Tabulate_property_dumper)
-        
+        output_format.add_argument("-s", "--summary", help = "summary text format", dest = "format", action = "store_const", const = Text_dumper)
         
         sub_parser.add_argument("-f", "--filters", help = "a list of filters to restrict which data is parsed (SCF, MOS, atoms etc)", nargs = "*", default = [])
         

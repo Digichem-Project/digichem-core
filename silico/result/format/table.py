@@ -136,3 +136,48 @@ class CSV_dumper(Table_dumper_ABC):
             writer.writerow(flat_result)
             
         return stream.getvalue()
+
+
+class Text_dumper(Table_dumper_ABC):
+    """
+    """
+        
+    def flatten(self, dumped_result):
+        if isinstance(dumped_result, list):
+            return [self.flatten(result) for result in dumped_result]
+         
+        else:
+            return super().flatten(dumped_result)
+    
+    def process(self, dumped_results):
+        # A list of dicts, each containing two keys:
+        # - header: A name describing the section.
+        # - value: A dictionary of data to print.
+        data = []
+        for result in dumped_results:
+            for filtered_dict in result:
+                for key, value in filtered_dict.items():
+                    # Skip nested lists (they contain too much data).
+                    # For other items, add to our data list, flattening as we go.
+                    if not isinstance(value, list) or (len(value) > 0 and not isinstance(value[0], dict)):
+                        data.append({
+                            "header": key,
+                            "value": self.flatten(value)
+                        })
+        
+        # Get a buffer to write to.
+        stream = io.StringIO()
+        
+        # Tabulate each dict of data and write to our stream.
+        for datum in data:
+            if len(datum['value']) > 0:
+                stream.write("\n" + datum['header'] + "\n")
+                stream.write(
+                    tabulate.tabulate(
+                        datum['value'].items(),
+                        colalign = ("left", "left")
+                    )
+                + "\n")
+            
+        return stream.getvalue()
+
