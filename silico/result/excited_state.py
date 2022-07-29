@@ -629,7 +629,10 @@ class Excited_state(Energy_state):
                 "units": "nm"
             },
             "colour": self.color,
-            "CIE": tuple([float(val) for val in self.CIE_xy]),
+            "cie": {
+                "x": float(self.CIE_xy[0]),
+                "y": float(self.CIE_xy[1]),
+            },
             "symmetry": self.symmetry,
             "oscillator_strength": float(self.oscillator_strength),
             "tdm": self.transition_dipole_moment.dump(silico_options) if self.transition_dipole_moment is not None else None,
