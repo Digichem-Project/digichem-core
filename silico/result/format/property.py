@@ -43,8 +43,6 @@ class Table_property_dumper_ABC(Table_dumper_ABC):
                     # Tabulate the data.
                     table = self.flatten_list(item)
                     
-                    table = self.join_lists(table)
-                    
                     # Prepend the name of the dict to each row.
                     table = [dict([("{}:{}".format(name, col), data) for col, data in row.items()]) for row in table]
                     

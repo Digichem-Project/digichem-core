@@ -50,17 +50,6 @@ class Table_dumper_ABC(Result_dumper):
         # Make unique.
         return list(dict.fromkeys(headers))
     
-    def join_lists(self, table):
-        """
-        Convert any table cells that contain lists to a nicer text form.
-        """
-        for row in table:
-            for col, cell in row.items():
-                if isinstance(cell, list) or isinstance(cell, tuple):
-                    row[col] = ", ".join([str(subitem) for subitem in cell])
-                    
-        return table
-    
     def tabulate_data(self, dumped_results):
         """
         Take a list of lists of dicts of dumped results and return a list of dicts in flattened 'table' format.
@@ -72,10 +61,7 @@ class Table_dumper_ABC(Result_dumper):
         
         for dumped_result in dumped_results:
             table.append(self.flatten_results(dumped_result))
-            
-        # Look for any remaining lists and convert to a text form.
-        table = self.join_lists(table)
-        
+                
         return table
 
     def flatten(self, dumped_result):
@@ -99,6 +85,9 @@ class Table_dumper_ABC(Result_dumper):
                 flat_child = self.flatten(item)
                 flat_result.update({"{}:{}".format(name, child_name): value for child_name, value in flat_child.items()})
             
+            elif isinstance(item, list) or isinstance(item, tuple):
+                # If the item is a list, join it together to present better.
+                flat_result[name] = ", ".join([str(subitem) for subitem in item])
             else:
                 flat_result[name] = item
                 
