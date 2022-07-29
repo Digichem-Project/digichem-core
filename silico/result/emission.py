@@ -9,6 +9,31 @@ from silico.exception.base import Silico_exception, Result_unavailable_error
 h_bar = Planck / (math.pi *2)
 
 
+class Emissions(Result_object):
+    """
+    Class that holds all emissions from a result.
+    """
+    
+    def __init__(self, adiabatic = None, vertical = None):
+        """
+        """
+        # For now, we have not way of knowing which state is being optimised.
+        # As such, we assume it's the lowest of each mult (because this is most
+        # common thanks to kasha's rule). This being the case, each emission is
+        # stored in a dict, which each key is the multiplicity. Each value is not
+        # a list (because we only have one emission for each mult), but the 
+        # emission object itself.
+        # TODO: Improve once we can detect which state is being optimised.
+        self.adiabatic = adiabatic if adiabatic is not None else {}
+        self.vertical = vertical if vertical is not None else {}
+        
+    def dump(self, silico_options):
+        return {
+            "adiabatic": {key:value.dump(silico_options) for key,value in self.adiabatic.items()},
+            "vertical": {key:value.dump(silico_options) for key,value in self.vertical.items()}
+        }
+
+
 class Relaxed_excited_state(Excited_state):
     """
     Class for representing an emission energy from an excited state to a ground state.
