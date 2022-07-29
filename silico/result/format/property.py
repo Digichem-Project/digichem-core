@@ -50,21 +50,7 @@ class Table_property_dumper_ABC(Table_dumper_ABC):
                     
         return tables
     
-    def flatten_list(self, nested_rows):
-        # We can only flatten lists, panic if this is not a list (or a dict containing a list).
-        if isinstance(nested_rows, dict) and "values" in nested_rows:
-            return self.flatten_list(nested_rows['values'])
-        
-        elif not isinstance(nested_rows, list):
-            raise ValueError("Only list properties can be flattened, not '{}'".format(type(nested_rows)))
-        
-        # A list of dicts (each having the same keys).
-        flat_rows = []
-        
-        for nested_row in nested_rows:
-            flat_rows.append(self.flatten(nested_row))
-            
-        return flat_rows
+    
 
 
 class Tabulate_property_dumper(Table_property_dumper_ABC):

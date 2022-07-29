@@ -66,6 +66,22 @@ class Table_dumper_ABC(Result_dumper):
             table.append(self.flatten_results(dumped_result))
                 
         return table
+    
+    def flatten_list(self, nested_rows):
+        # We can only flatten lists, panic if this is not a list (or a dict containing a list).
+        if isinstance(nested_rows, dict) and "values" in nested_rows:
+            return self.flatten_list(nested_rows['values'])
+        
+        elif not isinstance(nested_rows, list):
+            raise ValueError("Only list properties can be flattened, not '{}'".format(type(nested_rows)))
+        
+        # A list of dicts (each having the same keys).
+        flat_rows = []
+        
+        for nested_row in nested_rows:
+            flat_rows.append(self.flatten(nested_row))
+            
+        return flat_rows
 
     def flatten(self, dumped_result):
         """
@@ -77,8 +93,13 @@ class Table_dumper_ABC(Result_dumper):
             if (isinstance(item, list) or isinstance(item, tuple)) and (len(item) == 0 or isinstance(item[0], dict)):
                     # Don't include lists of dicts (they are too big to flatten).
                     continue
+                
+                    # Uncomment to allow flattening of lists if that is ever desired.
+#                     for index, flat_list in enumerate(self.flatten_list(item)):
+#                         for child_name, child_value in flat_list.items():
+#                             flat_result["{}:{}:{}".format(name, index, child_name)] = child_value
             
-            if isinstance(item, dict):
+            elif isinstance(item, dict):
                 if "value" in item and "units" in item:
                     # TODO: What if units is None? Skip?
                     item = copy.copy(item)
