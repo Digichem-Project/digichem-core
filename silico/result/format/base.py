@@ -7,16 +7,12 @@ class Result_dumper():
     def __init__(self, filters):
         self.filters = filters
         
-    def dump(self, results, silico_options):
+    def dump(self, results):
         data = []
         
         for result in results:
-            datum = []
-            # If no filters, just get everything.
-            if len(self.filters) == 0:
-                datum.append(result.dump(silico_options))
-            
-            for filter in self.filters:
+            datum = []            
+            for filter in filters:
                 datum.append(filter.filter(result))
                 
             data.append(datum)
