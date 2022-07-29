@@ -236,7 +236,7 @@ class Excited_state_list(Result_container):
         
         try:
             spectrum_nm_data = spectrum_nm.plot_cumulative_gaussian(silico_options['absorption_spectrum']['fwhm'], silico_options['absorption_spectrum']['gaussian_resolution'], silico_options['absorption_spectrum']['gaussian_cutoff'])
-            y_units = "a.u." if silico_options['absorption_spectrum']['use_jacobian'] else "oscillator_strength"
+            y_units = "arb. unit" if silico_options['absorption_spectrum']['use_jacobian'] else "oscillator_strength"
             
             spectrum_nm_data = [{"x":{"value": float(x), "units": "nm"}, "y": {"value":float(y), "units": y_units}} for x,y in spectrum_nm_data]
             spectrum_nm_peaks = [{"x":{"value": float(x), "units": "nm"}, "y": {"value":float(y), "units": y_units}} for x, y in spectrum_nm.peaks(silico_options['absorption_spectrum']['fwhm'], silico_options['absorption_spectrum']['gaussian_resolution'], silico_options['absorption_spectrum']['gaussian_cutoff'])]
