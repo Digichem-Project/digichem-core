@@ -163,6 +163,7 @@ class CSV_dumper(Table_dumper_ABC):
 
 class Text_dumper(Table_dumper_ABC):
     """
+    Class for dumping a result to a quick text summary (a vertically stacked table of principle results)
     """
         
     def flatten(self, dumped_result):
@@ -191,16 +192,19 @@ class Text_dumper(Table_dumper_ABC):
         # Get a buffer to write to.
         stream = io.StringIO()
         
+        # Prune data.
+        data = [datum for datum in data if len(datum['value']) > 0]
+        
         # Tabulate each dict of data and write to our stream.
-        for datum in data:
-            if len(datum['value']) > 0:
-                stream.write("\n" + datum['header'] + "\n")
-                stream.write(
-                    tabulate.tabulate(
-                        datum['value'].items(),
-                        colalign = ("left", "left")
-                    )
-                + "\n")
+        for index, datum in enumerate(data):
+            stream.write(datum['header'] + "\n")
+            stream.write(
+                tabulate.tabulate(
+                    datum['value'].items(),
+                    colalign = ("left", "left")
+                )
+            + "\n")
+            if index +1 < len(data):
+                stream.write("\n")
             
         return stream.getvalue()
-
