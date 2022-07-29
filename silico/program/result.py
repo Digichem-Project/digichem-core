@@ -191,6 +191,7 @@ class Yaml_result_program(Program):
         sub_parser.add_argument("-i", "--ignore", help = "ignore missing properties rather than stopping", action = "store_true", default = False)
         sub_parser.add_argument("-n", "--none", help = "return an empty value when a missing property is encountered rather than returning nothing at all", action = "store_true", default = False)
         sub_parser.add_argument("-C", "--num_CPUs", help = "the number of CPUs to use in parallel to parse given log_files, defaults to the number of CPUs on the system", type = int, nargs = "?", default = os.cpu_count())
+        sub_parser.add_argument("-p", "--pretty", help = "convert headers to pretty alternatives; underscores are replaced with whitespace", action = "store_true")
         
         output_group = sub_parser.add_argument_group("output format", "the format to write results to. Only one option from the following may be chosen")
         output_format = output_group.add_mutually_exclusive_group()
@@ -294,5 +295,5 @@ class Yaml_result_program(Program):
         
         dumper = self.args.format(filters, silico_options = self.config)
         
-        print(dumper.dump(results), end="")
+        print(dumper.dump(results, pretty = self.args.pretty), end="")
     

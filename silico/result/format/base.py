@@ -16,8 +16,32 @@ class Result_dumper():
         """
         # This filter simply returns all data.
         return [Result_filter("", self.silico_options)]
+    
+    def prettify(self, nested_dict):
+        """
+        """
+        pretty_dict = {}
         
-    def dump(self, results):
+        for name, value in nested_dict.items():
+            if isinstance(value, dict):
+                value = self.prettify(value)
+                
+            elif isinstance(value, list) and len(value) > 0 and isinstance(value[0], dict):
+                value = [self.prettify(subval) for subval in value]
+            
+            if isinstance(name, str):
+                #TODO: If we want to implement this, need to be aware that it breaks special handling
+                # for dicts containing 'value' and 'units' fields.
+                #name = ":".join([sub_name[0].capitalize() + sub_name[1:] for sub_name in name.split(":")])
+                
+                pretty_dict[name.replace("_", " ")] = value
+                
+            else:
+                pretty_dict[name] = value
+            
+        return pretty_dict
+        
+    def dump(self, results, pretty = False):
         data = []
         
         filters = self.filters
@@ -31,6 +55,9 @@ class Result_dumper():
                 datum.append(filter.filter(result))
                 
             data.append(datum)
+            
+        if pretty:
+            data = [[self.prettify(datum) for datum in result] for result in data]
                 
         return self.process(data)
     
