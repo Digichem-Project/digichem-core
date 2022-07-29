@@ -4,8 +4,9 @@ class Result_dumper():
     ABC for classes that dump results to other formats
     """
     
-    def __init__(self, filters):
+    def __init__(self, filters, silico_options):
         self.filters = filters
+        self.silico_options = silico_options
         
     def dump(self, results):
         data = []
