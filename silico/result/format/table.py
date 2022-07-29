@@ -12,6 +12,34 @@ class Table_dumper_ABC(Result_dumper):
     ABC for classes that dump result sets to tabulated formats.
     """
     
+    @property
+    def default_filters(self):
+        """
+        Return a list of filter objects that will be used by default (when none are specified explicitly).
+        """
+        return [Result_filter(filter_string, self.silico_options, allow_error = True) for filter_string in [
+            "metadata",
+            "ground_state",
+            "energies",
+            "atoms",
+            "orbitals",
+            "orbitals:HOMO",
+            "orbitals:LUMO",
+            "beta_orbitals",
+            "beta_orbitals:HOMO",
+            "beta_orbitals:LUMO",
+            "pdm",
+            "excited_states",
+            "excited_states:S(1)",
+            "excited_states:T(1)",
+            # NOTE: SOC by itself currently dumps nothing.
+            "soc",
+            "soc:S(0),T(1)",
+            "soc:S(1),T(1)",
+            "vibrations",
+            "emission"
+        ]]
+    
     @classmethod
     def get_headers(self, table):
         """
