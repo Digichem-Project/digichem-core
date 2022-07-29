@@ -32,13 +32,12 @@ class Dipole_moment_ABC(Result_object):
         """
         return math.sqrt( self.vector_coords[0] ** 2 + self.vector_coords[1] ** 2 + self.vector_coords[2] ** 2)
     
-    # TODO: Look into why we record origin_coords, they probably don't do what the name suggests and probably aren't useful?
     def __init__(self, origin_coords, vector_coords, atoms = None):
         """
         Constructor for Dipole_moment objects.
         
-        :param origin_coords: Tuple of (x, y, z) coordinates of where this dipole moment starts.
-        :param vector_coords: Tuple of (x, y, z) coordinates of where this dipole moment ends.
+        :param origin_coords: Tuple of (x, y, z) coordinates of the origin of this dipole moment.
+        :param vector_coords: Tuple of (x, y, z) coordinates of this dipole  moment.
         :param atoms: Optional atoms atom list object which is used to calculate addition data about this dipole moment. 
         """
         super().__init__()
