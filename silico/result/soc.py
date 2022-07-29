@@ -114,7 +114,8 @@ class Spin_orbit_coupling(Result_object, Floatable_mixin):
             "rss": {
                 "units": "c m^-1",
                 "value": self.root_sum_square,
-            }
+            },
+            "mixing_coefficient": self.mixing_coefficient
         }
         
     @classmethod
