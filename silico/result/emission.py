@@ -331,7 +331,7 @@ class Relaxed_excited_state(Excited_state):
         dump_dict.update({
             "emission_type": self.emission_type,
             "emission_rate": {
-                "value": self.emission_rate,
+                "value": float(self.emission_rate),
                 "units": "s^-1"
             }
         })
