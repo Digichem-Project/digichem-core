@@ -5,6 +5,7 @@ import itertools
 import tabulate
 import csv
 import io
+import copy
 
 
 class Table_dumper_ABC(Result_dumper):
@@ -78,6 +79,7 @@ class Table_dumper_ABC(Result_dumper):
             if isinstance(item, dict):
                 if "value" in item and "units" in item:
                     # TODO: What if units is None? Skip?
+                    item = copy.copy(item)
                     flat_result["{} / {}".format(name, item['units'])] = item['value']
                     item.pop("units")
                     item.pop("value")
