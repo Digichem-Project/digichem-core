@@ -54,9 +54,6 @@ class Electric_transition_dipole_moment(Transition_dipole_moment_ABC, Electric_d
         super().__init__(*args, **kwargs)
         self.electromagnetic_type = "electric"
         
-    def dump(self, silico_options):
-        return Electric_dipole_moment_mixin.dump(self, silico_options)
-        
     @classmethod
     def list_from_parser(self, parser):
         """
@@ -85,9 +82,6 @@ class Magnetic_transition_dipole_moment(Transition_dipole_moment_ABC, Magnetic_d
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.electromagnetic_type = "magnetic"
-        
-    def dump(self, silico_options):
-        return Magnetic_dipole_moment_mixin.dump(self, silico_options)
     
     @classmethod
     def list_from_parser(self, parser):
