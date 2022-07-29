@@ -36,6 +36,10 @@ class Result_filter():
         
         try:
             for filter in self.filters:
+                # Skip empty filters.
+                if filter == "":
+                    continue
+                
                 header.append(filter)
                 if is_number(filter):
                     num_filter = to_number(filter)
