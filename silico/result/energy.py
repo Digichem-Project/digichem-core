@@ -16,9 +16,9 @@ class Energies(Result_object):
         :param mp: List of Moller-Plesset energies.
         :param cc: List of coupled cluster energies.
         """
-        self.scf =  SCF_energy_list(scf)
-        self.mp = MP_energy_list(mp)
-        self.cc = CC_energy_list(cc)
+        self.scf =  SCF_energy_list(scf if scf is not None else [])
+        self.mp = MP_energy_list(mp if mp is not None else [])
+        self.cc = CC_energy_list(cc if cc is not None else [])
         
     @property
     def final(self):
