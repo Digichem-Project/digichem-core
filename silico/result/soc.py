@@ -98,8 +98,18 @@ class Spin_orbit_coupling(Result_object, Floatable_mixin):
             "singlet": self.singlet_state.state_symbol,
             "triplet": self.triplet_state.state_symbol,
             "soc": {
-                "units": "c m^-1",
-                "value": [self.positive_one, self.zero, self.negative_one],
+                "+1": {
+                    "value": self.positive_one,
+                    "units": "c m^-1",
+                },
+                "0": {
+                    "value": self.zero,
+                    "units": "c m^-1",
+                },
+                "-1": {
+                    "value": self.negative_one,
+                    "units": "c m^-1",
+                },
             },
             "rss": {
                 "units": "c m^-1",
