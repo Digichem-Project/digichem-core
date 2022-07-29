@@ -292,7 +292,7 @@ class Yaml_result_program(Program):
         
         filters = [Result_filter(filter_string, silico_options = self.config, allow_error = self.args.ignore, return_none = self.args.none) for filter_string in self.args.filters]
         
-        dumper = self.args.format(filters)
+        dumper = self.args.format(filters, silico_options = self.config)
         
-        print(dumper.dump(results, self.config), end="")
+        print(dumper.dump(results), end="")
     
