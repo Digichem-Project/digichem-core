@@ -32,7 +32,9 @@ class Table_dumper_ABC(Result_dumper):
             "pdm",
             "excited_states",
             "excited_states:S(1)",
+            "excited_states:S(1):transitions:0",
             "excited_states:T(1)",
+            "excited_states:T(1):transitions:0",
             # NOTE: SOC by itself currently dumps nothing.
             "soc",
             "soc:S(0),T(1)",
