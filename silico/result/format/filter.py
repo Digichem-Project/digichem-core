@@ -91,7 +91,7 @@ class Result_filter():
                 raise
             
             # Otherwise log the error.
-            silico.log.get_logger().info("Could not filter result '{}' by '{}'".format(result.metadata.name, ":".join(header)), exc_info = True)
+            silico.log.get_logger().debug("Could not filter result '{}' by '{}'".format(result.metadata.name, ":".join(header)), exc_info = True)
             
             # And return what we've been asked for.
             if not self.return_none:
