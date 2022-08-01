@@ -5,10 +5,14 @@ class Result_dumper():
     ABC for classes that dump results to other formats
     """
     
-    def __init__(self, filters, silico_options, floatfmt = ".2f"):
+    def __init__(self, *filters, silico_options, floatfmt = ".2f"):
         self.filters = filters
         self.silico_options = silico_options
         self.floatfmt = floatfmt
+        
+    @classmethod
+    def from_text(self, *text_filters, silico_options, floatfmt = ".2f", allow_error = False):
+        return self(*[Result_filter(text_filter, silico_options, allow_error = allow_error) for text_filter in text_filters], silico_options = silico_options, floatfmt = floatfmt)
     
     @property
     def default_filters(self):
@@ -42,7 +46,7 @@ class Result_dumper():
             
         return pretty_dict
         
-    def dump(self, results, pretty = False):
+    def dump(self, *results, pretty = False):
         data = []
         
         filters = self.filters
@@ -62,9 +66,13 @@ class Result_dumper():
                 
         return self.process(data)
     
-    def write(self, file_name, results, pretty = False):
-        with open(file_name, "wt") as out_file:
-            out_file.write(self.dump(results, pretty))
+    def write(self, *results, file_name, pretty = False):
+        data = self.dump(*results, pretty = pretty)
+        
+        if data != "":
+            # Don't write anything if we have no data (so we don't open an empty file).
+            with open(file_name, "wt") as out_file:
+                out_file.write(data)
     
     def process(self, dumped_results):
         raise NotImplementedError("Implement in subclass")
