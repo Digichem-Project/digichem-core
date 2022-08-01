@@ -1,6 +1,7 @@
 from silico.result.format.filter import Result_filter
-
 from silico.result.format.base import Result_dumper
+from silico.misc.base import is_float
+
 import itertools
 import tabulate
 import csv
@@ -139,7 +140,7 @@ class Tabulate_dumper(Table_dumper_ABC):
     def process(self, dumped_results):
         flat_results = self.tabulate_data(dumped_results)
         
-        return tabulate.tabulate(flat_results, headers = "keys") + "\n"
+        return tabulate.tabulate(flat_results, headers = "keys", floatfmt = self.floatfmt) + "\n"
 
 
 class CSV_dumper(Table_dumper_ABC):
@@ -172,6 +173,12 @@ class Text_dumper(Table_dumper_ABC):
          
         else:
             return super().flatten(dumped_result)
+        
+    def format_cell(self, data):
+        if is_float(data):
+            return "{:{}}".format(data, self.floatfmt)
+        
+        return data
     
     def process(self, dumped_results):
         # A list of dicts, each containing two keys:
@@ -200,8 +207,8 @@ class Text_dumper(Table_dumper_ABC):
             stream.write(datum['header'] + "\n")
             stream.write(
                 tabulate.tabulate(
-                    datum['value'].items(),
-                    colalign = ("left", "left")
+                    [(header, self.format_cell(data)) for header, data in datum['value'].items()],
+                    colalign = ("left", "left"),
                 )
             + "\n")
             if index +1 < len(data):

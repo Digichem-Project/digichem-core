@@ -5,9 +5,10 @@ class Result_dumper():
     ABC for classes that dump results to other formats
     """
     
-    def __init__(self, filters, silico_options):
+    def __init__(self, filters, silico_options, floatfmt = ".2f"):
         self.filters = filters
         self.silico_options = silico_options
+        self.floatfmt = floatfmt
     
     @property
     def default_filters(self):
@@ -60,6 +61,10 @@ class Result_dumper():
             data = [[self.prettify(datum) for datum in result] for result in data]
                 
         return self.process(data)
+    
+    def write(self, file_name, results, pretty = False):
+        with open(file_name, "wt") as out_file:
+            out_file.write(self.dump(results, pretty))
     
     def process(self, dumped_results):
         raise NotImplementedError("Implement in subclass")

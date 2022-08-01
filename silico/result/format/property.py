@@ -50,8 +50,6 @@ class Table_property_dumper_ABC(Table_dumper_ABC):
                         tables.append(table)
                     
         return tables
-    
-    
 
 
 class Tabulate_property_dumper(Table_property_dumper_ABC):
@@ -62,8 +60,9 @@ class Tabulate_property_dumper(Table_property_dumper_ABC):
     def process(self, dumped_results):
         tables = self.tabulate_data(dumped_results)
         
-        return "\n".join([tabulate.tabulate(table, headers = "keys") + "\n" for table in tables])
-    
+        return "\n".join([tabulate.tabulate(table, headers = "keys", floatfmt = self.floatfmt) + "\n" for table in tables])
+
+
 class CSV_property_dumper(Table_property_dumper_ABC):
     """
     Class for dumping a single result to a csv table.
