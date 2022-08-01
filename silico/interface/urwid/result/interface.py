@@ -8,12 +8,11 @@ from silico.config.configurable.option import Option
 from silico.interface.urwid.misc import Tab_pile
 from silico.interface.urwid.result.list import Result_list
 from silico.interface.urwid.popup import Choices_edit, Output_edit
-from silico.format.text import Text_summary_group_format
-from silico.format.csv import CSV_property_group_format,\
-    CSV_summary_group_format
-from silico.format.table import Table_summary_group_format,\
-    Property_table_group_format
 from silico.interface.urwid.layout import Pane
+from silico.result.format.yaml import Yaml_dumper
+from silico.result.format.table import Text_dumper, CSV_dumper, Tabulate_dumper
+from silico.result.format.property import CSV_property_dumper,\
+    Tabulate_property_dumper
 
 
 class Result_interface(Program_view):
@@ -24,11 +23,17 @@ class Result_interface(Program_view):
     stop_on_missing = Option(help = "Stop on missing properties rather than ignoring them.", type = bool, default = False)
     
     formats = {
-        "text": Text_summary_group_format,
-        "csv": CSV_summary_group_format,
-        "csv-property": CSV_property_group_format,
-        "table": Table_summary_group_format,
-        "table-property": Property_table_group_format
+        "yaml": Yaml_dumper,
+        "text": Text_dumper,
+        "csv": CSV_dumper,
+        "csv-property": CSV_property_dumper,
+        "table": Tabulate_dumper,
+        "table-property": Tabulate_property_dumper
+#         "text": Text_summary_group_format,
+#         "csv": CSV_summary_group_format,
+#         "csv-property": CSV_property_group_format,
+#         "table": Table_summary_group_format,
+#         "table-property": Property_table_group_format
     }
     
     def __init__(self, window, program):
@@ -102,7 +107,7 @@ class Result_interface(Program_view):
         self.program.args.output = self.output_widget.value
         self.program.args.stop = self.stop_on_missing
         self.program.results = self.file_list.get_values()
-        self.program.args.format = self.formats[self.format_widget  .value]
+        self.program.args.format = self.formats[self.format_widget.value]
         self.program.args.filters = shlex.split(self.filters_widget.get_edit_text()) if self.filters_widget.get_edit_text() != "" else [] 
         self.program.config['alignment'] = self.file_list.selector.alignment
         self.program.args.merge = self.merged_widget.get_state()
