@@ -46,7 +46,8 @@ class Table_property_dumper_ABC(Table_dumper_ABC):
                     # Prepend the name of the dict to each row.
                     table = [dict([("{}:{}".format(name, col), data) for col, data in row.items()]) for row in table]
                     
-                    tables.append(table)
+                    if len(table) > 0:
+                        tables.append(table)
                     
         return tables
     
@@ -74,7 +75,7 @@ class CSV_property_dumper(Table_property_dumper_ABC):
         # String buffer to write to.
         stream = io.StringIO()
         
-        for table in tables:    
+        for index, table in enumerate(tables):
             headers = self.get_headers(table)
             
             writer = csv.DictWriter(stream, headers)
@@ -82,5 +83,9 @@ class CSV_property_dumper(Table_property_dumper_ABC):
             writer.writeheader()
             for row in table:
                 writer.writerow(row)
+                
+            # If there's at least one more table, separate with newline.
+            if index +1 < len(tables):
+                stream.write("\n")
         
         return stream.getvalue()
