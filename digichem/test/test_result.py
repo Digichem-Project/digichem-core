@@ -94,30 +94,30 @@ def turbomole_ADC2_triplets_result():
 
 
 @pytest.mark.parametrize("result_set, num, final", [
-        (pytest.lazy_fixture("gaussian_SP_result"), 1, -10488.995711),
-        (pytest.lazy_fixture("gaussian_opt_result"), 5, -10488.995711),
-        (pytest.lazy_fixture("gaussian_ES_result"), 1, -10488.995711),
-        (pytest.lazy_fixture("gaussian_opt_ES_result"), 4, -10488.888883),
-        (pytest.lazy_fixture("turbomole_ADC2_opt_result"), 7, -10432.315825879925),
-        (pytest.lazy_fixture("turbomole_ADC2_singlets_result"), 1, -10432.315825879925),
-        (pytest.lazy_fixture("turbomole_ADC2_triplets_result"), 1, -10432.315825879925)
+        (pytest.lazy_fixture("gaussian_SP_result"), 1, -10488.990333747),
+        (pytest.lazy_fixture("gaussian_opt_result"), 5, -10488.990333747),
+        (pytest.lazy_fixture("gaussian_ES_result"), 1, -10488.990333747),
+        (pytest.lazy_fixture("gaussian_opt_ES_result"), 4, -10488.883505795338),
+        (pytest.lazy_fixture("turbomole_ADC2_opt_result"), 7, -10432.311381999756),
+        (pytest.lazy_fixture("turbomole_ADC2_singlets_result"), 1, -10432.311386936175),
+        (pytest.lazy_fixture("turbomole_ADC2_triplets_result"), 1, -10432.311386936175)
     ])
 def test_SCF_energy(result_set, num, final):
     """Test the parsed energy is correct"""
-    assert result_set.SCF_energies.final == pytest.approx(final)
+    assert result_set.SCF_energies.final == pytest.approx(final, abs=1e-5)
     
     # Check length, which will be 1 for SP, and >1 for the opts.
     assert len(result_set.SCF_energies) == num
 
 
 @pytest.mark.parametrize("result_set, num, final", [
-        (pytest.lazy_fixture("turbomole_ADC2_opt_result"), 7, -10467.162645663258),
-        (pytest.lazy_fixture("turbomole_ADC2_singlets_result"), 1, -10467.162645663258),
-        (pytest.lazy_fixture("turbomole_ADC2_triplets_result"), 1, -10467.162645663258)
+        (pytest.lazy_fixture("turbomole_ADC2_opt_result"), 7, -10467.158186939303),
+        (pytest.lazy_fixture("turbomole_ADC2_singlets_result"), 1, -10467.158181211305),
+        (pytest.lazy_fixture("turbomole_ADC2_triplets_result"), 1, -10467.158181211305)
     ])
 def test_MP_energy(result_set, num, final):
     """Test the parsed energy is correct"""
-    assert result_set.MP_energies.final == pytest.approx(final)
+    assert result_set.MP_energies.final == pytest.approx(final, abs=1e-5)
     
     if num > 1:
         pytest.skip("A cclib bug currently parses the wrong number of MP energies")
@@ -127,11 +127,11 @@ def test_MP_energy(result_set, num, final):
 
 
 @pytest.mark.parametrize("result_set, charge, mult, energy", [
-        (pytest.lazy_fixture("gaussian_opt_result"), 0, 1, -10488.995711),
-        (pytest.lazy_fixture("turbomole_ADC2_opt_result"), 0, 1, -10467.162645663258),
+        (pytest.lazy_fixture("gaussian_opt_result"), 0, 1, -10488.990333747),
+        (pytest.lazy_fixture("turbomole_ADC2_opt_result"), 0, 1, -10467.158186939303),
         # Radical anions.
-        (pytest.lazy_fixture("gaussian_radical_anion_result"), -1, 2, -6310.537803021298),
-        (pytest.lazy_fixture("turbomole_radical_anion_result"), -1, 2, -6310.4569545463946),
+        (pytest.lazy_fixture("gaussian_radical_anion_result"), -1, 2, -6310.5380531853125),
+        (pytest.lazy_fixture("turbomole_radical_anion_result"), -1, 2, -6310.4572047072043),
     ])
 def test_ground_state(result_set, charge, mult, energy):
     """Test the ground state properties"""
@@ -141,7 +141,7 @@ def test_ground_state(result_set, charge, mult, energy):
     # Ground states have zero excited state energy by definition.
     assert result_set.ground_state.energy == 0.0
     # This is the total energy.
-    assert result_set.ground_state.absolute_energy == pytest.approx(energy)
+    assert result_set.ground_state.absolute_energy == pytest.approx(energy, abs=1e-5)
 
 
 @pytest.mark.parametrize("result_set", [
