@@ -19,6 +19,8 @@ from silico.result.format.yaml import Yaml_dumper
         "atoms:x-extension",
         "energies:scf:final",
         "orbitals:ΔE(HOMO-LUMO)",
+        # Filtering by find().
+        "orbitals:HOMO",
         # Nested filtering of items from lists (energies:scf:0, energies:scf:values:0, orbitals:0, orbitals:values:0)
         "atoms:0",
         "energies:scf:0",
@@ -36,6 +38,10 @@ def test_filter(gaussian_opt_result, filter_string, silico_options):
 
 @pytest.mark.parametrize("result_set, filter_string, value", [
         (pytest.lazy_fixture("gaussian_opt_result"), "energies:scf:final:value", -10488.990333747),
+        (pytest.lazy_fixture("gaussian_opt_result"), "orbitals:HOMO:energy:value", -6.130725051765),
+        (pytest.lazy_fixture("gaussian_opt_result"), "atoms:0:coords:x:value", -1.240455),
+        (pytest.lazy_fixture("gaussian_opt_result"), "vibrations:0:frequency:value", 170.6603),
+        (pytest.lazy_fixture("gaussian_ES_result"), "excited_states:ΔE(ST):value", 1.6231000709670043),
     ])
 def test_numeric_result(result_set, filter_string, value, silico_options):
     """Dumping of numeric values."""
@@ -47,3 +53,4 @@ def test_numeric_result(result_set, filter_string, value, silico_options):
     
     # Check the value
     assert list(parsed.items())[0][1] == pytest.approx(value, abs=1e-5)
+    
