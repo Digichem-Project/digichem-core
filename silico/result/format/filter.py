@@ -54,7 +54,9 @@ class Result_filter():
                         # If this child object is not a Result_object but the parent is, use the dumped version instead.
                         # (because we have to call dump() at some point, and we can't at any point in the child).
                         if not isinstance(child, Result_object) and isinstance(cur_item, Result_object):
-                            cur_item = cur_item.dump(self.silico_options)[num_filter]
+                            cur_item = cur_item.dump(self.silico_options)
+                            
+                            cur_item = cur_item if isinstance(cur_item, list) else cur_item["values"][num_filter]
                         
                         else:
                             cur_item = child
