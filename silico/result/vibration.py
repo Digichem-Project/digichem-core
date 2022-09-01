@@ -1,10 +1,12 @@
 # General imports.
 from itertools import zip_longest
+import warnings
 
 # Silico imports.
 from silico.result import Result_container
 from silico.result import Result_object
 from silico.result import Floatable_mixin, Unmergeable_container_mixin
+from silico.result.spectroscopy import Spectroscopy_graph
 
 
 class Vibrations_list(Result_container, Unmergeable_container_mixin):
@@ -19,6 +21,14 @@ class Vibrations_list(Result_container, Unmergeable_container_mixin):
         """
         Get a Vibrations_list object of the vibrations in this list that have negative frequencies (they are imaginary).
         """
+        warnings.warn("negative_frequencies is deprecated, use negative instead")
+        return self.negative
+    
+    @property
+    def negative(self):
+        """
+        Get a Vibrations_list object of the vibrations in this list that have negative frequencies (they are imaginary).
+        """
         return type(self)([vibration for vibration in self if vibration.frequency < 0])
     
     @classmethod
@@ -30,8 +40,37 @@ class Vibrations_list(Result_container, Unmergeable_container_mixin):
         :return: A Vibrations_list object. The list will be empty if no vibration frequency data is available.
         """
         return self(Vibration.list_from_parser(parser))
-
     
+    @property
+    def spectrum(self):
+        return Spectroscopy_graph.from_vibrations(self)
+    
+    def dump(self, silico_options):
+        spectrum = self.spectrum
+        
+        try:
+            spectrum_data = spectrum.plot_cumulative_gaussian(silico_options['IR_spectrum']['fwhm'], silico_options['IR_spectrum']['gaussian_resolution'], silico_options['IR_spectrum']['gaussian_cutoff'])
+            
+            #spectrum_data = [({"value": float(x), "units": "c m^-1"}, {"value":float(y), "units": "km mol^-1"}) for x,y in spectrum_data]
+            spectrum_data = [{"x":{"value": float(x), "units": "c m^-1"}, "y": {"value":float(y), "units": "km mol^-1"}} for x,y in spectrum_data]
+            spectrum_peaks = [{"x":{"value": float(x), "units": "c m^-1"}, "y": {"value":float(y), "units": "km mol^-1"}} for x, y in spectrum.peaks(silico_options['IR_spectrum']['fwhm'], silico_options['IR_spectrum']['gaussian_resolution'], silico_options['IR_spectrum']['gaussian_cutoff'])]
+        
+        except Exception:
+            spectrum_data = []
+            spectrum_peaks = []
+        
+        dump_dict = {
+            "num_vibrations": len(self),
+            "num_negative": len(self.negative),
+            "values": super().dump(silico_options),
+            "spectrum": {
+                "values": spectrum_data,
+                "peaks": spectrum_peaks
+            }
+        }
+        return dump_dict
+
+
 class Vibration(Result_object, Floatable_mixin):
     """
     Class for representing vibrational frequencies.
@@ -56,6 +95,23 @@ class Vibration(Result_object, Floatable_mixin):
         A float representation of this object.
         """
         return float(self.frequency)
+    
+    def dump(self, silico_options):
+        """
+        Get a representation of this result object in primitive format.
+        """
+        return {
+            "index": self.level,
+            "frequency": {
+                "value": float(self.frequency),
+                "units": "c m^-1",
+            },
+            "intensity": {
+                "value": float(self.intensity),
+                "units": "km mol^-1"
+            },
+            "symmetry": self.symmetry
+        }
         
     @classmethod
     def list_from_parser(self, parser):

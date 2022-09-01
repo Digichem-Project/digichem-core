@@ -34,6 +34,25 @@ class Ground_state(Energy_state):
         Is this ground state object equal to another?
         """
         return self.charge == other.charge and self.multiplicity == other.multiplicity and self.energy == other.energy
+        
+    def dump(self, silico_options):
+        """
+        Get a representation of this result object in primitive format.
+        """
+        parent_dict = super().dump(silico_options)
+        return {
+            "index": parent_dict['index'],
+            "symbol": parent_dict['symbol'],
+            "charge": self.charge,
+            "multiplicity": parent_dict['multiplicity'],
+            "multiplicity_index": parent_dict['multiplicity_index'],
+            # The 'energy' field from Energy_state is an excited state energy, relative to the ground state (so is always 0).
+            # Replace with total energy.
+            "energy": {
+                "value": float(self.absolute_energy),
+                "units": "eV"
+            }
+        }
     
     @classmethod
     def from_parser(self, parser):

@@ -97,10 +97,10 @@
                 %if len(result.vibrations) > 0:
                 <tr>
                     <td class="results__name">Negative frequencies:</td>
-                    %if len(result.vibrations.negative_frequencies) == 0:
-                        <td class="results__value">${len(result.vibrations.negative_frequencies)}</td>
+                    %if len(result.vibrations.negative) == 0:
+                        <td class="results__value">${len(result.vibrations.negative)}</td>
                     %else:
-                    <td class="results__value results__value--bad">${len(result.vibrations.negative_frequencies)}</td>
+                    <td class="results__value results__value--bad">${len(result.vibrations.negative)}</td>
                     %endif
                 </tr>
                 %endif

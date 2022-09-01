@@ -12,6 +12,8 @@ from silico.result import Result_object
 from silico.exception.base import Result_unavailable_error
 from silico.result.base import Floatable_mixin
 from silico.misc.text import andjoin
+from silico.result.spectroscopy import Spectroscopy_graph,\
+    Absorption_emission_graph
 
 
 class Excited_state_list(Result_container):
@@ -61,8 +63,7 @@ class Excited_state_list(Result_container):
         states = (self.get_state(state_symbol = state1).energy, self.get_state(state_symbol = state2).energy)
         return max(states) - min(states)
     
-        
-    def get_state(self, criteria = None, *, state_symbol = None, level = None, mult_level = None):
+    def find(self, criteria = None, *, state_symbol = None, level = None, mult_level = None):
         """
         Retrieve a particular excited state from its state symbol (S(1), T(1) etc.).
         
@@ -99,8 +100,21 @@ class Excited_state_list(Result_container):
         try:
             return next(filterfalse(filter_func, self))
         except Exception:
-            raise Result_unavailable_error("Excited state", "could not find excited state with symbol = '{}'".format(state_symbol))
+            # Determine what we searched by for better error reporting.
+            if state_symbol is not None:
+                criteria_string = "symbol = '{}'".format(state_symbol)
+                
+            elif level is not None:
+                criteria_string = "level = '{}'".format(level)
+                
+            else:
+                criteria_string = "mult_level = '{}'".format(mult_level)
+                
+            raise Result_unavailable_error("Excited state", "could not find excited state with {}".format(criteria_string)) from None
         
+    def get_state(self, *args, **kwargs):
+        warnings.warn("get_state() is deprecated use find() instead", DeprecationWarning)
+        return self.find(*args, **kwargs)
     
     def group(self):
         """
@@ -213,6 +227,65 @@ class Excited_state_list(Result_container):
         merged.sort()
         merged.assign_levels()
         return merged
+    
+    def dump(self, silico_options):
+        # Get spectrum data.
+        # For excited states, we dump two spectra. One in nm, one in eV (which have different scaling).
+        spectrum_nm = Absorption_emission_graph.from_excited_states(self, use_jacobian = silico_options['absorption_spectrum']['use_jacobian'])
+        spectrum_ev = Spectroscopy_graph([(excited_state.energy, excited_state.oscillator_strength) for excited_state in self])
+        
+        try:
+            spectrum_nm_data = spectrum_nm.plot_cumulative_gaussian(silico_options['absorption_spectrum']['fwhm'], silico_options['absorption_spectrum']['gaussian_resolution'], silico_options['absorption_spectrum']['gaussian_cutoff'])
+            y_units = "arb. unit" if silico_options['absorption_spectrum']['use_jacobian'] else "oscillator_strength"
+            
+            spectrum_nm_data = [{"x":{"value": float(x), "units": "nm"}, "y": {"value":float(y), "units": y_units}} for x,y in spectrum_nm_data]
+            spectrum_nm_peaks = [{"x":{"value": float(x), "units": "nm"}, "y": {"value":float(y), "units": y_units}} for x, y in spectrum_nm.peaks(silico_options['absorption_spectrum']['fwhm'], silico_options['absorption_spectrum']['gaussian_resolution'], silico_options['absorption_spectrum']['gaussian_cutoff'])]
+        
+        except Exception:
+            spectrum_nm_data = []
+            spectrum_nm_peaks = []
+        
+        try:
+            spectrum_ev_data = spectrum_ev.plot_cumulative_gaussian(silico_options['absorption_spectrum']['fwhm'], silico_options['absorption_spectrum']['gaussian_resolution'], silico_options['absorption_spectrum']['gaussian_cutoff'])
+            
+            spectrum_ev_data = [{"x":{"value": float(x), "units": "eV"}, "y": {"value":float(y), "units": "oscillator_strength"}} for x,y in spectrum_ev_data]
+            spectrum_ev_peaks = [{"x":{"value": float(x), "units": "eV"}, "y": {"value":float(y), "units": "oscillator_strength"}} for x, y in spectrum_ev.peaks(silico_options['absorption_spectrum']['fwhm'], silico_options['absorption_spectrum']['gaussian_resolution'], silico_options['absorption_spectrum']['gaussian_cutoff'])]
+        
+        except Exception:
+            spectrum_ev_data = []
+            spectrum_ev_peaks = []
+        
+        dump_dict = {
+            "values": super().dump(silico_options),
+            "spectrum": {
+                "nm": {
+                    "values": spectrum_nm_data,
+                    "peaks": spectrum_nm_peaks
+                },
+                "ev": {
+                    "values": spectrum_ev_data,
+                    "peaks": spectrum_ev_peaks
+                }    
+            }
+        }
+        
+        # Add extra properties.
+        mult_pairs, mults = self.group_pairs()
+        
+        # Number of states of each multiplicity.
+        for mult, states in mults.items():
+            dump_dict['num_{}'.format(Energy_state.multiplicity_number_to_string(mult))] = len(states)
+            
+        # DeST and other values.
+        for mult_pair in mult_pairs:
+            state1 = mults[mult_pair[0]][0]
+            state2 = mults[mult_pair[1]][0]
+            dump_dict['ΔE({}{})'.format(state1.multiplicity_symbol, state2.multiplicity_symbol)] = {
+                "value": float(state1.energy - state2.energy),
+                "units": "eV"
+            }
+            
+        return dump_dict
 
 
 class Excited_state_transition(Result_object):
@@ -240,6 +313,17 @@ class Excited_state_transition(Result_object):
         The probability of this transition.
         """
         return self.coefficient **2
+    
+    def dump(self, silico_options):
+        """
+        Get a representation of this result object in primitive format.
+        """
+        return {
+            "start": self.starting_mo.label,
+            "end": self.ending_mo.label,
+            "coefficient": float(self.coefficient),
+            "probability": float(self.probability **2)
+        }
         
     @classmethod
     def list_from_parser(self, parser):
@@ -386,6 +470,22 @@ class Energy_state(Result_object, Floatable_mixin):
         eg, S(1) is the first singlet excited state, S(2) is the second and so on.
         """
         return "{}({})".format(self.multiplicity_symbol, self.multiplicity_level)
+    
+    def dump(self, silico_options):
+        """
+        Get a representation of this result object in primitive format.
+        """
+        return {
+            "index": self.level,
+            "symbol": self.state_symbol,
+            "multiplicity": self.multiplicity,
+            "multiplicity_index": self.multiplicity_level,
+            "energy": {
+                "value": float(self.energy),
+                "units": "eV"
+            }
+        }
+
 
 class Excited_state(Energy_state):
     """
@@ -516,7 +616,29 @@ class Excited_state(Energy_state):
             rgb = [clr / max(rgb) for clr in rgb]
             
         # Now convert to 0 -> 255 and return.
-        return [int(clr * 255) for clr in rgb]
+        return [int(clr * 255) for clr in rgb]    
+    
+    def dump(self, silico_options):
+        """
+        Get a representation of this result object in primitive format.
+        """
+        dump_dict = super().dump(silico_options)
+        dump_dict.update({
+            "wavelength": {
+                "value": float(self.wavelength),
+                "units": "nm"
+            },
+            "colour": self.color,
+            "cie": {
+                "x": float(self.CIE_xy[0]),
+                "y": float(self.CIE_xy[1]),
+            },
+            "symmetry": self.symmetry,
+            "oscillator_strength": float(self.oscillator_strength),
+            "tdm": self.transition_dipole_moment.dump(silico_options) if self.transition_dipole_moment is not None else None,
+            "transitions": [tran.dump(silico_options) for tran in self.transitions],
+        })
+        return dump_dict
         
     @classmethod
     def list_from_parser(self, parser):

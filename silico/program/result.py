@@ -5,25 +5,23 @@ import os
 from silico.program.base import Program
 from silico.exception.base import Silico_exception
 from silico.result.alignment.base import Alignment
-from silico.format.text import Text_summary_group_format
-from silico.format.csv import CSV_summary_group_format,\
-    CSV_property_group_format
-from silico.format.table import Table_summary_group_format,\
-    Property_table_group_format
 from silico.parse import parse_multiple_calculations
 from silico.interface.urwid.result import Result_interface
 from silico.result.multi import Merged
+from silico.result.format.filter import Result_filter
+from silico.result.format.yaml import Yaml_dumper
+from silico.result.format.table import Tabulate_dumper, CSV_dumper, Text_dumper
+from silico.result.format.property import Tabulate_property_dumper,\
+    CSV_property_dumper
 
 
 class Result_program(Program):
-    """
-    The Silico result parsing program.
-    """
+    """Program class for dumping results"""
     
     name = "Calculation Result Parser"
     command = "result"
     aliases = ["R", "res"]
-    description = "extract results from calculation output files and convert them to more convenient intermediate formats"
+    description = "extract results from calculation output files and convert them to other formats"
     help = "Parse results"
 
 
@@ -40,16 +38,20 @@ class Result_program(Program):
         sub_parser.add_argument("log_files", help = "a (number of) calculation result file(s) (.log) to extract results from", nargs = "*", default = [])
         sub_parser.add_argument("-m", "--merge", help = "whether to merge the given calculation log files into a single result, presenting a summary of the merged data rather than each calculation separately", action = "store_true")
          
-        sub_parser.add_argument("-x", "--stop", help = "stop on missing properties rather than ignoring them", action = "store_true", default = False)
+        sub_parser.add_argument("-i", "--ignore", help = "ignore missing properties rather than stopping", action = "store_true", default = False)
+        sub_parser.add_argument("-n", "--none", help = "return an empty value when a missing property is encountered rather than returning nothing at all", action = "store_true", default = False)
         sub_parser.add_argument("-C", "--num_CPUs", help = "the number of CPUs to use in parallel to parse given log_files, defaults to the number of CPUs on the system", type = int, nargs = "?", default = os.cpu_count())
+        sub_parser.add_argument("-p", "--pretty", help = "convert headers to pretty alternatives; underscores are replaced with whitespace", action = "store_true")
+        sub_parser.add_argument("-F", "--float", help = "number format to use for floats in tabular formats (--sumary, --table and --table-property)", default = ".2f")
         
         output_group = sub_parser.add_argument_group("output format", "the format to write results to. Only one option from the following may be chosen")
         output_format = output_group.add_mutually_exclusive_group()
-        output_format.add_argument("-t", "--text", help = "human readable text format; shows various summaries of results for each result file", dest = "format", action = "store_const", const = Text_summary_group_format, default = Text_summary_group_format)
-        output_format.add_argument("-c", "--csv", help = "CSV tabular format; shows one row per result; useful for comparing many results at once", dest = "format", action = "store_const", const = CSV_summary_group_format)
-        output_format.add_argument("-d", "--csv-property", help = "CSV property format; shows a separate table for each property (atoms, MOs etc); one row for each item (atom, orbital etc)", dest = "format", action = "store_const", const = CSV_property_group_format)
-        output_format.add_argument("-a", "--table", help = "tabulated text format; the same as -c but formatted with an ASCII table, recommended that output be piped to 'less -S'", dest = "format", action = "store_const", const = Table_summary_group_format)
-        output_format.add_argument("-b", "--table-property", help = "tabulated property text format; the same as -d but formatted with an ASCII table", dest = "format", action = "store_const", const = Property_table_group_format)
+        output_format.add_argument("-y", "--yaml", help = "yaml format", dest = "format", action = "store_const", const = Yaml_dumper, default = Yaml_dumper)
+        output_format.add_argument("-c", "--csv", help = "CSV tabular format; shows one row per result; useful for comparing many results at once", dest = "format", action = "store_const", const = CSV_dumper)
+        output_format.add_argument("-t", "--table", help = "text table format; shows one row per result; useful for comparing many results at once", dest = "format", action = "store_const", const = Tabulate_dumper)
+        output_format.add_argument("-d", "--csv-property", help = "text property table format; shows one property per table", dest = "format", action = "store_const", const = CSV_property_dumper)
+        output_format.add_argument("-a", "--table-property", help = "text property table format; shows one property per table", dest = "format", action = "store_const", const = Tabulate_property_dumper)
+        output_format.add_argument("-s", "--summary", help = "summary text format", dest = "format", action = "store_const", const = Text_dumper)
         
         sub_parser.add_argument("-f", "--filters", help = "a list of filters to restrict which data is parsed (SCF, MOS, atoms etc)", nargs = "*", default = [])
         
@@ -133,15 +135,6 @@ class Result_program(Program):
         # Also if we have no-where to write to.
         if self.args.output is None:
             raise Silico_exception("No output location specified")
-        
-        # Process our given filters, splitting each into the filter name and associated filters.
-        requested_filters = self.process_filters(self.args.filters)
-        
-        # First, get the individual parsers that the user asked for (these are based on the values given to the --filters option).
-        formats = [self.args.format.from_class_handle(requested_filter['name'])(*requested_filter['sub_criteria'], ignore = not self.args.stop, config = self.config) for requested_filter in requested_filters]
-        
-        # Now get our main formating object.
-        output_format = self.args.format(*formats, ignore = not self.args.stop, config = self.config)
             
         # Merge results if we've been asked to.
         if self.args.merge:
@@ -149,9 +142,9 @@ class Result_program(Program):
         else:
             results = self.results
         
-        # Now process.
-        try:
-            output_format.write(results, (self.args.output,))
-            
-        except Exception as e:
-            raise Silico_exception("Failed to parse/write results") from e
+        filters = [Result_filter(filter_string, silico_options = self.config, allow_error = self.args.ignore, return_none = self.args.none) for filter_string in self.args.filters]
+        
+        dumper = self.args.format(*filters, silico_options = self.config, floatfmt = self.args.float)
+        
+        print(dumper.dump(*results, pretty = self.args.pretty), end="")
+    

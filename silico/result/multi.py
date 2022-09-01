@@ -48,11 +48,11 @@ class Merged(Result_set):
         
         # Merge remaining attributes.
         attrs = {}
-        for attr in ["CC_energies", "MP_energies", "SCF_energies", "dipole_moment", "excited_states", "vibrations", "spin_orbit_coupling"]:
+        for attr in ["energies", "pdm", "excited_states", "vibrations", "soc"]:
             attrs[attr] = type(getattr(results[0], attr)).merge(*[getattr(result, attr) for result in results])
         
         # Get a new ground state.
-        ground_state = Ground_state.from_energies(merged_metadata.charge, merged_metadata.multiplicity, attrs['CC_energies'], attrs['MP_energies'], attrs['SCF_energies'])
+        ground_state = Ground_state.from_energies(merged_metadata.charge, merged_metadata.multiplicity, attrs['energies'].cc, attrs['energies'].mp, attrs['energies'].scf)
         
         # Build new list of energy states.
         energy_states = Excited_state_list()
@@ -66,7 +66,7 @@ class Merged(Result_set):
             atoms = atoms,
             alignment = alignment,
             energy_states = energy_states,
-            molecular_orbitals = molecular_orbitals,
+            orbitals = molecular_orbitals,
             beta_orbitals = beta_orbitals,
             **attrs
             )

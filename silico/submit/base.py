@@ -1,6 +1,5 @@
 # General imports.
 import os
-import numpy
 import yaml
 
 # Silico imports.

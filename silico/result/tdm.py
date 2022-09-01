@@ -1,5 +1,8 @@
 # Silico imports.
 from silico.result.dipole_moment import Electric_dipole_moment_mixin, Dipole_moment_ABC, Magnetic_dipole_moment_mixin
+from silico.result.base import Result_object
+from silico.exception.base import Result_unavailable_error
+
 import itertools
 
 
@@ -98,7 +101,7 @@ class Magnetic_transition_dipole_moment(Transition_dipole_moment_ABC, Magnetic_d
             return []
 
 
-class Transition_dipole_moment():
+class Transition_dipole_moment(Result_object):
     """
     A compound class that represents both the electric and magnetic components of a transition dipole moment.
     
@@ -125,6 +128,21 @@ class Transition_dipole_moment():
         
         if self.magnetic is not None:
             self.magnetic.set_excited_state(excited_state)
+            
+    def dump(self, silico_options):
+        """
+        Get a representation of this result object in primitive format.
+        """
+        return {
+            "electric": self.electric.dump(silico_options) if self.electric is not None else None,
+            "magnetic": self.magnetic.dump(silico_options) if self.magnetic is not None else None,
+            "angle": {
+                "value": float(self.angle().angle) if self.electric is not None and self.magnetic is not None else None,
+                "units": self.angle().units if self.electric is not None and self.magnetic is not None else None,
+            },
+            "cos_angle": float(self.cos_angle()) if self.electric is not None and self.magnetic is not None else None,
+            "dissymmetry_factor": float(self.g_value) if self.safe_get('g_value') is not None else None
+        }
     
     @classmethod
     def list_from_parser(self, parser):
@@ -142,10 +160,13 @@ class Transition_dipole_moment():
     def __getattr__(self, name):
         # This check prevents infinite recursion when pickling, and is probably a sensible check anyway...
         if name != "electric" and name != "magnetic":
-            if self.electric is not None:
-                return getattr(self.electric, name)
-            else:
-                return getattr(self.magnetic, name)
+            try:
+                if self.electric is not None:
+                    return getattr(self.electric, name)
+                else:
+                    return getattr(self.magnetic, name)
+            except AttributeError as e:
+                raise AttributeError(name) from e
         else:
             raise AttributeError(name)
             
@@ -171,5 +192,10 @@ class Transition_dipole_moment():
         """
         try:
             return (4 * self.electric.gaussian_cgs * self.magnetic.gaussian_cgs * self.cos_angle(True)) / (self.electric.gaussian_cgs **2 + self.magnetic.gaussian_cgs **2)
+        
         except (FloatingPointError, ZeroDivisionError):
             return 0
+        
+        except AttributeError:
+            raise Result_unavailable_error("g_value", "transition electric or transition magnetic dipole moment is not available") from None
+

@@ -6,11 +6,13 @@ import math
 import itertools
 from deepmerge import conservative_merger
 from pathlib import Path
+import copy
 
 # Silico imports.
 from silico.exception import Result_unavailable_error
 from silico.result import Result_object
-from silico.misc.time import latest_datetime, total_timedelta
+from silico.misc.time import latest_datetime, total_timedelta, date_to_string,\
+    timedelta_to_string
 from silico.misc.text import andjoin
 
 
@@ -93,6 +95,7 @@ class Metadata(Result_object):
         self.methods = methods if methods is not None else []
         self.functional = functional
         self.basis_set = basis_set
+        # TODO: charge and mult should be deprecated here, they are available in ground_state.
         self.charge = charge
         self.multiplicity = multiplicity
         self.optimisation_converged = optimisation_converged
@@ -315,6 +318,67 @@ class Metadata(Result_object):
         except AttributeError:
             # There is no metadata available, give up.
             raise Result_unavailable_error("Metadata", "no metadata is available")
+        
+    def dump(self, silico_options):
+        """
+        Get a representation of this result object in primitive format.
+        """
+        # Most attributes we can just dump as is.
+        attrs = [
+            "name",
+            "user",
+            "package",
+            "package_version",
+            "calculations",
+            "methods",
+            "functional",
+            "basis_set",
+            "orbital_spin_type",
+            "success",
+            "optimisation_converged",
+        ]
+        attr_dict = {attr.replace("_", " "): getattr(self, attr) for attr in attrs}
+        
+        # Add some more complex stuff.
+        attr_dict['date'] = {
+            "value": self.date.timestamp() if self.date is not None else None,
+            "units": "s",
+            "string": date_to_string(self.date) if self.date is not None else None
+        }
+        attr_dict['duration'] = {
+            "value": self.duration.total_seconds() if self.duration is not None else None,
+            "units": "s",
+            "string": timedelta_to_string(self.duration) if self.duration is not None else None
+        }
+        attr_dict["temperature"] = {
+            "value": self.temperature,
+            "units": "K"
+        }
+        attr_dict["pressure"] = {
+            "value": self.pressure,
+            "units": "atm"
+        }
+        
+        return attr_dict
+    
+    @classmethod
+    def from_dump(self, data, result_set):
+        """
+        Get n instance of this class from its dumped representation.
+        
+        :param data: The data to parse.
+        :param result_set: The partially constructed result set which is being populated.
+        """
+        # Assemble our args to pass to the constructor.
+        # Most of these can be used from the metadata dict as is.
+        kwargs = copy.deepcopy(data.metadata)
+        
+        # For more complex fields, use the data item.
+        for attr in ['date', 'duration', 'temperature', "pressure"]:
+            if attr in data.metadata[attr]:
+                kwargs[attr] = data.metadata[attr]['value']
+        
+        return self(**kwargs)
 
 
 class Merged_metadata(Metadata):

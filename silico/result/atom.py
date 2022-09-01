@@ -33,7 +33,7 @@ class Atom_list(Result_container, Unmergeable_container_mixin):
             return sum([atom.mass for atom in self])
         except TypeError:
             # Exact mass not available.
-            raise Result_unavailable_error("Exact mass")
+            raise Result_unavailable_error("Exact mass") from None
         
     @property
     def molar_mass(self):
@@ -173,6 +173,36 @@ class Atom_list(Result_container, Unmergeable_container_mixin):
         primary_axis = math.sqrt( (end_coord[0] - start_coord[0])**2 + (end_coord[1] - start_coord[1])**2 )
         return self.get_theta(secondary_axis, primary_axis)
     
+    def dump(self, silico_options):
+        dump_dict = {
+            "formula": self.formula_string,
+            "exact_mass": {
+                "value": float(self.mass) if self.safe_get("mass") is not None else None,
+                "units": "g mol^-1" 
+            },
+            "molar_mass": {
+                "value": self.molar_mass,
+                "units": "g mol^-1",
+                },
+            "num_atoms": len(self),
+            "x-extension": {
+                "value": float(self.X_length),
+                "units": "Å"
+            },
+            "y-extension": {
+                "value": float(self.Y_length),
+                "units": "Å"
+            },
+            "z-extension": {
+                "value": float(self.Z_length),
+                "units": "Å"
+            },
+            "linearity_ratio": float(self.get_linear_ratio()),
+            "planarity_ratio": float(self.get_planar_ratio()),
+            "values": super().dump(silico_options),
+        }
+        return dump_dict
+    
     @classmethod
     def from_parser(self, parser):
         """
@@ -240,6 +270,51 @@ class Atom(Result_object):
         """
         # Atoms are considered equal if they are the same element in the same position.
         return self.element == other.element and self.coords == other.coords
+            
+    def distance(self, foreign_atom):
+        """
+        Get the distance between this atom and another atom.
+        
+        :return: The distance. The units depend on the units of the atoms' coordinates. If the two atoms have coordinates of different units, then you will obviously get bizarre results.
+        """
+        
+        return math.sqrt( (self.coords[0] - foreign_atom.coords[0])**2 + (self.coords[1] - foreign_atom.coords[1])**2 + (self.coords[2] - foreign_atom.coords[2])**2)
+    
+    def dump(self, silico_options):
+        """
+        Get a representation of this result object in primitive format.
+        """
+        return {
+            "element": self.element.number,
+            "coords": {
+                "x": {
+                    "value": float(self.coords[0]),
+                    "units": "Å", 
+                },
+                "y": {
+                    "value": float(self.coords[1]),
+                    "units": "Å", 
+                },
+                "z": {
+                    "value": float(self.coords[2]),
+                    "units": "Å", 
+                }
+            },
+            "mass": {
+                "value": float(self.mass) if self.mass is not None else None,
+                "units": "g mol^-1"
+            }
+        }
+        
+    @classmethod
+    def list_from_dump(self, data, result_set):
+        """
+        Get a list of instances of this class from its dumped representation.
+        
+        :param data: The data to parse.
+        :param result_set: The partially constructed result set which is being populated.
+        """
+        return [self(atom_dict['element'], atom_dict['coords']['value'], atom_dict['mass']['value']) for atom_dict in data['atoms']]
     
     @classmethod
     def list_from_parser(self, parser):
@@ -271,14 +346,5 @@ class Atom(Result_object):
         
         # Loop through and rebuild our objects.
         return [self(atomic_number, tuple(coords), mass) for atomic_number, coords, mass in zip_data]
-
-            
-    def distance(self, foreign_atom):
-        """
-        Get the distance between this atom and another atom.
         
-        :return: The distance. The units depend on the units of the atoms' coordinates. If the two atoms have coordinates of different units, then you will obviously get bizarre results.
-        """
-        
-        return math.sqrt( (self.coords[0] - foreign_atom.coords[0])**2 + (self.coords[1] - foreign_atom.coords[1])**2 + (self.coords[2] - foreign_atom.coords[2])**2)
         

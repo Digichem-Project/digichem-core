@@ -32,13 +32,12 @@ class Dipole_moment_ABC(Result_object):
         """
         return math.sqrt( self.vector_coords[0] ** 2 + self.vector_coords[1] ** 2 + self.vector_coords[2] ** 2)
     
-    # TODO: Look into why we record origin_coords, they probably don't do what the name suggests and probably aren't useful?
     def __init__(self, origin_coords, vector_coords, atoms = None):
         """
         Constructor for Dipole_moment objects.
         
-        :param origin_coords: Tuple of (x, y, z) coordinates of where this dipole moment starts.
-        :param vector_coords: Tuple of (x, y, z) coordinates of where this dipole moment ends.
+        :param origin_coords: Tuple of (x, y, z) coordinates of the origin of this dipole moment.
+        :param vector_coords: Tuple of (x, y, z) coordinates of this dipole  moment.
         :param atoms: Optional atoms atom list object which is used to calculate addition data about this dipole moment. 
         """
         super().__init__()
@@ -182,12 +181,67 @@ class Dipole_moment_ABC(Result_object):
             return (vector_a[0] * vector_b[0] + vector_a[1] * vector_b[1] + vector_a[2] * vector_b[2]) / (vector_a_total * vector_b_total)
         except (FloatingPointError, ZeroDivisionError):
             return 0
+        
+    def dump(self, silico_options):
+        """
+        Get a representation of this result object in primitive format.
+        """
+        return {
+            "total": {
+                "value": self.total,
+                "units": self.units
+            },
+            "origin": {
+                "x": {
+                    "value": float(self.origin_coords[0]),
+                    "units": "Å",
+                },
+                "y": {
+                    "value": float(self.origin_coords[1]),
+                    "units": "Å",
+                },
+                "z": {
+                    "value": float(self.origin_coords[2]),
+                    "units": "Å",
+                }
+            },
+            "vector": {
+                "x": {
+                    "value": float(self.vector_coords[0]),
+                    "units": self.units
+                },
+                "y": {
+                    "value": float(self.vector_coords[1]),
+                    "units": self.units
+                },
+                "z": {
+                    "value": float(self.vector_coords[2]),
+                    "units": self.units
+                },
+            },
+            "x-angle": {
+                "value": self.X_axis_angle.angle,
+                "units": self.X_axis_angle.units
+            },
+            "xy-angle": {
+                "value": self.XY_plane_angle.angle,
+                "units": self.XY_plane_angle.units
+            }
+        }
 
 
 class Electric_dipole_moment_mixin():
     """
     Mixin class for electric dipole moments.
     """
+    
+    @property
+    def units(self):
+        """
+        The units of this dipole moment object.
+        """
+        # Debye
+        return "D"
     
     @property
     def coulomb_meters(self):
@@ -204,19 +258,6 @@ class Electric_dipole_moment_mixin():
         return value / 2.541746473
     
     @classmethod
-    def from_parser(self, parser):
-        """
-        Construct a Dipole_moment object from an output file parser.
-        
-        :param parser: An output file parser.
-        :result: A single Dipole_moment object, or None if no dipole information is available.
-        """
-        try:
-            return self(parser.data.moments[0], parser.data.moments[1], parser.results.alignment)
-        except AttributeError:
-            return None
-    
-    @classmethod
     def to_gaussian_cgs(self, value):
         """
         Convert an electric dipole moment in D to Gaussian-cgs units.
@@ -230,6 +271,13 @@ class Magnetic_dipole_moment_mixin():
     """
     Mixin class for magnetic dipole moments.
     """
+    
+    @property
+    def units(self):
+        """
+        The units of this dipole moment object.
+        """
+        return "a.u."
     
     @property
     def bohr_magnetons(self):
@@ -258,4 +306,27 @@ class Dipole_moment(Dipole_moment_ABC, Electric_dipole_moment_mixin):
     """
     Class that represents the (permanent) dipole moment of a molecule.
     """
+        
+    @classmethod
+    def from_dump(self, data, result_set):
+        """
+        Get a list of instances of this class from its dumped representation.
+        
+        :param data: The data to parse.
+        :param result_set: The partially constructed result set which is being populated.
+        """
+        return self([0.0,0.0,0.0], data['dpm']['vector']['value'], atoms = result_set.alignment)
+    
+    @classmethod
+    def from_parser(self, parser):
+        """
+        Construct a Dipole_moment object from an output file parser.
+        
+        :param parser: An output file parser.
+        :result: A single Dipole_moment object, or None if no dipole information is available.
+        """
+        try:
+            return self(parser.data.moments[0], parser.data.moments[1], parser.results.alignment)
+        except AttributeError:
+            return None
     

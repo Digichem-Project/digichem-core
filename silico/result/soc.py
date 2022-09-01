@@ -13,6 +13,17 @@ class SOC_list(Result_container):
     An augmented list containing spin orbit coupling.
     """
     
+    def find(self, criteria):
+        """
+        """
+        states = criteria.split(",")
+        
+        # Check we have two states.
+        if len(states) != 2:
+            raise ValueError("SOC can only be found between exactly 2 states, not {} states.".format(len(states)))
+        
+        return self.between(*states)
+    
     def between(self, state1, state2, **kwargs):
         """
         Return the spin-orbit coupling object between the two states with given symbols.
@@ -57,6 +68,7 @@ class SOC_list(Result_container):
             
         return super().sort(key = key, **kwargs)
 
+
 class Spin_orbit_coupling(Result_object, Floatable_mixin):
     """
     Class that represents spin-orbit coupling between two states.
@@ -77,6 +89,34 @@ class Spin_orbit_coupling(Result_object, Floatable_mixin):
         self.positive_one = positive_one
         self.zero = zero
         self.negative_one = negative_one
+        
+    def dump(self, silico_options):
+        """
+        Get a representation of this result object in primitive format.
+        """
+        return {
+            "singlet": self.singlet_state.state_symbol,
+            "triplet": self.triplet_state.state_symbol,
+            "soc": {
+                "+1": {
+                    "value": self.positive_one,
+                    "units": "c m^-1",
+                },
+                "0": {
+                    "value": self.zero,
+                    "units": "c m^-1",
+                },
+                "-1": {
+                    "value": self.negative_one,
+                    "units": "c m^-1",
+                },
+            },
+            "rss": {
+                "units": "c m^-1",
+                "value": self.root_sum_square,
+            },
+            "mixing_coefficient": self.mixing_coefficient
+        }
         
     @classmethod
     def list_from_parser(self, parser):

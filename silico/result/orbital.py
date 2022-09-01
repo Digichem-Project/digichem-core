@@ -101,6 +101,23 @@ class Molecular_orbital_list(Result_container):
         
         Only one of the criteria should be specified.
         
+        :deprecated: Use find() instead.
+        :raises Result_unavailable_error: If the requested MO could not be found.
+        :param criteria: A string describing the orbital to get. The meaning of criteria is determined automatically based on its content. If criteria begins with '+' or '-' then it is used as a HOMO_difference. Otherwise, if criteria is a valid integer, then it is used as a level. Otherwise, criteria is assumed to be an orbital label.
+        :param label: The label of the orbital to get.
+        :param HOMO_difference: The distance from the HOMO of the orbital to get.
+        :param level: The level of the orbital to get.
+        :return: The Molecular_orbital object.
+        """
+        warnings.warn("get_orbital is deprecated, use find() instead", DeprecationWarning)
+        return self.find(criteria, label = label, HOMO_difference = HOMO_difference, level = level)
+    
+    def find(self, criteria = None, *, label = None, HOMO_difference = None, level = None):
+        """
+        Retrieve an orbital based on some property.
+        
+        Only one of the criteria should be specified.
+        
         :raises Result_unavailable_error: If the requested MO could not be found.
         :param criteria: A string describing the orbital to get. The meaning of criteria is determined automatically based on its content. If criteria begins with '+' or '-' then it is used as a HOMO_difference. Otherwise, if criteria is a valid integer, then it is used as a level. Otherwise, criteria is assumed to be an orbital label.
         :param label: The label of the orbital to get.
@@ -109,13 +126,9 @@ class Molecular_orbital_list(Result_container):
         :return: The Molecular_orbital object.
         """
         # Use the search() method to do our work for us.
-        try:
-            return self.search(criteria, label = label, HOMO_difference = HOMO_difference, level = level)[0]
-        except IndexError:
-            #raise ValueError("Unable to find orbital '{}'".format(label))
-            raise Result_unavailable_error("Orbital", "could not find orbital with criteria = '{}', label = '{}', HOMO_difference = '{}', level = '{}'".format(criteria, label, HOMO_difference, level))
+        return self.search(criteria, label = label, HOMO_difference = HOMO_difference, level = level, allow_empty = False)[0]
     
-    def search(self, criteria = None, *, label = None, HOMO_difference = None, level = None):
+    def search(self, criteria = None, *, label = None, HOMO_difference = None, level = None, allow_empty = True):
         """
         Attempt to retrieve a number of orbitals based on some property.
         
@@ -125,12 +138,13 @@ class Molecular_orbital_list(Result_container):
         :param label: The label of the orbitals to get.
         :param HOMO_difference: The distance from the HOMO of the orbitals to get.
         :param level: The level of the orbitals to get.
+        :param allow_empty: If False and no matching orbitals can be found, raise a Result_unavailable_error.
         :return: A (possibly empty) Molecular_orbital_list object.
         """
         # If we've been given a generic criteria, decide what it is actually talking about.        
         if criteria is not None:
             try:                
-                # If our string start with a sing (+ or -) then it's a HOMO_difference.
+                # If our string start with a sign (+ or -) then it's a HOMO_difference.
                 if criteria[:1] == "+" or criteria[:1] == "-":
                     HOMO_difference = int(criteria)
                 # If its and integer (or a string that looks like one), then its a level.
@@ -155,7 +169,23 @@ class Molecular_orbital_list(Result_container):
             raise ValueError("Missing criteria to search by; specify one of 'criteria', 'label', 'HOMO_difference' or 'level'")
         
         # Now search.
-        return type(self)(filterfalse(filter_func, self))
+        found = type(self)(filterfalse(filter_func, self))
+        
+        # Possibly panic if the list is empty.
+        if not allow_empty and len(found) == 0:
+            # Work out what we searched for to give better error.
+            if label is not None:
+                criteria_string = "label = '{}'".format(label)
+            
+            elif HOMO_difference is not None:
+                criteria_string = "HOMO difference = '{}'".format(HOMO_difference)
+            
+            elif level is not None:
+                criteria_string = "index = '{}'".format(level)
+            
+            raise Result_unavailable_error("Orbital", "could not find orbital with {}".format(criteria_string))
+        
+        return found
     
     def ordered(self):
         """
@@ -305,6 +335,18 @@ class Molecular_orbital_list(Result_container):
         """
         return math.isclose(MO.energy, other_MO.energy) and MO.level == other_MO.level and MO.spin_type == other_MO.spin_type
     
+    def dump(self, silico_options):
+        dump_dict = {
+            "ΔE(HOMO-LUMO)": {
+                "value": self.HOMO_LUMO_energy if self.safe_get("HOMO_LUMO_energy") else None,
+                "units": "eV"
+            },
+            "num_occupied": len(self.occupied),
+            "num_virtual": len(self.virtual),
+            "values": super().dump(silico_options),
+        }
+        return dump_dict
+    
 
 class Molecular_orbital(Result_object, Floatable_mixin):
     """
@@ -419,6 +461,34 @@ class Molecular_orbital(Result_object, Floatable_mixin):
     
     # The index used to access data from cclib (which always has two lists, one for alpha one for beta).
     ccdata_index = 0
+    
+    def dump(self, silico_options):
+        """
+        Get a representation of this result object in primitive format.
+        """
+        return {
+            "index": self.level,
+            "label": self.label,
+            "homo_distance": int(self.HOMO_difference),
+            "energy": {
+                "value": float(self.energy),
+                "units": "eV"
+            },
+            "symmetry": self.symmetry,
+            "symmetry_index": self.symmetry_level
+        }
+        
+    @classmethod
+    def list_from_dump(self, data, result_set):
+        """
+        Get a list of instances of this class from its dumped representation.
+        
+        :param data: The data to parse.
+        :param result_set: The partially constructed result set which is being populated.
+        """
+        dict_key = "orbitals" if self.spin_type == "none" or self.spin_type == "alpha" else "beta orbitals"
+        
+        return [self(orbital_dict['index'], orbital_dict['homo distance'], orbital_dict['energy'], orbital_dict['symmetry'], orbital_dict['symmetry index']) for orbital_dict in data[dict_key]]
     
     @classmethod
     def list_from_parser(self, parser):
