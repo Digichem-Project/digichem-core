@@ -7,6 +7,9 @@ from silico.test.util import silico_options
 from silico.test.test_result import gaussian_opt_result, gaussian_ES_result
 from silico.result.format.filter import Result_filter
 from silico.result.format.yaml import Yaml_dumper
+from silico.result.format.property import CSV_property_dumper,\
+    Tabulate_property_dumper
+from silico.result.format.table import Tabulate_dumper, Text_dumper, CSV_dumper
 
 
 # Tests for checking the filtering mechanism is working correctly.
@@ -53,4 +56,15 @@ def test_numeric_result(result_set, filter_string, value, silico_options):
     
     # Check the value
     assert list(parsed.items())[0][1] == pytest.approx(value, abs=1e-5)
+
+@pytest.mark.parametrize("dump_class, filter_string", [
+        (Yaml_dumper, ""),
+        (Tabulate_property_dumper, "atoms"),
+        (CSV_property_dumper, "atoms"),
+        (Tabulate_dumper, ""),
+        (CSV_dumper, ""),
+        (Text_dumper, "")
+    ])
+def test_dump_format(gaussian_opt_result, dump_class, filter_string, silico_options):
+    dump_class.from_text(filter_string, silico_options = silico_options).dump(gaussian_opt_result)
     
