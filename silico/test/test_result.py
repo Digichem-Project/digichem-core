@@ -104,10 +104,10 @@ def turbomole_ADC2_triplets_result():
     ])
 def test_SCF_energy(result_set, num, final):
     """Test the parsed energy is correct"""
-    assert result_set.SCF_energies.final == pytest.approx(final, abs=1e-5)
+    assert result_set.energies.scf.final == pytest.approx(final, abs=1e-5)
     
     # Check length, which will be 1 for SP, and >1 for the opts.
-    assert len(result_set.SCF_energies) == num
+    assert len(result_set.energies.scf) == num
 
 
 @pytest.mark.parametrize("result_set, num, final", [
@@ -117,13 +117,13 @@ def test_SCF_energy(result_set, num, final):
     ])
 def test_MP_energy(result_set, num, final):
     """Test the parsed energy is correct"""
-    assert result_set.MP_energies.final == pytest.approx(final, abs=1e-5)
+    assert result_set.energies.mp.final == pytest.approx(final, abs=1e-5)
     
     if num > 1:
         pytest.skip("A cclib bug currently parses the wrong number of MP energies")
     # Check length, which will be 1 for SP, and >1 for the opts.
-    assert len(result_set.SCF_energies) == num
-    assert len(result_set.MP_energies) == num
+    assert len(result_set.energies.scf) == num
+    assert len(result_set.energies.mp) == num
 
 
 @pytest.mark.parametrize("result_set, charge, mult, energy", [

@@ -75,22 +75,22 @@
         <div class="resultsContainer">
             <div class="reportHeader reportHeader--minor reportHeader--results">Summary</div>
             <table class="results">
-                %if len(result.SCF_energies) > 0:
+                %if len(result.energies.scf) > 0:
                 <tr>
                     <td class="results__name">SCF energy:</td>
-                    <td class="results__value">${"{:0.4f}".format(result.SCF_energies.final)} eV</td>
+                    <td class="results__value">${"{:0.4f}".format(result.energies.scf.final)} eV</td>
                 </tr>
                 %endif
-                %if len(result.MP_energies) > 0:
+                %if len(result.energies.mp) > 0:
                 <tr>
                     <td class="results__name">MP energy:</td>
-                    <td class="results__value">${"{:0.4f}".format(result.MP_energies.final)} eV</td>
+                    <td class="results__value">${"{:0.4f}".format(result.energies.mp.final)} eV</td>
                 </tr>
                 %endif
-                %if len(result.CC_energies) > 0:
+                %if len(result.energies.cc) > 0:
                 <tr>
                     <td class="results__name">CC energy:</td>
-                    <td class="results__value">${"{:0.4f}".format(result.CC_energies.final)} eV</td>
+                    <td class="results__value">${"{:0.4f}".format(result.energies.cc.final)} eV</td>
                 </tr>
                 %endif
                 <%include file="/excited_states/dest_result_rows.mako" args="excited_states = result.excited_states" />

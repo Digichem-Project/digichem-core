@@ -49,14 +49,14 @@
         <%include file="/warning/warning_section.mako" args="result = report.result"/>
         <%include file="/summary/summary_section.mako" args="result = report.result"/>
         ## We don't need these sections unless we're doing an opt.
-        %if len(report.result.SCF_energies) > 1:
-            <%include file="/energy/energy_section.mako" args="energies = report.result.SCF_energies, report = report"/>
+        %if len(report.result.energies.scf) > 1:
+            <%include file="/energy/energy_section.mako" args="energies = report.result.energies.scf, report = report"/>
         %endif
-        %if len(report.result.MP_energies) > 1:
-            <%include file="/energy/energy_section.mako" args="energies = report.result.MP_energies, report = report"/>
+        %if len(report.result.energies.mp) > 1:
+            <%include file="/energy/energy_section.mako" args="energies = report.result.energies.mp, report = report"/>
         %endif
-        %if len(report.result.CC_energies) > 1:
-            <%include file="/energy/energy_section.mako" args="energies = report.result.CC_energies, report = report"/>
+        %if len(report.result.energies.cc) > 1:
+            <%include file="/energy/energy_section.mako" args="energies = report.result.energies.cc, report = report"/>
         %endif
         %if len(report.result.atoms) > 0:
             <%include file="/geometry/geometry_section.mako" args="report = report"/>

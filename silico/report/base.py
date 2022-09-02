@@ -385,7 +385,7 @@ class Report():
         #############################
         # Energy convergence graphs #
         #############################
-        for energy in (self.result.SCF_energies, self.result.MP_energies, self.result.CC_energies):
+        for energy in self.result.energies:
             self.images['{}_convergence_graph'.format(energy.energy_type)] = Convergence_graph_maker.from_options(
                 Path(output_dir, output_name + ".{}_graph.png".format(energy.energy_type)),
                 energies = energy,

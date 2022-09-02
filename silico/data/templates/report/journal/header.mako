@@ -76,7 +76,7 @@
 			## Now highlight main results.
 			##
 			## Final energies
-			% for energy in (report.result.SCF_energies, report.result.MP_energies, report.result.CC_energies):
+			% for energy in report.result.energies:
 				% if len(energy) > 0:
 				The total ${energy.human_energy_type} (${energy.energy_type}) energy of the system was found to be ${"{:.2f}".format(energy.final)} eV after ${len(energy)} ${inflector.plural("step", len(energy))}.
 				% endif

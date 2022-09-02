@@ -36,10 +36,10 @@
     	<h4>Summary Of Results</h4>
     	<div class="section section--results">
     		## Summaries.
-    		%for energies in [report.result.SCF_energies, report.result.MP_energies, report.result.CC_energies]:
-    			%if len(energies) > 0:
-    				<h5>${energies.energy_type} Energy</h5>
-    				<%include file="/energy/summary.mako" args="energies = energies, report = report"/>
+    		%for energy in report.result.energies:
+    			%if len(energy) > 0:
+    				<h5>${energy.energy_type} Energy</h5>
+    				<%include file="/energy/summary.mako" args="energies = energy, report = report"/>
     			%endif
     		%endfor
     		%if len(report.result.alignment) > 0:
@@ -97,7 +97,7 @@
     		<%include file="/method.mako" args="report = report"/>
     		##
     		<h4>Discussion</h4>
-    		%for energy in [report.result.SCF_energies, report.result.MP_energies, report.result.CC_energies]:
+    		%for energy in report.result.energies:
 	    		%if len(energy) > 0:
 	    		<%include file="/energy/energy.mako" args="energy = energy, report = report"/>
 	    		%endif

@@ -27,14 +27,14 @@
     		<%include file="/metadata/metadata_results.mako" args="metadata = sub_metadata, title = 'Calculation {}'.format(index +1)"/>
     	%endfor
     %endif
-    %if len(result.SCF_energies) > 0:
-        <%include file="/energy/energy_results.mako" args="energies = result.SCF_energies"/>
+    %if len(result.energies.scf) > 0:
+        <%include file="/energy/energy_results.mako" args="energies = result.energies.scf"/>
     %endif
-    %if len(result.MP_energies) > 0:
-        <%include file="/energy/energy_results.mako" args="energies = result.MP_energies"/>
+    %if len(result.energies.mp) > 0:
+        <%include file="/energy/energy_results.mako" args="energies = result.energies.mp"/>
     %endif
-    %if len(result.CC_energies) > 0:
-        <%include file="/energy/energy_results.mako" args="energies = result.CC_energies"/>
+    %if len(result.energies.cc) > 0:
+        <%include file="/energy/energy_results.mako" args="energies = result.energies.cc"/>
     %endif
     %if len(result.alignment) > 0:
         <%include file="/geometry/geometry_results.mako" args="alignment = result.alignment"/>
