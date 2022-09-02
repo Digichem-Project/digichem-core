@@ -66,25 +66,23 @@ class Ground_state(Energy_state):
         
         :param parser: An output file parser.
         """
-        return self.from_energies(parser.results.metadata.charge, parser.results.metadata.multiplicity, parser.results.CC_energies, parser.results.MP_energies, parser.results.SCF_energies)
+        return self.from_energies(parser.results.metadata.charge, parser.results.metadata.multiplicity, parser.results.energies)
     
     @classmethod
-    def from_energies(self, charge, multiplicity, CC_energies, MP_energies, SCF_energies):
+    def from_energies(self, charge, multiplicity, energies):
         """
         Create a ground state object selecting from various lists of energies.
         
         :param charge: Charge of the ground state.
         :param multiplicity: Multiplicity of the ground state.
-        :param CC_energies: List of coupled-cluster energies.
-        :param MP_energies: List of Moller-Plesset energies.
-        :param SCF_energies: List of self-consistent field energies.
+        :param energies: List of energies.
         """
-        if len(CC_energies) > 0:
-            energy = CC_energies.final
-        elif len(MP_energies) > 0:
-            energy = MP_energies.final
-        elif len(SCF_energies) > 0:
-            energy = SCF_energies.final
+        if len(energies.cc) > 0:
+            energy = energies.cc.final
+        elif len(energies.mp) > 0:
+            energy = energies.mp.final
+        elif len(energies.scf) > 0:
+            energy = energies.scf.final
         else:
             # We have no energies that we can understand. Give up.
             return None

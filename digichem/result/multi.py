@@ -52,7 +52,7 @@ class Merged(Result_set):
             attrs[attr] = type(getattr(results[0], attr)).merge(*[getattr(result, attr) for result in results])
         
         # Get a new ground state.
-        ground_state = Ground_state.from_energies(merged_metadata.charge, merged_metadata.multiplicity, attrs['energies'].cc, attrs['energies'].mp, attrs['energies'].scf)
+        ground_state = Ground_state.from_energies(merged_metadata.charge, merged_metadata.multiplicity, attrs['energies'])
         
         # Build new list of energy states.
         energy_states = Excited_state_list()
