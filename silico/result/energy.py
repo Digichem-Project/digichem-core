@@ -20,6 +20,10 @@ class Energies(Result_object):
         self.mp = MP_energy_list(mp if mp is not None else [])
         self.cc = CC_energy_list(cc if cc is not None else [])
         
+    def __iter__(self):
+        for energy in (self.scf, self.mp, self.cc):
+            yield energy
+        
     @property
     def final(self):
         """
