@@ -8,13 +8,13 @@
 	This toolset relies upon a number of third-party applications and libraries which should be cited appropriately in derivative works.
 	In particular, the calculation results described within were parsed by the cclib library.<%include file="/citation.mako" args="citation = 'cclib', report = report"/>
 	Scientific constants which were used, among other things, for the interconversion of scientific units were provided by SciPy.<%include file="/citation.mako" args="citation = 'SciPy', report = report"/>
-	%if len(report.result.excited_states) > 0 or len(report.result.adiabatic_emission) > 0 or len(report.result.vertical_emission) > 0:
+	%if len(report.result.excited_states) > 0 or len(report.result.emission.adiabatic) > 0 or len(report.result.emission.vertical) > 0:
 		Commission internationale de l'éclairage (CIE) coordinates, along with visual representations of the equivalent colour, were calculated using the Colour Science library.<%include file="/citation.mako" args="citation = 'ColourScience', report = report"/>
 	%endif
 	%if len(report.result.soc):
 		Spin-orbit coupling (SOC, H<sub>SO</sub>) was calculated using a custom implementation of the PySOC program.<%include file="/citation.mako" args="citation = 'PySOC', report = report"/>
 	%endif
-	%if len(report.result.vertical_emission) > 0 or len(report.result.adiabatic_emission) > 0:
+	%if len(report.result.emission.vertical) > 0 or len(report.result.emission.adiabatic) > 0:
 		Emission rate constants (k<sub>e</sub>) were calculated according to the method devloped by Shizu and Kaji<%include file="/citation.mako" args="citation = '10.1021/acs.jpca.1c06165', report = report"/>
 		as described by formula ${report.captions("formula", "emission rate")}, where
 		∆E<sub>e</sub> is the energy of emission,

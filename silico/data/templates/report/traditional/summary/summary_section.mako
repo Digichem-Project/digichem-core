@@ -45,8 +45,8 @@
     %if len(result.beta_orbitals) > 0:
         <%include file="/orbitals/HOMO_LUMO_results.mako" args="orbitals = result.beta_orbitals"/>
     %endif
-    %if result.dipole_moment is not None:
-        <%include file="/dipole_moment/dipole_moment_results.mako" args="dipole_moment = result.dipole_moment"/>
+    %if result.pdm is not None:
+        <%include file="/dipole_moment/dipole_moment_results.mako" args="dipole_moment = result.pdm"/>
     %endif
     %if transition_dipole_moment is not None:
         <%include file="/dipole_moment/dipole_moment_results.mako" args="dipole_moment = transition_dipole_moment"/>
@@ -54,11 +54,11 @@
     %if len(result.vibrations) > 0:
         <%include file="/vibrations/vibrations_results.mako" args="vibrations = result.vibrations"/>
     %endif
-    %for multiplicity, vertical_emission in result.vertical_emission.items():
-        <%include file="/emission/emission_results.mako" args="emission = vertical_emission"/><span></span>
+    %for multiplicity, vertical in result.emission.vertical.items():
+        <%include file="/emission/emission_results.mako" args="emission = vertical"/><span></span>
     %endfor
-    %for multiplicity, adiabatic_emission in result.adiabatic_emission.items():
-        <%include file="/emission/emission_results.mako" args="emission = adiabatic_emission"/><span></span>
+    %for multiplicity, adiabatic in result.emission.adiabatic.items():
+        <%include file="/emission/emission_results.mako" args="emission = adiabatic"/><span></span>
     %endfor
     %if len(result.excited_states) > 0 and len(result.soc) > 0:
         <%include file="/soc/SOC_results.mako" args="soc = result.soc, excited_states = result.excited_states"/>

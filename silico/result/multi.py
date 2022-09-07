@@ -23,8 +23,8 @@ class Merged(Result_set):
         """
         super().__init__(*args, **kwargs)
         self.results = results
-        self.vertical_emission = vertical_emission if vertical_emission is not None else {}
-        self.adiabatic_emission = adiabatic_emission if vertical_emission is not None else {}
+        self.emission.vertical = vertical_emission if vertical_emission is not None else {}
+        self.emission.adiabatic = adiabatic_emission if adiabatic_emission is not None else {}
             
     @classmethod
     def from_results(self, *results, alignment_class):
@@ -72,7 +72,7 @@ class Merged(Result_set):
             )
         
         # Try and guess emission.
-        merged_results.vertical_emission, merged_results.adiabatic_emission = Relaxed_excited_state.guess_from_results(*results)
+        merged_results.emission.vertical, merged_results.emission.adiabatic = Relaxed_excited_state.guess_from_results(*results)
         
         # Done.
         return merged_results

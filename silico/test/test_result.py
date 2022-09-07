@@ -269,11 +269,11 @@ def test_frequencies(result_set, num, index, frequency, intensity):
 def test_pdm(result_set, coords, axis_angle, plane_angle):
     """Test the permanent dipole moment"""
      
-    check_dipole(result_set.dipole_moment, coords)
+    check_dipole(result_set.pdm, coords)
     
     # Check angles
-    assert float(result_set.dipole_moment.X_axis_angle) == pytest.approx(axis_angle, abs=1e-1)
-    assert float(result_set.dipole_moment.XY_plane_angle) == pytest.approx(plane_angle, abs=1e-1)
+    assert float(result_set.pdm.X_axis_angle) == pytest.approx(axis_angle, abs=1e-1)
+    assert float(result_set.pdm.XY_plane_angle) == pytest.approx(plane_angle, abs=1e-1)
 
 
 @pytest.mark.parametrize("result_set, number, TDM", [
@@ -393,10 +393,10 @@ def test_excited_state_transitions(result_set, state_index, transition_index, st
 def test_emission(result_set, transition_type, multiplicity, emission_type, energy, excited_energy, oscillator_strength, rate):
     # TODO: Testing of fluorescence rate should be moved to another module (where other calculated properties can be tested).
     if transition_type == "adiabatic":
-        emission = result_set.adiabatic_emission[multiplicity]
+        emission = result_set.emission.adiabatic[multiplicity]
         
     else:
-        emission = result_set.vertical_emission[multiplicity]
+        emission = result_set.emission.vertical[multiplicity]
         
     # Test some general properties.
     assert emission.transition_type == transition_type

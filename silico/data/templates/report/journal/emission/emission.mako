@@ -69,18 +69,18 @@
 ##
 ##
 ##
-%if len(report.result.adiabatic_emission) > 0:
+%if len(report.result.emission.adiabatic) > 0:
 	<div class="content">
 		<h5>Adiabatic Emission energy</h5>
 		## Adiabatic.
-		${emission_section(report.result.adiabatic_emission, "adiabatic")}
+		${emission_section(report.result.emission.adiabatic, "adiabatic")}
 	</div>
 %endif
 ##
-%if len(report.result.vertical_emission) > 0:
+%if len(report.result.emission.vertical) > 0:
 	<div class="content">
 		<h5>Vertical Emission energy</h5>
 		## Adiabatic.
-		${emission_section(report.result.vertical_emission, "vertical")}
+		${emission_section(report.result.emission.vertical, "vertical")}
 	</div>
 %endif

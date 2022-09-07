@@ -64,8 +64,8 @@
         %if 'SCF' in report.images:
         	<%include file="/total_density/section.mako" args="report = report, density_image_name = 'SCF'"/>
         %endif
-        %if report.result.dipole_moment is not None:
-            <%include file="/dipole_moment/dipole_moment_section.mako" args="dipole_moment = report.result.dipole_moment, report = report, image_name = 'dipole_moment'"/>
+        %if report.result.pdm is not None:
+            <%include file="/dipole_moment/dipole_moment_section.mako" args="dipole_moment = report.result.pdm, report = report, image_name = 'dipole_moment'"/>
         %endif
         %if report.result.transition_dipole_moment is not None:
             <%include file="/dipole_moment/dipole_moment_section.mako" args="dipole_moment = report.result.transition_dipole_moment, report = report, image_name = '{}_dipole'.format(report.result.transition_dipole_moment.excited_state.state_symbol)"/>
@@ -85,11 +85,11 @@
         %if len(post_LUMO_orbitals) > 0:
             <%include file="/orbitals/section.mako" args="orbitals = post_LUMO_orbitals, report = report"/>
         %endif
-        %for multiplicity, vertical_emission in report.result.vertical_emission.items():
-        	<%include file="/emission/emission_section.mako" args="emission = vertical_emission, report = report"/>
+        %for multiplicity, vertical in report.result.emission.vertical.items():
+        	<%include file="/emission/emission_section.mako" args="emission = vertical, report = report"/>
         %endfor
-        %for multiplicity, adiabatic_emission in report.result.adiabatic_emission.items():
-        	<%include file="/emission/emission_section.mako" args="emission = adiabatic_emission, report = report"/>
+        %for multiplicity, adiabatic in report.result.emission.adiabatic.items():
+        	<%include file="/emission/emission_section.mako" args="emission = adiabatic, report = report"/>
         %endfor
         %if len(report.result.excited_states) > 0:
             <%include file="/excited_states/excited_states_section.mako" args="excited_states = report.result.excited_states, report = report"/>

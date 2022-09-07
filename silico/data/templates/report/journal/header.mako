@@ -97,8 +97,8 @@
 			% endtry
 			##
 			## PDM.
-			% if report.result.dipole_moment is not None:
-			The permanent dipole moment (PDM) was calculated to be ${"{:.2f}".format(report.result.dipole_moment.total)} D.
+			% if report.result.pdm is not None:
+			The permanent dipole moment (PDM) was calculated to be ${"{:.2f}".format(report.result.pdm.total)} D.
 			% endif
 			##
 			## Vibrations.

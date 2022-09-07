@@ -273,7 +273,7 @@ class Report():
             self.images['dipole_moment'] = Permanent_dipole_image_maker.from_options(
                 Path(output_dir, "Dipole Moment", output_name + ".dipole.jpg"),
                 cube_file = self.cubes['structure'],
-                dipole_moment = self.result.dipole_moment,
+                dipole_moment = self.result.pdm,
                 rotations = self.rotations,
                 options = self.options)
             
@@ -362,7 +362,7 @@ class Report():
         #################################
         # Vertical & adiabatic emission #
         #################################
-        for emission_type in (self.result.vertical_emission, self.result.adiabatic_emission):
+        for emission_type in (self.result.emission.vertical, self.result.emission.adiabatic):
             for emission_multiplicity in emission_type:
                 emission = emission_type[emission_multiplicity]
                 

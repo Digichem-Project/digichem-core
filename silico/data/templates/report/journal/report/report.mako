@@ -54,9 +54,9 @@
     			<h5>Beta Orbitals</h5>
     			<%include file="/orbital/summary.mako" args="orbitals = report.result.beta_orbitals, report = report"/>
     		%endif
-    		%if report.result.dipole_moment is not None:
+    		%if report.result.pdm is not None:
     			<h5>Permanent Dipole Moment</h5>
-    			<%include file="/dipole_moment/PDM_summary.mako" args="dipole_moment = report.result.dipole_moment, report = report"/>
+    			<%include file="/dipole_moment/PDM_summary.mako" args="dipole_moment = report.result.pdm, report = report"/>
     		%endif
     		%if report.result.transition_dipole_moment is not None:
     		    <%
@@ -77,7 +77,7 @@
                 <h5>Spin-Orbit Coupling</h5>
                 <%include file="/SOC/summary.mako" args="soc = report.result.soc, report = report"/>
             %endif
-    		%for emission in itertools.chain(report.result.adiabatic_emission.values(), report.result.vertical_emission.values()):
+    		%for emission in itertools.chain(report.result.emission.adiabatic.values(), report.result.emission.vertical.values()):
     			<h5>${emission.transition_type} ${emission.multiplicity_symbol}<sub>${emission.multiplicity_level}</sub> Emission</h5>
     			<%include file="/emission/summary.mako" args="emission = emission"/>
     		%endfor
@@ -108,8 +108,8 @@
 	    	%if len(report.result.alignment) > 0:
 	    	<%include file="/geometry/geometry.mako" args="report = report"/>
 	    	%endif
-	    	%if report.result.dipole_moment is not None:
-	    	<%include file="/dipole_moment/PDM.mako" args="dipole_moment = report.result.dipole_moment, report = report"/>
+	    	%if report.result.pdm is not None:
+	    	<%include file="/dipole_moment/PDM.mako" args="dipole_moment = report.result.pdm, report = report"/>
 	    	%endif
 	    	%if report.result.transition_dipole_moment is not None:
 	    	<%include file="/dipole_moment/TDM.mako" args="dipole_moment = report.result.transition_dipole_moment, report = report"/>
