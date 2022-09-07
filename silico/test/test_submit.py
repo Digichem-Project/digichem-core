@@ -3,7 +3,7 @@
 import pytest
 
 from silico.test.util import benzene_cdx, pyridine_cml, cyclopentane_com, silico_options
-from silico.file.input.coord import Silico_coords
+from silico.file.input.coord import si_from_file
 from silico.submit.calculation.base import Calculation_target
 
 # The destination to use.
@@ -26,7 +26,7 @@ def test_submit(coordinate_files, method_codes, tmp_path, silico_options):
     methods = [silico_options.methods.resolve_method_string(method_id) for method_id in method_codes]
     
     # Load files.
-    coordinates = [Silico_coords.from_file(coordinate_file) for coordinate_file in coordinate_files]
+    coordinates = [si_from_file(coordinate_file) for coordinate_file in coordinate_files]
     
     # The first method.
     first = Calculation_target.link(methods, global_silico_options = silico_options)

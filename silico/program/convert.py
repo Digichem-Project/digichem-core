@@ -7,7 +7,7 @@
 from silico.program.base import Program
 from silico.exception.base import Silico_exception
 from silico.misc.base import to_bool
-from silico.file.input import Silico_coords
+from silico.file.input import si_from_file
 from silico.file.convert.babel import Openbabel_converter
 from silico.misc.file_wrapper import Multi_file_wrapper
 from silico.interface.urwid.convert import Convert_interface
@@ -53,7 +53,7 @@ class Convert_program(Program):
             raise Silico_exception("No input file specified")
         
         # Load the file we were given.
-        parser = Silico_coords.from_file(self.args.input_file, self.args.input_format, charge = self.args.charge, multiplicity = self.args.multiplicity, gen3D = self.args.gen3D)
+        parser = si_from_file(self.args.input_file, self.args.input_format, charge = self.args.charge, multiplicity = self.args.multiplicity, gen3D = self.args.gen3D)
         
         # If we weren't given an output format, try and guess one.
         if self.args.output_format is None:

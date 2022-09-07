@@ -9,7 +9,7 @@ from silico.interface.urwid.submit import Submit_interface
 from silico.exception.base import Silico_exception
 from silico.submit.calculation.base import Calculation_target
 from silico.exception.uncatchable import Submission_paused
-from silico.file.input import Silico_coords
+from silico.file.input import si_from_file
 from silico.submit.base import parse_method_from_file
 
 
@@ -102,7 +102,7 @@ class Submit_program(Program):
                 methods.append(parse_method_from_file(method_id, config))
         
         # Load coordinates.
-        coords = [Silico_coords.from_file(file, gen3D = args.gen3D, charge = args.charge, multiplicity = args.multiplicity) for file in args.coordinate_files]
+        coords = [si_from_file(file, gen3D = args.gen3D, charge = args.charge, multiplicity = args.multiplicity) for file in args.coordinate_files]
                 
         return self(coords, methods, args = args, config = config, logger = logger)
     

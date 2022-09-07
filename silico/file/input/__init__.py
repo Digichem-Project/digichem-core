@@ -9,6 +9,6 @@
 # they are placed more centrally here (for now at least).
 
 from .base import Input_file
-from .coord import Silico_coords
+from .coord import Silico_coords, si_from_file
 from .directory import Calculation_directory_input
 from .chk import Chk_input
