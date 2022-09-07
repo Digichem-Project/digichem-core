@@ -4,11 +4,11 @@
     from silico.exception import Result_unavailable_error 
 %>
 
-<%page args="molecular_orbitals, report"/>
+<%page args="orbitals, report"/>
 
 <%
     # First work out the type of orbitals we are dealing with (alpha, beta, or restricted).
-    orbital_type = molecular_orbitals.spin_type
+    orbital_type = orbitals.spin_type
     
     spin_prefix = orbital_type + "_" if orbital_type != "none" else ""
     
@@ -24,12 +24,12 @@
         
     # Get our FMOs.
     try:
-        HOMO = molecular_orbitals.get_orbital(HOMO_difference = 0)
+        HOMO = orbitals.get_orbital(HOMO_difference = 0)
     except Result_unavailable_error:
         HOMO = None
         
     try:
-        LUMO = molecular_orbitals.get_orbital(HOMO_difference = 1)
+        LUMO = orbitals.get_orbital(HOMO_difference = 1)
     except Result_unavailable_error:
         LUMO = None
     

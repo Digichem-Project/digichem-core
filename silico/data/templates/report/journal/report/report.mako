@@ -46,13 +46,13 @@
     			<h5>Geometry</h5>
     			<%include file="/geometry/summary.mako" args="alignment = report.result.alignment, report = report"/>
     		%endif
-    		%if len(report.result.molecular_orbitals) > 0:
-    			<h5>${"Molecular Orbitals" if report.result.molecular_orbitals.spin_type == 'none' else "Alpha Orbitals"}</h5>
-    			<%include file="/orbital/summary.mako" args="molecular_orbitals = report.result.molecular_orbitals, report = report"/>
+    		%if len(report.result.orbitals) > 0:
+    			<h5>${"Molecular Orbitals" if report.result.orbitals.spin_type == 'none' else "Alpha Orbitals"}</h5>
+    			<%include file="/orbital/summary.mako" args="orbitals = report.result.orbitals, report = report"/>
     		%endif
     		%if len(report.result.beta_orbitals) > 0:
     			<h5>Beta Orbitals</h5>
-    			<%include file="/orbital/summary.mako" args="molecular_orbitals = report.result.beta_orbitals, report = report"/>
+    			<%include file="/orbital/summary.mako" args="orbitals = report.result.beta_orbitals, report = report"/>
     		%endif
     		%if report.result.dipole_moment is not None:
     			<h5>Permanent Dipole Moment</h5>
@@ -114,7 +114,7 @@
 	    	%if report.result.transition_dipole_moment is not None:
 	    	<%include file="/dipole_moment/TDM.mako" args="dipole_moment = report.result.transition_dipole_moment, report = report"/>
 	    	%endif
-	    	%if len(report.result.molecular_orbitals) > 0:
+	    	%if len(report.result.orbitals) > 0:
 	    	<%include file="/orbital/orbitals.mako" args="report = report"/>
 	    	%endif
 	    	%if len(report.result.vibrations) > 0:
@@ -131,7 +131,7 @@
 	    		<h5 class="h5--tableHeader">Atom Coordinates</h5>
 	    		<%include file="/geometry/table.mako" args="report = report"/>
 	    	%endif
-	    	%if len(report.result.molecular_orbitals) > 0:
+	    	%if len(report.result.orbitals) > 0:
 	    		<h5 class="h5--tableHeader">Molecular Orbitals</h5>
 	    		<%include file="/orbital/table.mako" args="report = report"/>
 	    	%endif

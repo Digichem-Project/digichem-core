@@ -39,11 +39,11 @@
     %if len(result.alignment) > 0:
         <%include file="/geometry/geometry_results.mako" args="alignment = result.alignment"/>
     %endif
-    %if len(result.molecular_orbitals) > 0:
-        <%include file="/orbitals/HOMO_LUMO_results.mako" args="molecular_orbitals = result.molecular_orbitals"/>
+    %if len(result.orbitals) > 0:
+        <%include file="/orbitals/HOMO_LUMO_results.mako" args="orbitals = result.orbitals"/>
     %endif
     %if len(result.beta_orbitals) > 0:
-        <%include file="/orbitals/HOMO_LUMO_results.mako" args="molecular_orbitals = result.beta_orbitals"/>
+        <%include file="/orbitals/HOMO_LUMO_results.mako" args="orbitals = result.beta_orbitals"/>
     %endif
     %if result.dipole_moment is not None:
         <%include file="/dipole_moment/dipole_moment_results.mako" args="dipole_moment = result.dipole_moment"/>

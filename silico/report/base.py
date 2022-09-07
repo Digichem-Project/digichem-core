@@ -115,8 +115,8 @@ class Report():
             self.orbitals_to_render.extend(
                 chain(
                     # First alpha.
-                    chain.from_iterable(self.result.molecular_orbitals.search(HOMO_difference = HOMO_difference) for HOMO_difference in orbital_distances),
-                    chain.from_iterable(self.result.molecular_orbitals.search(level = level) for level in orbital_levels),
+                    chain.from_iterable(self.result.orbitals.search(HOMO_difference = HOMO_difference) for HOMO_difference in orbital_distances),
+                    chain.from_iterable(self.result.orbitals.search(level = level) for level in orbital_levels),
                     
                     # Now beta.
                     chain.from_iterable(self.result.beta_orbitals.search(HOMO_difference = HOMO_difference) for HOMO_difference in beta_distances),
@@ -201,7 +201,7 @@ class Report():
         # Orbitals #
         ############
         # We need to set images for both alpha and beta orbitals (if we have them).
-        for orbital_list in (self.result.molecular_orbitals, self.result.beta_orbitals):
+        for orbital_list in (self.result.orbitals, self.result.beta_orbitals):
             # First set individual orbital images.
             for orbital in orbital_list:
                 # Save our orbital image.
@@ -224,13 +224,13 @@ class Report():
                 # Save our orbital diagram.
                 self.images[spin_type + 'orbital_energies'] = Orbital_diagram_maker.from_options(
                     Path(output_dir, "Orbital Diagram", output_name + ".{}orbitals.png".format(spin_type)),
-                    molecular_orbitals = orbital_list,
+                    orbitals = orbital_list,
                     options = self.options)
                 
                 # A version of the diagram with only the HOMO-LUMO
                 self.images[spin_type + 'HOMO_LUMO_energies'] = Orbital_diagram_maker.from_options(
                     Path(output_dir, "Orbital Diagram", output_name + ".{}HOMO_LUMO.png".format(spin_type)),
-                    molecular_orbitals = type(orbital_list)(orbital for orbital in orbital_list if orbital.HOMO_difference == 0 or orbital.HOMO_difference == 1),
+                    orbitals = type(orbital_list)(orbital for orbital in orbital_list if orbital.HOMO_difference == 0 or orbital.HOMO_difference == 1),
                     options = self.options)
                 
                 # Also get our HOMO-LUMO combined image.

@@ -44,7 +44,7 @@ class Merged(Result_set):
         alignment = alignment_class(atoms, charge = merged_metadata.charge)
         
         # Use special method for merging orbitals.
-        molecular_orbitals, beta_orbitals = Molecular_orbital_list.merge_orbitals([result.molecular_orbitals for result in results], [result.beta_orbitals for result in results])
+        orbitals, beta_orbitals = Molecular_orbital_list.merge_orbitals([result.orbitals for result in results], [result.beta_orbitals for result in results])
         
         # Merge remaining attributes.
         attrs = {}
@@ -66,7 +66,7 @@ class Merged(Result_set):
             atoms = atoms,
             alignment = alignment,
             energy_states = energy_states,
-            orbitals = molecular_orbitals,
+            orbitals = orbitals,
             beta_orbitals = beta_orbitals,
             **attrs
             )

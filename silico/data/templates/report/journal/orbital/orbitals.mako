@@ -10,7 +10,7 @@
 <%
     inflector = inflect.engine()
 
-    molecular_orbitals = report.result.molecular_orbitals
+    orbitals = report.result.orbitals
     beta_orbitals = report.result.beta_orbitals
     
     # Split our list of orbitals to render images for into two, one for HOMO-n, another for LUMO+n.
@@ -46,8 +46,8 @@
     <h5>Molecular Orbitals</h5>
     %if len(beta_orbitals) == 0:
     ## Alpha only.
-    In total, ${len(molecular_orbitals)} doubly occupied molecular orbitals were calculated, divided into ${len(molecular_orbitals.occupied)} occupied orbitals and ${len(molecular_orbitals.virtual)} unoccupied (or virtual) orbitals.
-    The calculated energies of the <div class="result"><div class="result__title">HOMO and LUMO</div> were <div class="result__value">${"{:.2f}".format(report.result.molecular_orbitals.HOMO_energy)} and ${"{:.2f}".format(report.result.molecular_orbitals.LUMO_energy)} eV</div></div> respectively, corresponding to a <div class="result"><div class="result__title">HOMO-LUMO band gap</div> of <div class="result__value">${"{:.2f}".format(report.result.molecular_orbitals.HOMO_LUMO_energy)} eV</div></div> (figure ${report.captions("figure", 'orbital_energies')}).
+    In total, ${len(orbitals)} doubly occupied molecular orbitals were calculated, divided into ${len(orbitals.occupied)} occupied orbitals and ${len(orbitals.virtual)} unoccupied (or virtual) orbitals.
+    The calculated energies of the <div class="result"><div class="result__title">HOMO and LUMO</div> were <div class="result__value">${"{:.2f}".format(report.result.orbitals.HOMO_energy)} and ${"{:.2f}".format(report.result.orbitals.LUMO_energy)} eV</div></div> respectively, corresponding to a <div class="result"><div class="result__title">HOMO-LUMO band gap</div> of <div class="result__value">${"{:.2f}".format(report.result.orbitals.HOMO_LUMO_energy)} eV</div></div> (figure ${report.captions("figure", 'orbital_energies')}).
     ${text_for_orbital_plots()}
     <div class="resultImage resultImage--graph resultImage--orbitalEnergies">
         <img class="resultImage__image" src="${report.relative_image('orbital_energies')}">
@@ -57,8 +57,8 @@
     
     %else:
     ## Alpha and beta.
-    In total, ${len(molecular_orbitals) + len(beta_orbitals)} singly occupied molecular orbitals were calculated, divided into ${len(molecular_orbitals.occupied)} alpha occupied orbitals, ${len(beta_orbitals.occupied)} beta occupied orbitals, ${len(molecular_orbitals.virtual)} alpha unoccupied (or virtual) orbitals and ${len(beta_orbitals.virtual)} beta unoccupied orbitals.
-    The calculated energies of the <div class="result"><div class="result__title">alpha and beta HOMOs</div> were <div class="result__value">${"{:.2f}".format(report.result.molecular_orbitals.HOMO_energy)} and ${"{:.2f}".format(report.result.beta_orbitals.HOMO_energy)} eV</div></div> respectively, while the energies of the <div class="result"><div class="result__title">alpha and beta LUMOs</div> were <div class="result__value">${"{:.2f}".format(report.result.molecular_orbitals.LUMO_energy)} and ${"{:.2f}".format(report.result.beta_orbitals.LUMO_energy)} eV</div></div>. These values correspond to a calculated <div class="result"><div class="result__title">HOMO-LUMO band gap</div> of <div class="result__value">${"{:.2f}".format(report.result.molecular_orbitals.HOMO_LUMO_energy)} and ${"{:.2f}".format(report.result.beta_orbitals.HOMO_LUMO_energy)} eV</div></div> for the alpha and beta case respectively (figures ${report.captions("figure", 'orbital_energies')}).
+    In total, ${len(orbitals) + len(beta_orbitals)} singly occupied molecular orbitals were calculated, divided into ${len(orbitals.occupied)} alpha occupied orbitals, ${len(beta_orbitals.occupied)} beta occupied orbitals, ${len(orbitals.virtual)} alpha unoccupied (or virtual) orbitals and ${len(beta_orbitals.virtual)} beta unoccupied orbitals.
+    The calculated energies of the <div class="result"><div class="result__title">alpha and beta HOMOs</div> were <div class="result__value">${"{:.2f}".format(report.result.orbitals.HOMO_energy)} and ${"{:.2f}".format(report.result.beta_orbitals.HOMO_energy)} eV</div></div> respectively, while the energies of the <div class="result"><div class="result__title">alpha and beta LUMOs</div> were <div class="result__value">${"{:.2f}".format(report.result.orbitals.LUMO_energy)} and ${"{:.2f}".format(report.result.beta_orbitals.LUMO_energy)} eV</div></div>. These values correspond to a calculated <div class="result"><div class="result__title">HOMO-LUMO band gap</div> of <div class="result__value">${"{:.2f}".format(report.result.orbitals.HOMO_LUMO_energy)} and ${"{:.2f}".format(report.result.beta_orbitals.HOMO_LUMO_energy)} eV</div></div> for the alpha and beta case respectively (figures ${report.captions("figure", 'orbital_energies')}).
    ${text_for_orbital_plots()}
     <div class="resultImage resultImage--graph resultImage--orbitalEnergies">
         <img class="resultImage__image resultImage__image--pair" src="${report.relative_image('alpha_orbital_energies')}"><!--

@@ -74,16 +74,16 @@
             <%include file="/spin_density/section.mako" args="result = report.result, report = report"/>
         %endif
         %if len(pre_HOMO_orbitals) > 0:
-            <%include file="/orbitals/section.mako" args="molecular_orbitals = pre_HOMO_orbitals, report = report"/>
+            <%include file="/orbitals/section.mako" args="orbitals = pre_HOMO_orbitals, report = report"/>
         %endif
-        %if len(report.result.molecular_orbitals) > 0:
-            <%include file="/orbitals/HOMO_LUMO.mako" args="molecular_orbitals = report.result.molecular_orbitals, report = report"/>
+        %if len(report.result.orbitals) > 0:
+            <%include file="/orbitals/HOMO_LUMO.mako" args="orbitals = report.result.orbitals, report = report"/>
         %endif
         %if len(report.result.beta_orbitals) > 0:
-            <%include file="/orbitals/HOMO_LUMO.mako" args="molecular_orbitals = report.result.beta_orbitals, report = report"/>
+            <%include file="/orbitals/HOMO_LUMO.mako" args="orbitals = report.result.beta_orbitals, report = report"/>
         %endif
         %if len(post_LUMO_orbitals) > 0:
-            <%include file="/orbitals/section.mako" args="molecular_orbitals = post_LUMO_orbitals, report = report"/>
+            <%include file="/orbitals/section.mako" args="orbitals = post_LUMO_orbitals, report = report"/>
         %endif
         %for multiplicity, vertical_emission in report.result.vertical_emission.items():
         	<%include file="/emission/emission_section.mako" args="emission = vertical_emission, report = report"/>
@@ -103,8 +103,8 @@
             <%include file="/vibrations/vibrations_section.mako" args="vibrations = report.result.vibrations, report = report" />
             <%include file="/vibrations/vibrations_table.mako" args="vibrations = report.result.vibrations, min_frequency = report.options['report']['frequency_table']['min_frequency'], max_frequency = report.options['report']['frequency_table']['max_frequency'], max_num = report.options['report']['frequency_table']['max_num']" />
         %endif
-        %if len(report.result.molecular_orbitals) > 0 or len(report.result.beta_orbitals) > 0:
-            <%include file="/orbitals/table.mako" args="molecular_orbitals = report.result.molecular_orbitals, beta_orbitals = report.result.beta_orbitals, min_HOMO_difference = report.options['report']['orbital_table']['min'], max_HOMO_difference = report.options['report']['orbital_table']['max']"/>
+        %if len(report.result.orbitals) > 0 or len(report.result.beta_orbitals) > 0:
+            <%include file="/orbitals/table.mako" args="orbitals = report.result.orbitals, beta_orbitals = report.result.beta_orbitals, min_HOMO_difference = report.options['report']['orbital_table']['min'], max_HOMO_difference = report.options['report']['orbital_table']['max']"/>
         %endif
         %if len(report.result.alignment) > 0:
             <%include file="/geometry/atom_list_section.mako" args="atoms = report.result.alignment"/>

@@ -250,11 +250,11 @@ class Parser(Result_set):
         self.results = Result_set(metadata = Metadata.from_parser(self))
         
         # First get our list of MOs (because we need them for excited states too.)
-        self.results.molecular_orbitals = Molecular_orbital_list.from_parser(self)
+        self.results.orbitals = Molecular_orbital_list.from_parser(self)
         self.results.beta_orbitals = Molecular_orbital_list.from_parser(self, cls = Beta_orbital)
         
         # Assign total levels.
-        self.results.molecular_orbitals.assign_total_level(self.results.beta_orbitals)
+        self.results.orbitals.assign_total_level(self.results.beta_orbitals)
         
         # Metadata.
 #         self.results.metadata = Metadata.from_parser(self)

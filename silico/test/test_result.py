@@ -211,10 +211,10 @@ def test_alignment(result_set, length, width, height):
     ])
 def test_orbitals(result_set, num_occ, num_unocc, homo, lumo):
     """Test the energies of the parsed MOs"""
-    check_orbitals(result_set.molecular_orbitals, num_occ, num_unocc, homo, lumo)
+    check_orbitals(result_set.orbitals, num_occ, num_unocc, homo, lumo)
     
     # Check spin labels
-    assert result_set.molecular_orbitals.spin_type == "none"
+    assert result_set.orbitals.spin_type == "none"
 
 
 @pytest.mark.parametrize("result_set, num_occ, num_unocc, homo, lumo", [
@@ -224,14 +224,14 @@ def test_orbitals(result_set, num_occ, num_unocc, homo, lumo):
 def test_unrestricted_orbitals(result_set, num_occ, num_unocc, homo, lumo):
     """Test the energies of unrestricted orbitals"""
     # Check overall length.
-    assert len(result_set.molecular_orbitals) == len(result_set.beta_orbitals)
+    assert len(result_set.orbitals) == len(result_set.beta_orbitals)
     
     # Check each set of orbitals.
-    check_orbitals(result_set.molecular_orbitals, num_occ[0], num_unocc[0], homo[0], lumo[0])
+    check_orbitals(result_set.orbitals, num_occ[0], num_unocc[0], homo[0], lumo[0])
     check_orbitals(result_set.beta_orbitals, num_occ[1], num_unocc[1], homo[1], lumo[1])
     
     # Check spin labels
-    assert result_set.molecular_orbitals.spin_type == "alpha"
+    assert result_set.orbitals.spin_type == "alpha"
     assert result_set.beta_orbitals.spin_type == "beta"
 
 
