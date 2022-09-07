@@ -254,7 +254,7 @@ class Result_set(Result_object):
             "beta_orbitals": self.beta_orbitals.dump(silico_options),
             "pdm": self.dipole_moment.dump(silico_options),
             "excited_states": self.excited_states.dump(silico_options),
-            "soc": self.spin_orbit_coupling.dump(silico_options),
+            "soc": self.soc.dump(silico_options),
             "vibrations": self.vibrations.dump(silico_options),
             "emission": self.emission.dump(silico_options)
         }

@@ -283,8 +283,8 @@ class Parser(Result_set):
         self.results.energy_states.extend(self.results.excited_states)
         
         # SOC.
-        #self.results.spin_orbit_coupling = Spin_orbit_coupling.list_from_parser(self)
-        self.results.spin_orbit_coupling = SOC_list.from_parser(self)
+        #self.results.soc = Spin_orbit_coupling.list_from_parser(self)
+        self.results.soc = SOC_list.from_parser(self)
         
         # PDM
         self.results.dipole_moment = Dipole_moment.from_parser(self)
