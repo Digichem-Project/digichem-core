@@ -47,7 +47,7 @@ class Result_set(Result_object):
         :param pdm: Optional dipole_moment object.
         :param transition_dipole_moments: Optional list of TDMs.
         :param orbitals: Optional Molecular_orbital_list object.
-        :param beta_orbitals: Optional Beta MOs. If this is not None, then molecular_orbitals is assumed to refer to the Alpha MOs.
+        :param beta_orbitals: Optional Beta MOs. If this is not None, then orbitals is assumed to refer to the Alpha MOs.
         :param excited_states: Optional Excited_state_list object.
         :param vibrations: Optional molecular Vibrations object.
         :param soc: A list of spin_orbit_coupling.

@@ -9,23 +9,23 @@ class Orbital_diagram_maker(OneD_graph_image_maker):
     Class for making orbital energy diagrams.
     """
         
-    def __init__(self, output, molecular_orbitals, full_axis_lines = False, y_limits = "auto", limits_fallback = True, **kwargs):
+    def __init__(self, output, orbitals, full_axis_lines = False, y_limits = "auto", limits_fallback = True, **kwargs):
         """
         Constructor for graph makers.
         
         :param output: A path to an output file to write to. The extension of this path is used to determine the format of the file (eg: png, jpeg).
-        :param molecular_orbitals: A list of orbitals to plot.
+        :param orbitals: A list of orbitals to plot.
         :param full_axis_lines: If False, a boundary line is drawn for the x axis but nowhere else. If True, boundary lines are drawn on all 4 sides of the plotting area.
         :param y_limits: String controlling how the y axis limits are set. Options are 'all' for showing all orbitals, 'auto' for standard auto scaling showing the HOMO, LUMO and 0 point, or 'center' for placing the HOMO-LUMO gap in the center of the y axis. Alternatively, limits_method can be a tuple of (y_min, y_max) which will be used directly as axis limits.
         :param limits_fallback: If True, use simple_limits() if the chosen limits_method fails. If false, an exception is raised.
         """
         super().__init__(output, **kwargs)
-        self.molecular_orbitals = molecular_orbitals
+        self.orbitals = orbitals
         
         # Set our output width and height.
         self.init_image_width = 4.1
         # We use a wider graph if we are using unrestricted orbitals
-        if self.molecular_orbitals.spin_type != "none":
+        if self.orbitals.spin_type != "none":
             self.init_image_width = 4.9
         self.init_image_height = 5.6
         self.output_dpi = 130
@@ -41,13 +41,13 @@ class Orbital_diagram_maker(OneD_graph_image_maker):
         self.limits_fallback = limits_fallback
         
     @classmethod
-    def from_options(self, output, *, molecular_orbitals, options, **kwargs):
+    def from_options(self, output, *, orbitals, options, **kwargs):
         """
         Constructor that takes a dictionary of config like options.
         """    
         return self(
             output,
-            molecular_orbitals = molecular_orbitals,
+            orbitals = orbitals,
             full_axis_lines = options['orbital_diagram']['full_axis_lines'],
             y_limits = options['orbital_diagram']['y_limits'],
             enable_rendering = options['orbital_diagram']['enable_rendering'],
@@ -62,8 +62,8 @@ class Orbital_diagram_maker(OneD_graph_image_maker):
         :return: Nothing.
         """
         # We'll plot occupied and virtual orbitals separately, with different line styles.
-        occupied = [mo.energy for mo in self.molecular_orbitals if mo.HOMO_difference <= 0]
-        virtual = [mo.energy for mo in self.molecular_orbitals if mo.HOMO_difference > 0]
+        occupied = [mo.energy for mo in self.orbitals if mo.HOMO_difference <= 0]
+        virtual = [mo.energy for mo in self.orbitals if mo.HOMO_difference > 0]
         
         # We can use an event plot which is good for 1D graphs like this.
         self.axes.eventplot(occupied, linestyles = "solid", **self.plot_options)
@@ -82,13 +82,13 @@ class Orbital_diagram_maker(OneD_graph_image_maker):
         
         # Try just plotting labels for HOMO and LUMO (because we're pretty sure there should be space).
         try:
-            HOMO = self.molecular_orbitals.get_orbital(HOMO_difference = 0)
+            HOMO = self.orbitals.get_orbital(HOMO_difference = 0)
         except Exception:
             # Couldn't get HOMO.
             HOMO = None
             
         try:
-            LUMO = self.molecular_orbitals.get_orbital(HOMO_difference = 1)
+            LUMO = self.orbitals.get_orbital(HOMO_difference = 1)
         except Exception:
             # Couldn't get LUMO.
             LUMO = None
@@ -144,8 +144,8 @@ class Orbital_diagram_maker(OneD_graph_image_maker):
         :raises Result_unavailable_error: If either the HOMO or LUMO is not available.
         """
         # Get our FMOs.
-        HOMO = self.molecular_orbitals.get_orbital(HOMO_difference = 0)
-        LUMO = self.molecular_orbitals.get_orbital(HOMO_difference = 1)
+        HOMO = self.orbitals.get_orbital(HOMO_difference = 0)
+        LUMO = self.orbitals.get_orbital(HOMO_difference = 1)
         
         # Calculate the midpoint between the FMOs.
         midpoint = HOMO.energy - ((HOMO.energy - LUMO.energy) /2)
@@ -169,8 +169,8 @@ class Orbital_diagram_maker(OneD_graph_image_maker):
         :raises Result_unavailable_error: If either the HOMO or LUMO is not available.
         """
         # Get our FMOs.
-        HOMO = self.molecular_orbitals.get_orbital(HOMO_difference = 0)
-        LUMO = self.molecular_orbitals.get_orbital(HOMO_difference = 1)
+        HOMO = self.orbitals.get_orbital(HOMO_difference = 0)
+        LUMO = self.orbitals.get_orbital(HOMO_difference = 1)
         
         # Add on a bit to both HOMO and LUMO so we expand if the orbital is close to the end of the axis.
         y_min = math.floor(HOMO.energy -1.1) if HOMO is not None else -8
