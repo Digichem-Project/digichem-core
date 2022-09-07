@@ -3,7 +3,7 @@
     import math
 %>
 
-<%page args="spin_orbit_coupling"/>
+<%page args="soc"/>
 
 <div class="section">
     <h2 class="section__header">Table of Spin-Orbit Coupling</h2>
@@ -21,7 +21,7 @@
                     <th class="table__header">ΔE /eV</th>
                     <th class="table__header">First Order<br>Mixing Coefficient</th>
                 </tr>
-                %for soc in spin_orbit_coupling:
+                %for soc in soc:
                 <tr class="table__row">
                     <td class="table__header">${soc.singlet_state.multiplicity_symbol}<sub>${soc.singlet_state.multiplicity_level}</sub></td>
                     <td class="table__header">${soc.triplet_state.multiplicity_symbol}<sub>${soc.triplet_state.multiplicity_level}</sub></td>

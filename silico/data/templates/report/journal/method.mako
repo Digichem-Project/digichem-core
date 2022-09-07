@@ -11,7 +11,7 @@
 	%if len(report.result.excited_states) > 0 or len(report.result.adiabatic_emission) > 0 or len(report.result.vertical_emission) > 0:
 		Commission internationale de l'éclairage (CIE) coordinates, along with visual representations of the equivalent colour, were calculated using the Colour Science library.<%include file="/citation.mako" args="citation = 'ColourScience', report = report"/>
 	%endif
-	%if len(report.result.spin_orbit_coupling):
+	%if len(report.result.soc):
 		Spin-orbit coupling (SOC, H<sub>SO</sub>) was calculated using a custom implementation of the PySOC program.<%include file="/citation.mako" args="citation = 'PySOC', report = report"/>
 	%endif
 	%if len(report.result.vertical_emission) > 0 or len(report.result.adiabatic_emission) > 0:

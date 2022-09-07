@@ -73,9 +73,9 @@
     			<h5>Excited States</h5>
     			<%include file="/excited_states/summary.mako" args="excited_states = report.result.excited_states, report = report"/>
     		%endif
-    		%if len(report.result.spin_orbit_coupling) > 0:
+    		%if len(report.result.soc) > 0:
                 <h5>Spin-Orbit Coupling</h5>
-                <%include file="/SOC/summary.mako" args="spin_orbit_coupling = report.result.spin_orbit_coupling, report = report"/>
+                <%include file="/SOC/summary.mako" args="soc = report.result.soc, report = report"/>
             %endif
     		%for emission in itertools.chain(report.result.adiabatic_emission.values(), report.result.vertical_emission.values()):
     			<h5>${emission.transition_type} ${emission.multiplicity_symbol}<sub>${emission.multiplicity_level}</sub> Emission</h5>
@@ -140,7 +140,7 @@
 	    		<%include file="/vibrations/table.mako" args="report = report"/>
 	    	%endif
     	</div>
-    	%if len(report.result.excited_states) > 0 or len(report.result.spin_orbit_coupling) > 0:
+    	%if len(report.result.excited_states) > 0 or len(report.result.soc) > 0:
 	    	<div class="section section--separate section--wideTables">
 		    	%if len(report.result.excited_states) > 0:
 		    		<h5 class="h5--tableHeader">Excited States</h5>
@@ -150,7 +150,7 @@
 		    	    <h5 class="h5--tableHeader">Transition Dipole Moments</h5>
                     <%include file="/dipole_moment/table.mako" args="report = report"/>
 		    	%endif
-		    	%if len(report.result.spin_orbit_coupling) > 0:
+		    	%if len(report.result.soc) > 0:
 		    		<h5 class="h5--tableHeader">Spin-Orbit Coupling</h5>
 		    		<%include file="/SOC/table.mako" args="report = report"/>
 		    	%endif
