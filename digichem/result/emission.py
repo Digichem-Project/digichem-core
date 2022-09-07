@@ -250,7 +250,7 @@ class Relaxed_excited_state(Excited_state):
         The total energy of the excited state in this transition.
         """
         # Start with our excited_state_result energy.
-        excited_energy = self.excited_state_result.energy
+        excited_energy = self.excited_state_result.energies.final
         
         # Add the excited state energy (if we have it).
         if self.excited_state is not None:
@@ -263,7 +263,7 @@ class Relaxed_excited_state(Excited_state):
         """
         The total energy of the ground state in this transition.
         """
-        return self.ground_state_result.energy
+        return self.ground_state_result.energies.final
     
     @property
     def energy(self):
