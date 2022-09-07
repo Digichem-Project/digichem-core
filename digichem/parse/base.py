@@ -287,13 +287,13 @@ class Parser(Result_set):
         self.results.soc = SOC_list.from_parser(self)
         
         # PDM
-        self.results.dipole_moment = Dipole_moment.from_parser(self)
+        self.results.pdm = Dipole_moment.from_parser(self)
         
         # Frequencies.
         self.results.vibrations = Vibrations_list.from_parser(self)
         
         # Finally, try and set emission.
-        self.results.vertical_emission, self.results.adiabatic_emission = Relaxed_excited_state.guess_from_results(self.results)
+        self.results.emission.vertical, self.results.emission.adiabatic = Relaxed_excited_state.guess_from_results(self.results)
         
         # Return the populated result set for convenience.
         return self.results
