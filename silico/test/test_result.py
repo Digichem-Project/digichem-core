@@ -16,7 +16,7 @@ def gaussian_SP_result():
 
 @pytest.fixture(scope="module")
 def gaussian_opt_result():
-    return parse_calculation(Path(data_directory(), "Naphthalene/Gaussian 16 Optimisation Frequencies PBE1PBE (GD3BJ) Toluene 6-31G(d,p).tar.gz"))
+    return parse_calculation(Path(data_directory(), "Naphthalene/Gaussian 16 Optimisation Frequencies PBE1PBE (GD3BJ) Toluene 6-31G(d,p)"))
 
 @pytest.fixture(scope="module")
 def gaussian_radical_anion_result():
@@ -29,7 +29,7 @@ def gaussian_ES_result():
 @pytest.fixture(scope="module")
 def gaussian_emission_result():
     return parse_calculations(
-        Path(data_directory(), "Naphthalene/Gaussian 16 Optimisation Frequencies PBE1PBE (GD3BJ) Toluene 6-31G(d,p).tar.gz"),
+        Path(data_directory(), "Naphthalene/Gaussian 16 Optimisation Frequencies PBE1PBE (GD3BJ) Toluene 6-31G(d,p)"),
         Path(data_directory(), "Naphthalene/Gaussian 16 Excited States TDA Optimised S(1) PBE1PBE (GD3BJ) Toluene 6-31G(d,p).tar.gz"),
     )
 
