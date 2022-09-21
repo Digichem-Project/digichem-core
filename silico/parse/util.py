@@ -257,6 +257,7 @@ class open_for_parsing():
         self.temp_dirs.append(tempdir)
         
         # Extract to it.
+        silico.log.get_logger().info("Extracting archive '{}'...".format(file_name))
         shutil.unpack_archive(file_name, tempdir.name)
         
         # Add any files/directories that were unpacked.
