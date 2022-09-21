@@ -221,23 +221,46 @@ class open_for_parsing():
         
         for log_file in self.log_files:
             
+            found_child_archive = None
+            
+            # If 'log_file' is a directory, check for an archive inside called 'Output.xxx'.
+            for archive_format in formats:
+                child_archive = Path(log_file, "Output" + archive_format)
+                if child_archive.exists():
+                    if not found_child_archive:
+                        # Found an Output dir archive, use this instead.
+                        new_log_files.extend(self.extract(child_archive))
+                        found_child_archive = child_archive
+                    
+                    else:
+                        # For now, only care about the first.
+                        warnings.warn("Ignoring subsequent Output archive '{}'; already found '{}'".format(child_archive, found_child_archive))
+            
+            # No need to check 'found_child_archive' here; a file cannot simultaneously be a directory containing an archive and also an archive itself.
             if "".join(log_file.suffixes) in formats:
-                # This is an archive format.
-                # Get a temp dir to extact to.
-                tempdir = tempfile.TemporaryDirectory()
-                self.temp_dirs.append(tempdir)
-                
-                # Extract to it.
-                shutil.unpack_archive(log_file, tempdir.name)
-                
+                # This is an archive format.                
                 # Add any files/directories that were unpacked.
-                new_log_files.extend(Path(tempdir.name).glob("*"))
+                new_log_files.extend(self.extract(log_file))
                 
-            else:
+            elif not found_child_archive:
                 # Non-archive file, add normally.
                 new_log_files.append(log_file)
             
         return new_log_files
+    
+    def extract(self, file_name):
+        """
+        Extract an archive and return the contained log files.
+        """
+        # Get a temp dir to extact to.
+        tempdir = tempfile.TemporaryDirectory()
+        self.temp_dirs.append(tempdir)
+        
+        # Extract to it.
+        shutil.unpack_archive(file_name, tempdir.name)
+        
+        # Add any files/directories that were unpacked.
+        return Path(tempdir.name).glob("*")
     
     def cleanup(self):
         """
