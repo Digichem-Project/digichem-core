@@ -194,6 +194,24 @@ class Silico_coords_ABC(Input_file):
         formats = {"si": "Silico input format"}
         formats.update(pybel.outformats)
         return formats
+    
+    def __eq__(self, other):
+        """
+        Check for equality with another coord object.
+        """
+        try:
+            assert self.charge == other.charge
+            assert self.multiplicity == other.multiplicity
+            
+            # TODO: This check should not care about the order of atoms.
+            for index, atom in enumerate(self.atoms):
+                assert atom == other.atoms[index]
+            
+            return True
+        
+        except AssertionError:
+            return False
+        
 
 
 class Silico_coords_v2(Silico_coords_ABC):
