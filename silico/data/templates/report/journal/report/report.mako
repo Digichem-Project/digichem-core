@@ -36,27 +36,27 @@
     	<h4>Summary Of Results</h4>
     	<div class="section section--results">
     		## Summaries.
-    		%for energies in [report.result.SCF_energies, report.result.MP_energies, report.result.CC_energies]:
-    			%if len(energies) > 0:
-    				<h5>${energies.energy_type} Energy</h5>
-    				<%include file="/energy/summary.mako" args="energies = energies, report = report"/>
+    		%for energy in report.result.energies:
+    			%if len(energy) > 0:
+    				<h5>${energy.energy_type} Energy</h5>
+    				<%include file="/energy/summary.mako" args="energies = energy, report = report"/>
     			%endif
     		%endfor
     		%if len(report.result.alignment) > 0:
     			<h5>Geometry</h5>
     			<%include file="/geometry/summary.mako" args="alignment = report.result.alignment, report = report"/>
     		%endif
-    		%if len(report.result.molecular_orbitals) > 0:
-    			<h5>${"Molecular Orbitals" if report.result.molecular_orbitals.spin_type == 'none' else "Alpha Orbitals"}</h5>
-    			<%include file="/orbital/summary.mako" args="molecular_orbitals = report.result.molecular_orbitals, report = report"/>
+    		%if len(report.result.orbitals) > 0:
+    			<h5>${"Molecular Orbitals" if report.result.orbitals.spin_type == 'none' else "Alpha Orbitals"}</h5>
+    			<%include file="/orbital/summary.mako" args="orbitals = report.result.orbitals, report = report"/>
     		%endif
     		%if len(report.result.beta_orbitals) > 0:
     			<h5>Beta Orbitals</h5>
-    			<%include file="/orbital/summary.mako" args="molecular_orbitals = report.result.beta_orbitals, report = report"/>
+    			<%include file="/orbital/summary.mako" args="orbitals = report.result.beta_orbitals, report = report"/>
     		%endif
-    		%if report.result.dipole_moment is not None:
+    		%if report.result.pdm is not None:
     			<h5>Permanent Dipole Moment</h5>
-    			<%include file="/dipole_moment/PDM_summary.mako" args="dipole_moment = report.result.dipole_moment, report = report"/>
+    			<%include file="/dipole_moment/PDM_summary.mako" args="dipole_moment = report.result.pdm, report = report"/>
     		%endif
     		%if report.result.transition_dipole_moment is not None:
     		    <%
@@ -73,11 +73,11 @@
     			<h5>Excited States</h5>
     			<%include file="/excited_states/summary.mako" args="excited_states = report.result.excited_states, report = report"/>
     		%endif
-    		%if len(report.result.spin_orbit_coupling) > 0:
+    		%if len(report.result.soc) > 0:
                 <h5>Spin-Orbit Coupling</h5>
-                <%include file="/SOC/summary.mako" args="spin_orbit_coupling = report.result.spin_orbit_coupling, report = report"/>
+                <%include file="/SOC/summary.mako" args="soc = report.result.soc, report = report"/>
             %endif
-    		%for emission in itertools.chain(report.result.adiabatic_emission.values(), report.result.vertical_emission.values()):
+    		%for emission in itertools.chain(report.result.emission.adiabatic.values(), report.result.emission.vertical.values()):
     			<h5>${emission.transition_type} ${emission.multiplicity_symbol}<sub>${emission.multiplicity_level}</sub> Emission</h5>
     			<%include file="/emission/summary.mako" args="emission = emission"/>
     		%endfor
@@ -97,7 +97,7 @@
     		<%include file="/method.mako" args="report = report"/>
     		##
     		<h4>Discussion</h4>
-    		%for energy in [report.result.SCF_energies, report.result.MP_energies, report.result.CC_energies]:
+    		%for energy in report.result.energies:
 	    		%if len(energy) > 0:
 	    		<%include file="/energy/energy.mako" args="energy = energy, report = report"/>
 	    		%endif
@@ -108,13 +108,13 @@
 	    	%if len(report.result.alignment) > 0:
 	    	<%include file="/geometry/geometry.mako" args="report = report"/>
 	    	%endif
-	    	%if report.result.dipole_moment is not None:
-	    	<%include file="/dipole_moment/PDM.mako" args="dipole_moment = report.result.dipole_moment, report = report"/>
+	    	%if report.result.pdm is not None:
+	    	<%include file="/dipole_moment/PDM.mako" args="dipole_moment = report.result.pdm, report = report"/>
 	    	%endif
 	    	%if report.result.transition_dipole_moment is not None:
 	    	<%include file="/dipole_moment/TDM.mako" args="dipole_moment = report.result.transition_dipole_moment, report = report"/>
 	    	%endif
-	    	%if len(report.result.molecular_orbitals) > 0:
+	    	%if len(report.result.orbitals) > 0:
 	    	<%include file="/orbital/orbitals.mako" args="report = report"/>
 	    	%endif
 	    	%if len(report.result.vibrations) > 0:
@@ -131,7 +131,7 @@
 	    		<h5 class="h5--tableHeader">Atom Coordinates</h5>
 	    		<%include file="/geometry/table.mako" args="report = report"/>
 	    	%endif
-	    	%if len(report.result.molecular_orbitals) > 0:
+	    	%if len(report.result.orbitals) > 0:
 	    		<h5 class="h5--tableHeader">Molecular Orbitals</h5>
 	    		<%include file="/orbital/table.mako" args="report = report"/>
 	    	%endif
@@ -140,7 +140,7 @@
 	    		<%include file="/vibrations/table.mako" args="report = report"/>
 	    	%endif
     	</div>
-    	%if len(report.result.excited_states) > 0 or len(report.result.spin_orbit_coupling) > 0:
+    	%if len(report.result.excited_states) > 0 or len(report.result.soc) > 0:
 	    	<div class="section section--separate section--wideTables">
 		    	%if len(report.result.excited_states) > 0:
 		    		<h5 class="h5--tableHeader">Excited States</h5>
@@ -150,7 +150,7 @@
 		    	    <h5 class="h5--tableHeader">Transition Dipole Moments</h5>
                     <%include file="/dipole_moment/table.mako" args="report = report"/>
 		    	%endif
-		    	%if len(report.result.spin_orbit_coupling) > 0:
+		    	%if len(report.result.soc) > 0:
 		    		<h5 class="h5--tableHeader">Spin-Orbit Coupling</h5>
 		    		<%include file="/SOC/table.mako" args="report = report"/>
 		    	%endif

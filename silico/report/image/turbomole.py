@@ -136,7 +136,7 @@ class Turbomole_setup(Partial_cube_setup):
         # Orbitals #
         ############
         # We need to set images for both alpha and beta orbitals (if we have them).
-        for orbital_list in (self.report.result.molecular_orbitals, self.report.result.beta_orbitals):
+        for orbital_list in (self.report.result.orbitals, self.report.result.beta_orbitals):
             for orbital in orbital_list:                
                 # Save cube.
                 # Cubes can only be created from a real image maker, the dummy class lacks the methods required by the Turbomole_to_orbital_cube init() function.

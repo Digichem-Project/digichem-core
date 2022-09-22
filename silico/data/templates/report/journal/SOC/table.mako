@@ -35,7 +35,7 @@
 	    ###########
 	    ## Data. ##
 	    ###########
-	    %for soc in report.result.spin_orbit_coupling:
+	    %for soc in report.result.soc:
 	    <tr class="resultTable__row">
 	    	
 	    	<td class="resultsTable__value resultsTable__cell">${soc.singlet_state.multiplicity_symbol}<sub>${soc.singlet_state.multiplicity_level}</sub></td>

@@ -23,8 +23,8 @@ class Merged(Result_set):
         """
         super().__init__(*args, **kwargs)
         self.results = results
-        self.vertical_emission = vertical_emission if vertical_emission is not None else {}
-        self.adiabatic_emission = adiabatic_emission if vertical_emission is not None else {}
+        self.emission.vertical = vertical_emission if vertical_emission is not None else {}
+        self.emission.adiabatic = adiabatic_emission if adiabatic_emission is not None else {}
             
     @classmethod
     def from_results(self, *results, alignment_class):
@@ -44,7 +44,7 @@ class Merged(Result_set):
         alignment = alignment_class(atoms, charge = merged_metadata.charge)
         
         # Use special method for merging orbitals.
-        molecular_orbitals, beta_orbitals = Molecular_orbital_list.merge_orbitals([result.molecular_orbitals for result in results], [result.beta_orbitals for result in results])
+        orbitals, beta_orbitals = Molecular_orbital_list.merge_orbitals([result.orbitals for result in results], [result.beta_orbitals for result in results])
         
         # Merge remaining attributes.
         attrs = {}
@@ -52,7 +52,7 @@ class Merged(Result_set):
             attrs[attr] = type(getattr(results[0], attr)).merge(*[getattr(result, attr) for result in results])
         
         # Get a new ground state.
-        ground_state = Ground_state.from_energies(merged_metadata.charge, merged_metadata.multiplicity, attrs['energies'].cc, attrs['energies'].mp, attrs['energies'].scf)
+        ground_state = Ground_state.from_energies(merged_metadata.charge, merged_metadata.multiplicity, attrs['energies'])
         
         # Build new list of energy states.
         energy_states = Excited_state_list()
@@ -66,13 +66,13 @@ class Merged(Result_set):
             atoms = atoms,
             alignment = alignment,
             energy_states = energy_states,
-            orbitals = molecular_orbitals,
+            orbitals = orbitals,
             beta_orbitals = beta_orbitals,
             **attrs
             )
         
         # Try and guess emission.
-        merged_results.vertical_emission, merged_results.adiabatic_emission = Relaxed_excited_state.guess_from_results(*results)
+        merged_results.emission.vertical, merged_results.emission.adiabatic = Relaxed_excited_state.guess_from_results(*results)
         
         # Done.
         return merged_results

@@ -7,7 +7,7 @@
     # Decide which spin value (up/alpha or down/beta) corresponds to the 'hole' and 'electron'.
     # We do this by comparing the alpha and beta HOMO values, the higher one is the electron.
     try:
-	    alpha_energy = result.molecular_orbitals.HOMO_energy
+	    alpha_energy = result.orbitals.HOMO_energy
 	    beta_energy = result.beta_orbitals.HOMO_energy
 	    
 	    if alpha_energy > beta_energy:

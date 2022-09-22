@@ -11,7 +11,7 @@ from silico.submit.flag import Flag
 from silico.file.convert.babel import Openbabel_converter
 from silico.exception.base import Submission_error
 from silico.exception.uncatchable import Signal_caught
-from silico.file.input import Silico_coords
+from silico.file.input import Silico_coords, si_from_file
 from silico.misc.directory import copytree
 import silico.misc.io
 from silico.parse import parse_calculation
@@ -560,7 +560,7 @@ class Program_target(Method_target):
             Write a .si file from the finished calculation results.
             """
             # Get our convertor.
-            conv = Silico_coords.from_file(self.next_coords, file_type = self.calculation.OUTPUT_COORD_TYPE, name = self.calculation.input_coords.name, charge = self.calculation.input_coords.charge, multiplicity = self.calculation.input_coords.multiplicity)
+            conv = si_from_file(self.next_coords, file_type = self.calculation.OUTPUT_COORD_TYPE, name = self.calculation.input_coords.name, charge = self.calculation.input_coords.charge, multiplicity = self.calculation.input_coords.multiplicity)
             
             # Write new file.
             with open(Path(self.destination.calc_dir.result_directory, self.calculation.molecule_name + ".si"), "wt") as si_file:

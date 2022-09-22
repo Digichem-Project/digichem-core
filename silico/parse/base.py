@@ -250,11 +250,11 @@ class Parser(Result_set):
         self.results = Result_set(metadata = Metadata.from_parser(self))
         
         # First get our list of MOs (because we need them for excited states too.)
-        self.results.molecular_orbitals = Molecular_orbital_list.from_parser(self)
+        self.results.orbitals = Molecular_orbital_list.from_parser(self)
         self.results.beta_orbitals = Molecular_orbital_list.from_parser(self, cls = Beta_orbital)
         
         # Assign total levels.
-        self.results.molecular_orbitals.assign_total_level(self.results.beta_orbitals)
+        self.results.orbitals.assign_total_level(self.results.beta_orbitals)
         
         # Metadata.
 #         self.results.metadata = Metadata.from_parser(self)
@@ -283,17 +283,17 @@ class Parser(Result_set):
         self.results.energy_states.extend(self.results.excited_states)
         
         # SOC.
-        #self.results.spin_orbit_coupling = Spin_orbit_coupling.list_from_parser(self)
-        self.results.spin_orbit_coupling = SOC_list.from_parser(self)
+        #self.results.soc = Spin_orbit_coupling.list_from_parser(self)
+        self.results.soc = SOC_list.from_parser(self)
         
         # PDM
-        self.results.dipole_moment = Dipole_moment.from_parser(self)
+        self.results.pdm = Dipole_moment.from_parser(self)
         
         # Frequencies.
         self.results.vibrations = Vibrations_list.from_parser(self)
         
         # Finally, try and set emission.
-        self.results.vertical_emission, self.results.adiabatic_emission = Relaxed_excited_state.guess_from_results(self.results)
+        self.results.emission.vertical, self.results.emission.adiabatic = Relaxed_excited_state.guess_from_results(self.results)
         
         # Return the populated result set for convenience.
         return self.results
