@@ -18,6 +18,8 @@ def data_directory():
 benzene_cdx = Path(data_directory(), "Input", "Benzene.cdx")
 pyridine_cml = Path(data_directory(), "Input", "Pyridine.cml")
 cyclopentane_com = Path(data_directory(), "Input", "Cyclopentane.com")
+pyridine_si_v2 = Path(data_directory(), "Input/Pyridine.v2.si")
+pyridine_si_v1 = Path(data_directory(), "Input/Pyridine.v1.si")
 
 
 @pytest.fixture(scope="package")
