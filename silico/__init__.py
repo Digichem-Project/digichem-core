@@ -14,10 +14,10 @@ import silico.log
 
 
 # Version information.
-major_version = 1
+major_version = 2
 minor_version = 0
 revision = 0
-prerelease = 30
+prerelease = 1
 # Whether this is a development version.
 development = prerelease is not None
 # The full version number of this package.

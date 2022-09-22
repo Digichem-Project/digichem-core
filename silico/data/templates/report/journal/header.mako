@@ -76,7 +76,7 @@
 			## Now highlight main results.
 			##
 			## Final energies
-			% for energy in (report.result.SCF_energies, report.result.MP_energies, report.result.CC_energies):
+			% for energy in report.result.energies:
 				% if len(energy) > 0:
 				The total ${energy.human_energy_type} (${energy.energy_type}) energy of the system was found to be ${"{:.2f}".format(energy.final)} eV after ${len(energy)} ${inflector.plural("step", len(energy))}.
 				% endif
@@ -86,10 +86,10 @@
 			% try:
 				% if len(report.result.beta_orbitals) > 0:
 				## Alpha and beta.
-				The alpha and beta highest-occupied molecular orbitals (HOMO) were calculated to be ${"{:.2f}".format(report.result.molecular_orbitals.HOMO_energy)} and ${"{:.2f}".format(report.result.beta_orbitals.HOMO_energy)} eV respectively, while the alpha and beta lowest-unoccupied molecular orbitals (LUMO) were ${"{:.2f}".format(report.result.molecular_orbitals.LUMO_energy)} and ${"{:.2f}".format(report.result.beta_orbitals.LUMO_energy)} eV. These values correspond to a calculated HOMO-LUMO band gap of ${"{:.2f}".format(report.result.molecular_orbitals.HOMO_LUMO_energy)} and ${"{:.2f}".format(report.result.beta_orbitals.HOMO_LUMO_energy)} eV for the alpha and beta case respectively. 
-				% elif len(report.result.molecular_orbitals) > 0:
+				The alpha and beta highest-occupied molecular orbitals (HOMO) were calculated to be ${"{:.2f}".format(report.result.orbitals.HOMO_energy)} and ${"{:.2f}".format(report.result.beta_orbitals.HOMO_energy)} eV respectively, while the alpha and beta lowest-unoccupied molecular orbitals (LUMO) were ${"{:.2f}".format(report.result.orbitals.LUMO_energy)} and ${"{:.2f}".format(report.result.beta_orbitals.LUMO_energy)} eV. These values correspond to a calculated HOMO-LUMO band gap of ${"{:.2f}".format(report.result.orbitals.HOMO_LUMO_energy)} and ${"{:.2f}".format(report.result.beta_orbitals.HOMO_LUMO_energy)} eV for the alpha and beta case respectively. 
+				% elif len(report.result.orbitals) > 0:
 				## Restricted.
-				The highest-occupied molecular orbital (HOMO) and lowest-unoccupied molecular orbital (LUMO) were calculated to be ${"{:.2f}".format(report.result.molecular_orbitals.HOMO_energy)} and ${"{:.2f}".format(report.result.molecular_orbitals.LUMO_energy)} eV respectively, corresponding to a HOMO-LUMO band gap of ${"{:.2f}".format(report.result.molecular_orbitals.HOMO_LUMO_energy)} eV.
+				The highest-occupied molecular orbital (HOMO) and lowest-unoccupied molecular orbital (LUMO) were calculated to be ${"{:.2f}".format(report.result.orbitals.HOMO_energy)} and ${"{:.2f}".format(report.result.orbitals.LUMO_energy)} eV respectively, corresponding to a HOMO-LUMO band gap of ${"{:.2f}".format(report.result.orbitals.HOMO_LUMO_energy)} eV.
 				% endif
 			##
 			% except Result_unavailable_error:
@@ -97,8 +97,8 @@
 			% endtry
 			##
 			## PDM.
-			% if report.result.dipole_moment is not None:
-			The permanent dipole moment (PDM) was calculated to be ${"{:.2f}".format(report.result.dipole_moment.total)} D.
+			% if report.result.pdm is not None:
+			The permanent dipole moment (PDM) was calculated to be ${"{:.2f}".format(report.result.pdm.total)} D.
 			% endif
 			##
 			## Vibrations.

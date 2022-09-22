@@ -6,7 +6,7 @@
     from silico.result.orbital import Molecular_orbital_list
 %>
 
-<%page args="molecular_orbitals, beta_orbitals, min_HOMO_difference = None, max_HOMO_difference = None"/>
+<%page args="orbitals, beta_orbitals, min_HOMO_difference = None, max_HOMO_difference = None"/>
 ## We'll only display orbitals between min_HOMO_difference and max_LUMO_difference. These defaults will span HOMO-10 to LUMO+10 (for a total of 12 orbitals)
 
 <%
@@ -19,11 +19,11 @@
     # We need to work out which orbitals we're going to display.
     # This isn't quite as simple as searching by HOMO-LUMO difference if we have both alpha and beta orbitals, because the orbital lists might not align (ie, AHOMO-10 = BHOMO-12).
     # Use handy method to determine our limits.
-    min_orbital_level = molecular_orbitals.find_common_level(beta_orbitals, HOMO_difference = min_HOMO_difference)
-    max_orbital_level = molecular_orbitals.find_common_level(beta_orbitals, HOMO_difference = max_HOMO_difference)
+    min_orbital_level = orbitals.find_common_level(beta_orbitals, HOMO_difference = min_HOMO_difference)
+    max_orbital_level = orbitals.find_common_level(beta_orbitals, HOMO_difference = max_HOMO_difference)
     
     # The column headers of our table.
-    if len(molecular_orbitals) > 0 and len(beta_orbitals) > 0:
+    if len(orbitals) > 0 and len(beta_orbitals) > 0:
         columns = ["Level", "Label", "Symmetry", "Energy /eV", "Label", "Symmetry", "Energy /eV"]
     else:
         columns = ["Level", "Label", "Symmetry", "Energy /eV"]
@@ -45,7 +45,7 @@
                 <%
                 # Now try and get our two orbitals.
                 try:
-                    molecular_orbital = molecular_orbitals[orbital_index]
+                    molecular_orbital = orbitals[orbital_index]
                 except IndexError:
                     molecular_orbital = None
                 try:

@@ -4,14 +4,14 @@
     import math
 %>
 
-<%page args="spin_orbit_coupling, excited_states"/>
+<%page args="soc, excited_states"/>
 
 <%
     soc_list = []
     for state1, state2 in [("S(0)", "T(1)"), ("S(1)", "T(1)")]:
         # Get parameters.
         try:
-            soc_list.append(spin_orbit_coupling.between(state1, state2))
+            soc_list.append(soc.between(state1, state2))
         except Exception:
             # Skip.
             pass

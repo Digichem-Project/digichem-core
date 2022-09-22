@@ -337,7 +337,7 @@ class Excited_state_transition(Result_object):
         """
         try:
             # Create a tuple of our MOs (helps us later).
-            MOs = (parser.results.molecular_orbitals, parser.results.beta_orbitals)
+            MOs = (parser.results.orbitals, parser.results.beta_orbitals)
             
             transitions_list = []
             

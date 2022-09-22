@@ -176,7 +176,7 @@ class Gaussian_setup(Partial_cube_setup):
         ############
         if "structure" in self.fchk_files:
             # We need to set images for both alpha and beta orbitals (if we have them).
-            for orbital_list in (self.report.result.molecular_orbitals, self.report.result.beta_orbitals):
+            for orbital_list in (self.report.result.orbitals, self.report.result.beta_orbitals):
                 for orbital in orbital_list:
                     # First, decide what type of orbital we need.
                     if orbital.spin_type == "alpha":

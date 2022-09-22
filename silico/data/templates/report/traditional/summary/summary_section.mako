@@ -27,26 +27,26 @@
     		<%include file="/metadata/metadata_results.mako" args="metadata = sub_metadata, title = 'Calculation {}'.format(index +1)"/>
     	%endfor
     %endif
-    %if len(result.SCF_energies) > 0:
-        <%include file="/energy/energy_results.mako" args="energies = result.SCF_energies"/>
+    %if len(result.energies.scf) > 0:
+        <%include file="/energy/energy_results.mako" args="energies = result.energies.scf"/>
     %endif
-    %if len(result.MP_energies) > 0:
-        <%include file="/energy/energy_results.mako" args="energies = result.MP_energies"/>
+    %if len(result.energies.mp) > 0:
+        <%include file="/energy/energy_results.mako" args="energies = result.energies.mp"/>
     %endif
-    %if len(result.CC_energies) > 0:
-        <%include file="/energy/energy_results.mako" args="energies = result.CC_energies"/>
+    %if len(result.energies.cc) > 0:
+        <%include file="/energy/energy_results.mako" args="energies = result.energies.cc"/>
     %endif
     %if len(result.alignment) > 0:
         <%include file="/geometry/geometry_results.mako" args="alignment = result.alignment"/>
     %endif
-    %if len(result.molecular_orbitals) > 0:
-        <%include file="/orbitals/HOMO_LUMO_results.mako" args="molecular_orbitals = result.molecular_orbitals"/>
+    %if len(result.orbitals) > 0:
+        <%include file="/orbitals/HOMO_LUMO_results.mako" args="orbitals = result.orbitals"/>
     %endif
     %if len(result.beta_orbitals) > 0:
-        <%include file="/orbitals/HOMO_LUMO_results.mako" args="molecular_orbitals = result.beta_orbitals"/>
+        <%include file="/orbitals/HOMO_LUMO_results.mako" args="orbitals = result.beta_orbitals"/>
     %endif
-    %if result.dipole_moment is not None:
-        <%include file="/dipole_moment/dipole_moment_results.mako" args="dipole_moment = result.dipole_moment"/>
+    %if result.pdm is not None:
+        <%include file="/dipole_moment/dipole_moment_results.mako" args="dipole_moment = result.pdm"/>
     %endif
     %if transition_dipole_moment is not None:
         <%include file="/dipole_moment/dipole_moment_results.mako" args="dipole_moment = transition_dipole_moment"/>
@@ -54,14 +54,14 @@
     %if len(result.vibrations) > 0:
         <%include file="/vibrations/vibrations_results.mako" args="vibrations = result.vibrations"/>
     %endif
-    %for multiplicity, vertical_emission in result.vertical_emission.items():
-        <%include file="/emission/emission_results.mako" args="emission = vertical_emission"/><span></span>
+    %for multiplicity, vertical in result.emission.vertical.items():
+        <%include file="/emission/emission_results.mako" args="emission = vertical"/><span></span>
     %endfor
-    %for multiplicity, adiabatic_emission in result.adiabatic_emission.items():
-        <%include file="/emission/emission_results.mako" args="emission = adiabatic_emission"/><span></span>
+    %for multiplicity, adiabatic in result.emission.adiabatic.items():
+        <%include file="/emission/emission_results.mako" args="emission = adiabatic"/><span></span>
     %endfor
-    %if len(result.excited_states) > 0 and len(result.spin_orbit_coupling) > 0:
-        <%include file="/spin_orbit_coupling/SOC_results.mako" args="spin_orbit_coupling = result.spin_orbit_coupling, excited_states = result.excited_states"/>
+    %if len(result.excited_states) > 0 and len(result.soc) > 0:
+        <%include file="/soc/SOC_results.mako" args="soc = result.soc, excited_states = result.excited_states"/>
     %endif
     %if len(result.excited_states) > 0:
         <%include file="/excited_states/excited_states_results.mako" args="excited_states = result.excited_states"/><span></span>

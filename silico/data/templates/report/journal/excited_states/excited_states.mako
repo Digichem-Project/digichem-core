@@ -131,7 +131,7 @@
 	%endif
 </div>
 ## Spin-orbit coupling.
-%if len(report.result.spin_orbit_coupling) > 0:
+%if len(report.result.soc) > 0:
 	<div class="content">
 		<h5>Spin-Orbit Coupling</h5>
 		## TODO: This section is fine for now because PySOC is the only method implemented for calculating SOC, but in the future when further methods have been added this will need expanding.
@@ -142,8 +142,8 @@
 		and each triplet excited state was then calculated using a custom implementation of the PySOC program,
 		the results of which are displayed in <div class="result__value">table ${report.captions("table", "SOC")}</div></div>.
 		<%
-			S0_T1 = report.result.spin_orbit_coupling.between("S(0)", "T(1)", default = None)
-			S1_T1 = report.result.spin_orbit_coupling.between("S(1)", "T(1)", default = None)
+			S0_T1 = report.result.soc.between("S(0)", "T(1)", default = None)
+			S1_T1 = report.result.soc.between("S(1)", "T(1)", default = None)
 		%>
 		%if S0_T1 is not None or S1_T1 is not None:
 			From this analysis, the H<sub>SO</sub> between

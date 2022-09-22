@@ -324,8 +324,12 @@ class Metadata(Result_object):
         Get a representation of this result object in primitive format.
         """
         # Most attributes we can just dump as is.
+        attr_dict = {
+            "name": self.name,
+            "log_file": str(self.log_files[0]) if len(self.log_files) > 0 else None
+        }
+        
         attrs = [
-            "name",
             "user",
             "package",
             "package_version",
@@ -337,7 +341,7 @@ class Metadata(Result_object):
             "success",
             "optimisation_converged",
         ]
-        attr_dict = {attr.replace("_", " "): getattr(self, attr) for attr in attrs}
+        attr_dict.update({attr.replace("_", " "): getattr(self, attr) for attr in attrs})
         
         # Add some more complex stuff.
         attr_dict['date'] = {

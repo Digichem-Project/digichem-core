@@ -16,7 +16,7 @@ def gaussian_SP_result():
 
 @pytest.fixture(scope="module")
 def gaussian_opt_result():
-    return parse_calculation(Path(data_directory(), "Naphthalene/Gaussian 16 Optimisation Frequencies PBE1PBE (GD3BJ) Toluene 6-31G(d,p).tar.gz"))
+    return parse_calculation(Path(data_directory(), "Naphthalene/Gaussian 16 Optimisation Frequencies PBE1PBE (GD3BJ) Toluene 6-31G(d,p)"))
 
 @pytest.fixture(scope="module")
 def gaussian_radical_anion_result():
@@ -29,7 +29,7 @@ def gaussian_ES_result():
 @pytest.fixture(scope="module")
 def gaussian_emission_result():
     return parse_calculations(
-        Path(data_directory(), "Naphthalene/Gaussian 16 Optimisation Frequencies PBE1PBE (GD3BJ) Toluene 6-31G(d,p).tar.gz"),
+        Path(data_directory(), "Naphthalene/Gaussian 16 Optimisation Frequencies PBE1PBE (GD3BJ) Toluene 6-31G(d,p)"),
         Path(data_directory(), "Naphthalene/Gaussian 16 Excited States TDA Optimised S(1) PBE1PBE (GD3BJ) Toluene 6-31G(d,p).tar.gz"),
     )
 
@@ -104,10 +104,10 @@ def turbomole_ADC2_triplets_result():
     ])
 def test_SCF_energy(result_set, num, final):
     """Test the parsed energy is correct"""
-    assert result_set.SCF_energies.final == pytest.approx(final, abs=1e-5)
+    assert result_set.energies.scf.final == pytest.approx(final, abs=1e-5)
     
     # Check length, which will be 1 for SP, and >1 for the opts.
-    assert len(result_set.SCF_energies) == num
+    assert len(result_set.energies.scf) == num
 
 
 @pytest.mark.parametrize("result_set, num, final", [
@@ -117,13 +117,13 @@ def test_SCF_energy(result_set, num, final):
     ])
 def test_MP_energy(result_set, num, final):
     """Test the parsed energy is correct"""
-    assert result_set.MP_energies.final == pytest.approx(final, abs=1e-5)
+    assert result_set.energies.mp.final == pytest.approx(final, abs=1e-5)
     
     if num > 1:
         pytest.skip("A cclib bug currently parses the wrong number of MP energies")
     # Check length, which will be 1 for SP, and >1 for the opts.
-    assert len(result_set.SCF_energies) == num
-    assert len(result_set.MP_energies) == num
+    assert len(result_set.energies.scf) == num
+    assert len(result_set.energies.mp) == num
 
 
 @pytest.mark.parametrize("result_set, charge, mult, energy", [
@@ -211,10 +211,10 @@ def test_alignment(result_set, length, width, height):
     ])
 def test_orbitals(result_set, num_occ, num_unocc, homo, lumo):
     """Test the energies of the parsed MOs"""
-    check_orbitals(result_set.molecular_orbitals, num_occ, num_unocc, homo, lumo)
+    check_orbitals(result_set.orbitals, num_occ, num_unocc, homo, lumo)
     
     # Check spin labels
-    assert result_set.molecular_orbitals.spin_type == "none"
+    assert result_set.orbitals.spin_type == "none"
 
 
 @pytest.mark.parametrize("result_set, num_occ, num_unocc, homo, lumo", [
@@ -224,14 +224,14 @@ def test_orbitals(result_set, num_occ, num_unocc, homo, lumo):
 def test_unrestricted_orbitals(result_set, num_occ, num_unocc, homo, lumo):
     """Test the energies of unrestricted orbitals"""
     # Check overall length.
-    assert len(result_set.molecular_orbitals) == len(result_set.beta_orbitals)
+    assert len(result_set.orbitals) == len(result_set.beta_orbitals)
     
     # Check each set of orbitals.
-    check_orbitals(result_set.molecular_orbitals, num_occ[0], num_unocc[0], homo[0], lumo[0])
+    check_orbitals(result_set.orbitals, num_occ[0], num_unocc[0], homo[0], lumo[0])
     check_orbitals(result_set.beta_orbitals, num_occ[1], num_unocc[1], homo[1], lumo[1])
     
     # Check spin labels
-    assert result_set.molecular_orbitals.spin_type == "alpha"
+    assert result_set.orbitals.spin_type == "alpha"
     assert result_set.beta_orbitals.spin_type == "beta"
 
 
@@ -269,11 +269,11 @@ def test_frequencies(result_set, num, index, frequency, intensity):
 def test_pdm(result_set, coords, axis_angle, plane_angle):
     """Test the permanent dipole moment"""
      
-    check_dipole(result_set.dipole_moment, coords)
+    check_dipole(result_set.pdm, coords)
     
     # Check angles
-    assert float(result_set.dipole_moment.X_axis_angle) == pytest.approx(axis_angle, abs=1e-1)
-    assert float(result_set.dipole_moment.XY_plane_angle) == pytest.approx(plane_angle, abs=1e-1)
+    assert float(result_set.pdm.X_axis_angle) == pytest.approx(axis_angle, abs=1e-1)
+    assert float(result_set.pdm.XY_plane_angle) == pytest.approx(plane_angle, abs=1e-1)
 
 
 @pytest.mark.parametrize("result_set, number, TDM", [
@@ -393,10 +393,10 @@ def test_excited_state_transitions(result_set, state_index, transition_index, st
 def test_emission(result_set, transition_type, multiplicity, emission_type, energy, excited_energy, oscillator_strength, rate):
     # TODO: Testing of fluorescence rate should be moved to another module (where other calculated properties can be tested).
     if transition_type == "adiabatic":
-        emission = result_set.adiabatic_emission[multiplicity]
+        emission = result_set.emission.adiabatic[multiplicity]
         
     else:
-        emission = result_set.vertical_emission[multiplicity]
+        emission = result_set.emission.vertical[multiplicity]
         
     # Test some general properties.
     assert emission.transition_type == transition_type

@@ -23,7 +23,7 @@ def test_soc(result_set, singlet, triplet, SOC):
     """Test calculation of spin-orbit coupling values."""
     
     # Check we have SOC between each singlet state (including the ground) and each triplet state.
-    assert len(result_set.spin_orbit_coupling) == (result_set.excited_states.num_singlets +1) * result_set.excited_states.num_triplets
+    assert len(result_set.soc) == (result_set.excited_states.num_singlets +1) * result_set.excited_states.num_triplets
     
     # Check some SOC values.
-    assert result_set.spin_orbit_coupling.between(singlet, triplet).wavenumbers == pytest.approx(SOC, abs=1e-0)
+    assert result_set.soc.between(singlet, triplet).wavenumbers == pytest.approx(SOC, abs=1e-0)

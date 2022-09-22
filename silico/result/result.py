@@ -47,7 +47,7 @@ class Result_set(Result_object):
         :param pdm: Optional dipole_moment object.
         :param transition_dipole_moments: Optional list of TDMs.
         :param orbitals: Optional Molecular_orbital_list object.
-        :param beta_orbitals: Optional Beta MOs. If this is not None, then molecular_orbitals is assumed to refer to the Alpha MOs.
+        :param beta_orbitals: Optional Beta MOs. If this is not None, then orbitals is assumed to refer to the Alpha MOs.
         :param excited_states: Optional Excited_state_list object.
         :param vibrations: Optional molecular Vibrations object.
         :param soc: A list of spin_orbit_coupling.
@@ -252,9 +252,9 @@ class Result_set(Result_object):
             "atoms": self.alignment.dump(silico_options),
             "orbitals": self.orbitals.dump(silico_options),
             "beta_orbitals": self.beta_orbitals.dump(silico_options),
-            "pdm": self.dipole_moment.dump(silico_options),
+            "pdm": self.pdm.dump(silico_options),
             "excited_states": self.excited_states.dump(silico_options),
-            "soc": self.spin_orbit_coupling.dump(silico_options),
+            "soc": self.soc.dump(silico_options),
             "vibrations": self.vibrations.dump(silico_options),
             "emission": self.emission.dump(silico_options)
         }
