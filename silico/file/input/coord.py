@@ -301,7 +301,7 @@ class Silico_coords_v1(Silico_coords_ABC):
     
     @property
     def atoms(self):
-        return Silico_coords_v2.from_xyz(self.geometry, charge = self.charge, multiplicity = self.multiplicity, name = self.name, file_name = self.file_name).atoms
+        return Silico_coords_v2.from_xyz(self.xyz, charge = self.charge, multiplicity = self.multiplicity, name = self.name, file_name = self.file_name).atoms
         
 #     @property
 #     def dict(self):
