@@ -10,7 +10,6 @@ from silico.file.convert.gaussian import Gaussian_input_parser
 from silico.file.convert.babel import Openbabel_converter
 import silico.log
 from silico.file.input import Input_file
-from chemdataextractor.parse.nmr import multiplicity
 
 # Custom formats to allow literal strings in yaml output.
 # Adapted from https://stackoverflow.com/questions/6432605/any-yaml-libraries-in-python-that-support-dumping-of-long-strings-as-block-liter
