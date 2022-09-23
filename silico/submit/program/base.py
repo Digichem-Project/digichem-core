@@ -306,10 +306,14 @@ class Program_target(Method_target):
                     raise Submission_error(self, "Failed to make scratch output subdirectory") from e
             
             # Write our input file in .si format for easy reuse.
-            # TODO: In future, we should have some way of saving other input file types too.
             if isinstance(self.calculation.input_coords, Silico_coords):
+                # Program-independent .si format.
                 with open(Path(self.destination.calc_dir.input_directory, self.calculation.molecule_name).with_suffix(".si"), "wt") as input_file:
                     self.calculation.input_coords.to_file(input_file)
+                    
+                # Universal .xyz format.
+                with open(Path(self.destination.calc_dir.input_directory, self.calculation.molecule_name).with_suffix(".xyz"), "wt") as input_file:
+                    input_file.write(self.calculation.input_coords.to_format("xyz"))
                     
             # Copy any additional files to our working directory.
             for additional_file, dst_name in self.calculation.additional_files:
