@@ -3,6 +3,7 @@ import yaml
 from pathlib import Path
 from openbabel import pybel
 import packaging.version
+import dill
 
 # Silico imports.
 from silico.exception.base import Silico_exception
@@ -411,6 +412,14 @@ def si_from_file(file_name, file_type = None, *, gen3D = None, **kwargs):
             # Silico input format.
             with open(file_name, "rt") as si_file:
                 return si_from_yaml(yaml.safe_load(si_file.read()), file_name = file_name, **kwargs)
+            
+        elif file_type == "pickle":
+            # A silico resume file.
+            # The resume file (should be) a pickled destination object.
+            with open(file_name, "rb") as pickle_file:
+                destination = dill.load(pickle_file)
+                
+                return destination.program.calculation.input_coords
             
         else:
             # Generic input format.
