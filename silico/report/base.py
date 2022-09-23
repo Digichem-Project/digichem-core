@@ -17,7 +17,7 @@ from silico.image.graph import Convergence_graph_maker
 from silico.result.orbital import Molecular_orbital_list
 import silico.report.image
 from silico.image.structure import Skeletal_image_maker
-from silico.file.input import Silico_coords
+from silico.input import Silico_coords
 from silico.report.image.turbomole import Turbomole_anadens_setup
 
 

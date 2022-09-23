@@ -5,7 +5,7 @@ import urwid
 # Silico imports.
 from silico.interface.urwid.row_list import Row_item, Row_widget,\
     Row_browser
-from silico.file.input import si_from_file
+from silico.input import si_from_file
 from silico.interface.urwid.misc import IntEditZero
 import silico.log
 from silico.interface.urwid.coord.browser import Coord_selector

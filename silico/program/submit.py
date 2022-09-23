@@ -9,7 +9,7 @@ from silico.interface.urwid.submit import Submit_interface
 from silico.exception.base import Silico_exception
 from silico.submit.calculation.base import Calculation_target
 from silico.exception.uncatchable import Submission_paused
-from silico.file.input import si_from_file
+from silico.input import si_from_file
 from silico.submit.base import parse_method_from_file
 
 

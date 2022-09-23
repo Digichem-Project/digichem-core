@@ -7,9 +7,9 @@ from silico.exception.base import Submission_error
 from silico.submit.memory import Memory
 from silico.config.configurable.option import Option
 from silico.config.configurable.options import Options
-from silico.file.input import si_from_file
+from silico.input import si_from_file
 from silico.submit.base import Method_target
-from silico.file.input.directory import Calculation_directory_input
+from silico.input.directory import Calculation_directory_input
 
 
 class Calculation_target(Method_target):

@@ -9,7 +9,7 @@ from silico.config.configurable.option import Option
 from silico.submit.memory import Memory
 import silico
 from silico.config.configurable.options import Options
-from silico.file.input.directory import Calculation_directory_input
+from silico.input.directory import Calculation_directory_input
 
                 
 class Turbomole_memory(Memory):

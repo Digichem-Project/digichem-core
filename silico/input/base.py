@@ -5,7 +5,7 @@ class Input_file():
     """
     ABC for classes that support various input format types.
     
-    In most cases the concrete class silico.file.input.Input_coords is what you are likely looking for.
+    In most cases the concrete class silico.input.Input_coords is what you are likely looking for.
     """
     
     def __init__(self, charge = None, multiplicity = None, name = None, file_name = None):

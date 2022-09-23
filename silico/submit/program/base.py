@@ -8,10 +8,10 @@ import textwrap
 # Silico imports.
 from silico import misc
 from silico.submit.flag import Flag
-from silico.file.convert.babel import Openbabel_converter
+from silico.file.babel import Openbabel_converter
 from silico.exception.base import Submission_error
 from silico.exception.uncatchable import Signal_caught
-from silico.file.input import Silico_coords, si_from_file
+from silico.input import Silico_coords, si_from_file
 from silico.misc.directory import copytree
 import silico.misc.io
 from silico.parse import parse_calculation

@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from silico.file.input.base import Input_file
+from silico.input.base import Input_file
 
 
 class Calculation_directory_input(Input_file):

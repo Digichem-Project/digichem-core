@@ -1,4 +1,4 @@
-from silico.file.input import Input_file
+from silico.input import Input_file
 
 
 class Chk_input(Input_file):

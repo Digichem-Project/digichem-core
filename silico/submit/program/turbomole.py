@@ -16,7 +16,7 @@ from silico.exception.base import Submission_error
 from silico.misc.directory import copytree
 from silico.parse import parse_calculation
 import silico
-from silico.file.input.directory import Calculation_directory_input
+from silico.input.directory import Calculation_directory_input
 
 
 class Turbomole(Program_target):

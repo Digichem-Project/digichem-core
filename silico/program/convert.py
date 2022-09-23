@@ -7,8 +7,8 @@
 from silico.program.base import Program
 from silico.exception.base import Silico_exception
 from silico.misc.base import to_bool
-from silico.file.input import si_from_file
-from silico.file.convert.babel import Openbabel_converter
+from silico.input import si_from_file
+from silico.file.babel import Openbabel_converter
 from silico.misc.file_wrapper import Multi_file_wrapper
 from silico.interface.urwid.convert import Convert_interface
 

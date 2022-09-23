@@ -6,9 +6,9 @@ from silico.config.configurable.option import Option
 from silico.submit.calculation import Concrete_calculation
 from silico.config.configurable.options import Options
 from silico.submit.basis import BSE_basis_set
-from silico.file.input.directory import Calculation_directory_input
+from silico.input.directory import Calculation_directory_input
 from silico.submit.calculation.base import AI_calculation_mixin
-from silico.file.input.coord import Silico_coords
+from silico.input.coord import Silico_coords
 
 
 class Keyword():

@@ -3,7 +3,7 @@
 <%page args="calculation, write_geom = True" />\
 ##
 <%!
-    from silico.file.convert.gaussian import Gaussian_input_parser
+    from silico.file.gaussian import Gaussian_input_parser
 %>\
 ##
 ## First, the chk file.
