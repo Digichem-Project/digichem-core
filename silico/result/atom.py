@@ -2,6 +2,7 @@
 import math
 import periodictable
 from itertools import zip_longest
+from openbabel import pybel
 
 # Silico imports
 from silico.result import Result_container
@@ -98,6 +99,16 @@ class Atom_list(Result_container, Unmergeable_container_mixin):
             formula_string += " {}{}".format(abs(self.charge), "-" if self.charge < 0 else "+")
             
         return formula_string
+    
+    @property
+    def smiles(self):
+        """
+        Get this geometry in (canonical) SMILES format.
+        
+        This property uses the pybel smiles algorithm.
+        """
+        molecule = pybel.readstring("xyz", self.to_xyz())
+        return molecule.write("can").strip()
         
     @property
     def X_length(self):
@@ -176,6 +187,7 @@ class Atom_list(Result_container, Unmergeable_container_mixin):
     def dump(self, silico_options):
         dump_dict = {
             "formula": self.formula_string,
+            "smiles": self.smiles,
             "exact_mass": {
                 "value": float(self.mass) if self.safe_get("mass") is not None else None,
                 "units": "g mol^-1" 
