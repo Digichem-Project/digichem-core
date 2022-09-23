@@ -14,6 +14,10 @@
             	<%include file="/geometry/formula.mako" args="atoms = alignment"/>
             </td>
         </tr>
+        <tr class="resultsTable__row">
+            <td class="resultsTable__title resultsTable__cell">SMILES</td>
+            <td class="resultsTable__value resultsTable__cell">${alignment.smiles}</td>
+        </tr>
         %if alignment.safe_get('mass') is not None:
         <tr class="resultsTable__row">
             <td class="resultsTable__title resultsTable__cell">Exact mass</td>
