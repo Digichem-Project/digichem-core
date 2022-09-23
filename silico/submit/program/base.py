@@ -19,7 +19,7 @@ from silico.report.pdf import PDF_report
 from silico.parse import parse_calculations
 from silico.misc.io import smkdir
 from silico.submit.directory import Silico_directory
-from silico.submit.base import Method_target
+from silico.submit.base import Method_target, write_method_to_file
 from silico.config.configurable.option import Option
 import silico.log
 from silico.result.format.table import Text_dumper, CSV_dumper
@@ -314,6 +314,11 @@ class Program_target(Method_target):
                 # Universal .xyz format.
                 with open(Path(self.destination.calc_dir.input_directory, self.calculation.molecule_name).with_suffix(".xyz"), "wt") as input_file:
                     input_file.write(self.calculation.input_coords.to_format("xyz"))
+                    
+            # Also write our method to file.
+            write_method_to_file(Path(self.destination.calc_dir.input_directory, "Method").with_suffix(".sim"),
+                (self.destination, self, self.calculation)
+            )
                     
             # Copy any additional files to our working directory.
             for additional_file, dst_name in self.calculation.additional_files:
