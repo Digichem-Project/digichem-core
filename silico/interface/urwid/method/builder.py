@@ -6,7 +6,8 @@ import yaml
 from silico.interface.urwid.method.edit import Method_target_editor
 from silico.interface.urwid.layout import Pane
 from silico.interface.urwid.misc import Tab_pile
-from silico.submit.base import Method_target, parse_method_from_file
+from silico.submit.base import Method_target, parse_method_from_file,\
+    write_method_to_file
 from silico.interface.urwid.popup import Method_target_picker , Output_edit
 from silico.interface.urwid.setedit.edit import Setedit_editor_mixin,\
     Paginated_settings_browser
@@ -217,20 +218,8 @@ class Method_builder(Swappable, Setedit_editor_mixin):
         # First, save changes.
         self.save()
         
-        # Build a method dict.
-        method = {
-            'destination': self.editor.page['Destination'].dump(),
-            'program': self.editor.page['Program'].dump(),
-            'calculation': self.editor.page['Calculation'].dump()    
-        }
-        
-        # Open the file pointed at by the output widget.
-        try:
-            with open(self.output_widget.value, "wt") as method_file:
-                yaml.dump(method, method_file)
-        
-        except Exception as e:
-            raise Exception("Failed to open method file for writing") from e
+        # Write to file.
+        write_method_to_file(self.output_widget.value, (self.editor.page['Destination'], self.editor.page['Program'], self.editor.page['Calculation']))
             
     def cancel_callback(self):
         return self.discard()

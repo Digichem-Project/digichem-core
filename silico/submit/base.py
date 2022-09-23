@@ -100,4 +100,29 @@ def parse_method_from_file(file_name, method_library, resolve = True):
             
         method[method_part_name] = method_part
         
-    return (method['destination'], method['program'], method['calculation'])    
+    return (method['destination'], method['program'], method['calculation'])
+
+
+def write_method_to_file(file_name, method):
+    """
+    Write a method to a file.
+    
+    :param file_name: A file to write to.
+    :param method: A tuple of (destination, program, calculation).
+    """
+    # Build a method dict.
+    # TODO: Method files should have some concept of versioning.
+    method = {
+        'destination': method[0].dump(),
+        'program': method[1].dump(),
+        'calculation': method[2].dump()    
+    }
+    
+    # Open the file pointed at by the output widget.
+    try:
+        with open(file_name, "wt") as method_file:
+            yaml.dump(method, method_file)
+    
+    except Exception as e:
+        raise Exception("Failed to open method file for writing") from e
+    
