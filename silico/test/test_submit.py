@@ -3,7 +3,7 @@
 import pytest
 
 from silico.test.util import benzene_cdx, pyridine_cml, cyclopentane_com, silico_options
-from silico.input.coord import si_from_file
+from silico.input.silico import si_from_file
 from silico.submit.calculation.base import Calculation_target
 
 # The destination to use.

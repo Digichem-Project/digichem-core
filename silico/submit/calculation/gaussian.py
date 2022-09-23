@@ -8,7 +8,7 @@ from silico.config.configurable.options import Options
 from silico.submit.basis import BSE_basis_set
 from silico.input.directory import Calculation_directory_input
 from silico.submit.calculation.base import AI_calculation_mixin
-from silico.input.coord import Silico_coords
+from silico.input.silico import Silico_coords
 
 
 class Keyword():
