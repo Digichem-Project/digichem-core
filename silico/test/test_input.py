@@ -1,16 +1,17 @@
-"""Tests for the native silico input format .si"""
+"""Tests for parsing input files"""
 
 import pytest
 from pathlib import Path
 
-from silico.test.util import pyridine_si_v2, pyridine_si_v1, pyridine_cml
+from silico.test.util import pyridine_si_v2, pyridine_si_v1, pyridine_cml, pyridine_resume_pickle
 from silico.input.silico import si_from_file
 
 @pytest.mark.parametrize("file_path", [
         pyridine_si_v2,
-        pyridine_si_v1
+        pyridine_si_v1,
+        pyridine_resume_pickle
      ])
-def test_si_reading(file_path):
+def test_input_reading(file_path):
     """
     Test whether we can correctly read from an existing si file.
     """
@@ -43,3 +44,4 @@ def test_si_writing(tmp_path):
     
     # Check they're the same.
     assert new_si_file == si_file
+ 
