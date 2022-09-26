@@ -81,7 +81,7 @@ class Gaussian(Concrete_calculation, AI_calculation_mixin):
     OUTPUT_COORD_TYPE = "log"
 
     # Configurable options.
-    CPU_list = Option(help = "A list of integers specifying specific CPUs to use for the calculation, starting at 0. CPU_list and num_CPUs are mutually exclusive", exclude = ("num_CPUs",), default = (), type = tuple)
+    CPU_list = Option(help = "A list of integers specifying specific CPUs to use for the calculation, starting at 0. CPU_list and num_CPUs are mutually exclusive", exclude = ("num_CPUs",), default = (), type = int, list_type = tuple)
     num_CPUs = Option(help = "An integer specifying the number of CPUs to use for this calculation. CPU_list and num_CPUs are mutually exclusive", exclude = ("CPU_list",), default = 1, type = int)
     DFT = Options(help = "Options for DFT.",
         functional = Option(help = "The DFT functional to use. Specifying an option here will enable DFT.", type = str),
