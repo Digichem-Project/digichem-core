@@ -317,7 +317,8 @@ class Program_target(Method_target):
                     
             # Also write our method to file.
             write_method_to_file(Path(self.destination.calc_dir.input_directory, "Method").with_suffix(".sim"),
-                (self.destination, self, self.calculation)
+                (self.destination, self, self.calculation),
+                explicit = True
             )
                     
             # Copy any additional files to our working directory.

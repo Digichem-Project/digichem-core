@@ -103,7 +103,7 @@ def parse_method_from_file(file_name, method_library, resolve = True):
     return (method['destination'], method['program'], method['calculation'])
 
 
-def write_method_to_file(file_name, method):
+def write_method_to_file(file_name, method, explicit = False):
     """
     Write a method to a file.
     
@@ -113,9 +113,9 @@ def write_method_to_file(file_name, method):
     # Build a method dict.
     # TODO: Method files should have some concept of versioning.
     method = {
-        'destination': method[0].dump(),
-        'program': method[1].dump(),
-        'calculation': method[2].dump()    
+        'destination': method[0].dump(explicit),
+        'program': method[1].dump(explicit),
+        'calculation': method[2].dump(explicit)    
     }
     
     # Open the file pointed at by the output widget.
