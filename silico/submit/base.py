@@ -121,7 +121,7 @@ def write_method_to_file(file_name, method, explicit = False):
     # Open the file pointed at by the output widget.
     try:
         with open(file_name, "wt") as method_file:
-            yaml.dump(method, method_file)
+            yaml.safe_dump(method, method_file)
     
     except Exception as e:
         raise Exception("Failed to open method file for writing") from e
