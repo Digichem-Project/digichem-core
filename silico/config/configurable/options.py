@@ -1,11 +1,19 @@
 # General imports.
 from collections.abc import MutableMapping
+from itertools import chain
 
 # Silico imports.
 from silico.config.configurable.option import Option
 from silico.exception.base import Silico_exception
 from silico.exception.configurable import Configurable_option_exception
 from silico.config.configurable.base import Options_mixin
+
+
+class Not_inherited(Exception):
+    """
+    An exception used to communicate that a sub option is not inherited by a parent class. 
+    """
+    pass
 
 
 class Options_mapping(MutableMapping):
@@ -48,9 +56,45 @@ class Options_mapping(MutableMapping):
             
             else:
                 raise
+            
+    def get_inherited_sub_option(self, name, _mro = None):
+        """
+        Attempt to retrieve a sub option of the Options object we are mapping that belongs to the parent object.
+        
+        :param name: The name of a sub option to fetch.
+        """
+        # Our full path to this object.
+        resolve_path = [part.name for part in chain(self.options_obj.parents, (self.options_obj,))]
+        
+        # The 'parent' object of our owning object.
+        # Decide which parent class to look at.
+        # We do this by walking up the method resolution order of our owning_obj, which we keep track
+        # of via the recursive argument _mro.
+        if _mro is None:
+            _mro = list(type(self.owning_obj).__mro__)
+        
+        first = super(_mro.pop(0), self.owning_obj)
+        
+        try:
+            current = getattr(first, resolve_path[0])
+        
+        except AttributeError:
+            if not hasattr(first, resolve_path[0]):
+                # The parent object doesn't have any configurable options.
+                raise Not_inherited() from None
+            else:
+                raise
+        
+        try:
+            for resolve_part in resolve_path[1:]:
+                current = current[resolve_part]
+            
+            return current.get_sub_option(name, _mro)
+        
+        except Configurable_option_exception:
+            raise Not_inherited() from None
 
-
-    def get_sub_option(self, name):
+    def get_sub_option(self, name, _mro = None):
         """
         Retrieve a sub option of the Options object we are mapping.
         """
@@ -58,8 +102,14 @@ class Options_mapping(MutableMapping):
             return self.options_obj.OPTIONS[name]
         
         except KeyError:
-            # Unrecognised sub option?
-            raise Configurable_option_exception(self.owning_obj, self.options_obj, "'{}' is not recognised as a valid sub option".format(name))
+            try:
+                # See if the option can be fetched from our parent.
+                return self.get_inherited_sub_option(name, _mro = _mro)
+                
+            except Not_inherited:
+                
+                # Give up and panic.
+                raise Configurable_option_exception(self.owning_obj, self.options_obj, "'{}' is not recognised as a valid sub option".format(name))
         
     def __len__(self):
         """
