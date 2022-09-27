@@ -311,7 +311,7 @@ class Options(Option, Options_mixin):
         
         for option in self.OPTIONS.values():
             if explicit or not option.is_default(self.get_sub_dict(dict_obj)):
-                dump[option.name] = option.dump(owning_obj, self.get_sub_dict(dict_obj))
+                dump[option.name] = option.dump(owning_obj, self.get_sub_dict(dict_obj), explicit = explicit)
                 
         return dump
 
