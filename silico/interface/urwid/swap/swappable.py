@@ -35,7 +35,7 @@ class Swappable(urwid.WidgetWrap, Configurable):
         """
         Does this Swappable have any configurable options set on it?
         """
-        return len(self.OPTIONS) != 0
+        return len(self.get_options()) != 0
     
     @property
     def additional_option_pages(self):

@@ -27,7 +27,7 @@ class Report_interface(Program_view):
         """
         A dict of additional 'pages' of options to edit.
         """
-        options = self.program.config.OPTIONS
+        options = self.program.config.get_options()
         return dict([
             make_settings_page_from_configurable_option(self.window.top, self.program.config, self.program.config._configurable_options, options['absorption_spectrum']),
             make_settings_page_from_configurable_option(self.window.top, self.program.config, self.program.config._configurable_options, options['emission_spectrum']),

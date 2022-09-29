@@ -260,7 +260,7 @@ class Option():
             raise Configurable_option_exception(owning_obj, self, "value cannot be None")
         
         # Try and set the type.
-        if not self.is_default(dict_obj) and value is not None:
+        if not self.is_default(owning_obj, dict_obj) and value is not None:
             # If we are a list type, convert the type of value and also each element.
             if self.list_type is not None:
                 # First convert the list itself.

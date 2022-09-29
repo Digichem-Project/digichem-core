@@ -81,7 +81,7 @@ class Setedit():
         :param option: The configurable option.
         :returns: The value type (a string).
         """
-        if hasattr(option, "OPTIONS"):
+        if hasattr(option, "get_options"):
             return "Options"
         
         elif len(option.choices) > 0:
@@ -105,9 +105,9 @@ class Setedit():
         :param option: The configurable option.
         """
         # First, keep an eye out for nested options.
-        if hasattr(option, "OPTIONS"):
+        if hasattr(option, "get_options"):
             values = {}
-            for sub_option in option.OPTIONS.values():
+            for sub_option in option.get_options(owning_obj).values():
                 values[sub_option.name] = (self.value_from_configurable_option(owning_obj, sub_option), self.vtype_from_configurable_option(sub_option), sub_option.help)    
                     
             return values

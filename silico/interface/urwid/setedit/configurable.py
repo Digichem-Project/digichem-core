@@ -102,7 +102,7 @@ class Option_setedit(Setedit):
         :param option: The configurable option.
         :returns: The Setedit object.
         """
-        if hasattr(option, "OPTIONS"):
+        if hasattr(option, "get_options"):
             cls = Options_setedit
             
         else:
@@ -158,8 +158,8 @@ class Options_setedit(Option_setedit):
         
         children = []
         
-        for sub_option in self.option.OPTIONS.values():
-            if hasattr(sub_option, "OPTIONS"):
+        for sub_option in self.option.get_options(self.owning_obj).values():
+            if hasattr(sub_option, "get_options"):
                 # This sub option has sub options of its own.
                 children.append(Options_setedit(self.top, self.owning_obj, mapping, sub_option))
                 
@@ -244,7 +244,7 @@ class Configurable_browser(Setedit_browser):
         :param configurable: A configurable object to construct from.
         :param on_change_callback: A function to call when settings are saved.
         """
-        setedits = [Option_setedit.from_configurable_option(top, configurable, option) for option in configurable.OPTIONS.values() if option.no_edit is False]
+        setedits = [Option_setedit.from_configurable_option(top, configurable, option) for option in configurable.get_options().values() if option.no_edit is False]
         return self(setedits, top, configurable, on_change_callback = on_change_callback, can_reset = can_reset)
         
     def refresh(self):
@@ -260,7 +260,7 @@ class Configurable_browser(Setedit_browser):
         
         :param validate: Whether to validate the changes made.
         """
-        options = self.configurable.OPTIONS
+        options = self.configurable.get_options()
         child_widgets = list(self.child_setedit_widgets.values())
         
         for child_widget in child_widgets:
@@ -323,7 +323,7 @@ def make_paginated_configurable_browser(configurable, top, general_page_name = "
     options_without_children = []
     options_with_children = []
 
-    for name, option in configurable.OPTIONS.items():
+    for name, option in configurable.get_options().items():
         if not option.no_edit:
             # Split based on children.
             if option.num_child_options == 0:
