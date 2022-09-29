@@ -121,12 +121,13 @@ class Options(Option, Options_mixin):
                 raise Silico_exception("Configurable option given as positional argument to Options must have a name")
             kwargs[arg.name] = arg
         
-        self.OPTIONS = {}
+        # Dict of child options.
+        self._options = {}
         
         # Set names of all kwargs.
         for argname in kwargs:
             kwargs[argname].name = argname
-            self.OPTIONS[argname] = kwargs[argname]
+            self._options[argname] = kwargs[argname]
             
             # Set ourselves as parent.
             kwargs[argname].add_parent(self)
@@ -136,7 +137,8 @@ class Options(Option, Options_mixin):
         """
         The number of child/sub options contained within this one. For 'normal' options, this is always 0.
         """
-        return len(self.OPTIONS)
+        # WARNING: This only counts direct children of this Options.
+        return len(self._options)
             
     def add_parent(self, parent):
         """
@@ -146,7 +148,7 @@ class Options(Option, Options_mixin):
         """
         super().add_parent(parent)
         #for child in self.OPTIONS:
-        for child in self.OPTIONS.values():
+        for child in self._options.values():
             child.add_parent(parent)
 
     def get_inherited_options(self, owning_obj, _mro = None):
