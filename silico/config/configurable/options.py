@@ -10,6 +10,12 @@ from silico.exception.configurable import Configurable_option_exception
 from silico.config.configurable.base import Options_mixin
 
 
+class InheritedAttrError(AttributeError):
+    """
+    Exception raised when an inherited attribute cannot be found.
+    """
+
+
 class Options_mapping(MutableMapping):
     """
     A class that 'binds' an Options object with a parent Configurable.
@@ -131,7 +137,81 @@ class Options(Option, Options_mixin):
             
             # Set ourselves as parent.
             kwargs[argname].add_parent(self)
+    
+    
+    def get_inherited_attribute(self, owning_cls, attr_name):
+        """
+        Get an attribute that is inherited from a parent Options object.
+        
+        :param owning_obj: The owning class on which this Option object is set as a class attribute.
+        :param attr_name: The name of the attribute to inherit.
+        :raises InheritedAttrError: If the attribute could not be found.
+        :returns: The attribute.
+        """
+        try:
+            base_options, mro = self.get_base_options(owning_cls)
+            return getattr(base_options, attr_name)
+         
+        except InheritedAttrError:
+            raise InheritedAttrError(attr_name) from None
+    
+    
+    def get_base_options(self, owning_cls, _mro = None):
+        """
+        Get the base Options object from which this Options object inherits attributes.
+        
+        :param owning_obj: The owning class on which this Option object is set as a class attribute.
+        :param: _mro: The method resolution order, a list of classes to inherit from. This argument is used in recursion to walk further back up the hierarchy. If not given, the mro of owning_cls is used.
+        :returns: A tuple, where the first item is the found Options object (or None if one could not be found), and the second is the current mro.
+        """
+        # The full 'access' path to this option.
+        # This will consist of an attribute access as the first item,
+        # eg: obj.option
+        # followed by a number of dict like accesses to a specific option,
+        # eg: obj.option['sub1']['sub2']
+        resolve_path = [part.name for part in chain(self.parents, (self,))]
+        
+        # The 'parent' class of our owning class.
+        # Decide which parent class to look at.
+        # We do this by walking up the method resolution order of our owning_cls,
+        # which we keep track of via the recursive argument _mro.
+        if _mro is None:
+            _mro = list(owning_cls.__mro__[1:])
+        
+        # Here, we are not actually interested in the value of the option,
+        # but rather the Option(s) object itself.
+        # Hence we access via the base class itself, rather than using super().
+        parent_cls = _mro.pop(0)
+        
+        try:
+            current = getattr(parent_cls, resolve_path[0])
+        
+        except AttributeError:
+            if not hasattr(parent_cls, resolve_path[0]):
+                # The parent class doesn't have any configurable options.
+                # We know this, because method resolution will sneakily walk up the path for us,
+                # so if our direct parent doesn't have our option set as an attribute, it will
+                # be found from another class further up the hierarchy if possible.
+                # Hence for hasattr to return False, none of any of the parent classes have it set.
+                raise InheritedAttrError()
+            else:
+                raise
             
+        # Walk up the nested Options object to find oursaelf.
+        try:
+            for resolve_part in resolve_path[1:]:
+                current = current._options[resolve_part]
+        
+        except KeyError:
+            # Couldn't walk all the way up the path, try again from the next base class.
+            # Doing nothing will loop us around again.
+            return self.get_base_options(owning_cls, _mro)
+        
+        else:
+            # Got our option, stop for now.
+            return current, _mro
+    
+    
     @property
     def num_child_options(self):
         """
@@ -150,61 +230,23 @@ class Options(Option, Options_mixin):
         #for child in self.OPTIONS:
         for child in self._options.values():
             child.add_parent(parent)
+    
 
     def get_inherited_options(self, owning_obj, _mro = None):
         """
         Build a dictionary of child Option objects that we contain, including those we inherit from any base classes of our owning class.
         """
-        # The full 'access' path to this option.
-        # This will consist of an attribute access as the first item,
-        # eg: obj.option
-        # followed by a number of dict like accesses to a specific option,
-        # eg: obj.option['sub1']['sub2']
-        resolve_path = [part.name for part in chain(self.parents, (self,))]
-        
-        # The 'parent' object of our owning object.
-        # Decide which parent class to look at.
-        # We do this by walking up the method resolution order of our owning_obj,
-        # which we keep track of via the recursive argument _mro.
-        if _mro is None:
-            _mro = list(type(owning_obj).__mro__[1:])
-        
-        # Here, we are not actually interested in the value of the option,
-        # but rather the Option(s) object itself.
-        # Hence we access via the base class itself, rather than using super().
-        parent_options = None
-        while parent_options is None:
-            parent_cls = _mro.pop(0)
+        # Get our base options.
+        try:
+            parent_obj, _mro = self.get_base_options(type(owning_obj), _mro)
+            parent_options = parent_obj.get_inherited_options(owning_obj, _mro)
             
-            try:
-                current = getattr(parent_cls, resolve_path[0])
+        except InheritedAttrError:
+            parent_options = {}
             
-            except AttributeError:
-                if not hasattr(parent_cls, resolve_path[0]):
-                    # The parent object doesn't have any configurable options.
-                    parent_options = {}
-                    break
-                else:
-                    raise
-                
-            # Walk up the nested Options object to find ourself.
-            try:
-                for resolve_part in resolve_path[1:]:
-                    current = current._options[resolve_part]
-            
-            except KeyError:
-                # Couldn't walk all the way up the path, try again from the next base class.
-                # Doing nothing will loop us around again.
-                pass
-            
-            else:
-                # Got our option, stop for now.
-                # Get the inherited options of our parent Options object.
-                parent_options = current.get_inherited_options(owning_obj, _mro)
-        
-        
         # Merge the returned options with our own.
         return deepmerge.always_merger.merge(parent_options, self._options)
+    
     
     def get_options(self, owning_obj):
         """
