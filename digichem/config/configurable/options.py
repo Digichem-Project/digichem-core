@@ -56,7 +56,7 @@ class Options_mapping(MutableMapping):
         Retrieve a sub option of the Options object we are mapping.
         """
         try:
-            return self.options_obj.OPTIONS[name]
+            return self.options_obj.get_options(self.owning_obj)[name]
         
         except KeyError:                
             # Give up and panic.
@@ -66,13 +66,13 @@ class Options_mapping(MutableMapping):
         """
         The number of options in the Options object we are mapping.
         """
-        return len(self.options_obj.OPTIONS)
+        return len(self.options_obj.get_options(self.owning_obj))
     
     def __iter__(self):
         """
         Iteration magic method.
         """
-        yield from self.options_obj.OPTIONS
+        yield from self.options_obj.get_options(self.owning_obj)
 
     def __getitem__(self, key):
         """
@@ -278,14 +278,15 @@ class Options(Option, Options_mixin):
         :param dict_obj: The dict in which the value of this Option is stored. In most cases, the value of this option is evaluated simply as dict_obj[self.name]
         :param value: The new value to upate from. This should be a dict-like object that supports iteration via items().
         """
+        options = self._options
         try:
             for key, sub_value in value.items():
                 try:
-                    self.OPTIONS[key].set_into_dict(owning_obj, self.get_sub_dict(dict_obj), sub_value)
+                    options[key].set_into_dict(owning_obj, self.get_sub_dict(dict_obj), sub_value)
                 
                 except KeyError:
                     # Unknown sub option?
-                    if key not in self.OPTIONS:
+                    if key not in options:
                         raise Configurable_option_exception(owning_obj, self, "Cannot update values from iterable, sub option '{}' is not recognised".format(key))
                     
                     else:
@@ -308,8 +309,8 @@ class Options(Option, Options_mixin):
         """
         dump = {}
         
-        for option in self.OPTIONS.values():
-            if explicit or not option.is_default(self.get_sub_dict(dict_obj)):
+        for option in self.get_options(owning_obj).values():
+            if explicit or not option.is_default(owning_obj, self.get_sub_dict(dict_obj)):
                 dump[option.name] = option.dump(owning_obj, self.get_sub_dict(dict_obj), explicit = explicit)
                 
         return dump
@@ -323,7 +324,7 @@ class Options(Option, Options_mixin):
         :param owning_obj: The owning object on which this Option object is set as a class attribute.
         :param dict_obj: The dict in which the value of this Option is stored. In most cases, the value of this option is evaluated simply as dict_obj[self.name]
         """
-        for sub_option in self.OPTIONS.values():
+        for sub_option in self.get_options(owning_obj).values():
             sub_option.set_default(owning_obj, self.get_sub_dict(dict_obj))
 
 

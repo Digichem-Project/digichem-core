@@ -63,15 +63,17 @@ class Options_mixin():
         # First, prune empty values.
         self.prune(owning_obj, dict_obj)
         
+        options = self.get_options(owning_obj)
+        
         # Next, validate each of our known options.
-        for option in self.OPTIONS.values():
+        for option in options.values():
             option.validate(owning_obj, dict_obj)
             
             # Also check for exclusions.
             for exclusion in option.exclude:
                 # This option has an exclusion, check at least one of it and the exclusion is not set.
                 try:
-                    if not self.OPTIONS[exclusion].is_default(dict_obj) and not option.is_default(dict_obj):
+                    if not options[exclusion].is_default(owning_obj, dict_obj) and not option.is_default(owning_obj, dict_obj):
                         raise Configurable_exception(self, "options '{}' and '{}' cannot be set at the same time (mutually exclusive)".format(option.name, exclusion))
                 
                 except KeyError:
@@ -79,7 +81,7 @@ class Options_mixin():
                     raise Configurable_option_exception(owning_obj, option, "The option '{}' in exclude cannot be found".format(exclusion)) from None
             
         # We also need to make sure there are no unexpected options.
-        for unexpected_key in set(dict_obj).difference(self.OPTIONS):
+        for unexpected_key in set(dict_obj).difference(options):
             # Although this looks like a loop, we will obviously only raise the first exception.
             raise Configurable_exception(owning_obj, "unrecognised option '{}'".format(unexpected_key))
 
@@ -102,7 +104,7 @@ class Configurable(Options_mixin):
         # Set all our configurable options.
         # Look through kwargs for options that we recognise.
         values = {}
-        for option in instance.OPTIONS.values():
+        for option in instance.get_options().values():
             try:
                 values[option.name] = kwargs[option.name]
             
@@ -133,7 +135,7 @@ class Configurable(Options_mixin):
             self.validate()
             
         # We also need to make sure there are no unexpected options.
-        for unexpected_key in set(kwargs).difference(self.OPTIONS):
+        for unexpected_key in set(kwargs).difference(self.get_options()):
             # Although this looks like a loop, we will obviously only raise the first exception.
             raise Configurable_exception(self, "unrecognised option '{}'".format(unexpected_key))
 
@@ -160,8 +162,8 @@ class Configurable(Options_mixin):
         """
         dump = {}
         
-        for option in self.OPTIONS.values():
-            if explicit or not option.is_default(self._configurable_options):
+        for option in self.get_options().values():
+            if explicit or not option.is_default(self, self._configurable_options):
                 dump[option.name] = option.dump(self, self._configurable_options, explicit = explicit)
                 
         return dump
