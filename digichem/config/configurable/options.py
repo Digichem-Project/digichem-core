@@ -115,11 +115,27 @@ class Options(Option, Options_mixin):
     A type of option that expects more options (another dict).
     """
     
-    def __init__(self, *args, name = None, help = None, exclude = None, no_edit = False, **kwargs):
+    def __init__(self, *args, name = None, **kwargs):
         """
-        """        
+        """
+        # Certain constructor arguments can be inherited from a parent Options object if they're not given.
+        # Because of this, we check whether they are in kwargs rather than specifying them explicitly, and
+        # set a flag not to inherit them if they're not given.
+        
+        # Args to inherit from parent.
+        self._inherit = []
+        # Kwargs to pass to the next constructor.
+        pkwargs = {}
+        
+        for arg in ("help", "exclude", "no_edit"):
+            if arg in kwargs:
+                pkwargs[arg] = kwargs.pop(arg)
+            
+            else:
+                self._inherit.append(arg)
+        
         # Use parent constructor.
-        super().__init__(name = name, help = help, exclude = exclude, no_edit = no_edit)
+        super().__init__(name = name, **pkwargs)
         
         # Go through args and add to kwargs.
         for arg in args:
@@ -137,6 +153,27 @@ class Options(Option, Options_mixin):
             
             # Set ourselves as parent.
             kwargs[argname].add_parent(self)
+    
+    
+    def __set_name__(self, owning_cls, name):
+        """
+        Called automatically during class creation, allows us to know the attribute name we are stored under.
+        """
+        super().__set_name__(owning_cls, name)
+        
+        # Inherit some options from our parent.
+        for attr_name in self._inherit:
+            try:
+                setattr(self, attr_name, self.get_inherited_attribute(owning_cls, attr_name))
+                
+            except InheritedAttrError:
+                # Nothing to inherit.
+                pass
+        
+        # Also call set name on our children.
+        # This is not particularly useful for setting the name, but it is for passing the owning class name to children.
+        for child_name, child in self._options.items():
+            child.__set_name__(owning_cls, child_name)
     
     
     def get_inherited_attribute(self, owning_cls, attr_name):
@@ -219,6 +256,7 @@ class Options(Option, Options_mixin):
         """
         # WARNING: This only counts direct children of this Options.
         return len(self._options)
+    
             
     def add_parent(self, parent):
         """
