@@ -327,16 +327,17 @@ class Options(Option, Options_mixin):
             sub_option.set_default(owning_obj, self.get_sub_dict(dict_obj))
 
 
-    def is_default(self, dict_obj):
+    def is_default(self, owning_obj, dict_obj):
         """
         Whether the value of this option is currently the default or not.
         
         Options objects are considered as default only if all their children are default.
         
+        :param owning_obj: The owning object on which this Option object is set as a class attribute.
         :param dict_obj: The dict in which the value of this Option is stored. In most cases, the value of this option is evaluated simply as dict_obj[self.name]
         """
         # This is safe, because all([]) == True.
-        return all([sub_option.is_default(self.get_sub_dict(dict_obj)) for sub_option in self.OPTIONS.values()])
+        return all([sub_option.is_default(owning_obj, self.get_sub_dict(dict_obj)) for sub_option in self.get_options(owning_obj).values()])
 
 
     def validate(self, owning_obj, dict_obj = None):
