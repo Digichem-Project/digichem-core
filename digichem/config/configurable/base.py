@@ -14,14 +14,26 @@ class Options_mixin():
     Mixin class for those that contain configurable options.
     """
     
-    @property
-    def OPTIONS(self):
+    @classmethod
+    def get_cls_options(cls):
         """
-        Get a list of all Configurable Options of this object.
+        Get a dict of all the configurable options that belong directly to (are defined on) this class.
+        
+        Unlike get_options(), this method will not attempt to resolve inheritance.
+        
+        The key of each item is the name of the corresponding option.
         """
-        # TODO: This property gets called quite a lot (anecdotally), might be worth optimising (caching perhaps?).
+        # TODO: This function gets called quite a lot (anecdotally), might be worth optimising (caching perhaps?).
         # We apply a custom sort here which ignores case (otherwise all uppercase options appear before all lowercase which is annoying).
-        return dict(sorted({getattr(type(self), attr).name: getattr(type(self), attr) for attr in dir(type(self)) if isinstance(getattr(type(self), attr), Option)}.items(), key = lambda v: v[0].upper()))
+        return dict(sorted({getattr(cls, attr).name: getattr(cls, attr) for attr in dir(cls) if isinstance(getattr(cls, attr), Option)}.items(), key = lambda v: v[0].upper()))
+    
+    def get_options(self, owning_obj = None):
+        """
+        Get a dict of all the configurable options of this object.
+        
+        The key of each item is the name of the corresponding option.
+        """
+        return self.get_cls_options()
     
     def prune(self, owning_obj, dict_obj):
         """
