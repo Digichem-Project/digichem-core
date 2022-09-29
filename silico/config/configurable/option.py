@@ -221,10 +221,11 @@ class Option():
             return self._default(self, owning_obj)
 
 
-    def is_default(self, dict_obj):
+    def is_default(self, owning_obj, dict_obj):
         """
         Whether the value of this option is currently the default or not.
         
+        :param owning_obj: The owning object on which this Option object is set as a class attribute.
         :param dict_obj: The dict in which the value of this Option is stored. In most cases, the value of this option is evaluated simply as dict_obj[self.name]
         """
         return not self.name in dict_obj
