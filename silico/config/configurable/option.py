@@ -114,12 +114,11 @@ class Option():
         """
         self.parents.insert(0, parent)
 
-    def __set_name__(self, cls, name):
+    def __set_name__(self, owning_cls, name):
         """
         Called automatically during class creation, allows us to know the attribute name we are stored under.
         """
         self.name = name if self.name is None else self.name
-
 
     def __get__(self, owning_obj, cls = None):
         """
