@@ -11,25 +11,27 @@ from silico.exception.configurable import Configurable_option_exception
 # Setup our two test classes.
 class Parent(Configurable):
     
-    scf = Option(default = True, type = bool)
+    scf = Option(help = "Options for self-consistent field", default = True, type = bool)
     
-    dft = Options(
+    dft = Options(help = "Options for density-functional theory",
         grid = Options(
-            size = Option(type = int, default = 10)
+            help = "DFT grid options",
+            size = Option(help = "Size of the DFT grid", type = int, default = 10)
         )
     )
     
 class Intermediate(Parent):
     
     dft = Options(
-        functional = Option(default = "B3LYP")
+        functional = Option(help = "DFT functional", default = "B3LYP")
     )
     
 class Child(Intermediate):
     
     dft = Options(
+        functional = Option(help = "Functional to use for DFT"),
         grid = Options(
-            grid_name = Option(default = "big")
+            grid_name = Option(help = "Shorthand name of the DFT grid", default = "big")
         )
     )
 
@@ -59,9 +61,16 @@ def test_basic(parent):
     
     assert parent.scf is False
     assert parent.dft['grid']['size'] == 20
+    
+    
+def test_meta_inheritance(child1, child2, parent):
+    """Test the inheritance mechanism of Options meta data."""
+    
+    # Test that help is inherited correctly.
+    assert child1.get_options()['dft'].help == parent.get_options()['dft'].help
 
 
-def test_inheritance(child1, child2, parent):
+def test_value_inheritance(child1, child2, parent):
     """Test the inheritance mechanism of Options objects."""
     
     # Before any change, all objects should have equivalent values of grid size.
