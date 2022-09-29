@@ -11,6 +11,8 @@ from silico.exception.configurable import Configurable_option_exception
 # Setup our two test classes.
 class Parent(Configurable):
     
+    scf = Option(default = True, type = bool)
+    
     dft = Options(
         grid = Options(
             size = Option(type = int, default = 10)
@@ -42,6 +44,21 @@ def child2():
 @pytest.fixture
 def parent():
     return Parent()
+
+
+def test_basic(parent):
+    """Test basic access."""
+    
+    # Can we retrieve default values?
+    assert parent.scf is True
+    assert parent.dft['grid']['size'] == 10
+    
+    # Can we change and retrieve values?
+    parent.scf = False
+    parent.dft['grid']['size'] = 20
+    
+    assert parent.scf is False
+    assert parent.dft['grid']['size'] == 20
 
 
 def test_inheritance(child1, child2, parent):
@@ -96,7 +113,9 @@ def test_dumping(child1):
     
     # Explicit dump.
     assert child1.dump(True) == {
+        'scf': True,
         'dft': {
+            'functional': "B3LYP",
             'grid': {
                 'size': 10,
                 'grid_name': "big"
