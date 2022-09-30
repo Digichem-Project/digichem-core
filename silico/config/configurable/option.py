@@ -3,6 +3,7 @@ import itertools
 from silico.exception.configurable import Configurable_option_exception,\
     Missing_option_exception, Disallowed_choice_exception
 from builtins import isinstance
+from silico.misc import Default, defres
 
 
 class InheritedAttrError(AttributeError):
@@ -18,7 +19,7 @@ class Option():
     Options are descriptors that perform type checking and other functionality for Configurables; they expose the options that a certain configurable expects.
     """
     
-    def __init__(self, name = None, *, default = None, help = None, choices = None, validate = None, list_type = None, type = None, type_func = None, exclude = None, required = False, no_none = None, no_edit = False, dump_func = None, edit_vtype = None, data_func = None):
+    def __init__(self, name = None, *, default = Default(None), help = Default(None), choices = Default(None), validate = Default(None), list_type = Default(None), type = Default(None), type_func = Default(None), exclude = Default(None), required = Default(False), no_none = Default(None), no_edit = Default(False), dump_func = Default(None), edit_vtype = Default(None), data_func = Default(None)):
         """
         Constructor for Configurable Option objects.
         
@@ -38,32 +39,60 @@ class Option():
         :param edit_vtype: An optional explicit string denoting the interactive editor to use for this option.
         :param data_func: A (pseudo) optional function that can be used to retrieve data about the option for editing purposes. Certain edit_vtype options will require this function.
         """
+        # Certain constructor arguments can be inherited from a parent Options object if they're not given.
+        # Because of this, we check whether they are in kwargs rather than specifying them explicitly, and
+        # set a flag not to inherit them if they're not given.
+        # Args to inherit from parent.
+        self._inherit = []
+        
+        for arg_name, arg_value in {
+            "_default": default,
+            "help": help,
+            "choices": choices,
+            "_validate": validate,
+            "list_type": list_type,
+            # Type is handled by type_func.
+            #"type": type,
+            "type_func": type_func,
+            "exclude": exclude,
+            "required": required,
+            "no_none": no_none,
+            "no_edit": no_edit,
+            "dump_func": dump_func,
+            "edit_vtype": edit_vtype,
+            "data_func": data_func
+        }.items():
+            if isinstance(arg_value, Default):
+                self._inherit.append(arg_name)
+        
         self.name = name
         # TODO: Need to be smarter about storing mutable objects (most notable, list and dict, normally empty ones) as default
         # When a default is accessed, it is this actual object that is returned, hence modifications would be shared by all configurable options of the same type.
         # Perhaps a solution is to on demand copy() the default and store the resulting clone?
-        self._default = default
-        self.list_type = list_type
+        self._default = defres(default)
+        self.list_type = defres(list_type)
         #self.type = type
-        self.help = help
-        self.choices = choices if choices is not None else []
-        self._validate = validate if validate is not None else self.default_validate
-        self.exclude = exclude if exclude is not None else []
+        self.help = defres(help)
+        self.choices = defres(choices) if defres(choices) is not None else []
+        self._validate = defres(validate) if defres(validate) is not None else self.default_validate
+        self.exclude = defres(exclude) if defres(exclude) is not None else []
         if isinstance(self.exclude, str):
             self.exclude = [self.exclude]
-        self.required = required
-        self.no_edit = no_edit
-        self.dump_func = dump_func
-        if no_none is None:
-            self.no_none = required
+        self.required = defres(required)
+        self.no_edit = defres(no_edit)
+        self.dump_func = defres(dump_func)
+        if defres(no_none) is None:
+            self.no_none = self.required
         else:
-            self.no_none = no_none
-        self.edit_vtype = edit_vtype
+            self.no_none = defres(no_none)
+        self.edit_vtype = defres(edit_vtype)
         # This part of the interface is a bit WIP and might change, this function is used to retrieve data for certain setedits that need it.
         # Currently this is only used for method pickers, which use the data func to retrieve the 'list' of methods to pick from.
-        self.data_func = data_func
+        self.data_func = defres(data_func)
         
         # Deal with type and type_func.
+        type = defres(type)
+        type_func = defres(type_func)
         if type is not None and type_func is not None:
             raise ValueError("type and type_func cannot be specified together")
         
