@@ -7,6 +7,7 @@ from silico.exception import Configurable_exception
 from silico.misc import Dynamic_parent
 from silico.config.configurable.option import Option
 from silico.exception.configurable import Configurable_option_exception
+from silico.config.configurable.options import Options
 
 
 class Options_mixin():
@@ -175,9 +176,11 @@ class Configurable_class_target(Dynamic_parent, Configurable):
     """
         
     # Configurable options.
-    TYPE = Option(help = "The parent class of this target, the class we will be replaced as will be a child class of this.", required = True, type = str, no_edit = True)
-    class_name = Option(help = "The name of a class that we will be replaced as.", required = True, type = str, no_edit = True)
-    name = Option(help = "The unique name of this configurable target", type = str, required = True)
+    meta = Options(help = "Metadata options",
+        TYPE = Option(help = "The parent class of this target, the class we will be replaced as will be a child class of this.", required = True, type = str, no_edit = True),
+        class_name = Option(help = "The name of a class that we will be replaced as.", required = True, type = str, no_edit = True),
+        name = Option(help = "The unique name of this configurable target", type = str, required = True)
+    )
 
 
     def __init__(self, loader_list = None, file_name = None, validate_now = True, **kwargs):

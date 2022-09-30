@@ -4,6 +4,7 @@ import yaml
 
 # Silico imports.
 from silico.config.configurable.option import Option
+from silico.config.configurable.options import Options
 from silico.config.configurable.base import Configurable_class_target
 import silico.log
 from silico.exception.configurable import Configurable_loader_exception
@@ -14,8 +15,10 @@ class Method_target(Configurable_class_target):
     Top level class for user-configurable method targets (Calculation types, program types, destination types etc.)
     """
     
-    hidden = Option(help = "If True, this method will not appear in lists (but can still be specified by the user). Useful for methods that should not be used naively.", type = bool, default = False, no_edit = True)
-    warning = Option(help = "A warning message to display when this method is chosen.", default = None, type = str, no_edit = True)
+    meta = Options(help = "Method metadata",
+        hidden = Option(help = "If True, this method will not appear in lists (but can still be specified by the user). Useful for methods that should not be used naively.", type = bool, default = False, no_edit = True),
+        warning = Option(help = "A warning message to display when this method is chosen.", default = None, type = str, no_edit = True)
+    )
             
     @classmethod
     def get_available_CPUs(self):
