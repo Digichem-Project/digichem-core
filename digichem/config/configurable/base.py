@@ -274,6 +274,3 @@ class Configurable_class_target(Dynamic_parent, Configurable):
         
         def __new__(cls, *args, **kwargs):
             return object.__new__(cls)
-            
-        
-        
