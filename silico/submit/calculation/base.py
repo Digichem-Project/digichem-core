@@ -18,7 +18,9 @@ class Calculation_target(Method_target):
     """
     # Top level Configurable for calculations.
     CLASS_HANDLE = ("calculation",)
-    TYPE = Option(default = "calculation", no_edit = True)
+    meta = Options(
+        TYPE = Option(default = "calculation")
+    )
     
             
     @classmethod
