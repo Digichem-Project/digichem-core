@@ -197,27 +197,34 @@ class Options(Option, Options_mixin):
     A type of option that expects more options (another dict).
     """
     
-    def __init__(self, *args, name = None, **kwargs):
+    def __init__(self, *args, name = None, help = Default(None), exclude = Default(None), no_edit = Default(False), **kwargs):
         """
         """
+        consumed_kwargs = {
+            "name": name,
+            "help": help,
+            "exclude": exclude,
+            "no_edit": no_edit,
+        }
+        # Check that none of the arguments consumed by this constructor are Option objects.
+        # This can be an easy mistake, where an Options object is created with a sub option
+        # with the same name as one of our arguments ("name", "help", "exclude", "no_edit" etc).
+        for kwarg_name, kwarg_value in consumed_kwargs.items():
+            if isinstance(kwarg_value, Option):
+                raise TypeError("Constructor keyword argument '{}' cannot be an Option object.".format(kwarg_name))
+        
         # Certain constructor arguments can be inherited from a parent Options object if they're not given.
         # Because of this, we check whether they are in kwargs rather than specifying them explicitly, and
         # set a flag not to inherit them if they're not given.
-        
         # Args to inherit from parent.
         self._inherit = []
-        # Kwargs to pass to the next constructor.
-        pkwargs = {}
         
         for arg in ("help", "exclude", "no_edit"):
-            if arg in kwargs:
-                pkwargs[arg] = kwargs.pop(arg)
-            
-            else:
+            if isinstance(consumed_kwargs[arg], Default):
                 self._inherit.append(arg)
         
         # Use parent constructor.
-        super().__init__(name = name, **pkwargs)
+        super().__init__(name = name, help = help, exclude = exclude, no_edit = no_edit)
         
         # Go through args and add to kwargs.
         for arg in args:
@@ -243,92 +250,10 @@ class Options(Option, Options_mixin):
         """
         super().__set_name__(owning_cls, name)
         
-        # Inherit some options from our parent.
-        for attr_name in self._inherit:
-            try:
-                setattr(self, attr_name, self.get_inherited_attribute(owning_cls, attr_name))
-                
-            except InheritedAttrError:
-                # Nothing to inherit.
-                pass
-        
         # Also call set name on our children.
         # This is not particularly useful for setting the name, but it is for passing the owning class name to children.
         for child_name, child in self._options.items():
             child.__set_name__(owning_cls, child_name)
-    
-    
-    def get_inherited_attribute(self, owning_cls, attr_name):
-        """
-        Get an attribute that is inherited from a parent Options object.
-        
-        :param owning_obj: The owning class on which this Option object is set as a class attribute.
-        :param attr_name: The name of the attribute to inherit.
-        :raises InheritedAttrError: If the attribute could not be found.
-        :returns: The attribute.
-        """
-        try:
-            base_options, mro = self.get_base_options(owning_cls)
-            return getattr(base_options, attr_name)
-         
-        except InheritedAttrError:
-            raise InheritedAttrError(attr_name) from None
-    
-    
-    def get_base_options(self, owning_cls, _mro = None):
-        """
-        Get the base Options object from which this Options object inherits attributes.
-        
-        :param owning_obj: The owning class on which this Option object is set as a class attribute.
-        :param: _mro: The method resolution order, a list of classes to inherit from. This argument is used in recursion to walk further back up the hierarchy. If not given, the mro of owning_cls is used.
-        :returns: A tuple, where the first item is the found Options object (or None if one could not be found), and the second is the current mro.
-        """
-        # The full 'access' path to this option.
-        # This will consist of an attribute access as the first item,
-        # eg: obj.option
-        # followed by a number of dict like accesses to a specific option,
-        # eg: obj.option['sub1']['sub2']
-        resolve_path = [part.name for part in chain(self.parents, (self,))]
-        
-        # The 'parent' class of our owning class.
-        # Decide which parent class to look at.
-        # We do this by walking up the method resolution order of our owning_cls,
-        # which we keep track of via the recursive argument _mro.
-        if _mro is None:
-            _mro = list(owning_cls.__mro__[1:])
-        
-        # Here, we are not actually interested in the value of the option,
-        # but rather the Option(s) object itself.
-        # Hence we access via the base class itself, rather than using super().
-        parent_cls = _mro.pop(0)
-        
-        try:
-            current = getattr(parent_cls, resolve_path[0])
-        
-        except AttributeError:
-            if not hasattr(parent_cls, resolve_path[0]):
-                # The parent class doesn't have any configurable options.
-                # We know this, because method resolution will sneakily walk up the path for us,
-                # so if our direct parent doesn't have our option set as an attribute, it will
-                # be found from another class further up the hierarchy if possible.
-                # Hence for hasattr to return False, none of any of the parent classes have it set.
-                raise InheritedAttrError()
-            else:
-                raise
-            
-        # Walk up the nested Options object to find oursaelf.
-        try:
-            for resolve_part in resolve_path[1:]:
-                current = current._options[resolve_part]
-        
-        except KeyError:
-            # Couldn't walk all the way up the path, try again from the next base class.
-            # Doing nothing will loop us around again.
-            return self.get_base_options(owning_cls, _mro)
-        
-        else:
-            # Got our option, stop for now.
-            return current, _mro
     
     
     @property
@@ -358,7 +283,7 @@ class Options(Option, Options_mixin):
         """
         # Get our base options.
         try:
-            parent_obj, _mro = self.get_base_options(type(owning_obj), _mro)
+            parent_obj, _mro = self.get_base_option(type(owning_obj), _mro)
             parent_options = parent_obj.get_inherited_options(owning_obj, _mro)
             
         except InheritedAttrError:
