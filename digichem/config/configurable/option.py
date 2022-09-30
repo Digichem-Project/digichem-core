@@ -4,6 +4,13 @@ from silico.exception.configurable import Configurable_option_exception,\
     Missing_option_exception, Disallowed_choice_exception
 from builtins import isinstance
 
+
+class InheritedAttrError(AttributeError):
+    """
+    Exception raised when an inherited attribute cannot be found.
+    """
+
+
 class Option():
     """
     Class for specifying an option in a configurable.
@@ -85,6 +92,92 @@ class Option():
         # By definition, Options that are required can have no default, so we'll delete this attribute.
         if self.required:
             del(self._default)
+
+    def __set_name__(self, owning_cls, name):
+        """
+        Called automatically during class creation, allows us to know the attribute name we are stored under.
+        """
+        self.name = name if self.name is None else self.name
+        
+        # Inherit some options from our parent.
+        for attr_name in self._inherit:
+            try:
+                setattr(self, attr_name, self.get_inherited_attribute(owning_cls, attr_name))
+                
+            except InheritedAttrError:
+                # Nothing to inherit.
+                pass
+    
+    def get_inherited_attribute(self, owning_cls, attr_name):
+        """
+        Get an attribute that is inherited from a parent Options object.
+        
+        :param owning_obj: The owning class on which this Option object is set as a class attribute.
+        :param attr_name: The name of the attribute to inherit.
+        :raises InheritedAttrError: If the attribute could not be found.
+        :returns: The attribute.
+        """
+        try:
+            base_options, mro = self.get_base_option(owning_cls)
+            return getattr(base_options, attr_name)
+         
+        except InheritedAttrError:
+            raise InheritedAttrError(attr_name) from None
+    
+    
+    def get_base_option(self, owning_cls, _mro = None):
+        """
+        Get the base Options object from which this Options object inherits attributes.
+        
+        :param owning_obj: The owning class on which this Option object is set as a class attribute.
+        :param: _mro: The method resolution order, a list of classes to inherit from. This argument is used in recursion to walk further back up the hierarchy. If not given, the mro of owning_cls is used.
+        :returns: A tuple, where the first item is the found Options object (or None if one could not be found), and the second is the current mro.
+        """
+        # The full 'access' path to this option.
+        # This will consist of an attribute access as the first item,
+        # eg: obj.option
+        # followed by a number of dict like accesses to a specific option,
+        # eg: obj.option['sub1']['sub2']
+        resolve_path = [part.name for part in itertools.chain(self.parents, (self,))]
+        
+        # The 'parent' class of our owning class.
+        # Decide which parent class to look at.
+        # We do this by walking up the method resolution order of our owning_cls,
+        # which we keep track of via the recursive argument _mro.
+        if _mro is None:
+            _mro = list(owning_cls.__mro__[1:])
+        
+        # Here, we are not actually interested in the value of the option,
+        # but rather the Option(s) object itself.
+        # Hence we access via the base class itself, rather than using super().
+        parent_cls = _mro.pop(0)
+        
+        try:
+            current = parent_cls.get_cls_option(resolve_path[0])
+            
+        except AttributeError:
+            # Next ancestor is not an Options object.
+            raise InheritedAttrError() from None
+                
+        except ValueError:
+            # No option in this class.
+            # Go again.
+            return self.get_base_option(owning_cls, _mro)
+            
+        # Walk up the nested Options object to find ourself.
+        try:
+            for resolve_part in resolve_path[1:]:
+                current = current._options[resolve_part]
+        
+        except KeyError:
+            # Couldn't walk all the way up the path, try again from the next base class.
+            # Doing nothing will loop us around again.
+            return self.get_base_option(owning_cls, _mro)
+        
+        else:
+            # Got our option.
+            # stop for now.
+            return current, _mro
             
     @property
     def num_child_options(self):
@@ -113,12 +206,6 @@ class Option():
         This method is called by the parent Options object when this Option is added to it.
         """
         self.parents.insert(0, parent)
-
-    def __set_name__(self, owning_cls, name):
-        """
-        Called automatically during class creation, allows us to know the attribute name we are stored under.
-        """
-        self.name = name if self.name is None else self.name
 
     def __get__(self, owning_obj, cls = None):
         """
