@@ -1,4 +1,4 @@
-from .base import Dynamic_parent
+from .base import Dynamic_parent, Default, defres
 from .layered_dict import Layered_dict
 from .directory import cd
 from .file_wrapper import Multi_file_wrapper
