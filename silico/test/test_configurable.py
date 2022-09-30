@@ -11,7 +11,7 @@ from silico.exception.configurable import Configurable_option_exception
 # Setup our two test classes.
 class Parent(Configurable):
     
-    scf = Option(help = "Options for self-consistent field", default = True, type = bool)
+    scf = Option(help = "Options for self-consistent field", default = True, type = bool, no_edit = True)
     
     dft = Options(help = "Options for density-functional theory",
         grid = Options(
@@ -22,9 +22,13 @@ class Parent(Configurable):
     
 class Intermediate(Parent):
     
+    scf = Option(help = "Options for SCF")
+    
     dft = Options(
         functional = Option(help = "DFT functional", default = "B3LYP")
     )
+    
+    _post_hf = Option("post_hf", default = "off")
     
 class Child(Intermediate):
     
@@ -34,6 +38,8 @@ class Child(Intermediate):
             grid_name = Option(help = "Shorthand name of the DFT grid", default = "big")
         )
     )
+    
+    _post_hf = Option("post_hf", help = "Post HF options")
 
 @pytest.fixture
 def child1():
@@ -68,6 +74,9 @@ def test_meta_inheritance(child1, child2, parent):
     
     # Test that help is inherited correctly.
     assert child1.get_options()['dft'].help == parent.get_options()['dft'].help
+    
+    # Test that base Option objects (not nested Options) can also inherit.
+    assert child1.get_options()['scf'].no_edit == parent.get_options()['scf'].no_edit
 
 
 def test_value_inheritance(child1, child2, parent):
@@ -129,5 +138,6 @@ def test_dumping(child1):
                 'size': 10,
                 'grid_name': "big"
             }
-        }
+        },
+        'post_hf': "off"
     }
