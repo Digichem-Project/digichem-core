@@ -367,7 +367,7 @@ class Options(Option, Options_mixin):
         :param dict_obj: The dict in which the value of this Option is stored. In most cases, the value of this option is evaluated simply as dict_obj[self.name]
         :param value: The new value to upate from. This should be a dict-like object that supports iteration via items().
         """
-        options = self._options
+        options = self.get_options(owning_obj)
         try:
             for key, sub_value in value.items():
                 try:

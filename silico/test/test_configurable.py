@@ -130,6 +130,11 @@ def test_value_inheritance(child1, child2, parent):
     with pytest.raises(Configurable_option_exception):
         parent.dft['grid']['grid_name'] = "medium"
         
+    # Check we can set a whole bunch of sub options at once.
+    child1.dft = {"functional": "B3LYP", "grid": {"grid_name": "tiny"}}
+    assert child1.dft['functional'] == "B3LYP"
+    assert child1.dft['grid']['grid_name'] == "tiny"
+        
 
 def test_dumping(child1):
     """Test dumping of the objects to text."""
