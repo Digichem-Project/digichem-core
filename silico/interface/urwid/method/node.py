@@ -18,7 +18,7 @@ class Loader_node_mixin():
         """
         Get the TYPE of the configurable loaders we represent.
         """
-        return self.get_value()[-1].TYPE
+        return self.get_value()[-1].meta['TYPE']
     
     def resolve(self):
         """

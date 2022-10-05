@@ -2,7 +2,8 @@
 TAG: Gaussian 09
 
 # The name of the program this config is for. These are pre-built into silico.
-class_name: gaussian
+meta:
+    class_name: gaussian
 
 # 'Path' to the Gaussian executable we'll use (this is usefull to differentiate between versions if multiple are installed).
 executable: g09
@@ -29,7 +30,8 @@ NEXT:
 TAG: Gaussian 16
 
 # The name of the program this config is for. These are pre-built into silico.
-class_name: gaussian
+meta:
+    class_name: gaussian
 
 # 'Path' to the Gaussian executable we'll use (this is usefull to differentiate between versions if multiple are inst$
 executable: g16

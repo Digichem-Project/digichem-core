@@ -202,7 +202,7 @@ class Program_view(Swappable):
         """
         self.window = window
         self.program = program
-        super().__init__(self.window.top, Sub_pane(self.get_body(), title = program.name))
+        super().__init__(self.window.top, Sub_pane(self.get_body(), title = program.meta['name']))
         
     def get_body(self):
         """

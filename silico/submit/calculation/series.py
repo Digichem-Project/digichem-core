@@ -28,7 +28,7 @@ class Calculation_series(Calculation_target):
             
     @property
     def combined_report_name(self):
-        return self._combined_report_name if self._combined_report_name is not None else self.name
+        return self._combined_report_name if self._combined_report_name is not None else self.meta['name']
     
     def expand(self, calculations):
         """

@@ -35,6 +35,6 @@ class Validate_program(Program):
         for configurable_type in self.args.type:
             for index, configurable in enumerate(getattr(self.config, configurable_type)):
                 configurable.validate()
-                self.logger.info("Validated: {}) {}".format(index+1, configurable.name))
+                self.logger.info("Validated: {}) {}".format(index+1, configurable.meta['name']))
                 
         self.logger.info("All configs validated")

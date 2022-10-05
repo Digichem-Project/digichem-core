@@ -60,7 +60,7 @@ class Status_program(Program):
                 status = "N/A (status not available)"
             except Exception:
                 status = "Error retrieving status"
-                self.logger.error("Failed to fetch status information for method '{}'".format(method.name), exc_info = True)
+                self.logger.error("Failed to fetch status information for method '{}'".format(method.meta['name']), exc_info = True)
                 
             statuses.append((method.description, status))
                 

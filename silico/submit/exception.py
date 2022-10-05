@@ -10,4 +10,4 @@ class Invalid_method_parent(Exception):
         self.method_part = method_part
         self.parent = parent
         
-        super().__init__("The {} '{}' is not compatible with {} '{}'".format(method_part.TYPE, method_part.name, parent.TYPE, parent.name))
+        super().__init__("The {} '{}' is not compatible with {} '{}'".format(method_part.meta['TYPE'], method_part.meta['name'], parent.meta['TYPE'], parent.meta['name']))

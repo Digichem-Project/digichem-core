@@ -1,6 +1,7 @@
 TAG: SLURM Base
 SUB_TYPE: pseudo
-class_name: SLURM
+meta:
+    class_name: SLURM
 
 # The command used to run sbatch (incase this has been renamed or wrapped in some way).
 sbatch_command: sbatch

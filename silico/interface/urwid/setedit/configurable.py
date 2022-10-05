@@ -355,6 +355,6 @@ def make_settings_page_from_configurable_option(top, configurable, configurable_
     :param option: The configurable option to edit.
     :returns: A tuple of (name, page).
     """
-    return (option.name, Pane(Configurable_browser([Options_solo_setedit(top, configurable, configurable_options, option)], top, configurable), option.name))
+    return (option.meta['name'], Pane(Configurable_browser([Options_solo_setedit(top, configurable, configurable_options, option)], top, configurable), option.meta['name']))
         
         

@@ -282,7 +282,7 @@ class Concrete_calculation(Calculation_target):
             """
             Get a name that describes the calculation and file together.
             """
-            return "{} {}".format(self.molecule_name, self.name)
+            return "{} {}".format(self.molecule_name, self.meta['name'])
             
         def prepare(self, output, input_coords, additional_files = None):
             """

@@ -11,7 +11,9 @@ NEXT:
 
 TAG: Turbomole UFF
 ALIAS: UFF
-class_name: Turbomole-UFF
+
+meta:
+    class_name: Turbomole-UFF
     
 # UFF has no concept of SCF
 scf: null

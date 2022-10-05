@@ -30,7 +30,7 @@ class Method_target_editor(Tab_pile, Setedit_editor_mixin):
         self.parent_class = parent_class
         
         # A widget which allows us to change the class of the configurable we're editing.
-        self.class_widget = Choices_edit(top, parent_class.known_handles(), initial = method_target.class_name if method_target is not None else None, title = "Class name", change_callback = self.popup_class_confirmation_dialogue)
+        self.class_widget = Choices_edit(top, parent_class.known_handles(), initial = method_target.meta['class_name'] if method_target is not None else None, title = "Class name", change_callback = self.popup_class_confirmation_dialogue)
         
         # The actual browser where we can change settings.
         # If we do not have a configurable class to start with, this will be an empty placeholder for now.
@@ -41,7 +41,7 @@ class Method_target_editor(Tab_pile, Setedit_editor_mixin):
         else:
             self.browser = Configurable_browser.from_configurable(top, method_target, can_reset = False)
             self.browser_swapper = urwid.WidgetPlaceholder(
-                Pane(self.browser, method_target.TYPE)
+                Pane(self.browser, method_target.meta['TYPE'])
             )
         
         
@@ -82,11 +82,11 @@ class Method_target_editor(Tab_pile, Setedit_editor_mixin):
             return
         
         # If the chosen class is the same as our current class, do nothing.
-        if self.class_widget.value == self.browser.configurable.class_name:
+        if self.class_widget.value == self.browser.configurable.meta['class_name']:
             return
         
         def cancel_callback():
-            self.class_widget.value = self.browser.configurable.class_name
+            self.class_widget.value = self.browser.configurable.meta['class_name']
         
         # Otherwise, show a confirmation box.
         self.top.popup(
@@ -112,8 +112,8 @@ class Method_target_editor(Tab_pile, Setedit_editor_mixin):
         :param new_target: The method_target to set.
         """
         self.browser = Configurable_browser.from_configurable(self.top, new_target, can_reset = False)
-        self.browser_swapper.original_widget = Pane(self.browser, new_target.TYPE)
-        self.class_widget.value = self.browser.configurable.class_name
+        self.browser_swapper.original_widget = Pane(self.browser, new_target.meta['TYPE'])
+        self.class_widget.value = self.browser.configurable.meta['class_name']
         
     def refresh(self):
         # If no class has yet been selected, do nothing.

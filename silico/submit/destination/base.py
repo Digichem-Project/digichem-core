@@ -5,6 +5,7 @@ from silico.submit.directory import Calculation_directory
 from silico.exception import Submission_error
 from silico.submit.base import Method_target
 from silico.config.configurable.option import Option
+from silico.config.configurable.options import Options
 
 
 class Destination_target(Method_target):
@@ -16,7 +17,9 @@ class Destination_target(Method_target):
     """
     
     CLASS_HANDLE = ("destination",)
-    TYPE = Option(default = "destination", no_edit = True)
+    meta = Options(
+        TYPE = Option(default = "destination")
+    )
         
     @property
     def status(self):

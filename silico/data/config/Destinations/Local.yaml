@@ -1,9 +1,9 @@
 TAG: Series
 ALIAS: Local (series)
 
-hidden: True
-
-class_name: series
+meta:
+    hidden: True
+    class_name: series
 
 NEXT:
     - Programs Base
@@ -15,9 +15,9 @@ NEXT:
 TAG: Parallel
 ALIAS: Local (parallel)
 
-hidden: True
-
-class_name: parallel
+meta:
+    hidden: True
+    class_name: parallel
 
 NEXT:
     - Programs Base

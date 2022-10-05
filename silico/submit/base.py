@@ -84,16 +84,16 @@ def parse_method_from_file(file_name, method_library, resolve = True):
             # The method has been given as a dict. Create a new definition.
             # First, get the class we're looking for.
             try:
-                cls = Method_target.from_class_handle(method_part_name).from_class_handle(raw_method_part['class_name'])
+                cls = Method_target.from_class_handle(method_part_name).from_class_handle(raw_method_part['meta']['class_name'])
             
             except KeyError:
                 # No classname specified.
-                raise Exception("Cannot parse '{}' definition from file '{}'; missing class_name option".format(method_part_name, file_name)) from None
+                raise Exception("Cannot parse '{}' definition from file '{}'; missing meta:class_name option".format(method_part_name, file_name)) from None
             
             except ValueError:
                 # Couldn't find given class.
                 # This might not be the best exception
-                raise Configurable_loader_exception(method_part, method_part_name, file_name, "class_name '{}' is not recognised".format(method_part['class_name']))
+                raise Configurable_loader_exception(method_part, method_part_name, file_name, "meta:class_name '{}' is not recognised".format(method_part['meta']['class_name']))
             
             # Now make from it (this will also validate).
             method_part = cls(file_name = file_name, validate_now = True, **raw_method_part)

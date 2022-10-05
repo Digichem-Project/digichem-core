@@ -7,6 +7,7 @@ from silico.exception import Configurable_exception
 from silico.misc import Dynamic_parent
 from silico.config.configurable.option import Option
 from silico.config.configurable.options import Options, Options_mixin
+from silico.config.configurable.util import hasopt
 
 
 class Configurable(Options_mixin):
@@ -122,8 +123,11 @@ class Configurable_class_target(Dynamic_parent, Configurable):
         # otherwise you'd have to do something like: configurable(class_name = "configurable") everytime.
         # We can't set this by default = because this would interfere with the dumping mechanism (because
         # options that are set to their default are not saved by default.
-        if 'class_name' not in kwargs:
-            self.class_name = self.CLASS_HANDLE[0]
+        if 'meta' not in kwargs:
+            kwargs['meta'] = {'class_name': self.CLASS_HANDLE[0]}
+        
+        elif "class_name" not in kwargs['meta']:
+            kwargs['meta']['class_name'] = self.CLASS_HANDLE[0]
         
         self.inner_cls = None
         self.loader_list = loader_list if loader_list is not None else []
@@ -189,9 +193,9 @@ class Configurable_class_target(Dynamic_parent, Configurable):
         """
         tag_hierarchy = self.alias_hierarchy
         # If our name is empty, set from our tag hierarchy.
-        if not hasattr(self, "name") and len(tag_hierarchy) > 0:
+        if not hasopt(self, 'meta', 'name') and len(tag_hierarchy) > 0:
             # No name, set from the category.
-            self.name = " ".join(tag_hierarchy)
+            self.meta['name'] = " ".join(tag_hierarchy)
     
     @property
     def description(self):
@@ -206,14 +210,14 @@ class Configurable_class_target(Dynamic_parent, Configurable):
         
         # Start with the name.
         try:
-            desc += self.name
+            desc += self.meta['name']
         except Exception:
             # No name set, this is pretty unusual but try and continue.
             desc += "NO-NAME"
             
         # Add our type.
         try:
-            desc += " ({})".format(self.TYPE)
+            desc += " ({})".format(self.meta['TYPE'])
         except AttributeError:
             pass
             
@@ -273,7 +277,6 @@ class Configurable_class_target(Dynamic_parent, Configurable):
         
         This default implementation does nothing.
         """
-        
         
         def __new__(cls, *args, **kwargs):
             return object.__new__(cls)

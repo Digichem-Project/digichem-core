@@ -8,7 +8,7 @@
 <%page args="SLURM_target"/>\
 ##
 #!/bin/bash
-#SBATCH -J "${SLURM_target.program.calculation.descriptive_name} (${SLURM_target.program.name})"
+#SBATCH -J "${SLURM_target.program.calculation.descriptive_name} (${SLURM_target.program.meta['name']})"
 ##
 %if SLURM_target.partition is not None:
 #SBATCH -p ${SLURM_target.partition}

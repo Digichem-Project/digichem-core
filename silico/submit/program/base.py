@@ -24,6 +24,7 @@ from silico.config.configurable.option import Option
 import silico.log
 from silico.result.format.table import Text_dumper, CSV_dumper
 from silico.result.format.property import CSV_property_dumper
+from silico.config.configurable.options import Options
 
 
 class Program_target(Method_target):
@@ -32,7 +33,9 @@ class Program_target(Method_target):
     """
     
     CLASS_HANDLE = ("program",)
-    TYPE = Option(default = "program", no_edit = True)
+    meta = Options(
+        TYPE = Option(default = "program")
+    )
         
     ############################
     # Class creation mechanism #

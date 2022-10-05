@@ -2,7 +2,8 @@ SUB_TYPE: pseudo
 TAG: Calculation Base
 
 # Global calc defaults.
-TYPE: calculation
+meta:
+    TYPE: calculation
 
 # The amount of 'dynamic memory' to use for the calculation (https://gaussian.com/link0/).
 # Note that the amount of memory actually used by Gaussian can far exceed the value set here (at least in G09, not sure why).

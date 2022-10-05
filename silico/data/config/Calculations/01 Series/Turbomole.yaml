@@ -2,7 +2,8 @@ TAG: Turbomole Auto
 SUB_TYPE: partial
 ALIAS: Auto Characterisation
 
-class_name: Series
+meta:
+    class_name: Series
 
 NEXT:
     - Turbomole Auto CC2

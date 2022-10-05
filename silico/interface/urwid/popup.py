@@ -303,6 +303,6 @@ class Method_target_picker(Popup_edit):
         """
         Update the label of this widget with the current value.
         """
-        self.set_label(str(self.value.name) if self.value is not None else "")
+        self.set_label(str(self.value.meta['name']) if self.value is not None else "")
     
     

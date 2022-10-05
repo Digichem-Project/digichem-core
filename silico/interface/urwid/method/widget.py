@@ -29,7 +29,7 @@ class Loader_widget(Flag_widget):
         """
         warnings = []
         for loader in self.get_node().get_value():
-            warning = loader.config.get("warning", None) 
+            warning = loader.config.get("meta", {}).get("warning", None)
             if warning is not None:
                 warnings.append(warning) 
         return warnings
@@ -162,8 +162,8 @@ class Loader_parent_widget(Loader_widget):
             # If we are expanding and any of the loaders we represent have warnings, issue those now.
             loader_list = self.get_node().get_value()
             for loader in loader_list:
-                if 'warning' in loader.config:
-                    warnings.warn(loader.config['warning'])
+                if 'warning' in loader.config.get("meta", {}):
+                    warnings.warn(loader.config['meta']['warning'])
             
         return super().update_expanded_icon()
 

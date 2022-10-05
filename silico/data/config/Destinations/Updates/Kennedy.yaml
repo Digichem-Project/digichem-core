@@ -34,9 +34,11 @@ NEXT:
 
 TAG: Debug SLURM
 
-hidden: True
+meta:
+    hidden: True
+    warning: You have selected the debug partition. This partition is for testing purposes only; please make sure you know what you are doing.
+    
 partition: debug
-warning: You have selected the debug partition. This partition is for testing purposes only; please make sure you know what you are doing.
 
 NEXT:
     - Programs Base
@@ -47,9 +49,11 @@ NEXT:
 
 TAG: Multi Node SLURM
 
-hidden: True
+meta:
+    hidden: True
+    warning: You have selected the high-performance parallel partition. This partition MUST NOT be used for DFT; please make sure you know what you are doing.
+    
 partition: parallel
-warning: You have selected the high-performance parallel partition. This partition MUST NOT be used for DFT; please make sure you know what you are doing.
 
 NEXT:
     - Programs Base

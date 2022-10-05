@@ -1,5 +1,7 @@
 TAG: Turbomole
-class_name: Turbomole
+
+meta:
+    class_name: Turbomole
 SUB_TYPE: pseudo
 
 # Increase number of SCF iterations.
