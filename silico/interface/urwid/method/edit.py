@@ -102,7 +102,7 @@ class Method_target_editor(Tab_pile, Setedit_editor_mixin):
         """
         Create a new empty method_target from the current value of the class picker widget.
         """
-        new_target = self.parent_class.from_class_handle(self.class_widget.value)(class_name = self.class_widget.value, validate_now = False)
+        new_target = self.parent_class.from_class_handle(self.class_widget.value)(meta = {"class_name": self.class_widget.value}, validate_now = False)
         self.update_current_method_target(new_target)
         
     def update_current_method_target(self, new_target):
