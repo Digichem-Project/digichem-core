@@ -128,9 +128,9 @@ class Submit_program(Program):
         warnings = [None]
         for configurables in self.methods:
             for configurable in configurables:
-                    if configurable.meta.warning not in warnings:
-                        warnings.append(configurable.meta.warning)
-                        self.logger.warning(configurable.meta.warning)
+                    if configurable.meta['warning'] not in warnings:
+                        warnings.append(configurable.meta['warning'])
+                        self.logger.warning(configurable.meta['warning'])
         
         # The number of calcs we successfully submitted.
         done = 0
