@@ -306,7 +306,7 @@ class Paginated_settings_browser(Pages, Paginated_browser_mixin):
         except Configurable_option_exception as e:
             # Try and switch to the page that matches the exception.
             # See if the option (or any of its parents) is a page.
-            for parent in itertools.chain([parent.name for parent in e.option.parents], (e.option.meta['name'],)):
+            for parent in itertools.chain([parent.name for parent in e.option.parents], (e.option.name,)):
                 if parent in self.pages:
                     self.switch_page(parent)
                     break
