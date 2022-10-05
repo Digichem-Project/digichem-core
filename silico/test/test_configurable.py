@@ -25,7 +25,7 @@ class Intermediate(Parent):
     scf = Option(help = "Options for SCF")
     
     dft = Options(
-        functional = Option(help = "DFT functional", default = "B3LYP")
+        functional = Option(help = "DFT functional", default = "B3LYP", no_edit = True)
     )
     
     _post_hf = Option("post_hf", default = "off")
@@ -50,6 +50,10 @@ def child2():
     return Child()
 
 @pytest.fixture
+def intermediate():
+    return Intermediate()
+
+@pytest.fixture
 def parent():
     return Parent()
 
@@ -69,7 +73,7 @@ def test_basic(parent):
     assert parent.dft['grid']['size'] == 20
     
     
-def test_meta_inheritance(child1, child2, parent):
+def test_meta_inheritance(child1, child2, intermediate,parent):
     """Test the inheritance mechanism of Options meta data."""
     
     # Test that help is inherited correctly.
@@ -77,6 +81,10 @@ def test_meta_inheritance(child1, child2, parent):
     
     # Test that base Option objects (not nested Options) can also inherit.
     assert child1.get_options()['scf'].no_edit == parent.get_options()['scf'].no_edit
+    
+    # Test that sub-options can inherit properly.
+    assert intermediate.get_options()['dft'].get_options(intermediate)['functional'].no_edit is True
+    assert child1.get_options()['dft'].get_options(child1)['functional'].no_edit is True
 
 
 def test_value_inheritance(child1, child2, parent):
