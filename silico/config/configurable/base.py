@@ -268,8 +268,9 @@ class Configurable_class_target(Dynamic_parent, Configurable):
                 raise TypeError("Attempted to create object before calling finalize() (inner_cls is None)")
             else:
                 raise
-        
-    class _actual():
+    
+    # _actual inherits from Configurable to give it access to neccessary class functions, such as get_cls_options().
+    class _actual(Configurable):
         """
         The inner class that is used as the base for the classes returned by classify().
         
