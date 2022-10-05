@@ -1,6 +1,5 @@
 # General imports.
 import urwid
-import yaml
 
 # Silico imports.
 from silico.interface.urwid.method.edit import Method_target_editor
