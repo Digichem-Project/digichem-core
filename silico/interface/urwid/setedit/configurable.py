@@ -159,12 +159,13 @@ class Options_setedit(Option_setedit):
         children = []
         
         for sub_option in self.option.get_options(self.owning_obj).values():
-            if hasattr(sub_option, "get_options"):
-                # This sub option has sub options of its own.
-                children.append(Options_setedit(self.top, self.owning_obj, mapping, sub_option))
-                
-            else:
-                children.append(Option_setedit(self.top, self.owning_obj, mapping, sub_option))
+            if not sub_option.no_edit:
+                if hasattr(sub_option, "get_options"):
+                    # This sub option has sub options of its own.
+                    children.append(Options_setedit(self.top, self.owning_obj, mapping, sub_option))
+                    
+                else:
+                    children.append(Option_setedit(self.top, self.owning_obj, mapping, sub_option))
                 
         return children
     

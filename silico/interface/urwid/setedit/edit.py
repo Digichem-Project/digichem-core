@@ -108,7 +108,9 @@ class Setedit():
         if hasattr(option, "get_options"):
             values = {}
             for sub_option in option.get_options(owning_obj).values():
-                values[sub_option.meta['name']] = (self.value_from_configurable_option(owning_obj, sub_option), self.vtype_from_configurable_option(sub_option), sub_option.help)    
+                # NOTE: This branch doesn't seem to be used (configurable set edits have their own implementation).
+                if not sub_option.no_edit:
+                    values[sub_option.meta['name']] = (self.value_from_configurable_option(owning_obj, sub_option), self.vtype_from_configurable_option(sub_option), sub_option.help)
                     
             return values
         
