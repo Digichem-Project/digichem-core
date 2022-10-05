@@ -218,7 +218,7 @@ class Method_builder(Swappable, Setedit_editor_mixin):
         self.save()
         
         # Write to file.
-        write_method_to_file(self.output_widget.value, (self.editor.page['Destination'], self.editor.page['Program'], self.editor.page['Calculation']))
+        write_method_to_file(self.output_widget.value, (self.editor.pages['Destination'], self.editor.pages['Program'], self.editor.pages['Calculation']))
             
     def cancel_callback(self):
         return self.discard()
