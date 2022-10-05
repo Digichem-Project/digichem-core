@@ -4,6 +4,7 @@ from silico.exception.configurable import Configurable_option_exception,\
     Missing_option_exception, Disallowed_choice_exception
 from builtins import isinstance
 from silico.misc import Default, defres
+from silico.config.configurable.util import hasopt
 
 
 class InheritedAttrError(AttributeError):
@@ -136,6 +137,15 @@ class Option():
             except InheritedAttrError:
                 # Nothing to inherit.
                 pass
+            
+            except AttributeError:
+                # The _default attribute will be missing if this option is required (and so has no default).
+                # TOOD: Fix this hack.
+                if attr_name == "_default":
+                    pass
+                
+                else:
+                    raise
     
     def get_inherited_attribute(self, owning_cls, attr_name):
         """
@@ -469,7 +479,8 @@ class Method_target_option(Option):
         def type_func(option, configurable, value):
             # Hack to check if the value is already a resolved configurable (avoiding circular imports).
             # TODO: Improve this.
-            if hasattr(value, "TYPE"):
+            #if hasattr(value, "meta") and "TYPE" in value.meta:
+            if hasopt(value, "meta", "TYPE"):
                 return value
             
             # Get the available methods.

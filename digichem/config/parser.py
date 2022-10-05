@@ -12,6 +12,7 @@ from silico.config.configurable.loader import Partial_loader, Update_loader,\
 from silico.config.configurable.loader import Single_loader
 from silico.exception.configurable import Configurable_loader_exception
 from silico.config.locations import master_config_path, system_config_location, user_config_location
+from silico.config.configurable.util import setopt
 
 
 class Config_parser():
@@ -253,7 +254,8 @@ class Configurables_parser():
         """
         Convert loaded config dicts to appropriate objects
         """
-        config['TYPE'] = self.TYPE
+        #config['TYPE'] = self.TYPE
+        setopt(config, "meta", "TYPE", value = self.TYPE)
         
         # First, panic if no TAG is set.
         if "TAG" not in config:

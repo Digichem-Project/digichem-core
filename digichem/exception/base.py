@@ -91,10 +91,10 @@ class Submission_error(Silico_exception):
         :param reason: String describing why the error occurred.
         """        
         # Do some quick type checking.
-        if calculation.TYPE == "method":
+        if calculation.meta['TYPE'] == "method":
             # 'Calculation' is actually a Method_target.
             calculation = calculation.program.calculation
-        elif calculation.TYPE == "program":
+        elif calculation.meta['TYPE'] == "program":
             # 'Calculation' is actually a Program_target.
             calculation = calculation.calculation
         
@@ -110,7 +110,7 @@ class Submission_error(Silico_exception):
         """
         Stringify this error.
         """
-        return "Error submitting file '{}' to '{}'; {}".format(self.file_name, self.calculation.name, self.reason)
+        return "Error submitting file '{}' to '{}'; {}".format(self.file_name, self.calculation.meta['name'], self.reason)
     
     
 class Format_error(Silico_exception):

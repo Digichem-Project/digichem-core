@@ -145,7 +145,7 @@ class Configurable_loader():
             if not show_hidden:
                 skip = False
                 for child_path_item in child_path:
-                    if child_path_item.config.get("hidden", False):
+                    if child_path_item.config.get("meta", {}).get("hidden", False):
                         skip = True
                         
                 if skip:
@@ -206,7 +206,7 @@ class Configurable_loader():
         :param validate: Whether to validate the configured object.
         :returns: A loaded Configurable object.
         """
-        config['TYPE'] = self.TYPE
+        config['meta']['TYPE'] = self.TYPE
         # These options have no meaning anymore.
         config.pop('SUB_TYPE', None)
         config.pop('TAG', None)
@@ -219,11 +219,11 @@ class Configurable_loader():
         
         # Try and get the configurable class.
         try:
-            cls = self.type_class.from_class_handle(config['class_name'])
+            cls = self.type_class.from_class_handle(config['meta']['class_name'])
         except ValueError:
-            raise Configurable_loader_exception(config, self.TYPE, self.file_name, "class_name '{}' is not recognised".format(config['class_name']))
+            raise Configurable_loader_exception(config, self.TYPE, self.file_name, "meta:class_name '{}' is not recognised".format(config['meta']['class_name']))
         except KeyError:
-            raise Configurable_loader_exception(config, self.TYPE, self.file_name, "no class_name set") from None
+            raise Configurable_loader_exception(config, self.TYPE, self.file_name, "no meta:class_name set") from None
             # If no class set, use the top level class.
             # IMPORTANT: It's not clear why this might be necessary so it has been disabled for now.
             # If this breaks something it will be reinstated.
