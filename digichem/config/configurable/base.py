@@ -17,6 +17,9 @@ class Configurable(Options_mixin):
     Each Option object maps a certain attribute on the owning configurable object and defines, for example, an allowed type, a default value, a help string, a list of allowed values etc.
     """
     
+    # A useful flag for checking whether an option is a Configurable.
+    is_configurable = True
+    
     def __new__(cls, *args, validate_now = True, **kwargs):
         instance = super().__new__(cls)
         
