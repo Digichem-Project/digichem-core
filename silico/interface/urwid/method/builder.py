@@ -86,7 +86,7 @@ class Method_target_builder(Tab_pile, Setedit_editor_mixin):
             # Ticked, library widget.
             self.body.original_widget = urwid.Filler(self.library_picker_pane, valign = "top")
             
-    def dump(self):
+    def dump(self, explicit = False):
         """
         Get the current value of the method_target that is being edited as a serializable object (probably a str, dict or list).
         """
@@ -101,7 +101,7 @@ class Method_target_builder(Tab_pile, Setedit_editor_mixin):
                     return tag_hierarchy
             
             # We have an actual configurable.
-            return self.editor.configurable.dump()
+            return self.editor.configurable.dump(explicit)
         
         except AttributeError:
             if (self.from_library and self.library_picker_widget.value is None) or (not self.from_library and self.editor.configurable is None):
