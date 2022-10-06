@@ -82,6 +82,7 @@ class Options_mixin():
             option.validate(owning_obj, dict_obj)
             
             # Also check for exclusions.
+            # TODO: Extend exclusions so they can support nested options.
             for exclusion in option.exclude:
                 # This option has an exclusion, check at least one of it and the exclusion is not set.
                 try:
