@@ -28,7 +28,7 @@ import silico.log
 silico.log.set_logging_level("DEBUG")
 
 # General imports.
-import pydevd;pydevd.settrace()
+#import pydevd;pydevd.settrace()
 
 # Silico imports.
 from silico.program.config.main import Config_program
