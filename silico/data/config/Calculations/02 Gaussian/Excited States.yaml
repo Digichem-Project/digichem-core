@@ -2,8 +2,15 @@ SUB_TYPE: partial
 TAG: Gaussian TDA
 ALIAS: TDA
 
-DFT_excited_states:
-    TDA: True
+properties:
+    es:
+        calc: True
+        method: TDA
+keywords:
+    # Options required for PySOC
+    6D:
+    10F:
+    GFInput:
 
 NEXT:
     - Gaussian 10 Singlets 10 Triplets
@@ -11,12 +18,6 @@ NEXT:
     - Gaussian 100 Singlets
     - Gaussian Optimised S(1)
     - Gaussian Optimised T(1)
-    
-keywords:
-    # Options required for PySOC
-    6D:
-    10F:
-    GFInput:
 
 
 ---
@@ -25,8 +26,11 @@ keywords:
 SUB_TYPE: partial
 TAG: Gaussian TD-DFT
 ALIAS: TD-DFT
-DFT_excited_states:
-    TDA: False
+
+properties:
+    es:
+        calc: True
+        method: TD-DFT
 
 NEXT:
     - Gaussian 10 Singlets 10 Triplets
@@ -48,9 +52,11 @@ keywords:
 SUB_TYPE: partial
 TAG: Gaussian 10 Singlets 10 Triplets
 ALIAS: 10 Singlets 10 Triplets
-DFT_excited_states:
-    multiplicity: 50-50
-    nstates: 10
+
+properties:
+    es:
+        multiplicity: 50-50
+        num_states: 10
 
 NEXT:
     - Gaussian Functionals
@@ -62,9 +68,11 @@ NEXT:
 SUB_TYPE: partial
 TAG: Gaussian 5 Triplets
 ALIAS: 5 Triplets
-DFT_excited_states:
-    multiplicity: triplet
-    nstates: 5
+
+properties:
+    es:
+        multiplicity: triplet
+        num_states: 5
 
 NEXT:
     - Gaussian Functionals
@@ -75,9 +83,11 @@ NEXT:
 SUB_TYPE: partial
 TAG: Gaussian 100 Singlets
 ALIAS: 100 Singlets
-DFT_excited_states:
-    multiplicity: singlet
-    nstates: 100
+
+properties:
+    es:
+        multiplicity: singlet
+        num_states: 100
 
 NEXT:
     - Gaussian Functionals
@@ -89,13 +99,14 @@ NEXT:
 SUB_TYPE: partial
 TAG: Gaussian Optimised S(1)
 ALIAS: Optimised S(1)
-DFT_excited_states:
-    multiplicity: singlet
-    nstates: 10
-    root: 1
 
-optimisation:
-    calculate: True
+properties:
+    opt:
+        calc: True
+    es:
+        multiplicity: singlet
+        num_states: 10
+        state_of_interest: 1
 
 NEXT:
     - Gaussian Functionals
@@ -108,13 +119,13 @@ SUB_TYPE: partial
 TAG: Gaussian Optimised T(1)
 ALIAS: Optimised T(1)
 
-DFT_excited_states:
-    multiplicity: triplet
-    nstates: 10
-    root: 1
-
-optimisation:
-    calculate: True
+properties:
+    opt:
+        calc: True
+    es:
+        multiplicity: triplet
+        num_states: 10
+        state_of_interest: 1
 
 NEXT:
     - Gaussian Functionals

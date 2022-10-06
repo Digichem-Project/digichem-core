@@ -16,9 +16,11 @@ SUB_TYPE: partial
 TAG: Gaussian PBE1PBE (GD3BJ)
 ALIAS: PBE1PBE (GD3BJ)
 
-DFT:
-    functional: PBE1PBE
-    empirical_dispersion: GD3BJ
+method:
+    dft:
+        calc: True
+        functional: PBE1PBE
+        dispersion: GD3BJ
 
 NEXT: [Gaussian Solvents]
 
@@ -30,9 +32,11 @@ SUB_TYPE: partial
 TAG: Gaussian CAM-B3LYP (GD3BJ)
 ALIAS: CAM-B3LYP (GD3BJ)
 
-DFT:
-    functional: CAM-B3LYP
-    empirical_dispersion: GD3BJ
+method:
+    dft:
+        calc: True
+        functional: CAM-B3LYP
+        dispersion: GD3BJ
 
 NEXT: [Gaussian Solvents]
 
@@ -44,9 +48,11 @@ SUB_TYPE: partial
 TAG: Gaussian B3LYP (GD3BJ)
 ALIAS: B3LYP (GD3BJ)
 
-DFT:
-    functional: B3LYP
-    empirical_dispersion: GD3BJ
+method:
+    dft:
+        calc: True
+        functional: B3LYP
+        dispersion: GD3BJ
 
 NEXT: [Gaussian Solvents]
 
@@ -58,9 +64,11 @@ SUB_TYPE: partial
 TAG: Gaussian M062X (GD3)
 ALIAS: M062X (GD3)
 
-DFT:
-    functional: M062X
-    empirical_dispersion: GD3
+method:
+    dft:
+        calc: True
+        functional: M062X
+        dispersion: GD3
 
 NEXT: [Gaussian Solvents]
 
@@ -72,8 +80,10 @@ SUB_TYPE: partial
 TAG: Gaussian wB97XD (GD3BJ)
 ALIAS: wB97XD (GD3BJ)
 
-DFT:
-    functional: wB97XD
-    empirical_dispersion: GD3BJ
+method:
+    dft:
+        calc: True
+        functional: wB97XD
+        dispersion: GD3BJ
 
 NEXT: [Gaussian Solvents]

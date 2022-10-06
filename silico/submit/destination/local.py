@@ -1,8 +1,10 @@
-from silico.submit.destination import Destination_target
-from silico.submit.destination.resume import Resumable_destination
 import subprocess
 from subprocess import CalledProcessError
+
+from silico.submit.destination import Destination_target
+from silico.submit.destination.resume import Resumable_destination
 from silico.exception.base import Submission_error
+
 
 class Series(Destination_target):
     """

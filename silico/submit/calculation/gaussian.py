@@ -9,6 +9,7 @@ from silico.submit.basis import BSE_basis_set
 from silico.input.directory import Calculation_directory_input
 from silico.submit.calculation.base import AI_calculation_mixin
 from silico.input.silico import Silico_coords
+from silico.exception.configurable import Configurable_exception
 
 
 class Keyword():
@@ -35,13 +36,22 @@ class Keyword():
         
         # Deal with options, which could contain several different types.
         for option in options:
-            if isinstance(option, dict):
-                # Dictionary, merge.
-                deepmerge.always_merger.merge(self.options, option)
+            self.add_option(option)
                 
-            elif option is not None:
-                # Convert to string, assume this is an option without a value.
-                self.options[str(option)] = ""
+    def add_option(self, option):
+        """
+        Add an option to this keyword.
+        
+        Options can either by a dict, in which case they represent an option of the form keyword=(option=value)
+        Or a non dict, in which case they represent options of the form: keyword=(option)
+        """
+        if isinstance(option, dict):
+            # Dictionary, merge.
+            deepmerge.always_merger.merge(self.options, option)
+            
+        elif option is not None:
+            # Convert to string, assume this is an option without a value.
+            self.options[str(option)] = ""
         
     def __str__(self):
         """
@@ -65,6 +75,44 @@ class Keyword():
         
         else:
             return "{}=({})".format(self.keyword, ", ".join(options_strings))
+        
+
+#########################
+# Validation Functions. #
+#########################
+def validate_method(option, owning_obj, value):
+    """Function for validating method choices."""
+    # First check exactly one method has been selected.
+    found = None
+    for method_type in ("hf", "dft", "mp", "cc"):
+        if value[method_type]['calc']:
+            if found is not None:
+                # A method has already been chosen.
+                raise Configurable_exception(owning_obj, "The '{}' method cannot be selected at the same time as the '{}' method".format(found, method_type))
+            
+            else:
+                found = method_type
+                
+    if found is None:
+        # No method given.
+        raise Configurable_exception(owning_obj, "No calculation method (HF, DFT, MP, CC etc) has been chosen.")
+    
+    return True
+
+def validate_dft(option, owning_obj, value):
+    """Function for validating DFT choices."""
+    if value['calc'] and value['functional'] is None:
+        # DFT requested but no functional.
+        raise Configurable_exception(owning_obj, "No DFT functional has been chosen {}: {}.".format(value['calc'], value['functional']))
+    
+    return True
+    
+def validate_properties(option, owning_obj, value):
+    """Function for validating requested calculation properties."""
+    if not any([value[prop_type]['calc'] for prop_type in ("sp", "opt", "freq", "es")]):
+        raise Configurable_exception(owning_obj, "No calculation properties (SP, Opt, Freq, ES etc) have been chosen.")
+    
+    return True
 
 
 class Gaussian(Concrete_calculation, AI_calculation_mixin):
@@ -79,6 +127,7 @@ class Gaussian(Concrete_calculation, AI_calculation_mixin):
     
     # The format of the output file containing coordinates.
     OUTPUT_COORD_TYPE = "log"
+    
 
     # Configurable options.
     performance = Options(
@@ -86,16 +135,56 @@ class Gaussian(Concrete_calculation, AI_calculation_mixin):
         num_cpu = Option(help = "An integer specifying the number of CPUs to use for this calculation. cou_list and num_cpu are mutually exclusive", exclude = ("cpu_list",), default = 1, type = int)
     )
     
-    basis_set = Options(
-        internal = Option(exclude = "exchange"),
-        exchange = Option(help = "The definition of a (number of) basis sets to use from the Basis Set Exchange (BSE), in the format 'basis set name': 'applicable elements' (for example: '6-31G(d,p)': '1,3-4,B-F').", type = BSE_basis_set, dump_func = lambda option, configurable, value: dict(value), exclude = "internal", edit_vtype = "dict", default = lambda option, configurable: BSE_basis_set())
+    method = Options(help = "Options for controlling the computational method used. Only one method should be chosen at a time.", #validate = validate_method,
+        # Here, we use the 'calc' sub option to turn on or off each option.
+        # This may seem unnecessary, but it allows the other options for each method to be set without turning them on,
+        # so that they can be inherited for child options.
+        hf = Options(help = "Options for the HF method.",
+            calc = Option(help = "Whether to use the Hartree-Fock method", type = bool, default = False),
+        ),
+        dft = Options(help = "Options for the density functional theory (DFT) method.", validate = validate_dft,
+            calc = Option(help = "Whether to use the DFT method.", type = bool, default = False),
+            functional = Option(help = "The DFT functional to use.", type = str, default = None),
+            dispersion = Option(help = "The empirical dispersion method to use, note that not all methods are suitable with all functionals.", choices = ("PFD", "GD2", "GD3", "GD3BJ", None), default = None),
+            grid = Option(help = "The size of the numerical integration grid.", choices = ("Coarse", "SG1", "Fine", "Ultrafine", "Superfine", None), default = "Ultrafine")
+        ),
+        mp = Options(help = "Options for the Møller–Plesset (MP) method.",
+            calc = Option(help = "Whether to use the MP method.", type = bool, default = False),
+            level = Option(help = "The MP order to use.", choices = ("MP2", "MP3", "MP4", "MP4(DQ)", "MP4(SDQ)", "MP5"), default = "MP2")
+        ),
+        cc = Options(help = "Options for the Coupled-Cluster (CC) method.",
+            calc = Option(help = "Whether to use the CC method.", type = bool, default = False),
+            level = Option(help = "The CC level to use.", type = str, choices = ("CCD", "CCSD", "CCSD(T)"), default = "CCD")
+        )
     )
     
-    DFT = Options(help = "Options for DFT.",
-        functional = Option(help = "The DFT functional to use. Specifying an option here will enable DFT.", type = str),
-        empirical_dispersion = Option(help = "Optional empirical dispersion method to use, note that not all methods are suitable with all functionals.", choices = ("PFD", "GD2", "GD3", "GD3BJ", None), default = None)
+    properties = Options(help = "Options for controlling which properties to calculate.", validate = validate_properties,
+        sp = Options(help = "Options for calculating single-point energies.",
+            calc = Option(help = "Whether to calculate single-point energies.", type = bool, default = False)
+        ),
+        opt = Options(help = "Options for calculating optimised geometries.",
+            calc = Option(help = "Whether to calculate optimised geometries." ,type = bool, default = False),
+            iterations = Option(help = "The maximum number of optimisation iterations to permit before aborting. If not specified, program defaults will be used.", type = int, default = None),
+            options = Option(help = "Additional options to specify.", type = dict, default = {})
+        ),
+        freq = Options(help = "Options for calculating vibrational frequencies.",
+            calc = Option(help = "Whether to calculate vibrational frequencies.", type = bool, default = False),
+            options = Option(help = "Additional options to specify.", type = dict, default = {})
+        ),
+        # TODO: Implement.
+#         nmr = Options(help = "Options for calculating nuclear-magnetic resonance (NMR) shielding tensors and magnetic susceptibilities.",
+#             calc = Option(help = "Whether to calculate NMR.", type = bool, default = False),
+#             options = Option(help = "Additional options to specify.", type = dict, default = {})
+#         ),
+        es = Options(help = "Options for calculating excited states.",
+            calc = Option(help = "Whether to calculate excited states.", type = bool, default = False),
+            method = Option(help = "The method to use to calculate excited states.", choices = ("CIS", "CIS(D)", "TD-DFT", "TDA", "EOMCCSD"), default = "CIS"),
+            multiplicity = Option(help = "The multiplicity of the excited states to calculate", choices = ("Singlet", "Triplet", "50-50"), default = "Singlet"),
+            num_states = Option(help = "The number of excited states to calculate. If 50-50 is given as the multiplicity, this is the number of each multiplicity to calculate.", type = int, default = 10),
+            state_of_interest = Option(help = "The principal excited state of interest (SOS). The exact meaning and use of the SOS depends on the calculation being performed, but it is used, for example, to select which excited state to optimise (for ES and Opt calcs).", type = int, default = 1),
+            options = Option(help = "Additional options to specify.", type = dict, default = {})
+        )
     )
-    post_HF_method = Option(help = "The name of a post-HF, calculation method to perform.", choices = ("MP2", "MP3", "MP4", "MP4(DQ)", "MP4(SDQ)", "MP5", "CCD", "CCSD", None), default = None)
     
     solvent = Option(help = "Name of the solvent to use for the calculation (the model used is SCRF-PCM)", default = None, type = str)
     
@@ -105,80 +194,73 @@ class Gaussian(Concrete_calculation, AI_calculation_mixin):
         keep_rwf = Option(help = "Whether to keep the .rwf file at the end of the calculation. If False, the .rwf file will be automatically deleted", default = False, type = bool)
     )
     
-    optimisation = Options(
-        help = "Options that control optimisations.",
-        calculate = Option(help = "Whether to perform an optimisation. If excited states are also being calculated, then the excited state given by 'root' will be optimised", default = False, type = bool),
-        options = Option(help = "Additional options to specify.", type = dict, default = {})
-    )
-    frequency = Options(
-        help = "Options that control calculation of vibrational frequencies.",
-        calculate = Option(help = "Whether to calculate vibrational frequencies.", default = False, type = bool),
-        options = Option(help = "Additional options to specify.", type = dict, default = {})
-    )
-    DFT_excited_states = Options(
-        help = "Options for calculation of excited states with DFT (TDA or TD-DFT)",
-        multiplicity = Option(help = "Multiplicity of the excited states to calculate.", default = None, choices = (None, "Singlet", "Triplet", "50-50")),
-        nstates = Option(help = "The number of excited states to calculate. If 50-50 is given as the multiplicity, this is the number of each multiplicity to calculate. If 0 is given, no excited states will be calculated", type = int, default = 0),
-        root = Option(help = "The 'state of interest', the meaning of which changes depending on what type of calculation is being performed. For example, if an optimisation is being performed, this is the excited state to optimise", type = int, default = None),
-        TDA = Option(help = "Whether to use the Tamm–Dancoff approximation.", type = bool, default = False),
-        options = Option(help = "Additional options to specify.", type = dict, default = {})
-    )
     keywords = Option(help = "Additional Gaussian route keywords. These are written to the input file with only minor modification ('keyword: option' becomes 'keyword=(option)' and 'keyword: {option: value}' becomes 'keyword=(option=value)'), so any option valid to Gaussian can be given here", default = {'Population': 'Regular', 'Density': 'Current'}, type = dict)            
     
     @property
-    def method(self):
+    def method_keyword(self):
         """
         A string describing the method to use (either a DFT functional or a post-HF method).
         """
-        if self.DFT['functional'] is not None:
-            return self.DFT['functional']
+        if self.method['hf']['calc']:
+            return "HF"
+        
+        elif self.method['dft']['calc']:
+            return self.method['dft']['functional']
+        
+        elif self.method['mp']['calc']:
+            return self.method['mp']['level']
+        
+        elif self.method['cc']['calc']:
+            # TODO: Need to check what happens when EOMCCSD is given and a CC method (probably nothing good?).
+            return self.method['cc']['level']
         
         else:
-            return self.post_HF_method
-    
-    @property
-    def basis_set_name(self):
-        """
-        A descriptive label of the basis set being used for the calculation.
-        """
-        if self.basis_set['builtin'] is not None:
-            return self.basis_set['builtin']
-        
-        elif self.basis_set['external'] is not None:
-            return str(self.basis_set['external'])
-        
-        else:
-            return None
+            # Should be unreachable.
+            raise NotImplementedError("Unrecognised method?")
     
     @property
     def calculation_keywords(self):
         """
         Get a string containing the Gaussian calculation keywords and associated options for this calculation.
         """
-        keyword_sections = []
+        keywords = []
+        
+        # Single point.
+        if self.properties['sp']['calculate']:
+            keywords.append(Keyword("SP"))
         
         # Optimisations.
-        if self.optimisation['calculate']:
-            keyword_sections.append(str(Keyword("Opt", self.optimisation['options'])))
+        if self.properties['opt']['calculate']:
+            # Make an opt keyword.
+            opt_keyword = Keyword("Opt", self.optimisation['options'])
+            
+            # Add max number of steps if given.
+            if self.properties['opt']['iterations'] is not None:
+                opt_keyword.add_option({"MaxCycles": self.properties['opt']['iterations']})
+            
+            keywords.append(opt_keyword)
             
         # Frequencies.
-        if self.frequency['calculate']:
-            keyword_sections.append(str(Keyword("Freq", self.frequency['options'])))
+        if self.properties['freq']['calculate']:
+            keywords.append(Keyword("Freq", self.properties['freq']['options']))
             
         # Excited states.
-        if self.DFT_excited_states['nstates'] != 0:
+        if self.properties['es']['calculate']:
             # First, build our options.
             options = {
-                self.DFT_excited_states['multiplicity']: "",
-                'nstates': self.DFT_excited_states['nstates'],
-                'root': self.DFT_excited_states['root']
+                self.properties['es']['multiplicity']: "",
+                'nstates': self.properties['es']['num_states'],
+                'root': self.properties['es']['state_of_interest']
             }
-                
+            
+            # Decide which method we're using to calculate excited states.
+            es_method = "TD" if self.properties['es']['method'] == "TD-DFT" else self.properties['es']['method']
+            
             # Add our keyword, which changes base on whether we're using TDA or TD-DFT.
-            keyword_sections.append(str(Keyword("TDA" if self.DFT_excited_states['TDA'] else "TD", options, self.DFT_excited_states['options'])))
+            keywords.append(Keyword(es_method, options, self.DFT_excited_states['options']))
             
         # Merge and return.
-        return " ".join(keyword_sections)
+        return " ".join([str(keyword) for keyword in keywords])
     
     
     ############################
@@ -218,7 +300,7 @@ class Gaussian(Concrete_calculation, AI_calculation_mixin):
                 basis_set = None
             
             model = ""
-            method = self.method
+            method = self.method_keyword
             # Add the functional.
             if method is not None:
                 model += "{}{}".format("u" if self.electron['unrestricted'] else "", method)

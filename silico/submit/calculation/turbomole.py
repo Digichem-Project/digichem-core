@@ -10,6 +10,7 @@ from silico.submit.memory import Memory
 import silico
 from silico.config.configurable.options import Options
 from silico.input.directory import Calculation_directory_input
+from silico.exception.configurable import Configurable_option_exception
 
                 
 class Turbomole_memory(Memory):
@@ -43,6 +44,13 @@ class Turbomole(Concrete_calculation):
     parallel_mode = Option(help = "The type of parallelization to use. SMP uses shared memory and therefore is only suitable for parallelization across a single node, while MPI uses message-passing between processes and so can be used across multiple nodes. Use 'linear' to disable parallelization.", default = "SMP", choices = ("SMP", "MPI", "linear"), type = str)
     
 
+def validate_bse(option, owning_obj, value):
+    """Function to check that a basis set exchange basis set has not been chosen (these are not yet supported for Turbomoles)."""
+    if not option.default(owning_obj) == value:
+        raise Configurable_option_exception(owning_obj, option, "BSE basis sets are not currently supported for Turbomole.")
+    
+    return True
+
 class Turbomole_AI(Turbomole, AI_calculation_mixin):
     """
     Ab Initio calculations with Turbomole.
@@ -55,6 +63,10 @@ class Turbomole_AI(Turbomole, AI_calculation_mixin):
     redundant_internal_coordinates = Option(help = "Whether to use redundant internal coordinates", type = bool, default = True)
     _define_options = Option(help = "Method keywords and options from the define general menu, including scf, mp2, cc etc. This option is currently unused.", type = dict, default = {})
     define_timeout = Option(help = "The amount of time (s) to allow define to run for. After the given timeout, define will be forcibly stopped if it is still running, which normally occurs because something went wrong and define froze.", type = int, default = 60)
+    
+    basis_set = Options(
+        exchange = Option(validate = validate_bse)
+    )
     
     @property
     def unrestricted_HF(self):

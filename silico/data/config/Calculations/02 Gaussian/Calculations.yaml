@@ -2,8 +2,12 @@ SUB_TYPE: partial
 TAG: Gaussian Single Point Singlet
 ALIAS: Single Point (Singlet)
 
+properties:
+    sp:
+        calc: True
 electron:
     multiplicity: 1
+
 
 NEXT:
     - Gaussian Methods
@@ -16,8 +20,9 @@ SUB_TYPE: partial
 TAG: Gaussian Optimisation
 ALIAS: Optimisation
 
-optimisation:
-    calculate: True
+properties:
+    opt:
+        calc: True
 
 NEXT:
     - Gaussian Methods
@@ -30,10 +35,11 @@ SUB_TYPE: partial
 TAG: Gaussian Optimisation Frequencies
 ALIAS: Optimisation Frequencies
 
-optimisation:
-    calculate: True
-frequency:
-    calculate: True
+properties:
+    opt:
+        calc: True
+    freq:
+        calc: True
 
 NEXT:
     - Gaussian Methods
@@ -45,10 +51,11 @@ SUB_TYPE: partial
 TAG: Gaussian Optimisation Frequencies Unrestricted Triplet
 ALIAS: Optimisation Frequencies Unrestricted Triplet
 
-optimisation:
-    calculate: True
-frequency:
-    calculate: True
+properties:
+    opt:
+        calc: True
+    freq:
+        calc: True
 electron:
     multiplicity: 3
     unrestricted: True
@@ -64,8 +71,9 @@ SUB_TYPE: partial
 TAG: Gaussian Frequencies
 ALIAS: Frequencies
 
-frequency:
-    calculate: True
+properties:
+    freq:
+        calc: True
 
 NEXT:
     - Gaussian Methods

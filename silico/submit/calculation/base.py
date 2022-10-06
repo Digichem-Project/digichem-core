@@ -106,7 +106,8 @@ class AI_calculation_mixin():
     )
     
     basis_set = Options(help = "The basis set to use.",
-        internal = Option(help = "The name of a basis set native to the relevant calculation program.", type = str),
+        internal = Option(help = "The name of a basis set native to the relevant calculation program.", type = str, exclude = "exchange"),
+        exchange = Option(help = "The definition of a (number of) basis sets to use from the Basis Set Exchange (BSE), in the format 'basis set name': 'applicable elements' (for example: '6-31G(d,p)': '1,3-4,B-F').", type = BSE_basis_set, dump_func = lambda option, configurable, value: dict(value), exclude = "internal", edit_vtype = "dict", default = lambda option, configurable: BSE_basis_set())
     )
     
     @property
@@ -126,6 +127,20 @@ class AI_calculation_mixin():
         Unlike the electron['multiplicity'] attribute, this property will translate None to the actual multiplicity to be used.
         """
         return int(self.electron['multiplicity'] if self.electron['multiplicity'] is not None else self.input_coords.implicit_multiplicity)
+    
+    @property
+    def basis_set_name(self):
+        """
+        A descriptive label of the basis set being used for the calculation.
+        """
+        if self.basis_set['builtin'] is not None:
+            return self.basis_set['builtin']
+        
+        elif self.basis_set['external'] is not None:
+            return str(self.basis_set['external'])
+        
+        else:
+            return None
 
 
 class Concrete_calculation(Calculation_target):

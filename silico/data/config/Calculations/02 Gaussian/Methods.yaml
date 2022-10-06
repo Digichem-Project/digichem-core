@@ -28,7 +28,10 @@ SUB_TYPE: partial
 TAG: Gaussian MP2
 ALIAS: MP2
 
-post_HF_method: MP2
+method:
+    mp:
+        calc: True
+        level: MP2
 
 NEXT: [Gaussian Basis Sets]
    
@@ -39,7 +42,10 @@ SUB_TYPE: partial
 TAG: Gaussian MP3
 ALIAS: MP3
 
-post_HF_method: MP3
+method:
+    mp:
+        calc: True
+        level: MP3
 
 NEXT: [Gaussian Basis Sets]
    
@@ -50,7 +56,10 @@ SUB_TYPE: partial
 TAG: Gaussian MP4
 ALIAS: MP4
 
-post_HF_method: MP4
+method:
+    mp:
+        calc: True
+        level: MP4
 
 NEXT: [Gaussian Basis Sets]
    
@@ -61,7 +70,10 @@ SUB_TYPE: partial
 TAG: Gaussian MP5
 ALIAS: MP5
 
-post_HF_method: MP5
+method:
+    mp:
+        calc: True
+        level: MP5
 
 NEXT: [Gaussian Basis Sets]
    
@@ -72,7 +84,10 @@ SUB_TYPE: partial
 TAG: Gaussian CCD
 ALIAS: CCD
 
-post_HF_method: CCD
+method:
+    cc:
+        calc: True
+        level: CCD
 
 NEXT: [Gaussian Basis Sets]
 
@@ -83,6 +98,9 @@ SUB_TYPE: partial
 TAG: Gaussian CCSD
 ALIAS: CCSD
 
-post_HF_method: CCSD
+method:
+    cc:
+        calc: True
+        level: CCSD
 
 NEXT: [Gaussian Basis Sets]
