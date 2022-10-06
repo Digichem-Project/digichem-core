@@ -237,11 +237,11 @@ class Gaussian(Concrete_calculation, AI_calculation_mixin):
         keywords = []
         
         # Single point.
-        if self.properties['sp']['calculate']:
+        if self.properties['sp']['calc']:
             keywords.append(Keyword("SP"))
         
         # Optimisations.
-        if self.properties['opt']['calculate']:
+        if self.properties['opt']['calc']:
             # Make an opt keyword.
             opt_keyword = Keyword("Opt", self.optimisation['options'])
             
@@ -252,11 +252,11 @@ class Gaussian(Concrete_calculation, AI_calculation_mixin):
             keywords.append(opt_keyword)
             
         # Frequencies.
-        if self.properties['freq']['calculate']:
+        if self.properties['freq']['calc']:
             keywords.append(Keyword("Freq", self.properties['freq']['options']))
             
         # Excited states.
-        if self.properties['es']['calculate']:
+        if self.properties['es']['calc']:
             # First, build our options.
             options = {
                 self.properties['es']['multiplicity']: "",
