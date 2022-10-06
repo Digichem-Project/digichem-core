@@ -339,10 +339,16 @@ class Gaussian(Concrete_calculation, AI_calculation_mixin):
             # Solvent.
             if self.solution['calc']:
                 route_parts.append(str(Keyword("SCRF", {self.solution['model']: "" ,"Solvent": self.solution['solvent']})))
+            
+            # Additional DFT options.
+            if self.method['dft']['calc']:
+                # Empirical dispersion.
+                if self.method['dft']['dispersion'] is not None:
+                    route_parts.append(str(Keyword("EmpiricalDispersion", self.method['dft']['dispersion'])))
                 
-            # Empirical dispersion
-            if self.DFT['empirical_dispersion'] is not None:
-                route_parts.append(str(Keyword("EmpiricalDispersion", self.DFT['empirical_dispersion'])))
+                # Integration grid.
+                if self.method['dft']['grid'] is not None:
+                    route_parts.append(str(Keyword("Integral", self.method['dft']['grid'])))
             
             # Finally, add any free-form options.
             for keyword_str in self.keywords:
