@@ -214,22 +214,22 @@ class Turbomole_AI(Turbomole, AI_calculation_mixin):
             
             :param orbitals: A list of orbital irreps to make cubes for.
             """
-            return make_orbital_calc(name = self.meta['name'], memory = self.memory, num_CPUs = self._num_CPUs, orbitals = orbitals, density = density, options = self.silico_options)
+            return make_orbital_calc(name = self.meta['name'], memory = self.performance['memory'], num_cpu = self._num_cpu, orbitals = orbitals, density = density, options = self.silico_options)
         
         def anadens_calc(self, first_density, second_density, file_name, operator = "-"):
             """
             Return a new calculation that can create cube files generated with the $anadens data group.
             """
-            return make_anadens_calc(name = self.meta['name'], memory = self.memory, num_CPUs = self._num_CPUs, first_density = first_density, second_density = second_density, file_name = file_name, operator = operator)
+            return make_anadens_calc(name = self.meta['name'], memory = self.performance['memory'], num_cpu = self._num_cpu, first_density = first_density, second_density = second_density, file_name = file_name, operator = operator)
             
     
-def make_orbital_calc(*, name, memory, num_CPUs, orbitals = [], density = False, modules = None, options):
+def make_orbital_calc(*, name, memory, num_cpu, orbitals = [], density = False, modules = None, options):
     """
     Get a calculation template that can be used to create orbital objects.
     
     :param name: The name of the calculation.
     :param memory: The amount of memory to use for the calculation.
-    :param num_CPUs: The number of CPUs to use for the calculation.
+    :param num_cpu: The number of CPUs to use for the calculation.
     :param orbitals: List of orbital indexes to create cubes for.
     :param density: Whether to create density cubes.
     :param modules: Turbomole modules to run.
@@ -245,7 +245,7 @@ def make_orbital_calc(*, name, memory, num_CPUs, orbitals = [], density = False,
         name = "Orbital Cubes for {}".format(name),
         #"programs": [program_name],
         memory = str(memory),
-        num_CPUs = num_CPUs,
+        num_cpu = num_cpu,
         analysis = {
             'plt': {
                 "calculate": True,
@@ -270,13 +270,13 @@ def make_orbital_calc(*, name, memory, num_CPUs, orbitals = [], density = False,
     return calc_t
 
 
-def make_anadens_calc(*, name, memory, num_CPUs, first_density, second_density, file_name, operator = "-"):
+def make_anadens_calc(*, name, memory, num_cpu, first_density, second_density, file_name, operator = "-"):
     """
     Create a Turbomole calculation object that can be use to create difference density plots from an existing calculation (difference density plots are similar to NTOs plots but apply specifically to calculations performed with ricc2(?))
     
     :param name: A name to give the calculation.
     :param memory: The amount of memory to use for the calculation (note it's not clear if this option will be respected by ricc2 or not).
-    :param num_CPUs: The number of CPUs to use for the calculation (note it's not clear if this option will be respected by ricc2 or not).
+    :param num_cpu: The number of CPUs to use for the calculation (note it's not clear if this option will be respected by ricc2 or not).
     :param first_density: The name of one of the two density files (.cao) to calculate the difference from.
     :param second_density: The name of the other of the two density files (.cao) to calculate the difference from.
     :param file_name: The name of the file to write to. Like the density files, this should be relative to the calc dir (and be careful of weird characters...). Because Turbomole forces this extension, the file must end in .cub
@@ -291,7 +291,7 @@ def make_anadens_calc(*, name, memory, num_CPUs, first_density, second_density, 
     calc_t = Turbomole_AI(
         name = "Anadens for {}".format(name),
         memory = str(memory),
-        num_CPUs = num_CPUs,
+        num_cpu = num_cpu,
         analysis = {
             'plt': {
                 "calculate": True,

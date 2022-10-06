@@ -9,7 +9,7 @@
 cc
 ##
 ## Set memory (in MiB).
-memory ${calculation.mem_per_CPU.MiB}
+memory ${calculation.mem_per_cpu.MiB}
 ##
 ## Set SCF den conv.
 %if calculation.scf['denconv'] is not None:

@@ -5,12 +5,13 @@ TAG: Calculation Base
 meta:
     TYPE: calculation
 
-# The amount of 'dynamic memory' to use for the calculation (https://gaussian.com/link0/).
-# Note that the amount of memory actually used by Gaussian can far exceed the value set here (at least in G09, not sure why).
-memory: 20GB
-
-# Number of processes/threads to use.
-num_CPUs: 8
+performance:
+    # The amount of 'dynamic memory' to use for the calculation (https://gaussian.com/link0/).
+    # Note that the amount of memory actually used by Gaussian can far exceed the value set here (at least in G09, not sure why).
+    memory: 20GB
+    
+    # Number of processes/threads to use.
+    num_cpu: 8
 
 # Options that control use of the scratch directory.
 # Set scratch_structure: None to disable scatch.

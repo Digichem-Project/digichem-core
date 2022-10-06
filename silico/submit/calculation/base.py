@@ -132,8 +132,11 @@ class Concrete_calculation(Calculation_target):
     INPUT_FILE_TYPES = []
     
     # Configurable options.
-    memory = Option(help = "The amount of memory to use for the calculation", required = True, type = Memory)
-    _num_CPUs = Option("num_CPUs", help = "An integer specifying the number of CPUs to use for this calculation", default = 1, type = int)
+    performance = Options(
+        memory = Option(help = "The amount of memory to use for the calculation. Typical memory suffixes, such as B (byte), KB (kilobyte), MB (megabyte), and GB (byte) are accepted.", required = True, type = Memory),
+        num_cpu = Option("num_cpu", help = "An integer specifying the number of CPUs to use for the calculation.", default = 1, type = int)
+        )
+    
     scratch_options = Options(
         help = "Options that control the use of the scratch directory",
         use_scratch = Option(help = "Whether to use a scratch directory. False will disable the scratch directory, and is not recommended", default = True, type = bool),
@@ -160,26 +163,26 @@ class Concrete_calculation(Calculation_target):
     )
         
     @property
-    def mem_per_CPU(self):
+    def mem_per_cpu(self):
         """
         Get the amount of memory to assign (per CPU).
         """
-        return Memory(float(self.memory) / self._num_CPUs)
+        return Memory(float(self.performance['memory']) / self.num_cpu)
     
     @property
-    def num_CPUs(self):
+    def num_cpu(self):
         """
         The number of CPUs to use for the calculation, this (roughly ?) translates to the number of worker processes that will be used.
         
         This property will translate 'auto' into a number of CPUs, use _num_CPUs if this is not desirable.
         """
-        if self._num_CPUs == "auto":
+        if self.performance['num_cpu'] == "auto":
             return self.get_available_CPUs()
         else:
-            return self._num_CPUs
+            return self.performance['num_cpu']
     
-    @num_CPUs.setter
-    def num_CPUs(self, value):
+    @num_cpu.setter
+    def num_cpu(self, value):
         """
         Set the number of CPUs to use for the calculation. In addition to an exact integer amount, the string "auto" can also be supplied, in which case all available CPUs will be used.
         """

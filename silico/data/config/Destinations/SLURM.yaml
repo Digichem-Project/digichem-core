@@ -15,4 +15,4 @@ CPUs_per_task: auto
 
 # The amount of memory to allocate per CPU.
 # The default is to use the same amount of memory as the calculation uses.
-mem_per_CPU: auto
+mem_per_cpu: auto

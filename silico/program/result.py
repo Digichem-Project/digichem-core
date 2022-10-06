@@ -40,7 +40,7 @@ class Result_program(Program):
          
         sub_parser.add_argument("-i", "--ignore", help = "ignore missing properties rather than stopping", action = "store_true", default = False)
         sub_parser.add_argument("-n", "--none", help = "return an empty value when a missing property is encountered rather than returning nothing at all", action = "store_true", default = False)
-        sub_parser.add_argument("-C", "--num_CPUs", help = "the number of CPUs to use in parallel to parse given log_files, defaults to the number of CPUs on the system", type = int, nargs = "?", default = os.cpu_count())
+        sub_parser.add_argument("-C", "--num_cpu", help = "the number of CPUs to use in parallel to parse given log_files, defaults to the number of CPUs on the system", type = int, nargs = "?", default = os.cpu_count())
         sub_parser.add_argument("-p", "--pretty", help = "convert headers to pretty alternatives; underscores are replaced with whitespace", action = "store_true")
         sub_parser.add_argument("-F", "--float", help = "number format to use for floats in tabular formats (--sumary, --table and --table-property)", default = ".2f")
         
@@ -83,7 +83,7 @@ class Result_program(Program):
         # Parse the log files we've been given (in parallel).
         # Get our list of results. Do this in parallel.
         try:
-            results = parse_multiple_calculations(*args.log_files, alignment_class = self.alignment, init_func = self.subprocess_init, processes = args.num_CPUs)
+            results = parse_multiple_calculations(*args.log_files, alignment_class = self.alignment, init_func = self.subprocess_init, processes = args.num_cpu)
             
         except Exception:
             raise Silico_exception("Failed to read calculation files")

@@ -81,8 +81,11 @@ class Gaussian(Concrete_calculation, AI_calculation_mixin):
     OUTPUT_COORD_TYPE = "log"
 
     # Configurable options.
-    CPU_list = Option(help = "A list of integers specifying specific CPUs to use for the calculation, starting at 0. CPU_list and num_CPUs are mutually exclusive", exclude = ("num_CPUs",), default = (), type = int, list_type = tuple)
-    num_CPUs = Option(help = "An integer specifying the number of CPUs to use for this calculation. CPU_list and num_CPUs are mutually exclusive", exclude = ("CPU_list",), default = 1, type = int)
+    performance = Options(
+        cpu_list = Option(help = "A list of integers specifying specific CPUs to use for the calculation, starting at 0. cpu_list and num_cpu are mutually exclusive", exclude = ("num_cpu",), default = (), type = int, list_type = tuple),
+        num_cpu = Option(help = "An integer specifying the number of CPUs to use for this calculation. cou_list and num_cpu are mutually exclusive", exclude = ("cpu_list",), default = 1, type = int)
+    )
+    
     DFT = Options(help = "Options for DFT.",
         functional = Option(help = "The DFT functional to use. Specifying an option here will enable DFT.", type = str),
         empirical_dispersion = Option(help = "Optional empirical dispersion method to use, note that not all methods are suitable with all functionals.", choices = ("PFD", "GD2", "GD3", "GD3BJ", None), default = None)
@@ -279,16 +282,16 @@ class Gaussian(Concrete_calculation, AI_calculation_mixin):
             """
             Return a new calculation that can create a chk file containing NTOs for a given transition.
             """
-            return make_NTO_calc(name = self.meta['name'], memory = self.memory, num_CPUs = self._num_CPUs, transition = transition, scratch_options = self.scratch_options)
+            return make_NTO_calc(name = self.meta['name'], memory = self.performance['memory'], num_cpu = self._num_cpu, transition = transition, scratch_options = self.scratch_options)
 
 
-def make_NTO_calc(*, name, memory, num_CPUs, transition, scratch_options = None, scratch_path = None):
+def make_NTO_calc(*, name, memory, num_cpu, transition, scratch_options = None, scratch_path = None):
     """
     Create a Gaussian calculation object that can be use to create natural transition orbitals from an existing calculation.
     
     :param name: A name to give the calculation.
     :param memory: The amount of memory to use for the calculation (note it's not clear if this option will be respected by ricc2 or not).
-    :param num_CPUs: The number of CPUs to use for the calculation (note it's not clear if this option will be respected by ricc2 or not).
+    :param num_cpu: The number of CPUs to use for the calculation (note it's not clear if this option will be respected by ricc2 or not).
     :param transition: The integer number of the transition to calculate NTOs for.
     """
     if scratch_options is None and scratch_path is None:
@@ -317,7 +320,7 @@ def make_NTO_calc(*, name, memory, num_CPUs, transition, scratch_options = None,
     calc_t = Gaussian(
         name = "NTOs for {}".format(name),
         memory = str(memory),
-        num_CPUs = num_CPUs,
+        num_cpu = num_cpu,
         keywords = {
             "Geom": "AllCheck",
             "Guess": ("Read", "Only"),

@@ -92,7 +92,7 @@ class Result_list(Row_browser):
         
         # Parse (in parallel).
         # We currently do not do this in parallel because logging to urwid gets messed up...
-        #results = parse_multiple_calculations(*self.selector.selected, alignment_class = alignment, init_func = self.subprocess_init, processes = self.selector.num_CPUs)
+        #results = parse_multiple_calculations(*self.selector.selected, alignment_class = alignment, init_func = self.subprocess_init, processes = self.selector.num_cpu)
         #results = [parse_calculation(selected, alignment_class = alignment) for selected in self.selector.selected]
         results = []
         for selected in self.selector.selected:

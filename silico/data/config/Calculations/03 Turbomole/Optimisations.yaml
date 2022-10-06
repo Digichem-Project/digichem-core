@@ -19,8 +19,9 @@ meta:
 scf: null
 
 # Memory and CPU.
-memory: 1GB
-num_CPUs: 1
+performance:
+    memory: 1GB
+    num_cpu: 1
 
 # No need to use scratch for UFF.
 scratch_options:

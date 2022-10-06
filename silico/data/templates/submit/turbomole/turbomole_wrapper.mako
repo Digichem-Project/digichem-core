@@ -18,7 +18,7 @@ unset PARNODES
 ## Set PARA_ARCH appropriately.
 export PARA_ARCH=${program.calculation.parallel_mode}
 ## Set number of nodes to run on.
-export PARNODES=${program.calculation.num_CPUs}
+export PARNODES=${program.calculation.num_cpu}
 %endif
 ##
 ## Set scratch dir.

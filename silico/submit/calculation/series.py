@@ -23,7 +23,7 @@ class Calculation_series(Calculation_target):
     )
     
     memory = Option(help = "Force each calculation in this series to use this amount of memory", default = None, type = Memory)
-    num_CPUs = Option(help = "Force each calculation in this series to use this many CPUs", default = None, type = int)
+    num_cpu = Option(help = "Force each calculation in this series to use this many CPUs", default = None, type = int)
     _combined_report_name = Option("combined_report_name", help = "The name to use for the folder in which the combined report for this series calculation will be written", default = None)
             
     @property
@@ -49,11 +49,12 @@ class Calculation_series(Calculation_target):
                 raise Configurable_exception(self, "Could not expand to real calculation with TAG path '{}'".format(tag_path)) from e
                 
             # Overwrite the memory and CPUs if given.
-            if self.num_CPUs is not None:
-                calc.num_CPUs = self.num_CPUs
+            if self.num_cpu is not None:
+                calc.num_cpu = self.num_cpu
         
-            if self.memory is not None:
-                calc.memory = self.memory
+            if self.performance['memory'] is not None:
+                # NOTE: memory is an object, this will set the same object reference for all sub-calcs.
+                calc.performance['memory'] = self.performance['memory']
             
             calcs.append(calc)
         

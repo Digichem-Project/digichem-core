@@ -13,15 +13,15 @@
 %%Rwf="${calculation.rwf_file_name}"
 ##
 ## Next, the number of processes.
-## There are two ways this can be specified; either with CPU_list or num_CPUs.
-%if len(calculation.CPU_list) != 0:
-%%CPU="${','.join(calculation.CPU_list)}"
-%elif calculation.num_CPUs is not None:
-%%NProcShared=${calculation.num_CPUs}
+## There are two ways this can be specified; either with performance['cpu_list'] or num_cpu.
+%if len(calculation.performance['cpu_list']) != 0:
+%%CPU="${','.join(calculation.performance['cpu_list'])}"
+%elif calculation.num_cpu is not None:
+%%NProcShared=${calculation.num_cpu}
 %endif
 ## Now the memory
-%if calculation.memory is not None:
-%%Mem=${calculation.memory}
+%if calculation.performance['memory'] is not None:
+%%Mem=${calculation.performance['memory']}
 %endif
 ##
 ## End of Link 0 commands.

@@ -87,7 +87,7 @@ def parse_multiple_calculations(*log_files, alignment_class = None, pool = None,
     """
     Parse a number of separate calculation results in parallel.
     
-    If the argument 'pool' is not given, a multiprocessing.pool object will first be created using the arguments init_func and num_CPUs.
+    If the argument 'pool' is not given, a multiprocessing.pool object will first be created using the arguments init_func and num_cpu.
     
     :param log_files: A number of calculation result files corresponding to different calculations.
     :param alignment_class: An optional alignment class to use to reorientate the molecule.

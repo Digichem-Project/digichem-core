@@ -60,7 +60,7 @@ class Result_interface(Program_view):
         # Set our options from our program object.
         self.stop_on_missing = program.args.stop
         self.file_list.selector.alignment = program.config['alignment']
-        self.file_list.selector.num_CPUs = program.args.num_CPUs
+        self.file_list.selector.num_cpu = program.args.num_cpu
         
         super().__init__(window, program)
         

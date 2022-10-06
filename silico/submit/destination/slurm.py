@@ -30,7 +30,7 @@ class SLURM(Resumable_destination):
     time = Option(help = "Max allowed job time (dd-hh:mm:ss)", default = None, type = str)
     num_tasks = Option(help = "Number of tasks to allocate", default = 1, type = int)
     _CPUs_per_task = Option("CPUs_per_task", help = "Number of CPUs (per task) to allocate. Use 'auto' to use the same number as required for the calculation", default = 'auto', validate = lambda option, configurable, value: value == "auto" or is_int(value))
-    _mem_per_CPU = Option("mem_per_CPU", help = "The amount of memory (per CPU) to allocate. Use 'auto' to automatically decide how much memory to allocate based on that required for the calculation. Leave blank to use server defaults", default = "auto", validate = lambda option, configurable, value: value in ["auto", None] or is_int(value))
+    _mem_per_CPU = Option("mem_per_cpu", help = "The amount of memory (per CPU) to allocate. Use 'auto' to automatically decide how much memory to allocate based on that required for the calculation. Leave blank to use server defaults", default = "auto", validate = lambda option, configurable, value: value in ["auto", None] or is_int(value))
     options = Option(help = "Additional SLURM options. Any option valid to SLURM can be included here", default = {}, type = dict)
     sbatch_command = Option(help = "The name/path of the sbatch command", default = "sbatch", type = str)
     sinfo_command = Option(help = "The name/path of the sinfo command", default = "sinfo", type = str)
@@ -156,7 +156,7 @@ class SLURM(Resumable_destination):
             This property will resolve 'auto' to an actual number of processors, use _CPUs_per_task if you do not want this behaviour.
             """
             if self._CPUs_per_task == "auto":
-                return self.program.calculation.num_CPUs if self.program.calculation.num_CPUs is not None else 1
+                return self.program.calculation.num_cpu if self.program.calculation.num_cpu is not None else 1
             else:
                 return int(self._CPUs_per_task)
         
@@ -168,7 +168,7 @@ class SLURM(Resumable_destination):
             self._CPUs_per_task = value
         
         @property
-        def mem_per_CPU(self):
+        def mem_per_cpu(self):
             """
             Get the amount of memory to assign (per CPU).
             
@@ -177,12 +177,14 @@ class SLURM(Resumable_destination):
             if self._mem_per_CPU is None:
                 return None
             elif self._mem_per_CPU == "auto":
-                return SLURM_memory(round(float(float(self.program.calculation.memory) * 1.1)) / self.CPUs_per_task)
+                # We don't use calculation.mem_per_cpu here because the memory and/or cpu requirements for the calculation and for
+                # SLURM can be different (although this would be unusual).
+                return SLURM_memory(round(float(float(self.program.calculation.performance['memory']) * 1.1)) / self.CPUs_per_task)
             else:
                 return SLURM_memory(float(self._mem_per_CPU))
     
-        @mem_per_CPU.setter
-        def mem_per_CPU(self, value):
+        @mem_per_cpu.setter
+        def mem_per_cpu(self, value):
             """
             Set the amount of memory to assign (per CPU).
             """

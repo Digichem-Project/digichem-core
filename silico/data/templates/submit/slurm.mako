@@ -22,8 +22,8 @@
 #SBATCH --cpus-per-task=${SLURM_target.CPUs_per_task}
 %endif
 ##
-%if SLURM_target.mem_per_CPU is not None:
-#SBATCH --mem-per-cpu=${SLURM_target.mem_per_CPU}
+%if SLURM_target.mem_per_cpu is not None:
+#SBATCH --mem-per-cpu=${SLURM_target.mem_per_cpu}
 %endif
 ##
 %if SLURM_target.time is not None:

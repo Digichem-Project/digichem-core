@@ -147,7 +147,7 @@ class Gaussian(Program_target):
             try:
                 # Create an fchk file if asked.
                 if self.calculation.convert_chk:
-                    fchk_file = Chk_to_fchk(self.fchk_file_path, chk_file = self.chk_file_path, memory = self.calculation.memory, formchk_executable = self.formchk_executable)
+                    fchk_file = Chk_to_fchk(self.fchk_file_path, chk_file = self.chk_file_path, memory = self.calculation.performance['memory'], formchk_executable = self.formchk_executable)
                     fchk_file.get_file()
             except Exception:
                 silico.log.get_logger().error("Failed to create fchk file", exc_info = True)

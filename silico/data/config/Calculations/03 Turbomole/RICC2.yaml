@@ -2,8 +2,9 @@ TAG: Turbomole MP2
 SUB_TYPE: pseudo
 ALIAS: MP2
 
-num_CPUs: 32
-memory: 80GB
+performance:
+    num_cpu: 32
+    memory: 80GB
 
 ricc2:
     intel_AVX2_fix: True
@@ -20,8 +21,9 @@ TAG: Turbomole ADC(2)
 SUB_TYPE: pseudo
 ALIAS: SCS-ADC(2)
 
-num_CPUs: 32
-memory: 80GB
+performance:
+    num_cpu: 32
+    memory: 80GB
 
 ricc2:
     intel_AVX2_fix: True
@@ -39,8 +41,9 @@ TAG: Turbomole CC2
 SUB_TYPE: pseudo
 ALIAS: SCS-CC2
 
-num_CPUs: 32
-memory: 80GB
+performance:
+    num_cpu: 32
+    memory: 80GB
 
 ricc2:
     intel_AVX2_fix: True

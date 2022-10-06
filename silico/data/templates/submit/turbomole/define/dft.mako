@@ -55,7 +55,7 @@ ${calculation.dft_exci['symmetry']} ${calculation.dft_exci['nexc']}
 *
 ##
 ## Select memory.
-rpacor ${calculation.memory.MB}
+rpacor ${calculation.performance['memory'].MB}
 *
 ##
 ## Skip question about SCF convergence (we set this elsewhere).
