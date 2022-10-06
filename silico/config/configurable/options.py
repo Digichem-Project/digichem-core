@@ -198,12 +198,13 @@ class Options(Option, Options_mixin):
     A type of option that expects more options (another dict).
     """
     
-    def __init__(self, *args, name = None, help = Default(None), exclude = Default(None), no_edit = Default(False), **kwargs):
+    def __init__(self, *args, name = None, help = Default(None), validate = Default(None), exclude = Default(None), no_edit = Default(False), **kwargs):
         """
         """
         consumed_kwargs = {
             "name": name,
             "help": help,
+            "validate" : validate,
             "exclude": exclude,
             "no_edit": no_edit,
         }
@@ -220,12 +221,13 @@ class Options(Option, Options_mixin):
         # Args to inherit from parent.
         self._inherit = []
         
-        for arg in ("help", "exclude", "no_edit"):
+        #TODO: Can we not use the inheritance mechanism in Option?
+        for arg in ("help", "validate", "exclude", "no_edit"):
             if isinstance(consumed_kwargs[arg], Default):
                 self._inherit.append(arg)
         
         # Use parent constructor.
-        super().__init__(name = name, help = help, exclude = exclude, no_edit = no_edit)
+        super().__init__(name = name, help = help, validate = validate, exclude = exclude, no_edit = no_edit)
         
         # Go through args and add to kwargs.
         for arg in args:
@@ -443,13 +445,14 @@ class Options(Option, Options_mixin):
         
         # Our children will find their values in a different dict to where we find ourself.
         sub_dict_obj = dict_obj.get(self.name, {})
-#         try:
-#             sub_dict_obj = dict_obj[self.name]
-#             
-#         except KeyError:
-#             print("blagh")
-#             raise   
         
         # Validate each of our sub options.
-        self.validate_children(owning_obj, sub_dict_obj)        
+        self.validate_children(owning_obj, sub_dict_obj)
+        
+        # Finally, call our custom validate function if given.
+        value = self.get_from_dict(owning_obj, dict_obj)
+        if not self._validate(self, owning_obj, value):
+            # Invalid.
+            # This won't get raised often, because most validation functions will throw their own exceptions.
+            raise Configurable_option_exception(owning_obj, self, "Validation for Options object failed")
 
