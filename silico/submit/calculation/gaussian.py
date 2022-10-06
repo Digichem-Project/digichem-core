@@ -318,9 +318,11 @@ def make_NTO_calc(*, name, memory, num_cpu, transition, scratch_options = None, 
         }
     
     calc_t = Gaussian(
-        name = "NTOs for {}".format(name),
-        memory = str(memory),
-        num_cpu = num_cpu,
+        meta = {'name': "NTOs for {}".format(name)},
+        performance = {
+            "memory": str(memory),
+            "num_cpu": num_cpu,
+        },
         keywords = {
             "Geom": "AllCheck",
             "Guess": ("Read", "Only"),

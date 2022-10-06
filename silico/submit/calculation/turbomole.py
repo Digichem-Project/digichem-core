@@ -242,10 +242,11 @@ def make_orbital_calc(*, name, memory, num_cpu, orbitals = [], density = False, 
     
     # First generate our calculation.
     calc_t = Turbomole_AI(
-        name = "Orbital Cubes for {}".format(name),
-        #"programs": [program_name],
-        memory = str(memory),
-        num_cpu = num_cpu,
+        meta = {"name": "Orbital Cubes for {}".format(name)},
+        performance = {
+            "memory": str(memory),
+            "num_cpu": num_cpu,
+        },
         analysis = {
             'plt': {
                 "calculate": True,
@@ -289,9 +290,11 @@ def make_anadens_calc(*, name, memory, num_cpu, first_density, second_density, f
     
     # First generate our calculation.
     calc_t = Turbomole_AI(
-        name = "Anadens for {}".format(name),
-        memory = str(memory),
-        num_cpu = num_cpu,
+        meta = {'name': "Anadens for {}".format(name)},
+        performance = {
+            "memory": str(memory),
+            "num_cpu": num_cpu,
+        },
         analysis = {
             'plt': {
                 "calculate": True,
