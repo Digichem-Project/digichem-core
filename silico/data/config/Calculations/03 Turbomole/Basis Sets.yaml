@@ -38,7 +38,8 @@ NEXT:
 
 TAG: Turbomole 6-31G**
 ALIAS: 6-31G**
-basis_set: 6-31G**
+basis_set:
+    internal: 6-31G**
 
 
 ---
@@ -46,7 +47,8 @@ basis_set: 6-31G**
 
 TAG: Turbomole 6-311G
 ALIAS: 6-311G
-basis_set: 6-311G
+basis_set:
+    internal: 6-311G
 
 
 ---
@@ -54,7 +56,8 @@ basis_set: 6-311G
 
 TAG: Turbomole 6-311G*
 ALIAS: 6-311G*
-basis_set: 6-311G*
+basis_set:
+    internal: 6-311G*
 
 
 ---
@@ -62,7 +65,8 @@ basis_set: 6-311G*
 
 TAG: Turbomole 6-311G**
 ALIAS: 6-311G**
-basis_set: 6-311G**
+basis_set:
+    internal: 6-311G**
 
 
 ---
@@ -70,7 +74,8 @@ basis_set: 6-311G**
 
 TAG: Turbomole 6-311++G**
 ALIAS: 6-311++G**
-basis_set: 6-311++G**
+basis_set:
+    internal: 6-311++G**
 
 
 ---
@@ -78,7 +83,8 @@ basis_set: 6-311++G**
 
 TAG: Turbomole cc-pVDZ
 ALIAS: cc-pVDZ
-basis_set: cc-pVDZ
+basis_set:
+    internal: cc-pVDZ
 
 
 ---
@@ -86,7 +92,8 @@ basis_set: cc-pVDZ
 
 TAG: Turbomole cc-pVTZ
 ALIAS: cc-pVTZ
-basis_set: cc-pVTZ
+basis_set:
+    internal: cc-pVTZ
 
 
 ---
@@ -94,7 +101,8 @@ basis_set: cc-pVTZ
 
 TAG: Turbomole cc-pVQZ
 ALIAS: cc-pVQZ
-basis_set: cc-pVQZ
+basis_set:
+    internal: cc-pVQZ
 
 
 ---
@@ -102,7 +110,8 @@ basis_set: cc-pVQZ
 
 TAG: Turbomole cc-pV5Z
 ALIAS: cc-pV5Z
-basis_set: cc-pV5Z
+basis_set:
+    internal: cc-pV5Z
 
 
 ---
@@ -110,4 +119,5 @@ basis_set: cc-pV5Z
 
 TAG: Turbomole cc-pV6Z
 ALIAS: cc-pV6Z
-basis_set: cc-pV6Z
+basis_set:
+    internal: cc-pV6Z

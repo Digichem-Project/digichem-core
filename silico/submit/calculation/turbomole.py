@@ -49,7 +49,6 @@ class Turbomole_AI(Turbomole, AI_calculation_mixin):
     CLASS_HANDLE = ("Turbomole",)
     
     # Configurable options.
-    basis_set = Option(help = "The basis set to use.", required = False, type = str)
     redundant_internal_coordinates = Option(help = "Whether to use redundant internal coordinates", type = bool, default = True)
     _define_options = Option(help = "Method keywords and options from the define general menu, including scf, mp2, cc etc. This option is currently unused.", type = dict, default = {})
     define_timeout = Option(help = "The amount of time (s) to allow define to run for. After the given timeout, define will be forcibly stopped if it is still running, which normally occurs because something went wrong and define froze.", type = int, default = 60)

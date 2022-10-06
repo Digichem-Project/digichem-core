@@ -10,6 +10,7 @@ from silico.config.configurable.options import Options
 from silico.input import si_from_file
 from silico.submit.base import Method_target
 from silico.input.directory import Calculation_directory_input
+from silico.submit.basis import BSE_basis_set
 
 
 class Calculation_target(Method_target):
@@ -104,6 +105,9 @@ class AI_calculation_mixin():
         unrestricted = Option(help = "Whether to perform an unrestricted calculation", type = bool, default = False)
     )
     
+    basis_set = Options(help = "The basis set to use.",
+        internal = Option(help = "The name of a basis set native to the relevant calculation program.", type = str),
+    )
     
     @property
     def charge(self):
@@ -141,8 +145,7 @@ class Concrete_calculation(Calculation_target):
         num_cpu = Option("num_cpu", help = "An integer specifying the number of CPUs to use for the calculation.", default = 1, type = int)
         )
     
-    scratch_options = Options(
-        help = "Options that control the use of the scratch directory",
+    scratch_options = Options(help = "Options that control the use of the scratch directory",
         use_scratch = Option(help = "Whether to use a scratch directory. False will disable the scratch directory, and is not recommended", default = True, type = bool),
         path = Option(help = "Path to the top of the scratch directory. For each calculation, a sub-directory will be created under this path. Note that some calculation programs (Gaussian16 at least) cannot handle whitespace in this path.", default = "/scratch", type = str),
         use_username = Option(help = "Whether to create a subdirectory for each user", default = True, type = bool),
@@ -151,8 +154,7 @@ class Concrete_calculation(Calculation_target):
         force_delete = Option(help = "Whether to always delete the scratch directory at the end of the calculation, even if output files could not be safely copied", default = False, type = bool),
         all_output = Option(help = "Whether to output all files to the scratch directory. If False, only intermediate files will be written to scratch (.log will be written directly to output directory for example)", default = False, type = bool)
     )
-    structure = Options(
-        help = "Options that control the calculation folder structure",
+    structure = Options(help = "Options that control the calculation folder structure",
         program_sub_folder = Option(help = "Whether to use a separate subfolder for each calculation program", default = False, type = bool),
         prepend_program_name = Option(help = "Whether to prepend the calculation program name to the calculation folder", default = True, type = bool),
         append_program_name = Option(help = "Whether to append the calculation program name to the calculation folder", default = False, type = bool),

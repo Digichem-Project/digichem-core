@@ -22,7 +22,7 @@ ired
 *
 ## 
 ## Load basis set.
-b all ${calculation.basis_set}
+b all ${calculation.basis_set['internal']}
 ##
 ## Next section.
 *

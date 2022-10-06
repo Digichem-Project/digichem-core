@@ -86,16 +86,17 @@ class Gaussian(Concrete_calculation, AI_calculation_mixin):
         num_cpu = Option(help = "An integer specifying the number of CPUs to use for this calculation. cou_list and num_cpu are mutually exclusive", exclude = ("cpu_list",), default = 1, type = int)
     )
     
+    basis_set = Options(
+        internal = Option(exclude = "exchange"),
+        exchange = Option(help = "The definition of a (number of) basis sets to use from the Basis Set Exchange (BSE), in the format 'basis set name': 'applicable elements' (for example: '6-31G(d,p)': '1,3-4,B-F').", type = BSE_basis_set, dump_func = lambda option, configurable, value: dict(value), exclude = "internal", edit_vtype = "dict", default = lambda option, configurable: BSE_basis_set())
+    )
+    
     DFT = Options(help = "Options for DFT.",
         functional = Option(help = "The DFT functional to use. Specifying an option here will enable DFT.", type = str),
         empirical_dispersion = Option(help = "Optional empirical dispersion method to use, note that not all methods are suitable with all functionals.", choices = ("PFD", "GD2", "GD3", "GD3BJ", None), default = None)
     )
     post_HF_method = Option(help = "The name of a post-HF, calculation method to perform.", choices = ("MP2", "MP3", "MP4", "MP4(DQ)", "MP4(SDQ)", "MP5", "CCD", "CCSD", None), default = None)
     
-    basis_set = Options(help = "The basis set to use.",
-        internal = Option(help = "The name of a basis set built in to Gaussian, see Gaussian manual for allowed values.", type = str, exclude = "exchange"),
-        exchange = Option(help = "The definition of a (number of) basis sets to use from the Basis Set Exchange (BSE), in the format 'basis set name': 'applicable elements' (for example: '6-31G(d,p)': '1,3-4,B-F')", type = BSE_basis_set, dump_func = lambda option, configurable, value: dict(value), exclude = "internal", edit_vtype = "dict", default = lambda option, configurable: BSE_basis_set())
-    )
     solvent = Option(help = "Name of the solvent to use for the calculation (the model used is SCRF-PCM)", default = None, type = str)
     
     post = Options(
