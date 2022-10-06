@@ -39,7 +39,7 @@ class Chk_to_NTO_chk(File_converter):
         # Save our calculation, program and destination templates.
         # We use an in series destination so we will block while the calc runs.
         self.destination_t = Series(
-            name = "NTO chk"
+            meta = {"name": "NTO chk"}
         )
         self.destination_t.finalize()
             

@@ -335,7 +335,7 @@ class Turbomole_to_cube(File_converter):
         # Save our calculation, program and destination templates.
         # We use an in series destination so we will block while the calc runs.
         self.destination_t = Series(
-            name = "Orbital cubes"
+            meta = {"name": "Orbital cubes"}
         )
         self.destination_t.finalize()
             
@@ -492,7 +492,7 @@ class Turbomole_to_anadens_cube(File_converter):
         # Save our calculation, program and destination templates.
         # We use an in series destination so we will block while the calc runs.
         self.destination_t = Series(
-            name = "Anadens cube"
+            meta = {"name": "Anadens cube"}
         )
         self.destination_t.finalize()
             
