@@ -471,7 +471,7 @@ class Method_target_option(Option):
     A specific sub-type of options for accessing parts of the method library.
     """
     
-    def __init__(self, method_targets_func, name = None, *, default = None, help = None, validate = None, exclude = None, required = False, no_none = None, no_edit = False):
+    def __init__(self, method_targets_func, name = None, *, default = Default(None), help = Default(None), validate = Default(None), exclude = Default(None), required = Default(False), no_none = Default(None), no_edit = Default(False)):
         """
         
         """
