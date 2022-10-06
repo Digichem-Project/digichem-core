@@ -123,11 +123,14 @@ class Configurable_class_target(Dynamic_parent, Configurable):
         # otherwise you'd have to do something like: configurable(class_name = "configurable") everytime.
         # We can't set this by default = because this would interfere with the dumping mechanism (because
         # options that are set to their default are not saved by default.
-        if 'meta' not in kwargs:
-            kwargs['meta'] = {'class_name': self.CLASS_HANDLE[0]}
-        
-        elif "class_name" not in kwargs['meta']:
-            kwargs['meta']['class_name'] = self.CLASS_HANDLE[0]
+#         if 'meta' not in kwargs:
+#             kwargs['meta'] = {'class_name': self.CLASS_HANDLE[0]}
+#         
+#         elif "class_name" not in kwargs['meta']:
+#             kwargs['meta']['class_name'] = self.CLASS_HANDLE[0]
+            
+        if 'meta' not in kwargs or "class_name" not in kwargs['meta']:
+            self.meta['class_name'] = self.CLASS_HANDLE[0]
         
         self.inner_cls = None
         self.loader_list = loader_list if loader_list is not None else []
