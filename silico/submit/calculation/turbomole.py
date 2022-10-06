@@ -50,7 +50,6 @@ class Turbomole_AI(Turbomole, AI_calculation_mixin):
     
     # Configurable options.
     basis_set = Option(help = "The basis set to use.", required = False, type = str)
-    force_unrestricted = Option(help = "Whether to force use of unrestricted HF. This option only has an effect if multiplicity is 1; as all other multiplicities will use unrestricted HF by necessity.", type = bool, default = False)
     redundant_internal_coordinates = Option(help = "Whether to use redundant internal coordinates", type = bool, default = True)
     _define_options = Option(help = "Method keywords and options from the define general menu, including scf, mp2, cc etc. This option is currently unused.", type = dict, default = {})
     define_timeout = Option(help = "The amount of time (s) to allow define to run for. After the given timeout, define will be forcibly stopped if it is still running, which normally occurs because something went wrong and define froze.", type = int, default = 60)
@@ -60,7 +59,7 @@ class Turbomole_AI(Turbomole, AI_calculation_mixin):
         """
         Whether this calculation will be using unrestricted HF.
         """
-        return self.multiplicity != 1 or self.force_unrestricted
+        return self.multiplicity != 1 or self.electron['unrestricted']
     
     # General turbomole options.
     scf = Options(

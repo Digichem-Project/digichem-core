@@ -2,7 +2,8 @@ SUB_TYPE: partial
 TAG: Gaussian Single Point Singlet
 ALIAS: Single Point (Singlet)
 
-multiplicity: 1
+electron:
+    multiplicity: 1
 
 NEXT:
     - Gaussian Methods
@@ -48,8 +49,9 @@ optimisation:
     calculate: True
 frequency:
     calculate: True
-multiplicity: 3
-unrestricted: True
+electron:
+    multiplicity: 3
+    unrestricted: True
 
 NEXT:
     - Gaussian Methods

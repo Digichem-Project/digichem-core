@@ -98,26 +98,30 @@ class AI_calculation_mixin():
     Abstract mixin class for calculation types that are ab-initio (from first principles).
     """
     
-    _multiplicity = Option("multiplicity", help = "Forcibly set the molecule multiplicity. Leave blank to use the multiplicity given in the input file", default = None, type = int)
-    _charge = Option("charge", help = "Forcibly set the molecule charge. Leave blank to use the charge given in the input file", default = None, type = float)
+    electron = Options(help = "Options for controlling electron occupancy (how many electrons there are per molecule, and how they fill orbitals).",
+        multiplicity = Option(help = "Forcibly set the molecule multiplicity. Leave blank to use the multiplicity given in the coordinate file.", default = None, type = int),
+        charge = Option(help = "Forcibly set the molecule charge. Leave blank to use the charge given in the coordinate file.", default = None, type = float),
+        unrestricted = Option(help = "Whether to perform an unrestricted calculation", type = bool, default = False)
+    )
+    
     
     @property
     def charge(self):
         """
         The molecule/system charge that we'll actually be using in the calculation.
         
-        Unlike the charge attribute, this property will translate "auto" to the actual charge to be used.
+        Unlike the electron['charge'] attribute, this property will translate None to the actual charge to be used.
         """
-        return int(self._charge if self._charge is not None else self.input_coords.implicit_charge)
+        return int(self.electron['charge'] if self.electron['charge'] is not None else self.input_coords.implicit_charge)
     
     @property
     def multiplicity(self):
         """
         The molecule/system multiplicity that we'll actually be using in the calculation.
         
-        Unlike the multiplicity attribute, this property will translate "auto" to the actual multiplicity to be used.
+        Unlike the electron['multiplicity'] attribute, this property will translate None to the actual multiplicity to be used.
         """
-        return int(self._multiplicity if self._multiplicity is not None else self.input_coords.implicit_multiplicity)
+        return int(self.electron['multiplicity'] if self.electron['multiplicity'] is not None else self.input_coords.implicit_multiplicity)
 
 
 class Concrete_calculation(Calculation_target):

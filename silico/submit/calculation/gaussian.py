@@ -91,7 +91,7 @@ class Gaussian(Concrete_calculation, AI_calculation_mixin):
         empirical_dispersion = Option(help = "Optional empirical dispersion method to use, note that not all methods are suitable with all functionals.", choices = ("PFD", "GD2", "GD3", "GD3BJ", None), default = None)
     )
     post_HF_method = Option(help = "The name of a post-HF, calculation method to perform.", choices = ("MP2", "MP3", "MP4", "MP4(DQ)", "MP4(SDQ)", "MP5", "CCD", "CCSD", None), default = None)
-    unrestricted = Option(help = "Whether to perform an unrestricted calculation", type = bool, default = False)
+    
     basis_set = Options(help = "The basis set to use.",
         internal = Option(help = "The name of a basis set built in to Gaussian, see Gaussian manual for allowed values.", type = str, exclude = "exchange"),
         exchange = Option(help = "The definition of a (number of) basis sets to use from the Basis Set Exchange (BSE), in the format 'basis set name': 'applicable elements' (for example: '6-31G(d,p)': '1,3-4,B-F')", type = BSE_basis_set, dump_func = lambda option, configurable, value: dict(value), exclude = "internal", edit_vtype = "dict", default = lambda option, configurable: BSE_basis_set())
@@ -217,7 +217,7 @@ class Gaussian(Concrete_calculation, AI_calculation_mixin):
             method = self.method
             # Add the functional.
             if method is not None:
-                model += "{}{}".format("u" if self.unrestricted else "", method)
+                model += "{}{}".format("u" if self.electron['unrestricted'] else "", method)
             # Add a slash if we have both functional and basis set.
             if method is not None and basis_set is not None:
                 model += "/"
