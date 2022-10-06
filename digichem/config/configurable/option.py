@@ -189,16 +189,19 @@ class Option():
         # Here, we are not actually interested in the value of the option,
         # but rather the Option(s) object itself.
         # Hence we access via the base class itself, rather than using super().
-        parent_cls = _mro.pop(0)
+        try:
+            parent_cls = _mro.pop(0)
+        
+        except IndexError:
+            # We've exhausted the mro, give up.
+            raise InheritedAttrError() from None
         
         try:
             current = parent_cls.get_cls_option(resolve_path[0])
-            
-        except AttributeError:
-            # Next ancestor is not an Options object.
-            raise InheritedAttrError() from None
                 
-        except ValueError:
+        except (ValueError, AttributeError):
+            # The class either doesn't have a get_cls_option function,
+            # or doesn't have the option we're looking for.
             # No option in this class.
             # Go again.
             return self.get_base_option(owning_cls, _mro)
