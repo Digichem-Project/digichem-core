@@ -210,7 +210,7 @@
 #    # Sub options for Turbomole reports.
 #    turbomole:
 #        # The number of CPUs to generate cubes.
-#        num_CPUs: 1
+#        num_cpu: 1
 #        # The amount of memory with which to generate cubes.
 #        memory: 1GB
 #        # The name of a program definition to use to create cubes.

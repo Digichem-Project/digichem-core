@@ -363,7 +363,7 @@ class Turbomole_to_cube(File_converter):
         calc_t = make_orbital_calc(
             name = calculation_directory,
             memory = Turbomole_memory(options['report']['turbomole']['memory']),
-            num_CPUs = options['report']['turbomole']['num_CPUs'],
+            num_cpu = options['report']['turbomole']['num_cpu'],
             orbitals = [orbital.total_level for orbital in orbitals],
             density = density or spin,
             options = options
@@ -520,7 +520,7 @@ class Turbomole_to_anadens_cube(File_converter):
         calc_t = make_anadens_calc(
             name = calculation_directory,
             memory = Turbomole_memory(options['report']['turbomole']['memory']),
-            num_CPUs = options['report']['turbomole']['num_CPUs'],
+            num_cpu = options['report']['turbomole']['num_cpu'],
             first_density = self.first_density_file_name,
             second_density = self.second_density_file_name,
             file_name = self.anadens_file_name,
