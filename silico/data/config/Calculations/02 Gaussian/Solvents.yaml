@@ -12,6 +12,10 @@ NEXT:
 TAG: Gaussian Real Solvents
 SUB_TYPE: pseudo
 
+solution:
+    calc: True
+    model: PCM
+
 NEXT:
     - Gaussian 1,4-Dioxane
     - Gaussian 2-Propanol
@@ -49,7 +53,8 @@ SUB_TYPE: partial
 TAG: Gaussian 1,4-Dioxane
 ALIAS: 1,4-Dioxane
 
-solvent: 1,4-Dioxane
+solution:
+    solvent: 1,4-Dioxane
 
 NEXT: [Gaussian Basis Sets]
 
@@ -61,7 +66,8 @@ SUB_TYPE: partial
 TAG: Gaussian 2-Propanol
 ALIAS: 2-Propanol
 
-solvent: 2-Propanol
+solution:
+    solvent: 2-Propanol
 
 NEXT: [Gaussian Basis Sets]
 
@@ -73,7 +79,8 @@ SUB_TYPE: partial
 TAG: Gaussian Acetone
 ALIAS: Acetone
 
-solvent: Acetone
+solution:
+    solvent: Acetone
 
 NEXT: [Gaussian Basis Sets]
 
@@ -85,7 +92,8 @@ SUB_TYPE: partial
 TAG: Gaussian Acetonitrile
 ALIAS: Acetonitrile
 
-solvent: Acetonitrile
+solution:
+    solvent: Acetonitrile
 
 NEXT: [Gaussian Basis Sets]
 
@@ -97,7 +105,8 @@ SUB_TYPE: partial
 TAG: Gaussian Benzene
 ALIAS: Benzene
 
-solvent: Benzene
+solution:
+    solvent: Benzene
 
 NEXT: [Gaussian Basis Sets]
 
@@ -109,7 +118,8 @@ SUB_TYPE: partial
 TAG: Gaussian CycloHexane
 ALIAS: CycloHexane
 
-solvent: Cyclohexane
+solution:
+    solvent: Cyclohexane
 
 NEXT: [Gaussian Basis Sets]
 
@@ -121,7 +131,8 @@ SUB_TYPE: partial
 TAG: Gaussian DiethylEther
 ALIAS: Diethylether
 
-solvent: DiethylEther
+solution:
+    solvent: DiethylEther
 
 NEXT: [Gaussian Basis Sets]
 
@@ -133,7 +144,8 @@ SUB_TYPE: partial
 TAG: Gaussian DiMethylSulfoxide
 ALIAS: DMSO
 
-solvent: DiMethylSulfoxide
+solution:
+    solvent: DiMethylSulfoxide
 
 NEXT: [Gaussian Basis Sets]
 
@@ -145,7 +157,8 @@ SUB_TYPE: partial
 TAG: Gaussian Dichloromethane
 ALIAS: DCM
 
-solvent: Dichloromethane
+solution:
+    solvent: Dichloromethane
 
 NEXT: [Gaussian Basis Sets]
 
@@ -157,7 +170,8 @@ SUB_TYPE: partial
 TAG: Gaussian Ethanol
 ALIAS: Ethanol
 
-solvent: Ethanol
+solution:
+    solvent: Ethanol
 
 NEXT: [Gaussian Basis Sets]
 
@@ -169,7 +183,8 @@ SUB_TYPE: partial
 TAG: Gaussian EthylEthanoate
 ALIAS: Ethyl acetate
 
-solvent: EthylEthanoate
+solution:
+    solvent: EthylEthanoate
 
 NEXT: [Gaussian Basis Sets]
 
@@ -181,7 +196,8 @@ SUB_TYPE: partial
 TAG: Gaussian Methanol
 ALIAS: Methanol
 
-solvent: Methanol
+solution:
+    solvent: Methanol
 
 NEXT: [Gaussian Basis Sets]
 
@@ -193,7 +209,8 @@ SUB_TYPE: partial
 TAG: Gaussian Heptane
 ALIAS: Heptane
 
-solvent: Heptane
+solution:
+    solvent: Heptane
 
 NEXT: [Gaussian Basis Sets]
 
@@ -205,7 +222,8 @@ SUB_TYPE: partial
 TAG: Gaussian n-Hexane
 ALIAS: Hexane
 
-solvent: n-Hexane
+solution:
+    solvent: n-Hexane
 
 NEXT: [Gaussian Basis Sets]
 
@@ -217,7 +235,8 @@ SUB_TYPE: partial
 TAG: Gaussian TetraHydroFuran
 ALIAS: THF
 
-solvent: TetraHydroFuran
+solution:
+    solvent: TetraHydroFuran
 
 NEXT: [Gaussian Basis Sets]
 
@@ -229,7 +248,8 @@ SUB_TYPE: partial
 TAG: Gaussian Toluene
 ALIAS: Toluene
 
-solvent: Toluene
+solution:
+    solvent: Toluene
 
 NEXT: [Gaussian Basis Sets]
 
@@ -241,6 +261,7 @@ SUB_TYPE: partial
 TAG: Gaussian Water
 ALIAS: Water
 
-solvent: Water
+solution:
+    solvent: Water
 
 NEXT: [Gaussian Basis Sets]

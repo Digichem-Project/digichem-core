@@ -114,6 +114,13 @@ def validate_properties(option, owning_obj, value):
     
     return True
 
+def validate_solvent(option, owning_obj, value):
+    """Function for validating solvent model."""
+    if value['calc'] and value['solvent'] is None:
+        raise Configurable_exception(owning_obj, "No solvent has been chosen.")
+    
+    return True
+
 
 class Gaussian(Concrete_calculation, AI_calculation_mixin):
     """
@@ -186,7 +193,11 @@ class Gaussian(Concrete_calculation, AI_calculation_mixin):
         )
     )
     
-    solvent = Option(help = "Name of the solvent to use for the calculation (the model used is SCRF-PCM)", default = None, type = str)
+    solution = Options(help = "Options for using a simulated solvent environment.", validate = validate_solvent,
+        calc = Option(help = "Whether to use a solution model.", type = bool, default = False),
+        model = Option(help = "The solvent model to use.", choices = ("PCM", "CPCM", "Dipole", "IPCM", "SCIPCM", "SMD"), default = "PCM"),
+        solvent = Option(help = "The name of the solvent to use.", default = None)
+    )
     
     post = Options(
         convert_chk = Option(help = "Whether to create an .fchk file at the end of the calculation", default = True, type = bool),
@@ -326,9 +337,8 @@ class Gaussian(Concrete_calculation, AI_calculation_mixin):
             route_parts.append(self.model_chemistry)
             
             # Solvent.
-            if self.solvent is not None:
-                #route_parts.append(self.keyword_to_string("SCRF", {"Solvent": self.solvent}))
-                route_parts.append(str(Keyword("SCRF", {"Solvent": self.solvent})))
+            if self.solution['calc']:
+                route_parts.append(str(Keyword("SCRF", {self.solution['model']: "" ,"Solvent": self.solution['solvent']})))
                 
             # Empirical dispersion
             if self.DFT['empirical_dispersion'] is not None:
