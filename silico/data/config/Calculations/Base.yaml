@@ -45,15 +45,16 @@ structure:
     append_program_name: False
     
 
-# Whether to write silico result files once the calculation has complete.
-# The files writen are the same as can be aquired by using cresult later, they are small text files so there is generally little reason to set this to False.
-# This option only controls writing of additional silico result files; even if write_results is False, the output files produced by the calculation (.log, .out etc) will still be saved. 
-write_summary: True
-
-# Whether to generate a PDF report once the calculation has complete.
-# The report written is the same as can be aquired by using creport later.
-# Silico reports can be large (10s to 100s of MB) and take several minutes to render (depending on the calculation and available computing power of course). This option can be disabled to save on space/time.
-write_report: True
+post:
+    # Whether to write silico result files once the calculation has complete.
+    # The files writen are the same as can be aquired by using cresult later, they are small text files so there is generally little reason to set this to False.
+    # This option only controls writing of additional silico result files; even if write_results is False, the output files produced by the calculation (.log, .out etc) will still be saved. 
+    write_summary: True
+    
+    # Whether to generate a PDF report once the calculation has complete.
+    # The report written is the same as can be aquired by using creport later.
+    # Silico reports can be large (10s to 100s of MB) and take several minutes to render (depending on the calculation and available computing power of course). This option can be disabled to save on space/time.
+    write_report: True
 
 NEXT:
     - Gaussian

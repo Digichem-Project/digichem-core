@@ -28,8 +28,9 @@ scratch_options:
     use_scratch: False
     
 # No need for reports.
-write_report: False
-write_summary: False
+post:
+    write_report: False
+    write_summary: False
 
 # Convergence criteria.
 econv: 0.10D-10

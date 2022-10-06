@@ -146,7 +146,7 @@ class Gaussian(Program_target):
             chk_conversion_success = True
             try:
                 # Create an fchk file if asked.
-                if self.calculation.convert_chk:
+                if self.calculation.post['convert_chk']:
                     fchk_file = Chk_to_fchk(self.fchk_file_path, chk_file = self.chk_file_path, memory = self.calculation.performance['memory'], formchk_executable = self.formchk_executable)
                     fchk_file.get_file()
             except Exception:
@@ -160,7 +160,7 @@ class Gaussian(Program_target):
             if chk_conversion_success:
                 try:
                     # Now delete the chk file if we were asked to (but only if the conversion to fchk was successful).
-                    if not self.calculation.keep_chk:
+                    if not self.calculation.post['keep_chk']:
                         self.chk_file_path.unlink()
                 except FileNotFoundError:
                     # We can ignore not finding the file; we were trying to get rid of it anyway.
@@ -174,7 +174,7 @@ class Gaussian(Program_target):
             
             # Remove rwf if we've been asked to.
             try:
-                if not self.calculation.keep_rwf:
+                if not self.calculation.post['keep_rwf']:
                     self.rwf_file_path.unlink()
             except FileNotFoundError:
                 # We can ignore not finding the file; we were trying to get rid of it anyway.

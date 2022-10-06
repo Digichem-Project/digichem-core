@@ -445,7 +445,7 @@ class Program_target(Method_target):
                 self.error = e
             
             # If we've been asked to write result files, do so.
-            if self.calculation.write_summary:
+            if self.calculation.post['write_summary']:
                 try:
                     self.write_summary_files()
                 except Exception:
@@ -464,7 +464,7 @@ class Program_target(Method_target):
                 silico.log.get_logger().warning("Failed to write silico (.si) result file", exc_info = True)
                 
             # Similarly, if we've been asked to write a report, do that.
-            if self.calculation.write_report:
+            if self.calculation.post['write_report']:
                 # First our personal report.
                 try:
                     self.write_report_files()

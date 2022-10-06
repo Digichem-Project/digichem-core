@@ -7,12 +7,13 @@ SUB_TYPE: pseudo
 
 # Gaussian calculation options.
 
-# If True, a formated checkpoint file (.fchk) will be created automatically after the calculation has finished.
-convert_chk: True
-
-# If False, the .chk file will be deleted automatically.
-# False is mostly safe here as the .chk/.fchk conversion is mostly reversible, however know that there is some data that is lost converting from .chk to .fchk (data needed to calculate NTOs, for example).
-keep_chk: False
+post:
+    # If True, a formated checkpoint file (.fchk) will be created automatically after the calculation has finished.
+    convert_chk: True
+    
+    # If False, the .chk file will be deleted automatically.
+    # False is mostly safe here as the .chk/.fchk conversion is mostly reversible, however know that there is some data that is lost converting from .chk to .fchk (data needed to calculate NTOs, for example).
+    keep_chk: False
 
 # These options are added to the Gaussian route section with only minor modification:
 #       Options of the form 'Foo: Bar' will become 'Foo=Bar'

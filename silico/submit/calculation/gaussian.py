@@ -97,9 +97,12 @@ class Gaussian(Concrete_calculation, AI_calculation_mixin):
         exchange = Option(help = "The definition of a (number of) basis sets to use from the Basis Set Exchange (BSE), in the format 'basis set name': 'applicable elements' (for example: '6-31G(d,p)': '1,3-4,B-F')", type = BSE_basis_set, dump_func = lambda option, configurable, value: dict(value), exclude = "internal", edit_vtype = "dict", default = lambda option, configurable: BSE_basis_set())
     )
     solvent = Option(help = "Name of the solvent to use for the calculation (the model used is SCRF-PCM)", default = None, type = str)
-    convert_chk = Option(help = "Whether to create an .fchk file at the end of the calculation", default = True, type = bool)
-    keep_chk = Option(help = "Whether to keep the .chk file at the end of the calculation. If False, the .chk file will be automatically deleted, but not before it is converted to an .fchk file (if convert_chk is True)", default = False, type = bool)
-    keep_rwf = Option(help = "Whether to keep the .rwf file at the end of the calculation. If False, the .rwf file will be automatically deleted", default = False, type = bool)
+    
+    post = Options(
+        convert_chk = Option(help = "Whether to create an .fchk file at the end of the calculation", default = True, type = bool),
+        keep_chk = Option(help = "Whether to keep the .chk file at the end of the calculation. If False, the .chk file will be automatically deleted, but not before it is converted to an .fchk file (if convert_chk is True)", default = False, type = bool),
+        keep_rwf = Option(help = "Whether to keep the .rwf file at the end of the calculation. If False, the .rwf file will be automatically deleted", default = False, type = bool)
+    )
     
     optimisation = Options(
         help = "Options that control optimisations.",
@@ -330,10 +333,12 @@ def make_NTO_calc(*, name, memory, num_cpu, transition, scratch_options = None, 
             "Population": ("Minimal", "NTO", "SaveNTO")
         },
         # We don't need these.
-        write_summary = False,
-        write_report = False,
-        convert_chk = False,
-        keep_chk = True,
+        post = {
+            "write_summary": False,
+            "write_report": False,
+            "convert_chk": False,
+            "keep_chk": True,
+        },
         scratch_options = scratch_options
     )
     

@@ -256,8 +256,10 @@ def make_orbital_calc(*, name, memory, num_cpu, orbitals = [], density = False, 
         },
         modules = modules,
         # We don't need these.
-        write_summary = False,
-        write_report = False,
+        post = {
+            "write_summary": False,
+            "write_report": False,
+        },
         scratch_options = {
             "use_scratch": False
         }
@@ -309,8 +311,10 @@ def make_anadens_calc(*, name, memory, num_cpu, first_density, second_density, f
         },
         modules = ['ricc2 -fanal'],
         # We don't need these.
-        write_summary = False,
-        write_report = False,
+        post = {
+            "write_summary": False,
+            "write_report": False,
+        },
         scratch_options = {
             "use_scratch": False
         }
