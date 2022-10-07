@@ -80,32 +80,6 @@ class Keyword():
 #########################
 # Validation Functions. #
 #########################
-def validate_method(option, owning_obj, value):
-    """Function for validating method choices."""
-    # First check exactly one method has been selected.
-    found = None
-    for method_type in ("hf", "dft", "mp", "cc"):
-        if value[method_type]['calc']:
-            if found is not None:
-                # A method has already been chosen.
-                raise Configurable_exception(owning_obj, "The '{}' method cannot be selected at the same time as the '{}' method".format(found, method_type))
-            
-            else:
-                found = method_type
-                
-    if found is None:
-        # No method given.
-        raise Configurable_exception(owning_obj, "No calculation method (HF, DFT, MP, CC etc) has been chosen.")
-    
-    return True
-
-def validate_dft(option, owning_obj, value):
-    """Function for validating DFT choices."""
-    if value['calc'] and value['functional'] is None:
-        # DFT requested but no functional.
-        raise Configurable_exception(owning_obj, "No DFT functional has been chosen {}: {}.".format(value['calc'], value['functional']))
-    
-    return True
     
 def validate_properties(option, owning_obj, value):
     """Function for validating requested calculation properties."""
@@ -142,26 +116,10 @@ class Gaussian(Concrete_calculation, AI_calculation_mixin):
         num_cpu = Option(help = "An integer specifying the number of CPUs to use for this calculation. cou_list and num_cpu are mutually exclusive.", exclude = ("cpu_list",))
     )
     
-    method = Options(help = "Options for controlling the computational method used. Only one method should be chosen at a time.", #validate = validate_method,
-        # Here, we use the 'calc' sub option to turn on or off each option.
-        # This may seem unnecessary, but it allows the other options for each method to be set without turning them on,
-        # so that they can be inherited for child options.
-        hf = Options(help = "Options for the HF method.",
-            calc = Option(help = "Whether to use the Hartree-Fock method", type = bool, default = False),
-        ),
-        dft = Options(help = "Options for the density functional theory (DFT) method.", validate = validate_dft,
-            calc = Option(help = "Whether to use the DFT method.", type = bool, default = False),
-            functional = Option(help = "The DFT functional to use.", type = str, default = None),
-            dispersion = Option(help = "The empirical dispersion method to use, note that not all methods are suitable with all functionals.", choices = ("PFD", "GD2", "GD3", "GD3BJ", None), default = None),
-            grid = Option(help = "The size of the numerical integration grid.", choices = ("Coarse", "SG1", "Fine", "Ultrafine", "Superfine", None), default = "Ultrafine")
-        ),
-        mp = Options(help = "Options for the Møller–Plesset (MP) method.",
-            calc = Option(help = "Whether to use the MP method.", type = bool, default = False),
-            level = Option(help = "The MP order to use.", choices = ("MP2", "MP3", "MP4", "MP4(DQ)", "MP4(SDQ)", "MP5"), default = "MP2")
-        ),
-        cc = Options(help = "Options for the Coupled-Cluster (CC) method.",
-            calc = Option(help = "Whether to use the CC method.", type = bool, default = False),
-            level = Option(help = "The CC level to use.", type = str, choices = ("CCD", "CCSD", "CCSD(T)"), default = "CCD")
+    method = Options(
+        dft = Options(
+            # Add the specific grid options Gaussian supports.
+            grid = Option(choices = ("Coarse", "SG1", "Fine", "Ultrafine", "Superfine", None), default = "Ultrafine")
         )
     )
     

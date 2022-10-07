@@ -11,6 +11,7 @@ from silico.input import si_from_file
 from silico.submit.base import Method_target
 from silico.input.directory import Calculation_directory_input
 from silico.submit.basis import BSE_basis_set
+from silico.exception.configurable import Configurable_exception
 
 
 class Calculation_target(Method_target):
@@ -143,6 +144,37 @@ class AI_calculation_mixin():
             return None
 
 
+#########################
+# Validation Functions. #
+#########################
+def validate_method(option, owning_obj, value):
+    """Function for validating method choices."""
+    # First check exactly one method has been selected.
+    found = None
+    for method_type in ("hf", "dft", "mp", "cc"):
+        if value[method_type]['calc']:
+            if found is not None:
+                # A method has already been chosen.
+                raise Configurable_exception(owning_obj, "The '{}' method cannot be selected at the same time as the '{}' method".format(found, method_type))
+            
+            else:
+                found = method_type
+                
+    if found is None:
+        # No method given.
+        raise Configurable_exception(owning_obj, "No calculation method (HF, DFT, MP, CC etc) has been chosen.")
+    
+    return True
+
+def validate_dft(option, owning_obj, value):
+    """Function for validating DFT choices."""
+    if value['calc'] and value['functional'] is None:
+        # DFT requested but no functional.
+        raise Configurable_exception(owning_obj, "No DFT functional has been chosen {}: {}.".format(value['calc'], value['functional']))
+    
+    return True
+
+
 class Concrete_calculation(Calculation_target):
     """
     Top-level class for real calculations.
@@ -158,6 +190,31 @@ class Concrete_calculation(Calculation_target):
     performance = Options(
         memory = Option(help = "The amount of memory to use for the calculation. Typical memory suffixes, such as B (byte), KB (kilobyte), MB (megabyte), and GB (byte) are accepted.", required = True, type = Memory),
         num_cpu = Option("num_cpu", help = "An integer specifying the number of CPUs to use for the calculation.", default = 1, type = int)
+    )
+    
+    # Method options, choses the type of calculation (DFT, MP2, CC etc).
+    method = Options(help = "Options for controlling the computational method used. Only one method should be chosen at a time.", validate = validate_method,
+        # Here, we use the 'calc' sub option to turn on or off each option.
+        # This may seem unnecessary, but it allows the other options for each method to be set without turning them on,
+        # so that they can be inherited for child options.
+        hf = Options(help = "Options for the HF method.",
+            calc = Option(help = "Whether to use the Hartree-Fock method", type = bool, default = False),
+        ),
+        dft = Options(help = "Options for the density functional theory (DFT) method.", validate = validate_dft,
+            calc = Option(help = "Whether to use the DFT method.", type = bool, default = False),
+            functional = Option(help = "The DFT functional to use.", type = str, default = None),
+            dispersion = Option(help = "The empirical dispersion method to use, note that not all methods are suitable with all functionals.", choices = ("PFD", "GD2", "GD3", "GD3BJ", None), default = None),
+            # TODO: Look at supporting grid for all calculations.
+            grid = Option(help = "The size of the numerical integration grid.", default = None)
+        ),
+        mp = Options(help = "Options for the Møller–Plesset (MP) method.",
+            calc = Option(help = "Whether to use the MP method.", type = bool, default = False),
+            level = Option(help = "The MP order to use.", choices = ("MP2", "MP3", "MP4", "MP4(DQ)", "MP4(SDQ)", "MP5"), default = "MP2")
+        ),
+        cc = Options(help = "Options for the Coupled-Cluster (CC) method.",
+            calc = Option(help = "Whether to use the CC method.", type = bool, default = False),
+            level = Option(help = "The CC level to use.", type = str, choices = ("CCD", "CCSD", "CCSD(T)"), default = "CCD")
+        )
     )
     
     scratch_options = Options(help = "Options that control the use of the scratch directory",
