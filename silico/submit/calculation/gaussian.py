@@ -138,8 +138,8 @@ class Gaussian(Concrete_calculation, AI_calculation_mixin):
 
     # Configurable options.
     performance = Options(
-        cpu_list = Option(help = "A list of integers specifying specific CPUs to use for the calculation, starting at 0. cpu_list and num_cpu are mutually exclusive", exclude = ("num_cpu",), default = (), type = int, list_type = tuple),
-        num_cpu = Option(help = "An integer specifying the number of CPUs to use for this calculation. cou_list and num_cpu are mutually exclusive", exclude = ("cpu_list",), default = 1, type = int)
+        cpu_list = Option(help = "A list of integers specifying specific CPUs to use for the calculation, starting at 0. cpu_list and num_cpu are mutually exclusive.", exclude = ("num_cpu",), default = (), type = int, list_type = tuple),
+        num_cpu = Option(help = "An integer specifying the number of CPUs to use for this calculation. cou_list and num_cpu are mutually exclusive.", exclude = ("cpu_list",))
     )
     
     method = Options(help = "Options for controlling the computational method used. Only one method should be chosen at a time.", #validate = validate_method,
