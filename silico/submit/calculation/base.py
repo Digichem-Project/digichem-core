@@ -174,6 +174,20 @@ def validate_dft(option, owning_obj, value):
     
     return True
 
+def validate_properties(option, owning_obj, value):
+    """Function for validating requested calculation properties."""
+    if not any([value[prop_type]['calc'] for prop_type in ("sp", "opt", "freq", "es")]):
+        raise Configurable_exception(owning_obj, "No calculation properties (SP, Opt, Freq, ES etc) have been chosen.")
+    
+    return True
+
+def validate_solvent(option, owning_obj, value):
+    """Function for validating solvent model."""
+    if value['calc'] and value['solvent'] is None:
+        raise Configurable_exception(owning_obj, "No solvent has been chosen.")
+    
+    return True
+
 
 class Concrete_calculation(Calculation_target):
     """
@@ -217,6 +231,40 @@ class Concrete_calculation(Calculation_target):
         )
     )
     
+    # Properties options, selects what to calculate (excited states, frequencies etc).
+    properties = Options(help = "Options for controlling which properties to calculate.", validate = validate_properties,
+        sp = Options(help = "Options for calculating single-point energies.",
+            calc = Option(help = "Whether to calculate single-point energies.", type = bool, default = False)
+        ),
+        opt = Options(help = "Options for calculating optimised geometries.",
+            calc = Option(help = "Whether to calculate optimised geometries." ,type = bool, default = False),
+            iterations = Option(help = "The maximum number of optimisation iterations to permit before aborting. If not specified, program defaults will be used.", type = int, default = None),
+        ),
+        freq = Options(help = "Options for calculating vibrational frequencies.",
+            calc = Option(help = "Whether to calculate vibrational frequencies.", type = bool, default = False),
+        ),
+        # TODO: Implement.
+#         nmr = Options(help = "Options for calculating nuclear-magnetic resonance (NMR) shielding tensors and magnetic susceptibilities.",
+#             calc = Option(help = "Whether to calculate NMR.", type = bool, default = False),
+#         ),
+        es = Options(help = "Options for calculating excited states.",
+            calc = Option(help = "Whether to calculate excited states.", type = bool, default = False),
+            # TODO: EOMCCSD should be renamed EOM-CCSD (but need to tweak Gaussian support).
+            method = Option(help = "The method to use to calculate excited states.", choices = ("CIS", "CIS(D)", "TD-DFT", "TDA", "EOMCCSD"), default = "CIS"),
+            multiplicity = Option(help = "The multiplicity of the excited states to calculate", choices = ("Singlet", "Triplet", "50-50"), default = "Singlet"),
+            num_states = Option(help = "The number of excited states to calculate. If 50-50 is given as the multiplicity, this is the number of each multiplicity to calculate.", type = int, default = 10),
+            state_of_interest = Option(help = "The principal excited state of interest (SOS). The exact meaning and use of the SOS depends on the calculation being performed, but it is used, for example, to select which excited state to optimise (for ES and Opt calcs).", type = int, default = 1),
+        )
+    )
+    
+    # Options for controlling simulated solvation.
+    # solvation might be a better name for this option?
+    solution = Options(help = "Options for using a simulated solvent environment.", validate = validate_solvent,
+        calc = Option(help = "Whether to use a solution model.", type = bool, default = False),
+        model = Option(help = "The solvent model to use.", choices = ("PCM", "CPCM", "Dipole", "IPCM", "SCIPCM", "SMD"), default = "PCM"),
+        solvent = Option(help = "The name of the solvent to use.", default = None)
+    )
+    
     scratch_options = Options(help = "Options that control the use of the scratch directory",
         use_scratch = Option(help = "Whether to use a scratch directory. False will disable the scratch directory, and is not recommended", default = True, type = bool),
         path = Option(help = "Path to the top of the scratch directory. For each calculation, a sub-directory will be created under this path. Note that some calculation programs (Gaussian16 at least) cannot handle whitespace in this path.", default = "/scratch", type = str),
@@ -226,15 +274,18 @@ class Concrete_calculation(Calculation_target):
         force_delete = Option(help = "Whether to always delete the scratch directory at the end of the calculation, even if output files could not be safely copied", default = False, type = bool),
         all_output = Option(help = "Whether to output all files to the scratch directory. If False, only intermediate files will be written to scratch (.log will be written directly to output directory for example)", default = False, type = bool)
     )
+    
     structure = Options(help = "Options that control the calculation folder structure",
         program_sub_folder = Option(help = "Whether to use a separate subfolder for each calculation program", default = False, type = bool),
         prepend_program_name = Option(help = "Whether to prepend the calculation program name to the calculation folder", default = True, type = bool),
         append_program_name = Option(help = "Whether to append the calculation program name to the calculation folder", default = False, type = bool),
     )
+    
     post = Options(help = "Options that control post processing of the calculation results.",
         write_summary = Option(help = "Whether to write Silico summary text files to the 'Results' folder at the end of the calculation", default = True, type = bool),
         write_report = Option(help = "Whether to write a Silico PDF report to the 'Report' folder at the end of the calculation", default = True, type = bool)
     )
+    
     custom_silico_options = Option(
         "silico_options",
         help = "Silico options to overwrite for this calculation",

@@ -5,11 +5,9 @@ import silico
 from silico.config.configurable.option import Option
 from silico.submit.calculation import Concrete_calculation
 from silico.config.configurable.options import Options
-from silico.submit.basis import BSE_basis_set
 from silico.input.directory import Calculation_directory_input
 from silico.submit.calculation.base import AI_calculation_mixin
 from silico.input.silico import Silico_coords
-from silico.exception.configurable import Configurable_exception
 
 
 class Keyword():
@@ -75,25 +73,6 @@ class Keyword():
         
         else:
             return "{}=({})".format(self.keyword, ", ".join(options_strings))
-        
-
-#########################
-# Validation Functions. #
-#########################
-    
-def validate_properties(option, owning_obj, value):
-    """Function for validating requested calculation properties."""
-    if not any([value[prop_type]['calc'] for prop_type in ("sp", "opt", "freq", "es")]):
-        raise Configurable_exception(owning_obj, "No calculation properties (SP, Opt, Freq, ES etc) have been chosen.")
-    
-    return True
-
-def validate_solvent(option, owning_obj, value):
-    """Function for validating solvent model."""
-    if value['calc'] and value['solvent'] is None:
-        raise Configurable_exception(owning_obj, "No solvent has been chosen.")
-    
-    return True
 
 
 class Gaussian(Concrete_calculation, AI_calculation_mixin):
@@ -111,6 +90,8 @@ class Gaussian(Concrete_calculation, AI_calculation_mixin):
     
 
     # Configurable options.
+    # Gaussian allows the exact CPUs to be specifed in a list.
+    # NOTE: This list form is generally poorly tested...
     performance = Options(
         cpu_list = Option(help = "A list of integers specifying specific CPUs to use for the calculation, starting at 0. cpu_list and num_cpu are mutually exclusive.", exclude = ("num_cpu",), default = (), type = int, list_type = tuple),
         num_cpu = Option(help = "An integer specifying the number of CPUs to use for this calculation. cou_list and num_cpu are mutually exclusive.", exclude = ("cpu_list",))
@@ -123,38 +104,21 @@ class Gaussian(Concrete_calculation, AI_calculation_mixin):
         )
     )
     
-    properties = Options(help = "Options for controlling which properties to calculate.", validate = validate_properties,
-        sp = Options(help = "Options for calculating single-point energies.",
-            calc = Option(help = "Whether to calculate single-point energies.", type = bool, default = False)
-        ),
-        opt = Options(help = "Options for calculating optimised geometries.",
-            calc = Option(help = "Whether to calculate optimised geometries." ,type = bool, default = False),
-            iterations = Option(help = "The maximum number of optimisation iterations to permit before aborting. If not specified, program defaults will be used.", type = int, default = None),
+    properties = Options(
+        opt = Options(
             options = Option(help = "Additional options to specify.", type = dict, default = {})
         ),
-        freq = Options(help = "Options for calculating vibrational frequencies.",
-            calc = Option(help = "Whether to calculate vibrational frequencies.", type = bool, default = False),
+        freq = Options(
             options = Option(help = "Additional options to specify.", type = dict, default = {})
         ),
-        # TODO: Implement.
-#         nmr = Options(help = "Options for calculating nuclear-magnetic resonance (NMR) shielding tensors and magnetic susceptibilities.",
-#             calc = Option(help = "Whether to calculate NMR.", type = bool, default = False),
-#             options = Option(help = "Additional options to specify.", type = dict, default = {})
-#         ),
-        es = Options(help = "Options for calculating excited states.",
-            calc = Option(help = "Whether to calculate excited states.", type = bool, default = False),
-            method = Option(help = "The method to use to calculate excited states.", choices = ("CIS", "CIS(D)", "TD-DFT", "TDA", "EOMCCSD"), default = "CIS"),
-            multiplicity = Option(help = "The multiplicity of the excited states to calculate", choices = ("Singlet", "Triplet", "50-50"), default = "Singlet"),
-            num_states = Option(help = "The number of excited states to calculate. If 50-50 is given as the multiplicity, this is the number of each multiplicity to calculate.", type = int, default = 10),
-            state_of_interest = Option(help = "The principal excited state of interest (SOS). The exact meaning and use of the SOS depends on the calculation being performed, but it is used, for example, to select which excited state to optimise (for ES and Opt calcs).", type = int, default = 1),
+        es = Options(
             options = Option(help = "Additional options to specify.", type = dict, default = {})
         )
     )
     
-    solution = Options(help = "Options for using a simulated solvent environment.", validate = validate_solvent,
-        calc = Option(help = "Whether to use a solution model.", type = bool, default = False),
-        model = Option(help = "The solvent model to use.", choices = ("PCM", "CPCM", "Dipole", "IPCM", "SCIPCM", "SMD"), default = "PCM"),
-        solvent = Option(help = "The name of the solvent to use.", default = None)
+    solution = Options(
+        # Add Gaussian specific solvent methods.
+        model = Option(choices = ("PCM", "CPCM", "Dipole", "IPCM", "SCIPCM", "SMD"), default = "PCM"),
     )
     
     post = Options(
