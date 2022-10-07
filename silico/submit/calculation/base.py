@@ -158,7 +158,7 @@ class Concrete_calculation(Calculation_target):
     performance = Options(
         memory = Option(help = "The amount of memory to use for the calculation. Typical memory suffixes, such as B (byte), KB (kilobyte), MB (megabyte), and GB (byte) are accepted.", required = True, type = Memory),
         num_cpu = Option("num_cpu", help = "An integer specifying the number of CPUs to use for the calculation.", default = 1, type = int)
-        )
+    )
     
     scratch_options = Options(help = "Options that control the use of the scratch directory",
         use_scratch = Option(help = "Whether to use a scratch directory. False will disable the scratch directory, and is not recommended", default = True, type = bool),
