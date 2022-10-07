@@ -138,7 +138,7 @@ class Gaussian(Concrete_calculation, AI_calculation_mixin):
             return "HF"
         
         elif self.method['dft']['calc']:
-            return self.method['dft']['functional']
+            return self.method['dft']['functional'].to_gaussian()
         
         elif self.method['mp']['calc']:
             return self.method['mp']['level']
@@ -223,7 +223,7 @@ class Gaussian(Concrete_calculation, AI_calculation_mixin):
             # First, determine the basis set being used.
             # This label is distinct from both the basis_set property and the basis_set.internal option.
             if self.basis_set['internal'] is not None:
-                basis_set = self.basis_set['internal']
+                basis_set = self.basis_set['internal'].to_gaussian()
                 
             elif len(self.basis_set['exchange']) > 0:
                 # Our basis set label will be either gen or genECP (depending on whether we have any ECPs).

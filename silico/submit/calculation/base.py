@@ -12,6 +12,7 @@ from silico.submit.base import Method_target
 from silico.input.directory import Calculation_directory_input
 from silico.submit.basis import BSE_basis_set
 from silico.exception.configurable import Configurable_exception
+from silico.submit.translate import Basis_set, Functional
 
 
 class Calculation_target(Method_target):
@@ -107,7 +108,7 @@ class AI_calculation_mixin():
     )
     
     basis_set = Options(help = "The basis set to use.",
-        internal = Option(help = "The name of a basis set native to the relevant calculation program.", type = str, exclude = "exchange"),
+        internal = Option(help = "The name of a basis set native to the relevant calculation program.", type = Basis_set, exclude = "exchange"),
         exchange = Option(help = "The definition of a (number of) basis sets to use from the Basis Set Exchange (BSE), in the format 'basis set name': 'applicable elements' (for example: '6-31G(d,p)': '1,3-4,B-F').", type = BSE_basis_set, dump_func = lambda option, configurable, value: dict(value), exclude = "internal", edit_vtype = "dict", default = lambda option, configurable: BSE_basis_set())
     )
     
@@ -216,7 +217,7 @@ class Concrete_calculation(Calculation_target):
         ),
         dft = Options(help = "Options for the density functional theory (DFT) method.", validate = validate_dft,
             calc = Option(help = "Whether to use the DFT method.", type = bool, default = False),
-            functional = Option(help = "The DFT functional to use.", type = str, default = None),
+            functional = Option(help = "The DFT functional to use.", type = Functional, default = None),
             dispersion = Option(help = "The empirical dispersion method to use, note that not all methods are suitable with all functionals.", choices = ("PFD", "GD2", "GD3", "GD3BJ", None), default = None),
             # TODO: Look at supporting grid for all calculations.
             grid = Option(help = "The size of the numerical integration grid.", default = None)
