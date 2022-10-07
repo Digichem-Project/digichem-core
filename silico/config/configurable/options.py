@@ -79,15 +79,21 @@ class Options_mixin():
         
         # Next, validate each of our known options.
         for option in options.values():
-            option.validate(owning_obj, dict_obj)
             
+            option.validate(owning_obj, dict_obj)
+        
+        # Next, check for any exclusions.
+        # NOTE: We have to do this in a different loop to the one where we call validate() above.
+        # This is because validate() can set an option to default, which can change whether
+        # the option is considered to be clashing or not.
+        for option in options.values():
             # Also check for exclusions.
             # TODO: Extend exclusions so they can support nested options.
             for exclusion in option.exclude:
                 # This option has an exclusion, check at least one of it and the exclusion is not set.
                 try:
                     if not options[exclusion].is_default(owning_obj, dict_obj) and not option.is_default(owning_obj, dict_obj):
-                        raise Configurable_exception(self, "options '{}' and '{}' cannot be set at the same time (mutually exclusive)".format(option.name, exclusion))
+                        raise Configurable_exception(owning_obj, "options '{}' and '{}' cannot be set at the same time (mutually exclusive)".format(option.name, exclusion))
                 
                 except KeyError:
                     # One of the given options cannot be found.
