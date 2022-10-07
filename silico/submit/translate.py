@@ -130,7 +130,7 @@ class Basis_set(Translate):
         # Couldn't find it.
         raise ValueError("Unable to find basis set with name '{}'".format(hint))
     
-    def translate(self, program):
+    def translate(self, program = None):
         """
         Translate the name of this basis set into one appropriate for a calculation program.
         
