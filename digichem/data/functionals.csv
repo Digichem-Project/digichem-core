@@ -1,0 +1,15 @@
+Name,Aliases,Turbomole,Gaussian
+B2PLYP,,b2-plyp,
+B3LYP,,b3-lyp,
+B3LYP Gaussian,,b3-lyp_Gaussian,B3LYP
+B97-3c,B973c,b97-3c,
+B97D,,b97-d,
+BHLYP,,bh-lyp,
+BLYP,,b-lyp,
+BP,,b-p,
+BVWN,,b-vwn,
+M062X,,m06-2x,
+M06L,,m06-l,
+PBE0,,pbe0,PBE1PBE
+SVWN,,s-vwn,
+SVWN Gaussian,,s-vwn_Gaussian,SVWN
