@@ -215,8 +215,8 @@ class Functional(Translate):
         Translate into a name appropriate for Turbomole.
         """
         func_name = self.translate("turbomole")
-        # All turbomole functionals are lower case.
-        return func_name.lower()
+        # All turbomole functionals are lower case, except for the word 'Gaussian'.
+        return func_name.lower().replace("gaussian", "Gaussian")
     
     def __str__(self):
         return self.translate("name")
