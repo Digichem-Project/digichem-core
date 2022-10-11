@@ -232,6 +232,19 @@ class Concrete_calculation(Calculation_target):
         )
     )
     
+    scf = Options(help = "Options for controlling the self-consistent field (SCF) method.",
+        # Turbomole does not seem to offer different SCF procedures, where as Gaussian (and others?) do,
+        # so options here will be program specfic.
+        method = Option(help = "The SCF method or procedure to use.", default = None),
+        iterations = Option(help = "The maximum number of SCF iterations to permit before aborting. If not specified, program defaults will be used.", type = int, default = None),
+        convergence = Option(help = "The SCF convergence criteria, expressed as 10^n (where n is the value of this option).", type = int, default = None),
+        damping = Options(help = "Options for damping SCF oscillations.",
+            # SCF damping cannot be easily turned off in Turbomole.
+            calc = Option(help = "Whether to enable SCF damping", type = bool, default = False),
+            # Other options here are largely specific to each calc program.
+        )
+    )
+    
     # Properties options, selects what to calculate (excited states, frequencies etc).
     properties = Options(help = "Options for controlling which properties to calculate.", validate = validate_properties,
         sp = Options(help = "Options for calculating single-point energies.",
