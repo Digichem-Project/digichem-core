@@ -104,6 +104,13 @@ class Gaussian(Concrete_calculation, AI_calculation_mixin):
         )
     )
     
+    scf = Options(
+        method = Option(choices = (None, "DM", "SD", "SSD", "QC", "XQC", "YQC")),
+        damping = Options(
+            iterations = Option(help = "Allow SCF damping for the first N cycles (where N is the value of this option).", type = int, default = None)
+        )
+    )
+    
     properties = Options(
         opt = Options(
             options = Option(help = "Additional options to specify.", type = dict, default = {})
@@ -257,6 +264,31 @@ class Gaussian(Concrete_calculation, AI_calculation_mixin):
             
             # Model chemistry
             route_parts.append(self.model_chemistry)
+            
+            # SCF options.
+            scf_key = Keyword("SCF")
+            # If the SCF method is non default, add that.
+            if self.scf['method'] is not None:
+                scf_key.add_option(self.scf['method'])
+                
+            # Set max iterations.
+            if self.scf['iterations'] is not None:
+                scf_key.add_option({"MaxCycle": self.scf['iterations']})
+                
+            # Set convergence.
+            if self.scf['convergence'] is not None:
+                scf_key.add_option({"Conver": self.scf['convergence']})
+                
+            # Damping options.
+            if self.scf['damping']['calc']:
+                scf_key.add_option("Damp")
+                
+                if self.scf['damping']['iterations'] is not None:
+                    scf_key.add_option({"NDamp": self.scf['damping']['iterations']})
+                    
+            # Add SCF if there's at least one option.
+            if len(scf_key.options) > 0:
+                route_parts.append(str(scf_key))
             
             # Solvent.
             if self.solution['calc']:
