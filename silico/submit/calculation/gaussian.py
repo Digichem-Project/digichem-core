@@ -120,9 +120,10 @@ class Gaussian(Concrete_calculation, AI_calculation_mixin):
         freq = Options(
             options = Option(help = "Additional options to specify.", type = dict, default = {})
         ),
+        # TODO: Need to add a check that DFT is off of TD-HF is on (otherwise TD-DFT is chosen).
         es = Options(
             # TODO: EOMCCSD should be renamed EOM-CCSD (but need to tweak Gaussian support).
-            method = Option(choices = ("CIS", "CIS(D)", "TD-DFT", "TDA", "EOMCCSD"), default = "CIS"),
+            method = Option(choices = ("TD-HF", "CIS", "CIS(D)", "TD-DFT", "TDA", "EOMCCSD"), default = "CIS"),
             options = Option(help = "Additional options to specify.", type = dict, default = {}),
         )
     )
@@ -198,7 +199,7 @@ class Gaussian(Concrete_calculation, AI_calculation_mixin):
             }
             
             # Decide which method we're using to calculate excited states.
-            es_method = "TD" if self.properties['es']['method'] == "TD-DFT" else self.properties['es']['method']
+            es_method = "TD" if self.properties['es']['method'] in ["TD-HF", "TD-DFT"] else self.properties['es']['method']
             
             # Add our keyword, which changes base on whether we're using TDA or TD-DFT.
             keywords.append(Keyword(es_method, options, self.DFT_excited_states['options']))
