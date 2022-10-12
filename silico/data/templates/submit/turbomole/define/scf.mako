@@ -8,24 +8,24 @@
 scf
 ## 
 ## Set iterations.
-%if calculation.scf['iter'] is not None:
+%if calculation.scf['iterations'] is not None:
 iter
-${calculation.scf['iter']}
+${calculation.scf['iterations']}
 %endif
 ##
 ## SCF convergence.
-%if calculation.scf['scfconv'] is not None:
+%if calculation.scf['convergence'] is not None:
 conv
-${calculation.scf['scfconv']}
+${calculation.scf['convergence']}
 %endif
 ##
 ## SCF Damping.
 damp
 ##
 ## Set all 3 options (they all work the same way).
-%for option in ("start", "step", "min"):
+%for option in ("weight", "step", "min"):
 ## Enter the value of the option.
-${calculation.scf_damp[option] if calculation.scf_damp[option] is not None else ""}
+${calculation.scf['damping'][option] if calculation.scf['damping'][option] is not None else ""}
 ## Done.
 %endfor
 ##
