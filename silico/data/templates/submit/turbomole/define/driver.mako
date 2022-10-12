@@ -15,14 +15,22 @@ a ../Input/coord
 ##
 ## Load redundant coords.
 %if calculation.redundant_internal_coordinates:
-ired
+ired 
 %endif
 ##
 ## Next section.
 *
-## 
+##
+## If we said no to internal coordinates, we now get a warning.
+%if not calculation.redundant_internal_coordinates:
+##
+## Saying 'no' should skip.
+no
+##
+%endif
+##
 ## Load basis set.
-b all ${calculation.basis_set['internal']}
+b all ${calculation.basis_set['internal'].to_turbomole()}
 ##
 ## Next section.
 *
@@ -37,7 +45,7 @@ eht
 ${calculation.charge}
 ##
 ## What we do next depends on whether we are setting up a RHF or UHF calc.
-%if not calculation.unrestricted_HF:
+%if not calculation.electron['unrestricted']:
 ##
 ## RHF, accept defaults.
 
