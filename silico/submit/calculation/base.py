@@ -382,6 +382,18 @@ class Concrete_calculation(Calculation_target):
             # If this calc was chosen as an individual, this will be None.
             self.series_name = None
             self.prepare_only = prepare_only
+            
+        @property
+        def is_unrestricted(self):
+            """
+            Determine whether this calculation will be using an unrestricted method.
+            """
+            # If we've been told to be unrestricted, use that.
+            if self.electron['unrestricted']:
+                return True
+            
+            # Otherwise, we can guess based on our multiplicity.
+            return self.input_coords.implicit_multiplicity == 1
 
         @property
         def silico_options(self):
