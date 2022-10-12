@@ -270,9 +270,8 @@ class Concrete_calculation(Calculation_target):
 #         ),
         es = Options(help = "Options for calculating excited states.",
             calc = Option(help = "Whether to calculate excited states.", type = bool, default = False),
-            # TODO: EOMCCSD should be renamed EOM-CCSD (but need to tweak Gaussian support).
             method = Option(help = "The method to use to calculate excited states.", choices = ("CIS", "CIS(D)", "TD-DFT", "TDA", "EOMCCSD"), default = "CIS"),
-            multiplicity = Option(help = "The multiplicity of the excited states to calculate", choices = ("Singlet", "Triplet", "50-50"), default = "Singlet"),
+            multiplicity = Option(help = "The multiplicity of the excited states to calculate. This option is only meaningful for singlet ground state molecules.", choices = ("Singlet", "Triplet", "50-50"), default = "Singlet"),
             num_states = Option(help = "The number of excited states to calculate. If 50-50 is given as the multiplicity, this is the number of each multiplicity to calculate.", type = int, default = 10),
             state_of_interest = Option(help = "The principal excited state of interest (SOS). The exact meaning and use of the SOS depends on the calculation being performed, but it is used, for example, to select which excited state to optimise (for ES and Opt calcs).", type = int, default = 1),
         )
