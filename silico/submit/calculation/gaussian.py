@@ -121,7 +121,9 @@ class Gaussian(Concrete_calculation, AI_calculation_mixin):
             options = Option(help = "Additional options to specify.", type = dict, default = {})
         ),
         es = Options(
-            options = Option(help = "Additional options to specify.", type = dict, default = {})
+            # TODO: EOMCCSD should be renamed EOM-CCSD (but need to tweak Gaussian support).
+            method = Option(choices = ("CIS", "CIS(D)", "TD-DFT", "TDA", "EOMCCSD"), default = "CIS"),
+            options = Option(help = "Additional options to specify.", type = dict, default = {}),
         )
     )
     
