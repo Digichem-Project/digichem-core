@@ -131,6 +131,13 @@ class AI_calculation_mixin():
         return int(self.electron['multiplicity'] if self.electron['multiplicity'] is not None else self.input_coords.implicit_multiplicity)
     
     @property
+    def unpaired_electrons(self):
+        """
+        The number of unpaired electrons at this given multiplicity.
+        """
+        return self.multiplicity -1
+    
+    @property
     def basis_set_name(self):
         """
         A descriptive label of the basis set being used for the calculation.

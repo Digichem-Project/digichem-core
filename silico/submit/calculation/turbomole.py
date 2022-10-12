@@ -178,12 +178,6 @@ class Turbomole_AI(Turbomole, AI_calculation_mixin):
         return func.lower().replace("gaussian", "Gaussian")
         
     
-    @property
-    def unpaired_electrons(self):
-        """
-        The number of unpaired electrons at this given multiplicity.
-        """
-        return self.multiplicity -1
     
     ############################
     # Class creation mechanism #
