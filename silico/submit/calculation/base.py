@@ -246,7 +246,6 @@ class Concrete_calculation(Calculation_target):
         iterations = Option(help = "The maximum number of SCF iterations to permit before aborting. If not specified, program defaults will be used.", type = int, default = None),
         convergence = Option(help = "The SCF convergence criteria, expressed as 10^n (where n is the value of this option).", type = int, default = None),
         damping = Options(help = "Options for damping SCF oscillations.",
-            # SCF damping cannot be easily turned off in Turbomole.
             calc = Option(help = "Whether to enable SCF damping", type = bool, default = False),
             # Other options here are largely specific to each calc program.
         )
