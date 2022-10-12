@@ -4,7 +4,7 @@
 ##
 ## Define input for dft.
 ##
-%if calculation.dft['functional'] is not None:
+%if calculation.method['dft']['calc']:
 ##
 ## Enter dft.
 dft
@@ -13,12 +13,11 @@ dft
 on
 ##
 ## Set functional.
-##func ${calculation.dft['functional']}
-func ${calculation.func}
+func ${calculation.method['dft']['functional'].to_turbomole()}
 ##
 ## Change grid if we've been asked to.
-%if calculation.dft['grid'] is not None:
-grid ${calculation.dft['grid']}
+%if calculation.method['dft']['grid'] is not None:
+grid ${calculation.method['dft']['grid']}
 %endif
 ##
 ## Exit dft.
@@ -28,21 +27,21 @@ grid ${calculation.dft['grid']}
 %endif
 ##
 ## Next, excited state properties for DFT.
-%if calculation.dft_exci['nexc'] > 0:
+%if calculation.properties['es']['calc'] and calculation.properties['es']['method'] in ["TD-HF", "CIS", "TD-DFT", "TDA"]:
 ex
 ##
 ## Select our type of excited state based on TDA or no TDA and multiplicity.
 ## Turbomole doesn't recognise multiplicity if we're unrestricted.
-%if calculation.unrestricted_HF:
+%if calculation.is_unrestricted:
 ##
 ##
-${"urpa" if not calculation.dft_exci['TDA'] else "ucis"}
+${"urpa" if calculation.properties['es']['method'] in ["TD-HF", "TD-DFT"] else "ucis"}
 ##
 ##
 %else:
 ##
 ##
-${"rpa" if not calculation.dft_exci['TDA'] else "cis"}${"s" if calculation.dft_exci['multiplicity'] == 1 else "t"}
+${"rpa" if calculation.properties['es']['method'] in ["TD-HF", "TD-DFT"] else "cis"}${"s" if calculation.properties['es']['multiplicity'] == "Singlet" else "t"}
 ##
 ##
 %endif
@@ -51,7 +50,7 @@ ${"rpa" if not calculation.dft_exci['TDA'] else "cis"}${"s" if calculation.dft_e
 *
 ##
 ## Select symmetry and number of states.
-${calculation.dft_exci['symmetry']} ${calculation.dft_exci['nexc']}
+${calculation.properties['es']['symmetry']} ${calculation.properties['es']['num_states']}
 *
 ##
 ## Select memory.
@@ -65,25 +64,25 @@ n
 %endif
 ##
 ## Now dispersion correction, which weirdly is in a different menu.
-%if calculation.dispersion['dsp'] is not None:
+%if calculation.method['dft']['dispersion'] is not None:
 ## Enter dsp menu.
 dsp
 ##
 ## Set type of dsp (some have weird names).
-%if calculation.dispersion['dsp'].upper() == "GD3":
+%if calculation.method['dft']['dispersion'].upper() == "GD3":
 on
-%elif calculation.dispersion['dsp'].upper() == "GD2":
+%elif calculation.method['dft']['dispersion'].upper() == "GD2":
 old
-%elif calculation.dispersion['dsp'].upper() == "GD3BJ":
+%elif calculation.method['dft']['dispersion'].upper() == "GD3BJ":
 bj
-%elif calculation.dispersion['dsp'].upper() == "GD4":
+%elif calculation.method['dft']['dispersion'].upper() == "GD4":
 d4
 %else:
-${calculation.dispersion['dsp']}
+${calculation.method['dft']['dispersion']}
 %endif
 ##
 ## Turn on three-body params if asked.
-%if calculation.dispersion['abc']:
+%if calculation.method['dft']['dispersion_abc']:
 abc
 %endif
 ##
