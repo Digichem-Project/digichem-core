@@ -100,7 +100,9 @@ class Gaussian(Concrete_calculation, AI_calculation_mixin):
     method = Options(
         dft = Options(
             # Add the specific grid options Gaussian supports.
-            grid = Option(choices = ("Coarse", "SG1", "Fine", "Ultrafine", "Superfine", None), default = "Ultrafine")
+            grid = Option(choices = ("Coarse", "SG1", "Fine", "Ultrafine", "Superfine", None), default = "Ultrafine"),
+            # And dispersion.
+            dispersion = Option(choices = ("PFD", "GD2", "GD3", "GD3BJ", None))
         )
     )
     
