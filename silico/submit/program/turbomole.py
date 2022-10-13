@@ -124,6 +124,21 @@ class Turbomole(Program_target):
             
             Normally this involves running define, but some turbomole calcs have a different setup (eg, UFF).
             """
+            # IMPORTANT: The auxiliary basis set menus of define are broken in the following manner:
+            # When attempting to assign an aux basis set, if the primary basis set cannot be found in the aux 
+            # basis set library, define will panic and enter an uncontrollable state.
+            # This is frustrating because it prevents us from ever assigning the correct aux basis set.
+            #
+            # This behaviour can be overcome if options like:
+            #    $atoms
+            #    n  1                                                                           \
+            #       basis =n 6-31G*                                                             \
+            #       jkbas =n cc-pVTZ
+            #    ...
+            # are already set in the control file, but this is challenging to do by hand.
+            #
+            # TODO: We need a solution to this.
+            
             # Write define input file.
             with open(self.define_input_path, "wt") as define_input:
                 define_input.write(self.calculation.define_input)
