@@ -105,7 +105,7 @@ class Turbomole(Program_target):
             """
             if self.calculation.scratch_directory is None:
                 return None
-            elif self.calculation.parallel_mode == "MPI":
+            elif self.calculation.performance['parallel_mode'] == "MPI":
                 return Path(self.calculation.scratch_directory, "node")
             else:
                 return self.calculation.scratch_directory
@@ -138,7 +138,7 @@ class Turbomole(Program_target):
                     stdout = subprocess.PIPE,
                     stderr = subprocess.STDOUT,
                     universal_newlines = True,
-                    timeout = self.calculation.define_timeout,
+                    timeout = self.calculation.performance['define_timeout'],
                     cwd = self.destination.calc_dir.prep_directory,
                     check = True
                 )
