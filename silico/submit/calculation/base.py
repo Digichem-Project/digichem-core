@@ -6,7 +6,7 @@ from silico.submit.flag import Flag
 from silico.exception.base import Submission_error
 from silico.submit.memory import Memory
 from silico.config.configurable.option import Option
-from silico.config.configurable.options import Options
+from silico.config.configurable.options import Options, Options_mixin
 from silico.input import si_from_file
 from silico.submit.base import Method_target
 from silico.input.directory import Calculation_directory_input
@@ -96,7 +96,7 @@ class Calculation_target(Method_target):
         return first
 
 
-class AI_calculation_mixin():
+class AI_calculation_mixin(Options_mixin):
     """
     Abstract mixin class for calculation types that are ab-initio (from first principles).
     """
