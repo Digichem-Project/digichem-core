@@ -349,7 +349,7 @@ class Gaussian(Concrete_calculation, AI_calculation_mixin):
             """
             Return a new calculation that can create a chk file containing NTOs for a given transition.
             """
-            return make_NTO_calc(name = self.meta['name'], memory = self.performance['memory'], num_cpu = self._num_cpu, transition = transition, scratch_options = self.scratch_options)
+            return make_NTO_calc(name = self.meta['name'], memory = self.performance['memory'], num_cpu = self.self.performance['num_cpu'], transition = transition, scratch_options = self.scratch_options)
 
 
 def make_NTO_calc(*, name, memory, num_cpu, transition, scratch_options = None, scratch_path = None):
