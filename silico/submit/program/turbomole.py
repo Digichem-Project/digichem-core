@@ -172,6 +172,11 @@ class Turbomole(Program_target):
                 # Something else.
                 raise e from None
             
+            # Check the output from define to see if it ended happily or not.
+            with open(self.define_output_path, "r") as define_output:
+                if "define ended abnormally" in tail(define_output, 1)[0]:
+                    raise Submission_error(self, "Program 'define' does not appear to have executed correctly, check output file '{}' for errors".format(self.define_output_path))
+            
             # Sadly, some options are not supported by define and have to be appended manually.
             if self.calculation.properties['opt']['calc'] and self.calculation.properties['es']['calc']:
                 self.add_control_option("$exopt {}".format(self.calculation.properties['es']['state_of_interest']))
