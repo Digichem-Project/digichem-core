@@ -15,8 +15,8 @@ from silico.exception.configurable import Configurable_loader_exception,\
     Short_tag_path_error, Unresolvable_tag_path_error, Long_tag_path_error
 from silico.exception.base import Silico_exception
 from silico.config.configurable.base import Configurable_class_target
-from silico.config.configurable.identifier import ID_splitter
-from silico.misc.base import is_int, is_iter
+from silico.misc.base import is_iter
+from silico.config.configurable.util import setopt
 
 # Make methods available. We do this because our loaders are going to eventually ask for one of these classes.
 # TODO: Importing all this here feels weird, perhaps this file should be moved to the submit package?
