@@ -197,6 +197,7 @@ class Option():
             raise InheritedAttrError() from None
         
         try:
+            # Need to be careful here, mixin classes might not inherit from Options_mixin, and so might not have get_cls_option.
             current = parent_cls.get_cls_option(resolve_path[0])
                 
         except (ValueError, AttributeError):
@@ -283,7 +284,7 @@ class Option():
         :param owning_obj: The owning object on which this Option object is set as a class attribute.
         :param dict_obj: The dict in which the value of this Option is stored. In most cases, the value of this option is evaluated simply as dict_obj[self.name]
         """
-        try:            
+        try:
             return dict_obj[self.name]
         except KeyError:
             # No value set, return our default value (if we have one).
