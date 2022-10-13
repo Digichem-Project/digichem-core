@@ -102,7 +102,12 @@ class Options_mixin():
         # We also need to make sure there are no unexpected options.
         for unexpected_key in set(dict_obj).difference(options):
             # Although this looks like a loop, we will obviously only raise the first exception.
-            raise Configurable_exception(owning_obj, "unrecognised option '{}' with value '{}'".format(unexpected_key, dict_obj[unexpected_key]))
+            msg = "unrecognised option '{}' with value '{}'".format(unexpected_key, dict_obj[unexpected_key])
+            if hasattr(self, "is_configurable"):
+                raise Configurable_exception(owning_obj, msg)
+            
+            else:
+                raise Configurable_option_exception(owning_obj, self, msg)
 
 
 class Options_mapping(MutableMapping):
