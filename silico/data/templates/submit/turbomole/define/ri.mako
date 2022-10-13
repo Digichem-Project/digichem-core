@@ -12,7 +12,7 @@
 ##
 ## 
 ## First, handle RI-J ($rij and $jbas).
-for menu_name, basis_name, ri_type in [("ri", "jbas", "coulomb"), ("rijk", "jkbas", "hartree_fock")]:
+%for menu_name, basis_name, ri_type in [("ri", "jbas", "coulomb"), ("rijk", "jkbas", "hartree_fock")]:
 %if calculation.method['ri'][ri_type]['calc']:
 ##
 ## Enter the menu.
@@ -25,7 +25,7 @@ on
 ${basis_name}
 ##
 ## If we're using an auto basis set, leave as default.
-if str(calculation.method['ri'][ri_type]['basis_set']) == "auto":
+%if str(calculation.method['ri'][ri_type]['basis_set']) == "auto":
 ## Auto, enter nothing to use defaults.
 *
 ## Done.
