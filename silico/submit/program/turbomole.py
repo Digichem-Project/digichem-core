@@ -17,6 +17,7 @@ from silico.misc.directory import copytree
 from silico.parse import parse_calculation
 import silico
 from silico.input.directory import Calculation_directory_input
+from silico.misc.io import tail
 
 
 class Turbomole(Program_target):
@@ -157,8 +158,8 @@ class Turbomole(Program_target):
                 raise e from None
             
             # Sadly, some options are not supported by define and have to be appended manually.
-            if self.calculation.optimisation_state is not None:
-                self.add_control_option("$exopt {}".format(self.calculation.optimisation_state))
+            if self.calculation.properties['opt']['calc'] and self.calculation.properties['es']['calc']:
+                self.add_control_option("$exopt {}".format(self.calculation.properties['es']['state_of_interest']))
                 
             if self.calculation.analysis['anadens']['calculate']:
                 self.add_control_option("$anadens\n calc {} from\n 1d0 {}\n {}1d0 {}".format(
