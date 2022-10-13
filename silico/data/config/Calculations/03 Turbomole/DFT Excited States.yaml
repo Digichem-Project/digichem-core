@@ -1,10 +1,10 @@
 SUB_TYPE: partial
 TAG: Turbomole TDA
-
 ALIAS: TDA
 
-dft_exci:
-    TDA: True
+properties:
+    es:
+        method: TDA
 
 NEXT:
     - Turbomole 10 Singlets
@@ -21,8 +21,9 @@ SUB_TYPE: partial
 TAG: Turbomole TD-DFT
 ALIAS: TD-DFT
 
-dft_exci:
-    TDA: False
+properties:
+    es:
+        method: TD-DFT
 
 NEXT:
     - Turbomole 10 Singlets
@@ -39,13 +40,10 @@ TAG: Turbomole 10 Singlets
 SUB_TYPE: partial
 ALIAS: 10 Singlets
 
-dft_exci:
-    multiplicity: 1
-    nexc: 10
-    
-modules:
-    - dscf
-    - escf
+properties:
+    es:
+        multiplicity: Singlet
+        num_states: 10
 
 NEXT:
     - Turbomole Functionals
@@ -57,13 +55,10 @@ TAG: Turbomole 10 Triplets
 SUB_TYPE: partial
 ALIAS: 10 Triplets
 
-dft_exci:
-    multiplicity: 3
-    nexc: 10
-    
-modules:
-    - dscf
-    - escf
+properties:
+    es:
+        multiplicity: Triplet
+        num_states: 10
 
 NEXT:
     - Turbomole Functionals
@@ -79,10 +74,12 @@ ALIAS: 100 Singlets
 dft_exci:
     multiplicity: 1
     nexc: 100
-    
-modules:
-    - dscf
-    - escf
+
+
+properties:
+    es:
+        multiplicity: Singlet
+        num_states: 100
 
 NEXT:
     - Turbomole Functionals
@@ -95,12 +92,12 @@ TAG: Turbomole Optimised S(1)
 SUB_TYPE: partial
 ALIAS: Optimised S(1)
 
-dft_exci:
-    multiplicity: 1
-    nexc: 10
-
-modules:
-    - jobex -level scf -c 100 -keep -ex
+properties:
+    opt:
+        calc: True
+    es:
+        multiplicity: Singlet
+        num_states: 10
 
 NEXT:
     - Turbomole Functionals
@@ -113,12 +110,12 @@ TAG: Turbomole Optimised T(1)
 SUB_TYPE: partial
 ALIAS: Optimised T(1)
 
-dft_exci:
-    multiplicity: 3
-    nexc: 10
-
-modules:
-    - jobex -level scf -c 100 -keep -ex
+properties:
+    opt:
+        calc: True
+    es:
+        multiplicity: Triplet
+        num_states: 10
 
 NEXT:
     - Turbomole Functionals

@@ -6,7 +6,7 @@ SUB_TYPE: pseudo
 
 # Increase number of SCF iterations.
 scf:
-    iter: 100
+    iterations: 100
     
 # Options that control use of the scratch directory.
 scratch_options:

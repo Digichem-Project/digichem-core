@@ -1,10 +1,60 @@
 TAG: Turbomole Functionals
 SUB_TYPE: pseudo
+NEXT:
+    - Turbomole Standard DFT
+    - Turbomole RI-DFT
+    - Turbomole RIJK-DFT
+
+method:
+    dft:
+        calc: True
+
+---
+
+TAG: Turbomole Standard DFT
+SUB_TYPE: partial
+ALIAS: DFT
 
 NEXT:
     - Turbomole PBE0 (GD3BJ)
-    - Turbomole B3-LYP (GD3BJ)
-    - Turbomole M06-2X (GD3)
+    - Turbomole B3LYP (GD3BJ)
+    - Turbomole M062X (GD3)
+
+
+---
+
+TAG: Turbomole RI-DFT
+SUB_TYPE: partial
+ALIAS: RI-DFT
+
+method:
+    ri:
+        coulomb:
+            calc: True
+
+NEXT:
+    - Turbomole PBE0 (GD3BJ)
+    - Turbomole B3LYP (GD3BJ)
+    - Turbomole M062X (GD3)
+
+
+---
+
+TAG: Turbomole RIJK-DFT
+SUB_TYPE: partial
+ALIAS: RIJK-DFT
+
+method:
+    ri:
+       coulomb:
+           calc: True
+       hartree_fock:
+            calc: True
+
+NEXT:
+    - Turbomole RIJK-PBE0 (GD3BJ)
+    - Turbomole RIJK-B3LYP (GD3BJ)
+    - Turbomole RIJK-M062X (GD3)
 
 
 ---
@@ -14,11 +64,10 @@ TAG: Turbomole PBE0 (GD3BJ)
 SUB_TYPE: partial
 ALIAS: PBE0 (GD3BJ)
 
-dft:
-    functional: PBE0
-
-dispersion:
-    dsp: GD3BJ
+method:
+    dft:
+        functional: PBE0
+        dispersion: GD3BJ
 
 NEXT:
     - Turbomole Basis Sets
@@ -27,15 +76,14 @@ NEXT:
 ---
 
 
-TAG: Turbomole B3-LYP (GD3BJ)
+TAG: Turbomole B3LYP (GD3BJ)
 SUB_TYPE: partial
 ALIAS: B3LYP (GD3BJ)
 
-dft:
-    functional: B3-LYP
-
-dispersion:
-    dsp: GD3BJ
+method:
+    dft:
+        functional: B3LYP
+        dispersion: GD3BJ
 
 NEXT:
     - Turbomole Basis Sets
@@ -44,15 +92,71 @@ NEXT:
 ---
 
 
-TAG: Turbomole M06-2X (GD3)
+TAG: Turbomole M062X (GD3)
 ALIAS: M062X (GD3)
 SUB_TYPE: partial
 
-dft:
-    functional: M06-2X
-
-dispersion:
-    dsp: GD3
+method:
+    dft:
+        functional: M062X
+        dispersion: GD3
 
 NEXT:
     - Turbomole Basis Sets
+
+
+---
+
+
+TAG: Turbomole RIJK-PBE0 (GD3BJ)
+SUB_TYPE: partial
+ALIAS: PBE0 (GD3BJ)
+
+method:
+    dft:
+        functional: PBE0
+        dispersion: GD3BJ
+
+NEXT:
+    - Turbomole cc-pVTZ
+    - Turbomole cc-pVQZ
+    - Turbomole cc-pV5Z
+    - Turbomole cc-pV6Z
+
+
+---
+
+
+TAG: Turbomole RIJK-B3LYP (GD3BJ)
+SUB_TYPE: partial
+ALIAS: B3LYP (GD3BJ)
+
+method:
+    dft:
+        functional: B3LYP
+        dispersion: GD3BJ
+
+NEXT:
+    - Turbomole cc-pVTZ
+    - Turbomole cc-pVQZ
+    - Turbomole cc-pV5Z
+    - Turbomole cc-pV6Z
+
+
+---
+
+
+TAG: Turbomole RIJK-M062X (GD3)
+ALIAS: M062X (GD3)
+SUB_TYPE: partial
+
+method:
+    dft:
+        functional: M062X
+        dispersion: GD3
+
+NEXT:
+    - Turbomole cc-pVTZ
+    - Turbomole cc-pVQZ
+    - Turbomole cc-pV5Z
+    - Turbomole cc-pV6Z

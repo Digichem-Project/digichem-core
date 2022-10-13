@@ -1,0 +1,223 @@
+TAG: Turbomole Methods
+SUB_TYPE: pseudo
+NEXT:
+    - Turbomole Functionals
+    - Turbomole Post-HF
+ 
+---
+
+
+TAG: Turbomole MM
+ALIAS: MM
+SUB_TYPE: partial
+
+NEXT:
+    - Turbomole UFF
+
+---
+
+
+TAG: Turbomole UFF
+ALIAS: UFF
+
+meta:
+    class_name: Turbomole-UFF
+    
+# Memory and CPU.
+performance:
+    memory: 1GB
+    num_cpu: 1
+
+# No need to use scratch for UFF.
+scratch_options:
+    use_scratch: False
+    
+# No need for reports.
+post:
+    write_report: False
+    write_summary: False
+
+# Convergence criteria.
+method:
+    mm:
+    econv: 0.10D-10
+    gconv: 0.10D-10
+    
+properties:
+    opt:
+        iterations: 500
+        
+---
+
+TAG: Turbomole Post-HF
+SUB_TYPE: pseudo
+NEXT:
+    - Turbomole MP2
+    - Turbomole RI-MP2
+    - Turbomole RI-MP3
+    - Turbomole RI-MP4
+    - Turbomole SCS-ADC(2)
+    - Turbomole SCS-CC2
+    - Turbomole RI-CCSD
+    - Turbomole RI-CCSD(T)
+
+
+performance:
+    memory: 80GB
+    num_cpu: 32
+
+
+---
+# Turbomole supports two different MP2 methods:
+# - Standard MP2, which it does not recommend, and
+# - RI-MP2, which should be faster than MP2.
+# For all other MP and CC methods, RI is the only option.
+
+TAG: Turbomole MP2
+SUB_TYPE: partial
+ALIAS: MP2
+NEXT:
+    - Turbomole Basis Sets
+
+method:
+    mp:
+        calc: True
+        level: MP2
+
+
+---
+
+
+TAG: Turbomole RI-MP2
+SUB_TYPE: partial
+ALIAS: RI-MP2
+NEXT:
+    - Turbomole Correlation Consistent Basis Sets
+
+performance:
+    intel_AVX2_fix: True
+
+method:
+    mp:
+        calc: True
+        level: MP2
+    ri:
+        correlated:
+            calc: True
+    
+---
+
+
+TAG: Turbomole RI-MP3
+SUB_TYPE: partial
+ALIAS: RI-MP3
+NEXT:
+    - Turbomole Correlation Consistent Basis Sets
+
+method:
+    mp:
+        calc: True
+        level: MP3
+    ri:
+        correlated:
+            calc: True
+
+
+---
+
+
+TAG: Turbomole RI-MP4
+SUB_TYPE: partial
+ALIAS: RI-MP4
+NEXT:
+    - Turbomole Correlation Consistent Basis Sets
+
+method:
+    mp:
+        calc: True
+        level: MP4
+    ri:
+        correlated:
+            calc: True
+
+
+---
+
+
+TAG: Turbomole SCS-ADC(2)
+SUB_TYPE: partial
+ALIAS: SCS-ADC(2)
+NEXT:
+    - Turbomole Correlation Consistent Basis Sets
+
+performance:
+    intel_AVX2_fix: True
+
+method:
+    mp:
+        calc: True
+        level: ADC(2)
+    ri:
+        correlated:
+            calc: True
+    scs:
+        calc: True
+
+
+---
+
+
+TAG: Turbomole SCS-CC2
+SUB_TYPE: partial
+ALIAS: SCS-CC2
+NEXT:
+    - Turbomole Correlation Consistent Basis Sets
+
+performance:
+    intel_AVX2_fix: True
+
+method:
+    cc:
+        calc: True
+        level: CC2
+    ri:
+        correlated:
+            calc: True
+    scs:
+        calc: True
+
+
+---
+
+
+TAG: Turbomole RI-CCSD
+SUB_TYPE: partial
+ALIAS: RI-CCSD
+NEXT:
+    - Turbomole Correlation Consistent Basis Sets
+
+method:
+    cc:
+        calc: True
+        level: CCSD
+    ri:
+        correlated:
+            calc: True
+
+
+---
+
+
+TAG: Turbomole RI-CCSD(T)
+SUB_TYPE: partial
+ALIAS: RI-CCSD(T)
+NEXT:
+    - Turbomole Correlation Consistent Basis Sets
+
+method:
+    cc:
+        calc: True
+        level: CCSD(T)
+    ri:
+        correlated:
+            calc: True

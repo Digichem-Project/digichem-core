@@ -11,16 +11,34 @@ NEXT:
 ---
 
 
+TAG: Turbomole Single Point
+SUB_TYPE: partial
+ALIAS: Single Point
+
+properties:
+    sp:
+        calc: True
+
+NEXT:
+    - Turbomole MM
+    - Turbomole Methods
+
+
+---
+
+
 TAG: Turbomole Optimisation
 SUB_TYPE: partial
 ALIAS: Optimisation
 
+properties:
+    opt:
+        calc: True
+        iterations: 100
+
 NEXT:
-    - Turbomole Molecular Mechanics
-    - Turbomole DFT Opt
-    - Turbomole CC2 Opt
-    - Turbomole ADC(2) Opt
-    - Turbomole MP2 Opt
+    - Turbomole MM
+    - Turbomole Methods
 
 
 ---
@@ -30,12 +48,15 @@ TAG: Turbomole Optimisation Frequency
 SUB_TYPE: partial
 ALIAS: Optimisation Frequency
 
-modules:
-    - jobex -level scf -c 100 -keep
-    - aoforce
+properties:
+    opt:
+        calc: True
+        iterations: 100
+    freq:
+        calc: True
 
 NEXT:
-    - Turbomole Functionals
+    - Turbomole Methods
 
 
 ---
@@ -45,12 +66,12 @@ TAG: Turbomole Frequency
 SUB_TYPE: partial
 ALIAS: Frequency
 
-modules:
-    - dscf
-    - aoforce
+properties:
+    freq:
+        calc: True
 
 NEXT:
-    - Turbomole Functionals
+    - Turbomole Methods
 
 
 ---
@@ -60,8 +81,11 @@ TAG: Turbomole Excited States
 SUB_TYPE: partial
 ALIAS: Excited States
 
+properties:
+    es:
+        calc: True
+
 NEXT:
     - Turbomole TDA
     - Turbomole TD-DFT
-    - Turbomole CC2 Excited States
-    - Turbomole ADC(2) Excited States
+    - Turbomole Post-HF Excited States

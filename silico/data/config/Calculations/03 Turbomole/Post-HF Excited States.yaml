@@ -1,0 +1,45 @@
+TAG: Turbomole Post-HF Excited States
+SUB_TYPE: partial
+ALIAS: Post-HF
+
+NEXT:
+    - Turbomole Post-HF ES Singlet
+    - Turbomole Post-HF ES Triplet
+
+properties:
+    es:
+        num_states: 2
+        ricc2:
+            spectrum_operators: diplen
+
+
+---
+
+
+TAG: Turbomole Post-HF ES Singlet
+SUB_TYPE: partial
+ALIAS: S(1) and S(2)
+NEXT:
+    - Turbomole RI-MP2
+    - Turbomole SCS-ADC(2)
+    - Turbomole SCS-CC2
+
+properties:
+    es:
+        multiplicity: Singlet
+
+
+---
+
+
+TAG: Turbomole Post-HF ES Triplet
+SUB_TYPE: partial
+ALIAS: S(1) and S(2)
+NEXT:
+    - Turbomole RI-MP2
+    - Turbomole SCS-ADC(2)
+    - Turbomole SCS-CC2
+
+properties:
+    es:
+        multiplicity: Triplet
