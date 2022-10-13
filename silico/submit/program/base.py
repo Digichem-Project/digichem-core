@@ -141,8 +141,12 @@ class Program_target(Method_target):
                 self.end(True)
                 
             # If we got an error during the calc, re-raise it now.
-            if self.error is not None:
-                raise self.error
+            if len(self.errors) > 0:
+                # Print later errors, re-raise the last.
+                for error in self.errors[1:]:
+                    silico.log.get_logger().error("", exc_info = error)
+                
+                raise self.errors[0]
     
         @property
         def success(self):
