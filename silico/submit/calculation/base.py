@@ -301,7 +301,9 @@ class Concrete_calculation(Calculation_target):
         append_program_name = Option(help = "Whether to append the calculation program name to the calculation folder", default = False, type = bool),
     )
     
-    post = Options(help = "Options that control post processing of the calculation results.",
+    # This will probably end up being a mistake, but the config option name for post_process is 'simply' post.
+    # This is because calculation objects already have a 'post()' method that this would otherwise conflict with.
+    post_process = Options(name = "post", help = "Options that control post processing of the calculation results.",
         write_summary = Option(help = "Whether to write Silico summary text files to the 'Results' folder at the end of the calculation", default = True, type = bool),
         write_report = Option(help = "Whether to write a Silico PDF report to the 'Report' folder at the end of the calculation", default = True, type = bool)
     )

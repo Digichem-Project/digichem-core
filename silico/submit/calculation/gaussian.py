@@ -133,7 +133,7 @@ class Gaussian(Concrete_calculation, AI_calculation_mixin):
         model = Option(choices = ("PCM", "CPCM", "Dipole", "IPCM", "SCIPCM", "SMD"), default = "PCM"),
     )
     
-    post = Options(
+    post_process = Options(name = "post",
         convert_chk = Option(help = "Whether to create an .fchk file at the end of the calculation", default = True, type = bool),
         keep_chk = Option(help = "Whether to keep the .chk file at the end of the calculation. If False, the .chk file will be automatically deleted, but not before it is converted to an .fchk file (if convert_chk is True)", default = False, type = bool),
         keep_rwf = Option(help = "Whether to keep the .rwf file at the end of the calculation. If False, the .rwf file will be automatically deleted", default = False, type = bool)
