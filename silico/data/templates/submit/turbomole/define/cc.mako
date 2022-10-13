@@ -38,13 +38,13 @@ b all ${calculation.method['ri']['correlated']['basis_set'].to_turbomole()}
 ##
 ## Even though this menu is called 'ricc2', we actually use it for most higher order methods,
 ## including thise run with ccsdf12 (MP3, MP4, CCSD etc.)
-%if calculation.post_HF_method():
+%if calculation.post_HF_method:
 ##
 ## ricc2 options next.
 ricc2
 ##
 ## The method. This needs to be lower case.
-${calculation.post_HF_method().lower()}
+${calculation.post_HF_method.lower()}
 ##
 ## SCS.
 %if calculation.method['scs']['calc']:
@@ -53,7 +53,7 @@ ${calculation.scs_line}
 ##
 ## Optimisation options.
 %if calculation.properties['opt']['calc']:
-geoopt ${calculation.post_HF_method()}} (${calculation.properties['opt']['ricc2']['optimise_symmetry']} ${calculation.optimise_multiplicity})
+geoopt ${calculation.post_HF_method}} (${calculation.properties['opt']['ricc2']['optimise_symmetry']} ${calculation.optimise_multiplicity})
 %endif
 ##
 ## End of ricc2.
