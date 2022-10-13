@@ -207,7 +207,8 @@ class Configurable_loader():
         :param validate: Whether to validate the configured object.
         :returns: A loaded Configurable object.
         """
-        config['meta']['TYPE'] = self.TYPE
+        #config['meta']['TYPE'] = self.TYPE
+        setopt(config, 'meta', 'TYPE', value = self.TYPE)
         # These options have no meaning anymore.
         config.pop('SUB_TYPE', None)
         config.pop('TAG', None)
