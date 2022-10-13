@@ -187,7 +187,13 @@ class Gaussian(Concrete_calculation, AI_calculation_mixin):
             
         # Frequencies.
         if self.properties['freq']['calc']:
-            keywords.append(Keyword("Freq", self.properties['freq']['options']))
+            freq_keyword = Keyword("Freq", self.properties['freq']['options'])
+            
+            # Force numerical if we've been asked to.
+            if self.properties['freq']['numerical']:
+                freq_keyword.add_option("Numerical")
+            
+            keywords.append(freq_keyword)
             
         # Excited states.
         if self.properties['es']['calc']:

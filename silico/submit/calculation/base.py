@@ -262,6 +262,7 @@ class Concrete_calculation(Calculation_target):
         ),
         freq = Options(help = "Options for calculating vibrational frequencies.",
             calc = Option(help = "Whether to calculate vibrational frequencies.", type = bool, default = False),
+            numerical = Option(help = "Whether to calculate vibrational frequencies numerically (as opposed to analytically). Numerical calcualtion is generally inferior, but is usually more broadly available. If analytical frequencies are not available, most programs will switch to numerical automatically.", type = bool, default = False)
         ),
         # TODO: Implement.
 #         nmr = Options(help = "Options for calculating nuclear-magnetic resonance (NMR) shielding tensors and magnetic susceptibilities.",
