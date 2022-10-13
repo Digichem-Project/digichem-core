@@ -10,15 +10,15 @@
 ##
 ## Set the type of parallelization.
 ## This setting is used by the Turbomole init script to set our path to the correct binaries (SMP, MPI or normal).
-%if program.calculation.parallel_mode == "linear":
+%if program.calculation.performance['parallel_mode'] == "linear":
 ## Unset PARA_ARCH to use normal binaries.
 unset PARA_ARCH
 unset PARNODES
 %else:
 ## Set PARA_ARCH appropriately.
-export PARA_ARCH=${program.calculation.parallel_mode}
+export PARA_ARCH=${program.calculation.performance['parallel_mode']}
 ## Set number of nodes to run on.
-export PARNODES=${program.calculation.num_cpu}
+export PARNODES=${program.calculation.performance['num_cpu']}
 %endif
 ##
 ## Set scratch dir.
@@ -36,7 +36,7 @@ unset TURBOTMPDIR
 <%include file="wrapper.mako"/>\
 ##
 ## If we've been asked to, set the allowed MKL instruction set.
-%if program.calculation.ricc2['intel_AVX2_fix']:
+%if program.calculation.performance['intel_AVX2_fix']:
 ##
 export MKL_ENABLE_INSTRUCTIONS=SSE4_2
 ##
@@ -44,7 +44,7 @@ export MKL_ENABLE_INSTRUCTIONS=SSE4_2
 ##
 ## Now run the calculation programs we've been given.
 %for module in program.calculation.modules:
-${module} >> ${shlex.quote(str(program.turbomole_output_path.resolve()))} || { >&2 echo "Failed to execute Turbomole program '${module}'"; exit 1; }
+${module} >> ${shlex.quote(str(program.turbomole_output_path.resolve()))} || { >&2 echo "Failed to execute Turbomole module '${module}'"; exit 1; }
 ##${module} >> job.last || { >&2 echo "Failed to execute Turbomole program '${module}'"; exit 1; }
 %endfor
 ##
