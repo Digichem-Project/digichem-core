@@ -8,6 +8,7 @@ Loaders are essentially a speed hack that means we don't have to construct 1000s
 # General imports.
 import deepmerge
 import yaml
+import copy
 
 # Silico imports.
 from silico.exception.configurable import Configurable_loader_exception,\
@@ -188,14 +189,14 @@ class Configurable_loader():
         :param parent_config: The config options from the parent node.
         """
         # First, merge our current parent object with ourself.
-        deepmerge.always_merger.merge(parent_config, self.config)
+        deepmerge.always_merger.merge(parent_config, copy.deepcopy(self.config))
                 
         # Add ourself to the loader path.
         try:
             parent_config['loader_path'].append(self)
             
         except KeyError:
-            parent_config['loader_path'] = [self]                
+            parent_config['loader_path'] = [self]
     
     def configure(self, config, validate = True):
         """
