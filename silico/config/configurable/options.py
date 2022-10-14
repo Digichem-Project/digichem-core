@@ -51,15 +51,19 @@ class Options_mixin():
         """
         Prune none and empty values, removing them.
         """
-        for key, value in tuple(dict_obj.items()):
-            # First, if the value is another dict, prune that.
-            if isinstance(value, dict):
-                self.prune(owning_obj, value)
-                
-                # Once we've pruned, check the length of the dict.
-                if len(value) == 0:
-                    # This dict is empty and can be removed.
-                    del(dict_obj[key])
+        try:
+            for key, value in tuple(dict_obj.items()):
+                # First, if the value is another dict, prune that.
+                if isinstance(value, dict):
+                    self.prune(owning_obj, value)
+                    
+                    # Once we've pruned, check the length of the dict.
+                    if len(value) == 0:
+                        # This dict is empty and can be removed.
+                        del(dict_obj[key])
+        
+        except AttributeError as e:
+            raise Configurable_option_exception(owning_obj, self, "Unable to prune; dict_obj is of incorrect type") from e
                     
             # If None, delete.
             #if value is None:
@@ -456,6 +460,10 @@ class Options(Option, Options_mixin):
         
         # Our children will find their values in a different dict to where we find ourself.
         sub_dict_obj = dict_obj.get(self.name, {})
+        
+        # Panic if it's not actually a dict.
+        if not isinstance(sub_dict_obj, dict):
+            raise Configurable_option_exception(owning_obj, self, "Options objects can only accept nested options as values, not the single value '{}'".format(sub_dict_obj))
         
         # Validate each of our sub options.
         self.validate_children(owning_obj, sub_dict_obj)
