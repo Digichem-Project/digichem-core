@@ -263,7 +263,7 @@ class Turbomole_AI(Turbomole, AI_calculation_mixin):
                 
             # Add appropriate RI-J and RI-HF switches.
             # This option might not be necessary/do anything for ricc2.
-            if self.method['ri']['coulomb']['calc'] or self.method['ri']['correlated']['calc']:
+            if self.method['ri']['coulomb']['calc']:
                 jobex.args.append("-ri")
             
             # This option might only be meaningful for ricc2.
