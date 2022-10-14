@@ -171,7 +171,8 @@ class Turbomole(Program_target):
                 raise Submission_error(self, "define did not exit successfully:\n{}".format(e.stdout)) from e
             
             # Check the output from define to see if it ended happily or not.
-            with open(self.define_output_path, "r") as define_output:
+            # Define uses (we think) the iso-8859-1 encoding.
+            with open(self.define_output_path, "rt", encoding = "iso-8859-1") as define_output:
                 if "define ended abnormally" in tail(define_output, 1)[0]:
                     raise Submission_error(self, "Program 'define' does not appear to have executed correctly, check output file '{}' for errors".format(self.define_output_path))
             
