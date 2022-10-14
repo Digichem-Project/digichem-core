@@ -368,20 +368,44 @@ class Turbomole(Program_target):
         def calculate(self):
             """
             Main submission method; the calculation will be run here (for which this method will block, possibly for hours+).
-            """                                        
-            # Get our wrapper script.
-            wrapper_body = TemplateLookup(directories = str(silico.default_template_directory())).get_template("/submit/turbomole/turbomole_wrapper.mako").render_unicode(program = self)            
-            
-            # Run Turbomole!
-            subprocess.run(
-                ("bash",),
-                input = wrapper_body,
-                stdout = subprocess.PIPE,
-                stderr = subprocess.STDOUT,
-                universal_newlines = True,
-                cwd = self.working_directory,
-                check = True
-            )
+            """
+            # Turbomole is not, in fact, a single program. Instead, it is a whole suite of programs and scripts that together
+            # perform the calculation(s) requested. This is much more complicated than most other CC programs, because it means
+            # we have to not only worry about setting the correct options in the control file (the input file), but also
+            # about calling the correct programs in the correct order. Each of these sub-programs is called a 'module'.
+            # Most modules can be setup before any of the calculation starts, but this is not true of mpgrad. This module
+            # requires setup via the mp2prep script, but this script can only be called after the dscf module has already run.
+            #
+            # To run a Turbomole calculation then, we iteratively call each specified module, wrapping each in the necessary
+            # setup scripts.
+            modules = self.calculation.modules
+            for index, module in enumerate(modules):
+                # If the module is mpgrad, run mp2prep first.
+                if module.name == "mpgrad":
+                    silico.log.get_logger().info("Running mpgrad setup script: mp2prep")
+                    
+                    self.mp2prep()
+                    
+                # Start by announcing which module we're running.
+                silico.log.get_logger().info("Running module {}/{}: {}".format(index+1, len(modules), module.name))
+                
+                # Get our wrapper script.
+                wrapper_body = TemplateLookup(directories = str(silico.default_template_directory())).get_template("/submit/turbomole/module.mako").render_unicode(program = self, module = module)
+                
+                # Write it to our input dir.
+                with open(Path(self.destination.calc_dir.input_directory, "{}.{}.in".format(module.name, index +1)), "wt") as wrapper_file:
+                    wrapper_file.write(wrapper_body)
+                
+                # Run Turbomole!
+                subprocess.run(
+                    ("bash",),
+                    input = wrapper_body,
+                    stdout = subprocess.PIPE,
+                    stderr = subprocess.STDOUT,
+                    universal_newlines = True,
+                    cwd = self.working_directory,
+                    check = True
+                )
         
         def parse_results(self):
             """

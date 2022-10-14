@@ -3,7 +3,7 @@
     import shlex
 %>\
 ##
-<%page args="program"/>\
+<%page args="program, module"/>\
 ##
 ##
 #!/bin/bash
@@ -42,11 +42,8 @@ export MKL_ENABLE_INSTRUCTIONS=SSE4_2
 ##
 %endif
 ##
-## Now run the calculation programs we've been given.
-%for module in program.calculation.modules:
-${module} >> ${shlex.quote(str(program.turbomole_output_path.resolve()))} || { >&2 echo "Failed to execute Turbomole module '${module}'"; exit 1; }
-##${module} >> job.last || { >&2 echo "Failed to execute Turbomole program '${module}'"; exit 1; }
-%endfor
+## Now run the calculation module we've been given.
+${module.to_command()} >> ${shlex.quote(str(program.turbomole_output_path.resolve()))} || { >&2 echo "Failed to execute Turbomole module '${module.name}'"; exit 1; }
 ##
 ## Done
 exit $?
