@@ -28,6 +28,7 @@ class Turbomole(Program_target):
     CLASS_HANDLE = ("Turbomole",) 
 
     define_executable = Option(help = "Name/path of the define executable", default = "define", type = str)
+    mp2prep_executable = Option(help = "Name/path of the mp2prep executable", default = "mp2prep", type = str)
     root = Option(help = "Path to the directory where turbomole is installed", required = True, type = str)
     init_file = Option(help = "Path to the turbomole Config_turbo_env script which is run to set-up Turbomole", required = True, type = str)
     
