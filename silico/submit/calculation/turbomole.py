@@ -242,66 +242,66 @@ class Turbomole_AI(Turbomole, AI_calculation_mixin):
         # If this is an opt, we use jobex to call our modules.
         if self.properties['opt']['calc']:
             # Build options for jobex.
-            jobex_options = ["jobex -keep"]
+            jobex = Turbomole_module("jobex", "-keep")
             
             # Add max cycles.
             if self.properties['opt']['iterations'] is not None:
-                jobex_options.append("-c " + str(self.properties['opt']['iterations']))
+                jobex.args.extend(["-c ", str(self.properties['opt']['iterations'])])
                 
             # Add the method.
             if self.method['hf']['calc'] or self.method['dft']['calc']:
-                jobex_options.append("-level scf")
+                jobex.args.extend(["-level", "scf"])
                 
             elif self.method['mp']['calc'] and self.method['mp']['level'] == "MP2":
-                jobex_options.append("-level mp2")
+                jobex.args.extend(["-level", "mp2"])
                 
             else:
                 # ricc2 opt.
-                jobex_options.append("-level cc2")
+                jobex.args.extend(["-level", "cc2"])
                 
             # Add appropriate RI-J and RI-HF switches.
             # This option might not be necessary/do anything for ricc2.
             if self.method['ri']['coulomb']['calc'] or self.method['ri']['correlated']['calc']:
-                jobex_options.append("-ri")
+                jobex.args.append("-ri")
             
             # This option might only be meaningful for ricc2.
             if self.method['ri']['hartree_fock']['calc']:
-                jobex_options.append("-rijk")
+                jobex.args.append("-rijk")
                 
             # If we're doing opt and es, add that option.
             # This probably only works for TD-HF and TD-DFT
             if self.properties['es']['calc']:
-                jobex_options.append("-ex")
+                jobex.args.append("-ex")
                 
-            # Combine and set.
-            modules.append(" ".join(jobex_options))
+            # Set
+            modules.append(jobex)
         
         else:
             # TOOD: What about gradients with grad or rdgrad?
             # All methods start with a HF or DFT run, using dscf or ridft.
             # dscf is used for 'conventional' calcs, those not using any RI-J or RI-HF approximations.
             if not self.method['ri']['coulomb']['calc'] and not self.method['ri']['hartree_fock']['calc']:
-                modules.append("dscf")
+                modules.append(Turbomole_module("dscf"))
             
             else:
-                modules.append("ridft")
+                modules.append(Turbomole_module("ridft"))
                 
             # If we're calculating excited states with HF or DFT, call escf.
             if self.properties['es']['calc'] and (self.method['hf']['calc'] or self.method['dft']['calc']):
-                modules.append("escf")
+                modules.append(Turbomole_module("escf"))
                 
             # If we're using non-RI MP2, add mpgrad.
             if self.method['mp']['calc'] and self.method['mp']['level'] == "MP2" and not self.method['ri']['correlated']['calc']:
-                modules.append("mpgrad")
+                modules.append(Turbomole_module("mpgrad"))
                 
             # If we're using RI-MP2, CSS, CIS(D), ADC(2) or CC2, add ricc2.
             # TODO: Need to check CCS is run with ricc2...
             elif (self.method['mp']['calc'] and self.method['mp']['level'] in ("MP2", "CIS(D)", "ADC(2)")) or (self.method['cc']['calc'] and self.method['cc']['level'] in ("CCS", "CC2")):
-                modules.append("ricc2")
+                modules.append(Turbomole_module("ricc2"))
             
             # Finally, if we're using a higher order method, use ccsdf12.
             if (self.method['mp']['calc'] and self.method['mp']['level'] in ("MP3", "MP4")) or (self.method['cc']['calc'] and self.method['cc']['level'] in ("CCSD", "CCSD(T)")):
-                modules.append("ccsdf12")
+                modules.append(Turbomole_module("ccsdf12"))
                 
         # Finally, if we've been asked for frequencies, add aoforce or NumForce as appropriate.
         if self.properties['freq']['calc']:
@@ -318,15 +318,15 @@ class Turbomole_AI(Turbomole, AI_calculation_mixin):
                 
             # aoforce requires less setup than NumForce.
             if not numerical:
-                modules.append("aoforce")
+                modules.append(Turbomole_module("aoforce"))
                 
             else:
                 # These options look similar to those for jobex, but are subtly different.
-                numforce_options = ["NumForce"]
+                numforce = Turbomole_module("NumForce")
                 
                 # Add -ri flag if appropriate.
                 if self.methods['ri']['coulomb']['calc'] or self.methods['ri']['correlated']['calc']:
-                    numforce_options.append("-ri")
+                    numforce.args.append("-ri")
                 
                 # Choose level.
                 if self.method['hf']['calc'] or self.method['dft']['calc']:
@@ -334,17 +334,17 @@ class Turbomole_AI(Turbomole, AI_calculation_mixin):
                     pass
                 
                 elif self.method['mp']['calc'] and self.method['mp']['level'] == "mp2":
-                    numforce_options.append("-level mp2")
+                    numforce.args.extend(["-level" ,"mp2"])
                 
                 else:
                     # Assume ricc2 level.
-                    numforce_options.append("-level cc2")
+                    numforce.args.extend(["-level" ,"cc2"])
                     
                     # Add -rijk flag if appropriate.
                     if self.methods['ri']['hartree_fock']['calc']:
-                        numforce_options.append("-rijk")
+                        numforce.args.append("-rijk")
                         
-                modules.append(" ".join(numforce_options))
+                modules.append(numforce)
         
         if len(modules) == 0:
             raise Configurable_exception(self, "The modules to run could not be automatically determined.")
@@ -540,7 +540,7 @@ def make_orbital_calc(*, name, memory, num_cpu, orbitals = [], density = False, 
     :param modules: Turbomole modules to run.
     """
     if modules is None:
-        modules = ["dscf"]
+        modules = [Turbomole_module("dscf")]
         
     # Append -proper flag to skip recalc.
     modules = ["{} -proper".format(module) for module in modules]
@@ -615,7 +615,7 @@ def make_anadens_calc(*, name, memory, num_cpu, first_density, second_density, f
                 "output": file_name.stem
             }
         },
-        modules = ['ricc2 -fanal'],
+        modules = [Turbomole_module('ricc2', '-fanal')],
         # We don't need these.
         post = {
             "write_summary": False,
