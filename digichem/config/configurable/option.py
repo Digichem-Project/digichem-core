@@ -271,6 +271,7 @@ class Option():
             return self.dump_func(self, owning_obj, value)
         
         # TODO: Review this.
+        # TODO: Should add a check for list types that contain non builtins
         elif value.__class__.__module__ not in ('__builtin__', 'builtins'):
             return str(value)
         
