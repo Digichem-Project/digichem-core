@@ -38,7 +38,11 @@ properties:
 
 NEXT:
     - Turbomole MM
-    - Turbomole Methods
+    - Turbomole Functionals
+    - Turbomole MP2
+    - Turbomole RI-MP2
+    - Turbomole SCS-ADC(2)
+    - Turbomole SCS-CC2
 
 
 ---
@@ -56,7 +60,11 @@ properties:
         calc: True
 
 NEXT:
-    - Turbomole Methods
+    - Turbomole Functionals
+    - Turbomole MP2
+    - Turbomole RI-MP2
+    - Turbomole SCS-ADC(2)
+    - Turbomole SCS-CC2
 
 
 ---
