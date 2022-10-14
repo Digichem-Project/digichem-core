@@ -8,6 +8,7 @@ from mako.lookup import TemplateLookup
 import subprocess
 from itertools import chain
 import warnings
+import tempfile
 
 # Silico imports.
 from silico.submit.program.base import Program_target
@@ -189,6 +190,42 @@ class Turbomole(Program_target):
                     self.calculation.analysis['anadens']['operator'],
                     self.calculation.analysis['anadens']['second_density'],
             ))
+                
+        def mp2prep(self):
+            """Perform setup with the traditional (non-RI) MP2 setup script, mp2prep."""
+            # mp2prep is broken and cannot handle whitespace in the working directory.
+            # First, get ourselves a temp directory.
+            # NOTE: This is not actually guaranteed to be safe, because the temp directory
+            # could be changed by the user. We don't handle this eventuality for now.
+            with tempfile.TemporaryDirectory() as temp_dir:
+                # Copy the current output dir to a 'safe' location.
+                copytree(self.destination.calc_dir.output_directory, temp_dir)
+                
+                # Now run our script.
+                # Get our wrapper script.
+                wrapper_body = TemplateLookup(directories = str(silico.default_template_directory())).get_template("/submit/turbomole/mp2prep.mako").render_unicode(program = self)
+                print(wrapper_body)
+                            
+                # Run control to generate input.
+                try:
+                    subprocess.run(
+                        ("bash",),
+                        input = wrapper_body,
+                        stdout = subprocess.PIPE,
+                        stderr = subprocess.STDOUT,
+                        universal_newlines = True,
+                        cwd = temp_dir,
+                        check = True
+                    )    
+                
+                except CalledProcessError as e:
+                    # Something went wrong.
+                    e.__context__ = None
+                    raise Submission_error(self, "mp2prep did not exit successfully:\n{}".format(e.stdout)) from e
+                
+                # All good, copy back to setup dir.
+                copytree(temp_dir, self.destination.calc_dir.output_directory)
+            
             
         def add_control_option(self, option):
             """
