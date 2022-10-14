@@ -313,7 +313,7 @@ class Turbomole(Program_target):
             
             # Sanity check the $PATH variable.
             if " " in os.environ['PATH']:
-                warnings.warn("The $PATH environmental variable contains whitespace. This is not supported by the DSCF Turbomole module and will likely lead to calculation failure.")
+                warnings.warn("The $PATH environmental variable contains whitespace. This is not supported by the dscf Turbomole module and will likely lead to calculation failure.")
             
             # If we have a directory calc, copy the old directory to our new Prep directory.
             if isinstance(self.calculation.input_coords, Calculation_directory_input):
