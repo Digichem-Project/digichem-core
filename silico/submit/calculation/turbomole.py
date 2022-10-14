@@ -30,8 +30,12 @@ class Turbomole_module():
         :param *args: Additional command line arguments.
         """
         self.command = command
-        self.name = Path(command).name
         self.args = args
+        
+    @property
+    def name(self):
+        """The name of this module."""
+        return Path(self.command).name
     
     @classmethod
     def from_command(self, module_string):
