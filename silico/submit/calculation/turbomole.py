@@ -1,6 +1,8 @@
 # General imports.
 from mako.lookup import TemplateLookup
 from pathlib import Path
+import shlex
+import itertools
 
 # Silico imports.
 from silico.submit.calculation.base import Concrete_calculation,\
@@ -14,9 +16,42 @@ from silico.exception.configurable import Configurable_option_exception,\
     Configurable_exception
 from silico.submit.translate import Basis_set
 from silico.submit.calculation.base import validate_method as parent_validate_method
-from silico.exception.base import Silico_exception
 
-                
+
+class Turbomole_module():
+    """Class that represents a Turbomole sub-program (module)."""
+    
+    
+    def __init__(self, command, *args):
+        """
+        Constructor for Turbomole modules.
+        
+        :param command: The command to run the module. In most cases, this can be a single command (rather than a full path), such as 'dscf'.
+        :param *args: Additional command line arguments.
+        """
+        self.command = command
+        self.name = Path(command).name
+        self.args = args
+    
+    @classmethod
+    def from_command(self, module_string):
+        """
+        Build a turbomole module object from a single string.
+        """
+        # Split like the shell would.
+        module_parts = shlex.split(module_string)
+        return self(module_parts[0], *module_parts[1:])
+    
+    def to_command(self):
+        """
+        Get the full command to execute this module, correctly escaped for the shell.
+        """
+        return " ".join([shlex.quote(str(method_part)) for method_part in itertools.chain((self.command,), self.args)])
+    
+    def __str__(self):
+        return " ".join([str(method_part) for method_part in itertools.chain((self.command,), self.args)])
+
+
 class Turbomole_memory(Memory):
     """
     A class for representing memory quantities in formats suitable for turbomole.
@@ -45,7 +80,7 @@ class Turbomole(Concrete_calculation):
         memory = Option(type = Turbomole_memory,),
         parallel_mode = Option(help = "The type of parallelization to use. SMP uses shared memory and therefore is only suitable for parallelization across a single node, while MPI uses message-passing between processes and so can be used across multiple nodes. Use 'linear' to disable parallelization.", default = "SMP", choices = ("SMP", "MPI", "linear"), type = str)
     )
-    modules = Option(help = "A list of turbomole commands/programs to execute in order.", list_type = tuple, type = str, required = True)
+    modules = Option(help = "A list of turbomole commands/programs to execute in order.", list_type = tuple, type = Turbomole_module.from_command, required = True)
     
 
 def validate_bse(option, owning_obj, value):
@@ -187,7 +222,7 @@ class Turbomole_AI(Turbomole, AI_calculation_mixin):
         )
     )
     
-    _modules = Option("modules", help = "Manually set the Turbomole modules to call. If not specified, these will be determined automatically.", type = str, list_type = list, default = ())
+    _modules = Option("modules", help = "Manually set the Turbomole modules to call. If not specified, these will be determined automatically.", required = False, default = ())
     
     @property
     def modules(self):
@@ -661,5 +696,5 @@ class Turbomole_UFF(Turbomole):
         
     
     # We only have one module to run.
-    modules = ("uff",)
+    modules = [Turbomole_module("uff")]
     
