@@ -30,7 +30,7 @@ class Turbomole_module():
         :param *args: Additional command line arguments.
         """
         self.command = command
-        self.args = args
+        self.args = list(args)
         
     @property
     def name(self):
