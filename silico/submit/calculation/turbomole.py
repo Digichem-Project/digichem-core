@@ -90,7 +90,7 @@ class Turbomole(Concrete_calculation):
     
 
 def validate_bse(option, owning_obj, value):
-    """Function to check that a basis set exchange basis set has not been chosen (these are not yet supported for Turbomoles)."""
+    """Function to check that a basis set exchange basis set has not been chosen (these are not yet supported for Turbomole)."""
     if not option.default(owning_obj) == value:
         raise Configurable_option_exception(owning_obj, option, "BSE basis sets are not currently supported for Turbomole.")
     
