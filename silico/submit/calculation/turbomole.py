@@ -395,7 +395,7 @@ class Turbomole_AI(Turbomole, AI_calculation_mixin):
         line_parts.append(self.method['scs']['method'])
         
         # If we've got a specific COS factor, use that.
-        if self.method['scs']['oppsoite'] is not None:
+        if self.method['scs']['opposite'] is not None:
             line_parts.append("cos=" + self.method['scs']['opposite'])
             
         # And CSS factor.
