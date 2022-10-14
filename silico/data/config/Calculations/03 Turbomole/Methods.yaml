@@ -40,8 +40,8 @@ post:
 # Convergence criteria.
 method:
     mm:
-    econv: 0.10D-10
-    gconv: 0.10D-10
+        econv: 0.10D-10
+        gconv: 0.10D-10
     
 properties:
     opt:
