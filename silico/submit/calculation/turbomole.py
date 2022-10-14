@@ -98,7 +98,7 @@ def validate_method(option, owning_obj, value):
     
     # Panic if we're not using RI and we are using ADC(2) or CC2 (where it is mandatory).
     if not value['ri']['correlated']['calc'] and (\
-            (value['mp']['calc'] and value['mp']['method'] in ["ADC(2)", "MP3", "MP4"]) or \
+            (value['mp']['calc'] and value['mp']['level'] in ["ADC(2)", "MP3", "MP4"]) or \
             value['cc']['calc']
         ):
         raise Configurable_option_exception(owning_obj, option, "The resolution of the identity approximation for correlated methods (method:ri:correlated:calc) must be turned on to use ADC(2), MP3, MP4, or any coupled cluster method.")
