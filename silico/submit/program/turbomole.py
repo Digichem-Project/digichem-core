@@ -380,8 +380,8 @@ class Turbomole(Program_target):
             # setup scripts.
             modules = self.calculation.modules
             for index, module in enumerate(modules):
-                # If the module is mpgrad, run mp2prep first.
-                if module.name == "mpgrad":
+                # If the module is mpgrad (or MP2 jobex), run mp2prep first.
+                if module.name == "mpgrad" or (module.name == "jobex" and self.calculation.method['mp']['calc'] and self.calculation.method['mp']['level'] == "MP2" and not self.calculation.method['ri']['correlated']['calc']):
                     silico.log.get_logger().info("Running mpgrad setup script: mp2prep")
                     
                     self.mp2prep()
