@@ -82,6 +82,8 @@ class Turbomole(Concrete_calculation):
     # Configurable options.
     performance = Options(
         memory = Option(type = Turbomole_memory,),
+        # See issue #36 for more information on this.
+        intel_AVX2_fix = Option(help = "Whether to disable the AVX2 CPU extensions by setting MKL_ENABLE_INSTRUCTIONS=SSE4_2 in the program environment. This option is required to fix a bug in some turbomole modules (ricc2 at least) which occurs on some intel CPUs. Setting this option when it is not required is likely to incur a performance penalty.", type = bool, default = False),
         parallel_mode = Option(help = "The type of parallelization to use. SMP uses shared memory and therefore is only suitable for parallelization across a single node, while MPI uses message-passing between processes and so can be used across multiple nodes. Use 'linear' to disable parallelization.", default = "SMP", choices = ("SMP", "MPI", "linear"), type = str)
     )
     modules = Option(help = "A list of turbomole commands/programs to execute in order.", list_type = tuple, type = Turbomole_module.from_command, required = True)
@@ -136,8 +138,6 @@ class Turbomole_AI(Turbomole, AI_calculation_mixin):
     )
     
     performance = Options(
-        # See issue #36 for more information on this.
-        intel_AVX2_fix = Option(help = "Whether to disable the AVX2 CPU extensions by setting MKL_ENABLE_INSTRUCTIONS=SSE4_2 in the program environment. This option is required to fix a bug in some turbomole modules (ricc2 at least) which occurs on some intel CPUs. Setting this option when it is not required is likely to incur a performance penalty.", type = bool, default = False),
         define_timeout = Option(help = "The amount of time (s) to allow define to run for. After the given timeout, define will be forcibly stopped if it is still running, which normally occurs because something went wrong and define froze.", type = int, default = 60)
     )
     
