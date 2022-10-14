@@ -63,6 +63,7 @@ NEXT:
 
 
 performance:
+    intel_AVX2_fix: True
     memory: 80GB
     num_cpu: 32
 
