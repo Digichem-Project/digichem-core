@@ -392,20 +392,32 @@ class Option():
         if not self.is_default(owning_obj, dict_obj) and value is not None:
             # If we are a list type, convert the type of value and also each element.
             if self.list_type is not None:
-                # First convert the list itself.
+                # We'll first check each item, building a new list as we go, then assign to the list type.
+                # We do this because some list types (tuple, for example), are immutable.
                 try:
-                    value = self.list_type(value)
-                except (TypeError, ValueError) as e:
-                    raise Configurable_option_exception(owning_obj, self, "value '{}' of type '{}' could not be converted to the list-like type '{}'".format(value, type(value).__name__, self.list_type)) from e
+                    temp_list = list(value)
                 
-                # Now check each element.
+                except (TypeError, ValueError) as e:
+                    raise Configurable_option_exception(owning_obj, self, "value '{}' of type '{}' could not be converted to list".format(value, type(value).__name__)) from e
+                
+                
+                # First, check each element.
                 if self.type_func is not None:
-                    for index, element in enumerate(value):
+                    for index, element in enumerate(temp_list):
                         try:
-                            value[index] = self.to_type(owning_obj, element)
+                            temp_list[index] = self.to_type(owning_obj, element)
                             
                         except (TypeError, ValueError) as e:
                             raise Configurable_option_exception(owning_obj, self, "item '{}') '{}' of type '{}' is of invalid type".format(index, element, type(element).__name__)) from e
+                
+                # Then convert the list itself.
+                try:
+                    value = self.list_type(temp_list)
+                    
+                except (TypeError, ValueError) as e:
+                    raise Configurable_option_exception(owning_obj, self, "value '{}' of type '{}' could not be converted to the list-like type '{}'".format(temp_list, type(temp_list).__name__, self.list_type)) from e
+                
+                
             else:
                 # Not a list type, just convert.
                 try:
