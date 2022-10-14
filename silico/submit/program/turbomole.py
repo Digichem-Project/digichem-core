@@ -170,10 +170,6 @@ class Turbomole(Program_target):
                 e.__context__ = None
                 raise Submission_error(self, "define did not exit successfully:\n{}".format(e.stdout)) from e
             
-            except Exception as e:
-                # Something else.
-                raise e from None
-            
             # Check the output from define to see if it ended happily or not.
             with open(self.define_output_path, "r") as define_output:
                 if "define ended abnormally" in tail(define_output, 1)[0]:
