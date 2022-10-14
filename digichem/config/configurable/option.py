@@ -438,8 +438,12 @@ class Option():
                 values = value
                 new_values = []
                 
-                for sub_value in values:
-                    new_values.append(self.validate_choices(sub_value, owning_obj, dict_obj))
+                try:
+                    for sub_value in values:
+                        new_values.append(self.validate_choices(sub_value, owning_obj, dict_obj))
+
+                except TypeError as e:
+                    raise Configurable_option_exception(owning_obj, self, "value '{}' is not iterable".format(value))
                     
                 value = new_values
                     
