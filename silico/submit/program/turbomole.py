@@ -146,7 +146,7 @@ class Turbomole(Program_target):
                 define_input.write(self.calculation.define_input)
             
             # Get our wrapper script.
-            wrapper_body = TemplateLookup(directories = str(silico.default_template_directory())).get_template("/submit/turbomole/define_wrapper.mako").render_unicode(program = self)
+            wrapper_body = TemplateLookup(directories = str(silico.default_template_directory())).get_template("/submit/turbomole/define.mako").render_unicode(program = self)
                         
             # Run control to generate input.
             try:
@@ -258,7 +258,7 @@ class Turbomole(Program_target):
             """
             # The turbomole program mdprep could help here?
             # Get our wrapper script.
-            wrapper_body = TemplateLookup(directories = str(silico.default_template_directory())).get_template("/submit/turbomole/turbomole_wrapper.mako").render_unicode(program = self)
+            wrapper_body = TemplateLookup(directories = str(silico.default_template_directory())).get_template("/submit/turbomole/module.mako").render_unicode(program = self, module = self.calculation.modules[0])
             
             # Copy atoms to prep dir.
             shutil.copy2(self.coord_file_path, self.destination.calc_dir.prep_directory)
