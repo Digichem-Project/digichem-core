@@ -252,7 +252,9 @@ class Turbomole_AI(Turbomole, AI_calculation_mixin):
             if self.method['hf']['calc'] or self.method['dft']['calc']:
                 jobex.args.extend(["-level", "scf"])
                 
-            elif self.method['mp']['calc'] and self.method['mp']['level'] == "MP2":
+            elif self.method['mp']['calc'] and self.method['mp']['level'] == "MP2" and not self.method['ri']['correlated']['calc']:
+                # Opt with mpgrad, this means we also need an initial dscf run so mp2prep will work properly.
+                modules.append(Turbomole_module("dscf"))
                 jobex.args.extend(["-level", "mp2"])
                 
             else:
