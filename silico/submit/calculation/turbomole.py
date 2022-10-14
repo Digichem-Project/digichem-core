@@ -684,6 +684,10 @@ class Turbomole_UFF(Turbomole):
         # TODO: Disable other options.
     )
     
+    # We only have one module to run.
+    #modules = Option( default = [Turbomole_module("uff")])
+    modules = [Turbomole_module("uff")]
+    
     electron = Options(help = "Electron occupancy options.",
             charge = Option(help = "The molecular charge. Leave blank to use the charge given in the input file.", default = None, type = int)
         )
@@ -708,6 +712,5 @@ class Turbomole_UFF(Turbomole):
         return self.electron['charge'] if self.electron['charge'] is not None else self.input_coords.charge
         
     
-    # We only have one module to run.
-    modules = [Turbomole_module("uff")]
+    
     
