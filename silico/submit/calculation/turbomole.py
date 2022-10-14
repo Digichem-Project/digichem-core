@@ -86,7 +86,7 @@ class Turbomole(Concrete_calculation):
         intel_AVX2_fix = Option(help = "Whether to disable the AVX2 CPU extensions by setting MKL_ENABLE_INSTRUCTIONS=SSE4_2 in the program environment. This option is required to fix a bug in some turbomole modules (ricc2 at least) which occurs on some intel CPUs. Setting this option when it is not required is likely to incur a performance penalty.", type = bool, default = False),
         parallel_mode = Option(help = "The type of parallelization to use. SMP uses shared memory and therefore is only suitable for parallelization across a single node, while MPI uses message-passing between processes and so can be used across multiple nodes. Use 'linear' to disable parallelization.", default = "SMP", choices = ("SMP", "MPI", "linear"), type = str)
     )
-    modules = Option(help = "A list of turbomole commands/programs to execute in order.", list_type = tuple, type = Turbomole_module.from_command, required = True)
+    modules = Option(help = "A list of turbomole commands/programs to execute in order.", list_type = tuple, type = Turbomole_module.from_command, required = True, dump_func = lambda option, owning_obj, value: [str(method) for method in value])
     
 
 def validate_bse(option, owning_obj, value):
