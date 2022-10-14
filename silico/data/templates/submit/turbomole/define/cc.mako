@@ -53,7 +53,7 @@ ${calculation.scs_line}
 ##
 ## Optimisation options.
 %if calculation.properties['opt']['calc']:
-geoopt ${calculation.post_HF_method}} (${calculation.properties['opt']['ricc2']['optimise_symmetry']} ${calculation.optimise_multiplicity})
+geoopt ${calculation.post_HF_method} (${calculation.properties['opt']['ricc2']['optimise_symmetry']} ${calculation.optimise_multiplicity})
 %endif
 ##
 ## End of ricc2.
