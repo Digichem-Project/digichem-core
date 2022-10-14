@@ -633,6 +633,15 @@ def make_anadens_calc(*, name, memory, num_cpu, first_density, second_density, f
     return calc_t
 
 
+def validate_uff_method(option, owning_obj, value):
+    """Validation function to check only mm has been chosen."""
+    for method in value:
+        if value[method]['calc'] and method != "mm":
+            raise Configurable_option_exception(owning_obj, object, "Only the mm (molecular mechanics) method is permitted for Turbomole-UFF")
+        
+    return True
+
+
 class Turbomole_UFF(Turbomole):
     """
     Universal force-field calculations with Turbomole.
@@ -647,7 +656,7 @@ class Turbomole_UFF(Turbomole):
     # The format of the output file containing coordinates.
     OUTPUT_COORD_TYPE = "tmol"
     
-    method = Options(
+    method = Options(validate = validate_uff_method,
         mm = Options(help = "Options for molecular mechanics calculations (MM).",
             calc = Option(help = "Whether to use the MM method.", type = bool, default = True),
             force_field = Option(help = "The force field to use. Currently, only UFF is available.", choices = ("UFF", ), default = "UFF"),
