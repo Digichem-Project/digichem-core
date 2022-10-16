@@ -65,26 +65,8 @@ class Program_target(Method_target):
             self.end_time = None
             self.duration = None
             
-            # A list of exceptions caught during the calculation. This will be re-raised once cleanup and analysis has been finished (attempted).
-            self.errors = []
-            
-        @property
-        def error(self):
-            """
-            Returns the first error caught in self.errors.
-            If there are no errors, returns None.
-            """
-            try:
-                return self.errors[0]
-            except IndexError:
-                return None
-            
-        @error.setter
-        def error(self, error):
-            """
-            Add a new caught exception to the list of internal exceptions.
-            """
-            self.errors.append(error)
+            # Whether an error occurred during the calculation and no further work should be done.
+            self.error = False
             
         @property
         def scratch_output(self):
@@ -130,8 +112,7 @@ class Program_target(Method_target):
                 # or something else went wrong.
                 
                 # Store the error for later so we can perform cleanup and write reports etc.
-                self.error = Submission_error(self, "Error executing calculation program")
-                self.error.__cause__ = e
+                silico.log.get_logger().error("Error during calculation execution")
                 
                 # Now perform cleanup.
                 self.end(False)
@@ -140,13 +121,9 @@ class Program_target(Method_target):
                 # Finished normally.
                 self.end(True)
                 
-            # If we got an error during the calc, re-raise it now.
-            if len(self.errors) > 0:
-                # Print later errors, re-raise the last.
-                for error in self.errors[1:]:
-                    silico.log.get_logger().error("", exc_info = error)
-                
-                raise self.errors[0]
+            # If we got an error during the calc, raise an exception now.
+            if self.error:
+                raise Submission_error(self, "An error occurred; stopping further processing")
     
         @property
         def success(self):
@@ -218,9 +195,11 @@ class Program_target(Method_target):
                 
                 try:
                     self.post()
-                except Exception as e:
+                    
+                except Exception:
                     # Save so we can do cleanup.
-                    self.error = e
+                    silico.log.get_logger().warning("Error during post processing", exc_info = True)
+                    self.error = True
                 
                 # Delete Flag.
                 self.destination.calc_dir.del_flag(Flag.POST)
@@ -402,7 +381,7 @@ class Program_target(Method_target):
                     raise Submission_error(self, "failed to process completed calculation results") from e
                 
                 # See if our calculation was successful or not.
-                if self.result.metadata.success and self.error is None:
+                if self.result.metadata.success and not self.error:
                     self.destination.calc_dir.set_flag(Flag.SUCCESS)
                 else:
                     # No good.
@@ -445,13 +424,16 @@ class Program_target(Method_target):
             # Next, load calc results.
             try:
                 self.parse_results()
+                
             except Exception as e:
-                self.error = e
+                silico.log.get_logger().error("Failed to process completed calculation results", exc_info = True)
+                self.error = True
             
             # If we've been asked to write result files, do so.
             if self.calculation.post_process['write_summary']:
                 try:
                     self.write_summary_files()
+                    
                 except Exception:
                     silico.log.get_logger().warning("Failed to write calculation result summary files", exc_info = True)
                 
