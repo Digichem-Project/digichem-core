@@ -22,15 +22,22 @@ class Turbomole_module():
     """Class that represents a Turbomole sub-program (module)."""
     
     
-    def __init__(self, command, *args):
+    def __init__(self, command, *args, unsafe = None):
         """
         Constructor for Turbomole modules.
         
         :param command: The command to run the module. In most cases, this can be a single command (rather than a full path), such as 'dscf'.
         :param *args: Additional command line arguments.
+        :param unsafe: If True, indicates that the module cannot be run in a directory that contains whitespace. If None is given, unsafe will be determined based on the name of the module.
         """
         self.command = command
         self.args = list(args)
+        
+        if unsafe is None:
+            self.unsafe = self.name in ["mp2prep", "NumForce"]
+    
+        else:
+            self.unsafe = unsafe
         
     @property
     def name(self):

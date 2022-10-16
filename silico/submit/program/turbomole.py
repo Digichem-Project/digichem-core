@@ -187,10 +187,15 @@ class Turbomole(Program_target):
                     self.calculation.analysis['anadens']['operator'],
                     self.calculation.analysis['anadens']['second_density'],
             ))
-                
-        def mp2prep(self):
-            """Perform setup with the traditional (non-RI) MP2 setup script, mp2prep."""
-            # mp2prep is broken and cannot handle whitespace in the working directory.
+        
+        
+        def wrap_unsafe_module(self, run_func):
+            """
+            Wrap a function so that the current Output dir is first copied to a 'safe' location (one without whitespace in the path etc)
+            and the function is called with the the new safe location as an argument.
+            
+            :param run_func: The function to call. The path to the temp dir is passed as an argument.
+            """
             # First, get ourselves a temp directory.
             # NOTE: This is not actually guaranteed to be safe, because the temp directory
             # could be changed by the user. We don't handle this eventuality for now.
@@ -198,14 +203,28 @@ class Turbomole(Program_target):
                 # Copy the current output dir to a 'safe' location.
                 copytree(self.destination.calc_dir.output_directory, temp_dir)
                 
-                # Now run our script.
-                # Get our wrapper script.
-                wrapper_body = TemplateLookup(directories = str(silico.default_template_directory())).get_template("/submit/turbomole/mp2prep.mako").render_unicode(program = self)
-                print(wrapper_body)
-                            
-                # Run control to generate input.
+                # Delete the main output file from this copied dir
+                # (because it's not actually going to be written to, and otherise
+                # it will overwrite our actual log file when we copy back(.
+                Path(temp_dir, self.turbomole_output_path.name).unlink(True)
+                
+                # Now run the program.
                 try:
-                    subprocess.run(
+                    run_func(temp_dir)
+                
+                finally:
+                    # Copy back the temp dir so we can see what happened.
+                    copytree(temp_dir, self.destination.calc_dir.output_directory)
+        
+                
+        def mp2prep(self):
+            """Perform setup with the traditional (non-RI) MP2 setup script, mp2prep."""
+            # mp2prep is broken and cannot handle whitespace in the working directory.
+            # Get our wrapper script.
+            wrapper_body = TemplateLookup(directories = str(silico.default_template_directory())).get_template("/submit/turbomole/mp2prep.mako").render_unicode(program = self)
+            
+            def mp2prep_run_func(temp_dir):
+                subprocess.run(
                         ("bash",),
                         input = wrapper_body,
                         stdout = subprocess.PIPE,
@@ -213,16 +232,16 @@ class Turbomole(Program_target):
                         universal_newlines = True,
                         cwd = temp_dir,
                         check = True
-                    )    
+                    )
                 
-                except CalledProcessError as e:
-                    # Something went wrong.
-                    e.__context__ = None
-                    raise Submission_error(self, "mp2prep did not exit successfully:\n{}".format(e.stdout)) from e
+            try:
+                self.wrap_unsafe_module(mp2prep_run_func)
                 
-                # All good, copy back to setup dir.
-                copytree(temp_dir, self.destination.calc_dir.output_directory)
-            
+            except CalledProcessError as e:
+                # Something went wrong.
+                e.__context__ = None
+                raise Submission_error(self, "mp2prep did not exit successfully:\n{}".format(e.stdout)) from e
+        
             
         def add_control_option(self, option):
             """
@@ -397,15 +416,23 @@ class Turbomole(Program_target):
                     wrapper_file.write(wrapper_body)
                 
                 # Run Turbomole!
-                subprocess.run(
-                    ("bash",),
-                    input = wrapper_body,
-                    stdout = subprocess.PIPE,
-                    stderr = subprocess.STDOUT,
-                    universal_newlines = True,
-                    cwd = self.working_directory,
-                    check = True
-                )
+                def run_func(working_dir):
+                    subprocess.run(
+                        ("bash",),
+                        input = wrapper_body,
+                        stdout = subprocess.PIPE,
+                        stderr = subprocess.STDOUT,
+                        universal_newlines = True,
+                        cwd = working_dir,
+                        check = True
+                    )
+                    
+                # Decide if we need a safe working dir or not.
+                if module.unsafe:
+                    self.wrap_unsafe_module(run_func)
+                    
+                else:
+                    run_func(self.working_directory)
         
         def parse_results(self):
             """
