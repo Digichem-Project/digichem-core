@@ -58,6 +58,9 @@ properties:
         iterations: 100
     freq:
         calc: True
+        
+scf:
+    convergence: 8
 
 NEXT:
     - Turbomole Functionals
@@ -77,6 +80,9 @@ ALIAS: Frequency
 properties:
     freq:
         calc: True
+        
+scf:
+    convergence: 8
 
 NEXT:
     - Turbomole Methods
