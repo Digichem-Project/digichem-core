@@ -327,7 +327,7 @@ class Turbomole_AI(Turbomole, AI_calculation_mixin):
                 numforce = Turbomole_module("NumForce")
                 
                 # Add -ri flag if appropriate.
-                if self.methods['ri']['coulomb']['calc'] or self.methods['ri']['correlated']['calc']:
+                if self.method['ri']['coulomb']['calc'] or self.method['ri']['correlated']['calc']:
                     numforce.args.append("-ri")
                 
                 # Choose level.
@@ -343,7 +343,7 @@ class Turbomole_AI(Turbomole, AI_calculation_mixin):
                     numforce.args.extend(["-level" ,"cc2"])
                     
                     # Add -rijk flag if appropriate.
-                    if self.methods['ri']['hartree_fock']['calc']:
+                    if self.method['ri']['hartree_fock']['calc']:
                         numforce.args.append("-rijk")
                         
                 modules.append(numforce)
