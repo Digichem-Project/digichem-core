@@ -262,6 +262,9 @@ class Turbomole_AI(Turbomole, AI_calculation_mixin):
             elif self.method['mp']['calc'] and self.method['mp']['level'] == "MP2" and not self.method['ri']['correlated']['calc']:
                 # Opt with mpgrad, this means we also need an initial dscf run so mp2prep will work properly.
                 modules.append(Turbomole_module("dscf"))
+                # Also add mp2prep (with gradient option).
+                modules.append(Turbomole_module("mp2prep", "-g"))
+                # Jobex itself.
                 jobex.args.extend(["-level", "mp2"])
                 
             else:
@@ -301,6 +304,10 @@ class Turbomole_AI(Turbomole, AI_calculation_mixin):
                 
             # If we're using non-RI MP2, add mpgrad.
             if self.method['mp']['calc'] and self.method['mp']['level'] == "MP2" and not self.method['ri']['correlated']['calc']:
+                # Also add mp2prep so mpgrad will work properly.
+                # Use the gradient option if we're going to calculate frequencies, otherwise just energy.
+                modules.append(Turbomole_module("mp2prep", "-g" if self.properties['freq']['calc'] else "-e"))
+                # And mpgrad itself.
                 modules.append(Turbomole_module("mpgrad"))
                 
             # If we're using RI-MP2, CSS, CIS(D), ADC(2) or CC2, add ricc2.

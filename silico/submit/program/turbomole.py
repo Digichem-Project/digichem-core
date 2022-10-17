@@ -216,32 +216,6 @@ class Turbomole(Program_target):
                     # Copy back the temp dir so we can see what happened.
                     copytree(temp_dir, self.destination.calc_dir.output_directory)
         
-                
-        def mp2prep(self):
-            """Perform setup with the traditional (non-RI) MP2 setup script, mp2prep."""
-            # mp2prep is broken and cannot handle whitespace in the working directory.
-            # Get our wrapper script.
-            wrapper_body = TemplateLookup(directories = str(silico.default_template_directory())).get_template("/submit/turbomole/mp2prep.mako").render_unicode(program = self)
-            
-            def mp2prep_run_func(temp_dir):
-                subprocess.run(
-                        ("bash",),
-                        input = wrapper_body,
-                        stdout = subprocess.PIPE,
-                        stderr = subprocess.STDOUT,
-                        universal_newlines = True,
-                        cwd = temp_dir,
-                        check = True
-                    )
-                
-            try:
-                self.wrap_unsafe_module(mp2prep_run_func)
-                
-            except CalledProcessError as e:
-                # Something went wrong.
-                e.__context__ = None
-                raise Submission_error(self, "mp2prep did not exit successfully:\n{}".format(e.stdout)) from e
-        
             
         def add_control_option(self, option):
             """
@@ -265,6 +239,7 @@ class Turbomole(Program_target):
                     control_file_out.write(line)
             
             tmp_control_name.rename(control_name)
+        
             
         def UFF_define(self):
             """
@@ -399,12 +374,6 @@ class Turbomole(Program_target):
             # setup scripts.
             modules = self.calculation.modules
             for index, module in enumerate(modules):
-                # If the module is mpgrad (or MP2 jobex), run mp2prep first.
-                if module.name == "mpgrad" or (module.name == "jobex" and self.calculation.method['mp']['calc'] and self.calculation.method['mp']['level'] == "MP2" and not self.calculation.method['ri']['correlated']['calc']):
-                    silico.log.get_logger().info("Running mpgrad setup script: mp2prep")
-                    
-                    self.mp2prep()
-                    
                 # Start by announcing which module we're running.
                 silico.log.get_logger().info("Running module {}/{}: {}".format(index+1, len(modules), module.name))
                 

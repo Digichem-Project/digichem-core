@@ -43,7 +43,8 @@ export MKL_ENABLE_INSTRUCTIONS=SSE4_2
 %endif
 ##
 ## Now run the calculation module we've been given.
-${module.to_command()} >> ${shlex.quote(str(program.turbomole_output_path.resolve()))} 2>&1 || { >&2 echo "Failed to execute Turbomole module '${module.name}'"; exit 1; }
+## We add an extra option for the mp2prep module if we're using scratch.
+${module.to_command()} ${shlex.quote(str(program.scratch_base.resolve())) if module.name == "mp2prep" and program.scratch_base is not None else ""} >> ${shlex.quote(str(program.turbomole_output_path.resolve()))} 2>&1 || { >&2 echo "Failed to execute Turbomole module '${module.name}'"; exit 1; }
 ##
 ## Done
 exit $?
