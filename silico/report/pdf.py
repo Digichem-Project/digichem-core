@@ -1,16 +1,76 @@
-# General imports.
+import weasyprint
 from weasyprint import HTML
+from packaging import version
 from mako.lookup import TemplateLookup
 import shutil
+import warnings
 
 # Silico imports.
 import silico.log
 from silico.report.html import HTML_report
 
 
+# Check weasy version.
+if version.parse(weasyprint.VERSION) < version.parse("54.2"):
+    warnings.warn("Weasyprint version < 54.2 is only partially supported. Some elements of PDF reports may display incorrectly.")
+
+
 class PDF_report(HTML_report):
     """
     A report type that produces pdf output.
+    """
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.prog_version = silico.version
+        
+    def _write(self, output, **kwargs):
+        """
+        Write this PDF_report to file.
+        
+        :param output: Filename/path to a pdf file to write to.
+        """
+        # Call our parent first, which creates our html report and stores its path under self.report_html_file.
+        super()._write(output.with_suffix(".html"), **kwargs)
+        
+        # Get our pdf name. Same as 'output' in this case.
+        self.pdf_file = output
+        # We also need an absolute path for weasyprint.
+        self.absolute_pdf_file_path = self.pdf_file.resolve()
+
+        silico.logging.get_logger().info("Writing PDF file '{}'".format(self.pdf_file))
+        
+        # Now render our finished pages.
+        main_doc = HTML(self.report_html_file, base_url=str(self.absolute_pdf_file_path)).render()
+        
+        # Finally, write the file to disk.
+        main_doc.write_pdf(self.pdf_file)
+        
+    def cleanup(self):
+        """
+        Remove any intermediate files that may have been created by this object.
+        """
+        super().cleanup()
+        # Delete our HTML file.
+        try:
+            self.report_html_file.unlink()
+        except FileNotFoundError:
+            # This is ok.
+            pass
+        
+        # And delete our static directory.
+        try:
+            shutil.rmtree(str(self.static_dir))
+        except FileNotFoundError:
+            # This is ok?
+            pass
+
+
+class PDF_report_legacy(HTML_report):
+    """
+    A report type that produces pdf output.
+    
+    This legacy class computes page header and footer elements manually. This is no longer necessary (and is actually unsupported) from weasyprint 55.0.
     
     A lot of the code in this file comes from the weasyprint tutorial at: https://weasyprint.readthedocs.io/en/stable/tips-tricks.html
     Here are the notes from that snippet:
@@ -29,19 +89,22 @@ class PDF_report(HTML_report):
       discussion in the library github issues: https://github.com/Kozea/WeasyPrint/issues/92
     """
     
-    def __init__(self, *args, **kwargs):
+    def __init__(self, result, *, options, calculation = None):
         """
         Constructor for PDF report objects.
         
+        :param result: A parsed result set object to render a report of.
+        :param options: A silico Config dictionary which contains various options that control the appearance of this report.
+        :param calculation: An optional calculation class about which this report is being written. This is used by the submission mechanism to reuse certain calculation options when, for example, calculating Turbomole cube files and Gaussian NTOs etc.
         """
-        super().__init__(*args, **kwargs)
+        super().__init__(result, options = options, calculation = calculation)
         self.prog_version = silico.version
     
     def _write(self, output, **kwargs):
         """
         Write this PDF_report to file.
         
-        :param output: Filename/path to a pdf file to write.
+        :param output: Filename/path to a pdf file to write to.
         """
         # Call our parent first, which creates our html report and stores its path under self.report_html_file.
         super()._write(output.with_suffix(".html"), **kwargs)

@@ -22,7 +22,7 @@ NEXT:
 
 TAG: Long SLURM
 
-partition: Long
+partition: long
 time: 21-00:00:00
 
 NEXT:

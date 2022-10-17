@@ -68,6 +68,7 @@ class Submit_program(Program):
         sub_parser.add_argument("-M", "--multiplicity", "--mult", help = "Set the multiplicity of all input files. Note that certain calculations will override this value", default = None, type = int)
         sub_parser.add_argument("--gen3D", help = "Whether to generate 3D coordinates from any given 2D input coordinate files (which will scramble existing atom coordinates). The default is yes, but only if it can be safely determined that the loaded coordinates are not already in 3D)", type = to_bool, default = True)
         sub_parser.add_argument("-p", "--prepare-only", help = "Whether to only perform setup for the calculation without actually performing it", action = "store_true")
+        sub_parser.add_argument("--exit-status", help = "If given and the submission is successful, the exit status set by silico will be a positive integer equal to the number of files successfully submitted. If not given (the default), the exit status will be zero if all given files were submitted successfully, and a negative integer otherwise.", action = "store_true")
         
         return sub_parser
     
@@ -157,7 +158,16 @@ class Submit_program(Program):
         
         self.logger.info("Successfully submitted {} file(s)".format(done))
         
-        return done
+        # What we return depends on the --exit-status argument.
+        if not self.args.exit_status:
+            # This the orthodox return type.
+            # Return zero if all our calcs submitted successfully, -1 otherwise.
+            return 0 if done == len(self.coords) else -1
+        
+        else:
+            # This is the unorthodox return type.
+            # Return the number of calcs submitted successfully.
+            return done
         
     def load_interface(self, window):
         """

@@ -1,12 +1,19 @@
-# Silico (beta)
+# Silico: Computational Chemistry Simplified
 
-A software package for managing and automating various aspects of computational chemisty, Silico provides programs and Python 3 libraries that support:
- - Submission to computational programs through a unified interface
- - Simultaneous submission of multiple molecules/systems
- - Automatic in series submission of results from completed calculations to subsequent calculations
- - Automatic conversion of input files (including Chemdraw) to types appropriate for the selected computational program via integration with [Openbabel v3](https://github.com/openbabel/openbabel)
- - Automatic and manual analysis of computation results, including tabulation to csv format of multiple results, via integration with [cclib](https://github.com/cclib/cclib/)
- - Automatic and manual generation of pdf reports from computation results, including rendered 3D structures, orbital images and graphs, via integration with [Weasyprint](https://weasyprint.org/), [VMD](https://www.ks.uiuc.edu/Research/vmd/) and [Matplotlib](https://matplotlib.org/)
+A software toolkit that aims to reduce the complexity of computational chemistry, particularly for newcomers,
+by automating and/or simplifying the computational pipepline.
+
+## Features
+
+ - Handling of the entire submission process from start to finish. The user does not not need to write batch/submission files or worry about calling the CC programs themselves.
+ - Separation of the concepts of ‘starting geometries’ (coordinates) and ‘calculation options’ (methods) into separate logical units.
+ - Support for ca. 150 different input coordinate formats. Any of these formats can be used interchangeably with any of the supported CC programs.
+ - Introduction of the concept of calculation ‘methods’ which define all aspects of a computation (except any starting geometries). Support for specifying methods as individual files (in program-independent, YAML format) or by selecting from an internal database.
+ - Support for submitting multiple input coordinates simultaneously, facilitating large scale computational screens with ease.
+ - Support for queueing multiple methods sequentially to support compound jobs in which one calculation depends on the output geometry of another.
+ - Automated parsing and analysis of completed calculation results and saving of the resulting data to formats which can be easily read and processed by the user, including plain text and comma-separated values (CSV).
+ - Automation of common post-processing tasks, including the generation of 3D structure images, orbital density plots, natural-transition orbitals, difference density plots and simulated spectra.
+ - Automated generation of a summary report from completed calculations. This report is saved in portable-document format (PDF) for easy reading and distribution.
  
 ## Support
 Silico currently supports the following:
@@ -20,10 +27,7 @@ Silico currently supports the following:
  - Turbomole
  
 #### Python
- - Python 3.6 (and above)
- - Python < 3.6 (or missing entirely) through PyInstaller frozen packages (programs only)
+ - Python >= 3.7
  
 #### Operating Systems
  - Linux
- - CentOS 7.7 (frozen packages available)
- - CentOS 6.10 (frozen packages available, no report generation)

@@ -19,9 +19,10 @@ NEXT:
     - Gaussian Acetonitrile
     - Gaussian Benzene
     - Gaussian CycloHexane
-    - Gaussian DiethylEther
-    - Gaussian DiMethylSulfoxide
     - Gaussian Dichloromethane
+    - Gaussian DiethylEther
+    - Gaussian n,n-DiMethylFormamide
+    - Gaussian DiMethylSulfoxide
     - Gaussian Ethanol
     - Gaussian EthylEthanoate
     - Gaussian Methanol
@@ -146,6 +147,18 @@ TAG: Gaussian Dichloromethane
 ALIAS: DCM
 
 solvent: Dichloromethane
+
+NEXT: [Gaussian Basis Sets]
+
+
+---
+
+
+SUB_TYPE: partial
+TAG: Gaussian n,n-DiMethylFormamide
+ALIAS: DMF
+
+solvent: n,n-DiMethylFormamide
 
 NEXT: [Gaussian Basis Sets]
 

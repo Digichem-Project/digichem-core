@@ -99,25 +99,26 @@ class Report_program(Program):
             default_base_name = result.metadata.name + ".atoms.pdf"
         
         # Decide on our output file.
+        # TODO: This doesn't work if we get called twice...
         if self.args.pdf_file is not None:
             # We've been given a specific file to write to. No problems.
-            self.args.pdf_file = Path(self.args.pdf_file)
+            pdf_file = Path(self.args.pdf_file)
         elif self.args.output is not None:
             # We've been given the more general 'output' option, we need to decide whether this aught to be a file or directory.
             if self.args.output.suffix == ".pdf":
                 # It's a file! Set pdf_file appropriately.
-                self.args.pdf_file = self.args.output
+                pdf_file = self.args.output
             else:
                 # It's a directory. Decide on a fitting name from our input file.
-                self.args.pdf_file = Path(self.args.output, default_base_name)
+                pdf_file = Path(self.args.output, default_base_name)
             
         # Now make (compile?) and save our report.
-        self.logger.info("Generating report '{}'...".format(self.args.pdf_file))
+        self.logger.info("Generating report '{}'...".format(pdf_file))
         try:
-            report.write(self.args.pdf_file, report_type = self.args.type, report_style = self.args.style)
+            report.write(pdf_file, report_type = self.args.type, report_style = self.args.style)
         except Exception as e:
-            raise Silico_exception("Failed to generate report '{}'".format(self.args.pdf_file)) from e
+            raise Silico_exception("Failed to generate report '{}'".format(pdf_file)) from e
         
         # Done.
-        self.logger.info("Done generating report '{}'".format(self.args.pdf_file))
+        self.logger.info("Done generating report '{}'".format(pdf_file))
         

@@ -40,7 +40,7 @@ class HTML_report(Report):
         """
         Write this HTML_report to file.
         
-        :param report_template: Filename (relative to the report/report subdirectory of the template dir) of the report to make.
+        :param output: Path to a html to file write to.
         """
         # Call our parent first (this creates a lot of images and calls make() for us).
         super()._write(output.parent, **kwargs)

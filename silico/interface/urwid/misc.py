@@ -64,15 +64,20 @@ class Blank(urwid.Pile):
         """
         """
         super().__init__([])
-        
+
+# TODO: This class already offers quite a lot of functionality over the base urwid one.
+# It should probably be re-written to rely less on the urwid base class and/or merged into urwid.
 class IntEditZero(urwid.numedit.IntegerEdit):
     """
     An int edit widget that allows specifying zeroes.
     """
     
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, allowNegative = False, **kwargs):
         super().__init__(*args, **kwargs)
         self.trimLeadingZeros = False
+        self.allowNegative = allowNegative
+        if self.allowNegative:
+            self._allowed += '-'
         
     def value(self):
         # Urwid returns a Decimal...
