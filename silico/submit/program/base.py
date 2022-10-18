@@ -112,7 +112,7 @@ class Program_target(Method_target):
                 # or something else went wrong.
                 
                 # Store the error for later so we can perform cleanup and write reports etc.
-                silico.log.get_logger().error("Error during calculation execution")
+                silico.log.get_logger().error("Error during calculation execution", exc_info = True)
                 
                 # Now perform cleanup.
                 self.end(False)
