@@ -38,7 +38,7 @@ class PDF_report(HTML_report):
         # We also need an absolute path for weasyprint.
         self.absolute_pdf_file_path = self.pdf_file.resolve()
 
-        silico.logging.get_logger().info("Writing PDF file '{}'".format(self.pdf_file))
+        silico.log.get_logger().info("Writing PDF file '{}'".format(self.pdf_file))
         
         # Now render our finished pages.
         main_doc = HTML(self.report_html_file, base_url=str(self.absolute_pdf_file_path)).render()
