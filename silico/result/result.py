@@ -248,12 +248,12 @@ class Result_set(Result_object):
     def dump(self, silico_options):
         return {
             "metadata": self.metadata.dump(silico_options),
-            "ground_state": self.ground_state.dump(silico_options),
+            "ground_state": self.ground_state.dump(silico_options) if self.ground_state is not None else None,
             "energies": self.energies.dump(silico_options),
             "atoms": self.alignment.dump(silico_options),
             "orbitals": self.orbitals.dump(silico_options),
             "beta_orbitals": self.beta_orbitals.dump(silico_options),
-            "pdm": self.pdm.dump(silico_options),
+            "pdm": self.pdm.dump(silico_options) if self.pdm is not None else None,
             "excited_states": self.excited_states.dump(silico_options),
             "soc": self.soc.dump(silico_options),
             "vibrations": self.vibrations.dump(silico_options),
