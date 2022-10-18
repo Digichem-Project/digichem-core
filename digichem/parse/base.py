@@ -127,7 +127,7 @@ class Parser(Result_set):
                     break
                         
             # Look for other files.
-            for maybe_file_name in ("basis", "control", "mos", "alpha", "beta", "coord", "gradient", "aoforce", "job.last"):
+            for maybe_file_name in ("basis", "control", "mos", "alpha", "beta", "coord", "gradient", "aoforce", "job.last", "numforce/aoforce.out"):
                 maybe_file_path = Path(parent, maybe_file_name)
                 
                 if maybe_file_path.exists():
