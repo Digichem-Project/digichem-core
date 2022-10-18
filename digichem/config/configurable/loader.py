@@ -16,7 +16,7 @@ from silico.exception.configurable import Configurable_loader_exception,\
 from silico.exception.base import Silico_exception
 from silico.config.configurable.base import Configurable_class_target
 from silico.misc.base import is_iter
-from silico.config.configurable.util import setopt
+from silico.config.configurable.util import setopt, getopt, hasopt
 
 # Make methods available. We do this because our loaders are going to eventually ask for one of these classes.
 # TODO: Importing all this here feels weird, perhaps this file should be moved to the submit package?
@@ -38,14 +38,14 @@ class Configurable_loader():
         """
         An identifying tag.
         """
-        return self.config.get('TAG', None)
+        return getopt(self.config, "link", "tag", default = None)
     
     @property
     def ALIAS(self):
         """
         An identifying alias.
         """
-        return self.config.get('ALIAS', self.config.get('TAG', None))
+        return getopt(self.config, "link", "alias", default = getopt(self.config, "link", "tag", default = None))
     
     @property
     def TOP(self):
@@ -55,7 +55,7 @@ class Configurable_loader():
         TOP defaults to TRUE unless this loader is listed as a child of another loader, in which case it defaults to FALSE.
         This value can also be overriden by the value given in the config.
         """
-        return self.config.get('TOP', self._TOP)
+        return getopt(self.config, "link", "top", default = self._TOP)
     
     @TOP.setter
     def TOP(self, value):
@@ -90,7 +90,7 @@ class Configurable_loader():
         
         # Check our tag name is valid (does not contain /).
         if self.TAG is not None and  "/" in self.TAG:
-            raise Configurable_loader_exception(self.config, self.TYPE, self.file_name, "the '/' character is not allowed in TAG names")
+            raise Configurable_loader_exception(self.config, self.TYPE, self.file_name, "the '/' character is not allowed in link:tag names")
         
     def __iter__(self):
         """
@@ -210,13 +210,7 @@ class Configurable_loader():
         #config['meta']['TYPE'] = self.TYPE
         setopt(config, 'meta', 'TYPE', value = self.TYPE)
         # These options have no meaning anymore.
-        config.pop('SUB_TYPE', None)
-        config.pop('TAG', None)
-        config.pop('ALIAS', None)
-        config.pop('NEXT', None)
-        config.pop('PARENTS', None)
-        config.pop('PREVIOUS', None)
-        config.pop('TOP', None)
+        config.pop('link', None)
         loader_path = config.pop('loader_path', None)
         
         # Try and get the configurable class.
@@ -254,9 +248,9 @@ class Configurable_loader():
     
     def find(self, tag):
         """
-        Find the first child loader that has a given TAG.
+        Find the first child loader that has a given tag.
         
-        :param tag: The TAG to search for.
+        :param tag: The tag to search for.
         :returns: A list of loaders leading to the one with the given tag.
         """
         # A list of found configurables.
@@ -265,10 +259,10 @@ class Configurable_loader():
         # Panic if we've got nothing.
         if len(loader_lists) == 0:
             if self.TAG is not None:
-                message = "Could not find a definition with TAG '{}' that is a child of '{}'".format(tag, self.TAG)
+                message = "Could not find a definition with link:tag '{}' that is a child of '{}'".format(tag, self.TAG)
             
             else:
-                message = "Could not find a definition with TAG '{}'".format(tag)
+                message = "Could not find a definition with link:tag '{}'".format(tag)
             raise Silico_exception(message)
         
         # We want the match that is closest to us (fewest path steps away).
@@ -288,7 +282,7 @@ class Configurable_loader():
         """
         Search through our child loaders (iteratively) for the first that matches a given tag.
         
-        :param tag: The TAG to searcg for.
+        :param tag: The tag to search for.
         :returns: A list of loader lists (a list leading to the loader with the given tag).
         """
         # A list of found configurables.
@@ -514,7 +508,7 @@ class Partial_loader(Configurable_loader):
     
     def path_by_tags(self, tag_list, *, path = None, allow_incomplete = True):
         """
-        Build a list of loaders based on a list of TAG names.
+        Build a list of loaders based on a list of tag names.
         
         :param tag_list: A list of ordered tags indicating which configurables to get.
         :param path: The currently built configurable path, used when called recursively.
@@ -566,7 +560,7 @@ class Partial_loader(Configurable_loader):
         :param children: The top loader (probably a configurable list) for the child type for this loader.
         """
         try:
-            for tag in self.config['NEXT']:
+            for tag in self.config['link']['next']:
                 # Look for a loader with this tag and add.
                 # TODO: Should watch out for infinite recursion here.
                 matching = [loader for loader in loaders if loader.TAG == tag]
@@ -575,10 +569,10 @@ class Partial_loader(Configurable_loader):
                 if len(matching) == 0:
                     # Check we weren't accidentally given a list (because lists are allowed in NEXT for single loaders, but not for partial loaders).
                     if isinstance(tag, list):
-                        raise Configurable_loader_exception(self.config, self.TYPE, self.file_name, "cannot use a NEXT tag '{}' that is a list here".format(tag))
+                        raise Configurable_loader_exception(self.config, self.TYPE, self.file_name, "cannot use a link:next tag '{}' that is a list here".format(tag))
                     
                     else:
-                        raise Configurable_loader_exception(self.config, self.TYPE, self.file_name, "NEXT tag '{}' could not be found".format(tag))
+                        raise Configurable_loader_exception(self.config, self.TYPE, self.file_name, "link:next tag '{}' could not be found".format(tag))
                 
                 # Add all matching to our NEXT.
                 for match in matching:
@@ -587,12 +581,11 @@ class Partial_loader(Configurable_loader):
                     self.NEXT.append(match)
                     
         except (TypeError, KeyError):
-            if 'NEXT' not in self.config:
-                # Missing required NEXT
-                raise Configurable_loader_exception(self.config, self.TYPE, self.file_name, "missing required option NEXT") from None
+            if not hasopt(self.config, "link", "next"):
+                raise Configurable_loader_exception(self.config, self.TYPE, self.file_name, "missing required option link:next") from None
             
-            elif not is_iter(self.config['NEXT']):
-                raise Configurable_loader_exception(self.config, self.TYPE, self.file_name, "option NEXT is not iterable") from None
+            elif not is_iter(self.config['link']['next']):
+                raise Configurable_loader_exception(self.config, self.TYPE, self.file_name, "option link:next is not iterable") from None
             
             else:
                 # Something else went wrong.
@@ -720,7 +713,7 @@ class Single_loader(Configurable_loader):
     
     def path_by_tags(self, tag_list, *, path = None):
         """
-        Build a list of loaders based on a list of TAG names.
+        Build a list of loaders based on a list of tag names.
         
         :param tag_list: A list of ordered tags indicating which configurables to get.
         :param path: The currently built configurable path, used when called recursively.
@@ -752,7 +745,7 @@ class Single_loader(Configurable_loader):
             
             # Go through our list of next children.
             # Unlike for partial loaders, here NEXT refers to configurables of a different TYPE (they are our child configurables).
-            for tag_list in self.config.get('NEXT', []):
+            for tag_list in getopt(self.config, "link", "next", default = []):
                 # If only a single tag has been given, wrap it in a list.
                 if isinstance(tag_list, str):
                     tag_list = [tag_list]
@@ -763,9 +756,9 @@ class Single_loader(Configurable_loader):
                 # Add to our list.
                 self.CHILDREN.append(child_path)
                 
-        elif len(self.config.get('NEXT', [])):
-            # Panic, we have some loaders listed in NEXT but we have no children to search through.
-            raise Configurable_loader_exception(self.config, self.TYPE, self.file_name, "cannot find NEXT loaders; there are no children for TYPE '{}'".format(self.TYPE))
+        elif len(getopt(self.config, "link", "next", default = [])) > 0:
+            # Panic, we have some loaders listed in next but we have no children to search through.
+            raise Configurable_loader_exception(self.config, self.TYPE, self.file_name, "cannot find link:next loaders; there are no children for TYPE '{}'".format(self.TYPE))
     
     
 class Update_loader(Single_loader):
@@ -792,19 +785,19 @@ class Update_loader(Single_loader):
         """
         # Find matching.
         try:
-            matching = [loader for loader in loaders if loader.TAG == self.config['TAG']]
+            matching = [loader for loader in loaders if loader.TAG == self.config['link']['tag']]
             
             if len(matching) == 0:
                 # No matching, panic.
-                raise Configurable_loader_exception(self.config, self.TYPE, self.file_name, "update TAG '{}' could not be found".format(self.config['TAG']))
+                raise Configurable_loader_exception(self.config, self.TYPE, self.file_name, "update link:tag '{}' could not be found".format(self.config['link']['tag']))
             
             for match in matching:
                 # Merge.
                 deepmerge.always_merger.merge(match.config, self.config)
             
         except KeyError:
-            if 'TAG' not in self.config:
-                raise Configurable_loader_exception(self.config, self.TYPE, self.file_name, "missing required option TAG; don't know what to update") from None
+            if not hasopt(self.config, "link", "tag"):
+                raise Configurable_loader_exception(self.config, self.TYPE, self.file_name, "missing required option link:tag; don't know what to update") from None
             
             else:
                 raise

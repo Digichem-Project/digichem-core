@@ -45,7 +45,7 @@ def getopt(configurable_or_option, *option_names, default = Default(None)):
     
     :param configurable_or_option: A Configurable or Options objects to get from.
     :param option_names: A number of names specifying the path to the option. If more than one item is given, each subsequent item specifies a sub option of the previous.
-    :default: If given and the option could not be found, return this instead.
+    :param default: If given and the option could not be found, return this instead.
     """
     try:
         # Check if our base is a Configurable or not.
@@ -66,7 +66,7 @@ def getopt(configurable_or_option, *option_names, default = Default(None)):
         return current
     
     else:
-        return getopt(current, *option_names[1:])
+        return getopt(current, *option_names[1:], default = default)
     
 
 def hasopt(configurable_or_option, *option_names):
