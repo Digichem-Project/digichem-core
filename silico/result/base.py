@@ -91,7 +91,7 @@ class Result_object():
         truly mergable objects should implement their own merge() method.
         """
         # Check all items are the same.
-        if not all(obj == multiple_objects[0] for obj in multiple_objects):
+        if not all(obj == multiple_objects[0] for obj in multiple_objects if obj is not None):
             warnings.warn(self.MERGE_WARNING)
             
         return multiple_objects[0]
