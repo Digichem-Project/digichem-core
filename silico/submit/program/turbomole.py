@@ -204,8 +204,13 @@ class Turbomole(Program_target):
                 
                 # Delete the main output file from this copied dir
                 # (because it's not actually going to be written to, and otherise
-                # it will overwrite our actual log file when we copy back(.
-                Path(temp_dir, self.turbomole_output_path.name).unlink(True)
+                # it will overwrite our actual log file when we copy back).
+                try:
+                    Path(temp_dir, self.turbomole_output_path.name).unlink()
+                    
+                except FileNotFoundError:
+                    pass
+                    # This is fine.
                 
                 # Now run the program.
                 try:
