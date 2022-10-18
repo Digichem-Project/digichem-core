@@ -1,6 +1,7 @@
-TAG: Destination Base
-SUB_TYPE: pseudo
-NEXT:
-    - SLURM Base
-    - Series
-    - Parallel
+link:
+    tag: Destination Base
+    type: pseudo
+    next:
+        - SLURM Base
+        - Series
+        - Parallel

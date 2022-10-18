@@ -1,56 +1,64 @@
-TAG: Turbomole Calculations
-SUB_TYPE: pseudo
-NEXT:
-    - Turbomole Single Point
-    - Turbomole Optimisation
-    - Turbomole Optimisation Frequency
-    - Turbomole Frequency
-    - Turbomole Excited States
+link:
+    tag: Turbomole Calculations
+    type: pseudo
+    next:
+        - Turbomole Single Point
+        - Turbomole Optimisation
+        - Turbomole Optimisation Frequency
+        - Turbomole Frequency
+        - Turbomole Excited States
 
 
 ---
 
 
-TAG: Turbomole Single Point
-SUB_TYPE: partial
-ALIAS: Single Point
+link:
+    tag: Turbomole Single Point
+    type: partial
+    alias: Single Point
+    next:
+        - Turbomole MM
+        - Turbomole Methods
 
 properties:
     sp:
         calc: True
 
-NEXT:
-    - Turbomole MM
-    - Turbomole Methods
-
 
 ---
 
 
-TAG: Turbomole Optimisation
-SUB_TYPE: partial
-ALIAS: Optimisation
+link:
+    tag: Turbomole Optimisation
+    type: partial
+    alias: Optimisation
+    next:
+        - Turbomole MM
+        - Turbomole Functionals
+        - Turbomole MP2
+        - Turbomole RI-MP2
+        - Turbomole SCS-ADC(2)
+        - Turbomole SCS-CC2
 
 properties:
     opt:
         calc: True
         iterations: 100
 
-NEXT:
-    - Turbomole MM
-    - Turbomole Functionals
-    - Turbomole MP2
-    - Turbomole RI-MP2
-    - Turbomole SCS-ADC(2)
-    - Turbomole SCS-CC2
-
 
 ---
 
 
-TAG: Turbomole Optimisation Frequency
-SUB_TYPE: partial
-ALIAS: Optimisation Frequency
+link:
+    tag: Turbomole Optimisation Frequency
+    type: partial
+    alias: Optimisation Frequency
+    next:
+        - Turbomole Functionals
+        - Turbomole MP2
+        - Turbomole RI-MP2
+        - Turbomole SCS-ADC(2)
+        - Turbomole SCS-CC2
 
 properties:
     opt:
@@ -62,20 +70,16 @@ properties:
 scf:
     convergence: 8
 
-NEXT:
-    - Turbomole Functionals
-    - Turbomole MP2
-    - Turbomole RI-MP2
-    - Turbomole SCS-ADC(2)
-    - Turbomole SCS-CC2
-
 
 ---
 
 
-TAG: Turbomole Frequency
-SUB_TYPE: partial
-ALIAS: Frequency
+link:
+    tag: Turbomole Frequency
+    type: partial
+    alias: Frequency
+    next:
+        - Turbomole Methods
 
 properties:
     freq:
@@ -84,22 +88,19 @@ properties:
 scf:
     convergence: 8
 
-NEXT:
-    - Turbomole Methods
-
 
 ---
 
 
-TAG: Turbomole Excited States
-SUB_TYPE: partial
-ALIAS: Excited States
+link:
+    tag: Turbomole Excited States
+    type: partial
+    alias: Excited States
+    next:
+        - Turbomole TDA
+        - Turbomole TD-DFT
+        - Turbomole Post-HF Excited States
 
 properties:
     es:
         calc: True
-
-NEXT:
-    - Turbomole TDA
-    - Turbomole TD-DFT
-    - Turbomole Post-HF Excited States

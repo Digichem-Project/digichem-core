@@ -1,5 +1,6 @@
-TAG: Series
-SUB_TYPE: update
+link:
+    tag: Series
+    type: update
 
 hidden: False
 
@@ -7,7 +8,8 @@ hidden: False
 ---
 
 
-TAG: Parallel
-SUB_TYPE: update
+link:
+    tag: Parallel
+    type: update
 
 hidden: False

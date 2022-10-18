@@ -1,106 +1,111 @@
-TAG: Gaussian Methods
-SUB_TYPE: pseudo
-
-NEXT:
-    - Gaussian Functionals
-    - Gaussian Post-HF Methods
+link:
+    tag: Gaussian Methods
+    type: pseudo
+    next:
+        - Gaussian Functionals
+        - Gaussian Post-HF Methods
 
 
 ---
 
 
 # Post-HF methods
-TAG: Gaussian Post-HF Methods
-SUB_TYPE: pseudo
-
-NEXT:
-    - Gaussian MP2
-    - Gaussian MP3
-    - Gaussian MP4
-    - Gaussian MP5
-    - Gaussian CCD
-    - Gaussian CCSD
+link:
+    tag: Gaussian Post-HF Methods
+    type: pseudo
+    next:
+        - Gaussian MP2
+        - Gaussian MP3
+        - Gaussian MP4
+        - Gaussian MP5
+        - Gaussian CCD
+        - Gaussian CCSD
    
    
 ---
 
-SUB_TYPE: partial
-TAG: Gaussian MP2
-ALIAS: MP2
+link:
+    type: partial
+    tag: Gaussian MP2
+    alias: MP2
+    next: [Gaussian Basis Sets]
 
 method:
     mp:
         calc: True
         level: MP2
-
-NEXT: [Gaussian Basis Sets]
    
    
 ---
 
-SUB_TYPE: partial
-TAG: Gaussian MP3
-ALIAS: MP3
+
+link:
+    type: partial
+    tag: Gaussian MP3
+    alias: MP3
+    next: [Gaussian Basis Sets]
 
 method:
     mp:
         calc: True
         level: MP3
-
-NEXT: [Gaussian Basis Sets]
    
    
 ---
 
-SUB_TYPE: partial
-TAG: Gaussian MP4
-ALIAS: MP4
+
+link:
+    type: partial
+    tag: Gaussian MP4
+    alias: MP4
+    next: [Gaussian Basis Sets]
 
 method:
     mp:
         calc: True
         level: MP4
-
-NEXT: [Gaussian Basis Sets]
    
    
 ---
 
-SUB_TYPE: partial
-TAG: Gaussian MP5
-ALIAS: MP5
+
+link:
+    type: partial
+    tag: Gaussian MP5
+    alias: MP5
+    next: [Gaussian Basis Sets]
 
 method:
     mp:
         calc: True
         level: MP5
 
-NEXT: [Gaussian Basis Sets]
-   
-   
+
 ---
 
-SUB_TYPE: partial
-TAG: Gaussian CCD
-ALIAS: CCD
+
+link:
+    type: partial
+    tag: Gaussian CCD
+    alias: CCD
+    next: [Gaussian Basis Sets]
 
 method:
     cc:
         calc: True
         level: CCD
 
-NEXT: [Gaussian Basis Sets]
 
-   
 ---
 
-SUB_TYPE: partial
-TAG: Gaussian CCSD
-ALIAS: CCSD
+
+link:
+    type: partial
+    tag: Gaussian CCSD
+    alias: CCSD
+    next: [Gaussian Basis Sets]
 
 method:
     cc:
         calc: True
         level: CCSD
-
-NEXT: [Gaussian Basis Sets]

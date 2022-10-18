@@ -12,7 +12,7 @@ from silico.config.configurable.loader import Partial_loader, Update_loader,\
 from silico.config.configurable.loader import Single_loader
 from silico.exception.configurable import Configurable_loader_exception
 from silico.config.locations import master_config_path, system_config_location, user_config_location
-from silico.config.configurable.util import setopt
+from silico.config.configurable.util import setopt, appendopt, getopt, hasopt
 
 
 class Config_parser():
@@ -164,12 +164,12 @@ class Configurables_parser():
         self.loaders = []
         # Configs that update other configs.
         self.updates = []
-        # Configs that have a PARENTS set.
-        # This is a list of tuples where the first item is the loader and the second is the list of PARENT tags.
+        # Configs that have a link:parents set.
+        # This is a list of tuples where the first item is the loader and the second is the list of parent tags.
         self.has_parents = []
-        # A similar list but for configs with a PREVIOUS set.
-        # PREVIOUS and PARENTS work on the same principle, the difference being PREVIOUS refers to loaders of the same type (other calculations for example),
-        # while PARENTS refers to loaders of a different type (programs being referenced from a calculation, for example).
+        # A similar list but for configs with a link:previous set.
+        # link:previous and link:parents work on the same principle, the difference being link:previous refers to loaders of the same type (other calculations for example),
+        # while link:parents refers to loaders of a different type (programs being referenced from a calculation, for example).
         self.has_previous = []
             
     def parse(self):
@@ -188,8 +188,8 @@ class Configurables_parser():
                         if config is None:
                             continue
                         
-                        # If the config has its SUB_TYPE set to update, file it away separately.
-                        if config.get('SUB_TYPE') == "update":
+                        # If the config has its link:type set to update, file it away separately.
+                        if getopt(config, "link", "type", default = None) == "update":
                             # An update, no need to pre process.
                             self.updates.append(Update_loader(file_name, self.TYPE, config))
                         
@@ -198,12 +198,12 @@ class Configurables_parser():
                             loader = self.pre_process(config, file_name)
                             self.loaders.append(loader)
                             
-                            # If the loader has PARENTS set, add it to our list.
-                            if "PARENTS" in loader.config:
-                                self.has_parents.append((loader, loader.config["PARENTS"]))
+                            # If the loader has link:parents set, add it to our list.
+                            if hasopt(loader.config, "link", "parents"):
+                                self.has_parents.append((loader, loader.config["link"]['parents']))
                             
-                            if "PREVIOUS" in loader.config:
-                                self.has_previous.append((loader, loader.config["PREVIOUS"]))
+                            if hasopt(loader.config, "link", "previous"):
+                                self.has_previous.append((loader, loader.config["link"]['previous']))
                     
             except FileNotFoundError:
                 # This should be ok to ignore, just means a file was moved inbetween us looking how many files there are and reading them.
@@ -223,17 +223,16 @@ class Configurables_parser():
             loader.link(self.loaders, children = children)
             
         # Next we need to purge partial configurables from the top level list.
-        #conf_list = Configurable_list([loader for loader in self.loaders if loader.TOP], self.TYPE)
         conf_list = [loader for loader in self.loaders if loader.TOP]
         return conf_list
     
-    def process_parents(self, loaders, parent_loaders, parents_type = "PARENTS"):
+    def process_parents(self, loaders, parent_loaders, parents_type = "parents"):
         """
-        Process any loaders that have a PARENTS/PREVIOUS set.
+        Process any loaders that have a link:previous/link:parents set.
         
-        :param: A list of tuples of loaders that have PARENTS or PREVIOUS set.
+        :param: A list of tuples of loaders that have link:parents or link:previous set.
         :param parent_loaders: A list of loaders that could be referred to.
-        :param parents_type: One of either "PARENTS" or "PREVIOUS".
+        :param parents_type: One of either "parents" or "previous".
         """
         for loader, parents in loaders:
             for parent_tag in parents:
@@ -242,33 +241,30 @@ class Configurables_parser():
                 
                 # Panic if there were no matches
                 if len(matching) == 0:
-                    raise Configurable_loader_exception(loader.config, loader.TYPE, loader.file_name, "{} tag '{}' could not be found".format(parents_type, parent_tag))
+                    raise Configurable_loader_exception(loader.config, loader.TYPE, loader.file_name, "link:{} tag '{}' could not be found".format(parents_type, parent_tag))
                 
                 # Add the loader to each of the matching loader's NEXT attr.
                 for parent in matching:
-                    if "NEXT" not in parent.config:
-                        parent.config['NEXT'] = []
-                    parent.config['NEXT'].append(loader.TAG)
+                    appendopt(parent.config, "link", "next", value = loader.TAG)
     
     def pre_process(self, config, config_path):
         """
         Convert loaded config dicts to appropriate objects
         """
-        #config['TYPE'] = self.TYPE
         setopt(config, "meta", "TYPE", value = self.TYPE)
         
         # First, panic if no TAG is set.
-        if "TAG" not in config:
-            raise Configurable_loader_exception(config, self.TYPE, config_path, "missing required option 'TAG'")
+        if getopt(config, 'link', 'tag', default = None) is None:
+            raise Configurable_loader_exception(config, self.TYPE, config_path, "missing required option 'link:tag'")
         
         # If we have a sub type set, use that to get the name of the class.
-        if 'SUB_TYPE' in config:
-            if config['SUB_TYPE'] == "pseudo" or config['SUB_TYPE'] == "partial":
-                return Partial_loader(config_path, self.TYPE, config, pseudo = config['SUB_TYPE'] == "pseudo")
+        if getopt(config, "link", "type", default = None) is not None:
+            if config['link']['type'] in ["pseudo", "partial"]:
+                return Partial_loader(config_path, self.TYPE, config, pseudo = config['link']['type'] == "pseudo")
             
             else:
                 # Panic, we don't recognise this sub type.
-                raise Configurable_loader_exception(config, self.TYPE, config_path, "SUB_TYPE '{}' is not recognised".format(config['SUB_TYPE']))
+                raise Configurable_loader_exception(config, self.TYPE, config_path, "link:type '{}' is not recognised".format(config['link']['type']))
             
         else:
             # Use a single loader.
@@ -317,15 +313,14 @@ class Configurables_parser():
                 parents = []
             
             # Process parents and previous.
-            parser.process_parents(parser.has_parents, parents, "PARENTS")
-            parser.process_parents(parser.has_previous, parser.loaders, "PREVIOUS")
+            parser.process_parents(parser.has_parents, parents, "parents")
+            parser.process_parents(parser.has_previous, parser.loaders, "previous")
             
             # Now process fully.
             loaders = parser.process(children)
             
             # Add to config object.            
             # TODO: This is a bit weird, could do with a cleaner interface to add more loaders.
-            #getattr(options, TYPE+"s").NEXT.extend(loaders)
             methods[TYPE+"s"].NEXT.extend(loaders)
             
             #children = getattr(options, TYPE+"s")

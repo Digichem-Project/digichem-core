@@ -1,280 +1,280 @@
-TAG: Gaussian Solvents
-SUB_TYPE: pseudo
-
-NEXT:
-    - Gaussian Gas Phase
-    - Gaussian Real Solvents
+link:
+    tag: Gaussian Solvents
+    type: pseudo
+    next:
+        - Gaussian Gas Phase
+        - Gaussian Real Solvents
 
 
 ---
 
 
-TAG: Gaussian Real Solvents
-SUB_TYPE: pseudo
+link:
+    tag: Gaussian Real Solvents
+    type: pseudo
+    next:
+        - Gaussian 1,4-Dioxane
+        - Gaussian 2-Propanol
+        - Gaussian Acetone
+        - Gaussian Acetonitrile
+        - Gaussian Benzene
+        - Gaussian CycloHexane
+        - Gaussian Dichloromethane
+        - Gaussian DiethylEther
+        - Gaussian n,n-DiMethylFormamide
+        - Gaussian DiMethylSulfoxide
+        - Gaussian Ethanol
+        - Gaussian EthylEthanoate
+        - Gaussian Methanol
+        - Gaussian Heptane
+        - Gaussian n-Hexane
+        - Gaussian TetraHydroFuran
+        - Gaussian Toluene
+        - Gaussian Water
 
 solution:
     calc: True
     model: PCM
 
-NEXT:
-    - Gaussian 1,4-Dioxane
-    - Gaussian 2-Propanol
-    - Gaussian Acetone
-    - Gaussian Acetonitrile
-    - Gaussian Benzene
-    - Gaussian CycloHexane
-    - Gaussian Dichloromethane
-    - Gaussian DiethylEther
-    - Gaussian n,n-DiMethylFormamide
-    - Gaussian DiMethylSulfoxide
-    - Gaussian Ethanol
-    - Gaussian EthylEthanoate
-    - Gaussian Methanol
-    - Gaussian Heptane
-    - Gaussian n-Hexane
-    - Gaussian TetraHydroFuran
-    - Gaussian Toluene
-    - Gaussian Water
+
+---
+
+
+link:
+    type: partial
+    tag: Gaussian Gas Phase
+    alias: Gas Phase
+    next: [Gaussian Basis Sets]
 
 
 ---
 
 
-SUB_TYPE: partial
-TAG: Gaussian Gas Phase
-ALIAS: Gas Phase
-
-NEXT: [Gaussian Basis Sets]
-
-
----
-
-
-SUB_TYPE: partial
-TAG: Gaussian 1,4-Dioxane
-ALIAS: 1,4-Dioxane
+link:
+    type: partial
+    tag: Gaussian 1,4-Dioxane
+    alias: 1,4-Dioxane
+    next: [Gaussian Basis Sets]
 
 solution:
     solvent: 1,4-Dioxane
 
-NEXT: [Gaussian Basis Sets]
-
 
 ---
 
 
-SUB_TYPE: partial
-TAG: Gaussian 2-Propanol
-ALIAS: 2-Propanol
+link:
+    type: partial
+    tag: Gaussian 2-Propanol
+    alias: 2-Propanol
+    next: [Gaussian Basis Sets]
 
 solution:
     solvent: 2-Propanol
 
-NEXT: [Gaussian Basis Sets]
-
 
 ---
 
 
-SUB_TYPE: partial
-TAG: Gaussian Acetone
-ALIAS: Acetone
+link:
+    type: partial
+    tag: Gaussian Acetone
+    alias: Acetone
+    next: [Gaussian Basis Sets]
 
 solution:
     solvent: Acetone
 
-NEXT: [Gaussian Basis Sets]
-
 
 ---
 
 
-SUB_TYPE: partial
-TAG: Gaussian Acetonitrile
-ALIAS: Acetonitrile
+link:
+    type: partial
+    tag: Gaussian Acetonitrile
+    alias: Acetonitrile
+    next: [Gaussian Basis Sets]
 
 solution:
     solvent: Acetonitrile
 
-NEXT: [Gaussian Basis Sets]
-
 
 ---
 
 
-SUB_TYPE: partial
-TAG: Gaussian Benzene
-ALIAS: Benzene
+link:
+    type: partial
+    tag: Gaussian Benzene
+    alias: Benzene
+    next: [Gaussian Basis Sets]
 
 solution:
     solvent: Benzene
 
-NEXT: [Gaussian Basis Sets]
-
 
 ---
 
 
-SUB_TYPE: partial
-TAG: Gaussian CycloHexane
-ALIAS: CycloHexane
+link:
+    type: partial
+    tag: Gaussian CycloHexane
+    alias: CycloHexane
+    next: [Gaussian Basis Sets]
 
 solution:
     solvent: Cyclohexane
 
-NEXT: [Gaussian Basis Sets]
-
 
 ---
 
 
-SUB_TYPE: partial
-TAG: Gaussian DiethylEther
-ALIAS: Diethylether
+link:
+    type: partial
+    tag: Gaussian DiethylEther
+    alias: Diethylether
+    next: [Gaussian Basis Sets]
 
 solution:
     solvent: DiethylEther
 
-NEXT: [Gaussian Basis Sets]
-
 
 ---
 
 
-SUB_TYPE: partial
-TAG: Gaussian DiMethylSulfoxide
-ALIAS: DMSO
+link:
+    type: partial
+    tag: Gaussian DiMethylSulfoxide
+    alias: DMSO
+    next: [Gaussian Basis Sets]
 
 solution:
     solvent: DiMethylSulfoxide
 
-NEXT: [Gaussian Basis Sets]
-
 
 ---
 
 
-SUB_TYPE: partial
-TAG: Gaussian Dichloromethane
-ALIAS: DCM
+link:
+    type: partial
+    tag: Gaussian Dichloromethane
+    alias: DCM
+    next: [Gaussian Basis Sets]
 
 solution:
     solvent: Dichloromethane
 
-NEXT: [Gaussian Basis Sets]
-
 
 ---
 
 
-SUB_TYPE: partial
-TAG: Gaussian n,n-DiMethylFormamide
-ALIAS: DMF
+link:
+    type: partial
+    tag: Gaussian n,n-DiMethylFormamide
+    alias: DMF
+    next: [Gaussian Basis Sets]
 
 solvent: n,n-DiMethylFormamide
 
-NEXT: [Gaussian Basis Sets]
-
 
 ---
 
 
-SUB_TYPE: partial
-TAG: Gaussian Ethanol
-ALIAS: Ethanol
+link:
+    type: partial
+    tag: Gaussian Ethanol
+    alias: Ethanol
+    next: [Gaussian Basis Sets]
 
 solution:
     solvent: Ethanol
 
-NEXT: [Gaussian Basis Sets]
-
 
 ---
 
 
-SUB_TYPE: partial
-TAG: Gaussian EthylEthanoate
-ALIAS: Ethyl acetate
+link:
+    type: partial
+    tag: Gaussian EthylEthanoate
+    alias: Ethyl acetate
+    next: [Gaussian Basis Sets]
 
 solution:
     solvent: EthylEthanoate
 
-NEXT: [Gaussian Basis Sets]
-
 
 ---
 
 
-SUB_TYPE: partial
-TAG: Gaussian Methanol
-ALIAS: Methanol
+link:
+    type: partial
+    tag: Gaussian Methanol
+    alias: Methanol
+    next: [Gaussian Basis Sets]
 
 solution:
     solvent: Methanol
 
-NEXT: [Gaussian Basis Sets]
-
 
 ---
 
 
-SUB_TYPE: partial
-TAG: Gaussian Heptane
-ALIAS: Heptane
+link:
+    type: partial
+    tag: Gaussian Heptane
+    alias: Heptane
+    next: [Gaussian Basis Sets]
 
 solution:
     solvent: Heptane
 
-NEXT: [Gaussian Basis Sets]
-
 
 ---
 
 
-SUB_TYPE: partial
-TAG: Gaussian n-Hexane
-ALIAS: Hexane
+link:
+    type: partial
+    tag: Gaussian n-Hexane
+    alias: Hexane
+    next: [Gaussian Basis Sets]
 
 solution:
     solvent: n-Hexane
 
-NEXT: [Gaussian Basis Sets]
-
 
 ---
 
 
-SUB_TYPE: partial
-TAG: Gaussian TetraHydroFuran
-ALIAS: THF
+link:
+    type: partial
+    tag: Gaussian TetraHydroFuran
+    alias: THF
+    next: [Gaussian Basis Sets]
 
 solution:
     solvent: TetraHydroFuran
 
-NEXT: [Gaussian Basis Sets]
-
 
 ---
 
 
-SUB_TYPE: partial
-TAG: Gaussian Toluene
-ALIAS: Toluene
+link:
+    type: partial
+    tag: Gaussian Toluene
+    alias: Toluene
+    next: [Gaussian Basis Sets]
 
 solution:
     solvent: Toluene
 
-NEXT: [Gaussian Basis Sets]
-
 
 ---
 
 
-SUB_TYPE: partial
-TAG: Gaussian Water
-ALIAS: Water
+link:
+    type: partial
+    tag: Gaussian Water
+    alias: Water
+    next: [Gaussian Basis Sets]
 
 solution:
     solvent: Water
-
-NEXT: [Gaussian Basis Sets]

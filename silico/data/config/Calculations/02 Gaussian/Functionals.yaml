@@ -1,20 +1,21 @@
-SUB_TYPE: pseudo
-TAG: Gaussian Functionals
-
-NEXT:
-    - Gaussian PBE1PBE (GD3BJ)
-    - Gaussian B3LYP (GD3BJ)
-    - Gaussian CAM-B3LYP (GD3BJ)
-    - Gaussian M062X (GD3)
-    - Gaussian wB97XD (GD2)
+link:
+    type: pseudo
+    tag: Gaussian Functionals
+    next:
+        - Gaussian PBE1PBE (GD3BJ)
+        - Gaussian B3LYP (GD3BJ)
+        - Gaussian CAM-B3LYP (GD3BJ)
+        - Gaussian M062X (GD3)
+        - Gaussian wB97XD (GD2)
 
 
 ---
 
-
-SUB_TYPE: partial
-TAG: Gaussian PBE1PBE (GD3BJ)
-ALIAS: PBE1PBE (GD3BJ)
+link:
+    type: partial
+    tag: Gaussian PBE1PBE (GD3BJ)
+    alias: PBE1PBE (GD3BJ)
+    next: [Gaussian Solvents]
 
 method:
     dft:
@@ -22,15 +23,15 @@ method:
         functional: PBE1PBE
         dispersion: GD3BJ
 
-NEXT: [Gaussian Solvents]
-
 
 ---
 
 
-SUB_TYPE: partial
-TAG: Gaussian CAM-B3LYP (GD3BJ)
-ALIAS: CAM-B3LYP (GD3BJ)
+link:
+    type: partial
+    tag: Gaussian CAM-B3LYP (GD3BJ)
+    alias: CAM-B3LYP (GD3BJ)
+    next: [Gaussian Solvents]
 
 method:
     dft:
@@ -38,15 +39,15 @@ method:
         functional: CAM-B3LYP
         dispersion: GD3BJ
 
-NEXT: [Gaussian Solvents]
-
 
 ---
 
 
-SUB_TYPE: partial
-TAG: Gaussian B3LYP (GD3BJ)
-ALIAS: B3LYP (GD3BJ)
+link:
+    type: partial
+    tag: Gaussian B3LYP (GD3BJ)
+    alias: B3LYP (GD3BJ)
+    next: [Gaussian Solvents]
 
 method:
     dft:
@@ -54,15 +55,15 @@ method:
         functional: B3LYP
         dispersion: GD3BJ
 
-NEXT: [Gaussian Solvents]
-
 
 ---
 
 
-SUB_TYPE: partial
-TAG: Gaussian M062X (GD3)
-ALIAS: M062X (GD3)
+link:
+    type: partial
+    tag: Gaussian M062X (GD3)
+    alias: M062X (GD3)
+    next: [Gaussian Solvents]
 
 method:
     dft:
@@ -70,20 +71,18 @@ method:
         functional: M062X
         dispersion: GD3
 
-NEXT: [Gaussian Solvents]
-
 
 ---
 
 
-SUB_TYPE: partial
-TAG: Gaussian wB97XD (GD2)
-ALIAS: wB97XD (GD2)
+link:
+    type: partial
+    tag: Gaussian wB97XD (GD2)
+    alias: wB97XD (GD2)
+    next: [Gaussian Solvents]
 
 method:
     dft:
         calc: True
         functional: wB97XD
         dispersion: GD3BJ
-
-NEXT: [Gaussian Solvents]

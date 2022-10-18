@@ -1,7 +1,8 @@
-TAG: Programs Base
-SUB_TYPE: pseudo
+link:
+    tag: Programs Base
+    type: pseudo
 
-NEXT:
-    - Gaussian 09
-    - Gaussian 16
-    - Turbomole
+    next:
+        - Gaussian 09
+        - Gaussian 16
+        - Turbomole

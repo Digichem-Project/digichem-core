@@ -1,5 +1,9 @@
-SUB_TYPE: pseudo
-TAG: Calculation Base
+link:
+    type: pseudo
+    tag: Calculation Base
+    next:
+        - Gaussian
+        - Turbomole
 
 # Global calc defaults.
 meta:
@@ -55,7 +59,3 @@ post:
     # The report written is the same as can be aquired by using creport later.
     # Silico reports can be large (10s to 100s of MB) and take several minutes to render (depending on the calculation and available computing power of course). This option can be disabled to save on space/time.
     write_report: True
-
-NEXT:
-    - Gaussian
-    - Turbomole

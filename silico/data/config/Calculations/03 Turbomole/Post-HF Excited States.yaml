@@ -1,10 +1,10 @@
-TAG: Turbomole Post-HF Excited States
-SUB_TYPE: partial
-ALIAS: Post-HF
-
-NEXT:
-    - Turbomole Post-HF ES Singlet
-    - Turbomole Post-HF ES Triplet
+link:
+    tag: Turbomole Post-HF Excited States
+    type: partial
+    alias: Post-HF
+    next:
+        - Turbomole Post-HF ES Singlet
+        - Turbomole Post-HF ES Triplet
 
 properties:
     es:
@@ -16,13 +16,14 @@ properties:
 ---
 
 
-TAG: Turbomole Post-HF ES Singlet
-SUB_TYPE: partial
-ALIAS: S(1) and S(2)
-NEXT:
-    - Turbomole RI-MP2
-    - Turbomole SCS-ADC(2)
-    - Turbomole SCS-CC2
+link:
+    tag: Turbomole Post-HF ES Singlet
+    type: partial
+    alias: S(1) and S(2)
+    next:
+        - Turbomole RI-MP2
+        - Turbomole SCS-ADC(2)
+        - Turbomole SCS-CC2
 
 properties:
     es:
@@ -32,13 +33,14 @@ properties:
 ---
 
 
-TAG: Turbomole Post-HF ES Triplet
-SUB_TYPE: partial
-ALIAS: S(1) and S(2)
-NEXT:
-    - Turbomole RI-MP2
-    - Turbomole SCS-ADC(2)
-    - Turbomole SCS-CC2
+link:
+    tag: Turbomole Post-HF ES Triplet
+    type: partial
+    alias: T(1) and T(2)
+    next:
+        - Turbomole RI-MP2
+        - Turbomole SCS-ADC(2)
+        - Turbomole SCS-CC2
 
 properties:
     es:

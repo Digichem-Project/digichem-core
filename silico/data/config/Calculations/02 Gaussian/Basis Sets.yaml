@@ -1,35 +1,36 @@
-SUB_TYPE: pseudo
-TAG: Gaussian Basis Sets
-NEXT:
-    - Gaussian Simple Basis Sets
-    - Gaussian External Basis Sets
+link:
+    type: pseudo
+    tag: Gaussian Basis Sets
+    next:
+        - Gaussian Simple Basis Sets
+        - Gaussian External Basis Sets
+
+
+---
+
+link:
+    type: pseudo
+    tag: Gaussian Simple Basis Sets
+    next:
+        - Gaussian 6-31G(d,p)
+        - Gaussian 6-31+G(d,p)
+        - Gaussian 6-31++G(d,p)
+        - Gaussian 6-311G(d,p)
+        - Gaussian 6-311+G(d,p)
+        - Gaussian 6-311++G(d,p)
+        - Gaussian cc-pVDZ
+        - Gaussian cc-pVTZ
+        - Gaussian cc-pVQZ
+        - Gaussian cc-pV5Z
+        - Gaussian cc-pV6Z
 
 
 ---
 
 
-SUB_TYPE: pseudo
-TAG: Gaussian Simple Basis Sets
-
-NEXT:
-    - Gaussian 6-31G(d,p)
-    - Gaussian 6-31+G(d,p)
-    - Gaussian 6-31++G(d,p)
-    - Gaussian 6-311G(d,p)
-    - Gaussian 6-311+G(d,p)
-    - Gaussian 6-311++G(d,p)
-    - Gaussian cc-pVDZ
-    - Gaussian cc-pVTZ
-    - Gaussian cc-pVQZ
-    - Gaussian cc-pV5Z
-    - Gaussian cc-pV6Z
-
-
----
-
-
-TAG: Gaussian 6-31G(d,p)
-ALIAS: 6-31G(d,p)
+link:
+    tag: Gaussian 6-31G(d,p)
+    alias: 6-31G(d,p)
 basis_set:
     internal: 6-31G(d,p)
 
@@ -37,8 +38,9 @@ basis_set:
 ---
 
 
-TAG: Gaussian 6-31+G(d,p)
-ALIAS: 6-31+G(d,p)
+link:
+    tag: Gaussian 6-31+G(d,p)
+    alias: 6-31+G(d,p)
 basis_set:
     internal: 6-31+G(d,p)
 
@@ -46,8 +48,9 @@ basis_set:
 ---
 
 
-TAG: Gaussian 6-31++G(d,p)
-ALIAS: 6-31++G(d,p)
+link:
+    tag: Gaussian 6-31++G(d,p)
+    alias: 6-31++G(d,p)
 basis_set:
     internal: 6-31++G(d,p)
 
@@ -55,8 +58,9 @@ basis_set:
 ---
 
 
-TAG: Gaussian 6-311G(d,p)
-ALIAS: 6-311G(d,p)
+link:
+    tag: Gaussian 6-311G(d,p)
+    alias: 6-311G(d,p)
 basis_set:
     internal: 6-311G(d,p)
 
@@ -64,8 +68,9 @@ basis_set:
 ---
 
 
-TAG: Gaussian 6-311+G(d,p)
-ALIAS: 6-311+G(d,p)
+link:
+    tag: Gaussian 6-311+G(d,p)
+    alias: 6-311+G(d,p)
 basis_set:
     internal: 6-311+G(d,p)
 
@@ -73,8 +78,9 @@ basis_set:
 ---
 
 
-TAG: Gaussian 6-311++G(d,p)
-ALIAS: 6-311++G(d,p)
+link:
+    tag: Gaussian 6-311++G(d,p)
+    alias: 6-311++G(d,p)
 basis_set: 
     internal: 6-311++G(d,p)
 
@@ -82,8 +88,9 @@ basis_set:
 ---
 
 
-TAG: Gaussian cc-pVDZ
-ALIAS: cc-pVDZ
+link:
+    tag: Gaussian cc-pVDZ
+    alias: cc-pVDZ
 basis_set: 
     internal: cc-pVDZ
 
@@ -91,8 +98,9 @@ basis_set:
 ---
 
 
-TAG: Gaussian cc-pVTZ
-ALIAS: cc-pVTZ
+link:
+    tag: Gaussian cc-pVTZ
+    alias: cc-pVTZ
 basis_set:
     internal: cc-pVTZ
 
@@ -100,8 +108,9 @@ basis_set:
 ---
 
 
-TAG: Gaussian cc-pVQZ
-ALIAS: cc-pVQZ
+link:
+    tag: Gaussian cc-pVQZ
+    alias: cc-pVQZ
 basis_set:
     internal: cc-pVQZ
 
@@ -109,8 +118,9 @@ basis_set:
 ---
 
 
-TAG: Gaussian cc-pV5Z
-ALIAS: cc-pV5Z
+link:
+    tag: Gaussian cc-pV5Z
+    alias: cc-pV5Z
 basis_set:
     internal: cc-pV5Z
 
@@ -118,8 +128,9 @@ basis_set:
 ---
 
 
-TAG: Gaussian cc-pV6Z
-ALIAS: cc-pV6Z
+link:
+    tag: Gaussian cc-pV6Z
+    alias: cc-pV6Z
 basis_set:
     internal: cc-pV6Z
 

@@ -1,5 +1,7 @@
-TAG: SLURM Base
-SUB_TYPE: pseudo
+link:
+    tag: SLURM Base
+    type: pseudo
+    
 meta:
     class_name: SLURM
 
