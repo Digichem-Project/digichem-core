@@ -77,6 +77,9 @@ class Skeletal_image_maker(Image_maker):
             rdkit.RDLogger.DisableLog('rdApp.*')
             
             molecule = rdkit.Chem.MolFromMolBlock(self.coords.to_format("mol"))
+            # rdkit will silently return None if parsing fails, best to a check.
+            if molecule is None:
+                raise Exception("Failed to parse coordinates with rdkit")
             rdkit.Chem.AllChem.Compute2DCoords(molecule)
             
             # Then write the file.

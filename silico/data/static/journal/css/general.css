@@ -1,9 +1,3 @@
-@page {
-    size: A4 portrait;
-    /* Changing this breaks weasyprint layout in some ways, may need to adjust some width values. */
-    margin: 2cm 1.5cm 2cm 1.5cm;
-}
-
 * {
 	/* outline: 1px solid red; */
 	box-sizing: border-box;

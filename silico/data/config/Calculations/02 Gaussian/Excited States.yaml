@@ -100,6 +100,9 @@ SUB_TYPE: partial
 TAG: Gaussian Optimised S(1)
 ALIAS: Optimised S(1)
 
+performance:
+    num_cpu: 16
+
 properties:
     opt:
         calc: True
@@ -118,6 +121,9 @@ NEXT:
 SUB_TYPE: partial
 TAG: Gaussian Optimised T(1)
 ALIAS: Optimised T(1)
+
+performance:
+    num_cpu: 16
 
 properties:
     opt:
