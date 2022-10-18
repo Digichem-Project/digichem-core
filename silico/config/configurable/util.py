@@ -18,6 +18,26 @@ def setopt(dict_obj, *option_names, value):
     else:
         dict_obj[option_names[0]] = value
 
+        
+def appendopt(dict_obj, *option_names, value):
+    """
+    Append a value to a list-like item in an optionally nested dict.
+    """
+    if len(option_names) > 1:
+        if option_names[0] not in dict_obj:
+            dict_obj[option_names[0]] = {}
+        
+        appendopt(dict_obj[option_names[0]], *option_names[1:], value = value)
+    
+    else:
+        try:
+            # Add to the list.
+            dict_obj[option_names[0]].append(value)
+        
+        except AttributeError:
+            # No list yet, create one.
+            dict_obj[option_names[0]] = [value]
+
 
 def getopt(configurable_or_option, *option_names, default = Default(None)):
     """
