@@ -6,31 +6,35 @@ meta:
     class_name: Series
 
 NEXT:
-    - Turbomole Auto CC2
-    - Turbomole Auto ADC(2)
+    - Turbomole Auto SCS-CC2
+    - Turbomole Auto SCS-ADC(2)
 
 
 ---
 
 
-TAG: Turbomole Auto CC2
-ALIAS: MR-TADF Emitter Opt -> S(1) & S(2) -> T(1) & T(2) (CC2-SCS/cc-pVDZ)
+TAG: Turbomole Auto SCS-CC2
+ALIAS: MR-TADF Emitter Opt -> S(1) & S(2) -> T(1) & T(2) (SCS-CC2/cc-pVDZ)
 
-combined_report_name: MR-TADF Emitter CC2-SCS
+post:
+    combined_report_name: MR-TADF Emitter SCS-CC2
+
 calculations:
-    - [Turbomole CC2 Opt, Turbomole cc-pVDZ]
-    - [Turbomole CC2 Singlets, Turbomole cc-pVDZ]
-    - [Turbomole CC2 Triplets, Turbomole cc-pVDZ]
+    - [Turbomole Optimisation, Turbomole SCS-CC2, Turbomole cc-pVDZ]
+    - [Turbomole Post-HF ES Singlet, Turbomole SCS-CC2, Turbomole cc-pVDZ]
+    - [Turbomole Post-HF ES Triplet, Turbomole SCS-CC2, Turbomole cc-pVDZ]
 
 
 ---
 
 
-TAG: Turbomole Auto ADC(2)
-ALIAS: MR-TADF Emitter Opt -> S(1) & S(2) -> T(1) & T(2) (ADC(2)-SCS/cc-pVDZ)
+TAG: Turbomole Auto SCS-ADC(2)
+ALIAS: MR-TADF Emitter Opt -> S(1) & S(2) -> T(1) & T(2) (SCS-ADC(2)/cc-pVDZ)
 
-combined_report_name: MR-TADF Emitter ADC(2)-SCS
+post:
+    combined_report_name: MR-TADF Emitter SCS-ADC(2)
+
 calculations:
-    - [Turbomole ADC(2) Opt, Turbomole cc-pVDZ]
-    - [Turbomole ADC(2) Singlets, Turbomole cc-pVDZ]
-    - [Turbomole ADC(2) Triplets, Turbomole cc-pVDZ]
+    - [Turbomole Optimisation, Turbomole SCS-ADC(2), Turbomole cc-pVDZ]
+    - [Turbomole Post-HF ES Singlet, Turbomole SCS-ADC(2), Turbomole cc-pVDZ]
+    - [Turbomole Post-HF ES Triplet, Turbomole SCS-ADC(2), Turbomole cc-pVDZ]
