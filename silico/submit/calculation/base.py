@@ -209,7 +209,7 @@ class Concrete_calculation(Calculation_target):
     INPUT_FILE_TYPES = []
     
     # Configurable options.
-    performance = Options(
+    performance = Options(help = "Options for controlling functional aspects of the calculation.",
         memory = Option(help = "The amount of memory to use for the calculation. Typical memory suffixes, such as B (byte), KB (kilobyte), MB (megabyte), and GB (byte) are accepted.", required = True, type = Memory),
         num_cpu = Option("num_cpu", help = "An integer specifying the number of CPUs to use for the calculation.", default = 1, type = int)
     )
