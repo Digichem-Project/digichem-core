@@ -194,7 +194,7 @@ class Turbomole_AI(Turbomole, AI_calculation_mixin):
             )
         ),
         es = Options(
-            method = Option(choices = ("TD-HF", "CIS", "CIS(D)", "CIS(Dinf)", "TD-DFT", "TDA", "MP2", "ADC(2)", "CC2", "CCS"), default = "TD-HF"),
+            method = Option(choices = ("TD-HF", "CIS", "CIS(D)", "CIS(Dinf)", "TD-DFT", "TDA", "MP2", "ADC(2)", "CC2", "CCS", "CCSD"), default = "TD-HF"),
             multiplicity = Option(choices = ("Singlet", "Triplet"), default = "Singlet"),
             symmetry = Option(help = "The symmetry of the excited states to calculate.", default = "a"),
             # TODO: These options will probably move to a more general place in the future.
