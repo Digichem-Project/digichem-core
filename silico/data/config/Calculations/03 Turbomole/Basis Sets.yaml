@@ -1,44 +1,47 @@
 link:
-    tag: Turbomole Basis Sets
+    namespace: Turbomole
+    tag: Basis Sets
     type: pseudo
     next:
-        - Turbomole Pople Basis Sets
-        - Turbomole Correlation Consistent Basis Sets
+        - Pople Basis Sets
+        - Correlation Consistent Basis Sets
 
 
 ---
 
 
 link:
-    tag: Turbomole Pople Basis Sets
+    namespace: Turbomole
+    tag: Pople Basis Sets
     type: pseudo
     next:
-        - Turbomole 6-31G**
-        - Turbomole 6-311G
-        - Turbomole 6-311G*
-        - Turbomole 6-311G**
-        - Turbomole 6-311++G**
+        - 6-31G**
+        - 6-311G
+        - 6-311G*
+        - 6-311G**
+        - 6-311++G**
 
 ---
 
 
 link:
-    tag: Turbomole Correlation Consistent Basis Sets
+    namespace: Turbomole
+    tag: Correlation Consistent Basis Sets
     type: pseudo
     next:
-        - Turbomole cc-pVDZ
-        - Turbomole cc-pVTZ
-        - Turbomole cc-pVQZ
-        - Turbomole cc-pV5Z
-        - Turbomole cc-pV6Z
+        - cc-pVDZ
+        - cc-pVTZ
+        - cc-pVQZ
+        - cc-pV5Z
+        - cc-pV6Z
 
 
 ---
 
 
 link:
-    tag: Turbomole 6-31G**
-    alias: 6-31G**
+    namespace: Turbomole
+    tag: 6-31G**
 basis_set:
     internal: 6-31G**
 
@@ -47,8 +50,9 @@ basis_set:
 
 
 link:
-    tag: Turbomole 6-311G
-    alias: 6-311G
+    namespace: Turbomole
+    tag: 6-311G
+
 basis_set:
     internal: 6-311G
 
@@ -57,8 +61,8 @@ basis_set:
 
 
 link:
-    tag: Turbomole 6-311G*
-    alias: 6-311G*
+    namespace: Turbomole
+    tag: 6-311G*
 basis_set:
     internal: 6-311G*
 
@@ -67,8 +71,8 @@ basis_set:
 
 
 link:
-    tag: Turbomole 6-311G**
-    alias: 6-311G**
+    namespace: Turbomole
+    tag: 6-311G**
 basis_set:
     internal: 6-311G**
 
@@ -77,8 +81,8 @@ basis_set:
 
 
 link:
-    tag: Turbomole 6-311++G**
-    alias: 6-311++G**
+    namespace: Turbomole
+    tag: 6-311++G**
 basis_set:
     internal: 6-311++G**
 
@@ -87,8 +91,8 @@ basis_set:
 
 
 link:
-    tag: Turbomole cc-pVDZ
-    alias: cc-pVDZ
+    namespace: Turbomole
+    tag: cc-pVDZ
 basis_set:
     internal: cc-pVDZ
 
@@ -97,8 +101,8 @@ basis_set:
 
 
 link:
-    tag: Turbomole cc-pVTZ
-    alias: cc-pVTZ
+    namespace: Turbomole
+    tag: cc-pVTZ
 basis_set:
     internal: cc-pVTZ
 
@@ -107,8 +111,8 @@ basis_set:
 
 
 link:
-    tag: Turbomole cc-pVQZ
-    alias: cc-pVQZ
+    namespace: Turbomole
+    tag: cc-pVQZ
 basis_set:
     internal: cc-pVQZ
 
@@ -117,8 +121,8 @@ basis_set:
 
 
 link:
-    tag: Turbomole cc-pV5Z
-    alias: cc-pV5Z
+    namespace: Turbomole
+    tag: cc-pV5Z
 basis_set:
     internal: cc-pV5Z
 
@@ -127,7 +131,7 @@ basis_set:
 
 
 link:
-    tag: Turbomole cc-pV6Z
-    alias: cc-pV6Z
+    namespace: Turbomole
+    tag: cc-pV6Z
 basis_set:
     internal: cc-pV6Z

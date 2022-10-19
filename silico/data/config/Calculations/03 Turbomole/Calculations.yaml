@@ -1,24 +1,25 @@
 link:
-    tag: Turbomole Calculations
+    namespace: Turbomole
+    tag: Calculations
     type: pseudo
     next:
-        - Turbomole Single Point
-        - Turbomole Optimisation
-        - Turbomole Optimisation Frequency
-        - Turbomole Frequency
-        - Turbomole Excited States
+        - Single Point
+        - Optimisation
+        - Optimisation Frequency
+        - Frequency
+        - Excited States
 
 
 ---
 
 
 link:
-    tag: Turbomole Single Point
+    namespace: Turbomole
+    tag: Single Point
     type: partial
-    alias: Single Point
     next:
-        - Turbomole MM
-        - Turbomole Methods
+        - MM
+        - Methods
 
 properties:
     sp:
@@ -29,16 +30,16 @@ properties:
 
 
 link:
-    tag: Turbomole Optimisation
+    namespace: Turbomole
+    tag: Optimisation
     type: partial
-    alias: Optimisation
     next:
-        - Turbomole MM
-        - Turbomole Functionals
-        - Turbomole MP2
-        - Turbomole RI-MP2
-        - Turbomole SCS-ADC(2)
-        - Turbomole SCS-CC2
+        - MM
+        - Functionals
+        - MP2
+        - RI-MP2
+        - SCS-ADC(2)
+        - SCS-CC2
 
 properties:
     opt:
@@ -50,15 +51,15 @@ properties:
 
 
 link:
-    tag: Turbomole Optimisation Frequency
+    namespace: Turbomole
+    tag: Optimisation Frequency
     type: partial
-    alias: Optimisation Frequency
     next:
-        - Turbomole Functionals
-        - Turbomole MP2
-        - Turbomole RI-MP2
-        - Turbomole SCS-ADC(2)
-        - Turbomole SCS-CC2
+        - Functionals
+        - MP2
+        - RI-MP2
+        - SCS-ADC(2)
+        - SCS-CC2
 
 properties:
     opt:
@@ -75,11 +76,11 @@ scf:
 
 
 link:
-    tag: Turbomole Frequency
+    namespace: Turbomole
+    tag: Frequency
     type: partial
-    alias: Frequency
     next:
-        - Turbomole Methods
+        - Methods
 
 properties:
     freq:
@@ -93,13 +94,13 @@ scf:
 
 
 link:
-    tag: Turbomole Excited States
+    namespace: Turbomole
+    tag: Excited States
     type: partial
-    alias: Excited States
     next:
-        - Turbomole TDA
-        - Turbomole TD-DFT
-        - Turbomole Post-HF Excited States
+        - TDA
+        - TD-DFT
+        - Post-HF Excited States
 
 properties:
     es:

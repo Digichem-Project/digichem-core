@@ -1,13 +1,13 @@
 link:
+    namespace: Turbomole
     type: partial
-    tag: Turbomole TDA
-    alias: TDA
+    tag: TDA
     next:
-        - Turbomole 10 Singlets
-        - Turbomole 10 Triplets
-        - Turbomole 100 Singlets
-        - Turbomole Optimised S(1)
-        - Turbomole Optimised T(1)
+        - 10 Singlets
+        - 10 Triplets
+        - 100 Singlets
+        - Optimised S(1)
+        - Optimised T(1)
 
 properties:
     es:
@@ -18,15 +18,15 @@ properties:
 
 
 link:
+    namespace: Turbomole
     type: partial
-    tag: Turbomole TD-DFT
-    alias: TD-DFT
+    tag: TD-DFT
     next:
-        - Turbomole 10 Singlets
-        - Turbomole 10 Triplets
-        - Turbomole 100 Singlets
-        - Turbomole Optimised S(1)
-        - Turbomole Optimised T(1)
+        - 10 Singlets
+        - 10 Triplets
+        - 100 Singlets
+        - Optimised S(1)
+        - Optimised T(1)
 
 properties:
     es:
@@ -37,11 +37,11 @@ properties:
 
 
 link:
-    tag: Turbomole 10 Singlets
+    namespace: Turbomole
+    tag: 10 Singlets
     type: partial
-    alias: 10 Singlets
     next:
-        - Turbomole Functionals
+        - Functionals
 
 properties:
     es:
@@ -53,11 +53,11 @@ properties:
 
 
 link:
-    tag: Turbomole 10 Triplets
+    namespace: Turbomole
+    tag: 10 Triplets
     type: partial
-    alias: 10 Triplets
     next:
-        - Turbomole Functionals
+        - Functionals
 
 properties:
     es:
@@ -69,11 +69,11 @@ properties:
 
 
 link:
-    tag: Turbomole 100 Singlets
+    namespace: Turbomole
+    tag: 100 Singlets
     type: partial
-    alias: 100 Singlets
     next:
-        - Turbomole Functionals
+        - Functionals
 
 dft_exci:
     multiplicity: 1
@@ -90,11 +90,11 @@ properties:
 
 
 link:
-    tag: Turbomole Optimised S(1)
+    namespace: Turbomole
+    tag: Optimised S(1)
     type: partial
-    alias: Optimised S(1)
     next:
-        - Turbomole Functionals
+        - Functionals
 
 properties:
     opt:
@@ -108,11 +108,11 @@ properties:
 
 
 link:
-    tag: Turbomole Optimised T(1)
+    namespace: Turbomole
+    tag: Optimised T(1)
     type: partial
-    alias: Optimised T(1)
     next:
-        - Turbomole Functionals
+        - Functionals
 
 properties:
     opt:
