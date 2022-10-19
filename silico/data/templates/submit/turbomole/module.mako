@@ -16,7 +16,7 @@
     
     if program.scratch_base is not None and not module.no_scratch:
         if module.name == "mp2prep":
-            command += " " + shlex.quote(str(program.scratch_base.resolve()))
+            command += " " + shlex.quote(str(program.mp2prep_scratch.resolve()))
         
         elif module.name == "NumForce":
             command += " -scrpath " + shlex.quote(str(program.scratch_base.resolve()))

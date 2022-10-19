@@ -111,6 +111,18 @@ class Turbomole(Program_target):
                 return Path(self.calculation.scratch_directory, "node")
             else:
                 return self.calculation.scratch_directory
+            
+        @property
+        def mp2prep_scratch(self):
+            """
+            The directory to use for mp2prep as the scratch dir.
+            
+            This directory is placed immediately inside the normal scratch dir.
+            """
+            if self.calculation.scratch_directory is None:
+                return None
+            else:
+                return Path(self.calculation.scratch_directory, "mp2prep")
                     
         @property
         def define_input_path(self):
@@ -380,6 +392,21 @@ class Turbomole(Program_target):
             for index, module in enumerate(modules):
                 # Start by announcing which module we're running.
                 silico.log.get_logger().info("Running module {}/{}: {}".format(index+1, len(modules), module.name))
+                
+                # If we're going to use the module mp2prep, we'll use a sub-directroy within out normal scratch as the actual scratch dir.
+                # This might not be necessary, but it seem to help make the mp2prep script behave properly.
+                # Interestingly, it seems that mp2prep deletes the scratch dir after it is finished, this might perhaps be a bug, but it
+                # doesn't seem to affect mpgrad (perhaps mpgrad creates the directory as it is needed?).
+                if module.name == "mp2prep":
+                    try:
+                        # Make the folder.
+                        self.mp2prep_scratch.mkdir(parents = True)
+                        
+                    except FileExistsError:
+                        silico.log.get_logger().warning("Could not create mp2prep scratch directory '{}' because it already exists; continuing anyway".format(self.mp2prep_scratch)) 
+                    
+                    except Exception:
+                        raise Submission_error(self, "unable to create mp2prep scratch directory")
                 
                 # Get our wrapper script.
                 wrapper_body = TemplateLookup(directories = str(silico.default_template_directory())).get_template("/submit/turbomole/module.mako").render_unicode(program = self, module = module)
