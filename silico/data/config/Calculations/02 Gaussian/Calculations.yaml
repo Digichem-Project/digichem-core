@@ -1,9 +1,9 @@
 link:
+    namespace: Gaussian
     type: partial
-    tag: Gaussian Single Point Singlet
-    alias: Single Point (Singlet)
+    tag: Single Point Singlet
     next:
-        - Gaussian Methods
+        - Methods
 
 properties:
     sp:
@@ -16,11 +16,11 @@ electron:
 
 
 link:
+    namespace: Gaussian
     type: partial
-    tag: Gaussian Optimisation
-    alias: Optimisation
+    tag: Optimisation
     next:
-        - Gaussian Methods
+        - Methods
 
 properties:
     opt:
@@ -31,11 +31,11 @@ properties:
 
 
 link:
+    namespace: Gaussian
     type: partial
-    tag: Gaussian Optimisation Frequencies
-    alias: Optimisation Frequencies
+    tag: Optimisation Frequencies
     next:
-        - Gaussian Methods
+        - Methods
 
 properties:
     opt:
@@ -47,11 +47,11 @@ properties:
 ---
 
 link:
+    namespace: Gaussian
     type: partial
-    tag: Gaussian Optimisation Frequencies Unrestricted Triplet
-    alias: Optimisation Frequencies Unrestricted Triplet
+    tag: Optimisation Frequencies Unrestricted Triplet
     next:
-        - Gaussian Methods
+        - Methods
 
 properties:
     opt:
@@ -66,11 +66,11 @@ electron:
 ---
 
 link:
+    namespace: Gaussian
     type: partial
-    tag: Gaussian Frequencies
-    alias: Frequencies
+    tag: Frequencies
     next:
-        - Gaussian Methods
+        - Methods
 
 properties:
     freq:
@@ -81,9 +81,9 @@ properties:
 
 
 link:
+    namespace: Gaussian
     type: partial
-    tag: Gaussian Excited States
-    alias: Excited States
+    tag: Excited States
     next:
-        - Gaussian TDA
-        - Gaussian TD-DFT
+        - TDA
+        - TD-DFT

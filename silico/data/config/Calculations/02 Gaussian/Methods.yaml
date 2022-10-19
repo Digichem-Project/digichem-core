@@ -1,9 +1,10 @@
 link:
-    tag: Gaussian Methods
+    namespace: Gaussian
+    tag: Methods
     type: pseudo
     next:
-        - Gaussian Functionals
-        - Gaussian Post-HF Methods
+        - Functionals
+        - Post-HF Methods
 
 
 ---
@@ -11,24 +12,25 @@ link:
 
 # Post-HF methods
 link:
-    tag: Gaussian Post-HF Methods
+    namespace: Gaussian
+    tag: Post-HF Methods
     type: pseudo
     next:
-        - Gaussian MP2
-        - Gaussian MP3
-        - Gaussian MP4
-        - Gaussian MP5
-        - Gaussian CCD
-        - Gaussian CCSD
+        - MP2
+        - MP3
+        - MP4
+        - MP5
+        - CCD
+        - CCSD
    
    
 ---
 
 link:
+    namespace: Gaussian
     type: partial
-    tag: Gaussian MP2
-    alias: MP2
-    next: [Gaussian Basis Sets]
+    tag: MP2
+    next: [Basis Sets]
 
 method:
     mp:
@@ -40,10 +42,10 @@ method:
 
 
 link:
+    namespace: Gaussian
     type: partial
-    tag: Gaussian MP3
-    alias: MP3
-    next: [Gaussian Basis Sets]
+    tag: MP3
+    next: [Basis Sets]
 
 method:
     mp:
@@ -55,10 +57,10 @@ method:
 
 
 link:
+    namespace: Gaussian
     type: partial
-    tag: Gaussian MP4
-    alias: MP4
-    next: [Gaussian Basis Sets]
+    tag: MP4
+    next: [Basis Sets]
 
 method:
     mp:
@@ -70,10 +72,10 @@ method:
 
 
 link:
+    namespace: Gaussian
     type: partial
-    tag: Gaussian MP5
-    alias: MP5
-    next: [Gaussian Basis Sets]
+    tag: MP5
+    next: [Basis Sets]
 
 method:
     mp:
@@ -85,10 +87,10 @@ method:
 
 
 link:
+    namespace: Gaussian
     type: partial
-    tag: Gaussian CCD
-    alias: CCD
-    next: [Gaussian Basis Sets]
+    tag: CCD
+    next: [Basis Sets]
 
 method:
     cc:
@@ -100,10 +102,10 @@ method:
 
 
 link:
+    namespace: Gaussian
     type: partial
-    tag: Gaussian CCSD
-    alias: CCSD
-    next: [Gaussian Basis Sets]
+    tag: CCSD
+    next: [Basis Sets]
 
 method:
     cc:

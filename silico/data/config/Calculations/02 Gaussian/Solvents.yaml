@@ -1,36 +1,38 @@
 link:
-    tag: Gaussian Solvents
+    namespace: Gaussian
+    tag: Solvents
     type: pseudo
     next:
-        - Gaussian Gas Phase
-        - Gaussian Real Solvents
+        - Gas Phase
+        - Real Solvents
 
 
 ---
 
 
 link:
-    tag: Gaussian Real Solvents
+    namespace: Gaussian
+    tag: Real Solvents
     type: pseudo
     next:
-        - Gaussian 1,4-Dioxane
-        - Gaussian 2-Propanol
-        - Gaussian Acetone
-        - Gaussian Acetonitrile
-        - Gaussian Benzene
-        - Gaussian CycloHexane
-        - Gaussian Dichloromethane
-        - Gaussian DiethylEther
-        - Gaussian n,n-DiMethylFormamide
-        - Gaussian DiMethylSulfoxide
-        - Gaussian Ethanol
-        - Gaussian EthylEthanoate
-        - Gaussian Methanol
-        - Gaussian Heptane
-        - Gaussian n-Hexane
-        - Gaussian TetraHydroFuran
-        - Gaussian Toluene
-        - Gaussian Water
+        - 1,4-Dioxane
+        - 2-Propanol
+        - Acetone
+        - Acetonitrile
+        - Benzene
+        - CycloHexane
+        - Dichloromethane
+        - DiethylEther
+        - n,n-DiMethylFormamide
+        - DiMethylSulfoxide
+        - Ethanol
+        - EthylEthanoate
+        - Methanol
+        - Heptane
+        - n-Hexane
+        - TetraHydroFuran
+        - Toluene
+        - Water
 
 solution:
     calc: True
@@ -41,20 +43,20 @@ solution:
 
 
 link:
+    namespace: Gaussian
     type: partial
-    tag: Gaussian Gas Phase
-    alias: Gas Phase
-    next: [Gaussian Basis Sets]
+    tag: Gas Phase
+    next: [Basis Sets]
 
 
 ---
 
 
 link:
+    namespace: Gaussian
     type: partial
-    tag: Gaussian 1,4-Dioxane
-    alias: 1,4-Dioxane
-    next: [Gaussian Basis Sets]
+    tag: 1,4-Dioxane
+    next: [Basis Sets]
 
 solution:
     solvent: 1,4-Dioxane
@@ -64,10 +66,10 @@ solution:
 
 
 link:
+    namespace: Gaussian
     type: partial
-    tag: Gaussian 2-Propanol
-    alias: 2-Propanol
-    next: [Gaussian Basis Sets]
+    tag: 2-Propanol
+    next: [Basis Sets]
 
 solution:
     solvent: 2-Propanol
@@ -77,10 +79,10 @@ solution:
 
 
 link:
+    namespace: Gaussian
     type: partial
-    tag: Gaussian Acetone
-    alias: Acetone
-    next: [Gaussian Basis Sets]
+    tag: Acetone
+    next: [Basis Sets]
 
 solution:
     solvent: Acetone
@@ -90,10 +92,10 @@ solution:
 
 
 link:
+    namespace: Gaussian
     type: partial
-    tag: Gaussian Acetonitrile
-    alias: Acetonitrile
-    next: [Gaussian Basis Sets]
+    tag: Acetonitrile
+    next: [Basis Sets]
 
 solution:
     solvent: Acetonitrile
@@ -103,10 +105,10 @@ solution:
 
 
 link:
+    namespace: Gaussian
     type: partial
-    tag: Gaussian Benzene
-    alias: Benzene
-    next: [Gaussian Basis Sets]
+    tag: Benzene
+    next: [Basis Sets]
 
 solution:
     solvent: Benzene
@@ -116,10 +118,10 @@ solution:
 
 
 link:
+    namespace: Gaussian
     type: partial
-    tag: Gaussian CycloHexane
-    alias: CycloHexane
-    next: [Gaussian Basis Sets]
+    tag: CycloHexane
+    next: [Basis Sets]
 
 solution:
     solvent: Cyclohexane
@@ -129,10 +131,10 @@ solution:
 
 
 link:
+    namespace: Gaussian
     type: partial
-    tag: Gaussian DiethylEther
-    alias: Diethylether
-    next: [Gaussian Basis Sets]
+    tag: DiethylEther
+    next: [Basis Sets]
 
 solution:
     solvent: DiethylEther
@@ -142,10 +144,10 @@ solution:
 
 
 link:
+    namespace: Gaussian
     type: partial
-    tag: Gaussian DiMethylSulfoxide
-    alias: DMSO
-    next: [Gaussian Basis Sets]
+    tag: DiMethylSulfoxide
+    next: [Basis Sets]
 
 solution:
     solvent: DiMethylSulfoxide
@@ -155,10 +157,10 @@ solution:
 
 
 link:
+    namespace: Gaussian
     type: partial
-    tag: Gaussian Dichloromethane
-    alias: DCM
-    next: [Gaussian Basis Sets]
+    tag: Dichloromethane
+    next: [Basis Sets]
 
 solution:
     solvent: Dichloromethane
@@ -168,10 +170,10 @@ solution:
 
 
 link:
+    namespace: Gaussian
     type: partial
-    tag: Gaussian n,n-DiMethylFormamide
-    alias: DMF
-    next: [Gaussian Basis Sets]
+    tag: n,n-DiMethylFormamide
+    next: [Basis Sets]
 
 solvent: n,n-DiMethylFormamide
 
@@ -180,10 +182,10 @@ solvent: n,n-DiMethylFormamide
 
 
 link:
+    namespace: Gaussian
     type: partial
-    tag: Gaussian Ethanol
-    alias: Ethanol
-    next: [Gaussian Basis Sets]
+    tag: Ethanol
+    next: [Basis Sets]
 
 solution:
     solvent: Ethanol
@@ -193,10 +195,10 @@ solution:
 
 
 link:
+    namespace: Gaussian
     type: partial
-    tag: Gaussian EthylEthanoate
-    alias: Ethyl acetate
-    next: [Gaussian Basis Sets]
+    tag: EthylEthanoate
+    next: [Basis Sets]
 
 solution:
     solvent: EthylEthanoate
@@ -206,10 +208,10 @@ solution:
 
 
 link:
+    namespace: Gaussian
     type: partial
-    tag: Gaussian Methanol
-    alias: Methanol
-    next: [Gaussian Basis Sets]
+    tag: Methanol
+    next: [Basis Sets]
 
 solution:
     solvent: Methanol
@@ -219,10 +221,10 @@ solution:
 
 
 link:
+    namespace: Gaussian
     type: partial
-    tag: Gaussian Heptane
-    alias: Heptane
-    next: [Gaussian Basis Sets]
+    tag: Heptane
+    next: [Basis Sets]
 
 solution:
     solvent: Heptane
@@ -232,10 +234,10 @@ solution:
 
 
 link:
+    namespace: Gaussian
     type: partial
-    tag: Gaussian n-Hexane
-    alias: Hexane
-    next: [Gaussian Basis Sets]
+    tag: n-Hexane
+    next: [Basis Sets]
 
 solution:
     solvent: n-Hexane
@@ -245,10 +247,10 @@ solution:
 
 
 link:
+    namespace: Gaussian
     type: partial
-    tag: Gaussian TetraHydroFuran
-    alias: THF
-    next: [Gaussian Basis Sets]
+    tag: TetraHydroFuran
+    next: [Basis Sets]
 
 solution:
     solvent: TetraHydroFuran
@@ -258,10 +260,10 @@ solution:
 
 
 link:
+    namespace: Gaussian
     type: partial
-    tag: Gaussian Toluene
-    alias: Toluene
-    next: [Gaussian Basis Sets]
+    tag: Toluene
+    next: [Basis Sets]
 
 solution:
     solvent: Toluene
@@ -271,10 +273,10 @@ solution:
 
 
 link:
+    namespace: Gaussian
     type: partial
-    tag: Gaussian Water
-    alias: Water
-    next: [Gaussian Basis Sets]
+    tag: Water
+    next: [Basis Sets]
 
 solution:
     solvent: Water

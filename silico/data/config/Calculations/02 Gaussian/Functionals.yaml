@@ -1,21 +1,22 @@
 link:
+    namespace: Gaussian
     type: pseudo
-    tag: Gaussian Functionals
+    tag: Functionals
     next:
-        - Gaussian PBE1PBE (GD3BJ)
-        - Gaussian B3LYP (GD3BJ)
-        - Gaussian CAM-B3LYP (GD3BJ)
-        - Gaussian M062X (GD3)
-        - Gaussian wB97XD (GD2)
+        - PBE1PBE (GD3BJ)
+        - B3LYP (GD3BJ)
+        - CAM-B3LYP (GD3BJ)
+        - M062X (GD3)
+        - wB97XD (GD2)
 
 
 ---
 
 link:
+    namespace: Gaussian
     type: partial
-    tag: Gaussian PBE1PBE (GD3BJ)
-    alias: PBE1PBE (GD3BJ)
-    next: [Gaussian Solvents]
+    tag: PBE1PBE (GD3BJ)
+    next: [Solvents]
 
 method:
     dft:
@@ -28,10 +29,10 @@ method:
 
 
 link:
+    namespace: Gaussian
     type: partial
-    tag: Gaussian CAM-B3LYP (GD3BJ)
-    alias: CAM-B3LYP (GD3BJ)
-    next: [Gaussian Solvents]
+    tag: CAM-B3LYP (GD3BJ)
+    next: [Solvents]
 
 method:
     dft:
@@ -44,10 +45,10 @@ method:
 
 
 link:
+    namespace: Gaussian
     type: partial
-    tag: Gaussian B3LYP (GD3BJ)
-    alias: B3LYP (GD3BJ)
-    next: [Gaussian Solvents]
+    tag: B3LYP (GD3BJ)
+    next: [Solvents]
 
 method:
     dft:
@@ -60,10 +61,10 @@ method:
 
 
 link:
+    namespace: Gaussian
     type: partial
-    tag: Gaussian M062X (GD3)
-    alias: M062X (GD3)
-    next: [Gaussian Solvents]
+    tag: M062X (GD3)
+    next: [Solvents]
 
 method:
     dft:
@@ -76,10 +77,10 @@ method:
 
 
 link:
+    namespace: Gaussian
     type: partial
-    tag: Gaussian wB97XD (GD2)
-    alias: wB97XD (GD2)
-    next: [Gaussian Solvents]
+    tag: wB97XD (GD2)
+    next: [Solvents]
 
 method:
     dft:
