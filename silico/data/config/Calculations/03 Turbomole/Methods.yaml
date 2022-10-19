@@ -62,12 +62,6 @@ NEXT:
     - Turbomole RI-CCSD(T)
 
 
-performance:
-    intel_AVX2_fix: True
-    memory: 80GB
-    num_cpu: 32
-
-
 ---
 # Turbomole supports two different MP2 methods:
 # - Standard MP2, which it does not recommend, and
@@ -124,6 +118,12 @@ method:
             calc: True
 
 
+performance:
+    intel_AVX2_fix: True
+    memory: 80GB
+    num_cpu: 32
+
+
 ---
 
 
@@ -140,6 +140,11 @@ method:
     ri:
         correlated:
             calc: True
+
+performance:
+    intel_AVX2_fix: True
+    memory: 80GB
+    num_cpu: 32
 
 
 ---
@@ -164,6 +169,11 @@ method:
     scs:
         calc: True
 
+performance:
+    intel_AVX2_fix: True
+    memory: 80GB
+    num_cpu: 32
+
 
 ---
 
@@ -187,6 +197,11 @@ method:
     scs:
         calc: True
 
+performance:
+    intel_AVX2_fix: True
+    memory: 80GB
+    num_cpu: 32
+
 
 ---
 
@@ -205,6 +220,11 @@ method:
         correlated:
             calc: True
 
+performance:
+    intel_AVX2_fix: True
+    memory: 80GB
+    num_cpu: 32
+
 
 ---
 
@@ -222,3 +242,8 @@ method:
     ri:
         correlated:
             calc: True
+
+performance:
+    intel_AVX2_fix: True
+    memory: 80GB
+    num_cpu: 32
