@@ -188,6 +188,10 @@ class Configurables_parser():
                         if config is None:
                             continue
                         
+                        # Before we do anything else, process the namespace option (if given).
+                        # This automatically alters the tag, alias, next, and previous options.
+                        self.process_namespace(config)
+                        
                         # If the config has its link:type set to update, file it away separately.
                         if getopt(config, "link", "type", default = None) == "update":
                             # An update, no need to pre process.
@@ -209,7 +213,31 @@ class Configurables_parser():
                 # This should be ok to ignore, just means a file was moved inbetween us looking how many files there are and reading them.
                 # Possibly no need to worry about this?
                 pass
+    
+    
+    def process_namespace(self, config):
+        """
+        Process the namespace option for a config.
+        """
+        namespace = getopt(config, "link", "namespace", default = None)
+        if namespace is None:
+            return
+        
+        # First, if alias has not been set, set it now based on the old tag.
+        if not hasopt(config, "link", "alias") and hasopt(config, "link", "tag"):
+            setopt(config, "link", "alias", config['link']['tag'])
             
+        # Then, add namespace to tag.
+        setopt(config, "link", "tag", "{} {}".format(namespace, getopt(config, "link", "tag")))
+        
+        # Add namespace to next and previous.
+        for option in ("next", "previous"):
+            if hasopt(config, "link", option):
+                config['link'][option] = ["{} {}".format(namespace, item) for item in config['link'][option]]
+        
+        # Done.
+    
+    
     def process(self, children = None):
         """
         Process the config dicts that we have parsed.
