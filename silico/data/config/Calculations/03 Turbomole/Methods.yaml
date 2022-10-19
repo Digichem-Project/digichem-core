@@ -1,24 +1,28 @@
-TAG: Turbomole Methods
-SUB_TYPE: pseudo
-NEXT:
-    - Turbomole Functionals
-    - Turbomole Post-HF
+link:
+    namespace: Turbomole
+    tag: Methods
+    type: pseudo
+    next:
+        - Functionals
+        - Post-HF
  
 ---
 
 
-TAG: Turbomole MM
-ALIAS: MM
-SUB_TYPE: partial
+link:
+    namespace: Turbomole
+    tag: MM
+    type: partial
 
-NEXT:
-    - Turbomole UFF
+    next:
+        - UFF
 
 ---
 
 
-TAG: Turbomole UFF
-ALIAS: UFF
+link:
+    namespace: Turbomole
+    tag: UFF
 
 meta:
     class_name: Turbomole-UFF
@@ -49,30 +53,34 @@ properties:
         
 ---
 
-TAG: Turbomole Post-HF
-SUB_TYPE: pseudo
-NEXT:
-    - Turbomole MP2
-    - Turbomole RI-MP2
-    - Turbomole RI-MP3
-    - Turbomole RI-MP4
-    - Turbomole SCS-ADC(2)
-    - Turbomole SCS-CC2
-    - Turbomole RI-CCSD
-    - Turbomole RI-CCSD(T)
+
+link:
+    namespace: Turbomole
+    tag: Post-HF
+    type: pseudo
+    next:
+        - MP2
+        - RI-MP2
+        - RI-MP3
+        - RI-MP4
+        - SCS-ADC(2)
+        - SCS-CC2
+        - RI-CCSD
+        - RI-CCSD(T)
 
 
 ---
-# Turbomole supports two different MP2 methods:
+# supports two different MP2 methods:
 # - Standard MP2, which it does not recommend, and
 # - RI-MP2, which should be faster than MP2.
 # For all other MP and CC methods, RI is the only option.
 
-TAG: Turbomole MP2
-SUB_TYPE: partial
-ALIAS: MP2
-NEXT:
-    - Turbomole Basis Sets
+link:
+    namespace: Turbomole
+    tag: MP2
+    type: partial
+    next:
+        - Basis Sets
 
 method:
     mp:
@@ -83,11 +91,12 @@ method:
 ---
 
 
-TAG: Turbomole RI-MP2
-SUB_TYPE: partial
-ALIAS: RI-MP2
-NEXT:
-    - Turbomole Correlation Consistent Basis Sets
+link:
+    namespace: Turbomole
+    tag: RI-MP2
+    type: partial
+    next:
+        - Correlation Consistent Basis Sets
 
 performance:
     intel_AVX2_fix: True
@@ -103,11 +112,12 @@ method:
 ---
 
 
-TAG: Turbomole RI-MP3
-SUB_TYPE: partial
-ALIAS: RI-MP3
-NEXT:
-    - Turbomole Correlation Consistent Basis Sets
+link:
+    namespace: Turbomole
+    tag: RI-MP3
+    type: partial
+    next:
+        - Correlation Consistent Basis Sets
 
 method:
     mp:
@@ -127,11 +137,12 @@ performance:
 ---
 
 
-TAG: Turbomole RI-MP4
-SUB_TYPE: partial
-ALIAS: RI-MP4
-NEXT:
-    - Turbomole Correlation Consistent Basis Sets
+link:
+    namespace: Turbomole
+    tag: RI-MP4
+    type: partial
+    next:
+        - Correlation Consistent Basis Sets
 
 method:
     mp:
@@ -150,11 +161,12 @@ performance:
 ---
 
 
-TAG: Turbomole SCS-ADC(2)
-SUB_TYPE: partial
-ALIAS: SCS-ADC(2)
-NEXT:
-    - Turbomole Correlation Consistent Basis Sets
+link:
+    namespace: Turbomole
+    tag: SCS-ADC(2)
+    type: partial
+    next:
+        - Correlation Consistent Basis Sets
 
 performance:
     intel_AVX2_fix: True
@@ -178,11 +190,12 @@ performance:
 ---
 
 
-TAG: Turbomole SCS-CC2
-SUB_TYPE: partial
-ALIAS: SCS-CC2
-NEXT:
-    - Turbomole Correlation Consistent Basis Sets
+link:
+    namespace: Turbomole
+    tag: SCS-CC2
+    type: partial
+    next:
+        - Correlation Consistent Basis Sets
 
 performance:
     intel_AVX2_fix: True
@@ -206,11 +219,12 @@ performance:
 ---
 
 
-TAG: Turbomole RI-CCSD
-SUB_TYPE: partial
-ALIAS: RI-CCSD
-NEXT:
-    - Turbomole Correlation Consistent Basis Sets
+link:
+    namespace: Turbomole
+    tag: RI-CCSD
+    type: partial
+    next:
+        - Correlation Consistent Basis Sets
 
 method:
     cc:
@@ -229,11 +243,12 @@ performance:
 ---
 
 
-TAG: Turbomole RI-CCSD(T)
-SUB_TYPE: partial
-ALIAS: RI-CCSD(T)
-NEXT:
-    - Turbomole Correlation Consistent Basis Sets
+link:
+    namespace: Turbomole
+    tag: RI-CCSD(T)
+    type: partial
+    next:
+        - Correlation Consistent Basis Sets
 
 method:
     cc:

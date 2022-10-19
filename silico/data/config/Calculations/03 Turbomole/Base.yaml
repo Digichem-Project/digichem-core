@@ -1,8 +1,11 @@
-TAG: Turbomole
+link:
+    tag: Turbomole
+    type: pseudo
+    next:
+        - Turbomole Calculations
 
 meta:
     class_name: Turbomole
-SUB_TYPE: pseudo
 
 # Increase number of SCF iterations.
 scf:
@@ -11,7 +14,4 @@ scf:
 # Options that control use of the scratch directory.
 scratch_options:
     all_output: False
-
-NEXT:
-    - Turbomole Calculations
 

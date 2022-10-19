@@ -1,5 +1,6 @@
-TAG: Calculation Base
-SUB_TYPE: update
+link:
+    tag: Calculation Base
+    type: update
 
 scratch_options:
     path: /scratch/tmp

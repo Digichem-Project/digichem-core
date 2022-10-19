@@ -1,5 +1,6 @@
-TAG: Program Base
-SUB_TYPE: update
+link:
+    tag: Program Base
+    type: update
 
 # These are the destinations that this program is compatible with.
 destinations:
@@ -9,8 +10,9 @@ destinations:
 ---
 
 
-TAG: Gaussian 09
-SUB_TYPE: update
+link:
+    tag: Gaussian 09
+    type: update
 
 # Path to the directory where gaussian is installed (not entirely clear why this is required, see http://gaussian.com/running/).
 root: /opt/sw/arch/manual/gaussian/G09_D01/g09
@@ -23,8 +25,9 @@ init_file: /opt/sw/arch/manual/gaussian/G09_D01/g09/bsd/g09.profile
 
 
 # Config for a Gaussian submission
-TAG: Gaussian 16
-SUB_TYPE: update
+link:
+    tag: Gaussian 16
+    type: update
 
 # Path to the directory where gaussian is installed (not entirely clear why this is required, see http://gaussian.com/running/).
 root: /opt/sw/arch/manual/gaussian/G16_A03/g16
@@ -37,8 +40,9 @@ init_file: /opt/sw/arch/manual/gaussian/G16_A03/g16/bsd/g16.profile
 
 
 # Config for a Turbomole submission
-TAG: Turbomole
-SUB_TYPE: update
+link:
+    tag: Turbomole
+    type: update
 
 # Setup locations.
 root: /opt/sw/arch/manual/turbomole/7.4/TmoleX19/TURBOMOLE/

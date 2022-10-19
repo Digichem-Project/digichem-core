@@ -1,20 +1,22 @@
-SUB_TYPE: pseudo
-TAG: Gaussian Functionals
-
-NEXT:
-    - Gaussian PBE1PBE (GD3BJ)
-    - Gaussian B3LYP (GD3BJ)
-    - Gaussian CAM-B3LYP (GD3BJ)
-    - Gaussian M062X (GD3)
-    - Gaussian wB97XD (GD2)
+link:
+    namespace: Gaussian
+    type: pseudo
+    tag: Functionals
+    next:
+        - PBE1PBE (GD3BJ)
+        - B3LYP (GD3BJ)
+        - CAM-B3LYP (GD3BJ)
+        - M062X (GD3)
+        - wB97XD (GD2)
 
 
 ---
 
-
-SUB_TYPE: partial
-TAG: Gaussian PBE1PBE (GD3BJ)
-ALIAS: PBE1PBE (GD3BJ)
+link:
+    namespace: Gaussian
+    type: partial
+    tag: PBE1PBE (GD3BJ)
+    next: [Solvents]
 
 method:
     dft:
@@ -22,15 +24,15 @@ method:
         functional: PBE1PBE
         dispersion: GD3BJ
 
-NEXT: [Gaussian Solvents]
-
 
 ---
 
 
-SUB_TYPE: partial
-TAG: Gaussian CAM-B3LYP (GD3BJ)
-ALIAS: CAM-B3LYP (GD3BJ)
+link:
+    namespace: Gaussian
+    type: partial
+    tag: CAM-B3LYP (GD3BJ)
+    next: [Solvents]
 
 method:
     dft:
@@ -38,15 +40,15 @@ method:
         functional: CAM-B3LYP
         dispersion: GD3BJ
 
-NEXT: [Gaussian Solvents]
-
 
 ---
 
 
-SUB_TYPE: partial
-TAG: Gaussian B3LYP (GD3BJ)
-ALIAS: B3LYP (GD3BJ)
+link:
+    namespace: Gaussian
+    type: partial
+    tag: B3LYP (GD3BJ)
+    next: [Solvents]
 
 method:
     dft:
@@ -54,15 +56,15 @@ method:
         functional: B3LYP
         dispersion: GD3BJ
 
-NEXT: [Gaussian Solvents]
-
 
 ---
 
 
-SUB_TYPE: partial
-TAG: Gaussian M062X (GD3)
-ALIAS: M062X (GD3)
+link:
+    namespace: Gaussian
+    type: partial
+    tag: M062X (GD3)
+    next: [Solvents]
 
 method:
     dft:
@@ -70,20 +72,18 @@ method:
         functional: M062X
         dispersion: GD3
 
-NEXT: [Gaussian Solvents]
-
 
 ---
 
 
-SUB_TYPE: partial
-TAG: Gaussian wB97XD (GD2)
-ALIAS: wB97XD (GD2)
+link:
+    namespace: Gaussian
+    type: partial
+    tag: wB97XD (GD2)
+    next: [Solvents]
 
 method:
     dft:
         calc: True
         functional: wB97XD
         dispersion: GD3BJ
-
-NEXT: [Gaussian Solvents]

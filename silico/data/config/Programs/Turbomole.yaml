@@ -1,5 +1,10 @@
 # Config for a Turbomole submission
-TAG: Turbomole
+link:
+    tag: Turbomole
+# The top config for the calculations we support.
+    next:
+        - Turbomole Auto
+        - [Calculation Base, Turbomole]
 
 # The name of the program this config is for. These are pre-built into silico.
 meta:
@@ -7,8 +12,3 @@ meta:
 
 root: /home/oliver/Software/TmoleX19/TURBOMOLE
 init_file: /home/oliver/Software/TmoleX19/TURBOMOLE/Config_turbo_env
-
-# The top config for the calculations we support.
-NEXT:
-    - Turbomole Auto
-    - [Calculation Base, Turbomole]

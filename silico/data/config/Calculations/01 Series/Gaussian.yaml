@@ -1,31 +1,31 @@
-TAG: Gaussian Auto
-SUB_TYPE: partial
-ALIAS: Auto Characterisation
+link:
+    tag: Gaussian Auto
+    type: partial
+    alias: Auto Characterisation
+    next:
+        - Gaussian Auto Organic
+        - Gaussian Auto Organometallic
 
 meta:
     class_name: Series
 
-NEXT:
-    - Gaussian Auto Organic
-    - Gaussian Auto Organometallic
-
 
 ---
 
-
-TAG: Gaussian Auto Organic
-SUB_TYPE: partial
-ALIAS: Organic Emitter
-NEXT:
-    - Gaussian Auto Organic TDA
-    - Gaussian Auto Organic TDA Emission
+link:
+    tag: Gaussian Auto Organic
+    type: partial
+    alias: Organic Emitter
+    next:
+        - Gaussian Auto Organic TDA
+        - Gaussian Auto Organic TDA Emission
 
  
 ---
 
-
-TAG: Gaussian Auto Organic TDA
-ALIAS: Optimisation, Frequencies and Excited States (PBE0/6-31G(d,p) gas phase)
+link:
+    tag: Gaussian Auto Organic TDA
+    alias: Optimisation, Frequencies and Excited States (PBE0/6-31G(d,p) gas phase)
 
 post:
     combined_report_name: Organic Emitter TDA
@@ -37,9 +37,9 @@ calculations:
  
 ---
  
- 
-TAG: Gaussian Auto Organic TDA Emission
-ALIAS: Optimisation, Frequencies, Excited States and S(1) Emission (PBE0/6-31G(d,p) in toluene)
+link:
+    tag: Gaussian Auto Organic TDA Emission
+    alias: Optimisation, Frequencies, Excited States and S(1) Emission (PBE0/6-31G(d,p) in toluene)
 
 post:
     combined_report_name: Organic Emitter TDA Emission (in toluene)
@@ -52,19 +52,19 @@ calculations:
 
 ---
 
-
-TAG: Gaussian Auto Organometallic
-SUB_TYPE: partial
-ALIAS: Organometallic Emitter
-NEXT:
-    - Gaussian Auto Organometallic TD-DFT Unrestricted Triplet
-    - Gaussian Auto Organometallic TD-DFT Triplet
+link:
+    tag: Gaussian Auto Organometallic
+    type: partial
+    alias: Organometallic Emitter
+    next:
+        - Gaussian Auto Organometallic TD-DFT Unrestricted Triplet
+        - Gaussian Auto Organometallic TD-DFT Triplet
 
 ---
 
-
-TAG: Gaussian Auto Organometallic TD-DFT Unrestricted Triplet
-ALIAS: Optimisation, Frequencies, Excited States and Unrestricted Triplet Emission (B3LYP/6-31G+(d,p)/SBKJC-VDZ-ECP in acetonitrile)
+link:
+    tag: Gaussian Auto Organometallic TD-DFT Unrestricted Triplet
+    alias: Optimisation, Frequencies, Excited States and Unrestricted Triplet Emission (B3LYP/6-31G+(d,p)/SBKJC-VDZ-ECP in acetonitrile)
 
 post:
     combined_report_name: Organometallic Emitter TD-DFT Unrestricted Emission (in acetonitrile)
@@ -78,9 +78,9 @@ calculations:
 
 ---
 
-
-TAG: Gaussian Auto Organometallic TD-DFT Triplet
-ALIAS: Optimisation, Frequencies, Excited States and TD-DFT T(1) Emission (B3LYP/6-31G+(d,p)/SBKJC-VDZ-ECP in acetonitrile)
+link:
+    tag: Gaussian Auto Organometallic TD-DFT Triplet
+    alias: Optimisation, Frequencies, Excited States and TD-DFT T(1) Emission (B3LYP/6-31G+(d,p)/SBKJC-VDZ-ECP in acetonitrile)
 
 post:
     combined_report_name: Organometallic Emitter TD-DFT Emission (in acetonitrile)

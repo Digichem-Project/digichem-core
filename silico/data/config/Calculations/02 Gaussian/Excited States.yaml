@@ -1,6 +1,13 @@
-SUB_TYPE: partial
-TAG: Gaussian TDA
-ALIAS: TDA
+link:
+    namespace: Gaussian
+    type: partial
+    tag: TDA
+    next:
+        - 10 Singlets 10 Triplets
+        - 5 Triplets
+        - 100 Singlets
+        - Optimised S(1)
+        - Optimised T(1)
 
 properties:
     es:
@@ -12,32 +19,24 @@ keywords:
     10F:
     GFInput:
 
-NEXT:
-    - Gaussian 10 Singlets 10 Triplets
-    - Gaussian 5 Triplets
-    - Gaussian 100 Singlets
-    - Gaussian Optimised S(1)
-    - Gaussian Optimised T(1)
-
 
 ---
 
-
-SUB_TYPE: partial
-TAG: Gaussian TD-DFT
-ALIAS: TD-DFT
+link:
+    namespace: Gaussian
+    type: partial
+    tag: TD-DFT
+    next:
+        - 10 Singlets 10 Triplets
+        - 5 Triplets
+        - 100 Singlets
+        - Optimised S(1)
+        - Optimised T(1)
 
 properties:
     es:
         calc: True
         method: TD-DFT
-
-NEXT:
-    - Gaussian 10 Singlets 10 Triplets
-    - Gaussian 5 Triplets
-    - Gaussian 100 Singlets
-    - Gaussian Optimised S(1)
-    - Gaussian Optimised T(1)
     
 keywords:
     # Options required for PySOC
@@ -49,56 +48,60 @@ keywords:
 ---
 
 
-SUB_TYPE: partial
-TAG: Gaussian 10 Singlets 10 Triplets
-ALIAS: 10 Singlets 10 Triplets
+link:
+    namespace: Gaussian
+    type: partial
+    tag: 10 Singlets 10 Triplets
+    next:
+        - Functionals
 
 properties:
     es:
         multiplicity: 50-50
         num_states: 10
 
-NEXT:
-    - Gaussian Functionals
-
 
 ---
 
 
-SUB_TYPE: partial
-TAG: Gaussian 5 Triplets
-ALIAS: 5 Triplets
+link:
+    namespace: Gaussian
+    type: partial
+    tag: 5 Triplets
+    next:
+        - Functionals
 
 properties:
     es:
         multiplicity: triplet
         num_states: 5
 
-NEXT:
-    - Gaussian Functionals
 
 ---
 
 
-SUB_TYPE: partial
-TAG: Gaussian 100 Singlets
-ALIAS: 100 Singlets
+link:
+    namespace: Gaussian
+    type: partial
+    tag: 100 Singlets
+    next:
+        - Functionals
 
 properties:
     es:
         multiplicity: singlet
         num_states: 100
 
-NEXT:
-    - Gaussian Functionals
-
 
 ---
 
 
-SUB_TYPE: partial
-TAG: Gaussian Optimised S(1)
-ALIAS: Optimised S(1)
+link:
+    namespace: Gaussian
+    type: partial
+    tag: Optimised S(1)
+    next:
+        - Functionals
 
 performance:
     num_cpu: 16
@@ -111,16 +114,16 @@ properties:
         num_states: 10
         state_of_interest: 1
 
-NEXT:
-    - Gaussian Functionals
-
 
 ---
 
 
-SUB_TYPE: partial
-TAG: Gaussian Optimised T(1)
-ALIAS: Optimised T(1)
+link:
+    namespace: Gaussian
+    type: partial
+    tag: Optimised T(1)
+    next:
+        - Functionals
 
 performance:
     num_cpu: 16
@@ -132,6 +135,3 @@ properties:
         multiplicity: triplet
         num_states: 10
         state_of_interest: 1
-
-NEXT:
-    - Gaussian Functionals

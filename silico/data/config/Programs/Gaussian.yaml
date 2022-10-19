@@ -1,5 +1,10 @@
 # Config for a Gaussian submission
-TAG: Gaussian 09
+link:
+    tag: Gaussian 09
+# The top config for the calculations we support.
+    next:
+        - Gaussian Auto
+        - [Calculation Base, Gaussian]
 
 # The name of the program this config is for. These are pre-built into silico.
 meta:
@@ -17,17 +22,17 @@ root: /home/oliver/Fake_Gauss/g09
 # Path to the gaussian .profile script which is run to set-up gaussian.
 init_file: /home/oliver/Fake_Gauss/g09/bsd/g09.profile
 
-# The top config for the calculations we support.
-NEXT:
-    - Gaussian Auto
-    - [Calculation Base, Gaussian]
-
 
 ---
 
 
 # Config for a Gaussian submission
-TAG: Gaussian 16
+link:
+    tag: Gaussian 16
+# The top config for the calculations we support.
+    next:
+        - Gaussian Auto
+        - [Calculation Base, Gaussian]
 
 # The name of the program this config is for. These are pre-built into silico.
 meta:
@@ -44,9 +49,3 @@ root: /home/oliver/Fake_Gauss/g16
 
 # Path to the gaussian .profile script which is run to set-up gaussian.
 init_file: /home/oliver/Fake_Gauss/g16/bsd/g16.profile
-
-# The top config for the calculations we support.
-NEXT:
-    - Gaussian Auto
-    - [Calculation Base, Gaussian]
-

@@ -1,9 +1,19 @@
 # The base for gaussian calculations.
 
+link:
+    tag: Gaussian
+    type: pseudo
+    # The names of configs to go to next.
+    next:
+        - Gaussian Single Point Singlet
+        - Gaussian Optimisation
+        - Gaussian Optimisation Frequencies
+        - Gaussian Optimisation Frequencies Unrestricted Triplet
+        - Gaussian Frequencies
+        - Gaussian Excited States
+
 meta:
     class_name: Gaussian
-TAG: Gaussian
-SUB_TYPE: pseudo
 
 # Gaussian calculation options.
 
@@ -30,14 +40,3 @@ keywords:
 
     # This option controls which density to use with the Population option. 'Current' is generally what you want, but alternatives may be required for eg MP2.
     Density: Current
-
-# The names of configs to go to next.
-NEXT:
- - Gaussian Single Point Singlet
- - Gaussian Optimisation
- - Gaussian Optimisation Frequencies
- - Gaussian Optimisation Frequencies Unrestricted Triplet
- - Gaussian Frequencies
- - Gaussian Excited States
-
-

@@ -1,75 +1,79 @@
-SUB_TYPE: partial
-TAG: Turbomole TDA
-ALIAS: TDA
+link:
+    namespace: Turbomole
+    type: partial
+    tag: TDA
+    next:
+        - 10 Singlets
+        - 10 Triplets
+        - 100 Singlets
+        - Optimised S(1)
+        - Optimised T(1)
 
 properties:
     es:
         method: TDA
 
-NEXT:
-    - Turbomole 10 Singlets
-    - Turbomole 10 Triplets
-    - Turbomole 100 Singlets
-    - Turbomole Optimised S(1)
-    - Turbomole Optimised T(1)
-
 
 ---
 
 
-SUB_TYPE: partial
-TAG: Turbomole TD-DFT
-ALIAS: TD-DFT
+link:
+    namespace: Turbomole
+    type: partial
+    tag: TD-DFT
+    next:
+        - 10 Singlets
+        - 10 Triplets
+        - 100 Singlets
+        - Optimised S(1)
+        - Optimised T(1)
 
 properties:
     es:
         method: TD-DFT
 
-NEXT:
-    - Turbomole 10 Singlets
-    - Turbomole 10 Triplets
-    - Turbomole 100 Singlets
-    - Turbomole Optimised S(1)
-    - Turbomole Optimised T(1)
-
 
 ---
 
 
-TAG: Turbomole 10 Singlets
-SUB_TYPE: partial
-ALIAS: 10 Singlets
+link:
+    namespace: Turbomole
+    tag: 10 Singlets
+    type: partial
+    next:
+        - Functionals
 
 properties:
     es:
         multiplicity: Singlet
         num_states: 10
 
-NEXT:
-    - Turbomole Functionals
 
 ---
 
 
-TAG: Turbomole 10 Triplets
-SUB_TYPE: partial
-ALIAS: 10 Triplets
+link:
+    namespace: Turbomole
+    tag: 10 Triplets
+    type: partial
+    next:
+        - Functionals
 
 properties:
     es:
         multiplicity: Triplet
         num_states: 10
 
-NEXT:
-    - Turbomole Functionals
-
 
 ---
 
 
-TAG: Turbomole 100 Singlets
-SUB_TYPE: partial
-ALIAS: 100 Singlets
+link:
+    namespace: Turbomole
+    tag: 100 Singlets
+    type: partial
+    next:
+        - Functionals
 
 dft_exci:
     multiplicity: 1
@@ -81,16 +85,16 @@ properties:
         multiplicity: Singlet
         num_states: 100
 
-NEXT:
-    - Turbomole Functionals
-
 
 ---
 
 
-TAG: Turbomole Optimised S(1)
-SUB_TYPE: partial
-ALIAS: Optimised S(1)
+link:
+    namespace: Turbomole
+    tag: Optimised S(1)
+    type: partial
+    next:
+        - Functionals
 
 properties:
     opt:
@@ -99,16 +103,16 @@ properties:
         multiplicity: Singlet
         num_states: 10
 
-NEXT:
-    - Turbomole Functionals
-
 
 ---
 
 
-TAG: Turbomole Optimised T(1)
-SUB_TYPE: partial
-ALIAS: Optimised T(1)
+link:
+    namespace: Turbomole
+    tag: Optimised T(1)
+    type: partial
+    next:
+        - Functionals
 
 properties:
     opt:
@@ -116,7 +120,3 @@ properties:
     es:
         multiplicity: Triplet
         num_states: 10
-
-NEXT:
-    - Turbomole Functionals
-

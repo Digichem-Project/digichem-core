@@ -1,106 +1,113 @@
-TAG: Gaussian Methods
-SUB_TYPE: pseudo
-
-NEXT:
-    - Gaussian Functionals
-    - Gaussian Post-HF Methods
+link:
+    namespace: Gaussian
+    tag: Methods
+    type: pseudo
+    next:
+        - Functionals
+        - Post-HF Methods
 
 
 ---
 
 
 # Post-HF methods
-TAG: Gaussian Post-HF Methods
-SUB_TYPE: pseudo
-
-NEXT:
-    - Gaussian MP2
-    - Gaussian MP3
-    - Gaussian MP4
-    - Gaussian MP5
-    - Gaussian CCD
-    - Gaussian CCSD
+link:
+    namespace: Gaussian
+    tag: Post-HF Methods
+    type: pseudo
+    next:
+        - MP2
+        - MP3
+        - MP4
+        - MP5
+        - CCD
+        - CCSD
    
    
 ---
 
-SUB_TYPE: partial
-TAG: Gaussian MP2
-ALIAS: MP2
+link:
+    namespace: Gaussian
+    type: partial
+    tag: MP2
+    next: [Basis Sets]
 
 method:
     mp:
         calc: True
         level: MP2
-
-NEXT: [Gaussian Basis Sets]
    
    
 ---
 
-SUB_TYPE: partial
-TAG: Gaussian MP3
-ALIAS: MP3
+
+link:
+    namespace: Gaussian
+    type: partial
+    tag: MP3
+    next: [Basis Sets]
 
 method:
     mp:
         calc: True
         level: MP3
-
-NEXT: [Gaussian Basis Sets]
    
    
 ---
 
-SUB_TYPE: partial
-TAG: Gaussian MP4
-ALIAS: MP4
+
+link:
+    namespace: Gaussian
+    type: partial
+    tag: MP4
+    next: [Basis Sets]
 
 method:
     mp:
         calc: True
         level: MP4
-
-NEXT: [Gaussian Basis Sets]
    
    
 ---
 
-SUB_TYPE: partial
-TAG: Gaussian MP5
-ALIAS: MP5
+
+link:
+    namespace: Gaussian
+    type: partial
+    tag: MP5
+    next: [Basis Sets]
 
 method:
     mp:
         calc: True
         level: MP5
 
-NEXT: [Gaussian Basis Sets]
-   
-   
+
 ---
 
-SUB_TYPE: partial
-TAG: Gaussian CCD
-ALIAS: CCD
+
+link:
+    namespace: Gaussian
+    type: partial
+    tag: CCD
+    next: [Basis Sets]
 
 method:
     cc:
         calc: True
         level: CCD
 
-NEXT: [Gaussian Basis Sets]
 
-   
 ---
 
-SUB_TYPE: partial
-TAG: Gaussian CCSD
-ALIAS: CCSD
+
+link:
+    namespace: Gaussian
+    type: partial
+    tag: CCSD
+    next: [Basis Sets]
 
 method:
     cc:
         calc: True
         level: CCSD
-
-NEXT: [Gaussian Basis Sets]
