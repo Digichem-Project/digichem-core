@@ -14,7 +14,7 @@
     # Currently, this includes mp2prep and NumForce, both of which handle scratch differently to other modules.
     command = module.to_command()
     
-    if program.scratch_base is not None:
+    if program.scratch_base is not None and not module.no_scratch:
         if module.name == "mp2prep":
             command += " " + shlex.quote(str(program.scratch_base.resolve()))
         
@@ -50,7 +50,7 @@ unset SLURM_JOB_ID
 ## Set scratch dir.
 ## IMPORTANT: A bug in NumForce will prevent it running properly if TURBOTMPDIR is set
 ## (probably because it handles scratch itself).
-%if program.scratch_base is not None and module.name != "NumForce":
+%if program.scratch_base is not None and module.name != "NumForce" and not module.no_scratch:
 ##
 ## Yes scratch.
 export TURBOTMPDIR=${shlex.quote(str(program.scratch_base.resolve()))}

@@ -22,13 +22,14 @@ class Turbomole_module():
     """Class that represents a Turbomole sub-program (module)."""
     
     
-    def __init__(self, command, *args, unsafe = None):
+    def __init__(self, command, *args, unsafe = None, no_scratch = False):
         """
         Constructor for Turbomole modules.
         
         :param command: The command to run the module. In most cases, this can be a single command (rather than a full path), such as 'dscf'.
         :param *args: Additional command line arguments.
         :param unsafe: If True, indicates that the module cannot be run in a directory that contains whitespace. If None is given, unsafe will be determined based on the name of the module.
+        :param no_scratch: Whether to forcibly disable scratch for this module.
         """
         self.command = command
         self.args = list(args)
@@ -38,6 +39,8 @@ class Turbomole_module():
     
         else:
             self.unsafe = unsafe
+            
+        self.no_scratch = no_scratch
         
     @property
     def name(self):
@@ -287,11 +290,6 @@ class Turbomole_AI(Turbomole, AI_calculation_mixin):
                 
             # Set
             modules.append(jobex)
-            
-            # For reasons that aren't entirely clear, if we are doing an opt and freq job with mp2grad, we need another
-            # mp2prep run between jobex and NumForce.
-            if self.properties['freq']['calc'] and self.method['mp']['calc'] and self.method['mp']['level'] == "MP2" and not self.method['ri']['correlated']['calc']:
-                modules.append(Turbomole_module("mp2prep", "-g"))
         
         else:
             # TOOD: What about gradients with grad or rdgrad?
@@ -311,7 +309,7 @@ class Turbomole_AI(Turbomole, AI_calculation_mixin):
             if self.method['mp']['calc'] and self.method['mp']['level'] == "MP2" and not self.method['ri']['correlated']['calc']:
                 # Also add mp2prep so mpgrad will work properly.
                 # Use the gradient option if we're going to calculate frequencies, otherwise just energy.
-                modules.append(Turbomole_module("mp2prep", "-g" if self.properties['freq']['calc'] else "-e"))
+                modules.append(Turbomole_module("mp2prep", "-e"))
                 # And mpgrad itself.
                 modules.append(Turbomole_module("mpgrad"))
                 
@@ -355,6 +353,10 @@ class Turbomole_AI(Turbomole, AI_calculation_mixin):
                     pass
                 
                 elif self.method['mp']['calc'] and self.method['mp']['level'] == "MP2" and not self.method['ri']['correlated']['calc']:
+                    # For NumForce calcs using mpgrad, we need to run mp2prep once again.
+                    # This is because the usual scratch settings we give to mp2prep interfere somehow with the scratch settings for
+                    # NumForce. The solution at the moment is simply not to use scratch with mp2prep.
+                    modules.append("mp2prep", "-g", no_scratch = True)
                     numforce.args.extend(["-level" ,"mp2"])
                 
                 else:
