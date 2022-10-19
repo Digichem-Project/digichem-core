@@ -26,6 +26,7 @@ link:
         - RI-MP2
         - SCS-ADC(2)
         - SCS-CC2
+        - RI-CCSD
 
 properties:
     es:

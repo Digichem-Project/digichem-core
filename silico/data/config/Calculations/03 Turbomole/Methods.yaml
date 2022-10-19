@@ -114,6 +114,10 @@ method:
         correlated:
             calc: True
             
+properties:
+    es:
+        method: MP2
+            
 performance:
     intel_AVX2_fix: True
     memory: 40GB
@@ -191,6 +195,10 @@ method:
             calc: True
     scs:
         calc: True
+        
+properties:
+    es:
+        method: ADC(2)
 
 performance:
     intel_AVX2_fix: True
@@ -220,6 +228,10 @@ method:
             calc: True
     scs:
         calc: True
+        
+properties:
+    es:
+        method: CC2
 
 performance:
     intel_AVX2_fix: True
@@ -244,6 +256,10 @@ method:
     ri:
         correlated:
             calc: True
+            
+properties:
+    es:
+        method: CCSD
 
 performance:
     intel_AVX2_fix: True
