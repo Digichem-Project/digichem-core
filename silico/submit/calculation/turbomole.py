@@ -356,7 +356,7 @@ class Turbomole_AI(Turbomole, AI_calculation_mixin):
                     # For NumForce calcs using mpgrad, we need to run mp2prep once again.
                     # This is because the usual scratch settings we give to mp2prep interfere somehow with the scratch settings for
                     # NumForce. The solution at the moment is simply not to use scratch with mp2prep.
-                    modules.append("mp2prep", "-g", no_scratch = True)
+                    modules.append(Turbomole_module("mp2prep", "-g", no_scratch = True))
                     numforce.args.extend(["-level" ,"mp2"])
                 
                 else:
