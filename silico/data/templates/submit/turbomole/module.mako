@@ -19,7 +19,7 @@
             command += " " + shlex.quote(str(program.scratch_base.resolve()))
         
         elif module.name == "NumForce":
-            command += " -scrpath" + shlex.quote(str(program.scratch_base.resolve()))
+            command += " -scrpath " + shlex.quote(str(program.scratch_base.resolve()))
         
 
 %>\
