@@ -87,6 +87,11 @@ method:
         calc: True
         level: MP2
 
+performance:
+    intel_AVX2_fix: True
+    memory: 40GB
+    num_cpu: 16
+
 
 ---
 
@@ -108,7 +113,13 @@ method:
     ri:
         correlated:
             calc: True
-    
+            
+performance:
+    intel_AVX2_fix: True
+    memory: 40GB
+    num_cpu: 16
+
+
 ---
 
 
