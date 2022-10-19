@@ -309,7 +309,7 @@ class Turbomole_AI(Turbomole, AI_calculation_mixin):
             if self.method['mp']['calc'] and self.method['mp']['level'] == "MP2" and not self.method['ri']['correlated']['calc']:
                 # Also add mp2prep so mpgrad will work properly.
                 # Use the gradient option if we're going to calculate frequencies, otherwise just energy.
-                modules.append(Turbomole_module("mp2prep", "-e"))
+                modules.append(Turbomole_module("mp2prep",  "-g" if self.properties['freq']['calc'] else "-e"))
                 # And mpgrad itself.
                 modules.append(Turbomole_module("mpgrad"))
                 
