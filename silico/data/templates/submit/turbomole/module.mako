@@ -8,7 +8,7 @@
 ##
 <%
     # Setup our module arguemnts.
-    # For most, well behaved, arguments we can simply use the command and is returned from module.to_command().
+    # For most, well behaved, arguments we can simply use the command that is returned from module.to_command().
     # However, some more complex modules require additional setup that we can only do here (because, for example,
     # they depend on setup that is performed after the calculation is configured.
     # Currently, this includes mp2prep and NumForce, both of which handle scratch differently to other modules.
@@ -38,6 +38,13 @@ unset PARNODES
 export PARA_ARCH=${program.calculation.performance['parallel_mode']}
 ## Set number of nodes to run on.
 export PARNODES=${program.calculation.performance['num_cpu']}
+%endif
+##
+## IMPORTANT: The NumForce script is buggy and will try to forcably use MPI style parallisation
+## if it detects it is inside of a SLURM environment. To prevent this, we unset SLURM_JOB_ID
+## if we're using numforce and SMP.
+%if program.calculation.performance['parallel_mode'] == "SMP" and module.name == "NumForce":
+unset SLURM_JOB_ID
 %endif
 ##
 ## Set scratch dir.
