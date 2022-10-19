@@ -287,6 +287,11 @@ class Turbomole_AI(Turbomole, AI_calculation_mixin):
                 
             # Set
             modules.append(jobex)
+            
+            # For reasons that aren't entirely clear, if we are doing an opt and freq job with mp2grad, we need another
+            # mp2prep run between jobex and NumForce.
+            if self.properties['freq']['calc'] and self.method['mp']['calc'] and self.method['mp']['level'] == "MP2" and not self.method['ri']['correlated']['calc']:
+                modules.append(Turbomole_module("mp2prep", "-g"))
         
         else:
             # TOOD: What about gradients with grad or rdgrad?
