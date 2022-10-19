@@ -6,6 +6,25 @@
 <%page args="program, module"/>\
 ##
 ##
+<%
+    # Setup our module arguemnts.
+    # For most, well behaved, arguments we can simply use the command and is returned from module.to_command().
+    # However, some more complex modules require additional setup that we can only do here (because, for example,
+    # they depend on setup that is performed after the calculation is configured.
+    # Currently, this includes mp2prep and NumForce, both of which handle scratch differently to other modules.
+    command = module.to_command()
+    
+    if program.scratch_base is not None:
+        if module.name == "mp2prep":
+            command += " " + shlex.quote(str(program.scratch_base.resolve()))
+        
+        elif module.name == "NumForce":
+            command += " -scrpath" + shlex.quote(str(program.scratch_base.resolve()))
+        
+
+%>\
+##
+##
 #!/bin/bash
 ##
 ## Set the type of parallelization.
@@ -22,7 +41,9 @@ export PARNODES=${program.calculation.performance['num_cpu']}
 %endif
 ##
 ## Set scratch dir.
-%if program.scratch_base is not None:
+## IMPORTANT: A bug in NumForce will prevent it running properly if TURBOTMPDIR is set
+## (probably because it handles scratch itself).
+%if program.scratch_base is not None and module.name != "NumForce":
 ##
 ## Yes scratch.
 export TURBOTMPDIR=${shlex.quote(str(program.scratch_base.resolve()))}
@@ -43,8 +64,7 @@ export MKL_ENABLE_INSTRUCTIONS=SSE4_2
 %endif
 ##
 ## Now run the calculation module we've been given.
-## We add an extra option for the mp2prep module if we're using scratch.
-${module.to_command()} ${shlex.quote(str(program.scratch_base.resolve())) if module.name == "mp2prep" and program.scratch_base is not None else ""} >> ${shlex.quote(str(program.turbomole_output_path.resolve()))} 2>&1 || { >&2 echo "Failed to execute Turbomole module '${module.name}'"; exit 1; }
+${command} >> ${shlex.quote(str(program.turbomole_output_path.resolve()))} 2>&1 || { >&2 echo "Failed to execute Turbomole module '${module.name}'"; exit 1; }
 ##
 ## Done
 exit $?

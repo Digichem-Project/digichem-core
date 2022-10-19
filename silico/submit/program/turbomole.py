@@ -381,11 +381,6 @@ class Turbomole(Program_target):
                 # Start by announcing which module we're running.
                 silico.log.get_logger().info("Running module {}/{}: {}".format(index+1, len(modules), module.name))
                 
-                # We do some extra handling for the NumForce module, because it's parallelised differently.
-                # Because NumForce essentially starts a number of independent single point calcs, it is parallelised
-                # by using one CPU for each separate job.
-                # This is only available in an MPI type 
-                
                 # Get our wrapper script.
                 wrapper_body = TemplateLookup(directories = str(silico.default_template_directory())).get_template("/submit/turbomole/module.mako").render_unicode(program = self, module = module)
                 
