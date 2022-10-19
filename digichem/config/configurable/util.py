@@ -5,10 +5,24 @@ from silico.exception.configurable import Configurable_option_exception
 #########################
 # Function Definitions. #
 #########################
-def setopt(dict_obj, *option_names, value):
+def _resolve_value_default(option_names, value):
+    if isinstance(value, Default):
+        if len(option_names) > 0:
+            return option_names[:-1], option_names[-1]
+        
+        else:
+            raise ValueError("Missing argument 'value'")
+    
+    else:
+        return option_names, defres(value)
+
+
+def setopt(dict_obj, *option_names, value = Default(None)):
     """
     Set an option into an optionally nested dict.
     """
+    option_names, value = _resolve_value_default(option_names, value)
+    
     if len(option_names) > 1:
         if option_names[0] not in dict_obj:
             dict_obj[option_names[0]] = {}
@@ -19,10 +33,12 @@ def setopt(dict_obj, *option_names, value):
         dict_obj[option_names[0]] = value
 
         
-def appendopt(dict_obj, *option_names, value):
+def appendopt(dict_obj, *option_names, value = Default(None)):
     """
     Append a value to a list-like item in an optionally nested dict.
     """
+    option_names, value = _resolve_value_default(option_names, value)
+    
     if len(option_names) > 1:
         if option_names[0] not in dict_obj:
             dict_obj[option_names[0]] = {}
