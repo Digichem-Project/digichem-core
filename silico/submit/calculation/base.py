@@ -365,7 +365,7 @@ class Concrete_calculation(Calculation_target):
             return True
         
         # Otherwise, we can guess based on our multiplicity.
-        return self.multiplicity == 1
+        return self.multiplicity != 1
     
     
     ############################
