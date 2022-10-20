@@ -463,7 +463,7 @@ class Turbomole_AI(Turbomole, AI_calculation_mixin):
         
         # Add mult if we are not unrestricted.
         if not self.is_unrestricted:
-            irrep += "\{{}\}".format(self.properties['es']['multiplicity'])
+            irrep += "{{{}}}".format(self.properties['es']['multiplicity'])
             
         return "xgrad states=({} 1-{})".format(irrep, self.properties['es']['num_states'])
     
