@@ -6,6 +6,7 @@ from pathlib import Path
 import pkg_resources
 
 import silico.log
+from silico.misc.base import is_int
 
 
 # Load functional conversion table from file.
@@ -220,5 +221,95 @@ class Functional(Translate):
     
     def __str__(self):
         return self.translate("name")
+
+
+class Multiplicity(Translate):
+    """A class for converting between different representations of multiplicity."""
+    
+    table = [
+        {"name": "no multiplicity", "number": 0, "symbol": "?"},
+        {"name": "Singlet", "number": 1, "symbol": "S"},
+        {"name": "Doublet", "number": 2, "symbol": "D"},
+        {"name": "Triplet", "number": 3, "symbol": "T"},
+        {"name": "Quartet", "number": 4, "symbol": "Q"}
+    ]
+    
+    def __init__(self, multiplicity):
+        self.multiplicity = multiplicity
         
-       
+    @classmethod
+    def find_in_db(self, hint):
+        """
+        Try and find an entry for a multiplicity in the internal library.
+        
+        :raises ValueError: If the multiplicity could not be found.
+        :param hint: The name, number or symbol of the multiplicity to look for.
+        :returns: The corresponding multiplicity dict.
+        """
+        for row in self.table:
+            name, number, symbol = row.values()
+            if hint == number or hint.upper() in (name.upper(), symbol.upper()):
+                return row
+            
+        # No luck.
+        raise ValueError("Unable to find multiplicity with name '{}'".format(hint))
+    
+    @property
+    def symbol(self):
+        """
+        Get this multiplicity as a symbol.
+        """
+        # Get a shorthand symbol if we can.
+        try:
+            return self.find_in_db(self.multiplicity)['symbol']
+            
+        except ValueError:
+            if self.multiplicity % 1 == 0:
+                # Multiplicity is an integer, so return as a stringy whole number.
+                return str(int(self.multiplicity))
+            else:
+                return str(self.multiplicity)
+            
+    @property
+    def string(self):
+        """
+        Get this multiplicity as a string.
+        """
+        return self.translate("name")
+    
+    def __str__(self):
+        return self.string
+    
+    @property
+    def number(self):
+        """
+        Get this multiplicity as a number.
+        """
+        try:
+            self.find_in_db(self.multiplicity)['number']
+        
+        except ValueError:
+            # No pre-defined number, see if it is an int.
+            if is_int(self.multiplicity):
+                return int(self.multiplicity)
+            
+            else:
+                return float(self.multiplicity)
+    
+    def translate(self, to_type):
+        """
+        Translate into a name appropriate for a given program.
+        """
+        if to_type == "Gaussian":
+            to_type = "name"
+        
+        elif to_type == "Turbomole":
+            to_type = "number"
+        
+        
+        try:
+            return self.find_in_db(self.multiplicity)[to_type]
+        
+        except ValueError:
+            # Couldn't find in conversion table.
+            return self.multiplicity
