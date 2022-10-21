@@ -447,7 +447,7 @@ class Turbomole_AI(Turbomole, AI_calculation_mixin):
         
         # Add multiplicity if we're not unrestricted.
         if not self.is_unrestricted:
-            line_parts.append("multiplicity=" + "1" if self.properties['es']['multiplicity'] == "Singlet" else "3")
+            line_parts.append("multiplicity=" + ("1" if self.properties['es']['multiplicity'] == "Singlet" else "3"))
            
         # Number of states.
         line_parts.append("nexc=" + str(self.properties['es']['num_states']))
