@@ -76,7 +76,8 @@ class Basis_set(Translate):
         :param basis_set: The basis set to convert.
         """
         self.basis_set = basis_set
-        
+    
+    @classmethod
     def build_db(self):
         """
         Build a table of basis set names.
@@ -100,6 +101,7 @@ class Basis_set(Translate):
                 
         return new_db
     
+    @classmethod
     def find_in_db(self, hint):
         """
         Try and find the entry for a basis set in the basis set exchange.
@@ -159,14 +161,15 @@ class Functional(Translate):
         """
         self.functional = functional
             
-        
+    
+    @classmethod
     def find_in_db(self, hint):
         """
-        Try and find an entry for a basis set in the internal library.
+        Try and find an entry for a functional in the internal library.
         
         :raises ValueError: If the functional could not be found.
         :param hint: The name of the functional to look for.
-        :returns: The corresponding functional metadata dict.
+        :returns: The corresponding functional dict.
         """
         # First try using exact name.
         try:
