@@ -101,11 +101,34 @@ class Basis_set(Translate):
         :returns: A dictionary, where each key is the name of a basis set and each value is a BSE metadata dict.
         """
         # Build a database of basis set metadata, adding the display name and alternative names as additional keys for each basis set.
-        bse_db = bse.get_metadata()
+        # BSE's database has some semi-duplicate entries (such as '6-31g(d,p)' and '6-31g_st__st_').
+        # Although these basis sets are identical, they have reversed metadata (ie, for '6-31g(d,p)', 'display_name' is set to '6-31G(d,p)' and 'other_names'
+        # contains '6-31G**', while for '6-31g_st__st_' 'display_name' is '6-31G**' and 'other_names' is '6-31G(d,p)'.
+        # This is a problem for us because we need to predictable choose from these names (ie the star form '6-31G**' is suitable for both
+        # Gaussian and Turbomole), but the keys referring to these same names are different.
+        #
+        # Firstly, build a new dict using basename as the key, which appears to be the same even for duplicates.
+        db = {value["basename"]: value for key, value in bse.get_metadata().items()}
+        
         new_db = {}
         
-        for basis_key, basis_set in bse_db.items():
+        for basis_key, basis_set_meta in db.items():
             # First, add the normal key.
+            basis_set = {
+                "name": basis_set_meta['display_name'],
+                "alias": basis_set_meta['other_names'],
+                "meta": basis_set_meta
+            }
+            
+            # Decide on our program specific names.
+            gaussian = basis_set['name']
+            turbomole = basis_set['name']
+            
+            # Turbomole doesn't like pople sets with polarisation function spelled out,
+            # it prefers the star format.
+            if basis_set['name'][-5:] == "(d,p)":
+                turbomole = basis_set['name'][:-5] + "**"
+            
             new_db[basis_key] = basis_set
             
             # Add display names.
