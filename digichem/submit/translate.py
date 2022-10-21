@@ -147,7 +147,7 @@ class Basis_set(Translate):
             pass
         
         # Couldn't find it.
-        raise ValueError("Unable to find basis set with name '{}'".format(hint))
+        raise ValueError("Could not find basis set definition for '{}'".format(hint))
     
     def translate(self, program = None):
         """
@@ -160,7 +160,8 @@ class Basis_set(Translate):
         
         except ValueError:
             # Just return as is.
-            silico.log.get_logger().debug("Could not find basis set with name '{}' in the basis set exchange; using name unmodified".format(self.basis_set))
+            if self.basis_set != "auto":
+                silico.log.get_logger().debug("Could not find basis set with name '{}' in the basis set exchange; using name unmodified".format(self.basis_set))
             return self.basis_set
     
     def __str__(self):
@@ -204,7 +205,7 @@ class Functional(Translate):
             pass
         
         # No luck.
-        raise ValueError("Unable to find functional with name '{}'".format(hint))
+        raise ValueError("Could not find functional definition for  '{}'".format(hint))
         
     
     def translate(self, program):
@@ -327,7 +328,7 @@ class Multiplicity(Translate):
                 return row
             
         # No luck.
-        raise ValueError("Unable to find multiplicity with name '{}'".format(hint))
+        raise ValueError("Could not find multiplicity definition for '{}'".format(hint))
     
     @property
     def symbol(self):
