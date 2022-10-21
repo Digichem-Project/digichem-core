@@ -40,6 +40,24 @@ with open(Path(pkg_resources.resource_filename('silico', 'data/functionals.csv')
                 functional_db[ref_name] = functional
 
 
+# Load solvent conversion table from file.
+solvent_db = {}
+with open(Path(pkg_resources.resource_filename('silico', 'data/solvents.csv'))) as csv_file:
+    _reader = csv.reader(csv_file)
+    headers = None
+    for line_num, line in enumerate(_reader):
+        if line_num == 0:
+            headers = line
+        
+        else:
+            line = [line_part if line_part != "" else None for line_part in line]
+            
+            # The various parts of the definition.
+            solvent = {"name": line[0], "aliases": [line[1]] if line[1] is not None else [], "gaussian": line[2], "epsilon": float(line[3])}
+            
+            solvent_db[solvent['name']] = solvent
+
+
 class Translate():
     """
     ABC for translate classes.
@@ -222,6 +240,62 @@ class Functional(Translate):
         # All turbomole functionals are lower case, except for the word 'Gaussian'.
         return func_name.lower().replace("gaussian", "Gaussian")
     
+    def __str__(self):
+        return self.translate("name")
+
+
+class Solvent(Translate):
+    """A class for converting between different representations of solvents."""
+    
+    def __init__(self, solvent):
+        """
+        """
+        self.solvent = solvent
+    
+    @classmethod
+    def find_in_db(self, hint):
+        """
+        Try and find an entry for a solvent in the internal library.
+        
+        :raises ValueError: If the multiplicity could not be found.
+        :param hint: The name, number or symbol of the multiplicity to look for.
+        :returns: The corresponding multiplicity dict.
+        """
+        # First, just try to lookup exactly.
+        try:
+            return solvent_db[hint]
+            
+        except KeyError:
+            # No luck, look through for a match.
+            str_hint = "".join(str(hint).lower().split())
+            for solvent in solvent_db.values():
+                if hint == solvent['epsilon'] or str_hint in [name.lower() for name in solvent['aliases'] + [solvent['name']] + [solvent['gaussian']] if name is not None]:
+                    return solvent
+        
+        # No luck.
+        raise ValueError("Could not find solvent definition for '{}'".format(hint))
+    
+    def translate(self, program):
+        """
+        Translate this functional name to one recognised by a given program.
+        
+        :param program: The program to translate for.
+        """
+        if program == "turbomole":
+            program = "epsilon"
+        
+        try:
+            solvent_def = self.find_in_db(self.solvent)
+            
+            if solvent_def[program] is not None:
+                return solvent_def[program]
+            
+            else:
+                return solvent_def["name"]
+        
+        except ValueError:
+            return self.solvent
+        
     def __str__(self):
         return self.translate("name")
 
