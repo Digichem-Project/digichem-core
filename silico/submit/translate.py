@@ -24,8 +24,6 @@ with open(Path(pkg_resources.resource_filename('silico', 'data/functionals.csv')
             # The various parts of the definition.
             functional_name = line[0]
             aliases = line[1].split(",") if line[1] is not None else []
-            turbomole = line[1]
-            gaussian = line[1]
             functional = {"name": functional_name, "aliases": aliases, "turbomole": line[2], "gaussian": line[3]}
             
             # Get all the names we can refer to this functional by.
