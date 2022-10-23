@@ -337,7 +337,7 @@ class Multiplicity(Translate):
         """
         for row in self.table:
             name, number, symbol = row.values()
-            if hint == number or hint.upper() in (name.upper(), symbol.upper()):
+            if hint == number or str(hint).upper() in (str(number), name.upper(), symbol.upper()):
                 return row
             
         # No luck.
@@ -375,7 +375,7 @@ class Multiplicity(Translate):
         Get this multiplicity as a number.
         """
         try:
-            self.find_in_db(self.multiplicity)['number']
+            return self.find_in_db(self.multiplicity)['number']
         
         except ValueError:
             # No pre-defined number, see if it is an int.
@@ -389,10 +389,10 @@ class Multiplicity(Translate):
         """
         Translate into a name appropriate for a given program.
         """
-        if to_type == "Gaussian":
+        if to_type == "gaussian":
             to_type = "name"
         
-        elif to_type == "Turbomole":
+        elif to_type == "turbomole":
             to_type = "number"
         
         
