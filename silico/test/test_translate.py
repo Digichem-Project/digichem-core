@@ -20,7 +20,7 @@ def test_solvent():
     assert all([pytest.approx(8.93) == solvent.translate("epsilon") for solvent in solvents])
     
 
-def test_basis_set():
+def test_631g_str_str():
     """
     Test conversions for basis sets.
     """
@@ -34,6 +34,13 @@ def test_basis_set():
     assert all(["6-31G**" == basis_set.to_gaussian() for basis_set in basis_sets])
     
     # Check Turbomole version.
+    assert all(["6-31G**" == basis_set.to_turbomole() for basis_set in basis_sets])
+    
+    
+def test_ccpvdz():
+    assert Basis_set("cc-PvDz").to_gaussian() == "cc-pVDZ"
+    assert str(Basis_set("cc-PvDz")) == "cc-pVDZ"
+    
 
 def test_b3lyp():
     """
