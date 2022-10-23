@@ -115,28 +115,22 @@ class Basis_set(Translate):
         for basis_key, basis_set_meta in db.items():
             # First, add the normal key.
             basis_set = {
+                "key": basis_set_meta['basename'],
                 "name": basis_set_meta['display_name'],
-                "alias": basis_set_meta['other_names'],
+                "aliases": basis_set_meta['other_names'],
                 "meta": basis_set_meta
             }
             
             # Decide on our program specific names.
-            gaussian = basis_set['name']
-            turbomole = basis_set['name']
+            basis_set["gaussian"] = basis_set['name']
+            basis_set["turbomole"] = basis_set['name']
             
             # Turbomole doesn't like pople sets with polarisation function spelled out,
             # it prefers the star format.
             if basis_set['name'][-5:] == "(d,p)":
-                turbomole = basis_set['name'][:-5] + "**"
+                basis_set["turbomole"] = basis_set['name'][:-5] + "**"
             
             new_db[basis_key] = basis_set
-            
-            # Add display names.
-            new_db[basis_set['display_name']] = basis_set
-            
-            # Add each alternative name.
-            for alt_name in basis_set['other_names']:
-                new_db[alt_name] = basis_set
                 
         return new_db
     
@@ -159,27 +153,23 @@ class Basis_set(Translate):
         except KeyError:
             pass
         
+        # Try again, this time ignoring case and looking through all possible names.
+        str_hint = "".join(str(hint).lower().split())
+        for basis_set in db.values():
+            if str_hint in [name.lower() for name in basis_set['aliases'] + [basis_set['key'], basis_set['name'], basis_set['gaussian'], basis_set['turbomole']] if name is not None]:
+                return basis_set
         
-        # Try again, this time ignoring case.
-        basis_names = [basis_name.upper() for basis_name in db]
-        
-        try:
-            return db[list(db.keys())[basis_names.index(hint.upper())]]
-        
-        except IndexError:
-            pass
-        
-        # Couldn't find it.
+        # No luck.
         raise ValueError("Could not find basis set definition for '{}'".format(hint))
     
-    def translate(self, program = None):
+    def translate(self, program = "name"):
         """
         Translate the name of this basis set into one appropriate for a calculation program.
         
         Basis sets are currently handled the same for all programs.
         """
         try:
-            return self.find_in_db(self.basis_set)['display_name']
+            return self.find_in_db(self.basis_set)[program]
         
         except ValueError:
             # Just return as is.
