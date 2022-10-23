@@ -12,7 +12,7 @@ from silico.submit.base import Method_target
 from silico.input.directory import Calculation_directory_input
 from silico.submit.basis import BSE_basis_set
 from silico.exception.configurable import Configurable_exception
-from silico.submit.translate import Basis_set, Functional
+from silico.submit.translate import Basis_set, Functional, Solvent
 
 
 class Calculation_target(Method_target):
@@ -281,8 +281,9 @@ class Concrete_calculation(Calculation_target):
     # solvation might be a better name for this option?
     solution = Options(help = "Options for using a simulated solvent environment.", validate = validate_solvent,
         calc = Option(help = "Whether to use a solution model.", type = bool, default = False),
-        model = Option(help = "The solvent model to use.", choices = ("PCM", "CPCM", "Dipole", "IPCM", "SCIPCM", "SMD"), default = "PCM"),
-        solvent = Option(help = "The name of the solvent to use.", default = None)
+        # The supported solvent models are quite program specific, so are not set here.
+        model = Option(help = "The solvent model to use."),
+        solvent = Option(help = "The name of the solvent to use.", type = Solvent, default = Solvent("water"))
     )
     
     scratch_options = Options(help = "Options that control the use of the scratch directory",

@@ -69,7 +69,7 @@ link:
     tag: PBE0 (GD3BJ)
     type: partial
     next:
-        - Basis Sets
+        - Solvents
 
 method:
     dft:

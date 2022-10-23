@@ -303,7 +303,7 @@ class Gaussian(Concrete_calculation, AI_calculation_mixin):
             
             # Solvent.
             if self.solution['calc']:
-                route_parts.append(str(Keyword("SCRF", {self.solution['model']: "" ,"Solvent": self.solution['solvent']})))
+                route_parts.append(str(Keyword("SCRF", {self.solution['model']: "" ,"Solvent": self.solution['solvent'].to_gaussian()})))
             
             # Additional DFT options.
             if self.method['dft']['calc']:

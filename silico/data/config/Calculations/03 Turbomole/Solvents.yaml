@@ -1,0 +1,282 @@
+link:
+    namespace: Turbomole
+    tag: Solvents
+    type: pseudo
+    next:
+        - Gas Phase
+        - Real Solvents
+
+
+---
+
+
+link:
+    namespace: Turbomole
+    tag: Real Solvents
+    type: pseudo
+    next:
+        - 1,4-Dioxane
+        - 2-Propanol
+        - Acetone
+        - Acetonitrile
+        - Benzene
+        - CycloHexane
+        - Dichloromethane
+        - DiethylEther
+        - n,n-DiMethylFormamide
+        - DiMethylSulfoxide
+        - Ethanol
+        - EthylEthanoate
+        - Methanol
+        - Heptane
+        - n-Hexane
+        - TetraHydroFuran
+        - Toluene
+        - Water
+
+solution:
+    calc: True
+    model: COSMO
+
+
+---
+
+
+link:
+    namespace: Turbomole
+    type: partial
+    tag: Gas Phase
+    next: [Basis Sets]
+
+
+---
+
+
+link:
+    namespace: Turbomole
+    type: partial
+    tag: 1,4-Dioxane
+    next: [Basis Sets]
+
+solution:
+    solvent: 1,4-Dioxane
+
+
+---
+
+
+link:
+    namespace: Turbomole
+    type: partial
+    tag: 2-Propanol
+    next: [Basis Sets]
+
+solution:
+    solvent: 2-Propanol
+
+
+---
+
+
+link:
+    namespace: Turbomole
+    type: partial
+    tag: Acetone
+    next: [Basis Sets]
+
+solution:
+    solvent: Acetone
+
+
+---
+
+
+link:
+    namespace: Turbomole
+    type: partial
+    tag: Acetonitrile
+    next: [Basis Sets]
+
+solution:
+    solvent: Acetonitrile
+
+
+---
+
+
+link:
+    namespace: Turbomole
+    type: partial
+    tag: Benzene
+    next: [Basis Sets]
+
+solution:
+    solvent: Benzene
+
+
+---
+
+
+link:
+    namespace: Turbomole
+    type: partial
+    tag: CycloHexane
+    next: [Basis Sets]
+
+solution:
+    solvent: Cyclohexane
+
+
+---
+
+
+link:
+    namespace: Turbomole
+    type: partial
+    tag: DiethylEther
+    next: [Basis Sets]
+
+solution:
+    solvent: DiethylEther
+
+
+---
+
+
+link:
+    namespace: Turbomole
+    type: partial
+    tag: DiMethylSulfoxide
+    next: [Basis Sets]
+
+solution:
+    solvent: DiMethylSulfoxide
+
+
+---
+
+
+link:
+    namespace: Turbomole
+    type: partial
+    tag: Dichloromethane
+    next: [Basis Sets]
+
+solution:
+    solvent: Dichloromethane
+
+
+---
+
+
+link:
+    namespace: Turbomole
+    type: partial
+    tag: n,n-DiMethylFormamide
+    next: [Basis Sets]
+
+solvent: n,n-DiMethylFormamide
+
+
+---
+
+
+link:
+    namespace: Turbomole
+    type: partial
+    tag: Ethanol
+    next: [Basis Sets]
+
+solution:
+    solvent: Ethanol
+
+
+---
+
+
+link:
+    namespace: Turbomole
+    type: partial
+    tag: EthylEthanoate
+    next: [Basis Sets]
+
+solution:
+    solvent: EthylEthanoate
+
+
+---
+
+
+link:
+    namespace: Turbomole
+    type: partial
+    tag: Methanol
+    next: [Basis Sets]
+
+solution:
+    solvent: Methanol
+
+
+---
+
+
+link:
+    namespace: Turbomole
+    type: partial
+    tag: Heptane
+    next: [Basis Sets]
+
+solution:
+    solvent: Heptane
+
+
+---
+
+
+link:
+    namespace: Turbomole
+    type: partial
+    tag: n-Hexane
+    next: [Basis Sets]
+
+solution:
+    solvent: n-Hexane
+
+
+---
+
+
+link:
+    namespace: Turbomole
+    type: partial
+    tag: TetraHydroFuran
+    next: [Basis Sets]
+
+solution:
+    solvent: TetraHydroFuran
+
+
+---
+
+
+link:
+    namespace: Turbomole
+    type: partial
+    tag: Toluene
+    next: [Basis Sets]
+
+solution:
+    solvent: Toluene
+
+
+---
+
+
+link:
+    namespace: Turbomole
+    type: partial
+    tag: Water
+    next: [Basis Sets]
+
+solution:
+    solvent: Water

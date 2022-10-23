@@ -188,8 +188,25 @@ class Turbomole(Program_target):
                     raise Submission_error(self, "Program 'define' does not appear to have executed correctly, check output file '{}' for errors".format(self.define_output_path))
             
             # Sadly, some options are not supported by define and have to be appended manually.
+            # Excited state optimisations.
             if self.calculation.properties['opt']['calc'] and self.calculation.properties['es']['calc']:
                 self.add_control_option("$exopt {}".format(self.calculation.properties['es']['state_of_interest']))
+            
+            # Solvent.
+            # In COSMO, solvents are defined by dielectric constant alone (and also refractive index for some calcs).
+            if self.calculation.solution['calc']:
+                # If we are missing refractive index for this solvent, issue a warning.
+                if self.calculation.solution['solvent'].refractive_index is None:
+                    # If we're missing refractive index, just use epsilon.
+                    self.add_control_option(("$cosmo\n   epsilon= {}".format(self.calculation.solution['solvent'].to_turbomole())))
+                    
+                    if self.calculation.properties['es']['calc']:
+                        # Print a warning if we're doing excited states, because we haven't fully defined our solvent.
+                        silico.log.get_logger().warning("Refractive index for solvent '{}' is not defined; excited state results may not be valid".format(str(self.calculation.solution['solvent'])))
+                    
+                else:
+                    self.add_control_option(("$cosmo\n   epsilon= {}\n   refind= {}".format(self.calculation.solution['solvent'].epsilon, self.calculation.solution['solvent'].refractive_index)))
+                        
                 
             if self.calculation.analysis['anadens']['calculate']:
                 self.add_control_option("$anadens\n calc {} from\n 1d0 {}\n {}1d0 {}".format(

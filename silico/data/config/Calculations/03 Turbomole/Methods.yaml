@@ -70,7 +70,7 @@ link:
 
 
 ---
-# supports two different MP2 methods:
+# Turbomole supports two different MP2 methods:
 # - Standard MP2, which it does not recommend, and
 # - RI-MP2, which should be faster than MP2.
 # For all other MP and CC methods, RI is the only option.
@@ -80,7 +80,7 @@ link:
     tag: MP2
     type: partial
     next:
-        - Basis Sets
+        - Solvents
 
 method:
     mp:
@@ -101,7 +101,7 @@ link:
     tag: RI-MP2
     type: partial
     next:
-        - Correlation Consistent Basis Sets
+        - Solvents RI
 
 performance:
     intel_AVX2_fix: True
@@ -132,7 +132,7 @@ link:
     tag: RI-MP3
     type: partial
     next:
-        - Correlation Consistent Basis Sets
+        - Solvents RI
 
 method:
     mp:
@@ -157,7 +157,7 @@ link:
     tag: RI-MP4
     type: partial
     next:
-        - Correlation Consistent Basis Sets
+        - Solvents RI
 
 method:
     mp:
@@ -181,7 +181,7 @@ link:
     tag: SCS-ADC(2)
     type: partial
     next:
-        - Correlation Consistent Basis Sets
+        - Solvents RI
 
 performance:
     intel_AVX2_fix: True
@@ -214,7 +214,7 @@ link:
     tag: SCS-CC2
     type: partial
     next:
-        - Correlation Consistent Basis Sets
+        - Solvents RI
 
 performance:
     intel_AVX2_fix: True
@@ -247,7 +247,7 @@ link:
     tag: RI-CCSD
     type: partial
     next:
-        - Correlation Consistent Basis Sets
+        - Solvents RI
 
 method:
     cc:
@@ -275,7 +275,7 @@ link:
     tag: RI-CCSD(T)
     type: partial
     next:
-        - Correlation Consistent Basis Sets
+        - Solvents RI
 
 method:
     cc:

@@ -217,6 +217,10 @@ class Turbomole_AI(Turbomole, AI_calculation_mixin):
             min = Option(help = "The minimal damping weight.", type = float, default = None) 
         )
     )
+    
+    solution = Options(
+        model = Option(choices = ("COSMO",), default = "COSMO")
+    )
 
     analysis = Options(help = "Options that control the use of Turbomole in analysis mode, for example density plotting. Generally these options should not be modified for typical Turbomole calculations.",            
         plt = Options(
