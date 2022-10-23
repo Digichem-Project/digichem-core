@@ -1,5 +1,5 @@
 """Tests for translation classes."""
-from silico.submit.translate import Solvent, Basis_set, Multiplicity
+from silico.submit.translate import Solvent, Basis_set, Multiplicity, Functional
 import pytest
 
 
@@ -34,6 +34,23 @@ def test_basis_set():
     assert all(["6-31G**" == basis_set.to_gaussian() for basis_set in basis_sets])
     
     # Check Turbomole version.
+
+def test_b3lyp():
+    """
+    Test conversions for DFT functionals.
+    """
+    funcs = (Functional("b3-LYp"), Functional("B3lyp"))
+    
+    assert all(["b3-lyp" == func.to_turbomole() for func in funcs])
+    
+    assert all(["B3LYP" == func.to_gaussian() for func in funcs])
+
+
+def test_pbe0gaussian():
+    # Turbomole functionals are case sensitive. This is particularly annoying because functional
+    # names are all lower-case, except for the word 'Gaussian'. Check this.
+    assert Functional("PBE0 gaussian").to_turbomole() == "pbe0 Gaussian"
+
 
 def test_multiplicity():
     """
