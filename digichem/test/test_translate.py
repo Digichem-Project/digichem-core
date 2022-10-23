@@ -1,5 +1,5 @@
 """Tests for translation classes."""
-from silico.submit.translate import Solvent, Basis_set
+from silico.submit.translate import Solvent, Basis_set, Multiplicity
 import pytest
 
 
@@ -34,4 +34,21 @@ def test_basis_set():
     assert all(["6-31G**" == basis_set.to_gaussian() for basis_set in basis_sets])
     
     # Check Turbomole version.
-    assert all(["6-31G**" == basis_set.to_turbomole() for basis_set in basis_sets])
+
+def test_multiplicity():
+    """
+    Test conversion for multiplicity.
+    """
+    mults = (Multiplicity(1), Multiplicity("1"), Multiplicity("singlet"), Multiplicity("sInGlEt"), Multiplicity("S"))
+    
+    # Check conversions.
+    assert all(["Singlet" == mult.to_gaussian() for mult in mults])
+    
+    assert all([1 == mult.to_turbomole() for mult in mults])
+    
+    assert all(["S" == mult.symbol for mult in mults])
+    
+    assert all([1 == mult.number for mult in mults])
+    
+    assert all(["Singlet" == mult.string for mult in mults])
+    
