@@ -51,7 +51,7 @@ with open(Path(pkg_resources.resource_filename('silico', 'data/solvents.csv'))) 
             line = [line_part if line_part != "" else None for line_part in line]
             
             # The various parts of the definition.
-            solvent = {"name": line[0], "aliases": [line[1]] if line[1] is not None else [], "gaussian": line[2], "epsilon": float(line[3])}
+            solvent = {"name": line[0], "aliases": [line[1]] if line[1] is not None else [], "gaussian": line[2], "epsilon": float(line[3]) if line[3] is not None else None, "refractive": float(line[4]) if line[4] is not None else None}
             
             solvent_db[solvent['name']] = solvent
 
@@ -286,6 +286,14 @@ class Solvent(Translate):
         
         # No luck.
         raise ValueError("Could not find solvent definition for '{}'".format(hint))
+    
+    @property
+    def epsilon(self):
+        return self.find_in_db(self.solvent)['epsilon']
+    
+    @property
+    def refractive_index(self):
+        return self.find_in_db(self.solvent)['refractive']
     
     def translate(self, program):
         """
