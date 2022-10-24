@@ -188,8 +188,8 @@ class Turbomole(Program_target):
                     raise Submission_error(self, "Program 'define' does not appear to have executed correctly, check output file '{}' for errors".format(self.define_output_path))
             
             # Sadly, some options are not supported by define and have to be appended manually.
-            # Excited state optimisations.
-            if self.calculation.properties['opt']['calc'] and self.calculation.properties['es']['calc']:
+            # Excited state optimisations with HF and DFT.
+            if self.calculation.properties['opt']['calc'] and self.calculation.properties['es']['calc'] and (self.calculation.method['hf']['calc'] or self.calculation.method['dft']['calc']):
                 self.add_control_option("$exopt {}".format(self.calculation.properties['es']['state_of_interest']))
             
             # Solvent.
