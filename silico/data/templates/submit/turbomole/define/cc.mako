@@ -69,7 +69,7 @@ geoopt ${calculation.post_HF_method} (${calculation.properties['opt']['ricc2']['
 %endif
 ##
 ## Excited state options.
-%if calculation.properties['es']['calc'] and calculation.properties['es']['method'] in ["MP2", "CIS(D)", "CIS(Dinf)", "ADC(2)", "CC2", "CCS", "CCSD"]:
+%if calculation.properties['es']['calc'] and calculation.properties['es']['method'] in ["CIS(D)", "CIS(Dinf)", "ADC(2)", "CC2", "CCS", "CCSD"]:
 ##
 ## Enter exci menu.
 exci
