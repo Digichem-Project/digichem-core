@@ -288,8 +288,8 @@ class Turbomole_AI(Turbomole, AI_calculation_mixin):
                 jobex.args.append("-rijk")
                 
             # If we're doing opt and es, add that option.
-            # This probably only works for TD-HF and TD-DFT
-            if self.properties['es']['calc']:
+            # This is only necessary for TD-HF and TD-DFT
+            if self.properties['es']['calc'] and (self.method['hf']['calc'] or self.method['dft']['calc']):
                 jobex.args.append("-ex")
                 
             # Set
