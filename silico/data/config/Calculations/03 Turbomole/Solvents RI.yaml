@@ -52,6 +52,7 @@ link:
     namespace: Turbomole
     type: partial
     tag: Gas Phase RI
+    alias: Gas Phase
     next: [Correlation Consistent Basis Sets]
 
 
@@ -62,6 +63,7 @@ link:
     namespace: Turbomole
     type: partial
     tag: 1,4-Dioxane RI
+    alias: 1,4-Dioxane
     next: [Correlation Consistent Basis Sets]
 
 solution:
@@ -75,6 +77,7 @@ link:
     namespace: Turbomole
     type: partial
     tag: 2-Propanol RI
+    alias: 2-Propanol
     next: [Correlation Consistent Basis Sets]
 
 solution:
@@ -88,6 +91,7 @@ link:
     namespace: Turbomole
     type: partial
     tag: Acetone RI
+    alias: Acetone
     next: [Correlation Consistent Basis Sets]
 
 solution:
@@ -101,6 +105,7 @@ link:
     namespace: Turbomole
     type: partial
     tag: Acetonitrile RI
+    alias: Acetonitrile
     next: [Correlation Consistent Basis Sets]
 
 solution:
@@ -114,6 +119,7 @@ link:
     namespace: Turbomole
     type: partial
     tag: Benzene RI
+    alias: Benzene
     next: [Correlation Consistent Basis Sets]
 
 solution:
@@ -127,6 +133,7 @@ link:
     namespace: Turbomole
     type: partial
     tag: CycloHexane RI
+    alias: CycloHexane
     next: [Correlation Consistent Basis Sets]
 
 solution:
@@ -140,6 +147,7 @@ link:
     namespace: Turbomole
     type: partial
     tag: DiethylEther RI
+    alias: DiethylEther
     next: [Correlation Consistent Basis Sets]
 
 solution:
@@ -153,6 +161,7 @@ link:
     namespace: Turbomole
     type: partial
     tag: DiMethylSulfoxide RI
+    alias: DiMethylSulfoxide
     next: [Correlation Consistent Basis Sets]
 
 solution:
@@ -166,6 +175,7 @@ link:
     namespace: Turbomole
     type: partial
     tag: Dichloromethane RI
+    alias: Dichloromethane
     next: [Correlation Consistent Basis Sets]
 
 solution:
@@ -179,6 +189,7 @@ link:
     namespace: Turbomole
     type: partial
     tag: n,n-DiMethylFormamide RI
+    alias: n,n-DiMethylFormamide
     next: [Correlation Consistent Basis Sets]
 
 solvent: n,n-DiMethylFormamide
@@ -191,6 +202,7 @@ link:
     namespace: Turbomole
     type: partial
     tag: Ethanol RI
+    alias: Ethanol
     next: [Correlation Consistent Basis Sets]
 
 solution:
@@ -204,6 +216,7 @@ link:
     namespace: Turbomole
     type: partial
     tag: EthylEthanoate RI
+    alias: EthylEthanoate
     next: [Correlation Consistent Basis Sets]
 
 solution:
@@ -217,6 +230,7 @@ link:
     namespace: Turbomole
     type: partial
     tag: Methanol RI
+    alias: Methanol
     next: [Correlation Consistent Basis Sets]
 
 solution:
@@ -230,6 +244,7 @@ link:
     namespace: Turbomole
     type: partial
     tag: Heptane RI
+    alias: Heptane
     next: [Correlation Consistent Basis Sets]
 
 solution:
@@ -243,6 +258,7 @@ link:
     namespace: Turbomole
     type: partial
     tag: n-Hexane RI
+    alias: n-Hexane
     next: [Correlation Consistent Basis Sets]
 
 solution:
@@ -256,6 +272,7 @@ link:
     namespace: Turbomole
     type: partial
     tag: TetraHydroFuran RI
+    alias: TetraHydroFuran
     next: [Correlation Consistent Basis Sets]
 
 solution:
@@ -269,6 +286,7 @@ link:
     namespace: Turbomole
     type: partial
     tag: Toluene RI
+    alias: Toluene
     next: [Correlation Consistent Basis Sets]
 
 solution:
@@ -282,6 +300,7 @@ link:
     namespace: Turbomole
     type: partial
     tag: Water RI
+    alias: Water
     next: [Correlation Consistent Basis Sets]
 
 solution:
