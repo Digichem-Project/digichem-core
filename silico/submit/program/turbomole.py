@@ -429,7 +429,7 @@ class Turbomole(Program_target):
                 wrapper_body = TemplateLookup(directories = str(silico.default_template_directory())).get_template("/submit/turbomole/module.mako").render_unicode(program = self, module = module)
                 
                 # Write it to our input dir.
-                with open(Path(self.destination.calc_dir.input_directory, "{}.{}.in".format(module.name, index +1)), "wt") as wrapper_file:
+                with open(Path(self.destination.calc_dir.input_directory, "Module {} ({}).in".format(index +1, module.name)), "wt") as wrapper_file:
                     wrapper_file.write(wrapper_body)
                 
                 # Run Turbomole!
