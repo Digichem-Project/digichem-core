@@ -206,8 +206,8 @@ class Turbomole(Program_target):
                     
                 else:
                     self.add_control_option(("$cosmo\n   epsilon= {}\n   refind= {}".format(self.calculation.solution['solvent'].epsilon, self.calculation.solution['solvent'].refractive_index)))
-                        
-                
+            
+            # Analysis options.
             if self.calculation.analysis['anadens']['calculate']:
                 self.add_control_option("$anadens\n calc {} from\n 1d0 {}\n {}1d0 {}".format(
                     self.calculation.analysis['anadens']['output'],
