@@ -23,7 +23,6 @@ link:
     alias: S(1) & S(2)
     type: partial
     next:
-        - RI-MP2
         - SCS-ADC(2)
         - SCS-CC2
         - RI-CCSD
@@ -42,7 +41,6 @@ link:
     alias: T(1) & T(2)
     type: partial
     next:
-        - RI-MP2
         - SCS-ADC(2)
         - SCS-CC2
 

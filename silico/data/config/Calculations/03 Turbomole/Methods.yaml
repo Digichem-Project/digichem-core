@@ -114,10 +114,6 @@ method:
         correlated:
             calc: True
             
-properties:
-    es:
-        method: MP2
-            
 performance:
     intel_AVX2_fix: True
     memory: 40GB
