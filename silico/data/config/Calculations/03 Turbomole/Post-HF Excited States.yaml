@@ -6,6 +6,8 @@ link:
     next:
         - Post-HF ES Singlet
         - Post-HF ES Triplet
+        - Post-HF Optimised S(1)
+        - Post-HF Optimised T(1)
 
 properties:
     es:
@@ -37,6 +39,29 @@ properties:
 
 link:
     namespace: Turbomole
+    tag: Post-HF Optimised S(1)
+    alias: Optimised S(1)
+    type: partial
+    next:
+        - SCS-ADC(2)
+        - SCS-CC2
+        - RI-CCSD
+
+properties:
+    es:
+        multiplicity: Singlet
+        ricc2:    
+            # Need to turn off SP gradients when we're doing opt gradients.
+            sp_gradients: False
+    opt:
+        calc: True
+
+
+---
+
+
+link:
+    namespace: Turbomole
     tag: Post-HF ES Triplet
     alias: T(1) & T(2)
     type: partial
@@ -47,3 +72,25 @@ link:
 properties:
     es:
         multiplicity: Triplet
+
+
+---
+
+
+link:
+    namespace: Turbomole
+    tag: Post-HF Optimised T(1)
+    alias: Optimised T(1)
+    type: partial
+    next:
+        - SCS-ADC(2)
+        - SCS-CC2
+
+properties:
+    es:
+        multiplicity: Triplet
+        ricc2:    
+            # Need to turn off SP gradients when we're doing opt gradients.
+            sp_gradients: False
+    opt:
+        calc: True
