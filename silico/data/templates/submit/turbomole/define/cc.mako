@@ -78,8 +78,8 @@ ${calculation.exci_irrep_line}
 spectrum states=all operators=${calculation.properties['es']['ricc2']['spectrum_operators']}
 %endif
 ##
-## Whether to calculate excited state gradients.
-%if calculation.properties['es']['ricc2']['gradients']:
+## Whether to calculate excited state sp_gradients.
+%if calculation.properties['es']['ricc2']['sp_gradients']:
 ${calculation.exci_gradient_line}
 %endif
 ##

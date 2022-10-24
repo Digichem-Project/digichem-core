@@ -38,11 +38,11 @@ solution:
     calc: True
     model: COSMO
     
-# Excited state gradients aren't possible with solvents.
+# Excited state sp_gradients aren't possible with solvents.
 properties:
     es:
         ricc2:
-            gradients: False
+            sp_gradients: False
 
 
 ---

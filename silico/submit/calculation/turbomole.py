@@ -200,7 +200,7 @@ class Turbomole_AI(Turbomole, AI_calculation_mixin):
             # TODO: These options will probably move to a more general place in the future.
             ricc2 = Options(help = "Options specific to calculating excited states with the ricc2 module.",
                 spectrum_operators = Option(help = "The operators with which to calculate oscillator strengths.", type = str, default = None),
-                gradients = Option(help = "Whether to calculate excited state gradients.", type = bool, default = True)
+                sp_gradients = Option(help = "Whether to calculate single-point excited state gradients. This option is incompatible with optimised excited state calculations.", type = bool, default = True)
             )
         )
     )
