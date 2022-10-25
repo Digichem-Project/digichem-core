@@ -57,7 +57,7 @@ ${calculation.scs_line}
 ## TODO: Need to go over how geopt really works, the input for excited states and ground are quite different.
 ## TOOD: HERE: Need to figure out geoopt syntax for excited state triplets...
 %if calculation.properties['opt']['calc'] and calculation.properties['es']['calc']:
-geoopt ${calculation.post_HF_method} (${calculation.properties['es']['symmetry']} ${calculation.properties['es']['state_of_interest']})
+geoopt ${calculation.post_HF_method} (${calculation.properties['es']['symmetry']}{${3 if calculation.properties['es']['multiplicity'] == "Triplet" else 1}} ${calculation.properties['es']['state_of_interest']})
 %elif calculation.properties['opt']['calc'] or calculation.properties['freq']['calc']:
 geoopt ${calculation.post_HF_method} (${calculation.properties['opt']['ricc2']['optimise_symmetry']} ${calculation.optimise_multiplicity})
 %endif
