@@ -4,6 +4,7 @@ link:
     type: pseudo
     next:
         - Single Point
+        - Gradient
         - Optimisation
         - Optimisation Frequency
         - Frequency
@@ -23,6 +24,25 @@ link:
 
 properties:
     sp:
+        calc: True
+
+
+---
+
+
+link:
+    namespace: Turbomole
+    tag: Gradient
+    type: partial
+    next:
+        - Functionals
+        - MP2
+        - RI-MP2
+        - SCS-ADC(2)
+        - SCS-CC2
+
+properties:
+    grad:
         calc: True
 
 

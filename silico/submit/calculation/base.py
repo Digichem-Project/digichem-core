@@ -184,8 +184,16 @@ def validate_dft(option, owning_obj, value):
 
 def validate_properties(option, owning_obj, value):
     """Function for validating requested calculation properties."""
-    if not any([value[prop_type]['calc'] for prop_type in ("sp", "opt", "freq", "es")]):
-        raise Configurable_exception(owning_obj, "No calculation properties (SP, Opt, Freq, ES etc) have been chosen.")
+    if not any([value[prop_type]['calc'] for prop_type in ("sp", "grad", "opt", "freq", "es")]):
+        raise Configurable_exception(owning_obj, "No calculation properties (SP, Grad, Opt, Freq, ES etc) have been chosen.")
+    
+    # Panic if SP is set while another property is also set.
+    if value['sp']['calc'] and any([value[prop_type]['calc'] for prop_type in ("grad", "opt", "freq", "es")]):
+        raise Configurable_exception(owning_obj, "A single point calculation cannot be requested at the same time as a higher order calculation (Grad, Opt, Freq, ES etc).")
+    
+    # Panic if gradients have been explicitly turned off and we need them.
+    if value['grad']['calc'] == False and (value['opt']['calc'] or value['freq']['grad']):
+        raise Configurable_exception(owning_obj, "Calculation of gradients has been explicitly disabled, but these are required for opt and/or freq calculations.")
     
     return True
 
@@ -254,7 +262,10 @@ class Concrete_calculation(Calculation_target):
     # Properties options, selects what to calculate (excited states, frequencies etc).
     properties = Options(help = "Options for controlling which properties to calculate.", validate = validate_properties,
         sp = Options(help = "Options for calculating single-point energies.",
-            calc = Option(help = "Whether to calculate single-point energies.", type = bool, default = False)
+            calc = Option(help = "Whether to calculate single-point energies.", type = bool, default = False),
+        ),
+        grad = Options(help = "Options for calculating gradients.",
+            calc = Option(help = "Whether to calculate gradients. The default is to only calculate gradients if they are necessary (eg, for opt and freq calculations), and otherwise not to. To calculate single point gradients, set this option to True", choices = (True, False, None), default = None),
         ),
         opt = Options(help = "Options for calculating optimised geometries.",
             calc = Option(help = "Whether to calculate optimised geometries." ,type = bool, default = False),
@@ -262,7 +273,7 @@ class Concrete_calculation(Calculation_target):
         ),
         freq = Options(help = "Options for calculating vibrational frequencies.",
             calc = Option(help = "Whether to calculate vibrational frequencies.", type = bool, default = False),
-            numerical = Option(help = "Whether to calculate vibrational frequencies numerically (as opposed to analytically). Numerical calcualtion is generally inferior, but is usually more broadly available. If analytical frequencies are not available, most programs will switch to numerical automatically.", choices = (True, False, None), default = None)
+            numerical = Option(help = "Whether to calculate vibrational frequencies numerically (as opposed to analytically). Numerical calculation is generally inferior, but is usually more broadly available. If analytical frequencies are not available, most programs will switch to numerical automatically.", choices = (True, False, None), default = None)
         ),
         # TODO: Implement.
 #         nmr = Options(help = "Options for calculating nuclear-magnetic resonance (NMR) shielding tensors and magnetic susceptibilities.",

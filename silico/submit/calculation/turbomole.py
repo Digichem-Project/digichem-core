@@ -186,11 +186,10 @@ class Turbomole_AI(Turbomole, AI_calculation_mixin):
     )
     
     properties = Options(
-        opt = Options(
-            # TODO: These options will move somewhere better.
-            ricc2 = Options(help = "Options specific to calculating optimised geometries with the ricc2 module.",
-                optimise_symmetry = Option(help = "The symmetry of the state to optimise. Only meaningful for optimisations.", default = "a"),
-                optimise_multiplicity = Option(help = "The multiplicity of the state to optimise. Only meaningful for optimisations. If not given, the ground state multiplicity will be used.", type = int, default = None)
+        grad = Options(
+            ricc2 = Options(help = "Options specific to calculating gradients with the ricc2 module.",
+                symmetry = Option(help = "The symmetry of the state to calculate gradients for.", default = "a"),
+                multiplicity = Option(help = "The multiplicity of the state to calculate gradients for. If not given, the ground state multiplicity will be used.", type = int, default = None)
             )
         ),
         es = Options(
@@ -200,7 +199,7 @@ class Turbomole_AI(Turbomole, AI_calculation_mixin):
             # TODO: These options will probably move to a more general place in the future.
             ricc2 = Options(help = "Options specific to calculating excited states with the ricc2 module.",
                 spectrum_operators = Option(help = "The operators with which to calculate oscillator strengths.", type = str, default = None),
-                sp_gradients = Option(help = "Whether to calculate single-point excited state gradients. This option is incompatible with optimised excited state calculations.", type = bool, default = True)
+                sp_gradients = Option(help = "Whether to calculate excited state single-point gradients. This option is incompatible with optimised excited state calculations.", type = bool, default = True)
             )
         )
     )
@@ -309,11 +308,25 @@ class Turbomole_AI(Turbomole, AI_calculation_mixin):
             if self.properties['es']['calc'] and (self.method['hf']['calc'] or self.method['dft']['calc']):
                 modules.append(Turbomole_module("escf"))
                 
+            # If we're doing SP gradients with HF (or DFT), add grad or rdgrad directly.
+            # If we're doing excited states as well, use egrad instead.
+            # Normal (non-RI) MP2 gradients with mpgrad are calculated automatically, unless the control option $mp2energy is present. 
+            # Higher order methods (ricc2 and ccsdf12) use the geoopt option in the control file to switch gradients on/off.
+            if self.properties['grad']['calc'] and not self.properties['opt']['calc'] and not self.properties['freq']['calc'] and (self.method['hf']['calc'] or self.method['dft']['calc']):
+                if self.properties['es']['calc']:
+                    modules.append(Turbomole_module("egrad"))
+                
+                elif not self.method['ri']['coulomb']['calc'] and not self.method['ri']['hartree_fock']['calc']:
+                    modules.append(Turbomole_module("grad"))
+                
+                else:
+                    modules.append(Turbomole_module("rdgrad"))
+                
             # If we're using non-RI MP2, add mpgrad.
             if self.method['mp']['calc'] and self.method['mp']['level'] == "MP2" and not self.method['ri']['correlated']['calc']:
                 # Also add mp2prep so mpgrad will work properly.
-                # Use the gradient option if we're going to calculate frequencies, otherwise just energy.
-                modules.append(Turbomole_module("mp2prep",  "-g" if self.properties['freq']['calc'] else "-e"))
+                # Use the gradient option if we're going to calculate frequencies/gradients, otherwise just energy.
+                modules.append(Turbomole_module("mp2prep",  "-g" if self.properties['freq']['calc'] or self.properties['grad']['calc'] else "-e"))
                 # And mpgrad itself.
                 modules.append(Turbomole_module("mpgrad"))
                 
@@ -432,16 +445,40 @@ class Turbomole_AI(Turbomole, AI_calculation_mixin):
         return " ".join(line_parts)
     
     @property
-    def optimise_multiplicity(self):
+    def ricc2_gradient_mult(self):
         """
-        The multiplicity of the state to optimise.
+        The multiplicity of the state to calculate gradients for.
         """
-        if self.properties['opt']['ricc2']['optimise_multiplicity'] is not None:
-            return self.properties['opt']['ricc2']['optimise_multiplicity']
+        if self.properties['grad']['ricc2']['multiplicity'] is not None:
+            return self.properties['grad']['ricc2']['multiplicity']
         
         else:
             return self.multiplicity
-    
+        
+    @property
+    def ricc2_gradient_state(self):
+        """
+        The state that gradients should be calculated for.
+        
+        The state line is not well defined, but we think it looks something like this for ground state opts:
+        (s m)
+        where s= symmetry and m= multiplicity, thus for typical closed shell molecules a reasonable value is:
+        (a 1)
+        
+        For excite states, the state is given as follows:
+        (s{m} n)
+        where s= symmetry, m= multiplicity and n= number of the excited state (1 would equal the lowest energy state).
+        IE, the multiplicity is given immediately after the symmetry in curly brackets, and the state of interest follows.
+        """
+        if self.properties['es']['calc']:
+            # Excited state gradient.
+            return "({}{{{}}} {})".format(self.properties['es']['symmetry'], 3 if self.properties['es']['multiplicity'] == "Triplet" else 1, self.properties['es']['state_of_interest'])
+        
+        else:
+            # Ground state gradient.
+            return "({} {})".format(self.properties['grad']['ricc2']['symmetry'], self.ricc2_gradient_mult)
+        
+        
     @property
     def exci_irrep_line(self):
         """

@@ -173,6 +173,10 @@ class Gaussian(Concrete_calculation, AI_calculation_mixin):
         # Single point.
         if self.properties['sp']['calc']:
             keywords.append(Keyword("SP"))
+                
+        # Gradients/forces.
+        if self.properties['grad']['calc'] and not self.properties['opt']['calc'] and not self.properties['freq']['calc']:
+            keywords.append(Keyword("Force"))
         
         # Optimisations.
         if self.properties['opt']['calc']:
