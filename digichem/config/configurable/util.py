@@ -1,5 +1,5 @@
 from silico.misc.base import Default, defres
-from silico.exception.configurable import Configurable_option_exception
+import silico.config.configurable.exception
 
 
 #########################
@@ -71,7 +71,7 @@ def getopt(configurable_or_option, *option_names, default = Default(None)):
         else:
             current = configurable_or_option[option_names[0]]
             
-    except (AttributeError, KeyError, Configurable_option_exception):
+    except (AttributeError, KeyError, silico.config.configurable.exception.Configurable_option_exception):
         if isinstance(default, Default):
             raise AttributeError("Missing sub option '{}'".format(option_names[0])) from None
         
