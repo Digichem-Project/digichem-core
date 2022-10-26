@@ -1,6 +1,6 @@
 from silico.submit.calculation import Calculation_target
 from silico.config.configurable.option import Option
-from silico.exception.configurable import Configurable_exception
+from silico.config.configurable.exception import Configurable_exception
 from silico.submit.memory import Memory
 from silico.config.configurable.options import Options
 

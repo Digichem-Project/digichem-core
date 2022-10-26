@@ -7,7 +7,7 @@ from silico.config.configurable.option import Option
 from silico.config.configurable.options import Options
 from silico.config.configurable.base import Configurable_class_target
 import silico.log
-from silico.exception.configurable import Configurable_loader_exception
+from silico.config.configurable.exception import Configurable_loader_exception
 
 
 class Method_target(Configurable_class_target):

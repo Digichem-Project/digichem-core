@@ -7,5 +7,3 @@ from .base import File_maker_exception
 from .base import Unknown_file_type_exception
 from .base import Submission_error
 from .base import Format_error
-from silico.exception.configurable import Configurable_exception
-from silico.exception.configurable import Missing_option_exception

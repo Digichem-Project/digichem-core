@@ -11,7 +11,7 @@ import yaml
 import copy
 
 # Silico imports.
-from silico.exception.configurable import Configurable_loader_exception,\
+from silico.config.configurable.exception import Configurable_loader_exception,\
     Short_tag_path_error, Unresolvable_tag_path_error, Long_tag_path_error
 from silico.exception.base import Silico_exception
 from silico.config.configurable.base import Configurable_class_target
@@ -343,11 +343,6 @@ class Partial_loader(Configurable_loader):
         new_tokens = []
         for token in tokens:
             new_tokens.append(yaml.safe_load(token))
-#             if is_int(token):
-#                 new_tokens.append(int(token))
-#                 
-#             else:
-#                 new_tokens.append(token)
         
         return new_tokens
     

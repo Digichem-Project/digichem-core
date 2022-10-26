@@ -1,7 +1,8 @@
 # Exceptions relating to Configurable objects.
-
-from silico.exception import Silico_exception
 import textwrap
+
+from silico.exception.base import Silico_exception
+from silico.config.configurable.util import getopt
 
 
 class Configurable_exception(Silico_exception):
@@ -119,8 +120,8 @@ class Configurable_loader_exception(Silico_exception):
         """
         message = "Error loading configurable"
         
-        if self.config.get("TAG", None) is not None:
-            message += " '{}'".format(self.config['TAG'])
+        if getopt(self.config, "link", "tag", default = None) is not None:
+            message += " '{}'".format(self.config['link']['tag'])
             
         message += " of type '{}'".format(self.TYPE)
         

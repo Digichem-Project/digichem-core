@@ -12,7 +12,7 @@ from silico.submit.memory import Memory
 import silico
 from silico.config.configurable.options import Options
 from silico.input.directory import Calculation_directory_input
-from silico.exception.configurable import Configurable_option_exception,\
+from silico.config.configurable.exception import Configurable_option_exception,\
     Configurable_exception
 from silico.submit.translate import Basis_set
 from silico.submit.calculation.base import validate_method as parent_validate_method

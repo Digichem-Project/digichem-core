@@ -1,6 +1,6 @@
 import itertools
 
-from silico.exception.configurable import Configurable_option_exception,\
+from silico.config.configurable.exception import Configurable_option_exception,\
     Missing_option_exception, Disallowed_choice_exception
 from builtins import isinstance
 from silico.misc import Default, defres

@@ -9,7 +9,7 @@ from silico.interface.urwid.setedit.edit import Setedit_browser, Setedit,\
 from silico.interface.urwid.setedit.widget import Solo_sub_editor
 from silico.interface.urwid.layout import Pane
 from silico.interface.urwid.dialogue import Confirm_or_cancel_dialogue
-from silico.exception.configurable import Missing_option_exception
+from silico.config.configurable.exception import Missing_option_exception
 
 
 class Option_setedit(Setedit):

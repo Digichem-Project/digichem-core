@@ -11,7 +11,7 @@ from silico.input import si_from_file
 from silico.submit.base import Method_target
 from silico.input.directory import Calculation_directory_input
 from silico.submit.basis import BSE_basis_set
-from silico.exception.configurable import Configurable_exception
+from silico.config.configurable.exception import Configurable_exception
 from silico.submit.translate import Basis_set, Functional, Solvent
 
 
