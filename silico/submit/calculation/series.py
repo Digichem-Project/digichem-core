@@ -3,6 +3,7 @@ from silico.config.configurable.option import Option
 from silico.config.configurable.exception import Configurable_exception
 from silico.submit.memory import Memory
 from silico.config.configurable.options import Options
+from silico.config.configurable.identifier import Identifier
 
 
 class Calculation_series(Calculation_target):
@@ -17,10 +18,8 @@ class Calculation_series(Calculation_target):
         "calculations",
         help = "A list of calculations to perform in series",
         required = True,
-        type = None,
+        type = Identifier,
         list_type = list,
-        # TODO: Need to add some way to actually edit properly; each item can be an int, a string or a list.
-        no_edit = True
     )
     
     performance = Options(help = "Options for controlling functional aspects of the calculation.",
