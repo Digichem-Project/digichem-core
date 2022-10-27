@@ -1,7 +1,6 @@
 """Tests for methods, loaders and their resolution."""
 import pytest
-
-from silico.config.configurable.loader import split_tag_list
+from silico.config.configurable.identifier import Identifier
 
 
 @pytest.mark.parametrize("tag_string, tag_list", [
@@ -20,7 +19,7 @@ from silico.config.configurable.loader import split_tag_list
     ])
 def test_tag_list(tag_string, tag_list):
     # Split the tag_string.
-    split_tag_string = split_tag_list(tag_string)
+    split_tag_string = Identifier(tag_string).value
     
     # Check it's the same as the test string.
     assert split_tag_string == tag_list
