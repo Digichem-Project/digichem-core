@@ -62,7 +62,7 @@ class Method_widget(Row_widget):
         """
         Get the text that we will display.
         """
-        return "{} : {} : {}".format(
+        return "{} | {} | {}".format(
             self.row_item.destination.meta['name'],
             self.row_item.program.meta['name'],
             self.row_item.calculation.meta['name'],
