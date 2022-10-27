@@ -21,9 +21,9 @@ post:
     combined_report_name: MR-TADF Emitter SCS-CC2
 
 calculations:
-    - [Turbomole Optimisation, Turbomole SCS-CC2, Turbomole cc-pVDZ]
-    - [Turbomole Post-HF ES Singlet, Turbomole SCS-CC2, Turbomole cc-pVDZ]
-    - [Turbomole Post-HF ES Triplet, Turbomole SCS-CC2, Turbomole cc-pVDZ]
+    - Turbomole; Optimisation, SCS-CC2, Gas Phase, cc-pVDZ
+    - Turbomole; Post-HF ES Singlet, SCS-CC2, Gas Phase, cc-pVDZ
+    - Turbomole; Post-HF ES Triplet, SCS-CC2, Gas Phase, cc-pVDZ
 
 
 ---
@@ -36,6 +36,6 @@ post:
     combined_report_name: MR-TADF Emitter SCS-ADC(2)
 
 calculations:
-    - [Turbomole Optimisation, Turbomole SCS-ADC(2), Turbomole cc-pVDZ]
-    - [Turbomole Post-HF ES Singlet, Turbomole SCS-ADC(2), Turbomole cc-pVDZ]
-    - [Turbomole Post-HF ES Triplet, Turbomole SCS-ADC(2), Turbomole cc-pVDZ]
+    - Turbomole; Optimisation, SCS-ADC(2), Gas Phase, cc-pVDZ
+    - Turbomole; Post-HF ES Singlet, SCS-ADC(2), Gas Phase, cc-pVDZ
+    - Turbomole; Post-HF ES Triplet, SCS-ADC(2), Gas Phase, cc-pVDZ

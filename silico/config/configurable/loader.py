@@ -25,6 +25,41 @@ import silico.submit.program
 import silico.submit.calculation
 
 
+def split_tag_list(tag_string):
+    """
+    Split a string representing a list of tag names into a real list.
+    """
+    # First, determine if a Namespace has been defined by a double colon.
+    namespace_split = tag_string.split("::", 1)
+    if len(namespace_split) > 1:
+        namespace, tag_string = namespace_split
+    
+    else:
+        namespace = None
+    
+    # Now split the actual tag string on single colon.
+    tag_list = tag_string.split(":")
+    
+    # Remove excess whitespace, add namespace (if given) and remove empty parts.
+    new_tag_list = []
+    for tag_part in tag_list:
+        # Remove surrounding whitespace.
+        tag_part.strip()
+        
+        # Skip if empty.
+        if tag_part == "":
+            continue
+        
+        # Add namespace.
+        if namespace is not None:
+            tag_part = namespace + " " + tag_part
+        
+        # Add
+        new_tag_list.append(tag_part)
+    
+    return new_tag_list
+
+
 class Configurable_loader():
     """
     Abstract top-level class for configurable loaders.
@@ -340,11 +375,13 @@ class Partial_loader(Configurable_loader):
         if check_length and len(tokens) != 3:
             raise ValueError("The identifier string '{}' contains {} components but must contain exactly 3 components".format(identifier, len(tokens)))
         
-        new_tokens = []
-        for token in tokens:
-            new_tokens.append(yaml.safe_load(token))
+#         new_tokens = []
+#         for token in tokens:
+#             new_tokens.append(yaml.safe_load(token))
+            
+        tokens = [split_tag_list(token) for token in tokens]
         
-        return new_tokens
+        return tokens
     
     def resolve_method(self, *identifiers, validate = True):
         """

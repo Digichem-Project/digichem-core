@@ -31,8 +31,8 @@ post:
     combined_report_name: Organic Emitter TDA
 
 calculations:
-    - [Gaussian Optimisation Frequencies, Gaussian PBE1PBE (GD3BJ), Gaussian Gas Phase, 'Gaussian 6-31G(d,p)']
-    - [Gaussian TDA, Gaussian 10 Singlets 10 Triplets, Gaussian PBE1PBE (GD3BJ), Gaussian Gas Phase, 'Gaussian 6-31G(d,p)']
+    - Gaussian; Optimisation Frequencies, PBE1PBE (GD3BJ), Gas Phase, "6-31G(d,p)"
+    - Gaussian; TDA, 10 Singlets 10 Triplets, PBE1PBE (GD3BJ), Gas Phase, "6-31G(d,p)"
     
  
 ---
@@ -45,9 +45,9 @@ post:
     combined_report_name: Organic Emitter TDA Emission (in toluene)
 
 calculations:
-    - [Gaussian Optimisation Frequencies, Gaussian PBE1PBE (GD3BJ), Gaussian Toluene, 'Gaussian 6-31G(d,p)']
-    - [Gaussian TDA, Gaussian 10 Singlets 10 Triplets, Gaussian PBE1PBE (GD3BJ), Gaussian Toluene, 'Gaussian 6-31G(d,p)']
-    - [Gaussian TDA, Gaussian Optimised S(1), Gaussian PBE1PBE (GD3BJ), Gaussian Toluene, 'Gaussian 6-31G(d,p)']
+    - Gaussian; Optimisation Frequencies, PBE1PBE (GD3BJ), Toluene, "6-31G(d,p)"
+    - Gaussian; TDA, 10 Singlets 10 Triplets, PBE1PBE (GD3BJ), Toluene, "6-31G(d,p)"
+    - Gaussian; TDA, Optimised S(1), PBE1PBE (GD3BJ), Toluene, "6-31G(d,p)"
 
 
 ---
@@ -70,10 +70,10 @@ post:
     combined_report_name: Organometallic Emitter TD-DFT Unrestricted Emission (in acetonitrile)
     
 calculations:
-    - [Gaussian Optimisation Frequencies, Gaussian B3LYP (GD3BJ), Gaussian Acetonitrile, 'Gaussian 6-31+G(d,p) SBKJC-VDZ (ECP)']
-    - [Gaussian TD-DFT, Gaussian 10 Singlets 10 Triplets, Gaussian B3LYP (GD3BJ), Gaussian Acetonitrile, 'Gaussian 6-31+G(d,p) SBKJC-VDZ (ECP)']
-    - [Gaussian Optimisation Frequencies Unrestricted Triplet, Gaussian B3LYP (GD3BJ), Gaussian Acetonitrile, 'Gaussian 6-31+G(d,p) SBKJC-VDZ (ECP)']
-    - [Gaussian Single Point Singlet, Gaussian B3LYP (GD3BJ), Gaussian Acetonitrile, 'Gaussian 6-31+G(d,p) SBKJC-VDZ (ECP)']
+    - Gaussian; Optimisation Frequencies, B3LYP (GD3BJ), Acetonitrile, "6-31+G(d,p) SBKJC-VDZ (ECP)"
+    - Gaussian; TD-DFT, 10 Singlets 10 Triplets, B3LYP (GD3BJ), Acetonitrile, "6-31+G(d,p) SBKJC-VDZ (ECP)"
+    - Gaussian; Optimisation Frequencies Unrestricted Triplet, B3LYP (GD3BJ), Acetonitrile, "6-31+G(d,p) SBKJC-VDZ (ECP)"
+    - Gaussian; Single Point Singlet, B3LYP (GD3BJ), Acetonitrile, "6-31+G(d,p) SBKJC-VDZ (ECP)"
 
 
 ---
@@ -86,6 +86,6 @@ post:
     combined_report_name: Organometallic Emitter TD-DFT Emission (in acetonitrile)
     
 calculations:
-    - [Gaussian Optimisation Frequencies, Gaussian B3LYP (GD3BJ), Gaussian Acetonitrile, 'Gaussian 6-31+G(d,p) SBKJC-VDZ (ECP)']
-    - [Gaussian TDA, Gaussian 10 Singlets 10 Triplets, Gaussian B3LYP (GD3BJ), Gaussian Acetonitrile, 'Gaussian 6-31+G(d,p) SBKJC-VDZ (ECP)']
-    - [Gaussian TDA, Gaussian Optimised T(1), Gaussian B3LYP (GD3BJ), Gaussian Acetonitrile, 'Gaussian 6-31+G(d,p) SBKJC-VDZ (ECP)']
+    - Gaussian; Optimisation Frequencies, B3LYP (GD3BJ), Acetonitrile, "6-31+G(d,p) SBKJC-VDZ (ECP)"
+    - Gaussian; TDA, 10 Singlets 10 Triplets, B3LYP (GD3BJ), Acetonitrile, "6-31+G(d,p) SBKJC-VDZ (ECP)"
+    - Gaussian; TDA, Optimised T(1), B3LYP (GD3BJ), Acetonitrile, "6-31+G(d,p) SBKJC-VDZ (ECP)"
