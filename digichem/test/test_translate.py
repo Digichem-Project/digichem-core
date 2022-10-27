@@ -14,7 +14,7 @@ def test_solvent():
     assert all([str(solvents[0]) == str(solvent) for solvent in solvents])
     
     # And the correct gaussian name.
-    assert all(["Dichloromethane" == solvent.to_gaussian() for solvent in solvents])
+    assert all(["DiChloroMethane" == solvent.to_gaussian() for solvent in solvents])
     
     # And epsilon
     assert all([pytest.approx(8.93) == solvent.translate("epsilon") for solvent in solvents])
