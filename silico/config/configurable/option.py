@@ -512,7 +512,11 @@ class Method_target_option(Option):
             return method_targets.resolve(value)
         
         def dump_func(option, configurable, value):
-            return value.tag_hierarchy if value is not None else None
+            # TODO: The Identifier class should be involved here...
+            if value is None:
+                return None
+            
+            return " : ".join(value.tag_hierarchy)
         
         super().__init__(
             # General stuff.
