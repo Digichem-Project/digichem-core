@@ -181,17 +181,22 @@ class Method_pointer_widget(Row_pointer_widget):
         # This reference is long, perhaps there is better access?
         methods = self.row_item.row_list.method_library.methods
         
-        # Add each of the methods identified by each code.
-        for code in self.code_popup.edit.edit_text.split():
+        # Add each of the methods identified by each code.#
+        bad_codes = []
+        for code in self.code_popup.edit.edit_text.split("\n"):
             try:
                 self.row_item.row_list.add_row(methods.resolve_method_string(code))
             
             except Exception:
                 # Something went wrong, most probably the given code is no good.
+                bad_codes.append(code)
                 silico.log.get_logger().error("Failed to resolve method identified by code '{}'".format(code), exc_info = True)
         
         # Clear our edit widget.
         self.code_popup.edit.edit_text = ""
+        
+        # If any of our codes were bad, add them back (so the user doesn't have to keep typing them out).
+        self.code_popup.edit.edit_text = "\n".join(bad_codes)
         
     def add_from_files(self):
         """
