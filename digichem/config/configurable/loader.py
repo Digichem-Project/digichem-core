@@ -331,7 +331,6 @@ class Partial_loader(Configurable_loader):
         :returns: The split parts (a list).
         """
         try:
-            #tokens = list(ID_splitter(identifier))
             tokens = identifier.split("/")
             
         except Exception as e:
@@ -339,10 +338,6 @@ class Partial_loader(Configurable_loader):
         
         if check_length and len(tokens) != 3:
             raise ValueError("The identifier string '{}' contains {} components but must contain exactly 3 components".format(identifier, len(tokens)))
-        
-#         new_tokens = []
-#         for token in tokens:
-#             new_tokens.append(yaml.safe_load(token))
             
         tokens = [Identifier(token).value for token in tokens]
         
