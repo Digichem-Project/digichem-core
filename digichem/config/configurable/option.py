@@ -275,6 +275,9 @@ class Option():
         elif value.__class__.__module__ not in ('__builtin__', 'builtins'):
             return str(value)
         
+        elif self.list_type is not None:
+            return self.list_type(str(sub_value) if sub_value.__class__.__module__ not in ('__builtin__', 'builtins') else sub_value for sub_value in value)
+        
         else:
             return value 
 
