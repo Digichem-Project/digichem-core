@@ -7,7 +7,7 @@ Loaders are essentially a speed hack that means we don't have to construct 1000s
 
 # General imports.
 import deepmerge
-import yaml
+import csv
 import copy
 
 # Silico imports.
@@ -15,7 +15,7 @@ from silico.config.configurable.exception import Configurable_loader_exception,\
     Short_tag_path_error, Unresolvable_tag_path_error, Long_tag_path_error
 from silico.exception.base import Silico_exception
 from silico.config.configurable.base import Configurable_class_target
-from silico.misc.base import is_iter
+from silico.misc.base import is_iter, is_int
 from silico.config.configurable.util import setopt, getopt, hasopt
 
 # Make methods available. We do this because our loaders are going to eventually ask for one of these classes.
@@ -29,25 +29,32 @@ def split_tag_list(tag_string):
     """
     Split a string representing a list of tag names into a real list.
     """
+    # Use csv to split our string.
+    parser = csv.reader([tag_string], delimiter = ":")
+    
     # First, determine if a Namespace has been defined by a double colon.
-    namespace_split = tag_string.split("::", 1)
-    if len(namespace_split) > 1:
-        namespace, tag_string = namespace_split
+    split = next(parser)
+    
+    # A namespace is defined by an initial double colon ('::').
+    # We can check for this by looking if the second item is empty.
+    if len(split) > 2 and split[1] == "":
+        namespace = split[0].strip()
+        split = split[2:]
     
     else:
         namespace = None
     
-    # Now split the actual tag string on single colon.
-    tag_list = tag_string.split(":")
-    
     # Remove excess whitespace, add namespace (if given) and remove empty parts.
     new_tag_list = []
-    for tag_part in tag_list:
+    for tag_part in split:
         # Remove surrounding whitespace.
-        tag_part.strip()
+        # NOTE: This is nearly always the right thing to do, but currently there's no way to turn this off.
+        # This means we cannot select tags that start or end with whitespace.
+        tag_part = tag_part.strip()
         
         # Skip if empty.
         if tag_part == "":
+            silico.log.get_logger().warn("ignoring blank section of method tag list")
             continue
         
         # Add namespace.
@@ -57,7 +64,12 @@ def split_tag_list(tag_string):
         # Add
         new_tag_list.append(tag_part)
     
-    return new_tag_list
+    # Turn single numbers into int.
+    if len(new_tag_list) == 1 and is_int(new_tag_list[0]):
+        return int(new_tag_list[0])
+    
+    else:
+        return new_tag_list
 
 
 class Configurable_loader():
