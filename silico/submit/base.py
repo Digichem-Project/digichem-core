@@ -118,7 +118,7 @@ def write_method_to_file(file_name, method, explicit = False):
     method = {
         'destination': method[0].dump(explicit),
         'program': method[1].dump(explicit),
-        'calculation': method[2].dump(explicit)    
+        'calculation': method[2].dump(explicit)
     }
     
     # Open the file pointed at by the output widget.
