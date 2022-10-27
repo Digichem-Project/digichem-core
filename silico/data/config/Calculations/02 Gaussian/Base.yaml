@@ -1,7 +1,7 @@
 # The base for gaussian calculations.
 
 link:
-    tag: "Gaussian:"
+    tag: Gaussian
     type: pseudo
     # The names of configs to go to next.
     next:
