@@ -259,7 +259,7 @@ class Turbomole_AI(Turbomole, AI_calculation_mixin):
             
             # Add max cycles.
             if self.properties['opt']['iterations'] is not None:
-                jobex.args.extend(["-c ", str(self.properties['opt']['iterations'])])
+                jobex.args.extend(["-c", str(self.properties['opt']['iterations'])])
                 
             # Add the method.
             if self.method['hf']['calc'] or self.method['dft']['calc']:
