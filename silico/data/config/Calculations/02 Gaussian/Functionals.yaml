@@ -3,7 +3,7 @@ link:
     type: pseudo
     tag: Functionals
     next:
-        - PBE1PBE (GD3BJ)
+        - PBE0 (GD3BJ)
         - B3LYP (GD3BJ)
         - CAM-B3LYP (GD3BJ)
         - M062X (GD3)
@@ -15,13 +15,13 @@ link:
 link:
     namespace: Gaussian
     type: partial
-    tag: PBE1PBE (GD3BJ)
+    tag: PBE0 (GD3BJ)
     next: [Solvents]
 
 method:
     dft:
         calc: True
-        functional: PBE1PBE
+        functional: PBE0
         dispersion: GD3BJ
 
 
