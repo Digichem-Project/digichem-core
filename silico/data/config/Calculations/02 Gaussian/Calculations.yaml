@@ -18,6 +18,21 @@ electron:
 link:
     namespace: Gaussian
     type: partial
+    tag: Gradient
+    next:
+        - Methods
+
+properties:
+    grad:
+        calc: True
+
+
+---
+
+
+link:
+    namespace: Gaussian
+    type: partial
     tag: Optimisation
     next:
         - Methods

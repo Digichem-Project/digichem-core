@@ -6,6 +6,7 @@ link:
     # The names of configs to go to next.
     next:
         - Gaussian Single Point Singlet
+        - Gaussian Gradient
         - Gaussian Optimisation
         - Gaussian Optimisation Frequencies
         - Gaussian Optimisation Frequencies Unrestricted Triplet
