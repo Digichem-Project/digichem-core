@@ -14,12 +14,24 @@ link:
     type: pseudo
     tag: Internal Basis Sets
     next:
-        - 6-31G(d,p)
-        - 6-31+G(d,p)
-        - 6-31++G(d,p)
-        - 6-311G(d,p)
-        - 6-311+G(d,p)
-        - 6-311++G(d,p)
+#        - 6-31G
+        - 6-31G*
+        - 6-31G**
+#        - 6-31+G
+        - 6-31+G*
+        - 6-31+G**
+#        - 6-31++G
+        - 6-31++G*
+        - 6-31++G**
+#        - 6-311G
+        - 6-311G*
+        - 6-311G**
+#        - 6-311+G
+        - 6-311+G*
+        - 6-311+G**
+#        - 6-311++G
+        - 6-311++G*
+        - 6-311++G**
         - cc-pVDZ
         - cc-pVTZ
         - cc-pVQZ
@@ -32,9 +44,9 @@ link:
 
 link:
     namespace: Gaussian
-    tag: 6-31G(d,p)
+    tag: 6-31G
 basis_set:
-    internal: 6-31G(d,p)
+    internal: 6-31G
 
 
 ---
@@ -42,9 +54,9 @@ basis_set:
 
 link:
     namespace: Gaussian
-    tag: 6-31+G(d,p)
+    tag: 6-31G*
 basis_set:
-    internal: 6-31+G(d,p)
+    internal: 6-31G*
 
 
 ---
@@ -52,9 +64,9 @@ basis_set:
 
 link:
     namespace: Gaussian
-    tag: 6-31++G(d,p)
+    tag: 6-31G**
 basis_set:
-    internal: 6-31++G(d,p)
+    internal: 6-31G**
 
 
 ---
@@ -62,9 +74,9 @@ basis_set:
 
 link:
     namespace: Gaussian
-    tag: 6-311G(d,p)
+    tag: 6-31+G
 basis_set:
-    internal: 6-311G(d,p)
+    internal: 6-31+G
 
 
 ---
@@ -72,9 +84,9 @@ basis_set:
 
 link:
     namespace: Gaussian
-    tag: 6-311+G(d,p)
+    tag: 6-31+G*
 basis_set:
-    internal: 6-311+G(d,p)
+    internal: 6-31+G*
 
 
 ---
@@ -82,9 +94,129 @@ basis_set:
 
 link:
     namespace: Gaussian
-    tag: 6-311++G(d,p)
-basis_set: 
-    internal: 6-311++G(d,p)
+    tag: 6-31+G**
+basis_set:
+    internal: 6-31+G**
+
+
+---
+
+
+link:
+    namespace: Gaussian
+    tag: 6-31++G
+basis_set:
+    internal: 6-31++G
+
+
+---
+
+
+link:
+    namespace: Gaussian
+    tag: 6-31++G*
+basis_set:
+    internal: 6-31++G*
+
+
+---
+
+
+link:
+    namespace: Gaussian
+    tag: 6-31++G**
+basis_set:
+    internal: 6-31++G**
+
+
+---
+
+
+link:
+    namespace: Gaussian
+    tag: 6-311G
+basis_set:
+    internal: 6-311G
+
+
+---
+
+
+link:
+    namespace: Gaussian
+    tag: 6-311G*
+basis_set:
+    internal: 6-311G*
+
+
+---
+
+
+link:
+    namespace: Gaussian
+    tag: 6-311G**
+basis_set:
+    internal: 6-311G**
+
+
+---
+
+
+link:
+    namespace: Gaussian
+    tag: 6-311+G
+basis_set:
+    internal: 6-311+G
+
+
+---
+
+
+link:
+    namespace: Gaussian
+    tag: 6-311+G*
+basis_set:
+    internal: 6-311+G*
+
+
+---
+
+
+link:
+    namespace: Gaussian
+    tag: 6-311+G**
+basis_set:
+    internal: 6-311+G**
+
+
+---
+
+
+link:
+    namespace: Gaussian
+    tag: 6-311++G
+basis_set:
+    internal: 6-311++G
+
+
+---
+
+
+link:
+    namespace: Gaussian
+    tag: 6-311++G*
+basis_set:
+    internal: 6-311++G*
+
+
+---
+
+
+link:
+    namespace: Gaussian
+    tag: 6-311++G**
+basis_set:
+    internal: 6-311++G**
 
 
 ---

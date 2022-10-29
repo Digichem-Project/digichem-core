@@ -15,10 +15,24 @@ link:
     tag: Pople Basis Sets
     type: pseudo
     next:
+
+#        - 6-31G
+        - 6-31G*
         - 6-31G**
-        - 6-311G
+#        - 6-31+G
+        - 6-31+G*
+        - 6-31+G**
+#        - 6-31++G
+        - 6-31++G*
+        - 6-31++G**
+#        - 6-311G
         - 6-311G*
         - 6-311G**
+#        - 6-311+G
+        - 6-311+G*
+        - 6-311+G**
+#        - 6-311++G
+        - 6-311++G*
         - 6-311++G**
 
 ---
@@ -41,6 +55,26 @@ link:
 
 link:
     namespace: Turbomole
+    tag: 6-31G
+basis_set:
+    internal: 6-31G
+
+
+---
+
+
+link:
+    namespace: Turbomole
+    tag: 6-31G*
+basis_set:
+    internal: 6-31G*
+
+
+---
+
+
+link:
+    namespace: Turbomole
     tag: 6-31G**
 basis_set:
     internal: 6-31G**
@@ -51,8 +85,67 @@ basis_set:
 
 link:
     namespace: Turbomole
-    tag: 6-311G
+    tag: 6-31+G
+basis_set:
+    internal: 6-31+G
 
+
+---
+
+
+link:
+    namespace: Turbomole
+    tag: 6-31+G*
+basis_set:
+    internal: 6-31+G*
+
+
+---
+
+
+link:
+    namespace: Turbomole
+    tag: 6-31+G**
+basis_set:
+    internal: 6-31+G**
+
+
+---
+
+
+link:
+    namespace: Turbomole
+    tag: 6-31++G
+basis_set:
+    internal: 6-31++G
+
+
+---
+
+
+link:
+    namespace: Turbomole
+    tag: 6-31++G*
+basis_set:
+    internal: 6-31++G*
+
+
+---
+
+
+link:
+    namespace: Turbomole
+    tag: 6-31++G**
+basis_set:
+    internal: 6-31++G**
+
+
+---
+
+
+link:
+    namespace: Turbomole
+    tag: 6-311G
 basis_set:
     internal: 6-311G
 
@@ -75,6 +168,56 @@ link:
     tag: 6-311G**
 basis_set:
     internal: 6-311G**
+
+
+---
+
+
+link:
+    namespace: Turbomole
+    tag: 6-311+G
+basis_set:
+    internal: 6-311+G
+
+
+---
+
+
+link:
+    namespace: Turbomole
+    tag: 6-311+G*
+basis_set:
+    internal: 6-311+G*
+
+
+---
+
+
+link:
+    namespace: Turbomole
+    tag: 6-311+G**
+basis_set:
+    internal: 6-311+G**
+
+
+---
+
+
+link:
+    namespace: Turbomole
+    tag: 6-311++G
+basis_set:
+    internal: 6-311++G
+
+
+---
+
+
+link:
+    namespace: Turbomole
+    tag: 6-311++G*
+basis_set:
+    internal: 6-311++G*
 
 
 ---
