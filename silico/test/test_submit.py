@@ -149,7 +149,7 @@ def run_submission_test(coordinate_files, method_codes, tmp_path, silico_options
     """Run a submission test."""
     
     # Resolve methods.
-    methods = [silico_options.methods.resolve_method_string(method_id) for method_id in method_codes]
+    methods = [silico_options.methods.resolve_method_string(method_code) for method_code in method_codes]
     
     # We expect to be run in a SLURM context.
     # Get our available resources from the context.
