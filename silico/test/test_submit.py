@@ -137,10 +137,10 @@ turbomole_properties = [
     "Excited States: TD-DFT: Optimised T(1)",
 ]
 turbomole_posthf_properties = [
-    "Excited States: Post-HF: S(1) & S(2)",
-    "Excited States: Post-HF: T(1) & T(2)",
-    "Excited States: Post-HF: Optimised S(1)",
-    "Excited States: Post-HF: Optimised T(1)",
+    "Excited States: Post-HF Excited States: Post-HF ES Singlet",
+    "Excited States: Post-HF Excited States: Post-HF ES Triplet",
+    "Excited States: Post-HF Excited States: Post-HF Optimised S(1)",
+    "Excited States: Post-HF Excited States: Post-HF Optimised T(1)",
 ]
 
 
@@ -309,7 +309,7 @@ def test_turbomole_properties(prop, tmp_path, silico_options):
 def test_turbomole_posthf_properties(prop, tmp_path, silico_options):
     """Test different turbomole properties (with post HF methods)."""
     # Get our method code.
-    method_code = f"{destination}/Turbomole/Turbomole:: {prop}: SCS-ADC(2): Gas Phase: cc-pVDZ"
+    method_code = f"{destination}/Turbomole/Turbomole:: {prop}: SCS-ADC(2): Gas Phase RI: cc-pVDZ"
     
     # Run the test.
     run_submission_test([pyridine_cml], [method_code], tmp_path, silico_options)
