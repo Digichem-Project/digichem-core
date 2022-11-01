@@ -13,6 +13,9 @@ class Identifier():
     """
     
     def __init__(self, identifier):
+        if isinstance(identifier, type(self)):
+            identifier = str(identifier)
+        
         # Use csv to split our string.
         parser = csv.reader([identifier], delimiter = ":")
         
