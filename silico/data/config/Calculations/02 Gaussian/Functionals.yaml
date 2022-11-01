@@ -79,7 +79,7 @@ method:
 link:
     namespace: Gaussian
     type: partial
-    tag: wB97XD (GD2)
+    tag: wB97XD
     next: [Solvents]
 
 method:
