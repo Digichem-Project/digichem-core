@@ -175,7 +175,8 @@ link:
     tag: n,n-DiMethylFormamide
     next: [Basis Sets]
 
-solvent: n,n-DiMethylFormamide
+solution:
+    solvent: n,n-DiMethylFormamide
 
 
 ---
