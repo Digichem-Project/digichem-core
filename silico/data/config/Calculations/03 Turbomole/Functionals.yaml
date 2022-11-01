@@ -85,7 +85,7 @@ link:
     tag: B3LYP (GD3BJ)
     type: partial
     next:
-        - Basis Sets
+        - Solvents
 
 method:
     dft:
@@ -101,7 +101,7 @@ link:
     tag: M062X (GD3)
     type: partial
     next:
-        - Basis Sets
+        - Solvents
 
 method:
     dft:
