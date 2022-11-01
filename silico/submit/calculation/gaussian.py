@@ -181,7 +181,7 @@ class Gaussian(Concrete_calculation, AI_calculation_mixin):
         # Optimisations.
         if self.properties['opt']['calc']:
             # Make an opt keyword.
-            opt_keyword = Keyword("Opt", self.optimisation['options'])
+            opt_keyword = Keyword("Opt", self.properties['opt']['options'])
             
             # Add max number of steps if given.
             if self.properties['opt']['iterations'] is not None:
