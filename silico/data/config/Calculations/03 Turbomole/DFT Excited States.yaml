@@ -75,10 +75,6 @@ link:
     next:
         - Functionals
 
-dft_exci:
-    multiplicity: 1
-    nexc: 100
-
 
 properties:
     es:
