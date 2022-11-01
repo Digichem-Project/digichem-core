@@ -6,8 +6,8 @@ link:
         - Single Point
         - Gradient
         - Optimisation
-        - Optimisation Frequency
-        - Frequency
+        - Optimisation Frequencies
+        - Frequencies
         - Excited States
 
 
@@ -72,7 +72,7 @@ properties:
 
 link:
     namespace: Turbomole
-    tag: Optimisation Frequency
+    tag: Optimisation Frequencies
     type: partial
     next:
         - Functionals
@@ -97,7 +97,7 @@ scf:
 
 link:
     namespace: Turbomole
-    tag: Frequency
+    tag: Frequencies
     type: partial
     next:
         - Functionals
