@@ -30,7 +30,7 @@ class Calculation_series(Calculation_target):
     post_process = Options(name = "post", help = "Options that control post processing of the calculation results.",
         write_summary = Option(help = "Whether to write Silico summary text files to the 'Results' folder at the end of each calculation. Set to False to disable for all calculations.", default = None, choices = (True, False, None)),
         write_report = Option(help = "Whether to write a Silico PDF report to the 'Report' folder at the end of each calculation. Set to False to disable for all calculations.", default = None, choices = (True, False, None)),
-        write_combined_report = Option(help = "Whether to write the combined report for this series calculation", default = True, type = bool),
+        #write_combined_report = Option(help = "Whether to write the combined report for this series calculation", default = True, type = bool),
         combined_report_name = Option(help = "The name to use for the folder in which the combined report for this series calculation will be written. If not specified, the name of this series will be used.", default = None),
     )
     
