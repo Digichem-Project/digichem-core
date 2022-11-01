@@ -53,9 +53,9 @@ post:
     combined_report_name: MR-TADF Emitter SCS-ADC(2)
 
 calculations:
-    - "Turbomole:: Gradient           : Turbomole SCS-ADC(2) : Turbomole cc-pVDZ"
-    - "Turbomole:: Post-HF ES Singlet : Turbomole SCS-ADC(2) : Turbomole cc-pVDZ"
-    - "Turbomole:: Post-HF ES Triplet : Turbomole SCS-ADC(2) : Turbomole cc-pVDZ"
+    - "Turbomole:: Gradient           : SCS-ADC(2) : cc-pVDZ"
+    - "Turbomole:: Post-HF ES Singlet : SCS-ADC(2) : cc-pVDZ"
+    - "Turbomole:: Post-HF ES Triplet : SCS-ADC(2) : cc-pVDZ"
 
 
 ---
@@ -68,6 +68,6 @@ post:
     combined_report_name: MR-TADF Emitter SCS-CC2
 
 calculations:
-    - "Turbomole:: Gradient           : Turbomole SCS-CC2 : Turbomole cc-pVDZ"
-    - "Turbomole:: Post-HF ES Singlet : Turbomole SCS-CC2 : Turbomole cc-pVDZ"
-    - "Turbomole:: Post-HF ES Triplet : Turbomole SCS-CC2 : Turbomole cc-pVDZ"
+    - "Turbomole:: Gradient           : SCS-CC2 : cc-pVDZ"
+    - "Turbomole:: Post-HF ES Singlet : SCS-CC2 : cc-pVDZ"
+    - "Turbomole:: Post-HF ES Triplet : SCS-CC2 : cc-pVDZ"
