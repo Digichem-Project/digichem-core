@@ -69,6 +69,10 @@ method:
     mp:
         calc: True
         level: MP4
+
+# No MP4 or higher gradients available.
+keywords:
+    Density: None
    
    
 ---
@@ -85,6 +89,9 @@ method:
         calc: True
         level: MP5
 
+# No MP4 or higher gradients available.
+keywords:
+    Density: None
 
 ---
 
@@ -114,3 +121,7 @@ method:
     cc:
         calc: True
         level: CCSD
+
+# No MP4 or higher gradients available.
+keywords:
+    Density: None
