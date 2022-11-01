@@ -30,7 +30,7 @@ link:
     namespace: Gaussian
     type: partial
     tag: MP2
-    next: [Basis Sets]
+    next: [Solvents]
 
 method:
     mp:
@@ -39,13 +39,16 @@ method:
    
    
 ---
+###########################################################
+# Methods above MP2 do not have gradient solvent support. #
+###########################################################
 
 
 link:
     namespace: Gaussian
     type: partial
     tag: MP3
-    next: [Basis Sets]
+    next: [Gas Phase]
 
 method:
     mp:
@@ -60,7 +63,7 @@ link:
     namespace: Gaussian
     type: partial
     tag: MP4
-    next: [Basis Sets]
+    next: [Gas Phase]
 
 method:
     mp:
@@ -75,7 +78,7 @@ link:
     namespace: Gaussian
     type: partial
     tag: MP5
-    next: [Basis Sets]
+    next: [Gas Phase]
 
 method:
     mp:
@@ -90,7 +93,7 @@ link:
     namespace: Gaussian
     type: partial
     tag: CCD
-    next: [Basis Sets]
+    next: [Gas Phase]
 
 method:
     cc:
@@ -105,7 +108,7 @@ link:
     namespace: Gaussian
     type: partial
     tag: CCSD
-    next: [Basis Sets]
+    next: [Gas Phase]
 
 method:
     cc:
