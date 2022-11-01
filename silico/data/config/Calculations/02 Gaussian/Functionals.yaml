@@ -87,4 +87,4 @@ method:
         calc: True
         functional: wB97XD
         # wB97XD has built in dispersion
-        dispersion: None
+        dispersion: null
