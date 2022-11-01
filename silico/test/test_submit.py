@@ -188,7 +188,7 @@ def run_submission_test(coordinate_files, method_codes, tmp_path, silico_options
 
 
 @pytest.mark.slow
-@pytest.mark.parametrize("coordinate_files, methods", [
+@pytest.mark.parametrize("coordinate_files, method_codes", [
     # Multiple Submission.
     ([benzene_cdx, pyridine_cml, cyclopentane_com], [f"{destination}/Turbomole/Turbomole:: Single Point: Standard DFT: PBE0 (GD3BJ): Gas Phase: 6-31G**"]),
     # Gaussian organics.
@@ -271,7 +271,7 @@ def test_turbomole_methods(method, tmp_path, silico_options):
 
 
 @pytest.mark.slow
-@pytest.mark.parametrize("property", gaussian_properties)
+@pytest.mark.parametrize("prop", gaussian_properties)
 def test_gaussian_properties(prop, tmp_path, silico_options):
     """Test different gaussian properties."""
     # Get our method code.
@@ -282,7 +282,7 @@ def test_gaussian_properties(prop, tmp_path, silico_options):
 
 
 @pytest.mark.slow
-@pytest.mark.parametrize("property", turbomole_properties)
+@pytest.mark.parametrize("prop", turbomole_properties)
 def test_turbomole_properties(prop, tmp_path, silico_options):
     """Test different turbomole properties."""
     # Get our method code.
@@ -292,7 +292,7 @@ def test_turbomole_properties(prop, tmp_path, silico_options):
     run_submission_test([pyridine_cml], [method_code], tmp_path, silico_options)
 
 @pytest.mark.slow
-@pytest.mark.parametrize("property", turbomole_posthf_properties)
+@pytest.mark.parametrize("prop", turbomole_posthf_properties)
 def test_turbomole_posthf_properties(prop, tmp_path, silico_options):
     """Test different turbomole properties (with post HF methods)."""
     # Get our method code.
