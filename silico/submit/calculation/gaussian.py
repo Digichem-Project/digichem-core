@@ -7,7 +7,7 @@ from silico.submit.calculation import Concrete_calculation
 from silico.config.configurable.options import Options
 from silico.input.directory import Calculation_directory_input
 from silico.submit.calculation.base import AI_calculation_mixin
-from silico.input.silico import Silico_coords
+from silico.input.silico import Silico_coords_ABC
 
 
 class Keyword():
@@ -347,7 +347,7 @@ class Gaussian(Concrete_calculation, AI_calculation_mixin):
             self.com_file_name = self.safe_name(self.molecule_name + ".com")
             
             # Get and load our com file template.
-            self.com_file_body = TemplateLookup(directories = str(silico.default_template_directory())).get_template("/submit/gaussian/input_file.mako").render_unicode(calculation = self, write_geom = isinstance(input_coords, Silico_coords))
+            self.com_file_body = TemplateLookup(directories = str(silico.default_template_directory())).get_template("/submit/gaussian/input_file.mako").render_unicode(calculation = self, write_geom = isinstance(input_coords, Silico_coords_ABC))
         
         def NTO_calc(self, transition):
             """
