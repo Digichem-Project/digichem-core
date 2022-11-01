@@ -89,6 +89,8 @@ turbomole_methods = [
 #     "RIJK-DFT: PBE0 (GD3BJ)",
 #     "RIJK-DFT: B3LYP (GD3BJ)",
 #     "RIJK-DFT: M062X (GD3)",
+]
+turbomole_ri_methods = [
     "RI-MP2",
     "RI-MP3",
     "RI-MP4",
@@ -265,6 +267,17 @@ def test_turbomole_methods(method, tmp_path, silico_options):
     """Test different turbomole methods."""
     # Get our method code.
     method_code = f"{destination}/Turbomole/Turbomole:: Single Point: {method}: Gas Phase: cc-pVDZ"
+    
+    # Run the test.
+    run_submission_test([pyridine_cml], [method_code], tmp_path, silico_options)
+
+
+@pytest.mark.slow
+@pytest.mark.parametrize("method", turbomole_ri_methods)
+def test_turbomole_ri_methods(method, tmp_path, silico_options):
+    """Test different turbomole methods."""
+    # Get our method code.
+    method_code = f"{destination}/Turbomole/Turbomole:: Single Point: {method}: Gas Phase RI: cc-pVDZ"
     
     # Run the test.
     run_submission_test([pyridine_cml], [method_code], tmp_path, silico_options)
