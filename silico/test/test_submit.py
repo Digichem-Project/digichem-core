@@ -80,9 +80,9 @@ gaussian_methods = [
     "CCSD"
 ]
 turbomole_methods = [
-    "Normal DFT: PBE0 (GD3BJ)",
-    "Normal DFT: B3LYP (GD3BJ)",
-    "Normal DFT: M062X (GD3)",
+    "Standard DFT: PBE0 (GD3BJ)",
+    "Standard DFT: B3LYP (GD3BJ)",
+    "Standard DFT: M062X (GD3)",
     "RI-DFT: PBE0 (GD3BJ)",
     "RI-DFT: B3LYP (GD3BJ)",
     "RI-DFT: M062X (GD3)",
@@ -286,7 +286,7 @@ def test_gaussian_properties(prop, tmp_path, silico_options):
 def test_turbomole_properties(prop, tmp_path, silico_options):
     """Test different turbomole properties."""
     # Get our method code.
-    method_code = f"{destination}/Turbomole/Turbomole:: {prop}: Normal DFT: PBE0 (GD3BJ): Gas Phase: 6-31G*"
+    method_code = f"{destination}/Turbomole/Turbomole:: {prop}: Standard DFT: PBE0 (GD3BJ): Gas Phase: 6-31G*"
     
     # Run the test.
     run_submission_test([pyridine_cml], [method_code], tmp_path, silico_options)
