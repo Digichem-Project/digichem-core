@@ -61,6 +61,16 @@ class Translate():
     ABC for translate classes.
     """
     
+    def __init__(self, value):
+        """
+        Constructor for Translate classes.
+        """
+        if isinstance(value, type(self)):
+            self.value = value.value
+        
+        else:
+            self.value = value
+    
     def translate(self, program):
         """
         Translate into a name appropriate for a given program.
@@ -85,13 +95,9 @@ class Basis_set(Translate):
     A class for converting between the names of basis sets.
     """
     
-    def __init__(self, basis_set):
-        """
-        Constructor for Basis_set translator objects.
-        
-        :param basis_set: The basis set to convert.
-        """
-        self.basis_set = basis_set
+    @property
+    def basis_set(self):
+        return self.value
     
     @classmethod
     def build_db(self):
@@ -186,10 +192,9 @@ class Functional(Translate):
     A class for converting between the names of DFT functionals.
     """
     
-    def __init__(self, functional):
-        """
-        """
-        self.functional = functional
+    @property
+    def functional(self):
+        return self.value
             
     
     @classmethod
@@ -259,10 +264,9 @@ class Functional(Translate):
 class Solvent(Translate):
     """A class for converting between different representations of solvents."""
     
-    def __init__(self, solvent):
-        """
-        """
-        self.solvent = solvent
+    @property
+    def solvent(self):
+        return self.value
     
     @classmethod
     def find_in_db(self, hint):
@@ -331,8 +335,9 @@ class Multiplicity(Translate):
         {"name": "Quartet", "number": 4, "symbol": "Q"}
     ]
     
-    def __init__(self, multiplicity):
-        self.multiplicity = multiplicity
+    @property
+    def multiplicity(self):
+        return self.value
         
     @classmethod
     def find_in_db(self, hint):
