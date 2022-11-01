@@ -4,6 +4,7 @@ from silico.config.configurable.exception import Configurable_exception
 from silico.submit.memory import Memory
 from silico.config.configurable.options import Options
 from silico.config.configurable.identifier import Identifier
+from silico.config.configurable.util import getopt, setopt
 
 
 class Calculation_series(Calculation_target):
@@ -27,7 +28,10 @@ class Calculation_series(Calculation_target):
         num_cpu = Option(help = "Force each calculation in this series to use this many CPUs.", default = None, type = int)
     )
     post_process = Options(name = "post", help = "Options that control post processing of the calculation results.",
-        combined_report_name = Option(help = "The name to use for the folder in which the combined report for this series calculation will be written. If not specified, the name of this series will be used.", default = None)
+        write_summary = Option(help = "Whether to write Silico summary text files to the 'Results' folder at the end of each calculation. Set to False to disable for all calculations.", default = None, choices = (True, False, None)),
+        write_report = Option(help = "Whether to write a Silico PDF report to the 'Report' folder at the end of each calculation. Set to False to disable for all calculations.", default = None, choices = (True, False, None)),
+        write_combined_report = Option(help = "Whether to write the combined report for this series calculation", default = True, type = bool),
+        combined_report_name = Option(help = "The name to use for the folder in which the combined report for this series calculation will be written. If not specified, the name of this series will be used.", default = None),
     )
     
             
@@ -45,21 +49,19 @@ class Calculation_series(Calculation_target):
         """
         calcs = []
         
-        for tag_path in self.calculation_IDs:
+        for identifer in self.calculation_IDs:
             try:
                 # Get the calc we represent.
-                calc = calculations.resolve(tag_path)
+                # TODO: It feels strange that resolve cannot accept an identifier.
+                calc = calculations.resolve(identifer.value)
                 
             except Exception as e:
-                raise Configurable_exception(self, "Could not expand to real calculation with TAG path '{}'".format(tag_path)) from e
+                raise Configurable_exception(self, "Could not expand to real calculation with TAG path '{}'".format(identifer.value)) from e
                 
-            # Overwrite the memory and CPUs if given.
-            if self.performance['num_cpu'] is not None:
-                calc.performance['num_cpu'] = self.performance['num_cpu']
-        
-            if self.performance['memory'] is not None:
-                # NOTE: memory is an object, this will set the same object reference for all sub-calcs.
-                calc.performance['memory'] = self.performance['memory']
+            # Overwrite specific properties if given.
+            for prop in (("performance", "num_cpu"), ("performance", "memory"), ("post_process", "write_summary"), ("post_process", "write_report")):
+                if getopt(self, *prop) is not None:
+                    setopt(calc, *prop, getopt(self, *prop))
             
             calcs.append(calc)
         
