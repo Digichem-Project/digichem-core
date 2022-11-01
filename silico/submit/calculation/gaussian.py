@@ -212,7 +212,7 @@ class Gaussian(Concrete_calculation, AI_calculation_mixin):
             es_method = "TD" if self.properties['es']['method'] in ["TD-HF", "TD-DFT"] else self.properties['es']['method']
             
             # Add our keyword, which changes base on whether we're using TDA or TD-DFT.
-            keywords.append(Keyword(es_method, options, self.DFT_excited_states['options']))
+            keywords.append(Keyword(es_method, options, self.properties['es']['options']))
             
         # Merge and return.
         return " ".join([str(keyword) for keyword in keywords])
