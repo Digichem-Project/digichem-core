@@ -165,7 +165,7 @@ def run_submission_test(coordinate_files, method_codes, tmp_path, silico_options
     for method in methods:
         calc = method[2]
         # Set performance options.
-        calc.performance['num_cpus'] = num_cpus
+        calc.performance['num_cpu'] = num_cpus
         # in MB
         calc.performance['memory'] = memory * 1000 * 1000
         
