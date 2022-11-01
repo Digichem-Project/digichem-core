@@ -27,7 +27,7 @@ class Gaussian_setup(Partial_cube_setup):
         super().__init__(report, result = result, options = options, calculation = calculation)
         
         # The memory we'll use for formchk and cubegen.
-        self.memory = calculation.memory if calculation is not None else None
+        self.memory = calculation.performance['memory'] if calculation is not None else None
         
         # Get the chk and fchk files we'll be using.        
         self.chk_file_paths = {"structure": None, "spin": None}
