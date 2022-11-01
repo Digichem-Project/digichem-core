@@ -17,20 +17,32 @@ def _resolve_value_default(option_names, value):
         return option_names, defres(value)
 
 
-def setopt(dict_obj, *option_names, value = Default(None)):
+def setopt(configurable_or_option, *option_names, value = Default(None)):
     """
     Set an option into an optionally nested dict.
     """
-    option_names, value = _resolve_value_default(option_names, value)
+    option_names, value = _resolve_value_default(option_names, value)        
     
     if len(option_names) > 1:
-        if option_names[0] not in dict_obj:
-            dict_obj[option_names[0]] = {}
-        
-        setopt(dict_obj[option_names[0]], *option_names[1:], value = value)
+        if getattr(configurable_or_option, 'is_configurable', False):
+            # Base is a configurable.
+            setopt(getattr(configurable_or_option, option_names[0]), *option_names[1:], value = value)
+            
+        else:
+            # Base is a dict.
+            if option_names[0] not in configurable_or_option:
+                configurable_or_option[option_names[0]] = {}
+            
+            setopt(configurable_or_option[option_names[0]], *option_names[1:], value = value)
     
     else:
-        dict_obj[option_names[0]] = value
+        if getattr(configurable_or_option, 'is_configurable', False):
+            # Base is a configurable.
+            setattr(configurable_or_option, option_names[0], value)
+        
+        else:
+            # Base is a dict.
+            configurable_or_option[option_names[0]] = value
 
         
 def appendopt(dict_obj, *option_names, value = Default(None)):
