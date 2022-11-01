@@ -86,4 +86,5 @@ method:
     dft:
         calc: True
         functional: wB97XD
-        dispersion: GD3BJ
+        # wB97XD has built in dispersion
+        dispersion: None
