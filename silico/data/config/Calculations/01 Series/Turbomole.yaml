@@ -24,8 +24,8 @@ post:
 
 calculations:
     - "Turbomole:: Optimisation : SCS-ADC(2) : Gas Phase : cc-pVDZ"
-    - "Turbomole:: Post-HF ES Singlet : SCS-ADC(2) : Gas Phase, cc-pVDZ"
-    - "Turbomole:: Post-HF ES Triplet : SCS-ADC(2) : Gas Phase, cc-pVDZ"
+    - "Turbomole:: Post-HF ES Singlet : SCS-ADC(2) : Gas Phase : cc-pVDZ"
+    - "Turbomole:: Post-HF ES Triplet : SCS-ADC(2) : Gas Phase : cc-pVDZ"
 
 
 ---
