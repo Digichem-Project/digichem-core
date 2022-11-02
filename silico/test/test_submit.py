@@ -169,7 +169,7 @@ def run_submission_test(coordinate_files, method_codes, tmp_path, silico_options
         # Set performance options.
         calc.performance['num_cpu'] = num_cpus
         # in MB
-        calc.performance['memory'] = memory * 1000 * 1000
+        calc.performance['memory'] = memory
         
         # Disable reports
         calc.post_process['write_report'] = False
