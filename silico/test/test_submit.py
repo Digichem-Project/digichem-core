@@ -71,7 +71,7 @@ gaussian_methods = [
     "B3LYP (GD3BJ)",
     "CAM-B3LYP (GD3BJ)",
     "M062X (GD3)",
-    "wB97XD (GD2)",
+    "wB97XD",
     "MP2",
     "MP3",
     "MP4",
