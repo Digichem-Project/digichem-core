@@ -34,7 +34,7 @@ class SLURM(Resumable_destination):
     options = Option(help = "Additional SLURM options. Any option valid to SLURM can be included here", default = {}, type = dict)
     sbatch_command = Option(help = "The name/path of the sbatch command", default = "sbatch", type = str)
     sinfo_command = Option(help = "The name/path of the sinfo command", default = "sinfo", type = str)
-    silico_command = Option(help = "The name/path of the silico command", default = "silico", type = str)
+    silico_command = Option(help = "The name/path of the silico command", default = "silico{}".format(silico.major_version), type = str)
     
     def get_num_nodes(self, idle = False):
         """
