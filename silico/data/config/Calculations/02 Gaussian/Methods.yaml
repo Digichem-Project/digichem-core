@@ -72,7 +72,7 @@ method:
 
 # No MP4 or higher gradients available.
 keywords:
-    Density: null
+    Density: SCF
    
    
 ---
@@ -91,7 +91,7 @@ method:
 
 # No MP4 or higher gradients available.
 keywords:
-    Density: null
+    Density: SCF
 
 ---
 
@@ -124,4 +124,4 @@ method:
 
 # No MP4 or higher gradients available.
 keywords:
-    Density: null
+    Density: SCF
