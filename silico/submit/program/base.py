@@ -388,7 +388,7 @@ class Program_target(Method_target):
                     # We'll try and take a snippet from the main calculation log and attach to our error message for the user.
                     try:
                         with open(self.calc_output_file_path, "rt") as log_file:
-                            snippet = silico.misc.io.tail(log_file)
+                            snippet = "".join(silico.misc.io.tail(log_file))
                     except FileNotFoundError:
                             snippet = "[No log file available]"
                     # Indent for easy reading.
