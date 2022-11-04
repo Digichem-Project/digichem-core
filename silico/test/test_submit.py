@@ -9,7 +9,7 @@ import pytest
 import itertools
 import os
 
-from silico.test.util import benzene_cdx, pyridine_cml, cyclopentane_com, silico_options
+from silico.test.util import benzene_cdx, pyridine_cml, cyclopentane_com, water_xyz, silico_options
 from silico.input.silico import si_from_file
 from silico.submit.calculation.base import Calculation_target
 
@@ -228,7 +228,7 @@ def test_turbomole_basis(basis_set, tmp_path, silico_options):
     method_code = f"{destination}/Turbomole/Turbomole:: Single Point: Standard DFT: PBE0 (GD3BJ): Gas Phase: {basis_set}"
     
     # Run the test.
-    run_submission_test([pyridine_cml], [method_code], tmp_path, silico_options)
+    run_submission_test([water_xyz], [method_code], tmp_path, silico_options)
 
 
 @pytest.mark.slow
@@ -250,7 +250,7 @@ def test_turbomole_solvents(solvent, tmp_path, silico_options):
     method_code = f"{destination}/Turbomole/Turbomole:: Single Point: Standard DFT: PBE0 (GD3BJ): {solvent}: 6-31G*"
     
     # Run the test.
-    run_submission_test([pyridine_cml], [method_code], tmp_path, silico_options)
+    run_submission_test([water_xyz], [method_code], tmp_path, silico_options)
 
 
 @pytest.mark.slow
@@ -272,7 +272,7 @@ def test_turbomole_methods(method, tmp_path, silico_options):
     method_code = f"{destination}/Turbomole/Turbomole:: Single Point: {method}: Gas Phase: cc-pVDZ"
     
     # Run the test.
-    run_submission_test([pyridine_cml], [method_code], tmp_path, silico_options)
+    run_submission_test([water_xyz], [method_code], tmp_path, silico_options)
 
 
 @pytest.mark.slow
@@ -283,7 +283,7 @@ def test_turbomole_ri_methods(method, tmp_path, silico_options):
     method_code = f"{destination}/Turbomole/Turbomole:: Single Point: {method}: Gas Phase RI: cc-pVDZ"
     
     # Run the test.
-    run_submission_test([pyridine_cml], [method_code], tmp_path, silico_options)
+    run_submission_test([water_xyz], [method_code], tmp_path, silico_options)
 
 
 @pytest.mark.slow
@@ -305,7 +305,7 @@ def test_turbomole_properties(prop, tmp_path, silico_options):
     method_code = f"{destination}/Turbomole/Turbomole:: {prop}: Standard DFT: PBE0 (GD3BJ): Gas Phase: 6-31G*"
     
     # Run the test.
-    run_submission_test([pyridine_cml], [method_code], tmp_path, silico_options)
+    run_submission_test([water_xyz], [method_code], tmp_path, silico_options)
 
 @pytest.mark.slow
 @pytest.mark.parametrize("prop", turbomole_posthf_properties)
@@ -315,6 +315,6 @@ def test_turbomole_posthf_properties(prop, tmp_path, silico_options):
     method_code = f"{destination}/Turbomole/Turbomole:: {prop}: SCS-ADC(2): Gas Phase RI: cc-pVDZ"
     
     # Run the test.
-    run_submission_test([pyridine_cml], [method_code], tmp_path, silico_options)
+    run_submission_test([water_xyz], [method_code], tmp_path, silico_options)
 
 
