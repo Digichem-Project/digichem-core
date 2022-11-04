@@ -52,6 +52,9 @@ class Turbomole_module():
         """
         Build a turbomole module object from a single string.
         """
+        if isinstance(module_string, self):
+            return module_string
+        
         # Split like the shell would.
         module_parts = shlex.split(module_string)
         return self(module_parts[0], *module_parts[1:])
