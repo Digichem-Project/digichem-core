@@ -425,7 +425,7 @@ class Turbomole_to_cube(File_converter):
         # We'll delete it afterwards if all is well.
         outdir = Path(self.output, "../")
         outdir.mkdir(parents = True, exist_ok = True)
-        calc.prepare_from_directory(outdir, self.input_file, molecule_name = "Orbitals")
+        calc.prepare_from_directory(outdir, self.input_file, molecule_name = "Post")
         
         # Go.
         calc.submit()
