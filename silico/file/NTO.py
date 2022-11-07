@@ -1,4 +1,4 @@
-import tempfile
+from pathlib import Path
 import shutil
 
 import silico.file.types as file_types
@@ -111,24 +111,27 @@ class Chk_to_NTO_chk(File_converter):
         prog = self.prog_t(destination)
         calc = self.calc_t(prog, global_silico_options = self.silico_options)
         
-        # We'll write our calc to a tempdir.
-        with tempfile.TemporaryDirectory() as tempdir:
-            #calc.prepare_from_directory(tempdir, self.input_file, molecule_name = "Anadens", additional_files = [(self.first_density, self.first_density_file_name), (self.second_density, self.second_density_file_name)])
-            calc.prepare(tempdir, Chk_input(self.input_file))
+        # We'll write our calc to a sub folder of the output dir.
+        # We'll delete it afterwards if all is well.
+        outdir = Path(self.output, "../Post")
+        outdir.mkdir(parents = True, exist_ok = True)
+        calc.prepare(outdir, Chk_input(self.input_file))
+        
+        # Go.
+        try:
+            calc.submit()
+        except Exception as e:
+            raise File_maker_exception(self, "Failed to make Gaussian NTO chk file") from e
+        
+        # Move the (hopefully) created output file to our real destination.
+        try:
+            src = prog.chk_file_path
+            dst = self.output
+            shutil.move(src, dst, copy_function = shutil.copy)
             
-            # Go.
-            try:
-                calc.submit()
-            except Exception as e:
-                raise File_maker_exception(self, "Failed to make Gaussian NTO chk file") from e
-            
-            # Move the (hopefully) created output file to our real destination.
-            try:
-                src = prog.chk_file_path
-                dst = self.output
-                shutil.move(src, dst, copy_function = shutil.copy)
-                
-            except FileNotFoundError as e:
-                raise File_maker_exception(self, "The requested chk file could not be found, perhaps the calculation was setup incorrectly?") from e
-            
-            
+        except FileNotFoundError as e:
+            raise File_maker_exception(self, "The requested chk file could not be found, perhaps the calculation was setup incorrectly?") from e
+        
+        # All went well, delete the dir.
+        shutil.rmtree(outdir)
+        
