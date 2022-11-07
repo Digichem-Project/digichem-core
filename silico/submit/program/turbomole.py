@@ -89,13 +89,13 @@ class Turbomole(Program_target):
             Path to the main calculation output file.
             """
             return self.turbomole_output_path
-                
-        @property
-        def next_coords(self):
-            """
-            Path to the output coordinate file that should be used for any subsequent calculations.
-            """
-            return Path(self.destination.calc_dir.output_directory, "coord")
+#                 
+#         @property
+#         def next_coords(self):
+#             """
+#             Path to the output coordinate file that should be used for any subsequent calculations.
+#             """
+#             return Path(self.destination.calc_dir.output_directory, "coord")
         
         @property
         def scratch_base(self):
@@ -384,9 +384,15 @@ class Turbomole(Program_target):
                 except Exception as e:
                     raise Submission_error(self, "Failed to copy input to scratch subdirectory") from e
                 
+                # Our coordinates are in the scratch dir.
+                self.next_coords = Path(self.scratch_output, "coord")
+                
             else:
                 # Copy input to normal output folder.
                 copytree(self.destination.calc_dir.prep_directory, self.destination.calc_dir.output_directory)
+                
+                # Our coordinates are in the outptu dir.
+                self.next_coords = Path(self.destination.calc_dir.output_directory, "coord")
                 
             # Copy prep dir to input dir and delete.
             copytree(self.destination.calc_dir.prep_directory, self.destination.calc_dir.input_directory)
@@ -450,6 +456,15 @@ class Turbomole(Program_target):
                     
                 else:
                     run_func(self.working_directory)
+        
+        def cleanup(self, success):
+            """
+            """
+            super().cleanup(success)
+            
+            # Update file locations.
+            # Regardless of whether we were using scratch output or not, all files should now be in the normal output dir (or have been deleted).
+            self.next_coords = Path(self.destination.calc_dir.output_directory, "coord")
         
         def parse_results(self):
             """
