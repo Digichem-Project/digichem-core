@@ -554,13 +554,13 @@ class Turbomole_AI(Turbomole, AI_calculation_mixin):
             
             :param orbitals: A list of orbital irreps to make cubes for.
             """
-            return make_orbital_calc(name = self.meta['name'], memory = self.performance['memory'], num_cpu = self.performance['memory'], orbitals = orbitals, density = density, options = self.silico_options)
+            return make_orbital_calc(name = self.meta['name'], memory = self.performance['memory'], num_cpu = self.performance['num_cpu'], orbitals = orbitals, density = density, options = self.silico_options)
         
         def anadens_calc(self, first_density, second_density, file_name, operator = "-"):
             """
             Return a new calculation that can create cube files generated with the $anadens data group.
             """
-            return make_anadens_calc(name = self.meta['name'], memory = self.performance['memory'], num_cpu = self.performance['memory'], first_density = first_density, second_density = second_density, file_name = file_name, operator = operator)
+            return make_anadens_calc(name = self.meta['name'], memory = self.performance['memory'], num_cpu = self.performance['num_cpu'], first_density = first_density, second_density = second_density, file_name = file_name, operator = operator)
 
 
 # TODO: This class inherits far too much from its parents, inheritance needs tweaking here.
