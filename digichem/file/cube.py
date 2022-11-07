@@ -425,10 +425,7 @@ class Turbomole_to_cube(File_converter):
             calc.prepare_from_directory(tempdir, self.input_file, molecule_name = "Orbitals")
             
             # Go.
-            try:
-                calc.submit()
-            except Exception as e:
-                raise File_maker_exception(self, "Failed to make Turbomole cube files") from e
+            calc.submit()
             
             # Make our output dir.
             try:
@@ -572,10 +569,7 @@ class Turbomole_to_anadens_cube(File_converter):
             calc.prepare_from_directory(tempdir, self.input_file, molecule_name = "Anadens", additional_files = [(self.first_density, self.first_density_file_name), (self.second_density, self.second_density_file_name)])
             
             # Go.
-            try:
-                calc.submit()
-            except Exception as e:
-                raise File_maker_exception(self, "Failed to make Turbomole cube files") from e
+            calc.submit()
             
             # Move the (hopefully) created output file to our real destination.
             try:
