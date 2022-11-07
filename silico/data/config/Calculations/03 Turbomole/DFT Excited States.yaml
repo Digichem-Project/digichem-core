@@ -99,6 +99,10 @@ properties:
         multiplicity: Singlet
         num_states: 10
 
+# Set to False so we can monitor each of the opt steps properly.
+scratch_options:
+    all_output: False
+
 
 ---
 
@@ -116,3 +120,7 @@ properties:
     es:
         multiplicity: Triplet
         num_states: 10
+
+# Set to False so we can monitor each of the opt steps properly.
+scratch_options:
+    all_output: False

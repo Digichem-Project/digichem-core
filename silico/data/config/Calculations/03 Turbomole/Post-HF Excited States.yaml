@@ -56,6 +56,10 @@ properties:
     opt:
         calc: True
 
+# Set to False so we can monitor each of the opt steps properly.
+scratch_options:
+    all_output: False
+
 
 ---
 
@@ -94,3 +98,7 @@ properties:
             sp_gradients: False
     opt:
         calc: True
+
+# Set to False so we can monitor each of the opt steps properly.
+scratch_options:
+    all_output: False

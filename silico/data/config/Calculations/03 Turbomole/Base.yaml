@@ -11,7 +11,7 @@ meta:
 scf:
     iterations: 100
     
-# Options that control use of the scratch directory.
-scratch_options:
-    all_output: False
+# # Options that control use of the scratch directory.
+# scratch_options:
+#     all_output: False
 

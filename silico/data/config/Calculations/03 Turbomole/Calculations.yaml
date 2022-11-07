@@ -66,6 +66,10 @@ properties:
         calc: True
         iterations: 100
 
+# Set to False so we can monitor each of the opt steps properly.
+scratch_options:
+    all_output: False
+
 
 ---
 
@@ -90,6 +94,10 @@ properties:
         
 scf:
     convergence: 8
+
+# Set to False so we can monitor each of the opt steps properly.
+scratch_options:
+    all_output: False
 
 
 ---
