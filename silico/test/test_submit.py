@@ -9,7 +9,7 @@ import pytest
 import itertools
 import os
 
-from silico.test.util import benzene_cdx, pyridine_cml, cyclopentane_com, water_xyz, pyridine_cml, silico_options
+from silico.test.util import benzene_cdx, pyridine_cml, cyclopentane_com, water_xyz, ethane_xyz, silico_options
 from silico.input.silico import si_from_file
 from silico.submit.calculation.base import Calculation_target
 
