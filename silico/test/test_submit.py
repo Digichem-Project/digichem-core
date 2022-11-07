@@ -198,7 +198,7 @@ def run_submission_test(coordinate_files, method_codes, tmp_path, silico_options
     # Multiple Submission.
     ([benzene_cdx, pyridine_cml, cyclopentane_com], [f"{destination}/Turbomole/Turbomole:: Single Point: Standard DFT: PBE0 (GD3BJ): Gas Phase: 6-31G**"]),
     # Gaussian organics.
-    ([ethane_xyz], [f"{destination}/Gaussian 16/Gaussian Auto Organic TDA Emission"]),
+    ([pyridine_cml], [f"{destination}/Gaussian 16/Gaussian Auto Organic TDA Emission"]),
     # Gaussian organometallics.
     ([ethane_xyz], [f"{destination}/Gaussian 16/Gaussian Auto Organometallic TD-DFT Unrestricted Triplet"]),
     # Turbomole.
@@ -287,6 +287,10 @@ def test_turbomole_ri_methods(method, tmp_path, silico_options):
     run_submission_test([water_xyz], [method_code], tmp_path, silico_options)
 
 
+# For properties, we use the larger pyridine test molecule.
+# This is because lots of properties that we test for are not properly expressed by the smaller test molecules.
+# For example, water doesn't have 100 electronic excitations, and neither does it have a stable S(1) or T(1) opt structure.
+
 @pytest.mark.slow
 @pytest.mark.parametrize("prop", gaussian_properties)
 def test_gaussian_properties(prop, tmp_path, silico_options):
@@ -295,7 +299,7 @@ def test_gaussian_properties(prop, tmp_path, silico_options):
     method_code = f"{destination}/Gaussian 16/Gaussian:: {prop}: PBE0 (GD3BJ): Gas Phase: 6-31G*"
     
     # Run the test.
-    run_submission_test([ethane_xyz], [method_code], tmp_path, silico_options)
+    run_submission_test([pyridine_cml], [method_code], tmp_path, silico_options)
 
 
 @pytest.mark.slow
@@ -306,7 +310,7 @@ def test_turbomole_properties(prop, tmp_path, silico_options):
     method_code = f"{destination}/Turbomole/Turbomole:: {prop}: Standard DFT: PBE0 (GD3BJ): Gas Phase: 6-31G*"
     
     # Run the test.
-    run_submission_test([water_xyz], [method_code], tmp_path, silico_options)
+    run_submission_test([pyridine_cml], [method_code], tmp_path, silico_options)
 
 @pytest.mark.slow
 @pytest.mark.parametrize("prop", turbomole_posthf_properties)
@@ -316,6 +320,6 @@ def test_turbomole_posthf_properties(prop, tmp_path, silico_options):
     method_code = f"{destination}/Turbomole/Turbomole:: {prop}: SCS-ADC(2): Gas Phase RI: cc-pVDZ"
     
     # Run the test.
-    run_submission_test([water_xyz], [method_code], tmp_path, silico_options)
+    run_submission_test([pyridine_cml], [method_code], tmp_path, silico_options)
 
 
