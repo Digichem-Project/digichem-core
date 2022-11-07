@@ -1,10 +1,10 @@
 Code,Description,Comment
-1/2/1,"Performs the following at PBE1PBE/6-31G(d,p) using Gaussian 16:
+1/2/1,"Performs the following at PBE0/6-31G(d,p) using Gaussian 16:
 
   * Ground optimisation (with frequency)
   * TDA excited states (10 singlets, 10 triplets)
 ","Used for characterising organic, fluorescent or TADF emitters"
-1/2/2,"Performs the following at PBE1PBE/6-31G(d,p), in toluene, using Gaussian 16:
+1/2/2,"Performs the following at PBE0/6-31G(d,p), in toluene, using Gaussian 16:
 
   * Ground optimisation (with frequency)
   * TDA excited states (10 singlets, 10 triplets)
@@ -16,15 +16,20 @@ Code,Description,Comment
   * TD-DFT excited states (10 singlets, 10 triplets)
   * Optimised unrestricted triplet T\ :sub:`1` (with frequency)
   * Ground state energy (S\ :sub:`0`\ ) at the T\ :sub:`1` geometry","Used for characterising organometallic, phosphorescent emitters"
-1/3/6,"Performs the following at SCS-ADC(2)/cc-pVDZ using Turbomole:
+1/3/5,"Performs the following at SCS-ADC(2)/cc-pVDZ using Turbomole:
 
   * Ground optimisation
   * S\ :sub:`1` and S\ :sub:`2` excited states
-  * T\ :sub:`1` and T\ :sub:`2` excited states",Used for characterising multiple-resonant TADF emitters
-1/2/2503,"Optimisation (with frequency) at PBE1PBE/6-31G(d,p) using Gaussian 16",Common optimisation conditions
-1/2/2737,"Optimisation (with frequency) at B3LYP/6-31G(d,p) using Gaussian 16",Common optimisation conditions
-1/2/2800,"Optimisation (with frequency) at B3LYP/6-31+G(d,p), using SBKJC-VDZ-ECP for metals, in MeCN, using Gaussian 16",Common optimisation conditions for organometallics
-1/2/6247,"TDA excited states at PBE1PBE/6-31G(d,p) using Gaussian 16",
-1/2/12394,"TD-DFT excited states at B3LYP/6-31+G(d,p), using SBKJC-VDZ-ECP for metals, in MeCN, using Gaussian 16",
-1/2/8795,"TDA excited states (100 singlets) at PBE1PBE/6-31G(d,p), in toluene, using Gaussian 16",For modelling absorption spectra
-1/2/14734,"TD-DFT excited states (100 singlets) at B3LYP/6-31+G(d,p), using SBKJC-VDZ-ECP for metals, in MeCN, using Gaussian 16",For modelling absorption spectra of organometallics
+  * T\ :sub:`1` and T\ :sub:`2` excited states",Used for characterising MR-TADF emitters
+1/3/7,"Performs the following at SCS-ADC(2)/cc-pVDZ using Turbomole:
+
+  * Single-point gradient
+  * S\ :sub:`1` and S\ :sub:`2` excited states
+  * T\ :sub:`1` and T\ :sub:`2` excited states",Used for quickly characterising MR-TADF emitters by skipping the optimisation step
+1/2/6805,"Optimisation (with frequency) at PBE0E/6-31G(d,p) using Gaussian 16",Common optimisation conditions
+1/2/7166,"Optimisation (with frequency) at B3LYP/6-31G(d,p) using Gaussian 16",Common optimisation conditions
+1/2/7258,"Optimisation (with frequency) at B3LYP/6-31+G(d,p), using SBKJC-VDZ-ECP for metals, in MeCN, using Gaussian 16",Common optimisation conditions for organometallics
+1/2/13588,"TDA excited states at PBE0/6-31G(d,p) using Gaussian 16",
+1/2/23066,"TD-DFT excited states at B3LYP/6-31+G(d,p), using SBKJC-VDZ-ECP for metals, in MeCN, using Gaussian 16",
+1/2/17521,"TDA excited states (100 singlets) at PBE0/6-31G(d,p), in toluene, using Gaussian 16",For modelling absorption spectra
+1/2/26676,"TD-DFT excited states (100 singlets) at B3LYP/6-31+G(d,p), using SBKJC-VDZ-ECP for metals, in MeCN, using Gaussian 16",For modelling absorption spectra of organometallics

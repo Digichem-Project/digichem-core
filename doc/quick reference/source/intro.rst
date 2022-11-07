@@ -73,15 +73,10 @@ A list of the available subprograms is given below:
 
 Running Interactively
 ---------------------
-Most of the Silico subprograms (with the notable exception of ``silico status``) have both a non-interactive text/console interface as well as an interactive interface powered by the urwid library. Both interfaces are accessed entirely through the console and thus neither requires a running graphical user interface (GUI) (such as X-Server) to function. This makes accessing a remote installation of silico trivial, for example *via* the Secure Shell Protocol (SSH) or similar setup. By default, each subprogram will run in the non-interactive mode. This is generally faster and more convenient for experienced users, as well as being  easily incorporated into custom scripts or programs. However, many users, particularly those who are not accustomed or comfortable with computing in a GUI-free environment, will find the interactive interface easier to use and generally more forgiving.
-
-To use the interactive interface for a subprogram, specify the ``-I`` (or ``--interactive``) option after the subprogram name. For example, to use the submit subprogram in an interactive fashion:
+Most of the Silico subprograms (with the notable exception of ``silico status``) support two interfaces. The first is a non-interactive command-line interface, while the second is an interactive, graphical interface powered by the urwid library. By default, each subprogram will run in non-interactive, command-line mode. To use the interactive interface instead, specify the ``-I`` (or ``--interactive``) option after the subprogram name. For example, to use the submit subprogram in an interactive fashion:
 
 .. code-block:: console
 
     $ silico sub -I
-    
-.. note::
-    As with all aspects of using silico, there is no difference between specifying the 3-letter short code, 1-letter short code or full command name when specifying the ``-I`` option.
     
 In addition, the ``silico interactive`` command can be used to launch Silico interactively without specifying a subprogram. This will open the Silico main menu from which all aspects of the program can be accessed interactively.

@@ -1,7 +1,7 @@
 Installation
 ============
 
-Before you can start submitting calculations with Silico for the first time, it needs to be installed on your account.
+Before you can start submitting calculations with Silico for the first time, you need to install it on your account.
 To install Silico, connect to Kennedy using PuTTY and log-in to your account as normal.
 Once logged in, run the following command:
 
@@ -33,7 +33,7 @@ If successful, the version will be printed:
 .. code-block:: console
 
 	$ silico -v
-	1.0.0
+	2.0.0
 
 If the installation was not successfully, the following error message will be printed:
 

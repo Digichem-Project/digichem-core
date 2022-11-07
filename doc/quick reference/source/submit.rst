@@ -3,7 +3,7 @@
 Calculation Submission Tutorial
 ===============================
 
-Perhaps the most powerful aspect of Silico is its functionality for submitting and managing calculations.
+The most powerful aspect of Silico is its functionality for submitting and managing calculations.
 This tutorial acts as a walk-through for this process and is an excellent start for performing computations with Silico.
 
 
@@ -11,14 +11,14 @@ Introduction
 ------------
 
 When using Silico, there are two types of input file that control how each calculation will be performed.
-These are: (1) coordinate files, which specify the elements and starting geometry of each of the molecules or systems under study,
+These are: (1) coordinate files, which specify the elements and starting geometry of each of the molecules under study,
 and (2) method files, which control the specifics of each calculation, such as the functional and basis set.
 
-One of the main advantages of using Silico for calculation submission is that multiple coordinate files can be specified at once, in which case all the given coordinate files will be submitted to the same calculation (as specified by the method file) simultaneously.
-In addition, multiple method files can also be specified, in which case each coordinate file will first be submitted to the calculation defined by the first method file specified. Once each of these calculations has completed, the resulting atomic geometry will then be submitted to the calculation defined by the second method file, and so on until all method files have been exhausted.
+One of the main advantages of using Silico for calculation submission is that multiple coordinate files can be specified at the same time, in which case all the given coordinate files will be submitted to the same calculation (as specified by the method file) simultaneously.
+In addition, multiple method files can also be specified, in which case each coordinate file will be submitted to each method in turn. For each method, the output geometry from the previous step will be automatically converted to a new input file for the next.
 
 Silico comes pre-loaded with a large database of method files, and so in most cases these do not need to be written by the user.
-Hence all that is generally needed to submit a calculation is a number of coordinate file(s) specifying the systems of interest.
+Hence all that is generally needed to submit a calculation is a number of coordinate files specifying the systems of interest.
 
 Silico supports a wide variety of coordinate formats, including both 2D and 3D formats, each of which can be written by different programs. Notable entries include:
 
@@ -110,15 +110,13 @@ Any of the above commands will run the silico submit subprogram in interactive m
     :width: 80%
     :align: center
 
-This interface acts similarly to a graphical user interface (GUI).
-The various parts of the interface can be navigated with the arrow keys.
-Doing so will move the flashing cursor which indicates the part of the interface that is currently selected.
+The different sections of this window can be navigated by using the arrow keys; the down key will move the flashing cursor down, while the up arrow key will move the cursor up. Similarly, the left and right arrow keys can be used to move the cursor left and right.
 
 
 Input Coordinates
 _________________
 
-The upper section of the submission interface displays loaded input coordinates in a table format, along with the relevant molecular
+The upper section of the submission interface displays loaded input coordinates in a table, along with their relevant molecular
 formula, charge and multiplicity. These latter two columns can be edited individually for each system under study.
 For example, to change the multiplicity of 'Benzene' in the above example, first move the cursor with the arrow keys to the ``mult:1`` widget for the 'Benzene' row.
 Then, the old multiplicity can be removed used the backspace key, and a new multiplicity can be typed.
@@ -141,14 +139,12 @@ New input coordinate files can also be loaded at this point using the ``< Add ne
     :width: 80%
     :align: center
 
-This browser displays a list of files in a 'tree' like format;
-each directory (or folder) appears as a 'branch' node with a '+' icon (which can be expanded to show its contents) while each file appears as a 'leaf' node (which cannot).
+This browser displays a list of files in a 'tree' like format.
 To expand (or 'open') a directory,  navigate up or down with the arrow keys to select it, and then use the 'right arrow' key to expand it.
 An expanded directory will show a '-' icon instead of a '+'.
 A directory can similarly be contracted by selecting it and using the 'left arrow' key to hide its contents.
 
 To select a coordinate file to load, use the 'space' or 'enter' key to highlight it. If a file is chosen in error, pressing 'space' again will deselect it.
-Once the files to be loaded have been selected, navigate to the ``< Confirm >`` button in the bottom right corner and select it.
 
 ..	tip::
 	Instead of using the down arrow key to navigate all the way to the bottom of the page, the 'tab' key can be used to skip directly to the controls at the bottom of the window.
@@ -158,7 +154,7 @@ Once the files to be loaded have been selected, navigate to the ``< Confirm >`` 
     :width: 80%
     :align: center
 
-This will load each of the chosen coordinate files.
+Once the files to be loaded have been selected, navigate to the ``< Confirm >`` button in the bottom right corner and press enter. This will load each of the chosen coordinate files.
 Once complete, the 'Finished loading coordinates' line be printed, at which point the output window can be closed using the ``< Confirm >`` button:
 
 .. image:: /_static/submit_tutorial/file_browser_output.png
