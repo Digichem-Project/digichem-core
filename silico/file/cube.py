@@ -567,9 +567,10 @@ class Turbomole_to_anadens_cube(File_converter):
         
         # We'll write our calc to a sub folder of the output dir.
         # We'll delete it afterwards if all is well.
-        outdir = Path(self.input_file, "Post")
+        # TODO: MUST CHANGE, this only makes sense if we're checking a Silico calc...
+        outdir = Path(self.input_file, "../")
         outdir.mkdir(parents = True, exist_ok = True)
-        calc.prepare_from_directory(outdir, self.input_file, molecule_name = "Anadens", additional_files = [(self.first_density, self.first_density_file_name), (self.second_density, self.second_density_file_name)])
+        calc.prepare_from_directory(outdir, self.input_file, molecule_name = "Post", additional_files = [(self.first_density, self.first_density_file_name), (self.second_density, self.second_density_file_name)])
         
         # Go.
         calc.submit()
