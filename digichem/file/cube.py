@@ -423,6 +423,7 @@ class Turbomole_to_cube(File_converter):
         
         # We'll write our calc to a sub folder of the output dir.
         # We'll delete it afterwards if all is well.
+        # For the general Turbomole cube maker, our output is a dir (because we make lots of cubes at once).
         outdir = Path(self.output, "../")
         outdir.mkdir(parents = True, exist_ok = True)
         calc.prepare_from_directory(outdir, self.input_file, molecule_name = "Post")
@@ -572,7 +573,8 @@ class Turbomole_to_anadens_cube(File_converter):
         
         # We'll write our calc to a sub folder of the output dir.
         # We'll delete it afterwards if all is well.
-        outdir = Path(self.output, "../")
+        # For the anadens Turbomole cube maker, our output is a file (because we make only one cube at a time).
+        outdir = Path(Path(self.output).parent, "../")
         outdir.mkdir(parents = True, exist_ok = True)
         calc.prepare_from_directory(outdir, self.input_file, molecule_name = "Post", additional_files = [(self.first_density, self.first_density_file_name), (self.second_density, self.second_density_file_name)])
         
