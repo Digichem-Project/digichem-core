@@ -157,7 +157,8 @@ def run_submission_test(coordinate_files, method_codes, tmp_path, silico_options
         num_cpus = int(os.environ['SLURM_CPUS_ON_NODE'])
         # Weirdly, this (and other memory related) variable is not set by srun..
         #memory = int(os.environ['SLURM_MEM_PER_CPU']) * num_cpus
-        memory = "500MB"
+        # 2GB per CPU
+        memory = 2 *1000 *1000 *1000 * num_cpus
         
     except KeyError:
         # Not running in SLURM.
