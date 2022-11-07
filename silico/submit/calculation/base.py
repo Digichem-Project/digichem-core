@@ -304,7 +304,7 @@ class Concrete_calculation(Calculation_target):
         keep = Option(help = "Whether to copy any leftover files from the scratch directory once the calculation has completed successfully", default = False, type = bool),
         rescue = Option(help = "Whether to copy files from the scratch directory if the calculation fails or stops unexpectedly", default = True, type = bool),
         force_delete = Option(help = "Whether to always delete the scratch directory at the end of the calculation, even if output files could not be safely copied", default = False, type = bool),
-        all_output = Option(help = "Whether to output all files to the scratch directory. If False, only intermediate files will be written to scratch (.log will be written directly to output directory for example)", default = False, type = bool)
+        all_output = Option(help = "Whether to also use the scratch directory as the working directory for the calculation. If true, all output files will be written to the scratch directory as the calculation is running, except the main .log output file (which is always written to the Output directory). Setting this option to True is generally better for performance, but may make monitoring the calculation more difficult.", default = False, type = bool)
     )
     
     structure = Options(help = "Options that control the calculation folder structure",
