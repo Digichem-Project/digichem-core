@@ -9,7 +9,7 @@ import pytest
 import itertools
 import os
 
-from silico.test.util import benzene_cdx, pyridine_cml, cyclopentane_com, water_xyz, silico_options
+from silico.test.util import benzene_cdx, pyridine_cml, cyclopentane_com, water_xyz, pyridine_cml, silico_options
 from silico.input.silico import si_from_file
 from silico.submit.calculation.base import Calculation_target
 
@@ -198,11 +198,11 @@ def run_submission_test(coordinate_files, method_codes, tmp_path, silico_options
     # Multiple Submission.
     ([benzene_cdx, pyridine_cml, cyclopentane_com], [f"{destination}/Turbomole/Turbomole:: Single Point: Standard DFT: PBE0 (GD3BJ): Gas Phase: 6-31G**"]),
     # Gaussian organics.
-    ([benzene_cdx], [f"{destination}/Gaussian 16/Gaussian Auto Organic TDA Emission"]),
+    ([ethane_xyz], [f"{destination}/Gaussian 16/Gaussian Auto Organic TDA Emission"]),
     # Gaussian organometallics.
-    ([benzene_cdx], [f"{destination}/Gaussian 16/Gaussian Auto Organometallic TD-DFT Unrestricted Triplet"]),
+    ([ethane_xyz], [f"{destination}/Gaussian 16/Gaussian Auto Organometallic TD-DFT Unrestricted Triplet"]),
     # Turbomole.
-    ([benzene_cdx], [f"{destination}/Turbomole/Turbomole Auto SCS-ADC(2)"]),
+    ([ethane_xyz], [f"{destination}/Turbomole/Turbomole Auto SCS-ADC(2)"]),
 ])
 def test_submit(coordinate_files, method_codes, tmp_path, silico_options):
     """Test some specific calcs"""
@@ -218,7 +218,7 @@ def test_gaussian_basis(basis_set, tmp_path, silico_options):
     method_code = f"{destination}/Gaussian 16/Gaussian:: Single Point Singlet: PBE0 (GD3BJ): Gas Phase: {basis_set}"
     
     # Run the test.
-    run_submission_test([pyridine_cml], [method_code], tmp_path, silico_options)
+    run_submission_test([ethane_xyz], [method_code], tmp_path, silico_options)
 
 
 @pytest.mark.slow
@@ -240,7 +240,7 @@ def test_gaussian_solvents(solvent, tmp_path, silico_options):
     method_code = f"{destination}/Gaussian 16/Gaussian:: Single Point Singlet: PBE0 (GD3BJ): {solvent}: 6-31G*"
     
     # Run the test.
-    run_submission_test([pyridine_cml], [method_code], tmp_path, silico_options)
+    run_submission_test([ethane_xyz], [method_code], tmp_path, silico_options)
 
 
 @pytest.mark.slow
@@ -262,7 +262,7 @@ def test_gaussian_methods(method, tmp_path, silico_options):
     method_code = f"{destination}/Gaussian 16/Gaussian:: Single Point Singlet: {method}: Gas Phase: 6-31G*"
     
     # Run the test.
-    run_submission_test([pyridine_cml], [method_code], tmp_path, silico_options)
+    run_submission_test([ethane_xyz], [method_code], tmp_path, silico_options)
 
 
 @pytest.mark.slow
@@ -295,7 +295,7 @@ def test_gaussian_properties(prop, tmp_path, silico_options):
     method_code = f"{destination}/Gaussian 16/Gaussian:: {prop}: PBE0 (GD3BJ): Gas Phase: 6-31G*"
     
     # Run the test.
-    run_submission_test([pyridine_cml], [method_code], tmp_path, silico_options)
+    run_submission_test([ethane_xyz], [method_code], tmp_path, silico_options)
 
 
 @pytest.mark.slow
