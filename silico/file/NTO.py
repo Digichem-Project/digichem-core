@@ -113,7 +113,7 @@ class Chk_to_NTO_chk(File_converter):
         
         # We'll write our calc to a sub folder of the output dir.
         # We'll delete it afterwards if all is well.
-        outdir = Path(self.output, "../Post")
+        outdir = Path(Path(self.output).parent, "../Post")
         outdir.mkdir(parents = True, exist_ok = True)
         calc.prepare(outdir, Chk_input(self.input_file))
         
