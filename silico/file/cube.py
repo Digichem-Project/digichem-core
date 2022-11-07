@@ -17,6 +17,7 @@ from silico.submit.calculation.turbomole import make_orbital_calc, Turbomole_mem
     make_anadens_calc
 from silico.file.base import File_maker, Dummy_file_maker
 from silico.submit.memory import Memory
+from silico.misc.directory import copytree
 
 
 class Fchk_to_cube(File_converter):
@@ -564,19 +565,24 @@ class Turbomole_to_anadens_cube(File_converter):
         prog = self.prog_t(destination)
         calc = self.calc_t(prog, global_silico_options = self.silico_options)
         
-        # We'll write our calc to a tempdir.
-        with tempfile.TemporaryDirectory() as tempdir:
-            calc.prepare_from_directory(tempdir, self.input_file, molecule_name = "Anadens", additional_files = [(self.first_density, self.first_density_file_name), (self.second_density, self.second_density_file_name)])
+        # We'll write our calc to a sub folder of the output dir.
+        # We'll delete it afterwards if all is well.
+        outdir = Path(self.input_file, "Post")
+        outdir.mkdir(parents = True, exist_ok = True)
+        calc.prepare_from_directory(outdir, self.input_file, molecule_name = "Anadens", additional_files = [(self.first_density, self.first_density_file_name), (self.second_density, self.second_density_file_name)])
+        
+        # Go.
+        calc.submit()
+        
+        # Move the (hopefully) created output file to our real destination.
+        try:
+            src = Path(destination.calc_dir.output_directory, self.anadens_file_name)
+            dst = self.output
+            shutil.move(src, dst, copy_function = shutil.copy)
             
-            # Go.
-            calc.submit()
-            
-            # Move the (hopefully) created output file to our real destination.
-            try:
-                src = Path(destination.calc_dir.output_directory, self.anadens_file_name)
-                dst = self.output
-                shutil.move(src, dst, copy_function = shutil.copy)
-                
-            except FileNotFoundError as e:
-                raise File_maker_exception(self, "The requested anadens cube file could not be found, perhaps the calculation was setup incorrectly?") from e
+        except FileNotFoundError as e:
+            raise File_maker_exception(self, "The requested anadens cube file could not be found, perhaps the calculation was setup incorrectly?") from e
+        
+        # All went well, delete the dir.
+        shutil.rmtree(outdir)
             
