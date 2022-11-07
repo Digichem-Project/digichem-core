@@ -133,5 +133,5 @@ class Chk_to_NTO_chk(File_converter):
             raise File_maker_exception(self, "The requested chk file could not be found, perhaps the calculation was setup incorrectly?") from e
         
         # All went well, delete the dir.
-        shutil.rmtree(outdir)
+        shutil.rmtree(str(destination.calc_dir))
         
