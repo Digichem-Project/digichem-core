@@ -22,7 +22,7 @@ copyright = '2022, Silico Dev Team'
 author = 'The Silico Dev Team'
 
 # The full version, including alpha/beta/rc tags
-release = 'v2.0.1'
+release = 'v2.0.0'
 
 
 # -- General configuration ---------------------------------------------------
