@@ -14,6 +14,7 @@ from silico.result import Result_object
 from silico.misc.time import latest_datetime, total_timedelta, date_to_string,\
     timedelta_to_string
 from silico.misc.text import andjoin
+import silico
 
 
 class Metadata(Result_object):
@@ -102,6 +103,8 @@ class Metadata(Result_object):
         self.temperature = temperature
         self.pressure = pressure
         self.orbital_spin_type = orbital_spin_type
+        # TOOD: Ideally this would be parsed from the calculation output somehow, but this is fine for now.
+        self.silico_version = silico.version
     
     # TODO: This is more than a bit clumsy and in general the handling of names should be improved.
     @property
@@ -333,6 +336,7 @@ class Metadata(Result_object):
             "user",
             "package",
             "package_version",
+            "silico_version",
             "calculations",
             "methods",
             "functional",
