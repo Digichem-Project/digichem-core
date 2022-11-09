@@ -175,13 +175,17 @@ class Basis_set(Translate):
         Basis sets are currently handled the same for all programs.
         """
         try:
-            return self.find_in_db(self.basis_set)[program]
+            basis_def = self.find_in_db(self.basis_set)
+            return basis_def[program]
         
         except ValueError:
             # Just return as is.
             if self.basis_set != "auto":
                 silico.log.get_logger().debug("Could not find basis set with name '{}' in the basis set exchange; using name unmodified".format(self.basis_set))
             return self.basis_set
+    
+        except KeyError:
+            return basis_def['name']
     
     def __str__(self):
         return self.translate()
@@ -235,9 +239,9 @@ class Functional(Translate):
         # Try and get a definition for the functional from our db.
         try:
             func_def = self.find_in_db(self.functional)
-            
+                
             # If there's an explicit value for our program, use that.
-            if func_def[program] is not None:
+            if program in func_def and func_def[program] is not None:
                 return func_def[program]
             
             # Otherwise, use the main common name.
@@ -311,7 +315,7 @@ class Solvent(Translate):
         try:
             solvent_def = self.find_in_db(self.solvent)
             
-            if solvent_def[program] is not None:
+            if program in solvent_def and solvent_def[program] is not None:
                 return solvent_def[program]
             
             else:
