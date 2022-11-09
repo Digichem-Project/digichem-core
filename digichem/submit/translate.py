@@ -88,6 +88,12 @@ class Translate():
         Translate into a name appropriate for Turbomole.
         """
         return self.translate("gaussian")
+    
+    def to_orca(self):
+        """
+        Translate into a name appropriate for ORCA.
+        """
+        return self.translate("orca")
 
 
 class Basis_set(Translate):
