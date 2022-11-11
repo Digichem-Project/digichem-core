@@ -344,14 +344,14 @@ class SCF_convergence(Translate):
     """
     
     table = [
-        {"name": "Loose",       "energy": -5,       "density": -3,      "orca": "Loose"},   # Note energy stops changing here.
-        {"name": "Weak",        "energy": -5,       "density": -4,      "orca": "Sloppy"},                     
-        {"name": "Medium",      "energy": -6,       "density": -5,      "orca": "Medium"},
-        {"name": "Strong",      "energy": -7,       "density": -6,      "orca": "Strong"},
-        {"name": "Tight",       "energy": -8,       "density": -7,      "orca": "Tight"},   # Typically a sensible default.
-        {"name": "VTight",      "energy": -9,       "density": -8,      "orca": "VeryTight"},
-        {"name": "VVTight",     "energy": -10,      "density": -9,      "orca": "VeryVeryTight"},
-        {"name": "Extreme",     "energy": -14,      "density": -14,     "orca": "Extreme"},
+        {"name": "Loose",       "energy": -5,       "density": -3,      "orca": "LooseSCF"},   # Note energy stops changing here.
+        {"name": "Weak",        "energy": -5,       "density": -4,      "orca": "SloppySCF"},                     
+        {"name": "Medium",      "energy": -6,       "density": -5,      "orca": "MediumSCF"},
+        {"name": "Strong",      "energy": -7,       "density": -6,      "orca": "StrongSCF"},
+        {"name": "Tight",       "energy": -8,       "density": -7,      "orca": "TightSCF"},   # Typically a sensible default.
+        {"name": "VTight",      "energy": -9,       "density": -8,      "orca": "VeryTightSCF"},
+        {"name": "VVTight",     "energy": -10,      "density": -9,      "orca": "VeryVeryTightSCF"},
+        {"name": "Extreme",     "energy": -14,      "density": -14,     "orca": "ExtremeSCF"},
     ]
     
     @classmethod
