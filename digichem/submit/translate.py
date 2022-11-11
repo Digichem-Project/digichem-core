@@ -344,14 +344,14 @@ class SCF_convergence(Translate):
     """
     
     table = [
-        {"name": "Loose",       "energy": -5,       "density": -3,      "orca": "LooseSCF"},   # Note energy stops changing here.
-        {"name": "Weak",        "energy": -5,       "density": -4,      "orca": "SloppySCF"},                     
-        {"name": "Medium",      "energy": -6,       "density": -5,      "orca": "MediumSCF"},
-        {"name": "Strong",      "energy": -7,       "density": -6,      "orca": "StrongSCF"},
-        {"name": "Tight",       "energy": -8,       "density": -7,      "orca": "TightSCF"},   # Typically a sensible default.
-        {"name": "VTight",      "energy": -9,       "density": -8,      "orca": "VeryTightSCF"},
-        {"name": "VVTight",     "energy": -10,      "density": -9,      "orca": "VeryVeryTightSCF"},
-        {"name": "Extreme",     "energy": -14,      "density": -14,     "orca": "ExtremeSCF"},
+        {"name": "Loose",       "energy": -5,       "density": -3,      "orca": "Loose"},   # Note energy stops changing here.
+        {"name": "Weak",        "energy": -5,       "density": -4,      "orca": "Sloppy"},                     
+        {"name": "Medium",      "energy": -6,       "density": -5,      "orca": "Medium"},
+        {"name": "Strong",      "energy": -7,       "density": -6,      "orca": "Strong"},
+        {"name": "Tight",       "energy": -8,       "density": -7,      "orca": "Tight"},   # Typically a sensible default.
+        {"name": "VTight",      "energy": -9,       "density": -8,      "orca": "VeryTight"},
+        {"name": "VVTight",     "energy": -10,      "density": -9,      "orca": "VeryVeryTight"},
+        {"name": "Extreme",     "energy": -14,      "density": -14,     "orca": "Extreme"},
     ]
     
     @classmethod
@@ -365,11 +365,11 @@ class SCF_convergence(Translate):
     @classmethod
     def find_in_db(self, hint):
         """
-        Try and find an entry in the internal library.
+        Try and find an entry for a multiplicity in the internal library.
         
-        :raises ValueError: If the value could not be found.
-        :param hint: The name to look for
-        :returns: The corresponding value dict.
+        :raises ValueError: If the multiplicity could not be found.
+        :param hint: The name, number or symbol of the multiplicity to look for.
+        :returns: The corresponding multiplicity dict.
         """
         for row in self.table:
             name, energy, density, orca = row.values()
@@ -399,58 +399,8 @@ class SCF_convergence(Translate):
     
     def __eq__(self, other):
         return str(self) == str(other)
-    
-
-class Cube_grid_points(Translate):
-    """A class for converting between cube grid sizes."""
-    
-    table = [
-        {"name": "Default",     "points": 100,      "gaussian": 0,       "turbomole": 100,      "orca": 100},   # Default depends on the calc program. Gaussian uses a special value of 'zero' to select a default algorithm.
-        {"name": "Tiny",        "points": 25},
-        {"name": "Small",       "points": 50},
-        {"name": "Medium",      "points": 100},
-        {"name": "Large",       "points": 200},
-        {"name": "Huge",        "points": 500},
-        
-    ]
-
-    @classmethod
-    def find_in_db(self, hint):
-        """
-        Try and find an entry in the internal library.
-        
-        :raises ValueError: If the value could not be found.
-        :param hint: The name to look for
-        :returns: The corresponding value dict.
-        """
-        for row in self.table:
-            if str(hint).upper() == row['name'].upper():
-                return row
-            
-        # No luck.
-        raise ValueError("Could not find grid point definition for '{}'".format(hint))
-    
-    def translate(self, to_type):
-        """
-        Translate into a name appropriate for a given program.
-        """
-        try:
-            grid_def = self.find_in_db(self.value)[to_type]
-            return grid_def
-        
-        except KeyError:
-            # Just return the equivalent number of points.
-            return grid_def['points']
-        
-        except ValueError:
-            # Couldn't find in conversion table.
-            return self.value
-        
-    def __str__(self):
-        return self.translate("name")
 
 
-# TODO: Use this.
 class Multiplicity(Translate):
     """A class for converting between different representations of multiplicity."""
     
