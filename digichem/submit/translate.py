@@ -334,6 +334,69 @@ class Solvent(Translate):
         return self.translate("name")
 
 
+class SCF_convergence(Translate):
+    """
+    A class for converting between different shortcuts for SCF convergence thresholds.
+    """
+    
+    table = [
+        {"name": "Loose",       "energy": -5,       "density": -3,      "orca": "Loose"},   # Note energy stops changing here.
+        {"name": "Weak",        "energy": -5,       "density": -4,      "orca": "Sloppy"},                     
+        {"name": "Medium",      "energy": -6,       "density": -5,      "orca": "Medium"},
+        {"name": "Strong",      "energy": -7,       "density": -6,      "orca": "Strong"},
+        {"name": "Tight",       "energy": -8,       "density": -7,      "orca": "Tight"},   # Typically a sensible default.
+        {"name": "VTight",      "energy": -9,       "density": -8,      "orca": "VeryTight"},
+        {"name": "VVTight",     "energy": -10,      "density": -9,      "orca": "VeryVeryTight"},
+        {"name": "Extreme",     "energy": -14,      "density": -14,     "orca": "Extreme"},
+    ]
+    
+    @classmethod
+    def names(self):
+        return [row['name'] for row in self.table]
+    
+    @classmethod
+    def choices(self):
+        return [self(row['name']) for row in self.table]
+
+    @classmethod
+    def find_in_db(self, hint):
+        """
+        Try and find an entry for a multiplicity in the internal library.
+        
+        :raises ValueError: If the multiplicity could not be found.
+        :param hint: The name, number or symbol of the multiplicity to look for.
+        :returns: The corresponding multiplicity dict.
+        """
+        for row in self.table:
+            name, energy, density, orca = row.values()
+            
+            if str(hint).upper() == name.upper() or str(hint).upper() == orca.upper():
+                return row
+            
+            if str(hint) == str(energy) or str(hint).upper() == "ENERGY{}".format(energy) or str(hint).upper() == "DENSITY{}".format(density):
+                return row
+            
+        # No luck.
+        raise ValueError("Could not find convergence definition for '{}'".format(hint))
+    
+    def translate(self, to_type):
+        """
+        Translate into a name appropriate for a given program.
+        """
+        try:
+            return self.find_in_db(self.value)[to_type]
+        
+        except ValueError:
+            # Couldn't find in conversion table.
+            return self.value
+        
+    def __str__(self):
+        return self.translate("name")
+    
+    def __eq__(self, other):
+        return str(self) == str(other)
+
+
 class Multiplicity(Translate):
     """A class for converting between different representations of multiplicity."""
     
