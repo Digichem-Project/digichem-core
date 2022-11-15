@@ -186,7 +186,91 @@ class Fchk_to_density_cube(Fchk_to_cube):
             cubegen_executable = options['external']['cubegen'],
             **kwargs
         )
+
+
+class Gbw_to_cube(File_converter):
+    """
+    Class for converting from orca GBW files to Gaussian cube files.
+    """
+    
+    # Text description of our input file type, used for error messages etc.
+    #input_file_type = "fchk"
+    input_file_type = file_types.orca_gbw_file
+    # Text description of our output file type, used for error messages etc.
+    output_file_type = file_types.gaussian_cube_file
+    
+    def __init__(self, *args, fchk_file = None, orbital = 0, npts = 0, cube_file = None, memory = None, orca_root = "", **kwargs):
+        """
+        Constructor for Fchk_to_cube objects.
         
+        See Image_maker for a full signature.
+        
+        :param output: The filename/path to the cube file (this path doesn't need to point to a real file yet; we will use this path to write to).
+        :param fchk_file: Optional fchk_file to use to generate this cube file.
+        :param cubegen_type: The type of orbital that will be included in the cube file when we make it. Possible values are MO, AMO and BMO (for MO, alpha MO and beta MO respectively).
+        :param orbital: The orbital to be included in the cube file when we make it. Possible values are 'HOMO', 'LUMO' or the integer level of the desired orbital.
+        :param npts: The 'npts' option of cubegen, controls how detailed the resulting file is. Common options are 0 (default), -2 ('low' quality), -3 (medium quality), -4 (very high quality).
+        :param cube_file: An optional file path to an existing cube file to use. If this is given (and points to an actual file), then a new cube will not be made and this file will be used instead.
+        :param memory: The amount of memory for cubegen to use.
+        """
+        super().__init__(*args, input_file = fchk_file, existing_file = cube_file, **kwargs)
+        self.orbital = orbital
+        self.npts = npts
+        memory = memory if memory is not None else "3 GB"
+        self.memory = Memory(memory)
+        self.orca_root = orca_root
+        
+    @classmethod
+    def from_options(self, output, *, fchk_file = None, cubegen_type = "MO", orbital = "HOMO", options, **kwargs):
+        """
+        Constructor that takes a dictionary of config like options.
+        """        
+        return self(
+            output,
+            fchk_file = fchk_file,
+            cubegen_type = cubegen_type,
+            orbital = orbital,
+            npts = options['rendered_image']['orbital']['cube_grid_size'],
+            dont_modify = not options['rendered_image']['enable_rendering'],
+            cubegen_executable = options['external']['cubegen'],
+            **kwargs
+        )
+            
+    def make_files(self):
+        """
+        Make the files referenced by this object.
+        """
+        # The signature we'll use to call cubegen.
+        signature = [
+            "{}".format(self.cubegen_executable),
+            "0",
+            "{}={}".format(self.cubegen_type, self.orbital),
+            str(self.input_file),
+            str(self.output),
+            str(self.npts)
+        ]
+        
+        try:
+            cubegen_proc =  subprocess.run(
+                signature,
+                # Capture both stdout and stderr.
+                # It appears that cubegen writes everything (including error messages) to stdout, but it does return meaningful exit codes.
+                stdout = subprocess.PIPE,
+                stderr = subprocess.STDOUT,
+                universal_newlines = True,
+                env = dict(os.environ, GAUSS_MEMDEF = str(self.memory))
+                )
+        except FileNotFoundError:
+            raise File_maker_exception(self, "Could not locate cubegen executable '{}'".format(self.cubegen_executable))
+        
+        # If something went wrong, dump output.
+        if cubegen_proc.returncode != 0:
+            # An error occured.
+            raise File_maker_exception(self, "Cubegen did not exit successfully:\n{}".format(cubegen_proc.stdout))
+        else:
+            # Everything appeared to go ok.
+            # Dump cubegen output if we're in debug.
+            silico.log.get_logger().debug(cubegen_proc.stdout)
 
 # TODO: This module is fast becoming Turbomole centric, may be wise to move some of these classes somewhere else.
         

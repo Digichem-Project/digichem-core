@@ -64,8 +64,10 @@ gaussian_fchk_file = File_type("formatted-checkpoint", "gaussian", [".fchk"])
 gaussian_rwf_file = File_type("read-write", "gaussian", [".rwf"])
 gaussian_cube_file = File_type("cube", "gaussian", [".cube", ".cub"])
 
+orca_gbw_file = File_type("gbw", "orca", [".gbw"])
+
 # A list of all our known types.
-known_types = [log_file, gaussian_chk_file, gaussian_fchk_file, gaussian_rwf_file, gaussian_cube_file]
+known_types = [log_file, gaussian_chk_file, gaussian_fchk_file, gaussian_rwf_file, gaussian_cube_file, orca_gbw_file]
 
 def get_file_type(file_path):
     """
