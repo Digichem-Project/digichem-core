@@ -188,41 +188,6 @@ class Fchk_to_density_cube(Fchk_to_cube):
             **kwargs
         )
 
-class Fchk_to_nto_cube(Fchk_to_cube):
-    """
-    A variation of the cube maker designed for making NTO cubes.
-    
-    Note that this class exists mainly for convenience; either class can be used to generate cubes of any supported type.
-    """
-    
-    def __init__(self, *args, orbital = "HOMO", **kwargs):
-        """
-        Constructor for Fchk_to_cube objects.
-        
-        See Fchk_to_cube for a full signature.
-        
-        :param output: The filename/path to the cube file (this path doesn't need to point to a real file yet; we will use this path to write to).
-        :param fchk_file: Optional fchk_file to use to generate this cube file.
-        :param orbital: The NTO to plot.
-        :param npts: The 'npts' option of cubegen, controls how detailed the resulting file is. Common options are 0 (default), -2 ('low' quality), -3 (medium quality), -4 (very high quality).
-        :param cube_file: An optional file path to an existing cube file to use. If this is given (and points to an actual file), then a new cube will not be made and this file will be used instead.
-        """
-        super().__init__(*args, cubegen_type = "MO", orbital = orbital, **kwargs)
-    
-    @classmethod
-    def from_options(self, output, *, fchk_file = None, orbital = "HOMO", options, **kwargs):
-        """
-        Constructor that takes a dictionary of config like options.
-        """        
-        return self(
-            output,
-            fchk_file = fchk_file,
-            orbital = orbital,
-            npts = options['rendered_image']['natural_transition_orbital']['cube_grid_size'].to_gaussian(),
-            dont_modify = not options['rendered_image']['enable_rendering'],
-            cubegen_executable = options['external']['cubegen'],
-            **kwargs
-        )
 
 class Gbw_to_cube(File_converter):
     """
@@ -235,77 +200,40 @@ class Gbw_to_cube(File_converter):
     # Text description of our output file type, used for error messages etc.
     output_file_type = file_types.gaussian_cube_file
     
-    def __init__(self, *args, gbw_file = None, density_file = None, plot_type = 1, orbital = None, alpha_beta = 0, npts = None, cube_file = None, memory = None, prog_def, **kwargs):
+    def __init__(self, *args, fchk_file = None, orbital = 0, npts = 0, cube_file = None, memory = None, orca_root = "", **kwargs):
         """
         Constructor for Fchk_to_cube objects.
         
         See Image_maker for a full signature.
         
         :param output: The filename/path to the cube file (this path doesn't need to point to a real file yet; we will use this path to write to).
-        :param gbw_file: gbw file to use to generate this cube file.
-        :param density_file: density file to use to generate this cube file.
-        :param plot_type: The property to plot. Common values are 1 = MO, 2 = SCF density, 3 = SCF spin density, 7 = mdci density, 8 = spin density, 11 = MP2 density.
-        :param orbital: The orbital to be included in the cube file when we make it. This is the index of the orbital, starting at 0. Has no effect if we're not making an orbital cube.
-        :param alpha_beta: Whether the orbital is spin-restricted (0), an alpha orbital (0) or a beta orbital (1).
-        :param npts: The resolution of the cube grid. 50 is a typical default. None will use ORCA defaults.
+        :param fchk_file: Optional fchk_file to use to generate this cube file.
+        :param cubegen_type: The type of orbital that will be included in the cube file when we make it. Possible values are MO, AMO and BMO (for MO, alpha MO and beta MO respectively).
+        :param orbital: The orbital to be included in the cube file when we make it. Possible values are 'HOMO', 'LUMO' or the integer level of the desired orbital.
+        :param npts: The 'npts' option of cubegen, controls how detailed the resulting file is. Common options are 0 (default), -2 ('low' quality), -3 (medium quality), -4 (very high quality).
         :param cube_file: An optional file path to an existing cube file to use. If this is given (and points to an actual file), then a new cube will not be made and this file will be used instead.
-        :param memory: The amount of memory to use for rendering cubes.
-        :param prog_def: An ORCA program definition to use to call orca_plot.
+        :param memory: The amount of memory for cubegen to use.
         """
-        super().__init__(*args, input_file = gbw_file, existing_file = cube_file, **kwargs)
-        self.density_file = density_file
-        self.plot_type = plot_type
+        super().__init__(*args, input_file = fchk_file, existing_file = cube_file, **kwargs)
         self.orbital = orbital
-        self.alpha_beta = alpha_beta
         self.npts = npts
-        self.memory = Memory(memory) if memory is not None else None
-        self.prog_def = prog_def
-        
-    @property
-    def type(self):
-        """The density type (SCF, MP, CC etc)."""
-        # TODO: This is for compatibility with the Fchk_to_density_cube object.
-        # This property should be called density_type or similar.
-        if self.plot_type == 2:
-            return "SCF"
-        
-        else:
-            return "???"
-        
-    def check_can_make(self):
-        """
-        Check whether it is feasible to try and create the files(s) that we represent.
-        """
-        # Check we have both a gbw and density file and that they exist.
-        if self.input_file is None or not self.input_file.exists():
-            raise File_maker_exception(self, "A .gbw file was not given or it does not exist")
-        
-        if self.density_file is None or not self.density_file.exists():
-            raise File_maker_exception(self, "A .density file was not given or it does not exist")
+        memory = memory if memory is not None else "3 GB"
+        self.memory = Memory(memory)
+        self.orca_root = orca_root
         
     @classmethod
-    def from_options(self, output, *, gbw_file = None, density_file = None, plot_type = 1, orbital = None, alpha_beta = 0, options, memory = None, **kwargs):
+    def from_options(self, output, *, fchk_file = None, cubegen_type = "MO", orbital = "HOMO", options, **kwargs):
         """
         Constructor that takes a dictionary of config like options.
-        """
-        # First, get our program.
-        prog_def = options['report']['orca']['program']
-        
-        # Give up if no program available.
-        if prog_def is None:
-            return Dummy_file_maker(output, "No program definition is available (set the report: orca: program: option)")
-        
+        """        
         return self(
             output,
-            gbw_file = gbw_file,
-            density_file = density_file,
-            plot_type = plot_type,
+            fchk_file = fchk_file,
+            cubegen_type = cubegen_type,
             orbital = orbital,
-            alpha_beta = alpha_beta,
-            npts = options['rendered_image']['orbital']['cube_grid_size'].to_orca(),
+            npts = options['rendered_image']['orbital']['cube_grid_size'],
             dont_modify = not options['rendered_image']['enable_rendering'],
-            prog_def = prog_def,
-            memory = options['report']['orca']['memory'] if memory is None else memory,
+            cubegen_executable = options['external']['cubegen'],
             **kwargs
         )
             
@@ -313,64 +241,37 @@ class Gbw_to_cube(File_converter):
         """
         Make the files referenced by this object.
         """
-        # Run in temp dir.
-        with tempfile.TemporaryDirectory() as temp_dir:
-            # Copy the gbw and density files to our input dir.
-            # We need to make sure both files have the same root name.
-            root_name = self.input_file.stem
-            input_file = Path(temp_dir, root_name + ".gbw")
-            shutil.copy(self.input_file, input_file)
-            shutil.copy(self.density_file, Path(temp_dir, root_name + ".density"))
-            
-            # Get input options.
-            input_str = TemplateLookup(directories = str(silico.default_template_directory())).get_template("/submit/orca/orca_plot.mako").render_unicode(gbw_to_cube = self)
-            
-            # Get signature.
-            signature = ["orca_plot", str(input_file), "-i"]
-            
-            if self.memory is not None:
-                signature.extend(("-m", str(self.memory.MB)))
-            
-            try:
-                orca_plot_proc =  subprocess.run(
-                    signature,
-                    input = input_str,
-                    stdout = subprocess.PIPE,
-                    stderr = subprocess.STDOUT,
-                    universal_newlines = True,
-                    # TOOD: This is a bit messy...
-                    env = self.prog_def.inner_cls.get_env(self.prog_def.root, self.prog_def.mpi_root),
-                    cwd = temp_dir
-                )
-            
-            except FileNotFoundError:
-                raise File_maker_exception(self, "Could not locate orca_plot executable '{}'".format(self.cubegen_executable))
+        # The signature we'll use to call cubegen.
+        signature = [
+            "{}".format(self.cubegen_executable),
+            "0",
+            "{}={}".format(self.cubegen_type, self.orbital),
+            str(self.input_file),
+            str(self.output),
+            str(self.npts)
+        ]
         
-            # If something went wrong, dump output.
-            if orca_plot_proc.returncode != 0:
-                # An error occured.
-                raise File_maker_exception(self, "orca_plot did not exit successfully:\n{}".format(orca_plot_proc.stdout))
-            else:
-                # Everything appeared to go ok.
-                # Dump orca_plot output if we're in debug.
-                silico.log.get_logger().debug(orca_plot_proc.stdout)
-                
-            # Get our output file (a .cube file).
-            # It's hard to know exactly what our output file will be called.
-            # We can predict it based on what we asked for, but then we'd have to
-            # implement a parsing method based on the options we gave to orca_plot.
-            # Easier to just glob the .cube file (there should be only one).
-            cube_files = list(Path(temp_dir).glob("*.cube"))
-            
-            # Check we got the number of files we expected.
-            if len(cube_files) == 0:
-                raise File_maker_exception(self, "orca_plot does not appear to have created the requested cube file, perhaps it was set up incorrectly?")
-            
-            elif len(cube_files) > 1:
-                raise File_maker_exception(self, "orca_plot created '{}' cube files, but only one was expected".format(len(cube_files)))
-            
-            # Copy the cube file to our destination.
-            shutil.move(cube_files[0], self.output, copy_function = shutil.copy)
+        try:
+            cubegen_proc =  subprocess.run(
+                signature,
+                # Capture both stdout and stderr.
+                # It appears that cubegen writes everything (including error messages) to stdout, but it does return meaningful exit codes.
+                stdout = subprocess.PIPE,
+                stderr = subprocess.STDOUT,
+                universal_newlines = True,
+                env = dict(os.environ, GAUSS_MEMDEF = str(self.memory))
+                )
+        except FileNotFoundError:
+            raise File_maker_exception(self, "Could not locate cubegen executable '{}'".format(self.cubegen_executable))
+        
+        # If something went wrong, dump output.
+        if cubegen_proc.returncode != 0:
+            # An error occured.
+            raise File_maker_exception(self, "Cubegen did not exit successfully:\n{}".format(cubegen_proc.stdout))
+        else:
+            # Everything appeared to go ok.
+            # Dump cubegen output if we're in debug.
+            silico.log.get_logger().debug(cubegen_proc.stdout)
 
 # TODO: This module is fast becoming Turbomole centric, may be wise to move some of these classes somewhere else.
         
