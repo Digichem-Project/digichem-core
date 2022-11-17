@@ -1,4 +1,5 @@
 import itertools
+import yaml
 
 from silico.config.configurable.exception import Configurable_option_exception,\
     Missing_option_exception, Disallowed_choice_exception
@@ -11,6 +12,31 @@ class InheritedAttrError(AttributeError):
     """
     Exception raised when an inherited attribute cannot be found.
     """
+
+class Nested_dict_type():
+    """A data type for generic nested dicts."""
+    
+    def __init__(self, text = ""):
+        if isinstance(text, dict):
+            self.value = text
+            
+        else:
+            value = yaml.safe_load(text)
+            if value is None:
+                self.value = value
+                
+            elif not isinstance(value, dict):
+                raise TypeError("Cannot convert string '{}' of converted type '{}' to dict".format(value, type(value)))
+            
+            else:
+                self.value = value
+            
+    
+    def __str__(self):
+        if self.value is None:
+            return ""
+        else:
+            return yaml.safe_dump(self.value)
 
 
 class Option():
