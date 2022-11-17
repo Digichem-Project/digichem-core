@@ -1,7 +1,5 @@
 import itertools
 import yaml
-import textwrap
-import math
 
 from silico.config.configurable.exception import Configurable_option_exception,\
     Missing_option_exception, Disallowed_choice_exception
@@ -21,9 +19,6 @@ class Nested_dict_type():
     def __init__(self, text = ""):
         if isinstance(text, dict):
             self.value = text
-            
-        elif isinstance(text, type(self)):
-            self.value = text.value
             
         else:
             value = yaml.safe_load(text)
