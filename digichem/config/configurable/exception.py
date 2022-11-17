@@ -78,7 +78,7 @@ class Disallowed_choice_exception(Configurable_option_exception):
         :param option: The option with the disallowed choice.
         :param value: The disallowed value.
         """
-        super().__init__(configurable, option, "value '{}' is not one of the allowed choices: {}".format(value, ", ".join(str(choice) for choice in option.choices)))
+        super().__init__(configurable, option, "value '{}' ({}) is not one of the allowed choices: {}".format(value, type(value), ", ".join(str(choice) for choice in option.choices)))
 
 
 class Missing_option_exception(Configurable_option_exception, AttributeError):
