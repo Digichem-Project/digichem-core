@@ -14,7 +14,6 @@ from silico.config.locations import user_config_location
 from silico.misc.io import atomic_write
 from silico.submit.calculation.turbomole import Turbomole_memory
 from silico.submit.translate import Cube_grid_points
-from silico.submit.memory import Memory
 
 
 class Silico_options(Configurable):
