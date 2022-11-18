@@ -86,6 +86,11 @@ Tiny, Small, Medium, Large, Huge or Default.""", type = Cube_grid_points, defaul
             cube_grid_size = Option(help = "The size of the grid use to plot cube data.", type = Cube_grid_points, default = Cube_grid_points("Default")),
             isovalue = Option(help = "The isovalue to use for difference density plots.", type = float, default = 0.001)
         ),
+        natural_transition_orbital = Options(help = "Specific options for NTO plots.",
+            cube_grid_size = Option(help = "The size of the grid use to plot cube data.", type = Cube_grid_points, default = Cube_grid_points("Default")),
+            isovalue = Option(help = "The isovalue to use for NTO plots.", type = float, default = 0.02)
+            
+        ),
         dipole_moment = Options(help = "Specific options for permanent dipole moment plots.",
             scaling = Option(help = "The value (x) to scale the TDM by, where 1 D = x Å.", type = float, default = 1.0)
             
