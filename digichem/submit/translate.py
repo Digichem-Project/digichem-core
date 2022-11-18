@@ -143,6 +143,10 @@ class Basis_set(Translate):
                 basis_set["turbomole"] = basis_set['name'][:-5] + "**"
             
             new_db[basis_key] = basis_set
+            
+            # TODO: Need to support aux basis sets (which end in things like -rifit, -jfit, -jkfit etc.
+            # Orca, for example, uses /C, /J and /JK instead...
+            # Turbomole uses nothing.
                 
         return new_db
     
