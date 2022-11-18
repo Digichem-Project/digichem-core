@@ -20,6 +20,9 @@ class Nested_dict_type():
         if isinstance(text, dict):
             self.value = text
             
+        elif isinstance(text, type(self)):
+            self.value = text.value
+            
         else:
             value = yaml.safe_load(text)
             if value is None:
