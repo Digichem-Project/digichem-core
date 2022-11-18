@@ -70,7 +70,7 @@ class Fchk_to_cube(File_converter):
             fchk_file = fchk_file,
             cubegen_type = cubegen_type,
             orbital = orbital,
-            npts = options['rendered_image']['orbital']['cube_grid_size'],
+            npts = options['rendered_image']['orbital']['cube_grid_size'].to_gaussian(),
             dont_modify = not options['rendered_image']['enable_rendering'],
             cubegen_executable = options['external']['cubegen'],
             **kwargs
@@ -144,7 +144,7 @@ class Fchk_to_spin_cube(Fchk_to_cube):
             output,
             fchk_file = fchk_file,
             spin_density = spin_density,
-            npts = options['rendered_image']['spin']['cube_grid_size'],
+            npts = options['rendered_image']['spin']['cube_grid_size'].to_gaussian(),
             dont_modify = not options['rendered_image']['enable_rendering'],
             cubegen_executable = options['external']['cubegen'],
             **kwargs
@@ -181,7 +181,7 @@ class Fchk_to_density_cube(Fchk_to_cube):
             output,
             fchk_file = fchk_file,
             density_type = density_type,
-            npts = options['rendered_image']['density']['cube_grid_size'],
+            npts = options['rendered_image']['density']['cube_grid_size'].to_gaussian(),
             dont_modify = not options['rendered_image']['enable_rendering'],
             cubegen_executable = options['external']['cubegen'],
             **kwargs
@@ -451,6 +451,8 @@ class Turbomole_to_cube(File_converter):
             num_cpu = options['report']['turbomole']['num_cpu'],
             orbitals = [orbital.total_level for orbital in orbitals],
             density = density or spin,
+            # TODO: We have the usual turbomole problem here that we have to generate all our cubes together (both MO and density), so we need to decide which option to use.
+            npts = options['rendered_image']['orbital']['cube_grid_size'].to_turbomole(),
             options = options
            )
         
