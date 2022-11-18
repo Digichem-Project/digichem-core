@@ -13,6 +13,7 @@ from silico.config.configurable.options import Options
 from silico.config.locations import user_config_location
 from silico.misc.io import atomic_write
 from silico.submit.calculation.turbomole import Turbomole_memory
+from silico.submit.translate import Cube_grid_points
 
 
 class Silico_options(Configurable):
@@ -66,26 +67,23 @@ Possible options are:
         
         orbital = Options(help = "Specific options for orbital density plots.",
             cube_grid_size = Option(help =\
-"""The size of grid used to generate Gaussian cube files.
-This option is passed to cubegen as the 'npts' argument (https://gaussian.com/cubegen/) and controls how detailed MO surfaces are.
-Note that generating cube files can take up the majority of total rendering time.
-There are a number of valid options here (please see the cubegen manual), the most common options are listed here:
-   - 0: The default grid size
-   - -2: The 'Coarse' grid, this is the lowest quality grid (and is in fact similar to the default option). It is probably adequate for most uses.
-   - -3: The 'Medium' grid, twice the size of the 'Coarse' grid and taking roughly 10x as long. This option is probably adequate for most publication purposes.
-   - -4: The 'Fine' grid, twice the size again of 'Medium' and taking a further, rough 10x as long. This option can also consume large amounts of file space, and is probably unnecessary for most purposes.""", type = int, default = 0
+"""The size of grid used to generate cube files.
+Densities are plotted on a 3D grid of points, this option controls how many points there are in the grid (per dimension).
+In addition to an integer number of points (~100 is often sufficient), any of the following keywords can also be specified:
+Tiny, Small, Medium, Large, Huge or Default.""", type = Cube_grid_points, default = Cube_grid_points("Default")
             ),
             isovalue = Option(help = "The isovalue to use for rendering orbital density.", type = float, default = 0.02)
         ),
         spin = Options(help = "Specific options for spin density plots.",
-            cube_grid_size = Option(help = "The size of the grid use to plot cube data. As cubes of this type are rendered with a smaller isovalue, it is often necessary to use a larger grid size than normal to maintain quality.", type = int, default = -3),
+            cube_grid_size = Option(help = "The size of the grid use to plot cube data. As cubes of this type are rendered with a smaller isovalue, it is often necessary to use a larger grid size than normal to maintain quality.", type = Cube_grid_points, default = Cube_grid_points("Large")),
             isovalue = Option(help = "The isovalue to use for plotting spin density.", type = float, default = 0.0004)
         ),
         density = Options(help = "Specific options for total density plots.",
-            cube_grid_size = Option(help = "The size of the grid use to plot cube data.", type = int, default = -3),
+            cube_grid_size = Option(help = "The size of the grid use to plot cube data.", type = Cube_grid_points, default = Cube_grid_points("Large")),
             isovalue = Option(help = "The isovalue to use for plotting total density.", type = float, default = 0.0004)
         ),
         difference_density = Options(help = "Specific options for excited states difference density plots.",
+            cube_grid_size = Option(help = "The size of the grid use to plot cube data.", type = Cube_grid_points, default = Cube_grid_points("Default")),
             isovalue = Option(help = "The isovalue to use for difference density plots.", type = float, default = 0.001)
         ),
         dipole_moment = Options(help = "Specific options for permanent dipole moment plots.",
