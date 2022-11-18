@@ -187,6 +187,42 @@ class Fchk_to_density_cube(Fchk_to_cube):
             **kwargs
         )
 
+class Fchk_to_nto_cube(Fchk_to_cube):
+    """
+    A variation of the cube maker designed for making NTO cubes.
+    
+    Note that this class exists mainly for convenience; either class can be used to generate cubes of any supported type.
+    """
+    
+    def __init__(self, *args, orbital = "HOMO", **kwargs):
+        """
+        Constructor for Fchk_to_cube objects.
+        
+        See Fchk_to_cube for a full signature.
+        
+        :param output: The filename/path to the cube file (this path doesn't need to point to a real file yet; we will use this path to write to).
+        :param fchk_file: Optional fchk_file to use to generate this cube file.
+        :param orbital: The NTO to plot.
+        :param npts: The 'npts' option of cubegen, controls how detailed the resulting file is. Common options are 0 (default), -2 ('low' quality), -3 (medium quality), -4 (very high quality).
+        :param cube_file: An optional file path to an existing cube file to use. If this is given (and points to an actual file), then a new cube will not be made and this file will be used instead.
+        """
+        super().__init__(*args, cubegen_type = "MO", orbital = orbital, **kwargs)
+    
+    @classmethod
+    def from_options(self, output, *, fchk_file = None, orbital = "HOMO", options, **kwargs):
+        """
+        Constructor that takes a dictionary of config like options.
+        """        
+        return self(
+            output,
+            fchk_file = fchk_file,
+            orbital = orbital,
+            npts = options['rendered_image']['natural_transition_orbital']['cube_grid_size'].to_gaussian(),
+            dont_modify = not options['rendered_image']['enable_rendering'],
+            cubegen_executable = options['external']['cubegen'],
+            **kwargs
+        )
+
 
 class Gbw_to_cube(File_converter):
     """
