@@ -236,40 +236,48 @@ class Gbw_to_cube(File_converter):
     # Text description of our output file type, used for error messages etc.
     output_file_type = file_types.gaussian_cube_file
     
-    def __init__(self, *args, fchk_file = None, orbital = 0, npts = 0, cube_file = None, memory = None, orca_root = "", **kwargs):
+    def __init__(self, *args, gbw_file = None, plot_type = 1, orbital = None, npts = None, cube_file = None, memory = None, prog_t, **kwargs):
         """
         Constructor for Fchk_to_cube objects.
         
         See Image_maker for a full signature.
         
         :param output: The filename/path to the cube file (this path doesn't need to point to a real file yet; we will use this path to write to).
-        :param fchk_file: Optional fchk_file to use to generate this cube file.
-        :param cubegen_type: The type of orbital that will be included in the cube file when we make it. Possible values are MO, AMO and BMO (for MO, alpha MO and beta MO respectively).
-        :param orbital: The orbital to be included in the cube file when we make it. Possible values are 'HOMO', 'LUMO' or the integer level of the desired orbital.
-        :param npts: The 'npts' option of cubegen, controls how detailed the resulting file is. Common options are 0 (default), -2 ('low' quality), -3 (medium quality), -4 (very high quality).
+        :param gbw_file: gbw file to use to generate this cube file.
+        :param plot_type: The property to plot. Common values are 1 = MO, 2 = SCF density, 3 = SCF spin density, 7 = mdci density, 8 = spin density, 11 = MP2 density.
+        :param orbital: The orbital to be included in the cube file when we make it. This is the index of the orbital, starting at 0. Has no effect if we're not making an orbital cube.
+        :param npts: The resolution of the cube grid. 50 is a typical default. None will use ORCA defaults.
         :param cube_file: An optional file path to an existing cube file to use. If this is given (and points to an actual file), then a new cube will not be made and this file will be used instead.
-        :param memory: The amount of memory for cubegen to use.
+        :param memory: The amount of memory to use for rendering cubes.
+        :param prog_t: An ORCA program definition to use to call orca_plot.
         """
-        super().__init__(*args, input_file = fchk_file, existing_file = cube_file, **kwargs)
+        super().__init__(*args, input_file = gbw_file, existing_file = cube_file, **kwargs)
+        self.plot_type = plot_type
         self.orbital = orbital
         self.npts = npts
-        memory = memory if memory is not None else "3 GB"
-        self.memory = Memory(memory)
-        self.orca_root = orca_root
+        self.memory = Memory(memory) if memory is not None else None
+        self.prog_t = prog_t
         
     @classmethod
-    def from_options(self, output, *, fchk_file = None, cubegen_type = "MO", orbital = "HOMO", options, **kwargs):
+    def from_options(self, output, *, gbw_file = None, plot_type = 1, orbital = None, options, **kwargs):
         """
         Constructor that takes a dictionary of config like options.
-        """        
+        """
+        # First, get our program.
+        prog_t = options['report']['orca']['program']
+        
+        # Give up if no program available.
+        if prog_t is None:
+            return Dummy_file_maker(output, "No program definition is available (set the report: orca: program: option)")
+        
         return self(
             output,
-            fchk_file = fchk_file,
-            cubegen_type = cubegen_type,
+            gbw_file = gbw_file,
+            plot_type = plot_type,
             orbital = orbital,
-            npts = options['rendered_image']['orbital']['cube_grid_size'],
+            npts = options['rendered_image']['orbital']['cube_grid_size'].to_orca(),
             dont_modify = not options['rendered_image']['enable_rendering'],
-            cubegen_executable = options['external']['cubegen'],
+            prog_t = prog_t,
             **kwargs
         )
             
