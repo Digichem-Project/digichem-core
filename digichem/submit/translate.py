@@ -445,6 +445,9 @@ class Cube_grid_points(Translate):
         except ValueError:
             # Couldn't find in conversion table.
             return self.value
+        
+    def __str__(self):
+        return self.translate("name")
 
 
 # TODO: Use this.
