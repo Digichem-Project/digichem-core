@@ -1,5 +1,6 @@
 """Tests for translation classes."""
-from silico.submit.translate import Solvent, Basis_set, Multiplicity, Functional
+from silico.submit.translate import Solvent, Basis_set, Multiplicity, Functional,\
+    Cube_grid_points
 import pytest
 
 
@@ -76,3 +77,23 @@ def test_multiplicity():
     
     assert all(["Singlet" == mult.string for mult in mults])
     
+def test_grid_points():
+    """
+    Test different names for cube grid points.
+    """
+    # Check the special 'Default' value is correct.
+    default = Cube_grid_points("default")
+    
+    assert default.translate("gaussian")    == 0
+    assert default.translate("orca")        == 100
+    assert default.translate("turbomole")   == 100
+    
+    # Check the named values.
+    for name, value in [("Tiny", 25), ("Small", 50), ("Medium", 100), ("Large", 200), ("Huge", 500)]:
+        assert Cube_grid_points(name).translate("points") == value
+        
+    # Check a random value.
+    assert Cube_grid_points(123).translate("points") == 123
+
+
+
