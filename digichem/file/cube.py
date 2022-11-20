@@ -236,7 +236,7 @@ class Gbw_to_cube(File_converter):
     # Text description of our output file type, used for error messages etc.
     output_file_type = file_types.gaussian_cube_file
     
-    def __init__(self, *args, gbw_file = None, density_file = None, plot_type = 1, orbital = None, alpha_beta = 0, npts = None, cube_file = None, memory = None, prog_t, **kwargs):
+    def __init__(self, *args, gbw_file = None, density_file = None, plot_type = 1, orbital = None, alpha_beta = 0, npts = None, cube_file = None, memory = None, prog_def, **kwargs):
         """
         Constructor for Fchk_to_cube objects.
         
@@ -251,7 +251,7 @@ class Gbw_to_cube(File_converter):
         :param npts: The resolution of the cube grid. 50 is a typical default. None will use ORCA defaults.
         :param cube_file: An optional file path to an existing cube file to use. If this is given (and points to an actual file), then a new cube will not be made and this file will be used instead.
         :param memory: The amount of memory to use for rendering cubes.
-        :param prog_t: An ORCA program definition to use to call orca_plot.
+        :param prog_def: An ORCA program definition to use to call orca_plot.
         """
         super().__init__(*args, input_file = gbw_file, existing_file = cube_file, **kwargs)
         self.density_file = density_file
@@ -260,7 +260,7 @@ class Gbw_to_cube(File_converter):
         self.alpha_beta = alpha_beta
         self.npts = npts
         self.memory = Memory(memory) if memory is not None else None
-        self.prog_t = prog_t
+        self.prog_def = prog_def
         
     def check_can_make(self):
         """
@@ -279,10 +279,10 @@ class Gbw_to_cube(File_converter):
         Constructor that takes a dictionary of config like options.
         """
         # First, get our program.
-        prog_t = options['report']['orca']['program']
+        prog_def = options['report']['orca']['program']
         
         # Give up if no program available.
-        if prog_t is None:
+        if prog_def is None:
             return Dummy_file_maker(output, "No program definition is available (set the report: orca: program: option)")
         
         return self(
@@ -294,7 +294,7 @@ class Gbw_to_cube(File_converter):
             alpha_beta = alpha_beta,
             npts = options['rendered_image']['orbital']['cube_grid_size'].to_orca(),
             dont_modify = not options['rendered_image']['enable_rendering'],
-            prog_t = prog_t.inner_cls,
+            prog_def = prog_def,
             memory = options['report']['orca']['memory'] if memory is None else memory,
             **kwargs
         )
@@ -327,7 +327,8 @@ class Gbw_to_cube(File_converter):
                     stdout = subprocess.PIPE,
                     stderr = subprocess.STDOUT,
                     universal_newlines = True,
-                    env = self.prog_t.get_env(),
+                    # TOOD: This is a bit messy...
+                    env = self.prog_def.inner_cls.get_env(self.prog_def.root, self.prog_def.mpi_root),
                     cwd = temp_dir
                 )
             
