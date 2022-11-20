@@ -319,7 +319,7 @@ class Gbw_to_cube(File_converter):
             signature = ["orca_plot", str(input_file), "-i"]
             
             if self.memory is not None:
-                signature.extend(("-m", self.memory.MB))
+                signature.extend(("-m", str(self.memory.MB)))
             
             try:
                 orca_plot_proc =  subprocess.run(
