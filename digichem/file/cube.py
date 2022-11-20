@@ -224,7 +224,6 @@ class Fchk_to_nto_cube(Fchk_to_cube):
             **kwargs
         )
 
-
 class Gbw_to_cube(File_converter):
     """
     Class for converting from orca GBW files to Gaussian cube files.
@@ -261,6 +260,17 @@ class Gbw_to_cube(File_converter):
         self.npts = npts
         self.memory = Memory(memory) if memory is not None else None
         self.prog_def = prog_def
+        
+    @property
+    def type(self):
+        """The density type (SCF, MP, CC etc)."""
+        # TODO: This is for compatibility with the Fchk_to_density_cube object.
+        # This property should be called density_type or similar.
+        if self.plot_type == 2:
+            return "SCF"
+        
+        else:
+            return "???"
         
     def check_can_make(self):
         """
