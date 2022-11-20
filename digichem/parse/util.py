@@ -17,6 +17,7 @@ import warnings
 from silico.parse.base import Parser
 from silico.parse.gaussian import Gaussian_parser
 from silico.parse.turbomole import Turbomole_parser
+from silico.parse.orca import Orca_parser
 from silico.misc.base import is_iter
 from silico.result.multi import Merged
 from silico.result.alignment import Minimal
@@ -45,6 +46,8 @@ def class_from_log_files(*log_files):
         return Gaussian_parser
     elif log_file_type == cclib.parser.turbomoleparser.Turbomole:
         return Turbomole_parser
+    elif log_file_type == cclib.parser.orcaparser.ORCA:
+        return Orca_parser
     else:
         return Parser
 
