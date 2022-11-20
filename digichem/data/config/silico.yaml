@@ -285,6 +285,8 @@ report:
         scratch_path: /scratch/tmp
     turbomole:
         program: Turbomole
+    orca:
+        program: Orca
 
 
 # Colour palette for urwid interfaces.
