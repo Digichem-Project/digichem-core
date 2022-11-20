@@ -274,7 +274,7 @@ class Gbw_to_cube(File_converter):
             raise File_maker_exception(self, "A .density file was not given or it does not exist")
         
     @classmethod
-    def from_options(self, output, *, gbw_file = None, plot_type = 1, orbital = None, options, **kwargs):
+    def from_options(self, output, *, gbw_file = None, density_file = None, plot_type = 1, orbital = None, alpha_beta = 0, options, **kwargs):
         """
         Constructor that takes a dictionary of config like options.
         """
@@ -288,8 +288,10 @@ class Gbw_to_cube(File_converter):
         return self(
             output,
             gbw_file = gbw_file,
+            density_file = density_file,
             plot_type = plot_type,
             orbital = orbital,
+            alpha_beta = alpha_beta,
             npts = options['rendered_image']['orbital']['cube_grid_size'].to_orca(),
             dont_modify = not options['rendered_image']['enable_rendering'],
             prog_t = prog_t,
