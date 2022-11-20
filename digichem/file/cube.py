@@ -313,9 +313,15 @@ class Gbw_to_cube(File_converter):
             # Get input options.
             input_str = TemplateLookup(directories = str(silico.default_template_directory())).get_template("/submit/orca/orca_plot.mako").render_unicode(gbw_to_cube = self)
             
+            # Get signature.
+            signature = ["orca_plot", str(self.input_file), "-i"]
+            
+            if self.memory is not None:
+                signature.extend(("-m", self.memory.MB))
+            
             try:
                 orca_plot_proc =  subprocess.run(
-                    ["orca_plot", str(self.input_file), "-i", "-m", self.memory.MB],
+                    signature,
                     input = input_str,
                     stdout = subprocess.PIPE,
                     stderr = subprocess.STDOUT,
