@@ -236,7 +236,7 @@ class Gbw_to_cube(File_converter):
     # Text description of our output file type, used for error messages etc.
     output_file_type = file_types.gaussian_cube_file
     
-    def __init__(self, *args, gbw_file = None, density_file = None, plot_type = 1, orbital = None, alpha_beta = 1, npts = None, cube_file = None, memory = None, prog_t, **kwargs):
+    def __init__(self, *args, gbw_file = None, density_file = None, plot_type = 1, orbital = None, alpha_beta = 0, npts = None, cube_file = None, memory = None, prog_t, **kwargs):
         """
         Constructor for Fchk_to_cube objects.
         
