@@ -294,7 +294,7 @@ class Gbw_to_cube(File_converter):
             alpha_beta = alpha_beta,
             npts = options['rendered_image']['orbital']['cube_grid_size'].to_orca(),
             dont_modify = not options['rendered_image']['enable_rendering'],
-            prog_t = prog_t,
+            prog_t = prog_t.inner_cls,
             memory = options['report']['orca']['memory'] if memory is None else memory,
             **kwargs
         )
