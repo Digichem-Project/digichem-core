@@ -267,7 +267,7 @@ class Gbw_to_cube(File_converter):
         Check whether it is feasible to try and create the files(s) that we represent.
         """
         # Check we have both a gbw and density file and that they exist.
-        if self.gbw_file is None or not self.gbw_file.exists():
+        if self.input_file is None or not self.input_file.exists():
             raise File_maker_exception(self, "A .gbw file was not given or it does not exist")
         
         if self.density_file is None or not self.density_file.exists():
@@ -307,8 +307,8 @@ class Gbw_to_cube(File_converter):
         with tempfile.TemporaryDirectory() as temp_dir:
             # Copy the gbw and density files to our input dir.
             # We need to make sure both files have the same root name.
-            root_name = self.gbw_file.stem
-            shutil.copy(self.gbw_file, Path(temp_dir, root_name + ".gbw"))
+            root_name = self.input_file.stem
+            shutil.copy(self.input_file, Path(temp_dir, root_name + ".gbw"))
             shutil.copy(self.density_file, Path(temp_dir, root_name + ".density"))
             
             # Get input options.
