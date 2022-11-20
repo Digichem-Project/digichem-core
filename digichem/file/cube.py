@@ -236,7 +236,7 @@ class Gbw_to_cube(File_converter):
     # Text description of our output file type, used for error messages etc.
     output_file_type = file_types.gaussian_cube_file
     
-    def __init__(self, *args, gbw_file = None, plot_type = 1, orbital = None, npts = None, cube_file = None, memory = None, prog_t, **kwargs):
+    def __init__(self, *args, gbw_file = None, density_file = None, plot_type = 1, orbital = None, alpha_beta = 1, npts = None, cube_file = None, memory = None, prog_t, **kwargs):
         """
         Constructor for Fchk_to_cube objects.
         
@@ -244,19 +244,34 @@ class Gbw_to_cube(File_converter):
         
         :param output: The filename/path to the cube file (this path doesn't need to point to a real file yet; we will use this path to write to).
         :param gbw_file: gbw file to use to generate this cube file.
+        :param density_file: density file to use to generate this cube file.
         :param plot_type: The property to plot. Common values are 1 = MO, 2 = SCF density, 3 = SCF spin density, 7 = mdci density, 8 = spin density, 11 = MP2 density.
         :param orbital: The orbital to be included in the cube file when we make it. This is the index of the orbital, starting at 0. Has no effect if we're not making an orbital cube.
+        :param alpha_beta: Whether the orbital is spin-restricted (0), an alpha orbital (0) or a beta orbital (1).
         :param npts: The resolution of the cube grid. 50 is a typical default. None will use ORCA defaults.
         :param cube_file: An optional file path to an existing cube file to use. If this is given (and points to an actual file), then a new cube will not be made and this file will be used instead.
         :param memory: The amount of memory to use for rendering cubes.
         :param prog_t: An ORCA program definition to use to call orca_plot.
         """
         super().__init__(*args, input_file = gbw_file, existing_file = cube_file, **kwargs)
+        self.density_file = density_file
         self.plot_type = plot_type
         self.orbital = orbital
+        self.alpha_beta = alpha_beta
         self.npts = npts
         self.memory = Memory(memory) if memory is not None else None
         self.prog_t = prog_t
+        
+    def check_can_make(self):
+        """
+        Check whether it is feasible to try and create the files(s) that we represent.
+        """
+        # Check we have both a gbw and density file and that they exist.
+        if self.gbw_file is None or not self.gbw_file.exists():
+            raise File_maker_exception(self, "A .gbw file was not given or it does not exist")
+        
+        if self.density_file is None or not self.density_file.exists():
+            raise File_maker_exception(self, "A .density file was not given or it does not exist")
         
     @classmethod
     def from_options(self, output, *, gbw_file = None, plot_type = 1, orbital = None, options, **kwargs):
@@ -285,37 +300,56 @@ class Gbw_to_cube(File_converter):
         """
         Make the files referenced by this object.
         """
-        # The signature we'll use to call cubegen.
-        signature = [
-            "{}".format(self.cubegen_executable),
-            "0",
-            "{}={}".format(self.cubegen_type, self.orbital),
-            str(self.input_file),
-            str(self.output),
-            str(self.npts)
-        ]
-        
-        try:
-            cubegen_proc =  subprocess.run(
-                signature,
-                # Capture both stdout and stderr.
-                # It appears that cubegen writes everything (including error messages) to stdout, but it does return meaningful exit codes.
-                stdout = subprocess.PIPE,
-                stderr = subprocess.STDOUT,
-                universal_newlines = True,
-                env = dict(os.environ, GAUSS_MEMDEF = str(self.memory))
+        # Run in temp dir.
+        with tempfile.TemporaryDirectory() as temp_dir:
+            # Copy the gbw and density files to our input dir.
+            # We need to make sure both files have the same root name.
+            root_name = self.gbw_file.stem
+            shutil.copy(self.gbw_file, Path(temp_dir, root_name + ".gbw"))
+            shutil.copy(self.density_file, Path(temp_dir, root_name + ".density"))
+            
+            # Get input options.
+            input_str = TemplateLookup(directories = str(silico.default_template_directory())).get_template("/submit/orca/orca_plot.mako").render_unicode(gbw_to_cube = self)
+            
+            try:
+                orca_plot_proc =  subprocess.run(
+                    ["orca_plot", str(self.input_file), "-i", "-m", self.memory.MB],
+                    input = input_str,
+                    stdout = subprocess.PIPE,
+                    stderr = subprocess.STDOUT,
+                    universal_newlines = True,
+                    env = self.prog_t.get_env(),
+                    cwd = temp_dir
                 )
-        except FileNotFoundError:
-            raise File_maker_exception(self, "Could not locate cubegen executable '{}'".format(self.cubegen_executable))
+            
+            except FileNotFoundError:
+                raise File_maker_exception(self, "Could not locate orca_plot executable '{}'".format(self.cubegen_executable))
         
-        # If something went wrong, dump output.
-        if cubegen_proc.returncode != 0:
-            # An error occured.
-            raise File_maker_exception(self, "Cubegen did not exit successfully:\n{}".format(cubegen_proc.stdout))
-        else:
-            # Everything appeared to go ok.
-            # Dump cubegen output if we're in debug.
-            silico.log.get_logger().debug(cubegen_proc.stdout)
+            # If something went wrong, dump output.
+            if orca_plot_proc.returncode != 0:
+                # An error occured.
+                raise File_maker_exception(self, "orca_plot did not exit successfully:\n{}".format(orca_plot_proc.stdout))
+            else:
+                # Everything appeared to go ok.
+                # Dump orca_plot output if we're in debug.
+                silico.log.get_logger().debug(orca_plot_proc.stdout)
+                
+            # Get our output file (a .cube file).
+            # It's hard to know exactly what our output file will be called.
+            # We can predict it based on what we asked for, but then we'd have to
+            # implement a parsing method based on the options we gave to orca_plot.
+            # Easier to just glob the .cube file (there should be only one).
+            cube_files = Path(temp_dir).glob("*.cube")
+            
+            # Check we got the number of files we expected.
+            if len(cube_files) == 0:
+                raise File_maker_exception(self, "orca_plot does not appear to have created the requested cube file, perhaps it was set up incorrectly?")
+            
+            elif len(cube_files) > 1:
+                raise File_maker_exception(self, "orca_plot created '{}' cube files, but only one was expected".format(len(cube_files)))
+            
+            # Copy the cube file to our destination.
+            shutil.move(cube_files[0], self.output, copy_function = shutil.copy)
 
 # TODO: This module is fast becoming Turbomole centric, may be wise to move some of these classes somewhere else.
         
