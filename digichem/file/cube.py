@@ -308,14 +308,15 @@ class Gbw_to_cube(File_converter):
             # Copy the gbw and density files to our input dir.
             # We need to make sure both files have the same root name.
             root_name = self.input_file.stem
-            shutil.copy(self.input_file, Path(temp_dir, root_name + ".gbw"))
+            input_file = Path(temp_dir, root_name + ".gbw")
+            shutil.copy(self.input_file, input_file)
             shutil.copy(self.density_file, Path(temp_dir, root_name + ".density"))
             
             # Get input options.
             input_str = TemplateLookup(directories = str(silico.default_template_directory())).get_template("/submit/orca/orca_plot.mako").render_unicode(gbw_to_cube = self)
             
             # Get signature.
-            signature = ["orca_plot", str(self.input_file), "-i"]
+            signature = ["orca_plot", str(input_file), "-i"]
             
             if self.memory is not None:
                 signature.extend(("-m", self.memory.MB))
