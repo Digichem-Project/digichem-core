@@ -233,6 +233,10 @@ To disable the maximum width, set to null.""", type = int, default = 1500),
             # TODO: This needs expanding.
             scratch_path = Option(help = "Path to the top of the scratch directory.", default = "/scratch")
         ),
+        orca = Options(help = "Options that control the running of orca_plot to generate cube files from completed calculations. Note that when reports are created automatically following calculation completion these options will be overridden with the specifics of that calculation.",
+            memory = Option(help = "The amount of memory with which to run. If left blank, no maximum will be specified.", type = Memory, default = None),
+            program = Method_target_option(lambda option, config: config.programs, help = "A program definition from the internal library to run.", default = None)
+        ),
         cleanup = Option(help =\
 """Whether to delete intermediate files that are written during the report generation process.
 Intermediate files include:
