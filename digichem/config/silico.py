@@ -14,6 +14,7 @@ from silico.config.locations import user_config_location
 from silico.misc.io import atomic_write
 from silico.submit.calculation.turbomole import Turbomole_memory
 from silico.submit.translate import Cube_grid_points
+from silico.submit.memory import Memory
 
 
 class Silico_options(Configurable):
@@ -227,7 +228,7 @@ To disable the maximum width, set to null.""", type = int, default = 1500),
         ),
         gaussian = Options(help = "Options that control the running of Gaussian calculations to generate NTO cube files from completed calculations. Note that when reports are created automatically following calculation completion these options will be overridden with the specifics of that calculation.",
             num_cpu = Option(help = "The number of CPUs with which to run.", type = int, default = 1),
-            memory = Option(help = "The amount of memory with which to run.", type = Turbomole_memory, default = Turbomole_memory("1GB")),
+            memory = Option(help = "The amount of memory with which to run.", type = Memory, default = Memory("1GB")),
             program = Method_target_option(lambda option, config: config.programs, help = "A program definition from the internal library to run.", default = None),
             # TODO: This needs expanding.
             scratch_path = Option(help = "Path to the top of the scratch directory.", default = "/scratch")
