@@ -349,7 +349,7 @@ class Gbw_to_cube(File_converter):
             # We can predict it based on what we asked for, but then we'd have to
             # implement a parsing method based on the options we gave to orca_plot.
             # Easier to just glob the .cube file (there should be only one).
-            cube_files = Path(temp_dir).glob("*.cube")
+            cube_files = list(Path(temp_dir).glob("*.cube"))
             
             # Check we got the number of files we expected.
             if len(cube_files) == 0:
