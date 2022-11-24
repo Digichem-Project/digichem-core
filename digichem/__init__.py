@@ -27,8 +27,8 @@ import silico.logging
 # Version information.
 major_version = 3
 minor_version = 0
-revision = 0
-prerelease = 1
+revision = 2
+prerelease = None
 # Whether this is a development version.
 development = False
 # Version information.
