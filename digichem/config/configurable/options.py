@@ -461,8 +461,14 @@ class Options(Option, Options_mixin):
         # Our children will find their values in a different dict to where we find ourself.
         sub_dict_obj = dict_obj.get(self.name, {})
         
+        if isinstance(sub_dict_obj, Options_mapping):
+            # The sub dict is not a real dict, but is a reference to another configurable option.
+            # This happens when a new configurable object is made from an old one.
+            # This isn't a problem we just want to make a real dict out of the link.
+            dict_obj[self.name] = dict(sub_dict_obj)
+        
         # Panic if it's not actually a dict.
-        if not isinstance(sub_dict_obj, dict):
+        elif not isinstance(sub_dict_obj, dict):
             raise Configurable_option_exception(owning_obj, self, "Options objects can only accept nested options as values, not the single value '{}'".format(sub_dict_obj))
         
         # Validate each of our sub options.
