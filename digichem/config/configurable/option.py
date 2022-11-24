@@ -6,6 +6,7 @@ from silico.config.configurable.exception import Configurable_option_exception,\
 from builtins import isinstance
 from silico.misc import Default, defres
 from silico.config.configurable.util import hasopt
+import textwrap
 
 
 class InheritedAttrError(AttributeError):
@@ -308,7 +309,31 @@ class Option():
             return self.list_type(str(sub_value) if sub_value.__class__.__module__ not in ('__builtin__', 'builtins') else sub_value for sub_value in value)
         
         else:
-            return value 
+            return value
+        
+    def dump_header(self, owning_obj, dict_obj, depth = 1):
+        """
+        Dump an example or template version of this option to text.
+        """
+        dump_str = ""
+        # Start with help (if we've got it).
+        if self.help is not None:
+            dump_str += self.help + "\n"
+        
+        # Add type, choices etc.
+        property_strings = []
+        for property_name in ("type_func", "list_type", "choices", "exclude", "required"):
+            property_value = getattr(self, property_name)
+            if property_value != None and (property_name != "exclude" or len(property_value) > 0):
+                property_strings.append("{}: {}".format(property_name, property_value))
+                
+        if hasattr(self, "default"):
+            property_strings.append("default: {}".format(self.default(owning_obj)))
+        
+        if len(property_strings) > 0:
+            dump_str += ", ".join(property_strings) + "\n"
+        
+        return "\n".join(itertools.chain(*[textwrap.wrap(dump_line, initial_indent = "# " + " "*2, subsequent_indent = "# " + " "*2) for dump_line in dump_str.split("\n")]))
 
     def get_from_dict(self, owning_obj, dict_obj):
         """
