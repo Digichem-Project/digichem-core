@@ -39,7 +39,7 @@ class Options_mixin():
         # We apply a custom sort here which ignores case (otherwise all uppercase options appear before all lowercase which is annoying).
         return dict(sorted({getattr(cls, attr).name: getattr(cls, attr) for attr in dir(cls) if isinstance(getattr(cls, attr), Option)}.items(), key = lambda v: v[0].upper()))
     
-    def get_options(self, owning_obj = None):
+    def get_options(self, owning_cls = None):
         """
         Get a dict of all the configurable options of this object.
         
@@ -79,7 +79,7 @@ class Options_mixin():
         # First, prune empty values.
         self.prune(owning_obj, dict_obj)
         
-        options = self.get_options(owning_obj)
+        options = self.get_options(type(owning_obj))
         
         # Next, validate each of our known options.
         for option in options.values():
@@ -160,7 +160,7 @@ class Options_mapping(MutableMapping):
         Retrieve a sub option of the Options object we are mapping.
         """
         try:
-            return self.options_obj.get_options(self.owning_obj)[name]
+            return self.options_obj.get_options(type(self.owning_obj))[name]
         
         except KeyError:                
             # Give up and panic.
@@ -170,13 +170,13 @@ class Options_mapping(MutableMapping):
         """
         The number of options in the Options object we are mapping.
         """
-        return len(self.options_obj.get_options(self.owning_obj))
+        return len(self.options_obj.get_options(type(self.owning_obj)))
     
     def __iter__(self):
         """
         Iteration magic method.
         """
-        yield from self.options_obj.get_options(self.owning_obj)
+        yield from self.options_obj.get_options(type(self.owning_obj))
 
     def __getitem__(self, key):
         """
@@ -295,14 +295,14 @@ class Options(Option, Options_mixin):
             child.add_parent(parent)
     
 
-    def get_inherited_options(self, owning_obj, _mro = None):
+    def get_inherited_options(self, owning_cls, _mro = None):
         """
         Build a dictionary of child Option objects that we contain, including those we inherit from any base classes of our owning class.
         """
         # Get our base options.
         try:
-            parent_obj, _mro = self.get_base_option(type(owning_obj), _mro)
-            parent_options = parent_obj.get_inherited_options(owning_obj, _mro)
+            parent_obj, _mro = self.get_base_option(owning_cls, _mro)
+            parent_options = parent_obj.get_inherited_options(owning_cls, _mro)
             
         except InheritedAttrError:
             parent_options = {}
@@ -311,13 +311,13 @@ class Options(Option, Options_mixin):
         return deepmerge.always_merger.merge(parent_options, self._options)
     
     
-    def get_options(self, owning_obj):
+    def get_options(self, owning_cls):
         """
         Get a dict of all the configurable options of this object.
         
         The key of each item is the name of the corresponding option.
         """
-        return self.get_inherited_options(owning_obj)
+        return self.get_inherited_options(owning_cls)
     
 
     def __get__(self, owning_obj, cls = None):
@@ -385,7 +385,7 @@ class Options(Option, Options_mixin):
         :param dict_obj: The dict in which the value of this Option is stored. In most cases, the value of this option is evaluated simply as dict_obj[self.name]
         :param value: The new value to upate from. This should be a dict-like object that supports iteration via items().
         """
-        options = self.get_options(owning_obj)
+        options = self.get_options(type(owning_obj))
         try:
             for key, sub_value in value.items():
                 try:
@@ -416,7 +416,7 @@ class Options(Option, Options_mixin):
         """
         dump = {}
         
-        for option in self.get_options(owning_obj).values():
+        for option in self.get_options(type(owning_obj)).values():
             if explicit or not option.is_default(owning_obj, self.get_sub_dict(dict_obj)):
                 dump[option.name] = option.dump(owning_obj, self.get_sub_dict(dict_obj), explicit = explicit)
                 
@@ -431,7 +431,7 @@ class Options(Option, Options_mixin):
         :param owning_obj: The owning object on which this Option object is set as a class attribute.
         :param dict_obj: The dict in which the value of this Option is stored. In most cases, the value of this option is evaluated simply as dict_obj[self.name]
         """
-        for sub_option in self.get_options(owning_obj).values():
+        for sub_option in self.get_options(type(owning_obj)).values():
             sub_option.set_default(owning_obj, self.get_sub_dict(dict_obj))
 
 
@@ -445,7 +445,7 @@ class Options(Option, Options_mixin):
         :param dict_obj: The dict in which the value of this Option is stored. In most cases, the value of this option is evaluated simply as dict_obj[self.name]
         """
         # This is safe, because all([]) == True.
-        return all([sub_option.is_default(owning_obj, self.get_sub_dict(dict_obj)) for sub_option in self.get_options(owning_obj).values()])
+        return all([sub_option.is_default(owning_obj, self.get_sub_dict(dict_obj)) for sub_option in self.get_options(type(owning_obj)).values()])
 
 
     def validate(self, owning_obj, dict_obj = None):
