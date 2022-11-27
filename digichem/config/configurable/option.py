@@ -340,39 +340,65 @@ class Option():
             
         return headers
     
-    def dump_template_value(self, owning_cls = None, level = 0):
+    def get_template_value(self, owning_cls_or_obj, dict_obj = None, level = 0):
         """
         """
-        # If our default is a simple value (non-callable), set that as the example.
-        default = self._default if not callable(self._default) else ""
+        # The 'value' we use depends on whether we've been given a configurable class or configurable object to use.
+        # If we have a class (dict_obj = None), then we have no 'real' value to use, so we'll use a default instead.
+        # If we have an object, then we can try and get the 'real' value, which if it isn't set will get the default.
+        if dict_obj is None:
+            # No dict_obj, we are getting a default value.
         
-        if default.__class__.__module__ not in ('__builtin__', 'builtins'):
-            default = str(default)
-        
-        value = yaml.safe_dump({self.name: default})
-        return [(level, 1, value), (level, 0, " ")]
+            # If our default is a simple value (non-callable), set that as the example.
+            default = self._default if not callable(self._default) else ""
             
-    def dump_template(self, owning_cls, level = 0):
+            if default.__class__.__module__ not in ('__builtin__', 'builtins'):
+                default = str(default)
+            
+            value = yaml.safe_dump({self.name: default})
+            indent_level = 1
+            
+        else:
+            print("real val")
+            # Yes dict_obj, we are getting a real value.
+            # NOTE: If this option is expected but not set, this will fail.
+            # We could handle this if we wanted...
+            value = "{}: {}".format(self.name, self.dump(owning_cls_or_obj, dict_obj))
+            # If this is a real value, don't comment.
+            indent_level = 2 if not self.is_default(owning_cls_or_obj, dict_obj) else 1
+            
+        # We include a blank line after our value just for readability.
+        return [(level, indent_level, value), (level, 0, " ")]
+            
+    def dump_template(self, owning_cls_or_obj, dict_obj = None, level = 0):
         """
-        Dump an example version of this option in yaml format.
+        Dump an example version of this option.
+        
+        This example will be in 'commented' yaml format (text), and will contain the following info:
+         - Any help associated with the option.
+         - Metadata of the option, such as type, choices, default value etc.
+         - The name of the option and its default value (for single options), or the sub-options.
         """
         # Get our headers.
         template = [(level, 0, header) for header in self.get_header()]
         
         # Add the 'body' of the option.
-        values = self.dump_template_value(owning_cls, level)
+        values = self.get_template_value(owning_cls_or_obj, dict_obj, level)
         template.extend(values)
         #template.append((level, False, " "))
                 
         if level == 0:
             wrapped_lines = []
-            for line_level, is_value, lines in template:
+            for line_level, indent_level, lines in template:
                 for line in lines.split("\n"):
-                    if is_value == 0:
+                    if indent_level == 0:
+                        # Comment.
                         indent = "# "
-                    elif is_value == 1:
+                    elif indent_level == 1:
+                        # Default value
                         indent = "#"
                     else:
+                        # Real value.
                         indent = ""
                     
                     wrapped_lines.extend(textwrap.wrap(line, 100, replace_whitespace = False, drop_whitespace = False, initial_indent = indent + "  " * line_level, subsequent_indent = indent + "  " * line_level) )

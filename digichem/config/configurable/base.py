@@ -96,8 +96,21 @@ class Configurable(Options_mixin):
         return dump
     
     @classmethod
-    def dump_template(self):
+    def dump_cls_template(self):
+        """
+        Get an example version of this configurable option (in text).
+        
+        The example will contain a description and default value for each option supported by this configurable.
+        """
         return "\n".join([option.dump_template(self) for option in self.get_options(self).values()])
+    
+    def dump_obj_template(self):
+        """
+        Get an example version of this configurable option (in text).
+        
+        For each option supported by this configurable, a description of the option will be given, along with the current value (if set), or otherwise a default value.
+        """
+        return "\n".join([option.dump_template(self, self._configurable_options) for option in self.get_options(type(self)).values()])
 
 
 class Configurable_class_target(Dynamic_parent, Configurable):
