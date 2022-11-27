@@ -421,6 +421,20 @@ class Options(Option, Options_mixin):
                 dump[option.name] = option.dump(owning_obj, self.get_sub_dict(dict_obj), explicit = explicit)
                 
         return dump
+    
+    def dump_template_value(self, owning_cls, level = 0):
+        """
+        """
+        values = []
+        # Start with out name, followed by a colon.
+        values.append((level, 2, "{}:".format(self.name)))
+        
+        # Then add the full template for each child option, remembering to increase level.
+        for child in self.get_options(owning_cls).values():
+            values.extend(child.dump_template(owning_cls, level +1))
+        
+        # Indent.
+        return values
 
     def set_default(self, owning_obj, dict_obj):
         """

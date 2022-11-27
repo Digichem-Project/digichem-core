@@ -94,6 +94,10 @@ class Configurable(Options_mixin):
                 dump[option.name] = option.dump(self, self._configurable_options, explicit = explicit)
                 
         return dump
+    
+    @classmethod
+    def dump_template(self):
+        return "\n".join([option.dump_template(self) for option in self.get_options(self).values()])
 
 
 class Configurable_class_target(Dynamic_parent, Configurable):

@@ -311,29 +311,77 @@ class Option():
         else:
             return value
         
-    def dump_header(self, owning_obj, dict_obj, depth = 1):
+    def get_header(self):
         """
-        Dump an example or template version of this option to text.
+        Generate text that describes this option.
+        
+        The text contains the most-important meta-data about this option, such as it's help message, default value, type etc.
+        
+        The text is returned as a list of lines (without newlines).
         """
-        dump_str = ""
+        headers = []
         # Start with help (if we've got it).
         if self.help is not None:
-            dump_str += self.help + "\n"
+            headers.append(self.help)
         
         # Add type, choices etc.
         property_strings = []
-        for property_name in ("type_func", "list_type", "choices", "exclude", "required"):
-            property_value = getattr(self, property_name)
-            if property_value != None and (property_name != "exclude" or len(property_value) > 0):
-                property_strings.append("{}: {}".format(property_name, property_value))
-                
-        if hasattr(self, "default"):
-            property_strings.append("default: {}".format(self.default(owning_obj)))
+        # Handle type separately, we just want the 'name' of the function.
+        if self.type_func is not None:
+            property_strings.append("type: {}".format(self.type_func.__name__))
+        
+        for property_desc, property_name in (("default", "_default"),("list", "list_type"), ("choices", "choices"), ("excludes", "exclude"), ("required", "required")):
+            property_value = getattr(self, property_name, None)
+            if property_value != None and (not isinstance(property_value, list) or len(property_value) > 0):
+                property_strings.append("{}: {}".format(property_desc, property_value))
         
         if len(property_strings) > 0:
-            dump_str += ", ".join(property_strings) + "\n"
+            headers.append(", ".join(property_strings))
+            
+        return headers
+    
+    def dump_template_value(self, owning_cls = None, level = 0):
+        """
+        """
+        # If our default is a simple value (non-callable), set that as the example.
+        default = self._default if not callable(self._default) else ""
         
-        return "\n".join(itertools.chain(*[textwrap.wrap(dump_line, initial_indent = "# " + " "*2, subsequent_indent = "# " + " "*2) for dump_line in dump_str.split("\n")]))
+        if default.__class__.__module__ not in ('__builtin__', 'builtins'):
+            default = str(default)
+        
+        value = yaml.safe_dump({self.name: default})
+        return [(level, 1, value), (level, 0, " ")]
+            
+    def dump_template(self, owning_cls, level = 0):
+        """
+        Dump an example version of this option in yaml format.
+        """
+        # Get our headers.
+        template = [(level, 0, header) for header in self.get_header()]
+        
+        # Add the 'body' of the option.
+        values = self.dump_template_value(owning_cls, level)
+        template.extend(values)
+        #template.append((level, False, " "))
+                
+        if level == 0:
+            wrapped_lines = []
+            for line_level, is_value, lines in template:
+                for line in lines.split("\n"):
+                    if is_value == 0:
+                        indent = "# "
+                    elif is_value == 1:
+                        indent = "#"
+                    else:
+                        indent = ""
+                    
+                    wrapped_lines.extend(textwrap.wrap(line, 100, replace_whitespace = False, drop_whitespace = False, initial_indent = indent + "  " * line_level, subsequent_indent = indent + "  " * line_level) )
+            
+            return "\n".join(wrapped_lines)
+            #return "\n".join(list(itertools.chain(*[textwrap.wrap(template_line, 100, replace_whitespace = False, drop_whitespace = False, initial_indent = ("# " if not is_value else "#") + "  " * level, subsequent_indent = ("# " if not is_value else "#") + "  " * level) for level, is_value, template_line in template])))
+        
+        else:
+            return template
 
     def get_from_dict(self, owning_obj, dict_obj):
         """
