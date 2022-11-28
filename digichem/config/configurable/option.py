@@ -352,22 +352,29 @@ class Option():
         # If we have an object, then we can try and get the 'real' value, which if it isn't set will get the default.
         if dict_obj is None:
             # No dict_obj, we are getting a default value.
+            # Check there is a default.
+            if hasattr(self, "_default"):
         
-            # If our default is a simple value (non-callable), set that as the example.
-            default = self._default if not callable(self._default) else ""
+                # If our default is a simple value (non-callable), set that as the example.
+                default = self._default if not callable(self._default) else ""
+                
+                if default.__class__.__module__ not in ('__builtin__', 'builtins'):
+                    default = str(default)
+                
+                value = yaml.safe_dump({self.name: default})
+                indent_level = 1
             
-            if default.__class__.__module__ not in ('__builtin__', 'builtins'):
-                default = str(default)
-            
-            value = yaml.safe_dump({self.name: default})
-            indent_level = 1
+            else:
+                # If the option is required it will have no default set.
+                value = "{}: ".format(self.name)
+                indent_level = 2 
             
         else:
-            print("real val")
             # Yes dict_obj, we are getting a real value.
             # NOTE: If this option is expected but not set, this will fail.
             # We could handle this if we wanted...
-            value = "{}: {}".format(self.name, self.dump(owning_cls_or_obj, dict_obj))
+            #value = "{}: {}".format(self.name, self.dump(owning_cls_or_obj, dict_obj))
+            value = yaml.safe_dump({self.name: self.dump(owning_cls_or_obj, dict_obj)})
             # If this is a real value, don't comment.
             indent_level = 2 if not self.is_default(owning_cls_or_obj, dict_obj) else 1
             
@@ -405,7 +412,8 @@ class Option():
                         # Real value.
                         indent = ""
                     
-                    wrapped_lines.extend(textwrap.wrap(line, 100, replace_whitespace = False, drop_whitespace = False, initial_indent = indent + "  " * line_level, subsequent_indent = indent + "  " * line_level) )
+                    # We only wrap comment lines, real options can't just be broken.
+                    wrapped_lines.extend(textwrap.wrap(line, 100 if indent_level == 0 else math.inf, replace_whitespace = False, drop_whitespace = False, initial_indent = indent + "  " * line_level, subsequent_indent = indent + "  " * line_level) )
             
             return "\n".join(wrapped_lines)
             #return "\n".join(list(itertools.chain(*[textwrap.wrap(template_line, 100, replace_whitespace = False, drop_whitespace = False, initial_indent = ("# " if not is_value else "#") + "  " * level, subsequent_indent = ("# " if not is_value else "#") + "  " * level) for level, is_value, template_line in template])))
