@@ -1,12 +1,13 @@
 import itertools
 import yaml
+import textwrap
+import math
 
 from silico.config.configurable.exception import Configurable_option_exception,\
     Missing_option_exception, Disallowed_choice_exception
 from builtins import isinstance
 from silico.misc import Default, defres
 from silico.config.configurable.util import hasopt
-import textwrap
 
 
 class InheritedAttrError(AttributeError):
@@ -330,7 +331,10 @@ class Option():
         if self.type_func is not None:
             property_strings.append("type: {}".format(self.type_func.__name__))
         
-        for property_desc, property_name in (("default", "_default"),("list", "list_type"), ("choices", "choices"), ("excludes", "exclude"), ("required", "required")):
+        if self.list_type is not None:
+            property_strings.append("list_type: {}".format(self.list_type.__name__))
+        
+        for property_desc, property_name in (("default", "_default"), ("choices", "choices"), ("excludes", "exclude"), ("required", "required")):
             property_value = getattr(self, property_name, None)
             if property_value != None and (not isinstance(property_value, list) or len(property_value) > 0):
                 property_strings.append("{}: {}".format(property_desc, property_value))
