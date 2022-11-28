@@ -16,7 +16,7 @@ from silico.exception.base import Silico_exception
 from silico.config.configurable.base import Configurable_class_target
 from silico.config.configurable.util import setopt, getopt, hasopt
 from silico.config.configurable.identifier import Identifier
-from silico.misc.base import is_iter
+from silico.misc.base import is_iter, is_int
 
 # Make methods available. We do this because our loaders are going to eventually ask for one of these classes.
 # TODO: Importing all this here feels weird, perhaps this file should be moved to the submit package?
@@ -398,9 +398,9 @@ class Partial_loader(Configurable_loader):
         :returns: A resolved configurable object and the path from which that object was resolved.
         """
         # First, build or loader list.
-        if isinstance(identifier, int):
+        if is_int(identifier):
             # Identifier is an index.
-            path = self.path_by_index(identifier)
+            path = self.path_by_index(int(identifier))
         
         elif isinstance(identifier, list) or isinstance(identifier, tuple):
             # Tag list.
