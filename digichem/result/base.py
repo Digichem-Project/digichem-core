@@ -3,7 +3,6 @@ import scipy.constants
 import warnings
 import itertools
 import math
-import yaml
 
 # Silico imports.
 from silico.exception.base import Result_unavailable_error
