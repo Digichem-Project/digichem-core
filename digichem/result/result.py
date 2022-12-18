@@ -246,6 +246,7 @@ class Result_set(Result_object):
             return None
         
     def dump(self, silico_options):
+        "Dump the data contained in this result set, serialising it to a hierarchy of dicts that can be saved in various formats."
         return {
             "metadata": self.metadata.dump(silico_options),
             "ground_state": self.ground_state.dump(silico_options) if self.ground_state is not None else None,
