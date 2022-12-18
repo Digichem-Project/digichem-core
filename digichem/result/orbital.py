@@ -217,6 +217,43 @@ class Molecular_orbital_list(Result_container):
             return self(cls.list_from_parser(parser))
         except AttributeError:
             return self()
+        
+    @classmethod
+    def from_dump(self, data, result_set):
+        """
+        Get an instance of this class from its dumped representation.
+        
+        :param data: The data to parse.
+        :param result_set: The partially constructed result set which is being populated.
+        """
+        # Decide which class to use.
+        if data['spin_type'] == "none":
+            cls = Molecular_orbital
+        elif data['spin_type'] == "alpha":
+            cls = Alpha_orbital
+        elif data['spin_type'] == "beta":
+            cls = Beta_orbital
+        elif data['spin_type'] is None and len(data['values']) == 0:
+            # No orbitals, no type defined.
+            return self()
+        
+        return self(cls.list_from_dump(data['values'], result_set))
+    
+    def dump(self, silico_options):
+        """
+        Get a representation of this result object in primitive format.
+        """
+        dump_dict = {
+            "ΔE(HOMO-LUMO)": {
+                "value": self.HOMO_LUMO_energy if self.safe_get("HOMO_LUMO_energy") else None,
+                "units": "eV"
+            },
+            "num_occupied": len(self.occupied),
+            "num_virtual": len(self.virtual),
+            "values": super().dump(silico_options),
+            "spin_type": self.safe_get("spin_type")
+        }
+        return dump_dict
     
     def find_common_level(self, *other_lists, HOMO_difference):
         """
@@ -334,18 +371,6 @@ class Molecular_orbital_list(Result_container):
         A method which determines whether two items are the same for the purposes of merging.
         """
         return math.isclose(MO.energy, other_MO.energy) and MO.level == other_MO.level and MO.spin_type == other_MO.spin_type
-    
-    def dump(self, silico_options):
-        dump_dict = {
-            "ΔE(HOMO-LUMO)": {
-                "value": self.HOMO_LUMO_energy if self.safe_get("HOMO_LUMO_energy") else None,
-                "units": "eV"
-            },
-            "num_occupied": len(self.occupied),
-            "num_virtual": len(self.virtual),
-            "values": super().dump(silico_options),
-        }
-        return dump_dict
     
 
 class Molecular_orbital(Result_object, Floatable_mixin):
@@ -486,9 +511,7 @@ class Molecular_orbital(Result_object, Floatable_mixin):
         :param data: The data to parse.
         :param result_set: The partially constructed result set which is being populated.
         """
-        dict_key = "orbitals" if self.spin_type == "none" or self.spin_type == "alpha" else "beta orbitals"
-        
-        return [self(orbital_dict['index'], orbital_dict['homo distance'], orbital_dict['energy'], orbital_dict['symmetry'], orbital_dict['symmetry index']) for orbital_dict in data[dict_key]]
+        return [self(orbital_dict['index'], orbital_dict['homo distance'], orbital_dict['energy'], orbital_dict['symmetry'], orbital_dict['symmetry index']) for orbital_dict in data]
     
     @classmethod
     def list_from_parser(self, parser):
