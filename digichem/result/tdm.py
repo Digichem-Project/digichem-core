@@ -182,6 +182,20 @@ class Transition_dipole_moment(Result_object):
             raise AttributeError(name)
         
     @classmethod
+    def list_from_dump(self, data, result_set):
+        """
+        Get a list of instances of this class from its dumped representation.
+        
+        :param data: The data to parse.
+        :param result_set: The partially constructed result set which is being populated.
+        """
+        # This constructor for tdms is a bit odd in that it does not work anything like the other from_dump() methods.
+        # In the dumped format, tdms are not stored as their own list (but rather as a sub dict of the relevant excited state),
+        # but in order to avoid recursive imports, a list of tdms does need to be created when excited states are loaded again.
+        # This being the case, 'data' here is actually a list of excited states, not tdms...
+        return [self.from_dump(excited_state['tdm'], result_set) for excited_state in data]
+        
+    @classmethod
     def from_dump(self, data, result_set):
         """
         Get a list of instances of this class from its dumped representation.
