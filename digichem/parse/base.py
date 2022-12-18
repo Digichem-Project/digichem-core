@@ -121,14 +121,15 @@ class Parser_abc():
         # Return the populated result set for convenience.
         return self.results
             
-    def load_result_part(self, result_cls, *args, **kwargs):
+    def load_result_part(self, result_cls, *, data = None, **kwargs):
         """
         Get part of a result file.
         
         For most parsers, this will simply call from_parser() of the given class, but some parsers do something more interesting.
         Any arguments other than cls will be parsed to the underlying function.
         """
-        return result_cls.from_parser(self, *args, **kwargs)
+        data = self if data is None else data
+        return result_cls.from_parser(data, **kwargs)
 
 
 class Cclib_parser(Parser_abc):
