@@ -231,6 +231,7 @@ class Excited_state_list(Result_container):
     def dump(self, silico_options):
         # Get spectrum data.
         # For excited states, we dump two spectra. One in nm, one in eV (which have different scaling).
+        # TODO: It's weird that these spectra are only available in dumped format, there should be some property/function on the class that also returns them...
         spectrum_nm = Absorption_emission_graph.from_excited_states(self, use_jacobian = silico_options['absorption_spectrum']['use_jacobian'])
         spectrum_ev = Spectroscopy_graph([(excited_state.energy, excited_state.oscillator_strength) for excited_state in self])
         
@@ -286,6 +287,16 @@ class Excited_state_list(Result_container):
             }
             
         return dump_dict
+    
+    @classmethod
+    def from_dump(self, data, result_set):
+        """
+        Get a list of instances of this class from its dumped representation.
+        
+        :param data: The data to parse.
+        :param result_set: The partially constructed result set which is being populated.
+        """
+        return self(Excited_state.list_from_dump(data['values'], result_set))
 
 
 class Excited_state_transition(Result_object):
@@ -319,8 +330,17 @@ class Excited_state_transition(Result_object):
         Get a representation of this result object in primitive format.
         """
         return {
-            "start": self.starting_mo.label,
-            "end": self.ending_mo.label,
+            "index": self.level,
+            "start": {
+                "spin": self.starting_mo.spin_type,
+                "index": self.starting_mo.level,
+                "label": self.starting_mo.label
+            },
+            "end": {
+                "spin": self.ending_mo.spin_type,
+                "index": self.ending_mo.level,
+                "label": self.ending_mo.label
+            },
             "coefficient": float(self.coefficient),
             "probability": float(self.probability **2)
         }
@@ -368,6 +388,30 @@ class Excited_state_transition(Result_object):
         except AttributeError:
             # No data.
             return []
+        
+    @classmethod
+    def list_from_dump(self, data, result_set):
+        """
+        Get a list of instances of this class from its dumped representation.
+        
+        :param data: The data to parse.
+        :param result_set: The partially constructed result set which is being populated.
+        """
+        trans = []
+        for tran_dict in data:
+            # Get our start and end MOs.
+            orbitals = {}
+            for key in ("start", "end"):
+                if data[key]['spin'] in ("none", "alpha"):
+                    orbitals[key] = result_set.orbitals[data[key]['index'] -1]
+                
+                else:
+                    orbitals[key] = result_set.beta_orbitals[data[key]['index'] -1]
+            
+            trans.append(self(tran_dict['index'], orbitals['start'], orbitals['end'], tran_dict['coefficient']))
+        
+        return trans
+
 
 class Energy_state(Result_object, Floatable_mixin):
     """
@@ -687,5 +731,34 @@ class Excited_state(Energy_state):
         
         # All done, return our list.
         return excited_states
-
+    
+    @classmethod
+    def list_from_dump(self, data, result_set):
+        """
+        Get a list of instances of this class from its dumped representation.
+        
+        :param data: The data to parse.
+        :param result_set: The partially constructed result set which is being populated.
+        """
+        states = []
+        for es_dict in data:
+            # Get our tdm (if available).
+            if data['tdm'] is not None:
+                tdm = result_set.transition_dipole_moments[es_dict['index']-1]
+            
+            else:
+                tdm = None
+            
+            states.append(self(
+                es_dict['index'],
+                es_dict['multiplicity'],
+                es_dict['multiplicity_index'],
+                es_dict['symmetry'],
+                es_dict['energy']['value'],
+                es_dict['oscillator_strength'],
+                Excited_state_transition.list_from_dump(es_dict['transitions'], result_set),
+                tdm
+            ))
+        
+        return states
     
