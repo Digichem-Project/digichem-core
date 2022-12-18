@@ -372,7 +372,7 @@ class Metadata(Result_object):
     @classmethod
     def from_dump(self, data, result_set):
         """
-        Get n instance of this class from its dumped representation.
+        Get an instance of this class from its dumped representation.
         
         :param data: The data to parse.
         :param result_set: The partially constructed result set which is being populated.
