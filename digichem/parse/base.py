@@ -1,7 +1,6 @@
 # General imports.
 from pathlib import Path
 import cclib.io
-from glob import iglob
 import itertools
 import pwd
 import os
