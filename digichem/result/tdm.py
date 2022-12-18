@@ -27,6 +27,29 @@ class Transition_dipole_moment_ABC(Dipole_moment_ABC):
         
         # Save a name describing which dipole we are (permanent vs transition etc).
         self.dipole_type = "transition"
+        
+    @classmethod
+    def from_dump(self, data, result_set):
+        """
+        Get a list of instances of this class from its dumped representation.
+        
+        :param data: The data to parse.
+        :param result_set: The partially constructed result set which is being populated.
+        """
+        return self(
+            data['state_level'],
+            (data['origin']['x']['value'], data['origin']['y']['value'], data['origin']['z']['value']),
+            (data['vector']['x']['value'], data['vector']['y']['value'], data['vector']['z']['value']),
+            atoms = result_set.alignment
+            )
+        
+    def dump(self, silico_options):
+        """
+        Get a representation of this result object in primitive format.
+        """
+        data = {'state_level': self.state_level}
+        data.update(super().dump(silico_options))
+        return data
     
     @property
     def name(self):
@@ -127,21 +150,10 @@ class Transition_dipole_moment(Result_object):
         
         if self.magnetic is not None:
             self.magnetic.set_excited_state(excited_state)
-            
-    def dump(self, silico_options):
-        """
-        Get a representation of this result object in primitive format.
-        """
-        return {
-            "electric": self.electric.dump(silico_options) if self.electric is not None else None,
-            "magnetic": self.magnetic.dump(silico_options) if self.magnetic is not None else None,
-            "angle": {
-                "value": float(self.angle().angle) if self.electric is not None and self.magnetic is not None else None,
-                "units": self.angle().units if self.electric is not None and self.magnetic is not None else None,
-            },
-            "cos_angle": float(self.cos_angle()) if self.electric is not None and self.magnetic is not None else None,
-            "dissymmetry_factor": float(self.g_value) if self.safe_get('g_value') is not None else None
-        }
+        
+    @classmethod
+    def from_parser(self, parser):
+        return self.list_from_parser(parser)
     
     @classmethod
     def list_from_parser(self, parser):
@@ -168,6 +180,44 @@ class Transition_dipole_moment(Result_object):
                 raise AttributeError(name) from e
         else:
             raise AttributeError(name)
+        
+    @classmethod
+    def from_dump(self, data, result_set):
+        """
+        Get a list of instances of this class from its dumped representation.
+        
+        :param data: The data to parse.
+        :param result_set: The partially constructed result set which is being populated.
+        """
+        # Build the individual parts.
+        if data['electric'] is not None:
+            electric = Electric_transition_dipole_moment.from_dump(data['electric'], result_set)
+        
+        else:
+            electric = None
+        
+        if data['magnetic'] is not None:
+            magnetic = Magnetic_transition_dipole_moment.from_dump(data['magnetic'], result_set)
+        
+        else:
+            magnetic = None
+        
+        return self(electric = electric, magnetic = magnetic)
+        
+    def dump(self, silico_options):
+        """
+        Get a representation of this result object in primitive format.
+        """
+        return {
+            "electric": self.electric.dump(silico_options) if self.electric is not None else None,
+            "magnetic": self.magnetic.dump(silico_options) if self.magnetic is not None else None,
+            "angle": {
+                "value": float(self.angle().angle) if self.electric is not None and self.magnetic is not None else None,
+                "units": self.angle().units if self.electric is not None and self.magnetic is not None else None,
+            },
+            "cos_angle": float(self.cos_angle()) if self.electric is not None and self.magnetic is not None else None,
+            "dissymmetry_factor": float(self.g_value) if self.safe_get('g_value') is not None else None
+        }
             
     
     def angle(self, cgs = True):
