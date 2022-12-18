@@ -239,6 +239,9 @@ class Alignment(Atom_list, Dynamic_parent):
             print("{}, {}, {}, {}".format(atom.element, atom.coords[0], atom.coords[1], atom.coords[2]))
             
     def dump(self, silico_options):
+        """
+        Get a representation of this result object in primitive format.
+        """
         dump_dict = super().dump(silico_options)
         dump_dict['alignment_method'] = self.human_method_type
         return dump_dict

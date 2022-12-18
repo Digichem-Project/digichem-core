@@ -184,9 +184,34 @@ class Atom_list(Result_container, Unmergeable_container_mixin):
         primary_axis = math.sqrt( (end_coord[0] - start_coord[0])**2 + (end_coord[1] - start_coord[1])**2 )
         return self.get_theta(secondary_axis, primary_axis)
     
+    @classmethod
+    def from_parser(self, parser):
+        """
+        Get an Atom_list object from an output file parser.
+        
+        :param parser: An output file parser.
+        :param charge: Charge of the system.
+        :return: A list of TDM objects.
+        """
+        return self(Atom.list_from_parser(parser), charge = parser.results.metadata.charge)
+    
+    @classmethod
+    def from_dump(self, data, result_set):
+        """
+        Get an instance of this class from its dumped representation.
+        
+        :param data: The data to parse.
+        :param result_set: The partially constructed result set which is being populated.
+        """
+        return self(Atom.list_from_dump(data['values'], result_set), charge = data['charge'])
+    
     def dump(self, silico_options):
+        """
+        Get a representation of this result object in primitive format.
+        """
         dump_dict = {
             "formula": self.formula_string,
+            "charge": self.charge,
             "smiles": self.smiles,
             "exact_mass": {
                 "value": float(self.mass) if self.safe_get("mass") is not None else None,
@@ -214,17 +239,6 @@ class Atom_list(Result_container, Unmergeable_container_mixin):
             "values": super().dump(silico_options),
         }
         return dump_dict
-    
-    @classmethod
-    def from_parser(self, parser):
-        """
-        Get an Atom_list object from an output file parser.
-        
-        :param parser: An output file parser.
-        :param charge: Charge of the system.
-        :return: A list of TDM objects.
-        """
-        return self(Atom.list_from_parser(parser), charge = parser.results.metadata.charge)
     
     @classmethod
     def merge(self, *multiple_lists, charge):
@@ -289,7 +303,6 @@ class Atom(Result_object):
         
         :return: The distance. The units depend on the units of the atoms' coordinates. If the two atoms have coordinates of different units, then you will obviously get bizarre results.
         """
-        
         return math.sqrt( (self.coords[0] - foreign_atom.coords[0])**2 + (self.coords[1] - foreign_atom.coords[1])**2 + (self.coords[2] - foreign_atom.coords[2])**2)
     
     def dump(self, silico_options):
@@ -326,7 +339,7 @@ class Atom(Result_object):
         :param data: The data to parse.
         :param result_set: The partially constructed result set which is being populated.
         """
-        return [self(atom_dict['element'], atom_dict['coords']['value'], atom_dict['mass']['value']) for atom_dict in data['atoms']]
+        return [self(atom_dict['element'], atom_dict['coords']['value'], atom_dict['mass']['value']) for atom_dict in data]
     
     @classmethod
     def list_from_parser(self, parser):
