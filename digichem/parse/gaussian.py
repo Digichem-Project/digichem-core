@@ -3,13 +3,13 @@ import pysoc.io.SOC
 from datetime import datetime, timedelta
 
 # Silico imports.
-from silico.parse.base import Parser
+from silico.parse.base import Cclib_parser
 import silico.log
 from silico.exception.base import Result_unavailable_error
 import silico.file.types as file_types
 
 
-class Gaussian_parser(Parser):
+class Gaussian_parser(Cclib_parser):
     """
     Top level class for parsing output from Gaussian log files.
     """

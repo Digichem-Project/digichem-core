@@ -1,8 +1,8 @@
-from silico.parse.base import Parser
+from silico.parse.base import Cclib_parser
 import silico.file.types as file_types
 
 
-class Orca_parser(Parser):
+class Orca_parser(Cclib_parser):
     """
     Top level class for parsing output from Gaussian log files.
     """

@@ -23,21 +23,14 @@ from silico.result.vibration import Vibrations_list
 from silico.exception.base import Silico_exception
 from silico.result.emission import Relaxed_excited_state
 
-# TODO: Why is this a Result_set?!
-class Parser(Result_set):
-    """
-    Top-level abstract class for calculation result parsers.
-    """
+class Parser_abc():
+    """ABC for all parsers."""
     
-    # A dictionary of recognised auxiliary file types.
-    INPUT_FILE_TYPES = {}
-    
-    def __init__(self, *log_files, **aux_files):
+    def __init__(self, *log_files, **kwargs):
         """
         Top level constructor for calculation parsers.
         
         :param log_files: A list of output file to analyse/parse. The first log_file given will be used for naming purposes.
-        :param aux_files: A dictionary of auxiliary input files related to the calculation.
         """
         # Set our name.
         self.log_file_paths = [Path(log_file) for log_file in log_files if log_file is not None]
@@ -45,9 +38,6 @@ class Parser(Result_set):
         # Panic if we have no logs.
         if len(self.log_file_paths) == 0:
             raise Silico_exception("Cannot parse calculation output; no available log files. Are you sure the given path is a log file or directory containing log files?")
-        
-        # Also save our aux files, stripping None.
-        self.aux_files = {name: aux_file for name,aux_file in aux_files.items() if aux_file is not None}
         
         # An object that we will populate with raw results.
         self.data = None
@@ -60,19 +50,120 @@ class Parser(Result_set):
             self.parse()
         except Exception:
             raise Silico_exception("Error parsing calculation result '{}'".format(self.description))
+
+    @classmethod
+    def from_logs(self, *given_log_files, **kwargs):
+        """
+        Intelligent constructor that will attempt to guess the location of files from a given log file(s).
+        
+        :param given_log_files: Output file(s) to parse or a directory of output files to parse.
+        """
+        found_log_files = [found_log.resolve() for given_log_file in given_log_files for found_log in self.find_log_files(given_log_file)]
+        
+        return self(*found_log_files, **kwargs)
+    
+    def parse(self):
+        """
+        Extract results from our output files.
+        """
+        raise NotImplementedError("Implement in subclass")
+
+    def process(self, alignment_class):
+        """
+        Get a Result set object from this parser.
+        
+        :param: alignment_class: An alignment class object to use to reorientate atoms. If not specified the Minimal alignment method will be used by default.
+        :return: The populated result set.
+        """
+        
+        # Get our result set.
+        self.results = Result_set(self.load_result_part(Metadata))
+        
+        # First get our list of MOs (because we need them for excited states too.)
+        self.results.orbitals = self.load_result_part(Molecular_orbital_list)
+        self.results.beta_orbitals = self.load_result_part(Molecular_orbital_list, cls = Beta_orbital)
+        
+        # Assign total levels.
+        self.results.orbitals.assign_total_level(self.results.beta_orbitals)
+        
+        # Our alignment orientation data.
+        self.results.alignment = self.load_result_part(alignment_class)
+        self.results.atoms = self.load_result_part(Atom_list)
+        
+        # TEDM and TMDM.
+        self.results.transition_dipole_moments = self.load_result_part(Transition_dipole_moment)
+        
+        # Excited states.
+        self.results.excited_states = self.load_result_part(Excited_state_list)
+        
+        # Energies.
+        self.results.energies = self.load_result_part(Energies)
+        
+        # Our ground state.
+        self.results.ground_state = self.load_result_part(Ground_state)
+        
+        # And a similar list but also including the ground.
+        self.results.energy_states = Excited_state_list()
+        self.results.energy_states.append(self.results.ground_state)
+        self.results.energy_states.extend(self.results.excited_states)
+        
+        # SOC.
+        self.results.soc = self.load_result_part(SOC_list)
+        
+        # PDM
+        self.results.pdm = self.load_result_part(Dipole_moment)
+        
+        # Frequencies.
+        self.results.vibrations = self.load_result_part(Vibrations_list)
+        
+        # Finally, try and set emission.
+        self.results.emission.vertical, self.results.emission.adiabatic = Relaxed_excited_state.guess_from_results(self.results)
+        
+        # Return the populated result set for convenience.
+        return self.results
+            
+    def load_result_part(self, result_cls, *args, **kwargs):
+        """
+        Get part of a result file.
+        
+        For most parsers, this will simply call from_parser() of the given class, but some parsers do something more interesting.
+        Any arguments other than cls will be parsed to the underlying function.
+        """
+        return result_cls.from_parser(self, *args, **kwargs)
+
+
+class Cclib_parser(Parser_abc):
+    """
+    ABC for parsers that use cclib to do most of their work for them.
+    """
+    
+    # A dictionary of recognised auxiliary file types.
+    INPUT_FILE_TYPES = {}
+    
+    def __init__(self, *log_files, **aux_files):
+        """
+        Top level constructor for calculation parsers.
+        
+        :param log_files: A list of output file to analyse/parse. The first log_file given will be used for naming purposes.
+        :param aux_files: A dictionary of auxiliary input files related to the calculation.
+        """
+        # Also save our aux files, stripping None.
+        self.aux_files = {name: aux_file for name,aux_file in aux_files.items() if aux_file is not None}
+        
+        super().__init__(*log_files)
         
     @classmethod
     def from_logs(self, *given_log_files, **kwargs):
         """
         Intelligent constructor that will attempt to guess the location of files from a given log file(s).
         
-        :param log_file: Output file to parse or a directory of output files to parse.
+        :param given_log_files: Output file(s) to parse or a directory of output files to parse.
         """
         found_log_files = [found_log.resolve() for given_log_file in given_log_files for found_log in self.find_log_files(given_log_file)]
         
-        # Make sure we only have unique log files.
-        # We also now reverse our ordering, so that files given earlier by the user have priority.
-        log_files = list(reversed(list(dict.fromkeys(found_log_files))))
+#         # Make sure we only have unique log files.
+#         # We also now reverse our ordering, so that files given earlier by the user have priority.
+#         log_files = list(reversed(list(dict.fromkeys(found_log_files))))
         
         # Next, have a look for aux. files.
         aux_files = {}
@@ -83,7 +174,7 @@ class Parser(Result_set):
         # Finally, update our aux_files with kwargs, so any user specified aux files take precedence.
         aux_files.update(kwargs)
         
-        return self(*log_files, **aux_files)
+        return self(*found_log_files, **aux_files)
     
     @classmethod
     def find_log_files(self, hint):
@@ -102,12 +193,16 @@ class Parser(Result_set):
             # hint may actually be a dir.
             if hint.is_dir():
                 # Look for all .log files.
+                # File extensions that we recognise.
+                log_types = ["*.log", "*.out", "*.sir"]
                 parent = hint
-                log_files = [Path(found_log_file) for found_log_file in iglob(str(Path(parent, "*.log")))]
+                log_files = [found_log_file for found_log_file in itertools.chain(*[parent.glob(log_type) for log_type in log_types])]
+                
+                #log_files = [Path(found_log_file) for found_log_file in iglob(str(Path(parent, "*.log")))]
                 # Remove any 'silico.log' files as we know these are not calc log files.
                 # We don't actually write 'silico.log' files anymore either (we use silico.out instead),
                 # but older versions did...
-                log_files = [log_file for log_file in log_files if log_file.name != "silico.log"]
+                log_files = [log_file for log_file in log_files if log_file.name not in ["silico.log", "silico.out"]]
             else:
                 parent = hint.parent
                 log_files = [hint]
@@ -139,7 +234,9 @@ class Parser(Result_set):
                 hint = Path(hint, "Output")
                 attempt -= 1
                 
-        
+        # Make sure we only have unique log files.
+        # We also now reverse our ordering, so that files given earlier by the user have priority.
+        log_files = list(reversed(list(dict.fromkeys(log_files))))
         return log_files
     
     @classmethod
@@ -237,67 +334,6 @@ class Parser(Result_set):
         
         except Exception as e:
             return None
-        
-    def process(self, alignment_class):
-        """
-        Get a Result set object from this parser.
-        
-        :param: alignment_class: An alignment class object to use to reorientate atoms. If not specified the Minimal alignment method will be used by default.
-        :return: The populated result set.
-        """
-        
-        # Get our result set.
-        self.results = Result_set(metadata = Metadata.from_parser(self))
-        
-        # First get our list of MOs (because we need them for excited states too.)
-        self.results.orbitals = Molecular_orbital_list.from_parser(self)
-        self.results.beta_orbitals = Molecular_orbital_list.from_parser(self, cls = Beta_orbital)
-        
-        # Assign total levels.
-        self.results.orbitals.assign_total_level(self.results.beta_orbitals)
-        
-        # Metadata.
-#         self.results.metadata = Metadata.from_parser(self)
-        
-        # Our alignment orientation data.
-        self.results.alignment = alignment_class.from_parser(self)
-        self.results.atoms = Atom_list.from_parser(self)
-        
-        # TEDM and TMDM.
-        #self.results.transition_dipole_moments = Electric_transition_dipole_moment.list_from_parser(self)
-        #self.results.magnetic_transition_dipole_moments = Magnetic_transition_dipole_moment.list_from_parser(self)
-        self.results.transition_dipole_moments = Transition_dipole_moment.list_from_parser(self)
-        
-        # Excited states.
-        self.results.excited_states = Excited_state_list.from_parser(self)
-        
-        # Energies.
-        self.results.energies = Energies.from_parser(self)
-        
-        # Our ground state.
-        self.results.ground_state = Ground_state.from_parser(self)
-        
-        # And a similar list but also including the ground.
-        self.results.energy_states = Excited_state_list()
-        self.results.energy_states.append(self.results.ground_state)
-        self.results.energy_states.extend(self.results.excited_states)
-        
-        # SOC.
-        #self.results.soc = Spin_orbit_coupling.list_from_parser(self)
-        self.results.soc = SOC_list.from_parser(self)
-        
-        # PDM
-        self.results.pdm = Dipole_moment.from_parser(self)
-        
-        # Frequencies.
-        self.results.vibrations = Vibrations_list.from_parser(self)
-        
-        # Finally, try and set emission.
-        self.results.emission.vertical, self.results.emission.adiabatic = Relaxed_excited_state.guess_from_results(self.results)
-        
-        # Return the populated result set for convenience.
-        return self.results
-        
         
     @classmethod
     def au_to_debye(self, au):

@@ -6,10 +6,10 @@ import glob, pathlib
 import warnings
 
 # Silico imports.
-from silico.parse.base import Parser
+from silico.parse.base import Cclib_parser
 
 
-class Turbomole_parser(Parser):
+class Turbomole_parser(Cclib_parser):
     """
     Top level class for parsing output from Turbomole files.
     """

@@ -14,7 +14,7 @@ import collections
 import warnings
 
 # Silico imports.
-from silico.parse.base import Parser
+from silico.parse.base import Cclib_parser
 from silico.parse.gaussian import Gaussian_parser
 from silico.parse.turbomole import Turbomole_parser
 from silico.parse.orca import Orca_parser
@@ -24,6 +24,7 @@ from silico.result.alignment import Minimal
 from silico.result.result import Result_set
 from silico.exception.base import Silico_exception
 import silico.log
+from silico.parse.dump import Dump_parser
 
 
 def class_from_log_files(*log_files):
@@ -31,7 +32,11 @@ def class_from_log_files(*log_files):
     Get a parser class based on some calculation log files.
     """
     # First get child files if we are a dir.
-    found_log_files = Parser.find_log_files(log_files[0])
+    found_log_files = Cclib_parser.find_log_files(log_files[0])
+    
+    # If we have a .sir file, we can parse using dump_parser.
+    if len(found_log_files) > 0 and found_log_files[0].suffix == ".sir":
+        return Dump_parser
     
     # We'll use cclib to guess the file type for us.
     try:
@@ -49,7 +54,7 @@ def class_from_log_files(*log_files):
     elif log_file_type == cclib.parser.orcaparser.ORCA:
         return Orca_parser
     else:
-        return Parser
+        return Cclib_parser
 
 def from_log_files(*log_files, **aux_files):
     """
