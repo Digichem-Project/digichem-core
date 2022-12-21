@@ -260,5 +260,9 @@ class Result_set(Result_object):
             "vibrations": self.vibrations.dump(silico_options),
             "emission": self.emission.dump(silico_options)
         }
-        
+    
+    def load(self, data):
+        """
+        """
+    
         
