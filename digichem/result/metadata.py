@@ -281,12 +281,12 @@ class Metadata(Result_object):
         """
         try:
             # Do some processing on time objects.
-            if parser.data.metadata.get('walltime', None) is not None:
-                duration = timedelta(seconds = parser.data.metadata['walltime'])
+            if parser.data.metadata.get('wall_time', None) is not None:
+                duration = sum(parser.data.metadata['wall_time'], timedelta())
                 
-            elif parser.data.metadata.get('cputime', None) is not None and parser.data.metadata.get('numcpus', None) is not None:
+            elif parser.data.metadata.get('cpu_time', None) is not None and parser.data.metadata.get('num_cpus', None) is not None:
                 # We can estimate the wall time from the CPU time and number of cpus.
-                duration = timedelta(seconds = parser.data.metadata['cputime'] / parser.data.metadata['numcpus'])
+                duration = sum(parser.data.metadata['cpu_time'], timedelta()) / parser.data.metadata['num_cpus']
                 
             else:
                 duration = None
@@ -345,7 +345,7 @@ class Metadata(Result_object):
             "success",
             "optimisation_converged",
         ]
-        attr_dict.update({attr.replace("_", " "): getattr(self, attr) for attr in attrs})
+        attr_dict.update({attr: getattr(self, attr) for attr in attrs})
         
         # Add some more complex stuff.
         attr_dict['date'] = {

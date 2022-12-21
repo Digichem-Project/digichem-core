@@ -55,6 +55,9 @@ class Gaussian_parser(Parser):
         # Assume we used 1 CPU if not otherwise clear (is this a good idea?)
         self.data.metadata['numcpus'] = 1
         
+        wall_time = []
+        cpu_time = []
+        
         # Open our file.
         with open(self.log_file_path, "rt") as log_file:
             # Loop through our lines, looking for a specific line of text.
@@ -69,16 +72,22 @@ class Gaussian_parser(Parser):
                 elif self.ELAPSED_TIME_HEADER in log_file_line:
                     # This line looks like: "Elapsed time:       0 days  2 hours 38 minutes 50.9 seconds."
                     datey = log_file_line.split()[-8:]
-                    self.data.metadata['walltime'] = timedelta(days = int(datey[0]), hours = int(datey[2]), minutes = int(datey[4]), seconds = float(datey[6])).total_seconds()
+                    wall_time.append(timedelta(days = int(datey[0]), hours = int(datey[2]), minutes = int(datey[4]), seconds = float(datey[6])).total_seconds())
                     
                 elif self.CPU_TIME_HEADER in log_file_line:
                     # This line looks like: "Job cpu time:       0 days 20 hours 52 minutes 17.3 seconds."
                     datey = log_file_line.split()[-8:]
-                    self.data.metadata['cputime'] = timedelta(days = int(datey[0]), hours = int(datey[2]), minutes = int(datey[4]), seconds = float(datey[6])).total_seconds()
+                    cpu_time.append(timedelta(days = int(datey[0]), hours = int(datey[2]), minutes = int(datey[4]), seconds = float(datey[6])).total_seconds())
                     
                 elif self.CPU_HEADER in log_file_line:
                     # This line looks like: "Will use up to   10 processors via shared memory."
-                    self.data.metadata['numcpus'] = int(log_file_line.split()[4])
+                    self.data.metadata['num_cpus'] = int(log_file_line.split()[4])
+        
+        if 'wall_time' not in self.data.metadata and len(wall_time) != 0:
+            self.data.metadata['wall_time'] = wall_time
+        
+        if 'cpu_time' not in self.data.metadata and len(cpu_time) != 0:
+            self.data.metadata['cpu_time'] = cpu_time
             
             
     def parse_SOC(self):

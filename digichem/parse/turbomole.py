@@ -42,41 +42,43 @@ class Turbomole_parser(Parser):
         Parse additional calculation metadata.
         """
         super().parse_metadata()
-                    
-        # Look for duration information.
-        self.data.metadata['walltime'] = 0.0
-        self.data.metadata['cputime'] = 0.0
         
-        # For Turbomole, we have multiple files to look through.
-        # Fortunately, cclib knows which order to process in.
-        for log_file_path in sort_turbomole_outputs(self.log_file_paths):
-            with open(log_file_path, "rt") as log_file:
-                for line in log_file:
-                    
-                    # Look for duration.
-                    if "total  cpu-time :" in line:
-                        self.data.metadata['cputime'] += self.duration_to_timedelta(line).total_seconds()
-                    if "total wall-time :" in line:
-                        self.data.metadata['walltime'] += self.duration_to_timedelta(line).total_seconds()
-                        
-                    # And also end date.
-                    if ": all done  ****" in line:
-                        # Skip 2 lines.
-                        line = next(log_file)
-                        line = next(log_file)
-                        line = next(log_file)
-                        try:
-                            self.data.metadata['date'] = datetime.strptime(line.strip(), "%Y-%m-%d %H:%M:%S.%f").timestamp()
-                        except ValueError:
-                            # We couldn't parse.
-                            pass
-        
-        # Delete our durations if they are zero.
-        if self.data.metadata['walltime'] == 0.0:
-            del(self.data.metadata['walltime'])
+        # Only bother doing this if we don't have timings from cclib.
+        if 'wall_time' not in self.data.metadata or 'cpu_time' not in self.data.metadata:
+            # Look for duration information.
+            self.data.metadata['wall_time'] = []
+            self.data.metadata['cpu_time'] = []
             
-        if self.data.metadata['cputime'] == 0.0:
-            del(self.data.metadata['cputime'])
+            # For Turbomole, we have multiple files to look through.
+            # Fortunately, cclib knows which order to process in.
+            for log_file_path in sort_turbomole_outputs(self.log_file_paths):
+                with open(log_file_path, "rt") as log_file:
+                    for line in log_file:
+                        
+                        # Look for duration.
+                        if "total  cpu-time :" in line:
+                            self.data.metadata['cpu_time'].append(self.duration_to_timedelta(line))
+                        if "total wall-time :" in line:
+                            self.data.metadata['wall_time'].append(self.duration_to_timedelta(line))
+                            
+                        # And also end date.
+                        if ": all done  ****" in line:
+                            # Skip 2 lines.
+                            line = next(log_file)
+                            line = next(log_file)
+                            line = next(log_file)
+                            try:
+                                self.data.metadata['date'] = datetime.strptime(line.strip(), "%Y-%m-%d %H:%M:%S.%f").timestamp()
+                            except ValueError:
+                                # We couldn't parse.
+                                pass
+            
+            # Delete our durations if they are zero.
+            if len(self.data.metadata['wall_time']) == 0:
+                del(self.data.metadata['wall_time'])
+                
+            if len(self.data.metadata['cpu_time']) == 0:
+                del(self.data.metadata['cpu_time'])
 
     def process(self, alignment_class):
         """
