@@ -68,6 +68,16 @@ class Energies(Result_object):
             "mp": self.mp.dump(silico_options),
             "cc": self.cc.dump(silico_options)
         }
+        
+    @classmethod
+    def from_dump(self, data, result_set):
+        """
+        Get an instance of this class from its dumped representation.
+        
+        :param data: The data to parse.
+        :param result_set: The partially constructed result set which is being populated.
+        """
+        scf = SCF_energy_list.fr
 
 
 class Energy_list(Result_container, Unmergeable_container_mixin):
