@@ -13,12 +13,20 @@ class Energies(Result_object):
     def __init__(self, scf = None, mp = None, cc = None):
         """
         :param scf: List of self-consistent field energies.
-        :param mp: List of Moller-Plesset energies.
+        :param mp: List of lists of Moller-Plesset energies.
         :param cc: List of coupled cluster energies.
         """
         self.scf =  SCF_energy_list(scf if scf is not None else [])
-        self.mp = MP_energy_list(mp if mp is not None else [])
+        self.mp_energies = mp
         self.cc = CC_energy_list(cc if cc is not None else [])
+    
+    @property
+    def mp(self):
+        try:
+            return self.mp_energies[-1]
+        
+        except IndexError:
+            return MP_energy_list([], 0)
         
     def __iter__(self):
         for energy in (self.scf, self.mp, self.cc):
@@ -51,7 +59,7 @@ class Energies(Result_object):
         """
         return self(
             cc = CC_energy_list.from_parser(parser),
-            mp = MP_energy_list.from_parser(parser),
+            mp = MP_energy_list.list_from_parser(parser),
             scf = SCF_energy_list.from_parser(parser)
         )
     
@@ -59,7 +67,7 @@ class Energies(Result_object):
         """
         Get a representation of this result object in primitive format.
         """
-        return {
+        dump = {
             "final": {
                 "value": float(self.final),
                 "units": "eV"
@@ -68,6 +76,8 @@ class Energies(Result_object):
             "mp": self.mp.dump(silico_options),
             "cc": self.cc.dump(silico_options)
         }
+        dump.update({"mp{}".format(index+2): energy.dump(silico_options) for index, energy in enumerate(self.mp_energies)})
+        return dump
         
     @classmethod
     def from_dump(self, data, result_set):
@@ -239,19 +249,47 @@ class MP_energy_list(Energy_list):
     # A warning issued when attempting to merge non-equivalent objects
     MERGE_WARNING = "Attempting to merge list of MP energies that are not identical; non-equivalent energies will be ignored"
     
-    @classmethod
-    def from_parser(self, parser, order = -1):
+    def __init__(self, items, order):
+        super().__init__(items)
+        self.order = order
+        
+    def dump(self, silico_options):
         """
-        Get an MP_energy_list from an output file parser.
+        Get a representation of this result object in primitive format.
+        """
+        dump = super().dump(silico_options)
+        dump['order'] = self.order
+        return dump
+        
+    @classmethod
+    def list_from_parser(self, parser):
+        """
+        Get a list of MP_energy_list objects from an output file parser.
         
         Note that unlike other calculated energies, MP energies are calculated sequentially up to the requested order. So for example, MP4 first calculates the MP1 energy (which is the same as the uncorrected energy), then MP2, MP3 and finally MP4.
         
         :param parser: An output file parser.
-        :param order: The order of the MP correction to get (ie, what is n in MPn). A value of -1 will get the highest order MP energy.
         :return: The populated Energy_list object. The object will be empty if the energy is not available.
         """
+        # First, split our list of lists (for each opt step and each MP energy).
+        mp_energies = []
+        
         try:
-            return self([energy[order] for energy in super().from_parser(parser)])
-        except IndexError:
-            # No energy.
-            return self()
+            parser_energies = getattr(parser.data, self.cclib_energy_type)
+            
+            for energy_step in parser_energies:
+                for index, energy in enumerate(energy_step):
+                    try:
+                        mp_energies[index].append(energy)
+                        
+                    except IndexError:
+                        mp_energies.append([energy])
+        
+        except AttributeError:
+            if not hasattr(parser.data, self.cclib_energy_type):
+                return []
+            
+            else:
+                raise
+        
+        return [self (energies, index+2) for index, energies in enumerate(mp_energies)]
