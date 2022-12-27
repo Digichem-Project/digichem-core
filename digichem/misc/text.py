@@ -2,7 +2,7 @@ from itertools import groupby
 
 def andjoin(listlike):
     """
-    Joins a list of string-like variables with commans, except for the last item which is joined with 'and'.
+    Joins a list of string-like variables with commas, except for the last item which is joined with 'and'.
     
     For example:
     >>> andjoin(["item1"])
