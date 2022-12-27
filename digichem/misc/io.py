@@ -3,6 +3,9 @@ import math
 from pathlib import Path
 import tempfile
 import os
+import shutil
+import sys
+
 
 def tail(file, num_lines = 20):
     """
@@ -16,6 +19,7 @@ def tail(file, num_lines = 20):
         last_lines.append(line)
         
     return list(last_lines)
+
 
 def smkdir(dir_name, max_iter = math.inf):
     """
@@ -46,6 +50,7 @@ def smkdir(dir_name, max_iter = math.inf):
             
     return directory
 
+
 # TODO: Would be nice to implement this as a context manager that acts like a file (better compatibility with yaml.dump() for example).
 def atomic_write(file, data):
     """
@@ -64,6 +69,129 @@ def atomic_write(file, data):
         os.fsync(temp_write)
         # Rename the temp file over the real file (overwriting it).
         os.rename(temp_write.name, file)
+
+
+# Based on https://stackoverflow.com/questions/431684/how-do-i-change-the-working-directory-in-python/24176022#24176022
+class cd:
+    """
+    Context manager for temporarily changing the working directory.
+    """
+    
+    def __init__(self, directory):
+        """
+        Constructor for cd.
         
+        :param directory: Path to the directory to change to.
+        """
+        self.new_directory = Path(directory)
+        self.old_directory = None
         
+    def __enter__(self):
+        # Save our current working directory.
+        self.old_directory = os.getcwd()
+        
+        # And change to the new directory.
+        os.chdir(str(self.new_directory))
+        
+    def __exit__(self, exc_type, exc_value, traceback):
+        # Restore our old directory.
+        os.chdir(self.old_directory)
+        
+
+def copytree(src, dst, symlinks = False, ignore = None, copy_function = shutil.copy2):
+    """
+    Fixed implementation of shutil.copytree that doesn't arbitrarily fail if src exists.
+    
+    Adapted from https://stackoverflow.com/questions/1868714/how-do-i-copy-an-entire-directory-of-files-into-an-existing-directory-using-pyth
+    """
+    if not os.path.exists(dst):
+        os.makedirs(dst)
+    for item in os.listdir(src):
+        s = os.path.join(src, item)
+        d = os.path.join(dst, item)
+        if os.path.isdir(s):
+            copytree(s, d, symlinks = symlinks, ignore = ignore, copy_function = copy_function)
+        else:
+            copy_function(s, d)
+
+
+class Multi_file_wrapper():
+    """
+    A class that can be used to transparently handle both 'normal' files and stdin/stdout.
+    """
+    
+    def __init__(self, file, mode = "r", *args, **kwargs):
+        # If the filename is the special symbol '-' (a dash), then 'open' stdout as appropriate).
+        if file == '-':
+            if 'w' in mode or 'a' in mode:
+                # We are writing.
+                if 'b' in mode:
+                    # We are a binary format, use a different stdout that accepts binary output.
+                    object.__setattr__(self, 'file', sys.stdout.buffer)
+                    #self.file = sys.stdout.buffer
+                else:
+                    object.__setattr__(self, 'file', sys.stdout)
+                    #self.file = sys.stdout
+            elif '+' in mode:
+                # We are updating (not allowed).
+                raise ValueError("Invalid mode specified '{}', updating is not valid for stdin/stdout".format(mode))
+            else:
+                # We are reading.
+                if 'b' in mode:
+                    object.__setattr__(self, 'file', sys.stdin.buffer)
+                    #self.file = sys.stdin.buffer
+                else:
+                    object.__setattr__(self, 'file', sys.stdin)
+                    #self.file = sys.stdin
+            # We don't close stdin/stdout.
+            object.__setattr__(self, 'should_close_file', False)
+            #self.should_close_file = False
+        else:
+            # Normal file.
+            
+            object.__setattr__(self, 'file', open(file, mode, *args, **kwargs))
+            object.__setattr__(self, 'should_close_file', True)
+            #self.file = open(file, mode, *args, **kwargs)
+            #self.should_close_file = True
+            
+    def __getattr__(self, name):
+        """
+        Magic method so we can pretend to be a real file.
+        """
+        return getattr(self.file, name)
+    
+    def __setattr__(self, name, value):
+        """
+        Magic method so we can pretend to be a real file.
+        """
+        return setattr(self.file, name, value)
+        
+    def __delattr__(self, name):
+        """
+        Magic method so we can pretend to be a real file.
+        """
+        if name in self.__dict__:
+            object.__delattr__(self, name)
+        else:
+            return delattr(self.file, name)
+            
+            
+    def close(self):
+        if self.should_close_file:
+            self.file.close()
+        else:
+            self.file.flush()
+            
+    def __enter__(self):
+        """
+        Magic function for the 'with' keyword.
+        """
+        return self
+        
+    def __exit__(self, etype, value, traceback):
+        """
+        Magic function for the 'with' keyword, called at the end of the block.
+        """
+        # Close our file.
+        self.close()
         
