@@ -1,6 +1,8 @@
 """Classes for total system energies."""
-from silico.result import Result_container
+import itertools
 import scipy.constants
+
+from silico.result import Result_container
 from silico.exception.base import Result_unavailable_error
 from silico.result import Unmergeable_container_mixin
 from silico.result import Result_object
@@ -87,7 +89,22 @@ class Energies(Result_object):
         :param data: The data to parse.
         :param result_set: The partially constructed result set which is being populated.
         """
-        scf = SCF_energy_list.fr
+        scf = SCF_energy_list.from_dump(data['scf'], result_set)
+        #mp = MP_energy_list.from_dump(data['mp'], result_set)
+        cc = CC_energy_list.from_dump(data['cc'], result_set)
+        
+        # TODO: consider using a dict so list indices make sense?
+        mp_energies = []
+        
+        # Other MP energies.
+        for mp_order in itertools.count(2):
+            if "mp{}".formt(mp_order) in data:
+                mp_energies.append(MP_energy_list.from_dump(data["mp{}".format(mp_order), result_set]))
+            
+            else:
+                break
+        
+        return self(scf, mp_energies, cc)
 
 
 class Energy_list(Result_container, Unmergeable_container_mixin):
@@ -207,14 +224,14 @@ class Energy_list(Result_container, Unmergeable_container_mixin):
         }
         
     @classmethod
-    def list_from_dump(self, data, result_set):
+    def from_dump(self, data, result_set, **kwargs):
         """
         Get a list of instances of this class from its dumped representation.
         
         :param data: The data to parse.
         :param result_set: The partially constructed result set which is being populated.
         """
-        return [self(energy['value']) for energy in data[self.energy_type.lower()+"-energies"]]
+        return self([energy['value'] for energy in data], **kwargs)
 
 
 class SCF_energy_list(Energy_list):
@@ -260,6 +277,16 @@ class MP_energy_list(Energy_list):
         dump = super().dump(silico_options)
         dump['order'] = self.order
         return dump
+    
+    @classmethod
+    def from_dump(self, data, result_set, **kwargs):
+        """
+        Get a list of instances of this class from its dumped representation.
+        
+        :param data: The data to parse.
+        :param result_set: The partially constructed result set which is being populated.
+        """
+        return super().from_dump(data, result_set, order = data['order'])
         
     @classmethod
     def list_from_parser(self, parser):
@@ -292,4 +319,5 @@ class MP_energy_list(Energy_list):
             else:
                 raise
         
-        return [self (energies, index+2) for index, energies in enumerate(mp_energies)]
+        return [self(energies, index+2) for index, energies in enumerate(mp_energies)]
+    
