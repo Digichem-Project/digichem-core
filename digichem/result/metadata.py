@@ -387,8 +387,8 @@ class Metadata(Result_object):
         for attr in ['date', 'duration', 'temperature', "pressure"]:
             kwargs[attr] = data[attr]['value']
         
-        kwargs['date'] = datetime.fromtimestamp(kwargs['date'])
-        kwargs['duration'] = timedelta(seconds = kwargs['duration'])
+        kwargs['date'] = datetime.fromtimestamp(kwargs['date']) if kwargs['date'] is not None else None
+        kwargs['duration'] = timedelta(seconds = kwargs['duration'])  if kwargs['duration'] is not None else None
         
         return self(**kwargs)
 
