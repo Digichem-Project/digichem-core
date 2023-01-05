@@ -202,6 +202,9 @@ class Transition_dipole_moment(Result_object):
         :param data: The data to parse.
         :param result_set: The partially constructed result set which is being populated.
         """
+        if data is None:
+            return None
+    
         # Build the individual parts.
         if data['electric'] is not None:
             electric = Electric_transition_dipole_moment.from_dump(data['electric'], result_set)
