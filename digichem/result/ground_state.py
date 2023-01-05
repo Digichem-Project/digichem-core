@@ -70,7 +70,7 @@ class Ground_state(Energy_state):
     
     @classmethod
     def from_dump(self, data, result_set):
-        return self.from_energies(result_set.metadata.charge, result_set.metadata.multiplicity, result_set.energies)
+        return self.from_energies(data['charge'], data['multiplicity'], result_set.energies)
     
     @classmethod
     def from_energies(self, charge, multiplicity, energies):
