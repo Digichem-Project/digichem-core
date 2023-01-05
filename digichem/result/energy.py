@@ -98,7 +98,7 @@ class Energies(Result_object):
         
         # Other MP energies.
         for mp_order in itertools.count(2):
-            if "mp{}".formt(mp_order) in data:
+            if "mp{}".format(mp_order) in data:
                 mp_energies.append(MP_energy_list.from_dump(data["mp{}".format(mp_order), result_set]))
             
             else:
@@ -231,7 +231,7 @@ class Energy_list(Result_container, Unmergeable_container_mixin):
         :param data: The data to parse.
         :param result_set: The partially constructed result set which is being populated.
         """
-        return self([energy['value'] for energy in data], **kwargs)
+        return self([energy['value'] for energy in data['values']], **kwargs)
 
 
 class SCF_energy_list(Energy_list):
