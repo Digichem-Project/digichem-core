@@ -246,6 +246,7 @@ class Result_set(Result_object):
             "ground_state": self.ground_state.dump(silico_options) if self.ground_state is not None else None,
             "energies": self.energies.dump(silico_options),
             "atoms": self.atoms.dump(silico_options),
+            "raw_atoms": self.raw_atoms.dump(silico_options),
             "orbitals": self.orbitals.dump(silico_options),
             "beta_orbitals": self.beta_orbitals.dump(silico_options),
             "pdm": self.pdm.dump(silico_options) if self.pdm is not None else None,
