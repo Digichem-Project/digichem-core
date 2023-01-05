@@ -17,7 +17,7 @@ class Emissions(Result_object):
     def __init__(self, adiabatic = None, vertical = None):
         """
         """
-        # For now, we have not way of knowing which state is being optimised.
+        # For now, we have no way of knowing which state is being optimised.
         # As such, we assume it's the lowest of each mult (because this is most
         # common thanks to kasha's rule). This being the case, each emission is
         # stored in a dict, which each key is the multiplicity. Each value is not
@@ -128,14 +128,14 @@ class Relaxed_excited_state(Excited_state):
                 # First look for adiabatic.
                 try:
                     # Try and find a suitable ground.
-                    ground_state_result = [result for result in opt_results if result.metadata.multiplicity != excited_state_result.metadata.multiplicity][0]
+                    ground_state_result = [result for result in opt_results if result.ground_state.multiplicity != excited_state_result.ground_state.multiplicity][0]
                     
                     # Get 'emission' object.
                     emission = self(ground_state_result, excited_state_result, "adiabatic")
                     
                     # If the energy is negative we will ignore.
                     if emission.energy >= 0:
-                        adiabatic[excited_state_result.metadata.multiplicity] = emission
+                        adiabatic[excited_state_result.ground_state.multiplicity] = emission
                 except IndexError:
                     # No good.
                     pass
@@ -143,14 +143,14 @@ class Relaxed_excited_state(Excited_state):
                 # And now vertical (we need a single point at different geom.
                 try:
                     # Try and find a suitable ground.
-                    ground_state_result = [result for result in results if "Single Point" in result.metadata.calculations and result.metadata.multiplicity != excited_state_result.metadata.multiplicity][0]
+                    ground_state_result = [result for result in results if "Single Point" in result.metadata.calculations and result.ground_state.multiplicity != excited_state_result.ground_state.multiplicity][0]
                     
                     # Get 'emission' object.
                     emission = self(ground_state_result, excited_state_result, "vertical")
                     
                     # If the energy is negative we will ignore.
                     if emission.energy >= 0:
-                        vertical[excited_state_result.metadata.multiplicity] = emission
+                        vertical[excited_state_result.ground_state.multiplicity] = emission
                 except IndexError:
                     # No good.
                     pass
@@ -288,14 +288,14 @@ class Relaxed_excited_state(Excited_state):
         if self.excited_state is not None:
             return self.excited_state.multiplicity
         else:
-            return self.excited_state_result.metadata.multiplicity
+            return self.excited_state_result.ground_state.multiplicity
         
     @property
     def ground_multiplicity(self):
         """
         The multiplicity (as a number) of the ground state in this emission transition.
         """
-        return self.ground_state_result.metadata.multiplicity
+        return self.ground_state_result.ground_state.multiplicity
     
     @property
     def emission_type(self):
