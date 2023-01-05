@@ -2,28 +2,16 @@
 
 from pathlib import Path
 import itertools
+import numpy
 import pytest
 
 from silico.parse import parse_calculation
-from silico.test.util import data_directory
+from silico.test.util import data_directory, result_files, silico_options
 from silico.result import Result_set
 from silico.parse import parse_multiple_calculations, parse_calculations
+from silico.result.format.yaml import Yaml_dumper
 
-
-gaussian_files = [Path(data_directory(), datum) for datum in [
-        'Naphthalene/Gaussian 16 Optimisation Frequencies PBE1PBE (GD3BJ) Toluene 6-31G(d,p)',
-        'Naphthalene/Gaussian 16 Excited States TDA 10 Singlets 10 Triplets PBE1PBE (GD3BJ) Toluene 6-31G(d,p).tar.gz',
-        'Naphthalene/Gaussian 16 Excited States TDA Optimised S(1) PBE1PBE (GD3BJ) Toluene 6-31G(d,p).tar.gz',  
-    ]]
-
-turbomole_files = [Path(data_directory(), datum) for datum in [
-        'Naphthalene/Turbomole Optimisation ADC(2) cc-pVDZ.tar.gz',
-        'Naphthalene/Turbomole Excited States ADC(2) S(1) and S(2) cc-pVDZ.tar.gz',
-        'Naphthalene/Turbomole Excited States ADC(2) T(1) and T(2) cc-pVDZ.tar.gz',
-    ]]
-
-
-@pytest.mark.parametrize("result_data", list(itertools.chain(gaussian_files, turbomole_files)))
+@pytest.mark.parametrize("result_data", list(itertools.chain(result_files['gaussian'], result_files['turbomole'])))
 def test_parsing(result_data):
     """Test whether we can parse various calc results."""
     result = parse_calculation(result_data)
@@ -33,16 +21,37 @@ def test_parsing(result_data):
 def test_multi_parsing():
     """Test whether we can parse in parallel."""
     
-    results = parse_multiple_calculations(*list(itertools.chain(gaussian_files, turbomole_files)))
+    results = parse_multiple_calculations(*list(itertools.chain(result_files['gaussian'], result_files['turbomole'])))
     
     # Check length.
-    assert len(results) == len(gaussian_files) + len(turbomole_files)
+    assert len(results) == len(result_files['gaussian']) + len(result_files['turbomole'])
 
 
-@pytest.mark.parametrize("data_set", [gaussian_files, turbomole_files])
+@pytest.mark.parametrize("data_set", [result_files['gaussian'], result_files['turbomole']])
 def test_merged_parsing(data_set):
     """Test whether we can parse and merge calc results."""
     result = parse_calculations(*data_set)
     
     assert isinstance(result, Result_set)
     assert len(result.results) == 3
+
+
+@pytest.mark.parametrize("result_file", [result_file for program_files in result_files.values() for result_file in program_files])
+def test_dump_and_parse(result_file, tmp_path, silico_options):
+    """Test whether we can dump and reload a result to get the same data back again."""
+    # Set numpy errors (not sure why this isn't the default...)
+    numpy.seterr(invalid = 'raise', divide = 'raise')
+    
+    # Parse the raw data.
+    raw = parse_calculation(result_file)
+    
+    # Instead of just dumping to memory we'll dump to a file to test the full mechanism.
+    with open(Path(tmp_path, "dump.sir"), "wt") as dump_file:
+        dump_file.write(Yaml_dumper(silico_options = silico_options).dump(raw))
+    
+    # Now load the result back again.
+    parsed = parse_calculation(Path(tmp_path, "dump.sir"))
+    
+    # Dump both the raw and parsed result sets and compare to make sure they're the same.
+    assert raw.dump(silico_options) == parsed.dump(silico_options)
+    
