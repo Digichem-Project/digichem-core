@@ -315,7 +315,7 @@ class Dipole_moment(Dipole_moment_ABC, Electric_dipole_moment_mixin):
         :param data: The data to parse.
         :param result_set: The partially constructed result set which is being populated.
         """
-        return self([0.0,0.0,0.0], data['dpm']['vector']['value'], atoms = result_set.alignment)
+        return self((data['origin']['x']['value'], data['origin']['y']['value'], data['origin']['z']['value']), (data['vector']['x']['value'], data['vector']['y']['value'], data['vector']['z']['value']), atoms = result_set.alignment)
     
     @classmethod
     def from_parser(self, parser):
