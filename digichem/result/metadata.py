@@ -385,8 +385,10 @@ class Metadata(Result_object):
         
         # For more complex fields, use the data item.
         for attr in ['date', 'duration', 'temperature', "pressure"]:
-            if attr in data[attr]:
-                kwargs[attr] = data[attr]['value']
+            kwargs[attr] = data[attr]['value']
+        
+        kwargs['date'] = datetime.fromtimestamp(kwargs['date'])
+        kwargs['duration'] = timedelta(seconds = kwargs['duration'])
         
         return self(**kwargs)
 
