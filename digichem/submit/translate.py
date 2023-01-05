@@ -435,8 +435,8 @@ class Cube_grid_points(Translate):
         Translate into a name appropriate for a given program.
         """
         try:
-            grid_def = self.find_in_db(self.value)[to_type]
-            return grid_def
+            grid_def = self.find_in_db(self.value)
+            return grid_def[to_type]
         
         except KeyError:
             # Just return the equivalent number of points.
