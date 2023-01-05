@@ -147,7 +147,11 @@ class Atom_list(Result_container, Unmergeable_container_mixin):
         
         :return: The ratio, from 0 (non-linear) to 1 (linear).
         """
-        return 1- (self.Y_length / self.X_length)
+        try:
+            return 1- (self.Y_length / self.X_length)
+        
+        except (FloatingPointError, ZeroDivisionError):
+            return 0
     
     def get_planar_ratio(self):
         """
@@ -157,8 +161,11 @@ class Atom_list(Result_container, Unmergeable_container_mixin):
         
         :return: The ratio, from 0 (non-planar) to 1 (planar).
         """
+        try:
+            return 1- (self.Z_length / self.Y_length)
         
-        return 1- (self.Z_length / self.Y_length)
+        except (FloatingPointError, ZeroDivisionError):
+            return 0
     
     def get_X_axis_angle(self, start_coord, end_coord):
         """
