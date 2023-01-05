@@ -99,7 +99,7 @@ class Energies(Result_object):
         # Other MP energies.
         for mp_order in itertools.count(2):
             if "mp{}".format(mp_order) in data:
-                mp_energies.append(MP_energy_list.from_dump(data["mp{}".format(mp_order), result_set]))
+                mp_energies.append(MP_energy_list.from_dump(data["mp{}".format(mp_order)], result_set))
             
             else:
                 break
