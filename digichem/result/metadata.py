@@ -335,6 +335,8 @@ class Metadata(Result_object):
         }
         
         attrs = [
+            "charge",
+            "multiplicity",
             "user",
             "package",
             "package_version",
