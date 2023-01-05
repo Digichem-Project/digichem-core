@@ -511,7 +511,7 @@ class Molecular_orbital(Result_object, Floatable_mixin):
         :param data: The data to parse.
         :param result_set: The partially constructed result set which is being populated.
         """
-        return [self(orbital_dict['index'], orbital_dict['homo distance'], orbital_dict['energy'], orbital_dict['symmetry'], orbital_dict['symmetry index']) for orbital_dict in data]
+        return [self(orbital_dict['index'], orbital_dict['homo_distance'], orbital_dict['energy']['value'], orbital_dict['symmetry'], orbital_dict['symmetry_index']) for orbital_dict in data]
     
     @classmethod
     def list_from_parser(self, parser):
