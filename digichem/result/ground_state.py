@@ -69,6 +69,10 @@ class Ground_state(Energy_state):
         return self.from_energies(parser.results.metadata.charge, parser.results.metadata.multiplicity, parser.results.energies)
     
     @classmethod
+    def from_dump(self, data, result_set):
+        return self.from_energies(result_set.metadata.charge, result_set.metadata.multiplicity, result_set.energies)
+    
+    @classmethod
     def from_energies(self, charge, multiplicity, energies):
         """
         Create a ground state object selecting from various lists of energies.
