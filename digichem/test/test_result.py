@@ -157,14 +157,14 @@ def test_atoms(result_set):
     """Test the parsed (unaligned) atoms are correct."""
     # The molecule is Naphthalene; C10H8
     # Check num atoms.
-    assert len(result_set.atoms) == 18
+    assert len(result_set.raw_atoms) == 18
     
     # Check atom types.
-    assert result_set.atoms.element_dict['C'] == 10
-    assert result_set.atoms.element_dict['H'] == 8
+    assert result_set.raw_atoms.element_dict['C'] == 10
+    assert result_set.raw_atoms.element_dict['H'] == 8
     
     # Check mass.
-    assert result_set.atoms.molar_mass == pytest.approx(128.1705)
+    assert result_set.raw_atoms.molar_mass == pytest.approx(128.1705)
     
     # We don't check positions here because these can vary from calc to calc due to reorientation...
 
@@ -196,13 +196,13 @@ def test_alignment(result_set, length, width, height):
         planar_ratio = 1.0
     
     # Check dimensions.
-    assert result_set.alignment.X_length == pytest.approx(length, abs=tolerance)
-    assert result_set.alignment.Y_length == pytest.approx(width, abs=tolerance)
-    assert result_set.alignment.Z_length == pytest.approx(height, abs=tolerance)
+    assert result_set.atoms.X_length == pytest.approx(length, abs=tolerance)
+    assert result_set.atoms.Y_length == pytest.approx(width, abs=tolerance)
+    assert result_set.atoms.Z_length == pytest.approx(height, abs=tolerance)
     
     # Check params.
-    assert result_set.alignment.get_linear_ratio() == pytest.approx(linear_ratio, abs=tolerance)
-    assert result_set.alignment.get_planar_ratio() == pytest.approx(planar_ratio, abs=tolerance)
+    assert result_set.atoms.get_linear_ratio() == pytest.approx(linear_ratio, abs=tolerance)
+    assert result_set.atoms.get_planar_ratio() == pytest.approx(planar_ratio, abs=tolerance)
 
 
 @pytest.mark.parametrize("result_set, num_occ, num_unocc, homo, lumo", [
