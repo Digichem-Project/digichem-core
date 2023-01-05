@@ -402,11 +402,11 @@ class Excited_state_transition(Result_object):
             # Get our start and end MOs.
             orbitals = {}
             for key in ("start", "end"):
-                if data[key]['spin'] in ("none", "alpha"):
-                    orbitals[key] = result_set.orbitals[data[key]['index'] -1]
+                if tran_dict[key]['spin'] in ("none", "alpha"):
+                    orbitals[key] = result_set.orbitals[tran_dict[key]['index'] -1]
                 
                 else:
-                    orbitals[key] = result_set.beta_orbitals[data[key]['index'] -1]
+                    orbitals[key] = result_set.beta_orbitals[tran_dict[key]['index'] -1]
             
             trans.append(self(tran_dict['index'], orbitals['start'], orbitals['end'], tran_dict['coefficient']))
         
@@ -743,7 +743,7 @@ class Excited_state(Energy_state):
         states = []
         for es_dict in data:
             # Get our tdm (if available).
-            if data['tdm'] is not None:
+            if es_dict['tdm'] is not None:
                 tdm = result_set.transition_dipole_moments[es_dict['index']-1]
             
             else:
