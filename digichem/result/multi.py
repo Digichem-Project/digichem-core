@@ -39,9 +39,9 @@ class Merged(Result_set):
         merged_metadata = Metadata.merge(*metadatas)
 
         # 'Merge' our atoms.
-        atoms = Atom_list.merge(*[result.atoms for result in results], charge = merged_metadata.charge)
+        raw_atoms = Atom_list.merge(*[result.raw_atoms for result in results], charge = merged_metadata.charge)
         # And alignment.
-        alignment = alignment_class(atoms, charge = merged_metadata.charge)
+        atoms = alignment_class(raw_atoms, charge = merged_metadata.charge)
         
         # Use special method for merging orbitals.
         orbitals, beta_orbitals = Molecular_orbital_list.merge_orbitals([result.orbitals for result in results], [result.beta_orbitals for result in results])
@@ -63,8 +63,8 @@ class Merged(Result_set):
             metadata = merged_metadata,
             results = results,
             ground_state = ground_state,
+            raw_atoms = raw_atoms,
             atoms = atoms,
-            alignment = alignment,
             energy_states = energy_states,
             orbitals = orbitals,
             beta_orbitals = beta_orbitals,

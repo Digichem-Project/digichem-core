@@ -48,8 +48,8 @@ class Dump_parser(Parser_abc):
         
         # Our alignment orientation data.
         # TODO: URGENT: Should we re-align the alignment class?
-        self.results.alignment = alignment_class.from_dump(self.data['atoms'])
-        self.results.atoms = self.load_result_part(Atom_list)
+        self.results.atoms = alignment_class.from_dump(self.data['atoms'])
+        self.results.raw_atoms = self.load_result_part(Atom_list)
         
         # TEDM and TMDM.
         self.results.transition_dipole_moments = self.load_result_part(Transition_dipole_moment)

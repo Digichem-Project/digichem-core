@@ -315,7 +315,7 @@ class Dipole_moment(Dipole_moment_ABC, Electric_dipole_moment_mixin):
         :param data: The data to parse.
         :param result_set: The partially constructed result set which is being populated.
         """
-        return self((data['origin']['x']['value'], data['origin']['y']['value'], data['origin']['z']['value']), (data['vector']['x']['value'], data['vector']['y']['value'], data['vector']['z']['value']), atoms = result_set.alignment)
+        return self((data['origin']['x']['value'], data['origin']['y']['value'], data['origin']['z']['value']), (data['vector']['x']['value'], data['vector']['y']['value'], data['vector']['z']['value']), atoms = result_set.atoms)
     
     @classmethod
     def from_parser(self, parser):
@@ -326,7 +326,7 @@ class Dipole_moment(Dipole_moment_ABC, Electric_dipole_moment_mixin):
         :result: A single Dipole_moment object, or None if no dipole information is available.
         """
         try:
-            return self(parser.data.moments[0], parser.data.moments[1], parser.results.alignment)
+            return self(parser.data.moments[0], parser.data.moments[1], parser.results.atoms)
         except AttributeError:
             return None
     

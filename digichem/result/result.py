@@ -26,8 +26,8 @@ class Result_set(Result_object):
             self,
             metadata = None,
             energies = None,
+            raw_atoms = None,
             atoms = None,
-            alignment = None,
             pdm = None,
             transition_dipole_moments = None,
             orbitals = None,
@@ -41,16 +41,6 @@ class Result_set(Result_object):
         """
         Constructor for Result_set objects.
         
-        :param metadata: Optional Metadata result object.
-        :param energies: Energies result object.
-        :param atoms: Optional Atom_list object of atom positions.
-        :param pdm: Optional dipole_moment object.
-        :param transition_dipole_moments: Optional list of TDMs.
-        :param orbitals: Optional Molecular_orbital_list object.
-        :param beta_orbitals: Optional Beta MOs. If this is not None, then orbitals is assumed to refer to the Alpha MOs.
-        :param excited_states: Optional Excited_state_list object.
-        :param vibrations: Optional molecular Vibrations object.
-        :param soc: A list of spin_orbit_coupling.
         """
         super().__init__()
         self.metadata = metadata
@@ -58,9 +48,8 @@ class Result_set(Result_object):
         self.energies = energies
         self.pdm = pdm
         self.transition_dipole_moments = transition_dipole_moments
+        self.raw_atoms = raw_atoms
         self.atoms = atoms
-        # TODO: This is a slightly weird name for this attribute, rename?
-        self.alignment = alignment
         self.orbitals = orbitals
         self.beta_orbitals = beta_orbitals
         self.ground_state = ground_state
@@ -70,6 +59,11 @@ class Result_set(Result_object):
         self.soc = soc
         self.emission = emission if emission is not None else Emissions()
         
+    @property
+    def alignment(self):
+        warnings.warn("alignment is deprecated, use atoms instead", DeprecationWarning)
+        return self.atoms
+
     @property
     def CC_energies(self):
         warnings.warn("CC_energies is deprecated, use energies.cc instead", DeprecationWarning)
@@ -251,7 +245,7 @@ class Result_set(Result_object):
             "metadata": self.metadata.dump(silico_options),
             "ground_state": self.ground_state.dump(silico_options) if self.ground_state is not None else None,
             "energies": self.energies.dump(silico_options),
-            "atoms": self.alignment.dump(silico_options),
+            "atoms": self.atoms.dump(silico_options),
             "orbitals": self.orbitals.dump(silico_options),
             "beta_orbitals": self.beta_orbitals.dump(silico_options),
             "pdm": self.pdm.dump(silico_options) if self.pdm is not None else None,

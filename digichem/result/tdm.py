@@ -40,7 +40,7 @@ class Transition_dipole_moment_ABC(Dipole_moment_ABC):
             data['state_level'],
             (data['origin']['x']['value'], data['origin']['y']['value'], data['origin']['z']['value']),
             (data['vector']['x']['value'], data['vector']['y']['value'], data['vector']['z']['value']),
-            atoms = result_set.alignment
+            atoms = result_set.atoms
             )
         
     def dump(self, silico_options):
@@ -90,7 +90,7 @@ class Electric_transition_dipole_moment(Transition_dipole_moment_ABC, Electric_d
                 self(state_level = index +1,
                 origin_coords = (0,0,0),
                 vector_coords = (parser.au_to_debye(tdm[0]), parser.au_to_debye(tdm[1]), parser.au_to_debye(tdm[2])),
-                atoms = parser.results.alignment) for index, tdm in enumerate(parser.data.etdips)]
+                atoms = parser.results.atoms) for index, tdm in enumerate(parser.data.etdips)]
         except AttributeError:
             return []
 
@@ -119,7 +119,7 @@ class Magnetic_transition_dipole_moment(Transition_dipole_moment_ABC, Magnetic_d
                 self(state_level = index +1,
                 origin_coords = (0,0,0),
                 vector_coords = tdm,
-                atoms = parser.results.alignment) for index, tdm in enumerate(parser.data.etmagdips)]
+                atoms = parser.results.atoms) for index, tdm in enumerate(parser.data.etmagdips)]
         except AttributeError:
             return []
 

@@ -149,8 +149,8 @@ class Parser_abc():
         self.results.orbitals.assign_total_level(self.results.beta_orbitals)
         
         # Our alignment orientation data.
-        self.results.alignment = self.load_result_part(alignment_class)
-        self.results.atoms = self.load_result_part(Atom_list)
+        self.results.atoms = self.load_result_part(alignment_class)
+        self.results.raw_atoms = self.load_result_part(Atom_list)
         
         # TEDM and TMDM.
         self.results.transition_dipole_moments = self.load_result_part(Transition_dipole_moment)
