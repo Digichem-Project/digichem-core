@@ -70,6 +70,16 @@ class Vibrations_list(Result_container, Unmergeable_container_mixin):
         }
         return dump_dict
 
+    @classmethod
+    def from_dump(self, data, result_set):
+        """
+        Get an instance of this class from its dumped representation.
+        
+        :param data: The data to parse.
+        :param result_set: The partially constructed result set which is being populated.
+        """
+        return self(Vibration.list_from_dump(data['values'], result_set))
+
 
 class Vibration(Result_object, Floatable_mixin):
     """
@@ -112,6 +122,16 @@ class Vibration(Result_object, Floatable_mixin):
             },
             "symmetry": self.symmetry
         }
+        
+    @classmethod
+    def list_from_dump(self, data, result_set):
+        """
+        Get a list of instances of this class from its dumped representation.
+        
+        :param data: The data to parse.
+        :param result_set: The partially constructed result set which is being populated.
+        """
+        return [self(vib_dict['index'], vib_dict['frequency']['value'], vib_dict['intensity']['value'], vib_dict['symmetry']) for vib_dict in data]
         
     @classmethod
     def list_from_parser(self, parser):
