@@ -57,7 +57,8 @@ class Metadata(Result_object):
             optimisation_converged = None,
             temperature = None,
             pressure = None,
-            orbital_spin_type = None):
+            orbital_spin_type = None,
+            silico_version = None):
         """
         Constructor for result Metadata objects.
         
@@ -104,7 +105,7 @@ class Metadata(Result_object):
         self.pressure = pressure
         self.orbital_spin_type = orbital_spin_type
         # TOOD: Ideally this would be parsed from the calculation output somehow, but this is fine for now.
-        self.silico_version = silico.version
+        self.silico_version = silico.version if silico_version is None else silico_version
     
     # TODO: This is more than a bit clumsy and in general the handling of names should be improved.
     @property
@@ -329,7 +330,8 @@ class Metadata(Result_object):
         # Most attributes we can just dump as is.
         attr_dict = {
             "name": self.name,
-            "log_file": str(self.log_files[0]) if len(self.log_files) > 0 else None
+            "log_files": [str(log_file) for log_file in self.log_files],
+            "auxiliary_files": {aux_file_name: str(aux_file) for aux_file_name, aux_file in self.auxiliary_files.items()}
         }
         
         attrs = [
@@ -379,12 +381,12 @@ class Metadata(Result_object):
         """
         # Assemble our args to pass to the constructor.
         # Most of these can be used from the metadata dict as is.
-        kwargs = copy.deepcopy(data.metadata)
+        kwargs = copy.deepcopy(data)
         
         # For more complex fields, use the data item.
         for attr in ['date', 'duration', 'temperature', "pressure"]:
-            if attr in data.metadata[attr]:
-                kwargs[attr] = data.metadata[attr]['value']
+            if attr in data[attr]:
+                kwargs[attr] = data[attr]['value']
         
         return self(**kwargs)
 
