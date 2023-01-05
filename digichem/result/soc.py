@@ -46,17 +46,26 @@ class SOC_list(Result_container):
             return kwargs['default']
         else:
             raise Result_unavailable_error("Spin-orbit coupling", "could not find SOC between states with symbols '{}' and '{}'".format(state1, state2))
-        
     
     @classmethod
     def from_parser(self, parser):
         """
-        Get as SOC_list object from an output file parser.
+        Get a SOC_list object from an output file parser.
         
         :param parser: An output file parser.
         :return: A SOC_list object. The list will be empty if no SOC is available.
         """
         return self(Spin_orbit_coupling.list_from_parser(parser))
+
+    @classmethod
+    def from_dump(self, data, result_set):
+        """
+        Get an instance of this class from its dumped representation.
+        
+        :param data: The data to parse.
+        :param result_set: The partially constructed result set which is being populated.
+        """
+        return self(Spin_orbit_coupling.list_from_dump(data, result_set))
     
     def sort(self, *, key = None, **kwargs):
         """
@@ -117,6 +126,16 @@ class Spin_orbit_coupling(Result_object, Floatable_mixin):
             },
             "mixing_coefficient": self.mixing_coefficient
         }
+        
+    @classmethod
+    def list_from_dump(self, data, result_set):
+        """
+        Get a list of instances of this class from its dumped representation.
+        
+        :param data: The data to parse.
+        :param result_set: The partially constructed result set which is being populated.
+        """
+        return [self(result_set.excited_states.find(soc_dict['singlet'], soc_dict['triplet'], soc_dict['soc']['+1'], soc_dict['soc']['0'], soc_dict['soc']['-1'])) for soc_dict in data]
         
     @classmethod
     def list_from_parser(self, parser):
