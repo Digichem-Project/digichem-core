@@ -339,7 +339,7 @@ class Atom(Result_object):
         :param data: The data to parse.
         :param result_set: The partially constructed result set which is being populated.
         """
-        return [self(atom_dict['element'], atom_dict['coords']['value'], atom_dict['mass']['value']) for atom_dict in data]
+        return [self(atom_dict['element'], (atom_dict['coords']['x']['value'], atom_dict['coords']['y']['value'], atom_dict['coords']['z']['value']), atom_dict['mass']['value']) for atom_dict in data]
     
     @classmethod
     def list_from_parser(self, parser):
