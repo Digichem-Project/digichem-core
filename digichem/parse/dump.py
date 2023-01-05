@@ -6,6 +6,14 @@ from silico.result.tdm import Transition_dipole_moment
 from silico.result.result import Result_set
 from silico.result.metadata import Metadata
 from silico.result.orbital import Molecular_orbital_list
+from silico.result.atom import Atom_list
+from silico.result.excited_state import Excited_state_list
+from silico.result.energy import Energies
+from silico.result.ground_state import Ground_state
+from silico.result.soc import SOC_list
+from silico.result.dipole_moment import Dipole_moment
+from silico.result.vibration import Vibrations_list
+from silico.result.emission import Relaxed_excited_state
 
 class Dump_parser(Parser_abc):
     """
@@ -47,21 +55,21 @@ class Dump_parser(Parser_abc):
         #self.results.orbitals.assign_total_level(self.results.beta_orbitals)
         
         # Our alignment orientation data.
-        # TODO: URGENT: Should we re-align the alignment class?
-        self.results.atoms = alignment_class.from_dump(self.data['atoms'])
-        self.results.raw_atoms = self.load_result_part(Atom_list)
+        # The constructor for each alignment class automatically performs realignment.
+        self.results.atoms = alignment_class.from_dump(self.data['atoms'], self.results)
+        self.results.raw_atoms = Atom_list.from_dump(self.data['raw_atoms'], self.results)
         
         # TEDM and TMDM.
-        self.results.transition_dipole_moments = self.load_result_part(Transition_dipole_moment)
+        self.results.transition_dipole_moments = Transition_dipole_moment.list_from_dump(self.data['excited_states']['values'], self.results)
         
         # Excited states.
-        self.results.excited_states = self.load_result_part(Excited_state_list)
+        self.results.excited_states = Excited_state_list.from_dump(self.data['excited_states'], self.results)
         
         # Energies.
-        self.results.energies = self.load_result_part(Energies)
+        self.results.energies = Energies.from_dump(self.data['energies'], self.results)
         
         # Our ground state.
-        self.results.ground_state = self.load_result_part(Ground_state)
+        self.results.ground_state = Ground_state.from_dump(self.data['ground_state'], self.results)
         
         # And a similar list but also including the ground.
         self.results.energy_states = Excited_state_list()
@@ -69,32 +77,16 @@ class Dump_parser(Parser_abc):
         self.results.energy_states.extend(self.results.excited_states)
         
         # SOC.
-        self.results.soc = self.load_result_part(SOC_list)
+        self.results.soc = SOC_list.from_dump(self.data['soc'], self.results)
         
         # PDM
-        self.results.pdm = self.load_result_part(Dipole_moment)
+        self.results.pdm = Dipole_moment.from_dump(self.data['pdm'], self.results)
         
         # Frequencies.
-        self.results.vibrations = self.load_result_part(Vibrations_list)
+        self.results.vibrations = Vibrations_list.from_dump(self.data['vibrations'], self.results)
         
         # Finally, try and set emission.
         self.results.emission.vertical, self.results.emission.adiabatic = Relaxed_excited_state.guess_from_results(self.results)
         
         # Return the populated result set for convenience.
         return self.results
-            
-    def load_result_part(self, result_cls, *, data = None, **kwargs):
-        """
-        Get part of a result file.
-        
-        For most parsers, this will simply call from_parser() of the given class, but some parsers do something more interesting.
-        Any arguments other than cls will be parsed to the underlying function.
-        """
-        data = self.data if data is None else data
-                
-        if result_cls != Transition_dipole_moment:
-            return result_cls.from_dump(data, self.results, **kwargs)
-        
-        else:
-            # This is a bit hacky...
-            return result_cls.list_from_dump(data, **kwargs)
