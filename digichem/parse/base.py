@@ -191,6 +191,7 @@ class Parser_abc():
         For most parsers, this will simply call from_parser() of the given class, but some parsers do something more interesting.
         Any arguments other than cls will be parsed to the underlying function.
         """
+        # TODO: This mechanism is no-longer needed and should be removed.
         data = self if data is None else data
         return result_cls.from_parser(data, **kwargs)
 
