@@ -1,9 +1,7 @@
 from openbabel import pybel
 from copy import deepcopy
-
-from silico.config.base import Config
-from silico.config.configurable import Configurable_list
-from silico.exception.configurable import Configurable_exception
+import yaml
+from pathlib import Path
 
 # Silico imports.
 from silico.config.base import Auto_type
@@ -284,6 +282,10 @@ Example:
             max_frequency = Option(help = "The most positive frequency to show in the table. 'null' is for no limit. Units are cm-1.", type = float, default = None),
             max_num = Option(help = "The maximum number of frequencies to show in the table.", type = int, default = None)
         )
+    )
+    
+    database = Options(help = "Options to configure the result database",
+        location = Option(help = "Path to the .json file to use as the result database. If none is given, the Silico database will be disabled.", type = Path, default = None)
     )
     
     def __init__(self, validate_now = True, palette = None, destinations = None, programs = None, calculations = None, **kwargs):
