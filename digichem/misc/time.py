@@ -49,7 +49,8 @@ def timedelta_to_string(timedelta_object):
     """
     hours = math.floor(timedelta_object.seconds / 3600)
     minutes = math.floor((timedelta_object.seconds - hours * 3600) / 60)
-    seconds = round(timedelta_object.seconds - (hours * 3600 + minutes * 60))
+    # Seconds lacks microsecond accuracy, but we can add it on.
+    seconds = round((timedelta_object.seconds + timedelta_object.microseconds /1000000) - (hours * 3600 + minutes * 60))
     
     date_str = ""
     add = False
