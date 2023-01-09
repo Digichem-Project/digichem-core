@@ -17,7 +17,6 @@ from silico.submit.calculation.turbomole import make_orbital_calc, Turbomole_mem
     make_anadens_calc
 from silico.file.base import File_maker, Dummy_file_maker
 from silico.submit.memory import Memory
-from silico.misc.directory import copytree
 from mako.lookup import TemplateLookup
 
 
