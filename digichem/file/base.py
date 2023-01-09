@@ -1,9 +1,12 @@
 # General imports.
 from pathlib import Path
+from timeit import default_timer as timer
+import datetime
 
 # Silico imports.
 import silico.log
 from silico.exception.base import File_maker_exception, Silico_exception
+from silico import misc
 
 class File_maker_ABC():
     """
@@ -227,6 +230,8 @@ class File_maker(File_maker_ABC):
         # Print a debug message (because lots can go wrong next and this step an be quite slow).    
         silico.log.get_logger().info(self.creation_message)
         
+        start_timer = timer()
+        
         # Make our parent folder(s).
         try:
             self.output.parent.mkdir(parents = True)
@@ -240,6 +245,10 @@ class File_maker(File_maker_ABC):
         
         # Set our flag.
         self.done_file_creation = True
+        
+        # Print timing info.
+        self.duration = datetime.timedelta(seconds = timer() - start_timer)
+        silico.log.get_logger().info("File generation duration: {} ({} total seconds)".format(misc.timedelta_to_string(self.duration), self.duration.total_seconds()))
         
     def delete(self, lazy = False):
         """
