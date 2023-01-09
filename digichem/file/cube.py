@@ -580,6 +580,7 @@ class Turbomole_to_cube(File_converter):
         return self(
             *args,
             calculation_directory = calculation_directory if calculation_directory is not None else turbomole_calculation.program.destination.calc_dir.output_directory,
+            #calculation_directory = calculation_directory if calculation_directory is not None else turbomole_calculation.program.destination.calc_dir.working_directory,
             calc_t = calc_t.inner_cls,
             prog_t = type(turbomole_calculation.program),
             orbitals = orbitals,
