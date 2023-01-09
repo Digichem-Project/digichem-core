@@ -80,7 +80,7 @@ def is_int(value):
     try:
         int(value)
         return True
-    except ValueError:
+    except (ValueError, TypeError):
         return False
     
 def is_iter(value):
