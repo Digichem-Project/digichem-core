@@ -198,7 +198,7 @@ class Basis_set(Translate):
             return basis_def['name']
     
     def __str__(self):
-        return self.translate()
+        return str(self.translate())
 
 
 class Functional(Translate):
@@ -272,7 +272,7 @@ class Functional(Translate):
         return func_name.lower().replace("gaussian", "Gaussian")
     
     def __str__(self):
-        return self.translate("name")
+        return str(self.translate("name"))
 
 
 class Solvent(Translate):
@@ -335,7 +335,7 @@ class Solvent(Translate):
             return self.solvent
         
     def __str__(self):
-        return self.translate("name")
+        return str(self.translate("name"))
 
 
 class SCF_convergence(Translate):
@@ -395,7 +395,7 @@ class SCF_convergence(Translate):
             return self.value
         
     def __str__(self):
-        return self.translate("name")
+        return str(self.translate("name"))
     
     def __eq__(self, other):
         return str(self) == str(other)
@@ -447,7 +447,7 @@ class Cube_grid_points(Translate):
             return self.value
         
     def __str__(self):
-        return self.translate("name")
+        return str(self.translate("name"))
 
 
 # TODO: Use this.
