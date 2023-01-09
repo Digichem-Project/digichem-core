@@ -60,6 +60,7 @@ class File_maker_ABC():
         
         except Exception:
             silico.log.get_logger().error("Unable to get file '{}'".format(self.file_path[name]), exc_info = True)
+            
             return None
     
     def relative_path(self, file_name = 'file', *, output_base):
@@ -158,6 +159,8 @@ class File_maker(File_maker_ABC):
         # A flag of whether we have already created our output file.
         self.done_file_creation = False
         
+        self.failed_file_creation = False
+        
         super().__init__(output)
     
     def get_file(self, name = 'file'):
@@ -191,8 +194,15 @@ class File_maker(File_maker_ABC):
                 try:
                     self.make()
                     return self.file_path[name]
+                
+                except File_maker_exception as e:
+                    # Don't raise a new exception if we've already got one as this just pollutes the log.
+                    self.failed_file_creation = True
+                    raise
+                
                 except Exception as e:
                     # Know that a KeyError could be thrown here if name is not valid, but I think we'd want that to propagate anyway.
+                    self.failed_file_creation = True
                     raise File_maker_exception(self, "Unable to create file") from e
             else:
                 raise File_maker_exception(self, "Not creating file because dont_modify is True")
@@ -212,7 +222,9 @@ class File_maker(File_maker_ABC):
         
         This method returns nothing, but will raise an File_maker_exception exception if the rendering is not possible.
         """
-        pass
+        if self.failed_file_creation:
+            # We've already tried to make this file once before and failed, don't try again.
+            raise File_maker_exception(self, "Not creating file due to previous errors")
     
     def make(self):
         """
@@ -327,6 +339,8 @@ class File_converter(File_maker):
         
         This method returns nothing, but will raise an File_maker_exception exception if the rendering is not possible.
         """
+        super().check_can_make()
+        
         if self.input_file is None:
             raise File_maker_exception(self, "No {} file is available".format(self.input_file_type))
         try:
