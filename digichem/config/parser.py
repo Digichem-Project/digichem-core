@@ -39,12 +39,11 @@ class Config_parser():
         except Exception as e:
             # We could ignore errors here but it might not be obvious to the user why their settings have been ignored
             raise Exception("Error parsing settings") from e
-                    
-        if not isinstance(config, dict):
-            raise Exception("Config option '{}' is formatted incorrectly".format(config_stream))
             
         # Check the config isn't None (which it will be if the file is empty.)
         try:
+            if not isinstance(config, dict):
+                raise Exception("Config option '{}' is formatted incorrectly".format(config_stream))
             return self.pre_process(config)
         
         except Exception as e:
