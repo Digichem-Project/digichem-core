@@ -20,12 +20,13 @@ class Dump_parser(Parser_abc):
     Parser for reading from dumped result sets in yaml format.
     """
     
-    def __init__(self, yaml_file):
+    def __init__(self, yaml_file, *other_log_files, **aux_files):
         """
         Top level constructor for calculation parsers.
         
         :param yaml_file: The path to a yaml file to read.
         """
+        # Neither other_log_files nor aux_files are currently used...
         super().__init__(yaml_file)
     
     def parse(self):
