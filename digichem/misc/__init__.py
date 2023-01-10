@@ -1,4 +1,5 @@
-from .base import Dynamic_parent, Default, defres
+from .base import Dynamic_parent
+from .defres import Default, defres
 from .layered_dict import Layered_dict
 from .time import date_to_string
 from .time import timedelta_to_string

@@ -1,30 +1,3 @@
-import argparse
-
-def defres(value):
-    """
-    Evaluate a function argument that might be set to a default.
-    
-    If value is a Default object, the 'default' attribute of that object is returned. Otherwise, value is returned.
-    """
-    if isinstance(value, Default):
-        return value.default
-    
-    else:
-        return value
-
-class Default():
-    """
-    A class used to signify that an argument given to a function is the default.
-    """
-    
-    def __init__(self, default):
-        """
-        Constructor for Default objects.
-        
-        :param default: The real default value.
-        """
-        self.default = default
-
 def to_bool(booly):
     """
     Convert something that might be a bool into a bool.
@@ -94,6 +67,18 @@ def is_iter(value):
         return True
     except TypeError:
         return False
+    
+def dict_get(dict_obj, *fields):
+    """
+    Get a value from a nested dict of arbitrary depth.
+    
+    :param dict_obj: The nested dict.
+    :param fileds: Names of nested keys.
+    """
+    if len(fields) == 1:
+        return dict_obj[fields[0]]
+    else:    
+        return dict_get(dict_obj[fields[0]], *fields[1:])
     
 
 class Dynamic_parent():
@@ -183,28 +168,3 @@ class Dynamic_parent():
             )
             
         return get_subclasses_worker(self)
-    
-
-class List_grouper(argparse.Action):
-    """
-    Custom action class that groups lists together so we know in what order they were specified.
-    """    
-    
-    def __init__(self, option_strings, *args, **kwargs):
-        """
-        """
-        argparse.Action.__init__(self, option_strings, *args, **kwargs)
-        # We'll give ourself a name so we also group no matter which of our option_strings is used.
-        self.name = [name for name in option_strings if name[:2] == "--"]
-    
-    def __call__(self, parser, namespace, values, option_string=None):
-        """
-        """
-        grouped_list = {
-            'group': self,
-            'values': values
-        }
-        try:
-            getattr(namespace, self.dest).append(grouped_list)
-        except AttributeError:
-            setattr(namespace, self.dest, [grouped_list])
