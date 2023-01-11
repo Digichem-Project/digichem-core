@@ -150,7 +150,7 @@ class Spin_orbit_coupling(Result_object, Floatable_mixin):
                 positive_one = positive_soc,
                 zero = zero_soc,
                 negative_one = negative_soc
-            ) for (singlet_symbol, triplet_symbol), (positive_soc, zero_soc, negative_soc) in zip(parser.data.socstates, parser.data.soc)]
+            ) for (singlet_symbol, triplet_symbol), (positive_soc, zero_soc, negative_soc) in zip(parser.data.socstates, parser.data.socelements)]
         except AttributeError:
             # No data.
             return []

@@ -106,17 +106,17 @@ class Gaussian_parser(Cclib_parser):
         
         # We'll split the SOC table given to use by PySOC to better match the format used by cclib.
         socstates = []
-        soc = []
+        socelements = []
         
         for SOC_line in SOC_table:
             # Add states.
             socstates.append([SOC_line.singlet_state, SOC_line.triplet_state])
             
             # Add coupling.
-            soc.append([SOC_line.positive_one, SOC_line.zero, SOC_line.negative_one])
+            socelements.append([SOC_line.positive_one, SOC_line.zero, SOC_line.negative_one])
                 
         # Add to data.
         self.data.socstates = socstates
-        self.data.soc = soc
+        self.data.socelements = socelements
             
             
