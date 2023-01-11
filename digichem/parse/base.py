@@ -32,7 +32,7 @@ class Parser_abc():
         :param log_files: A list of output file to analyse/parse. The first log_file given will be used for naming purposes.
         """
         # Set our name.
-        self.log_file_paths = [Path(log_file) for log_file in log_files if log_file is not None]
+        self.log_file_paths = self.sort_log_files([Path(log_file) for log_file in log_files if log_file is not None])
         
         # Panic if we have no logs.
         if len(self.log_file_paths) == 0:
@@ -258,6 +258,13 @@ class Cclib_parser(Parser_abc):
                     aux_files[self.INPUT_FILE_TYPES[file_type]] = hint.with_suffix(extension)
         
         return aux_files
+    
+    @classmethod
+    def sort_log_files(self, log_files):
+        """
+        Sort a list of log files into a particular order, if required for this parser.
+        """
+        return log_files
         
     
     @property
@@ -302,13 +309,39 @@ class Cclib_parser(Parser_abc):
         # ccread will also choke if we give it pathlib Paths.
         file_paths = [str(log_file) for log_file in self.log_file_paths]
         
+        # Get data from cclib.
         self.data = cclib.io.ccread(file_paths if len(file_paths) > 1 else file_paths[0])
         
-        self.parse_metadata()
+        # Do some setup.
+        self.pre_parse()
         
-    def parse_metadata(self):
+        # Do our own parsing (if any).
+        for log_file_path in self.log_file_paths:
+            with open(log_file_path, "rt") as log_file:
+                for line in log_file:
+                    self.parse_output_line(log_file, line)
+        
+        # Make any final adjustments.
+        self.post_parse()
+        
+    def parse_output_line(self, log_file, line):
         """
-        Parse additional calculation metadata.
+        Perform custom line-by-line parsing of an output file.
+        
+        This method will be called for each line of each log-file given to the parser (although be aware that some implementations may skip some lines during parsing),
+        and it allows for data not supported by cclib to be extracted. It is program specific.
+        """
+        # Do nothing.
+        
+    def pre_parse(self):
+        """
+        Perform any setup before line-by-line parsing.
+        """
+        # Do nothing.
+        
+    def post_parse(self):
+        """
+        Perform any required operations after line-by-line parsing.
         """
         # Add our name.
         if self.name is not None:

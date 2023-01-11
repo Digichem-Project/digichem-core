@@ -20,25 +20,6 @@ class Gaussian_parser(Cclib_parser):
             file_types.gaussian_fchk_file: "fchk_file",
             file_types.gaussian_rwf_file: "rwf_file"
         }
-        
-    def parse(self):
-        """
-        Extract results from our output files.
-        """
-        # We start by using cclib to get most of the data we need.
-        super().parse()
-        
-        # Output a message (because this is slow).
-        silico.log.get_logger().debug("Secondary parsing calculation result '{}'".format(self.description))
-                            
-        # Next try and get SOC.
-        try:
-            self.parse_SOC()
-        except Exception:
-            silico.log.get_logger().debug("Cannot parse SOC from output file '{}'".format(self.log_file_path), exc_info = True)
-        
-        # All done.
-        return self.data
     
     # Headers for date strings.
     DATE_HEADER = "Normal termination of"
@@ -51,46 +32,64 @@ class Gaussian_parser(Cclib_parser):
         Parse additional calculation metadata.
         """
         super().parse_metadata()
-        
+    
+    def pre_parse(self):
+        """
+        Perform any setup before line-by-line parsing.
+        """
+        super().pre_parse()
         # Assume we used 1 CPU if not otherwise clear (is this a good idea?)
-        self.data.metadata['numcpus'] = 1
+        self.data.metadata['num_cpus'] = 1
         
-        wall_time = []
-        cpu_time = []
-        
-        # Open our file.
-        with open(self.log_file_path, "rt") as log_file:
-            # Loop through our lines, looking for a specific line of text.
-            for log_file_line in log_file:
-                # Although we only need the last ~5 lines from the (possibly huge) log file, we read all the way through because negative seek()ing is tricky.
-                # Look for our key string.
-                if self.DATE_HEADER in log_file_line:
-                    # This line looks like: "Normal termination of Gaussian 16 at Sun Dec  6 19:13:09 2020"
-                    date_str = " ".join(log_file_line.split()[-4:])
-                    self.data.metadata['date'] = datetime.strptime(date_str, "%b %d %H:%M:%S %Y.").timestamp()
-                    
-                elif self.ELAPSED_TIME_HEADER in log_file_line:
-                    # This line looks like: "Elapsed time:       0 days  2 hours 38 minutes 50.9 seconds."
-                    datey = log_file_line.split()[-8:]
-                    wall_time.append(timedelta(days = int(datey[0]), hours = int(datey[2]), minutes = int(datey[4]), seconds = float(datey[6])).total_seconds())
-                    
-                elif self.CPU_TIME_HEADER in log_file_line:
-                    # This line looks like: "Job cpu time:       0 days 20 hours 52 minutes 17.3 seconds."
-                    datey = log_file_line.split()[-8:]
-                    cpu_time.append(timedelta(days = int(datey[0]), hours = int(datey[2]), minutes = int(datey[4]), seconds = float(datey[6])).total_seconds())
-                    
-                elif self.CPU_HEADER in log_file_line:
-                    # This line looks like: "Will use up to   10 processors via shared memory."
-                    self.data.metadata['num_cpus'] = int(log_file_line.split()[4])
-        
-        if 'wall_time' not in self.data.metadata and len(wall_time) != 0:
-            self.data.metadata['wall_time'] = wall_time
-        
-        if 'cpu_time' not in self.data.metadata and len(cpu_time) != 0:
-            self.data.metadata['cpu_time'] = cpu_time
+        self.wall_time = []
+        self.cpu_time = []
+    
+    def parse_output_line(self, log_file, line):
+        """
+        Perform custom line-by-line parsing of an output file.
+        """
+        # Although we only need the last ~5 lines from the (possibly huge) log file, we read all the way through because negative seek()ing is tricky.
+        # Look for our key string.
+        if self.DATE_HEADER in line:
+            # This line looks like: "Normal termination of Gaussian 16 at Sun Dec  6 19:13:09 2020"
+            date_str = " ".join(line.split()[-4:])
+            self.data.metadata['date'] = datetime.strptime(date_str, "%b %d %H:%M:%S %Y.").timestamp()
             
+        elif self.ELAPSED_TIME_HEADER in line:
+            # This line looks like: "Elapsed time:       0 days  2 hours 38 minutes 50.9 seconds."
+            datey = line.split()[-8:]
+            self.wall_time.append(timedelta(days = int(datey[0]), hours = int(datey[2]), minutes = int(datey[4]), seconds = float(datey[6])).total_seconds())
             
-    def parse_SOC(self):
+        elif self.CPU_TIME_HEADER in line:
+            # This line looks like: "Job cpu time:       0 days 20 hours 52 minutes 17.3 seconds."
+            datey = line.split()[-8:]
+            self.cpu_time.append(timedelta(days = int(datey[0]), hours = int(datey[2]), minutes = int(datey[4]), seconds = float(datey[6])).total_seconds())
+            
+        elif self.CPU_HEADER in line:
+            # This line looks like: "Will use up to   10 processors via shared memory."
+            self.data.metadata['num_cpus'] = int(line.split()[4])
+            
+    def post_parse(self):
+        """
+        Perform any required operations after line-by-line parsing.
+        """
+        super().post_parse()
+        
+        if 'wall_time' not in self.data.metadata and len(self.wall_time) != 0:
+            self.data.metadata['wall_time'] = self.wall_time
+        
+        if 'cpu_time' not in self.data.metadata and len(self.cpu_time) != 0:
+            self.data.metadata['cpu_time'] = self.cpu_time
+        
+        # Get SOC.
+        # Next try and get SOC.
+        try:
+            self.calculate_SOC()
+            
+        except Exception:
+            silico.log.get_logger().debug("Cannot calculate spin-orbit-coupling from output file '{}'".format(self.log_file_path), exc_info = True)
+    
+    def calculate_SOC(self):
         """
         Parse spin-orbit coupling using PySOC.
         """

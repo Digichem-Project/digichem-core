@@ -18,6 +18,13 @@ class Turbomole_parser(Cclib_parser):
     MINUTES_REGEX = re.compile(r"([0-9.]*) minutes")
     SECONDS_REGEX = re.compile(r"([0-9.]*) seconds")
     
+    @classmethod
+    def sort_log_files(self, log_files):
+        """
+        Sort a list of log files into a particular order, if required for this parser.
+        """
+        return sort_turbomole_outputs(log_files)
+    
     def duration_to_timedelta(self, duration_str):
         """
         Convert a Turbomole duration string into an equivalent timedelta object.
@@ -34,51 +41,56 @@ class Turbomole_parser(Cclib_parser):
         duration = timedelta(days = time_parts['days'], hours = time_parts['hours'], minutes = time_parts['minutes'], milliseconds = time_parts['seconds'] * 1000)
         
         # All done.
-        return duration
-        
+        return duration    
     
-    def parse_metadata(self):
+    def pre_parse(self):
         """
-        Parse additional calculation metadata.
+        Perform any setup before line-by-line parsing.
         """
-        super().parse_metadata()
-        
+        super().pre_parse()
+        # Look for duration information.
         # Only bother doing this if we don't have timings from cclib.
         if 'wall_time' not in self.data.metadata or 'cpu_time' not in self.data.metadata:
-            # Look for duration information.
-            self.data.metadata['wall_time'] = []
-            self.data.metadata['cpu_time'] = []
-            
-            # For Turbomole, we have multiple files to look through.
-            # Fortunately, cclib knows which order to process in.
-            for log_file_path in sort_turbomole_outputs(self.log_file_paths):
-                with open(log_file_path, "rt") as log_file:
-                    for line in log_file:
-                        
-                        # Look for duration.
-                        if "total  cpu-time :" in line:
-                            self.data.metadata['cpu_time'].append(self.duration_to_timedelta(line))
-                        if "total wall-time :" in line:
-                            self.data.metadata['wall_time'].append(self.duration_to_timedelta(line))
-                            
-                        # And also end date.
-                        if ": all done  ****" in line:
-                            # Skip 2 lines.
-                            line = next(log_file)
-                            line = next(log_file)
-                            line = next(log_file)
-                            try:
-                                self.data.metadata['date'] = datetime.strptime(line.strip(), "%Y-%m-%d %H:%M:%S.%f").timestamp()
-                            except ValueError:
-                                # We couldn't parse.
-                                pass
-            
-            # Delete our durations if they are zero.
-            if len(self.data.metadata['wall_time']) == 0:
-                del(self.data.metadata['wall_time'])
+            self.data.metadata['wall_time'] = 0.0
+            self.data.metadata['cpu_time'] = 0.0
+    
+    def parse_output_line(self, log_file, line):
+        """
+        Perform custom line-by-line parsing of an output file.
+        """
+        # Only bother doing this if we don't have timings from cclib.
+        if 'wall_time' not in self.data.metadata or 'cpu_time' not in self.data.metadata:
+            # Look for duration.
+            if "total  cpu-time :" in line:
+                self.data.metadata['cpu_time'] += self.duration_to_timedelta(line).total_seconds()
                 
-            if len(self.data.metadata['cpu_time']) == 0:
-                del(self.data.metadata['cpu_time'])
+            elif "total wall-time :" in line:
+                self.data.metadata['wall_time'] += self.duration_to_timedelta(line).total_seconds()
+            
+        # And also end date.
+        if ": all done  ****" in line:
+            # Skip 2 lines.
+            line = next(log_file)
+            line = next(log_file)
+            line = next(log_file)
+            try:
+                self.data.metadata['date'] = datetime.strptime(line.strip(), "%Y-%m-%d %H:%M:%S.%f").timestamp()
+            except ValueError:
+                # We couldn't parse.
+                pass
+    
+    def post_parse(self):
+        """
+        Perform any required operations after line-by-line parsing.
+        """
+        super().post_parse()
+            
+        # Delete our durations if they are zero.
+        if len(self.data.metadata['wall_time']) == 0:
+            del(self.data.metadata['wall_time'])
+            
+        if len(self.data.metadata['cpu_time']) == 0:
+            del(self.data.metadata['cpu_time'])
 
     def process(self, alignment_class):
         """
