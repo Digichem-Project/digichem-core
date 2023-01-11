@@ -42,20 +42,32 @@ class Orca_parser(Cclib_parser):
                 soc_type = "triplet"
             
             else:
-                silico.log.getLogger().debug("Unrecognised SOC section started by line '{}'".format(line))
+                pass
+                silico.log.get_logger().debug("Unrecognised SOC section started by line '{}'".format(line))
             
             if soc_type is not None:
                 # Reset our attributes.
                 self.data.socstates = []
                 self.data.socenergies = []
-                self.data.socelements = []
+                if soc_type == "triplet":
+                    self.data.socelements = []
+                elif hasattr(self.data, 'socelements'):
+                    delattr(self.data, 'socelements')
                 
-                while "--------------------------------------------------------------------------------" not in line:
+                line = next(log_file)
+                line = next(log_file)
+                
+                while line.strip() != "--------------------------------------------------------------------------------" and \
+                    line.strip() != "":
                     # Each line is the coupling between one singlet state and one triplet state.
                     # 1      1    (   0.00 ,    0.00)    (  -0.00 ,   -0.00)    (  -0.00 ,    0.00)
                     split_line = line.split()
-                    triplet_index = int(split_line[0])
-                    singlet_index = int(split_line[1])
+                    try:
+                        triplet_index = int(split_line[0])
+                        singlet_index = int(split_line[1])
+                    
+                    except Exception:
+                        print(line)
                     
                     # Split on brackets to get each xyz/0, -1, +1 element.
                     soc_elements = []
@@ -79,6 +91,6 @@ class Orca_parser(Cclib_parser):
                         # Orca is 0, -1, +1
                         self.data.socelements.append([soc_elements[2], soc_elements[0], soc_elements[1]])
                 
-                line = next(line)
+                    line = next(log_file)
                 
                 
