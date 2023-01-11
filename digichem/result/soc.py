@@ -55,7 +55,13 @@ class SOC_list(Result_container):
         :param parser: An output file parser.
         :return: A SOC_list object. The list will be empty if no SOC is available.
         """
-        return self(Spin_orbit_coupling.list_from_parser(parser))
+        # Decide which SOC class to use.
+        if hasattr(parser.data, "socelements"):
+            soc_cls = Spin_orbit_coupling
+        else:
+            soc_cls = Total_spin_orbit_coupling
+        
+        return self(soc_cls.list_from_parser(parser))
 
     @classmethod
     def from_dump(self, data, result_set):
@@ -135,7 +141,9 @@ class Spin_orbit_coupling(Result_object, Floatable_mixin):
         :param data: The data to parse.
         :param result_set: The partially constructed result set which is being populated.
         """
-        return [self(result_set.excited_states.find(soc_dict['singlet'], soc_dict['triplet'], soc_dict['soc']['+1'], soc_dict['soc']['0'], soc_dict['soc']['-1'])) for soc_dict in data]
+        return [
+            self(result_set.excited_states.find(soc_dict['singlet']), result_set.excited_states.find(soc_dict['triplet']), soc_dict['soc']['+1']['value'], soc_dict['soc']['0']['value'], soc_dict['soc']['-1']['value'])
+        for soc_dict in data]
         
     @classmethod
     def list_from_parser(self, parser):
@@ -208,4 +216,63 @@ class Spin_orbit_coupling(Result_object, Floatable_mixin):
         Stringify this SOC class.
         """
         return "<{}|Hso|{}> (RSS, +1, 0, -1) (cm-1): {:10.5f} {:10.5f} {:10.5f} {:10.5f}".format(self.singlet_state.state_symbol, self.triplet_state.state_symbol, self.root_sum_square, self.positive_one, self.zero, self.negative_one)
+
+
+class Total_spin_orbit_coupling(Spin_orbit_coupling):
+    """
+    A class for representing SOC when only the total is known (and not the individual elements).
+    """
+    
+    def __init__(self, singlet_state, triplet_state, total):
+        super().__init__(singlet_state, triplet_state, None, None, None)
+        
+        self._root_sum_square = total
+        
+    @property
+    def root_sum_square(self):
+        return self._root_sum_square
+        
+    def __str__(self):
+        """
+        Stringify this SOC class.
+        """
+        return "<{}|Hso|{}> (cm-1): {:10.5f}".format(self.singlet_state.state_symbol, self.triplet_state.state_symbol, self.root_sum_square)
+    
+    def dump(self, silico_options):
+        """
+        Get a representation of this result object in primitive format.
+        """
+        dump_dic = super().dump(silico_options)
+        # Remove elements.
+        del(dump_dic['soc'])
+        return dump_dic
+    
+    @classmethod
+    def list_from_dump(self, data, result_set):
+        """
+        Get a list of instances of this class from its dumped representation.
+        
+        :param data: The data to parse.
+        :param result_set: The partially constructed result set which is being populated.
+        """
+        return [
+            self(result_set.excited_states.find(soc_dict['singlet']), result_set.excited_states.find(soc_dict['triplet']), soc_dict['rss']['value'])
+        for soc_dict in data]
+        
+    @classmethod
+    def list_from_parser(self, parser):
+        """
+        Create a SOC object from an output file parser.
+        """
+        # Go through our data.
+        try:
+            return [self(
+                singlet_state = parser.results.energy_states.get_state(state_symbol = singlet_symbol),
+                triplet_state = parser.results.energy_states.get_state(state_symbol = triplet_symbol),
+                total = total
+            ) for (singlet_symbol, triplet_symbol), total in zip(parser.data.socstates, parser.data.socenergies)]
+        except AttributeError:
+            # No data.
+            raise
+            return []
         
