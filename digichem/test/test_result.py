@@ -119,8 +119,6 @@ def test_MP_energy(result_set, num, final):
     """Test the parsed energy is correct"""
     assert result_set.energies.mp.final == pytest.approx(final, abs=1e-5)
     
-    if num > 1:
-        pytest.skip("A cclib bug currently parses the wrong number of MP energies")
     # Check length, which will be 1 for SP, and >1 for the opts.
     assert len(result_set.energies.scf) == num
     assert len(result_set.energies.mp) == num
@@ -298,8 +296,6 @@ def test_tedm(result_set, number, TDM):
     ])
 def test_tmdm(result_set, number, TDM):
     """Test transition dipole moments"""
-    if result_set.metadata.package == "Turbomole":
-        pytest.skip("Turbomole does not yet support parsing TMDM")
     
     # Check number of dipoles.
     assert len([excited_state.transition_dipole_moment for excited_state in result_set.excited_states if excited_state.transition_dipole_moment.magnetic is not None]) == number
