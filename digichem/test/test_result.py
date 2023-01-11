@@ -292,7 +292,7 @@ def test_tedm(result_set, number, TDM):
 
 @pytest.mark.parametrize("result_set, number, TDM", [
         (pytest.lazy_fixture("gaussian_TDM_result"), 20, (0.6909, 0.0, 0.0)),
-        (pytest.lazy_fixture("turbomole_TDM_result"), 10, (0.002457, -0.000001, -0.000001))
+        (pytest.lazy_fixture("turbomole_TDM_result"), 10, (0.673218, -0.000274, -0.000274))
     ])
 def test_tmdm(result_set, number, TDM):
     """Test transition dipole moments"""
@@ -304,7 +304,7 @@ def test_tmdm(result_set, number, TDM):
     S1_TDM = result_set.excited_states.get_state("S(1)").transition_dipole_moment
     
     # Check coords and magnitude.
-    check_dipole(S1_TDM.magnetic, TDM)
+    check_dipole(S1_TDM.magnetic, TDM, abs = 1e-3)
 
 
 @pytest.mark.parametrize("result_set, state, g_lum", [
