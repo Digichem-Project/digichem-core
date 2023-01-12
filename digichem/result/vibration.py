@@ -49,9 +49,9 @@ class Vibrations_list(Result_container, Unmergeable_container_mixin):
         spectrum = self.spectrum
         
         try:
+            raise Exception("Disable")
             spectrum_data = spectrum.plot_cumulative_gaussian(silico_options['IR_spectrum']['fwhm'], silico_options['IR_spectrum']['gaussian_resolution'], silico_options['IR_spectrum']['gaussian_cutoff'])
             
-            #spectrum_data = [({"value": float(x), "units": "c m^-1"}, {"value":float(y), "units": "km mol^-1"}) for x,y in spectrum_data]
             spectrum_data = [{"x":{"value": float(x), "units": "c m^-1"}, "y": {"value":float(y), "units": "km mol^-1"}} for x,y in spectrum_data]
             spectrum_peaks = [{"x":{"value": float(x), "units": "c m^-1"}, "y": {"value":float(y), "units": "km mol^-1"}} for x, y in spectrum.peaks(silico_options['IR_spectrum']['fwhm'], silico_options['IR_spectrum']['gaussian_resolution'], silico_options['IR_spectrum']['gaussian_cutoff'])]
         

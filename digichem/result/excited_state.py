@@ -236,6 +236,7 @@ class Excited_state_list(Result_container):
         spectrum_ev = Spectroscopy_graph([(excited_state.energy, excited_state.oscillator_strength) for excited_state in self])
         
         try:
+            raise Exception("Disable")
             spectrum_nm_data = spectrum_nm.plot_cumulative_gaussian(silico_options['absorption_spectrum']['fwhm'], silico_options['absorption_spectrum']['gaussian_resolution'], silico_options['absorption_spectrum']['gaussian_cutoff'])
             y_units = "arb. unit" if silico_options['absorption_spectrum']['use_jacobian'] else "oscillator_strength"
             
@@ -247,6 +248,7 @@ class Excited_state_list(Result_container):
             spectrum_nm_peaks = []
         
         try:
+            raise Exception("Disable")
             spectrum_ev_data = spectrum_ev.plot_cumulative_gaussian(silico_options['absorption_spectrum']['fwhm'], silico_options['absorption_spectrum']['gaussian_resolution'], silico_options['absorption_spectrum']['gaussian_cutoff'])
             
             spectrum_ev_data = [{"x":{"value": float(x), "units": "eV"}, "y": {"value":float(y), "units": "oscillator_strength"}} for x,y in spectrum_ev_data]
