@@ -25,7 +25,7 @@ from silico.result.emission import Relaxed_excited_state
 class Parser_abc():
     """ABC for all parsers."""
     
-    def __init__(self, *log_files, **kwargs):
+    def __init__(self, *log_files, raw_data = None, **kwargs):
         """
         Top level constructor for calculation parsers.
         
@@ -39,14 +39,15 @@ class Parser_abc():
             raise Silico_exception("Cannot parse calculation output; no available log files. Are you sure the given path is a log file or directory containing log files?")
         
         # An object that we will populate with raw results.
-        self.data = None
+        self.data = raw_data
         
         # A result set object that we'll populate with results.
         self.results = None
         
-        # Parse.
+        # Parse (if we haven't already).
         try:
-            self.parse()
+            if self.data is None:
+                self.parse()
         except Exception:
             raise Silico_exception("Error parsing calculation result '{}'".format(self.description))
 
