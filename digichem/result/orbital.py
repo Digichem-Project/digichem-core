@@ -258,7 +258,7 @@ class Molecular_orbital_list(Result_container):
             try:
                 orbital = self.find(label)
                 dump_dict[label] = {
-                    "value": orbital.energy,
+                    "value": float(orbital.energy),
                     "units": "eV"
                 }
                 
