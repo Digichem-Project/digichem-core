@@ -166,6 +166,16 @@ class Parser_abc():
         Extract results from our output files.
         """
         raise NotImplementedError("Implement in subclass")
+            
+    def process_all(self, alignment_class):
+        """
+        Get all the Result set objects produced by this parser.
+        
+        :param: alignment_class: An alignment class object to use to reorientate atoms. If not specified the Minimal alignment method will be used by default.
+        :return: A list of the populated result sets.
+        """
+        self.process(alignment_class)
+        return [self.results]
 
     def process(self, alignment_class):
         """
