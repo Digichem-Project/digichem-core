@@ -24,19 +24,26 @@ from silico.result.alignment import Minimal
 from silico.result.result import Result_set
 from silico.exception.base import Silico_exception
 import silico.log
-from silico.parse.dump import Dump_parser
+from silico.parse.dump import Yaml_multi_parser, Tinydb_multi_parser
 
 
-def class_from_log_files(*log_files):
+def class_from_log_files(*log_files, format_hint = "auto"):
     """
     Get a parser class based on some calculation log files.
+    
+    :param format_hint: A hint as to the format of the given log files. Either 'auto' (to guess), 'log' (calc log file), 'sir' (silico result file) or 'sid' (silico database file).
     """
     # First get child files if we are a dir.
     found_log_files = Cclib_parser.find_log_files(log_files[0])
     
     # If we have a .sir file, we can parse using dump_parser.
-    if len(found_log_files) > 0 and found_log_files[0].suffix == ".sir":
-        return Dump_parser
+    if format_hint == "sir" or (format_hint == "auto" and  len(found_log_files) > 0 and found_log_files[0].suffix == ".sir"):
+        return Yaml_multi_parser
+    elif format_hint == "sid" or (format_hint == "auto" and len(found_log_files) > 0 and found_log_files[0].suffix == ".sid"):
+        return Tinydb_multi_parser
+    
+    if format_hint not in ["cclib", "auto"]:
+        raise ValueError("Unrecognised format hint '{}'".format(format_hint))
     
     # We'll use cclib to guess the file type for us.
     try:
@@ -44,7 +51,7 @@ def class_from_log_files(*log_files):
         
     except Exception as e:
         # cclib couldn't figure out the file type, it probably wasn't a .log file.
-        raise Silico_exception("Could not determine file type of file(s): '{}'; are your sure these are computational log files?".format(", ".join((str(log_file) for log_file in log_files)))) from e
+        raise Silico_exception("Could not determine file type of file(s): '{}'; are you sure these are computational log files?".format(", ".join((str(log_file) for log_file in log_files)))) from e
     
     # Either get a more complex parser if we have one, or just return the base parser.
     if log_file_type == cclib.parser.gaussianparser.Gaussian:
@@ -56,20 +63,24 @@ def class_from_log_files(*log_files):
     else:
         return Cclib_parser
 
-def from_log_files(*log_files, **aux_files):
+def from_log_files(*log_files, format_hint = "auto", **aux_files):
     """
     Get an output file parser of appropriate type.
     
     This is a convenience function.
-    """
-    return class_from_log_files(*log_files).from_logs(*log_files, **aux_files)
     
-def parse_calculation(*log_files, alignment_class = None, **aux_files):
+    :param format_hint: A hint as to the format of the given log files. Either 'auto' (to guess), 'log' (calc log file), 'sir' (silico result file) or 'sid' (silico database file).
+    """
+    return class_from_log_files(*log_files, format_hint = "auto").from_logs(*log_files, **aux_files)
+    
+def parse_calculation(*log_files, alignment_class = None, parse_all = False, format_hint = "auto", **aux_files):
     """
     Parse a single calculation result.
     
     :param log_files: A number of calculation result files corresponding to the same calculation.
     :param alignment_class: An optional alignment class to use to reorientate the molecule.
+    :param parse_all: Whether to parse all results in the given log file. If True, a list of result sets will be returned, if False, only the first result will be returned if there are multiple.
+    :param format_hint: A hint as to the format of the given log files. Either 'auto' (to guess), 'log' (calc log file), 'sir' (silico result file) or 'sid' (silico database file).
     :param aux_files: Optional auxiliary calculation files corresponding to the calculation.
     :return: A single Result_set object.
     """
@@ -79,19 +90,25 @@ def parse_calculation(*log_files, alignment_class = None, **aux_files):
     # Open files for reading (handles archives for us).
     with open_for_parsing(*log_files) as open_log_files:
         
-        return from_log_files(*open_log_files, **aux_files).process(alignment_class)
+        if parse_all:
+            return from_log_files(*open_log_files, format_hint = format_hint, **aux_files).process_all(alignment_class)
+        
+        else:       
+            return from_log_files(*open_log_files, format_hint = format_hint, **aux_files).process(alignment_class)
 
-def multi_parser(log_file, alignment_class):
+def multi_parser(log_file, alignment_class, format_hint = "auto"):
         """
         The inner function which will be called in parallel to parse files.
+        
+        :param format_hint: A hint as to the format of the given log files. Either 'auto' (to guess), 'log' (calc log file), 'sir' (silico result file) or 'sid' (silico database file).
         """
         try:
-            return parse_calculation(log_file, alignment_class = alignment_class)
+            return parse_calculation(log_file, alignment_class = alignment_class, parse_all = True, format_hint = format_hint)
             
         except Exception:
             silico.log.get_logger().warning("Unable to parse calculation result file '{}'; skipping".format(log_file), exc_info = True)
 
-def parse_multiple_calculations(*log_files, alignment_class = None, pool = None, init_func = None, init_args = None, processes = 1):
+def parse_multiple_calculations(*log_files, alignment_class = None, pool = None, init_func = None, init_args = None, format_hint = "auto", processes = 1):
     """
     Parse a number of separate calculation results in parallel.
     
@@ -101,6 +118,7 @@ def parse_multiple_calculations(*log_files, alignment_class = None, pool = None,
     :param alignment_class: An optional alignment class to use to reorientate the molecule.
     :param pool: An optional subprocessing.pool object to use for parallel parsing.
     :param init_func: An optional function to call to init each newly created process.
+    :param format_hint: A hint as to the format of the given log files. Either 'auto' (to guess), 'log' (calc log file), 'sir' (silico result file) or 'sid' (silico database file).
     :param processes: The max number of processes to create the new pool object with; if the number of given log_files is less than processes, then len(log_files) will be used instead.
     """
     if len(log_files) == 0:
@@ -119,20 +137,20 @@ def parse_multiple_calculations(*log_files, alignment_class = None, pool = None,
     
     # Do some parsing.
     try:
-        results = list(
+        result_lists = list(
             filterfalse(lambda x: x is None,
-                pool.map(partial(multi_parser, alignment_class = alignment_class), log_files)
+                pool.map(partial(multi_parser, alignment_class = alignment_class, format_hint = format_hint), log_files)
             )
         )
         
-        return results
+        return [result for result_list in result_lists for result in result_list]
     
     finally:
         # Do some cleanup if we need to.
         if own_pool:
             pool.close()
     
-def parse_calculations(*results, alignment_class = None, aux_files = None):
+def parse_calculations(*results, alignment_class = None, format_hint = "auto", aux_files = None):
     """
     Get a single result object by parsing a number of computational log files.
     
@@ -145,6 +163,7 @@ def parse_calculations(*results, alignment_class = None, aux_files = None):
     
     :param log_files: A list of paths to computational chemistry log files to parse. If more than one file is given, each is assumed to correspond to a separate calculation in which case the parsed results will be merged together. In addition, each given 'log file' can be an iterable of log file paths, which will be considered to correspond to an individual calculation.
     :param alignment_class: An alignment class to use to reorientate each molecule.
+    :param format_hint: A hint as to the format of the given log files. Either 'auto' (to guess), 'log' (calc log file), 'sir' (silico result file) or 'sid' (silico database file).
     :param aux_files: A list of dictionaries of auxiliary files. The ordering of aux_files should match that of log_files.
     :return: A single Result_set object (or child thereof).
     """
@@ -159,7 +178,7 @@ def parse_calculations(*results, alignment_class = None, aux_files = None):
     for index, log_result_or_list in enumerate(results):
         if isinstance(log_result_or_list, Result_set):
             # Nothing we need to do.
-            result = log_result_or_list
+            result_list = log_result_or_list
         else:
             # First check if this is an already parsed result.
             # Next, decide if this is a real log file path or is actually a list.
@@ -177,10 +196,10 @@ def parse_calculations(*results, alignment_class = None, aux_files = None):
                 aux = {}
                 
             # Parse this calculation output.
-            result = parse_calculation(*logs, alignment_class = alignment_class, **aux)
+            result_list = parse_calculation(*logs, alignment_class = alignment_class, parse_all = True, format_hint = format_hint, **aux)
         
         # Add to our list.
-        parsed_results.append(result)
+        parsed_results.extend(result_list)
     
     # If we have more than one result, merge them together.
     if len(parsed_results) > 1:
