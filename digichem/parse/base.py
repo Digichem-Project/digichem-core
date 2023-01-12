@@ -125,6 +125,38 @@ class Parser_abc():
         log_files = list(reversed(list(dict.fromkeys(log_files))))
         return log_files
     
+    @classmethod
+    def sort_log_files(self, log_files):
+        """
+        Sort a list of log files into a particular order, if required for this parser.
+        """
+        return log_files
+    
+    @property
+    def log_file_path(self):
+        """
+        The main log file.
+        """
+        for log_file in self.log_file_paths:
+            if log_file.suffix.lower() == ".log":
+                return log_file
+            
+        return self.log_file_paths[0]
+            
+    @property
+    def name(self):
+        """
+        Short name to describe this calculation result.
+        """
+        return self.log_file_path.with_suffix("").name
+    
+    @property
+    def description(self):
+        """
+        A name/path that describes the file(s) being parsed, used for error messages etc.
+        """
+        return self.log_file_path
+    
     def parse(self):
         """
         Extract results from our output files.
@@ -259,39 +291,6 @@ class Cclib_parser(Parser_abc):
                     aux_files[self.INPUT_FILE_TYPES[file_type]] = hint.with_suffix(extension)
         
         return aux_files
-    
-    @classmethod
-    def sort_log_files(self, log_files):
-        """
-        Sort a list of log files into a particular order, if required for this parser.
-        """
-        return log_files
-        
-    
-    @property
-    def log_file_path(self):
-        """
-        The main log file.
-        """
-        for log_file in self.log_file_paths:
-            if log_file.suffix.lower() == ".log":
-                return log_file
-            
-        return self.log_file_paths[0]
-            
-    @property
-    def name(self):
-        """
-        Short name to describe this calculation result.
-        """
-        return self.log_file_path.with_suffix("").name
-    
-    @property
-    def description(self):
-        """
-        A name/path that describes the file(s) being parsed, used for error messages etc.
-        """
-        return self.log_file_path
     
     def parse(self):
         """
