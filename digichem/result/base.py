@@ -95,6 +95,16 @@ class Result_object():
             
         return multiple_objects[0]
     
+    def generate_for_dump(self):
+        """
+        Method used to get a dictionary used to generate on-demand values for dumping.
+        
+        This functionality is useful for hiding expense properties from the normal dump process, while still exposing them when specifically requested.
+        
+        Each key in the returned dicrt is the name of a dumpable item, each value is a function to call with silico_options as its only param.
+        """
+        return {}
+    
     def dump(self, silico_options):
         """
         Abstract function that is called to dump the value of the result object to a primitive type, suitable for serializing with yaml.
