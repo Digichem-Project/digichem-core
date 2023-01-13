@@ -45,11 +45,28 @@ class Vibrations_list(Result_container, Unmergeable_container_mixin):
     def spectrum(self):
         return Spectroscopy_graph.from_vibrations(self)
     
-    def dump(self, silico_options):
+    def generate_for_dump(self):
+        """
+        Method used to get a dictionary used to generate on-demand values for dumping.
+        
+        This functionality is useful for hiding expense properties from the normal dump process, while still exposing them when specifically requested.
+        
+        Each key in the returned dicrt is the name of a dumpable item, each value is a function to call with silico_options as its only param.
+        """
+        return {"spectrum": self.generate_spectrum}
+    
+    def generate_spectrum(self, silico_options):
+        """
+        Abstract function that is called to generate an on-demand value for dumping.
+        
+        This functionality is useful for hiding expense properties from the normal dump process, while still exposing them when specifically requested.
+        
+        :param key: The key being requested.
+        :param silico_options: Silico options being used to dump.
+        """
         spectrum = self.spectrum
         
         try:
-            raise Exception("Disable")
             spectrum_data = spectrum.plot_cumulative_gaussian(silico_options['IR_spectrum']['fwhm'], silico_options['IR_spectrum']['gaussian_resolution'], silico_options['IR_spectrum']['gaussian_cutoff'])
             
             spectrum_data = [{"x":{"value": float(x), "units": "c m^-1"}, "y": {"value":float(y), "units": "km mol^-1"}} for x,y in spectrum_data]
@@ -59,14 +76,20 @@ class Vibrations_list(Result_container, Unmergeable_container_mixin):
             spectrum_data = []
             spectrum_peaks = []
         
+        return {
+            "values": spectrum_data,
+            "peaks": spectrum_peaks
+        }
+    
+    def dump(self, silico_options):
         dump_dict = {
             "num_vibrations": len(self),
             "num_negative": len(self.negative),
             "values": super().dump(silico_options),
-            "spectrum": {
-                "values": spectrum_data,
-                "peaks": spectrum_peaks
-            }
+#             "spectrum": {
+#                 "values": spectrum_data,
+#                 "peaks": spectrum_peaks
+#             }
         }
         return dump_dict
 
