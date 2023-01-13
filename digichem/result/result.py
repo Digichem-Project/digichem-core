@@ -15,15 +15,6 @@ import silico.result.excited_state
 from silico.result.emission import Emissions
 
 
-class Dumpable():
-    """
-    Class for returning results on request that can still be dumped.
-    """
-
-    def dump(self, silico_options):
-        raise NotImplementedError("Implement in subclass")
-
-
 class Result_set(Result_object):
     """
     Class that represents a collection of results from a calculation.
