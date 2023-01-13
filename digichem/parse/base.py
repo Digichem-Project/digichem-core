@@ -21,6 +21,7 @@ from silico.result.dipole_moment import Dipole_moment
 from silico.result.vibration import Vibrations_list
 from silico.exception.base import Silico_exception
 from silico.result.emission import Relaxed_excited_state
+from silico.parse.util import custom_parsing_formats
 
 class Parser_abc():
     """ABC for all parsers."""
@@ -77,7 +78,7 @@ class Parser_abc():
         if hint.is_dir():
             # Look for all .log files.
             # File extensions that we recognise.
-            log_types = ["*.log", "*.out", "*.sir"]
+            log_types = itertools.chain(["*.{}".format(custom_format) for custom_format in custom_parsing_formats], ["*.log", "*.out"])
             parent = hint
             log_files = [found_log_file for found_log_file in itertools.chain(*[parent.glob(log_type) for log_type in log_types])]
             
@@ -89,28 +90,30 @@ class Parser_abc():
         else:
             parent = hint.parent
             log_files = [hint]
-                            
-        # Try and find job files.
-        # These files have names like 'job.0', 'job.1' etc, ending in 'job.last'.
-        for number in itertools.count():
-            # Get the theoretical file name.
-            job_file_path = Path(parent, "job.{}".format(number))
-            
-            # See if it exists (and isn't the log_file given to us).
-            if job_file_path.exists():
-                # Add to list.
-                log_files.append(job_file_path)
-            else:
-                # We've found all the numbered files.
-                break
-                    
-        # Look for other files.
-        for maybe_file_name in ("basis", "control", "mos", "alpha", "beta", "coord", "gradient", "aoforce", "job.last", "numforce/aoforce.out"):
-            maybe_file_path = Path(parent, maybe_file_name)
-            
-            if maybe_file_path.exists():
-                # Found it.
-                log_files.append(maybe_file_path)
+        
+        # If we have a computational style log file, look for others.
+        if hint.suffix not in custom_parsing_formats:
+            # Try and find job files.
+            # These files have names like 'job.0', 'job.1' etc, ending in 'job.last'.
+            for number in itertools.count():
+                # Get the theoretical file name.
+                job_file_path = Path(parent, "job.{}".format(number))
+                
+                # See if it exists (and isn't the log_file given to us).
+                if job_file_path.exists():
+                    # Add to list.
+                    log_files.append(job_file_path)
+                else:
+                    # We've found all the numbered files.
+                    break
+                        
+            # Look for other files.
+            for maybe_file_name in ("basis", "control", "mos", "alpha", "beta", "coord", "gradient", "aoforce", "job.last", "numforce/aoforce.out"):
+                maybe_file_path = Path(parent, maybe_file_name)
+                
+                if maybe_file_path.exists():
+                    # Found it.
+                    log_files.append(maybe_file_path)
                 
         # Make sure we only have unique log files.
         # We also now reverse our ordering, so that files given earlier by the user have priority.

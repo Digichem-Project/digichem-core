@@ -27,23 +27,28 @@ import silico.log
 from silico.parse.dump import Yaml_multi_parser, Tinydb_multi_parser
 
 
+custom_parsing_formats = {
+    "sir": Yaml_multi_parser,
+    "sid": Tinydb_multi_parser,
+}
+
 def class_from_log_files(*log_files, format_hint = "auto"):
     """
     Get a parser class based on some calculation log files.
     
     :param format_hint: A hint as to the format of the given log files. Either 'auto' (to guess), 'log' (calc log file), 'sir' (silico result file) or 'sid' (silico database file).
     """
-    # First get child files if we are a dir.
-    found_log_files = Cclib_parser.find_log_files(log_files[0])
+    if format_hint in custom_parsing_formats:
+        return custom_parsing_formats[format_hint]
     
-    # If we have a .sir file, we can parse using dump_parser.
-    if format_hint == "sir" or (format_hint == "auto" and  len(found_log_files) > 0 and found_log_files[0].suffix == ".sir"):
-        return Yaml_multi_parser
-    elif format_hint == "sid" or (format_hint == "auto" and len(found_log_files) > 0 and found_log_files[0].suffix == ".sid"):
-        return Tinydb_multi_parser
+    elif format_hint == "auto" and len(log_files) > 0 and log_files[0].suffix[1:] in custom_parsing_formats:
+        return custom_parsing_formats[log_files[0].suffix[1:]]
     
     if format_hint not in ["cclib", "auto"]:
         raise ValueError("Unrecognised format hint '{}'".format(format_hint))
+    
+    # First get child files if we are a dir.
+    found_log_files = Cclib_parser.find_log_files(log_files[0])
     
     # We'll use cclib to guess the file type for us.
     try:
