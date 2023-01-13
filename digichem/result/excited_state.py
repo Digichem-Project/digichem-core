@@ -228,7 +228,25 @@ class Excited_state_list(Result_container):
         merged.assign_levels()
         return merged
     
-    def dump(self, silico_options):
+    def generate_for_dump(self):
+        """
+        Method used to get a dictionary used to generate on-demand values for dumping.
+        
+        This functionality is useful for hiding expense properties from the normal dump process, while still exposing them when specifically requested.
+        
+        Each key in the returned dicrt is the name of a dumpable item, each value is a function to call with silico_options as its only param.
+        """
+        return {"spectrum": self.generate_spectrum}
+    
+    def generate_spectrum(self, silico_options):
+        """
+        Abstract function that is called to generate an on-demand value for dumping.
+        
+        This functionality is useful for hiding expense properties from the normal dump process, while still exposing them when specifically requested.
+        
+        :param key: The key being requested.
+        :param silico_options: Silico options being used to dump.
+        """
         # Get spectrum data.
         # For excited states, we dump two spectra. One in nm, one in eV (which have different scaling).
         # TODO: It's weird that these spectra are only available in dumped format, there should be some property/function on the class that also returns them...
@@ -236,7 +254,6 @@ class Excited_state_list(Result_container):
         spectrum_ev = Spectroscopy_graph([(excited_state.energy, excited_state.oscillator_strength) for excited_state in self])
         
         try:
-            raise Exception("Disable")
             spectrum_nm_data = spectrum_nm.plot_cumulative_gaussian(silico_options['absorption_spectrum']['fwhm'], silico_options['absorption_spectrum']['gaussian_resolution'], silico_options['absorption_spectrum']['gaussian_cutoff'])
             y_units = "arb. unit" if silico_options['absorption_spectrum']['use_jacobian'] else "oscillator_strength"
             
@@ -248,7 +265,6 @@ class Excited_state_list(Result_container):
             spectrum_nm_peaks = []
         
         try:
-            raise Exception("Disable")
             spectrum_ev_data = spectrum_ev.plot_cumulative_gaussian(silico_options['absorption_spectrum']['fwhm'], silico_options['absorption_spectrum']['gaussian_resolution'], silico_options['absorption_spectrum']['gaussian_cutoff'])
             
             spectrum_ev_data = [{"x":{"value": float(x), "units": "eV"}, "y": {"value":float(y), "units": "oscillator_strength"}} for x,y in spectrum_ev_data]
@@ -257,19 +273,21 @@ class Excited_state_list(Result_container):
         except Exception:
             spectrum_ev_data = []
             spectrum_ev_peaks = []
-        
+            
+        return {
+            "nm": {
+                "values": spectrum_nm_data,
+                "peaks": spectrum_nm_peaks
+            },
+            "ev": {
+                "values": spectrum_ev_data,
+                "peaks": spectrum_ev_peaks
+            }    
+        }
+    
+    def dump(self, silico_options):       
         dump_dict = {
             "values": super().dump(silico_options),
-            "spectrum": {
-                "nm": {
-                    "values": spectrum_nm_data,
-                    "peaks": spectrum_nm_peaks
-                },
-                "ev": {
-                    "values": spectrum_ev_data,
-                    "peaks": spectrum_ev_peaks
-                }    
-            }
         }
         
         # Add extra properties.
