@@ -1,7 +1,6 @@
 """Parser(s) for reading from dumped silico results sets"""
 import yaml
-import portalocker
-from tinydb import TinyDB
+import json
 
 from silico.parse.base import Parser_abc
 from silico.result.tdm import Transition_dipole_moment
@@ -86,17 +85,17 @@ class Yaml_multi_parser(Dump_multi_parser_abc):
         """
         # Read that file.
         silico.log.get_logger().info("Parsing calculation result '{}'".format(self.description))
-        with open(self.log_file_paths[0], "rt") as yaml_file:
+        with open(self.log_file_path, "rt") as yaml_file:
             self.data = list(yaml.safe_load_all(yaml_file))
     
 
-class Tinydb_multi_parser(Dump_multi_parser_abc):
+class Json_multi_parser(Dump_multi_parser_abc):
     """
-    Parser for reading from dumped result sets in yaml format.
+    Parser for reading from dumped result sets in JSON format.
     """
     
     def get_sub_parser(self):
-        return Tinydb_parser
+        return Json_parser
     
     def parse(self):
         """
@@ -104,18 +103,8 @@ class Tinydb_multi_parser(Dump_multi_parser_abc):
         """
         # Read that file.
         silico.log.get_logger().info("Parsing calculation result '{}'".format(self.description))
-            
-        silico.log.get_logger().debug("Waiting for database lock on file '{}'".format(self.log_file_path))
-        # Lock the DB file so we can read it safely.
-        with portalocker.Lock(self.log_file_path, "rt", timeout = 5.0):
-        
-            # Open the DB file.
-            db = TinyDB(self.log_file_path)
-            
-            silico.log.get_logger().debug("Executing database query")
-            
-            # Get everything.
-            self.data = db.all()
+        with open(self.log_file_path, "rt") as json_file:
+            self.data = json.load(json_file)
 
 
 class Dump_parser_abc(Parser_abc):
@@ -217,7 +206,7 @@ class Yaml_parser(Dump_parser_abc):
             self.data = yaml.safe_load(yaml_file)
             
 
-class Tinydb_parser(Dump_parser_abc):
+class Json_parser(Dump_parser_abc):
     """
     Parser for reading from TinyDB json files.
     """
