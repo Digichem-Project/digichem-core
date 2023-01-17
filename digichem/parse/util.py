@@ -24,12 +24,14 @@ from silico.result.alignment import Minimal
 from silico.result.result import Result_set
 from silico.exception.base import Silico_exception
 import silico.log
-from silico.parse.dump import Yaml_multi_parser, Tinydb_multi_parser
+from silico.parse.dump import Yaml_multi_parser, Json_multi_parser
 
 
 custom_parsing_formats = {
     "sir": Yaml_multi_parser,
-    "sid": Tinydb_multi_parser,
+    "yaml": Yaml_multi_parser,
+    "sij": Json_multi_parser,
+    "json": Json_multi_parser,
 }
 
 def class_from_log_files(*log_files, format_hint = "auto"):
@@ -76,7 +78,7 @@ def from_log_files(*log_files, format_hint = "auto", **aux_files):
     
     :param format_hint: A hint as to the format of the given log files. Either 'auto' (to guess), 'log' (calc log file), 'sir' (silico result file) or 'sid' (silico database file).
     """
-    return class_from_log_files(*log_files, format_hint = "auto").from_logs(*log_files, **aux_files)
+    return class_from_log_files(*log_files, format_hint = format_hint).from_logs(*log_files, **aux_files)
     
 def parse_calculation(*log_files, alignment_class = None, parse_all = False, format_hint = "auto", **aux_files):
     """

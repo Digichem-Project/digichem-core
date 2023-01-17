@@ -22,6 +22,15 @@ from silico.result.vibration import Vibrations_list
 from silico.exception.base import Silico_exception
 from silico.result.emission import Relaxed_excited_state
 
+
+# NOTE: This is a repeat of the list in util to avoid circular import nonsense.
+custom_parsing_formats = [
+    "sir",
+    "sij",
+    "yaml",
+    "json"
+]
+
 class Parser_abc():
     """ABC for all parsers."""
     
@@ -77,7 +86,7 @@ class Parser_abc():
         if hint.is_dir():
             # Look for all .log files.
             # File extensions that we recognise.
-            log_types = itertools.chain(["*.sid", "*.sir", "*.log", "*.out"])
+            log_types = itertools.chain(["*." + custom_format for custom_format in custom_parsing_formats], ["*.log", "*.out"])
             parent = hint
             log_files = [found_log_file for found_log_file in itertools.chain(*[parent.glob(log_type) for log_type in log_types])]
             
@@ -91,7 +100,7 @@ class Parser_abc():
             log_files = [hint]
         
         # If we have a computational style log file, look for others.
-        if hint.suffix not in [".sir", ".sid"]:
+        if hint.suffix not in ["." + custom_format for custom_format in custom_parsing_formats]:
             # Try and find job files.
             # These files have names like 'job.0', 'job.1' etc, ending in 'job.last'.
             for number in itertools.count():
