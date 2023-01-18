@@ -86,7 +86,7 @@ class Parser_abc():
         if hint.is_dir():
             # Look for all .log files.
             # File extensions that we recognise.
-            log_types = itertools.chain(["*." + custom_format for custom_format in custom_parsing_formats], ["*.log", "*.out"])
+            log_types = itertools.chain(["*." + custom_format for custom_format in custom_parsing_formats], ["*.log", ]) # "*.out" disabled for now...
             parent = hint
             log_files = [found_log_file for found_log_file in itertools.chain(*[parent.glob(log_type) for log_type in log_types])]
             
