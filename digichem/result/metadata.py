@@ -87,7 +87,7 @@ class Metadata(Result_object):
         self.name = name
         self.user = user
         self.log_files = log_files if log_files is not None else []
-        self.auxiliary_files = auxiliary_files if auxiliary_files is not None else {}
+        self.auxiliary_files = auxiliary_files if auxiliary_files is not None and len(auxiliary_files) != 0 else {}
         self.date = date
         self.duration = duration
         self.package = package
