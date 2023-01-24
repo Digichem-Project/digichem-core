@@ -50,9 +50,11 @@ class Turbomole_parser(Cclib_parser):
         super().pre_parse()
         # Look for duration information.
         # Only bother doing this if we don't have timings from cclib.
-        if 'wall_time' not in self.data.metadata or 'cpu_time' not in self.data.metadata:
-            self.data.metadata['wall_time'] = 0.0
-            self.data.metadata['cpu_time'] = 0.0
+        if 'wall_time' not in self.data.metadata:
+            self.data.metadata['wall_time'] = []
+        
+        if 'cpu_time' not in self.data.metadata:
+            self.data.metadata['cpu_time'] = []
     
     def parse_output_line(self, log_file, line):
         """
@@ -62,10 +64,10 @@ class Turbomole_parser(Cclib_parser):
         if 'wall_time' not in self.data.metadata or 'cpu_time' not in self.data.metadata:
             # Look for duration.
             if "total  cpu-time :" in line:
-                self.data.metadata['cpu_time'] += self.duration_to_timedelta(line).total_seconds()
+                self.data.metadata['cpu_time'].append(self.duration_to_timedelta(line))
                 
             elif "total wall-time :" in line:
-                self.data.metadata['wall_time'] += self.duration_to_timedelta(line).total_seconds()
+                self.data.metadata['wall_time'].append(self.duration_to_timedelta(line))
             
         # And also end date.
         if ": all done  ****" in line:
