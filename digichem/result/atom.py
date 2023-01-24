@@ -107,8 +107,12 @@ class Atom_list(Result_container, Unmergeable_container_mixin):
         
         This property uses the pybel smiles algorithm.
         """
-        molecule = pybel.readstring("xyz", self.to_xyz())
-        return molecule.write("can").strip()
+        try:
+            molecule = pybel.readstring("xyz", self.to_xyz())
+            return molecule.write("can").strip()
+        
+        except Exception:
+            return ""
         
     @property
     def X_length(self):
@@ -137,7 +141,16 @@ class Atom_list(Result_container, Unmergeable_container_mixin):
         sorted_atoms = sorted(self, key = lambda atom: atom.coords[axis])
                 
         # Now the axis length is simply the difference between the greatest and the smallest.
-        return sorted_atoms[-1].coords[axis] - sorted_atoms[0].coords[axis]
+        try:
+            return sorted_atoms[-1].coords[axis] - sorted_atoms[0].coords[axis]
+        
+        except IndexError:
+            if len(sorted_atoms) == 0:
+                # There are not atoms.
+                return 0.0
+            
+            else:
+                raise
     
     def get_linear_ratio(self):
         """
