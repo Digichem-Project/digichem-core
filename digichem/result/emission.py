@@ -28,9 +28,10 @@ class Emissions(Result_object):
         self.vertical = vertical if vertical is not None else {}
         
     def dump(self, silico_options):
+        # Several dumpers (JSON, DB backends based on JSON etc) don't support non-string keys...
         return {
-            "adiabatic": {key:value.dump(silico_options) for key,value in self.adiabatic.items()},
-            "vertical": {key:value.dump(silico_options) for key,value in self.vertical.items()}
+            "adiabatic": {str(key):value.dump(silico_options) for key,value in self.adiabatic.items()},
+            "vertical": {str(key):value.dump(silico_options) for key,value in self.vertical.items()}
         }
 
 
