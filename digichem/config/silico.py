@@ -285,7 +285,7 @@ Example:
     )
     
     database = Options(help = "Options to configure the result database",
-        db_type = Option(help = "The type of database to use. If none is given, the Silico database will be disabled.", choices = ["tinydb", "unqlite", None], default = "unqlite"),
+        db_type = Option(help = "The type of database to use. If none is given, the Silico database will be disabled.", choices = ["tinydb", "mongita", None], default = "mongita"),
         path = Option(help = "Path to the database file to use. If none is given, a default location in the user's home dir will be used.", type = Path, default = None),
         timeout = Option(help = "Maximum amount of time (in seconds) to wait for the database lock before giving up", type = float, default = 60.0)
     )
