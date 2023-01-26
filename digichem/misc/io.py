@@ -113,6 +113,17 @@ def copytree(src, dst, symlinks = False, ignore = None, copy_function = shutil.c
             copytree(s, d, symlinks = symlinks, ignore = ignore, copy_function = copy_function)
         else:
             copy_function(s, d)
+            
+            
+def rmtree(path, *args, **kwargs):
+    """
+    Fixed implementation of shutil.rmtree that doesn't arbitrarily require the first path to be a directory.
+    """
+    try:
+        os.remove(path)
+        
+    except IsADirectoryError:
+        shutil.rmtree(path, *args, **kwargs)
 
 
 class Multi_file_wrapper():
