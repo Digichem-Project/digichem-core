@@ -37,12 +37,14 @@ class Result_set(Result_object):
             energy_states = None,
             vibrations = None,
             soc = None,
-            emission = None):
+            emission = None,
+            database_id = None,):
         """
         Constructor for Result_set objects.
         
         """
         super().__init__()
+        self._id = database_id
         self.metadata = metadata
         self.results = (self,)
         self.energies = energies
@@ -241,7 +243,12 @@ class Result_set(Result_object):
         
     def dump(self, silico_options):
         "Dump the data contained in this result set, serialising it to a hierarchy of dicts that can be saved in various formats."
-        return {
+        # Start with our DB ID if we have one.
+        dump_dic = {}
+        if self._id is not None:
+            dump_dic['_id'] = self._id
+            
+        dump_dic.update({
             "metadata": self.metadata.dump(silico_options),
             "ground_state": self.ground_state.dump(silico_options) if self.ground_state is not None else None,
             "energies": self.energies.dump(silico_options),
@@ -254,4 +261,6 @@ class Result_set(Result_object):
             "soc": self.soc.dump(silico_options),
             "vibrations": self.vibrations.dump(silico_options),
             "emission": self.emission.dump(silico_options)
-        }
+        })
+        
+        return dump_dic

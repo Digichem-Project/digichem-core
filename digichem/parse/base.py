@@ -195,9 +195,10 @@ class Parser_abc():
         :param: alignment_class: An alignment class object to use to reorientate atoms. If not specified the Minimal alignment method will be used by default.
         :return: The populated result set.
         """
-        
         # Get our result set.
-        self.results = Result_set(self.load_result_part(Metadata))
+        self.results = Result_set(
+            metadata = self.load_result_part(Metadata)
+            )
         
         # First get our list of MOs (because we need them for excited states too.)
         self.results.orbitals = self.load_result_part(Molecular_orbital_list)

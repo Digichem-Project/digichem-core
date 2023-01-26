@@ -144,7 +144,10 @@ class Dump_parser_abc(Parser_abc):
         """
         
         # Get our result set.
-        self.results = Result_set(Metadata.from_dump(self.data['metadata'], self.results))
+        self.results = Result_set(
+            database_id = self.data.get("_id"),
+            metadata = Metadata.from_dump(self.data['metadata'], self.results)
+        )
         
         # First get our list of MOs (because we need them for excited states too.)
         self.results.orbitals = Molecular_orbital_list.from_dump(self.data['orbitals'], self.results)
