@@ -171,10 +171,6 @@ class Result_set(Result_object):
         return "/".join(itertools.chain(methods, basis_sets))
     
     @property
-    def description(self):
-        return "{} {}".format(self.metadata.name, self.title)
-    
-    @property
     def title(self):
         """
         A string Title describing this result.
@@ -259,9 +255,3 @@ class Result_set(Result_object):
             "vibrations": self.vibrations.dump(silico_options),
             "emission": self.emission.dump(silico_options)
         }
-    
-    def load(self, data):
-        """
-        """
-    
-        
