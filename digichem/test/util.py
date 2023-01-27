@@ -40,8 +40,12 @@ result_files = {
 }
 
 @pytest.fixture(scope="package")
-def silico_options():
-    return Config_file_parser.silico_options()
+def silico_options(tmp_path):
+    config = Config_file_parser.silico_options()
+    # Change the default DB location to prevent SPAM.
+    #config['database']['db_type']
+    config['database']['path'] = Path(tmp_path, "tmp.db")
+    return config
 
 
 def check_float_list(test_list, expected_list, abs = 1e-4):
