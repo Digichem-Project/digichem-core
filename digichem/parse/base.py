@@ -61,84 +61,14 @@ class Parser_abc():
             raise Silico_exception("Error parsing calculation result '{}'".format(self.description))
 
     @classmethod
-    def from_logs(self, *given_log_files, **kwargs):
+    def from_logs(self, *log_files, **kwargs):
         """
-        Intelligent constructor that will attempt to guess the location of files from a given log file(s).
+        Intelligent constructor that will attempt to guess the location of aux files from a given log file(s).
         
-        :param given_log_files: Output file(s) to parse or a directory of output files to parse.
+        :param log_files: Output file(s) to parse or a directory of output files to parse.
         """
-        found_log_files = [found_log.resolve() for given_log_file in given_log_files for found_log in self.find_log_files(given_log_file)]
-        
-        return self(*found_log_files, **kwargs)
-    
-    @classmethod
-    def find_log_files(self, hint):
-        """
-        Find output (log) files from a given hint.
-        
-        :param hint: A path to a file to use as a hint to find additional log files. hint can optionally be a directory, in which case files inside this directory will be found.
-        :returns: A list of found log files.
-        """
-        hint = Path(hint)
-        
-        # First, find our parent dir.
-        # hint may actually be a dir.
-        if hint.is_dir():
-            # Look for all .log files.
-            # File extensions that we recognise.
-            log_types = itertools.chain(["*." + custom_format for custom_format in custom_parsing_formats], ["*.log", ]) # "*.out" disabled for now...
-            parent = hint
-            log_files = [found_log_file for found_log_file in itertools.chain(*[parent.glob(log_type) for log_type in log_types])]
-            
-            #log_files = [Path(found_log_file) for found_log_file in iglob(str(Path(parent, "*.log")))]
-            # Remove any 'silico.log' files as we know these are not calc log files.
-            # We don't actually write 'silico.log' files anymore either (we use silico.out instead),
-            # but older versions did...
-            log_files = [log_file for log_file in log_files if log_file.name not in ["silico.log", "silico.out"]]
-        else:
-            parent = hint.parent
-            log_files = [hint]
-        
-        # If we have a computational style log file, look for others.
-        if hint.suffix not in ["." + custom_format for custom_format in custom_parsing_formats]:
-            # Try and find job files.
-            # These files have names like 'job.0', 'job.1' etc, ending in 'job.last'.
-            for number in itertools.count():
-                # Get the theoretical file name.
-                job_file_path = Path(parent, "job.{}".format(number))
-                
-                # See if it exists (and isn't the log_file given to us).
-                if job_file_path.exists():
-                    # Add to list.
-                    log_files.append(job_file_path)
-                else:
-                    # We've found all the numbered files.
-                    break
-                        
-            # Look for other files.
-            for maybe_file_name in ("basis", "control", "mos", "alpha", "beta", "coord", "gradient", "aoforce", "job.last", "numforce/aoforce.out"):
-                maybe_file_path = Path(parent, maybe_file_name)
-                
-                if maybe_file_path.exists():
-                    # Found it.
-                    log_files.append(maybe_file_path)
-                
-        # Make sure we only have unique log files.
-        # We also now reverse our ordering, so that files given earlier by the user have priority.
-        if len(log_files) > 0:
-            log_files = list(reversed(list(dict.fromkeys(log_files))))
-            return log_files
-                
-        # If we have no log files, and there's a directory called Output or Result that we can use, try again using that as the hint.
-        elif hint.is_dir():
-            if Path(hint, "Results").is_dir():
-                log_files = self.find_log_files(Path(hint, "Results"))
-            
-            # If we still have nothing, try the output dir.
-            if len(log_files) == 0 and Path(hint, "Output").is_dir():
-                log_files = self.find_log_files(Path(hint, "Output"))
-                
-        return log_files
+        # This default implementation does nothing smart.
+        return self(*log_files, **kwargs)
     
     @classmethod
     def sort_log_files(self, log_files):
@@ -276,28 +206,22 @@ class Cclib_parser(Parser_abc):
         super().__init__(*log_files)
         
     @classmethod
-    def from_logs(self, *given_log_files, **kwargs):
+    def from_logs(self, *log_files, **kwargs):
         """
         Intelligent constructor that will attempt to guess the location of files from a given log file(s).
         
         :param given_log_files: Output file(s) to parse or a directory of output files to parse.
         """
-        found_log_files = [found_log.resolve() for given_log_file in given_log_files for found_log in self.find_log_files(given_log_file)]
-        
-#         # Make sure we only have unique log files.
-#         # We also now reverse our ordering, so that files given earlier by the user have priority.
-#         log_files = list(reversed(list(dict.fromkeys(found_log_files))))
-        
-        # Next, have a look for aux. files.
+        # Have a look for aux. files.
         aux_files = {}
         
-        for found_log_file in found_log_files:
+        for found_log_file in log_files:
             aux_files.update(self.find_aux_files(found_log_file))
             
         # Finally, update our aux_files with kwargs, so any user specified aux files take precedence.
         aux_files.update(kwargs)
         
-        return self(*found_log_files, **aux_files)
+        return self(*log_files, **aux_files)
     
     @classmethod
     def find_aux_files(self, hint):

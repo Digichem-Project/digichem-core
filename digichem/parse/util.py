@@ -34,6 +34,91 @@ custom_parsing_formats = {
     "json": Json_multi_parser,
 }
 
+def find_log_files_from_hint(hint):
+    """
+    Find output (log) files from a given hint.
+    
+    :param hint: A path to a file to use as a hint to find additional log files. hint can optionally be a directory, in which case files inside this directory will be found.
+    :returns: A list of found log files.
+    """
+    hint = Path(hint)
+    
+    # First, find our parent dir.
+    # hint may actually be a dir.
+    if hint.is_dir():
+        # Look for all .log files.
+        # File extensions that we recognise.
+        log_types = itertools.chain(["*." + custom_format for custom_format in custom_parsing_formats], ["*.log", ]) # "*.out" disabled for now...
+        parent = hint
+        log_files = [found_log_file for found_log_file in itertools.chain(*[parent.glob(log_type) for log_type in log_types])]
+        
+        #log_files = [Path(found_log_file) for found_log_file in iglob(str(Path(parent, "*.log")))]
+        # Remove any 'silico.log' files as we know these are not calc log files.
+        # We don't actually write 'silico.log' files anymore either (we use silico.out instead),
+        # but older versions did...
+        log_files = [log_file for log_file in log_files if log_file.name not in ["silico.log", "silico.out"]]
+    else:
+        parent = hint.parent
+        log_files = [hint]
+    
+    # If we have a computational style log file, look for others.
+    if hint.suffix not in ["." + custom_format for custom_format in custom_parsing_formats]:
+        # Try and find job files.
+        # These files have names like 'job.0', 'job.1' etc, ending in 'job.last'.
+        for number in itertools.count():
+            # Get the theoretical file name.
+            job_file_path = Path(parent, "job.{}".format(number))
+            
+            # See if it exists (and isn't the log_file given to us).
+            if job_file_path.exists():
+                # Add to list.
+                log_files.append(job_file_path)
+            else:
+                # We've found all the numbered files.
+                break
+                    
+        # Look for other files.
+        for maybe_file_name in ("basis", "control", "mos", "alpha", "beta", "coord", "gradient", "aoforce", "job.last", "numforce/aoforce.out"):
+            maybe_file_path = Path(parent, maybe_file_name)
+            
+            if maybe_file_path.exists():
+                # Found it.
+                log_files.append(maybe_file_path)
+            
+    # Make sure we only have unique log files.
+    # We also now reverse our ordering, so that files given earlier by the user have priority.
+    if len(log_files) > 0:
+        return log_files
+            
+    # If we have no log files, and there's a directory called Output or Result that we can use, try again using that as the hint.
+    elif hint.is_dir():
+        if Path(hint, "Results").is_dir():
+            log_files = find_log_files_from_hint(Path(hint, "Results"))
+        
+        # If we still have nothing, try the output dir.
+        if len(log_files) == 0 and Path(hint, "Output").is_dir():
+            log_files = find_log_files_from_hint(Path(hint, "Output"))
+            
+    return log_files
+
+
+def find_log_files(*hints):
+    """
+    Find log files from a number of given hints.
+    
+    Each hint should point to an existing log file to parse, or a directory containing such log files.
+    Each log file given (and found) should refer to the same calculation. 
+    """
+    # Get a list of found log files.
+    log_files = [found_log for hint in hints for found_log in find_log_files_from_hint(hint)]
+    
+    # Make sure we only have unique log files.
+    # We also now reverse our ordering, so that files given earlier by the user have priority.
+    log_files = list(reversed(list(dict.fromkeys([log_file.resolve() for log_file in log_files]))))
+
+    return log_files
+    
+
 def class_from_log_files(*log_files, format_hint = "auto"):
     """
     Get a parser class based on some calculation log files.
@@ -49,12 +134,9 @@ def class_from_log_files(*log_files, format_hint = "auto"):
     if format_hint not in ["cclib", "auto"]:
         raise ValueError("Unrecognised format hint '{}'".format(format_hint))
     
-    # First get child files if we are a dir.
-    found_log_files = Cclib_parser.find_log_files(log_files[0])
-    
     # We'll use cclib to guess the file type for us.
     try:
-        log_file_type = type(cclib.io.ccopen([str(found_log_file) for found_log_file in found_log_files]))
+        log_file_type = type(cclib.io.ccopen([str(found_log_file) for found_log_file in log_files]))
         
     except Exception as e:
         # cclib couldn't figure out the file type, it probably wasn't a .log file.
@@ -78,6 +160,7 @@ def from_log_files(*log_files, format_hint = "auto", **aux_files):
     
     :param format_hint: A hint as to the format of the given log files. Either 'auto' (to guess), 'log' (calc log file), 'sir' (silico result file) or 'sid' (silico database file).
     """
+    log_files = find_log_files(*log_files)
     return class_from_log_files(*log_files, format_hint = format_hint).from_logs(*log_files, **aux_files)
     
 def parse_calculation(*log_files, alignment_class = None, parse_all = False, format_hint = "auto", **aux_files):
