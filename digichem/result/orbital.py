@@ -253,17 +253,17 @@ class Molecular_orbital_list(Result_container):
             "values": super().dump(silico_options),
             "spin_type": self.safe_get("spin_type")
         }
-        # Add HOMO and LUMO
-        for label in ["HOMO", "LUMO"]:
-            try:
-                orbital = self.find(label)
-                dump_dict[label] = {
-                    "value": float(orbital.energy),
-                    "units": "eV"
-                }
-                
-            except Result_unavailable_error:
-                pass
+#         # Add HOMO and LUMO
+#         for label in ["HOMO", "LUMO"]:
+#             try:
+#                 orbital = self.find(label)
+#                 dump_dict[label] = {
+#                     "value": float(orbital.energy),
+#                     "units": "eV"
+#                 }
+#                 
+#             except Result_unavailable_error:
+#                 pass
         
         return dump_dict
     
