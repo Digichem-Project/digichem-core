@@ -244,7 +244,7 @@ class Molecular_orbital_list(Result_container):
         Get a representation of this result object in primitive format.
         """
         dump_dict = {
-            "ΔE(HOMO-LUMO)": {
+            "dE(HOMO-LUMO)": {
                 "value": self.HOMO_LUMO_energy if self.safe_get("HOMO_LUMO_energy") else None,
                 "units": "eV"
             },

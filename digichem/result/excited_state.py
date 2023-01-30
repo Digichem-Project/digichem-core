@@ -301,7 +301,7 @@ class Excited_state_list(Result_container):
         for mult_pair in mult_pairs:
             state1 = mults[mult_pair[0]][0]
             state2 = mults[mult_pair[1]][0]
-            dump_dict['ΔE({}{})'.format(state1.multiplicity_symbol, state2.multiplicity_symbol)] = {
+            dump_dict['dE({}{})'.format(state1.multiplicity_symbol, state2.multiplicity_symbol)] = {
                 "value": float(state1.energy - state2.energy),
                 "units": "eV"
             }
