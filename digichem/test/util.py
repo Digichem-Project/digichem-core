@@ -40,11 +40,11 @@ result_files = {
 }
 
 @pytest.fixture(scope="package")
-def silico_options(tmp_path):
+def silico_options(tmpdir_factory):
     config = Config_file_parser.silico_options()
     # Change the default DB location to prevent SPAM.
     #config['database']['db_type']
-    config['database']['path'] = Path(tmp_path, "tmp.db")
+    config['database']['path'] = Path(tmpdir_factory.mktemp("silico_database"), "tmp.db")
     return config
 
 
