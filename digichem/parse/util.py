@@ -268,7 +268,7 @@ def parse_calculations(*results, alignment_class = None, format_hint = "auto", a
     for index, log_result_or_list in enumerate(results):
         if isinstance(log_result_or_list, Result_set):
             # Nothing we need to do.
-            result_list = log_result_or_list
+            result_list = [log_result_or_list]
         else:
             # First check if this is an already parsed result.
             # Next, decide if this is a real log file path or is actually a list.
