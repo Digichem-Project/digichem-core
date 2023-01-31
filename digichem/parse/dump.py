@@ -68,7 +68,7 @@ class Dump_multi_parser_abc(Parser_abc):
         :return: The populated result set.
         """
         self.process_all(alignment_class)
-        return self.results[0]
+        return self.results
     
     
 class Yaml_multi_parser(Dump_multi_parser_abc):
