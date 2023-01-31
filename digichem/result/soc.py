@@ -142,7 +142,7 @@ class Spin_orbit_coupling(Result_object, Floatable_mixin):
         :param result_set: The partially constructed result set which is being populated.
         """
         return [
-            self(result_set.excited_states.find(soc_dict['singlet']), result_set.excited_states.find(soc_dict['triplet']), soc_dict['soc']['+1']['value'], soc_dict['soc']['0']['value'], soc_dict['soc']['-1']['value'])
+            self(result_set.energy_states.find(soc_dict['singlet']), result_set.energy_states.find(soc_dict['triplet']), soc_dict['soc']['+1']['value'], soc_dict['soc']['0']['value'], soc_dict['soc']['-1']['value'])
         for soc_dict in data]
         
     @classmethod
