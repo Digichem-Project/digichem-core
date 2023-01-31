@@ -253,7 +253,7 @@ class Total_spin_orbit_coupling(Spin_orbit_coupling):
         :param data: The data to parse.
         :param result_set: The partially constructed result set which is being populated.
         """
-        self(result_set.energy_states.find(data['singlet']), result_set.energy_states.find(data['triplet']), data['rss']['value'])
+        return self(result_set.energy_states.find(data['singlet']), result_set.energy_states.find(data['triplet']), data['rss']['value'])
         
     @classmethod
     def list_from_parser(self, parser):
