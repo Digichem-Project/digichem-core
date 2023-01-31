@@ -71,7 +71,7 @@ class SOC_list(Result_container):
         :param data: The data to parse.
         :param result_set: The partially constructed result set which is being populated.
         """
-        return self(Spin_orbit_coupling.list_from_dump(data, result_set))
+        return self([(Spin_orbit_coupling if 'soc' in soc_dict else Total_spin_orbit_coupling).from_dump(soc_dict, result_set) for soc_dict in data])
     
     def sort(self, *, key = None, **kwargs):
         """
@@ -134,16 +134,14 @@ class Spin_orbit_coupling(Result_object, Floatable_mixin):
         }
         
     @classmethod
-    def list_from_dump(self, data, result_set):
+    def from_dump(self, data, result_set):
         """
-        Get a list of instances of this class from its dumped representation.
+        Get an instance of this class from its dumped representation.
         
         :param data: The data to parse.
         :param result_set: The partially constructed result set which is being populated.
         """
-        return [
-            self(result_set.energy_states.find(soc_dict['singlet']), result_set.energy_states.find(soc_dict['triplet']), soc_dict['soc']['+1']['value'], soc_dict['soc']['0']['value'], soc_dict['soc']['-1']['value'])
-        for soc_dict in data]
+        return self(result_set.energy_states.find(data['singlet']), result_set.energy_states.find(data['triplet']), data['soc']['+1']['value'], data['soc']['0']['value'], data['soc']['-1']['value'])
         
     @classmethod
     def list_from_parser(self, parser):
@@ -248,16 +246,14 @@ class Total_spin_orbit_coupling(Spin_orbit_coupling):
         return dump_dic
     
     @classmethod
-    def list_from_dump(self, data, result_set):
+    def from_dump(self, data, result_set):
         """
-        Get a list of instances of this class from its dumped representation.
+        Get an instance of this class from its dumped representation.
         
         :param data: The data to parse.
         :param result_set: The partially constructed result set which is being populated.
         """
-        return [
-            self(result_set.excited_states.find(soc_dict['singlet']), result_set.excited_states.find(soc_dict['triplet']), soc_dict['rss']['value'])
-        for soc_dict in data]
+        self(result_set.excited_states.find(data['singlet']), result_set.excited_states.find(data['triplet']), data['rss']['value'])
         
     @classmethod
     def list_from_parser(self, parser):
