@@ -12,6 +12,8 @@ import shutil
 import tempfile
 import collections
 import warnings
+from math import floor, ceil
+import os
 
 # Silico imports.
 from silico.parse.base import Cclib_parser
@@ -186,17 +188,32 @@ def parse_calculation(*log_files, alignment_class = None, parse_all = False, for
         else:       
             return from_log_files(*open_log_files, format_hint = format_hint, **aux_files).process(alignment_class)
 
-def multi_parser(log_file, alignment_class, format_hint = "auto"):
+def multi_parser(log_files, alignment_class, format_hint = "auto"):
         """
         The inner function which will be called in parallel to parse files.
-        
-        :param format_hint: A hint as to the format of the given log files. Either 'auto' (to guess), 'log' (calc log file), 'sir' (silico result file) or 'sid' (silico database file).
         """
-        try:
-            return parse_calculation(log_file, alignment_class = alignment_class, parse_all = True, format_hint = format_hint)
+        # If the given 'log_file' is actually already a result object, then there's nothing for us to do.
+        # This is allowed to support merging calculation results between previously parsed results and new log files.
+        if isinstance(log_files, Result_set):
+            # Nothing we need to do.
+            return [log_files]
+        
+        # Next, decide if this is a single log file path, or is actually a list of multiple paths.
+        # Regardless of whether this is a single file or multiple, all given files should correspond to the same calculation.
+        if not isinstance(log_files, str) and is_iter(log_files):
+            # Multiple paths.
+            logs = log_files
+        
+        else:
+            # Single path.
+            logs = (log_files,)
+        
+        try:    
+            return parse_calculation(*logs, alignment_class = alignment_class, parse_all = True, format_hint = format_hint)
             
         except Exception:
-            silico.log.get_logger().warning("Unable to parse calculation result file '{}'; skipping".format(log_file), exc_info = True)
+            silico.log.get_logger().warning("Unable to parse calculation result file '{}'; skipping".format(logs[0]), exc_info = True)
+            return None
 
 def parse_multiple_calculations(*log_files, alignment_class = None, pool = None, init_func = None, init_args = None, format_hint = "auto", processes = 1):
     """
@@ -204,7 +221,7 @@ def parse_multiple_calculations(*log_files, alignment_class = None, pool = None,
     
     If the argument 'pool' is not given, a multiprocessing.pool object will first be created using the arguments init_func and num_cpu.
     
-    :param log_files: A number of calculation result files corresponding to different calculations.
+    :param log_files: A number of calculation result files corresponding to different calculations. Each item can optionally be a list itself, to specify files from the same calculation but which are spread across multiple files.
     :param alignment_class: An optional alignment class to use to reorientate the molecule.
     :param pool: An optional subprocessing.pool object to use for parallel parsing.
     :param init_func: An optional function to call to init each newly created process.
@@ -240,7 +257,7 @@ def parse_multiple_calculations(*log_files, alignment_class = None, pool = None,
         if own_pool:
             pool.close()
     
-def parse_calculations(*results, alignment_class = None, format_hint = "auto", aux_files = None):
+def parse_and_merge_calculations(*log_files, alignment_class = None, format_hint = "auto", inner_pool = None):
     """
     Get a single result object by parsing a number of computational log files.
     
@@ -248,7 +265,7 @@ def parse_calculations(*results, alignment_class = None, format_hint = "auto", a
     If multiple different calculations are given, the individually parsed results will be merged together (which may give bizarre results if the calculations are unrelated, eg if they are of different molecules).
     
     Example:
-        parse_calculations(['calc1/primary.log', 'calc1/secondary.log'], 'calc2/calc.log', 'calc3/calc.log')
+        parse_and_merge_calculations(['calc1/primary.log', 'calc1/secondary.log'], 'calc2/calc.log', 'calc3/calc.log')
     Would parse three separate calculations (calc1, calc2 and calc3), of which the first is contained in two output files (primary.log and secondary.log), merging the result sets together.
     
     :param log_files: A list of paths to computational chemistry log files to parse. If more than one file is given, each is assumed to correspond to a separate calculation in which case the parsed results will be merged together. In addition, each given 'log file' can be an iterable of log file paths, which will be considered to correspond to an individual calculation.
@@ -260,43 +277,86 @@ def parse_calculations(*results, alignment_class = None, format_hint = "auto", a
     if alignment_class is None:
             alignment_class = Minimal
     
-    if aux_files is None:
-        aux_files = []
+#     if aux_files is None:
+#         aux_files = []
     
-    # Process our given log files.
-    parsed_results = []   
-    for index, log_result_or_list in enumerate(results):
-        if isinstance(log_result_or_list, Result_set):
-            # Nothing we need to do.
-            result_list = [log_result_or_list]
-        else:
-            # First check if this is an already parsed result.
-            # Next, decide if this is a real log file path or is actually a list.
-            if not isinstance(log_result_or_list, str) and is_iter(log_result_or_list):
-                # Multiple paths.
-                logs = log_result_or_list
-            else:
-                # Single path.
-                logs = (log_result_or_list,)
-                
-            # See if we have some aux files we can use.
-            try:
-                aux = aux_files[index]
-            except IndexError:
-                aux = {}
-                
-            # Parse this calculation output.
-            result_list = parse_calculation(*logs, alignment_class = alignment_class, parse_all = True, format_hint = format_hint, **aux)
-        
-        # Add to our list.
-        parsed_results.extend(result_list)
+#     # Process our given log files.
+#     parsed_results = []   
+#     for index, log_result_or_list in enumerate(results):
+#         # First check if this is an already parsed result.
+#         if isinstance(log_result_or_list, Result_set):
+#             # Nothing we need to do.
+#             result_list = [log_result_or_list]
+#         
+#         else:
+#             # Next, decide if this is a real log file path or is actually a list.
+#             if not isinstance(log_result_or_list, str) and is_iter(log_result_or_list):
+#                 # Multiple paths.
+#                 logs = log_result_or_list
+#             else:
+#                 # Single path.
+#                 logs = (log_result_or_list,)
+#                 
+#             # See if we have some aux files we can use.
+#             try:
+#                 aux = aux_files[index]
+#             except IndexError:
+#                 aux = {}
+#                 
+#             # Parse this calculation output.
+#             result_list = parse_calculation(*logs, alignment_class = alignment_class, parse_all = True, format_hint = format_hint, **aux)
+#         
+#         # Add to our list.
+#         parsed_results.extend(result_list)
+
+    parsed_results = parse_multiple_calculations(*log_files, alignment_class = alignment_class, format_hint = format_hint, pool = inner_pool)
     
     # If we have more than one result, merge them together.
     if len(parsed_results) > 1:
         return Merged.from_results(*parsed_results, alignment_class = alignment_class)
     else:
         return parsed_results[0]
+            
+def multi_merger_parser(log_files, alignment_class, format_hint = "auto", * , inner_pool = None):
+        """
+        The inner function which will be called in parallel to parse files.
+        """                  
+        try:
+            return parse_and_merge_calculations(*log_files, alignment_class = alignment_class, format_hint = format_hint, inner_pool = inner_pool)
+            
+        except Exception:
+            silico.log.get_logger().warning("Unable to parse and merge calculation results '{}'; skipping".format(", ".join([str(log_file) for log_file in log_files])), exc_info = True)
+            return None
 
+def parse_and_merge_multiple_calculations(*multiple_results, alignment_class = None, format_hint = "auto", init_func = None, init_args = None, processes = None):
+    """
+    Parse a number of separate calculation results in parallel, merging some or all of the results into combined result sets.
+    
+    :param multiple_results: A list of two dimensions, where the first dimension is a list of separate results to process, and the second dimension is a list of results that should be merged together.
+    :param alignment_class: An alignment class to use to reorientate each molecule.
+    :param format_hint: A hint as to the format of the given log files. Either 'auto' (to guess), 'log' (calc log file), 'sir' (silico result file) or 'sid' (silico database file).
+    :param pool: An optional subprocessing.pool object to use for parallel parsing.
+    :param init_func: An optional function to call to init each newly created process.
+    :param processes: The max number of processes to create the new pool object with.
+    :return: A single Result_set object (or child thereof).
+    """
+    # Do some parsing.
+    # TODO: This parallelization isn't ideal, currently we process each group of to-be merged calcs separately, meaning processes can be wasted.
+    try:
+        pool = multiprocessing.Pool(processes, initializer = init_func, initargs = init_args if init_args is not None else [])
+        
+        result_lists = list(
+            filterfalse(lambda x: x is None,
+                map(partial(multi_merger_parser, alignment_class = alignment_class, format_hint = format_hint, inner_pool = pool), multiple_results)
+            )
+        )
+        
+        return result_lists
+    
+    finally:
+        # Do some cleanup if we need to.
+        pool.close()
+    
 
 class open_for_parsing():
     """
