@@ -7,7 +7,7 @@ import scipy.constants
 from silico.parse import parse_calculation
 from silico.test.util import data_directory
 from silico.test.util import check_float_list, check_dipole, check_orbitals
-from silico.parse.util import parse_calculations
+from silico.parse.util import parse_and_merge_calculations
 
 
 @pytest.fixture(scope="module")
@@ -28,7 +28,7 @@ def gaussian_ES_result():
 
 @pytest.fixture(scope="module")
 def gaussian_emission_result():
-    return parse_calculations(
+    return parse_and_merge_calculations(
         Path(data_directory(), "Naphthalene/Gaussian 16 Optimisation Frequencies PBE1PBE (GD3BJ) Toluene 6-31G(d,p)"),
         Path(data_directory(), "Naphthalene/Gaussian 16 Excited States TDA Optimised S(1) PBE1PBE (GD3BJ) Toluene 6-31G(d,p).tar.gz"),
     )
@@ -63,7 +63,7 @@ def turbomole_ES_triplets_result():
 
 @pytest.fixture(scope="module")
 def turbomole_ES_result():
-    return parse_calculations(
+    return parse_and_merge_calculations(
         Path(data_directory(), "Naphthalene/Turbomole Excited States TDA 10 Singlets PBE0 (GD3BJ) 6-31G**.tar.gz"),
         Path(data_directory(), "Naphthalene/Turbomole Excited States TDA 10 Triplets PBE0 (GD3BJ) 6-31G**.tar.gz")
     )

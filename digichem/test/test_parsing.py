@@ -8,7 +8,7 @@ import pytest
 from silico.parse import parse_calculation
 from silico.test.util import data_directory, result_files, silico_options
 from silico.result import Result_set
-from silico.parse import parse_multiple_calculations, parse_calculations
+from silico.parse import parse_multiple_calculations, parse_and_merge_calculations
 from silico.result.format.yaml import Yaml_dumper
 
 @pytest.mark.parametrize("result_data", list(itertools.chain(result_files['gaussian'], result_files['turbomole'])))
@@ -30,7 +30,7 @@ def test_multi_parsing():
 @pytest.mark.parametrize("data_set", [result_files['gaussian'], result_files['turbomole']])
 def test_merged_parsing(data_set):
     """Test whether we can parse and merge calc results."""
-    result = parse_calculations(*data_set)
+    result = parse_and_merge_calculations(*data_set)
     
     assert isinstance(result, Result_set)
     assert len(result.results) == 3
