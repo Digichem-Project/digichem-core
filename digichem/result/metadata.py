@@ -140,6 +140,16 @@ class Metadata(Result_object):
         Similar to the methods attribute but where DFT is replaced with the actual functional used.
         """
         return [self.functional if method == "DFT" and self.functional is not None else method for method in self.methods if method is not None]
+    
+    @property
+    def description(self):
+        desc = []
+        if self.name is not None:
+            desc.append(self.name)
+        
+        desc.append(self.identity_string)
+        
+        return ", ".join(desc)
         
     @property
     def identity(self):
