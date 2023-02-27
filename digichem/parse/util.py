@@ -12,8 +12,6 @@ import shutil
 import tempfile
 import collections
 import warnings
-from math import floor, ceil
-import os
 
 # Silico imports.
 from silico.parse.base import Cclib_parser
@@ -285,6 +283,10 @@ def parse_and_merge_calculations(*log_files, aux_files = None, alignment_class =
     # If we have more than one result, merge them together.
     if len(parsed_results) > 1:
         return Merged.from_results(*parsed_results, alignment_class = alignment_class)
+    
+    if len(parsed_results) == 0:
+        return None
+    
     else:
         return parsed_results[0]
             
