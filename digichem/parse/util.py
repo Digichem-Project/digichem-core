@@ -177,6 +177,37 @@ def parse_calculation(*log_files, alignment_class = None, parse_all = False, for
     if alignment_class is None:
         alignment_class = Minimal
         
+    # Handle aux files.
+    # Auxiliary files are files associated with a calculation but that do not contain calculation output directly (they are not log files).
+    # Often, these files are written in a program-dependent binary format, and may be used for eg, program restarting, post-calculations, or image generation.
+    # For example, common aux files for Gaussian include: .chk, .fchk and .rwf.
+    # Auxiliary files to associate with a log file(s) can be given by the aux_files key-word argument, but this is cumbersome in some instances.
+    # Alternatively, aux files can be given as normal log_files by prefixing the file name with 'aux':, where aux is the type of file.
+    # For example, a chk file could be given as "chk:calc/output.chk".
+    real_log_files = []
+    for maybe_log_file in log_files:
+        found = False
+        # Loop through all known aux_files:
+        for file_type, aux_file_name in itertools.chain(Gaussian_parser.INPUT_FILE_TYPES.items(), Turbomole_parser.INPUT_FILE_TYPES.items(), Orca_parser.INPUT_FILE_TYPES.items()):
+            code_len = len(file_type.short_code) +1
+            if maybe_log_file[:code_len] == file_type.short_code + ":":
+                aux_files[aux_file_name] = maybe_log_file[code_len:]
+            
+                # Done.
+                found = True
+                break
+        
+        if not found:
+            # Take care of 'log:' files (which we support in-case a normal log file happened to start with 'chk:' or similar).
+            if maybe_log_file[:4] == "log:":
+                real_log_files.append(maybe_log_file[4:])
+                
+            else:
+                # Take as is.
+                real_log_files.append(maybe_log_file)
+            
+    log_files = real_log_files
+        
     # Open files for reading (handles archives for us).
     with open_for_parsing(*log_files) as open_log_files:
         
@@ -315,7 +346,7 @@ def parse_and_merge_multiple_calculations(*multiple_results, alignment_class = N
     :return: A single Result_set object (or child thereof).
     """
     if aux_files is None:
-        [None] * len(multiple_results)
+        aux_files = [None] * len(multiple_results)
     
     # Do some parsing.
     # TODO: This parallelization isn't ideal, currently we process each group of to-be merged calcs separately, meaning processes can be wasted.
