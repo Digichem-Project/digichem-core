@@ -98,7 +98,7 @@ class cd:
         os.chdir(self.old_directory)
         
 
-def copytree(src, dst, symlinks = False, ignore = None, copy_function = shutil.copy2):
+def copytree(src, dst, symlinks = False, ignore = None, copy_function = shutil.copy):
     """
     Fixed implementation of shutil.copytree that doesn't arbitrarily fail if src exists.
     
