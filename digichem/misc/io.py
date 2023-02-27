@@ -114,6 +114,15 @@ def copytree(src, dst, symlinks = False, ignore = None, copy_function = shutil.c
         else:
             copy_function(s, d)
             
+def copy_contents(src, dst, copy_function = shutil.copy):
+    """
+    Copy the top-level contents of one directory to another.
+    """
+    Path(dst).mkdir(parents = True, exist_ok = True)
+    for child in Path(src).iterdir():
+        if child.is_file():
+            copy_function(child, Path(dst, child.name))
+            
             
 def rmtree(path, *args, **kwargs):
     """
