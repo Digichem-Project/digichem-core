@@ -8,7 +8,7 @@ class File_type():
     Class for representing a known file type.
     """
     
-    def __init__(self, name, family = None, extensions = None):
+    def __init__(self, name, family = None, extensions = None, short_code = None):
         """
         Constructor for File_type objects.
         
@@ -19,6 +19,13 @@ class File_type():
         self.name = name
         self.family = family
         self.extensions = [extension.lower() for extension in extensions] if extensions is not None else []
+        
+        if short_code is None and len(self.extensions) > 0:
+            # Take one of our extensions (without the dot).
+            self.short_code = self.extensions[0][1:]
+            
+        else:
+            self.short_code = short_code
     
     def check(self, file_path):
         """
@@ -62,7 +69,7 @@ gaussian_chk_file = File_type("checkpoint", "gaussian", [".chk"])
 gaussian_NTO_chk_file = File_type("NTO-checkpoint", "gaussian", [".chk"])
 gaussian_fchk_file = File_type("formatted-checkpoint", "gaussian", [".fchk"])
 gaussian_rwf_file = File_type("read-write", "gaussian", [".rwf"])
-gaussian_cube_file = File_type("cube", "gaussian", [".cube", ".cub"])
+gaussian_cube_file = File_type("cube", "gaussian", [".cub", ".cube"])
 
 orca_gbw_file = File_type("gbw", "orca", [".gbw"])
 orca_density_file = File_type("density", "orca", [".densities"])
@@ -70,6 +77,7 @@ orca_density_file = File_type("density", "orca", [".densities"])
 # A list of all our known types.
 known_types = [log_file, gaussian_chk_file, gaussian_fchk_file, gaussian_rwf_file, gaussian_cube_file, orca_gbw_file]
 
+# TODO: This seems to be unused?
 def get_file_type(file_path):
     """
     Get the type of a file from a list of known file types.
