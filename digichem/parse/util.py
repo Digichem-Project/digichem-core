@@ -186,6 +186,7 @@ def parse_calculation(*log_files, alignment_class = None, parse_all = False, for
     # For example, a chk file could be given as "chk:calc/output.chk".
     real_log_files = []
     for maybe_log_file in log_files:
+        maybe_log_file = str(maybe_log_file)
         found = False
         # Loop through all known aux_files:
         for file_type, aux_file_name in itertools.chain(Gaussian_parser.INPUT_FILE_TYPES.items(), Turbomole_parser.INPUT_FILE_TYPES.items(), Orca_parser.INPUT_FILE_TYPES.items()):
