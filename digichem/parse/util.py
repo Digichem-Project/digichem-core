@@ -5,7 +5,7 @@ import cclib.parser.gaussianparser
 import cclib.parser.turbomoleparser
 import multiprocessing
 from functools import partial
-from itertools import filterfalse
+from itertools import filterfalse, zip_longest
 from pathlib import Path
 import itertools
 import shutil
@@ -188,7 +188,7 @@ def parse_calculation(*log_files, alignment_class = None, parse_all = False, for
         else:       
             return from_log_files(*open_log_files, format_hint = format_hint, **aux_files).process(alignment_class)
 
-def multi_parser(log_files, alignment_class, format_hint = "auto"):
+def multi_parser(log_files, aux_files, *, alignment_class, format_hint = "auto"):
         """
         The inner function which will be called in parallel to parse files.
         """
@@ -209,19 +209,20 @@ def multi_parser(log_files, alignment_class, format_hint = "auto"):
             logs = (log_files,)
         
         try:    
-            return parse_calculation(*logs, alignment_class = alignment_class, parse_all = True, format_hint = format_hint)
+            return parse_calculation(*logs, alignment_class = alignment_class, parse_all = True, format_hint = format_hint, **aux_files)
             
         except Exception:
             silico.log.get_logger().warning("Unable to parse calculation result file '{}'; skipping".format(logs[0]), exc_info = True)
             return None
 
-def parse_multiple_calculations(*log_files, alignment_class = None, pool = None, init_func = None, init_args = None, format_hint = "auto", processes = 1):
+def parse_multiple_calculations(*log_files, aux_files = None, alignment_class = None, pool = None, init_func = None, init_args = None, format_hint = "auto", processes = 1):
     """
     Parse a number of separate calculation results in parallel.
     
     If the argument 'pool' is not given, a multiprocessing.pool object will first be created using the arguments init_func and num_cpu.
     
     :param log_files: A number of calculation result files corresponding to different calculations. Each item can optionally be a list itself, to specify files from the same calculation but which are spread across multiple files.
+    :param aux_files: A list of dicts of aux files. The ordering of the dicts should correspond to that of log_files.
     :param alignment_class: An optional alignment class to use to reorientate the molecule.
     :param pool: An optional subprocessing.pool object to use for parallel parsing.
     :param init_func: An optional function to call to init each newly created process.
@@ -232,6 +233,9 @@ def parse_multiple_calculations(*log_files, alignment_class = None, pool = None,
         # Give up now.
         return []
     
+    if aux_files is None:
+        aux_files = [{}] * len(log_files)
+    
     if len(log_files) < processes:
         processes = len(log_files)
     
@@ -240,13 +244,12 @@ def parse_multiple_calculations(*log_files, alignment_class = None, pool = None,
     if pool is None:
         own_pool = True
         pool = multiprocessing.Pool(processes, initializer = init_func, initargs = init_args if init_args is not None else [])
-        #pool = multiprocessing.pool.ThreadPool(processes)
     
     # Do some parsing.
     try:
         result_lists = list(
             filterfalse(lambda x: x is None,
-                pool.map(partial(multi_parser, alignment_class = alignment_class, format_hint = format_hint), log_files)
+                pool.starmap(partial(multi_parser, alignment_class = alignment_class, format_hint = format_hint), zip_longest(log_files, aux_files, fillvalue = {}))
             )
         )
         
@@ -257,7 +260,7 @@ def parse_multiple_calculations(*log_files, alignment_class = None, pool = None,
         if own_pool:
             pool.close()
     
-def parse_and_merge_calculations(*log_files, alignment_class = None, format_hint = "auto", inner_pool = None):
+def parse_and_merge_calculations(*log_files, aux_files = None, alignment_class = None, format_hint = "auto", inner_pool = None):
     """
     Get a single result object by parsing a number of computational log files.
     
@@ -273,43 +276,11 @@ def parse_and_merge_calculations(*log_files, alignment_class = None, format_hint
     :param format_hint: A hint as to the format of the given log files. Either 'auto' (to guess), 'log' (calc log file), 'sir' (silico result file) or 'sid' (silico database file).
     :param aux_files: A list of dictionaries of auxiliary files. The ordering of aux_files should match that of log_files.
     :return: A single Result_set object (or child thereof).
-    """
+    """    
     if alignment_class is None:
             alignment_class = Minimal
-    
-#     if aux_files is None:
-#         aux_files = []
-    
-#     # Process our given log files.
-#     parsed_results = []   
-#     for index, log_result_or_list in enumerate(results):
-#         # First check if this is an already parsed result.
-#         if isinstance(log_result_or_list, Result_set):
-#             # Nothing we need to do.
-#             result_list = [log_result_or_list]
-#         
-#         else:
-#             # Next, decide if this is a real log file path or is actually a list.
-#             if not isinstance(log_result_or_list, str) and is_iter(log_result_or_list):
-#                 # Multiple paths.
-#                 logs = log_result_or_list
-#             else:
-#                 # Single path.
-#                 logs = (log_result_or_list,)
-#                 
-#             # See if we have some aux files we can use.
-#             try:
-#                 aux = aux_files[index]
-#             except IndexError:
-#                 aux = {}
-#                 
-#             # Parse this calculation output.
-#             result_list = parse_calculation(*logs, alignment_class = alignment_class, parse_all = True, format_hint = format_hint, **aux)
-#         
-#         # Add to our list.
-#         parsed_results.extend(result_list)
 
-    parsed_results = parse_multiple_calculations(*log_files, alignment_class = alignment_class, format_hint = format_hint, pool = inner_pool)
+    parsed_results = parse_multiple_calculations(*log_files, alignment_class = alignment_class, format_hint = format_hint, pool = inner_pool, aux_files = aux_files)
     
     # If we have more than one result, merge them together.
     if len(parsed_results) > 1:
@@ -317,18 +288,18 @@ def parse_and_merge_calculations(*log_files, alignment_class = None, format_hint
     else:
         return parsed_results[0]
             
-def multi_merger_parser(log_files, alignment_class, format_hint = "auto", * , inner_pool = None):
+def multi_merger_parser(log_files, aux_files, *, alignment_class, format_hint = "auto" , inner_pool = None):
         """
         The inner function which will be called in parallel to parse files.
         """                  
         try:
-            return parse_and_merge_calculations(*log_files, alignment_class = alignment_class, format_hint = format_hint, inner_pool = inner_pool)
+            return parse_and_merge_calculations(*log_files, alignment_class = alignment_class, format_hint = format_hint, inner_pool = inner_pool, aux_files = aux_files)
             
         except Exception:
             silico.log.get_logger().warning("Unable to parse and merge calculation results '{}'; skipping".format(", ".join([str(log_file) for log_file in log_files])), exc_info = True)
             return None
 
-def parse_and_merge_multiple_calculations(*multiple_results, alignment_class = None, format_hint = "auto", init_func = None, init_args = None, processes = None):
+def parse_and_merge_multiple_calculations(*multiple_results, alignment_class = None, format_hint = "auto", init_func = None, init_args = None, processes = None, aux_files = None):
     """
     Parse a number of separate calculation results in parallel, merging some or all of the results into combined result sets.
     
@@ -338,8 +309,12 @@ def parse_and_merge_multiple_calculations(*multiple_results, alignment_class = N
     :param pool: An optional subprocessing.pool object to use for parallel parsing.
     :param init_func: An optional function to call to init each newly created process.
     :param processes: The max number of processes to create the new pool object with.
+    :param aux_files: An optional list of lists of dicts of auxiliary files. Each item in aux_files should match the corresponding log file in multiple_results.
     :return: A single Result_set object (or child thereof).
     """
+    if aux_files is None:
+        [None] * len(multiple_results)
+    
     # Do some parsing.
     # TODO: This parallelization isn't ideal, currently we process each group of to-be merged calcs separately, meaning processes can be wasted.
     try:
@@ -347,7 +322,7 @@ def parse_and_merge_multiple_calculations(*multiple_results, alignment_class = N
         
         result_lists = list(
             filterfalse(lambda x: x is None,
-                map(partial(multi_merger_parser, alignment_class = alignment_class, format_hint = format_hint, inner_pool = pool), multiple_results)
+                map(partial(multi_merger_parser, alignment_class = alignment_class, format_hint = format_hint, inner_pool = pool), multiple_results, aux_files)
             )
         )
         
