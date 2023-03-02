@@ -388,22 +388,14 @@ class Turbomole_to_orbital_cube(File_maker):
         self.orbital = orbital
         super().__init__(turbomole_to_cube.path_for(orbital))
     
-    def check_can_make(self):
-        """
-        Check whether it is feasible to try and create the files(s) that we represent.
-        
-        Reasons for making not being possible are varied and are up to the inheriting class, but include eg, a required input (cube, fchk) file not being given.
-        
-        This method returns nothing, but will raise an File_maker_exception exception if the rendering is not possible.
-        """
-        if self.orbital_label not in self.turbomole_to_cube:
-            # Our cube maker wasn't setup to create this cube file.
-            raise File_maker_exception(self, "Turbomole orbital cube maker was not setup to create cubes for '{}'".format(self.orbital_label))        
-    
     def get_file(self, file = None):
         """
         """
-        return self.turbomole_to_cube.get_file(self.orbital.sirrep)
+        try:
+            return self.turbomole_to_cube.get_file(self.orbital.sirrep)
+        
+        except KeyError:
+            raise File_maker_exception(self, "Turbomole orbital cube maker was not setup to create cubes for '{}'".format(self.orbital.label)) from None
 
 
 class Turbomole_to_spin_cube(File_maker):
@@ -420,23 +412,15 @@ class Turbomole_to_spin_cube(File_maker):
         """
         self.turbomole_to_cube = turbomole_to_cube
         super().__init__(Path(turbomole_to_cube.output, 'sd.cub'))
-    
-    def check_can_make(self):
-        """
-        Check whether it is feasible to try and create the files(s) that we represent.
-        
-        Reasons for making not being possible are varied and are up to the inheriting class, but include eg, a required input (cube, fchk) file not being given.
-        
-        This method returns nothing, but will raise an File_maker_exception exception if the rendering is not possible.
-        """
-        if "spin" not in self.turbomole_to_cube:
-            # Our cube maker wasn't setup to create this cube file.
-            raise File_maker_exception(self, "Turbomole orbital cube maker was not setup to create spin density")
         
     def get_file(self, file = None):
         """
         """
-        return self.turbomole_to_cube.get_file("spin")   
+        try:
+            return self.turbomole_to_cube.get_file("spin")
+        
+        except KeyError:
+            raise File_maker_exception(self, "Turbomole orbital cube maker was not setup to create spin density") from None
 
 
 class Turbomole_to_density_cube(File_maker):
@@ -454,23 +438,15 @@ class Turbomole_to_density_cube(File_maker):
         self.type = density_type
         self.turbomole_to_cube = turbomole_to_cube
         super().__init__(Path(turbomole_to_cube.output, 'td.cub'))
-    
-    def check_can_make(self):
-        """
-        Check whether it is feasible to try and create the files(s) that we represent.
-        
-        Reasons for making not being possible are varied and are up to the inheriting class, but include eg, a required input (cube, fchk) file not being given.
-        
-        This method returns nothing, but will raise an File_maker_exception exception if the rendering is not possible.
-        """
-        if self.type not in self.turbomole_to_cube:
-            # Our cube maker wasn't setup to create this cube file.
-            raise File_maker_exception(self, "Turbomole orbital cube maker was not setup to create {} density".format(self.type))
         
     def get_file(self, file = None):
         """
         """
-        return self.turbomole_to_cube.get_file(self.type)   
+        try:
+            return self.turbomole_to_cube.get_file(self.type)
+        
+        except KeyError:
+            raise File_maker_exception(self, "Turbomole orbital cube maker was not setup to create {} density".format(self.type))
 
 
 class Turbomole_to_cube(File_converter):
