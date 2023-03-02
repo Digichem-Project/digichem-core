@@ -320,6 +320,14 @@ class Partial_loader(Configurable_loader):
         """
         The (recursive) total number of child leaf nodes. 
         """
+        try:
+            return self._size
+        
+        except AttributeError:
+            self._size = self.calc_size()
+            return self._size
+    
+    def calc_size(self):
         return  sum(child.size() for child in self.NEXT)
     
     def split_identifier_string(self, identifier, check_length = True):
