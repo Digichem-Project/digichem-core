@@ -9,7 +9,7 @@ from itertools import filterfalse, zip_longest
 from pathlib import Path
 import itertools
 import shutil
-import tempfile
+from tempfile import mkdtemp
 import collections
 import warnings
 
@@ -163,7 +163,7 @@ def from_log_files(*log_files, format_hint = "auto", **aux_files):
     log_files = find_log_files(*log_files)
     return class_from_log_files(*log_files, format_hint = format_hint).from_logs(*log_files, **aux_files)
     
-def parse_calculation(*log_files, alignment_class = None, parse_all = False, format_hint = "auto", **aux_files):
+def parse_calculation(*log_files, alignment_class = None, parse_all = False, format_hint = "auto", keep_archive = False, **aux_files):
     """
     Parse a single calculation result.
     
@@ -210,15 +210,39 @@ def parse_calculation(*log_files, alignment_class = None, parse_all = False, for
     log_files = real_log_files
         
     # Open files for reading (handles archives for us).
-    with open_for_parsing(*log_files) as open_log_files:
+    archive = open_for_parsing(*log_files)
+    
+    try:
+        open_log_files = archive.open()
         
         if parse_all:
-            return from_log_files(*open_log_files, format_hint = format_hint, **aux_files).process_all(alignment_class)
+            results = from_log_files(*open_log_files, format_hint = format_hint, **aux_files).process_all(alignment_class)
         
         else:       
-            return from_log_files(*open_log_files, format_hint = format_hint, **aux_files).process(alignment_class)
+            results = from_log_files(*open_log_files, format_hint = format_hint, **aux_files).process(alignment_class)
+        
+    finally:
+        if not keep_archive:
+            archive.cleanup()
+            
+    if keep_archive:
+        # We've been asked not to close the archive, return it.
+        return (results, archive)
+    
+    else:
+        # The caller isn't interested in the archive.
+        return results
+        
+        
+#     with open_for_parsing(*log_files) as open_log_files:
+#         
+#         if parse_all:
+#             return from_log_files(*open_log_files, format_hint = format_hint, **aux_files).process_all(alignment_class)
+#         
+#         else:       
+#             return from_log_files(*open_log_files, format_hint = format_hint, **aux_files).process(alignment_class)
 
-def multi_parser(log_files, aux_files, *, alignment_class, format_hint = "auto"):
+def multi_parser(log_files, aux_files, *, alignment_class, format_hint = "auto", keep_archive = False):
         """
         The inner function which will be called in parallel to parse files.
         """
@@ -239,13 +263,13 @@ def multi_parser(log_files, aux_files, *, alignment_class, format_hint = "auto")
             logs = (log_files,)
         
         try:    
-            return parse_calculation(*logs, alignment_class = alignment_class, parse_all = True, format_hint = format_hint, **aux_files)
+            return parse_calculation(*logs, alignment_class = alignment_class, parse_all = True, format_hint = format_hint, keep_archive = keep_archive, **aux_files)
             
         except Exception:
             silico.log.get_logger().warning("Unable to parse calculation result file '{}'; skipping".format(logs[0]), exc_info = True)
             return None
 
-def parse_multiple_calculations(*log_files, aux_files = None, alignment_class = None, pool = None, init_func = None, init_args = None, format_hint = "auto", processes = 1):
+def parse_multiple_calculations(*log_files, aux_files = None, alignment_class = None, pool = None, init_func = None, init_args = None, format_hint = "auto", processes = 1, keep_archive = False):
     """
     Parse a number of separate calculation results in parallel.
     
@@ -279,18 +303,22 @@ def parse_multiple_calculations(*log_files, aux_files = None, alignment_class = 
     try:
         result_lists = list(
             filterfalse(lambda x: x is None,
-                pool.starmap(partial(multi_parser, alignment_class = alignment_class, format_hint = format_hint), zip_longest(log_files, aux_files, fillvalue = {}))
+                pool.starmap(partial(multi_parser, alignment_class = alignment_class, format_hint = format_hint, keep_archive = keep_archive), zip_longest(log_files, aux_files, fillvalue = {}))
             )
         )
         
-        return [result for result_list in result_lists for result in result_list]
+        if keep_archive:
+            return [(result, archive) for results, archive in result_lists for result in results]
+        
+        else:
+            return [result for result_list in result_lists for result in result_list]
     
     finally:
         # Do some cleanup if we need to.
         if own_pool:
             pool.close()
     
-def parse_and_merge_calculations(*log_files, aux_files = None, alignment_class = None, format_hint = "auto", inner_pool = None):
+def parse_and_merge_calculations(*log_files, aux_files = None, alignment_class = None, format_hint = "auto", inner_pool = None, keep_archive = False):
     """
     Get a single result object by parsing a number of computational log files.
     
@@ -310,30 +338,40 @@ def parse_and_merge_calculations(*log_files, aux_files = None, alignment_class =
     if alignment_class is None:
             alignment_class = Minimal
 
-    parsed_results = parse_multiple_calculations(*log_files, alignment_class = alignment_class, format_hint = format_hint, pool = inner_pool, aux_files = aux_files)
+    parsed_results = parse_multiple_calculations(*log_files, alignment_class = alignment_class, format_hint = format_hint, pool = inner_pool, aux_files = aux_files, keep_archive = keep_archive)
+    
+    # If we asked for archives as well, unpack.
+    if keep_archive:
+        parsed_results, archives = list(map(list, zip(*parsed_results)))
     
     # If we have more than one result, merge them together.
     if len(parsed_results) > 1:
-        return Merged.from_results(*parsed_results, alignment_class = alignment_class)
+        parsed_results = Merged.from_results(*parsed_results, alignment_class = alignment_class)
     
-    if len(parsed_results) == 0:
-        return None
+    elif len(parsed_results) == 0:
+        parsed_results = None
     
     else:
-        return parsed_results[0]
+        parsed_results = parsed_results[0]
+        
+    if keep_archive:
+        return (parsed_results, archives)
+    
+    else:
+        return parsed_results
             
-def multi_merger_parser(log_files, aux_files, *, alignment_class, format_hint = "auto" , inner_pool = None):
+def multi_merger_parser(log_files, aux_files, *, alignment_class, format_hint = "auto" , inner_pool = None, keep_archive = False):
         """
         The inner function which will be called in parallel to parse files.
-        """                  
+        """
         try:
-            return parse_and_merge_calculations(*log_files, alignment_class = alignment_class, format_hint = format_hint, inner_pool = inner_pool, aux_files = aux_files)
+            return parse_and_merge_calculations(*log_files, alignment_class = alignment_class, format_hint = format_hint, inner_pool = inner_pool, aux_files = aux_files, keep_archive = keep_archive)
             
         except Exception:
             silico.log.get_logger().warning("Unable to parse and merge calculation results '{}'; skipping".format(", ".join([str(log_file) for log_file in log_files])), exc_info = True)
             return None
 
-def parse_and_merge_multiple_calculations(*multiple_results, alignment_class = None, format_hint = "auto", init_func = None, init_args = None, processes = None, aux_files = None):
+def parse_and_merge_multiple_calculations(*multiple_results, alignment_class = None, format_hint = "auto", init_func = None, init_args = None, processes = None, aux_files = None, keep_archive = False):
     """
     Parse a number of separate calculation results in parallel, merging some or all of the results into combined result sets.
     
@@ -356,7 +394,7 @@ def parse_and_merge_multiple_calculations(*multiple_results, alignment_class = N
         
         result_lists = list(
             filterfalse(lambda x: x is None,
-                map(partial(multi_merger_parser, alignment_class = alignment_class, format_hint = format_hint, inner_pool = pool), multiple_results, aux_files)
+                map(partial(multi_merger_parser, alignment_class = alignment_class, format_hint = format_hint, inner_pool = pool, keep_archive = keep_archive), multiple_results, aux_files)
             )
         )
         
@@ -401,6 +439,12 @@ class open_for_parsing():
         """
         'Open' files for reading.
         """
+        return self.open()
+        
+    def open(self):
+        """
+        'Open' files for reading.
+        """
         new_log_files = []
         
         formats = self.archive_formats
@@ -439,15 +483,17 @@ class open_for_parsing():
         Extract an archive and return the contained log files.
         """
         # Get a temp dir to extact to.
-        tempdir = tempfile.TemporaryDirectory()
+        # We can't use TemporaryDirectory here, because these are auto deleted on program exit. This is not compatible with multi-processing.
+        #tempdir = tempfile.TemporaryDirectory()
+        tempdir = mkdtemp()
         self.temp_dirs.append(tempdir)
         
         # Extract to it.
         silico.log.get_logger().info("Extracting archive '{}'...".format(file_name))
-        shutil.unpack_archive(file_name, tempdir.name)
+        shutil.unpack_archive(file_name, tempdir)
         
         # Add any files/directories that were unpacked.
-        return Path(tempdir.name).glob("*")
+        return Path(tempdir).glob("*")
     
     def cleanup(self):
         """
@@ -462,6 +508,6 @@ class open_for_parsing():
         'Close' any open files.
         """
         for tempdir in self.temp_dirs:
-            tempdir.cleanup()
+            shutil.rmtree(tempdir, ignore_errors = True)
         
         
