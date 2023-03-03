@@ -80,6 +80,19 @@ def dict_get(dict_obj, *fields):
     else:    
         return dict_get(dict_obj[fields[0]], *fields[1:])
     
+def transpose(nested_list, dimensions):
+    """
+    Transpose a nested list, returning separate lists of the nested items.
+    
+    eg, transpose([(1, "a"), (2, "b"), (3, "c")])
+    -> [[1, 2, 3], ["a", "b", "c"] 
+    """
+    if len(nested_list) == 0:
+        return [list() for i in range(dimensions)]
+    
+    else:
+        return list(map(list, zip(*nested_list)))
+    
 
 class Dynamic_parent():
     """
