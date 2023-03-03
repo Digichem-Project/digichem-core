@@ -2,6 +2,7 @@
 from pathlib import Path
 from timeit import default_timer as timer
 import datetime
+import warnings
 
 # Silico imports.
 import silico.log
@@ -144,7 +145,7 @@ class File_maker(File_maker_ABC):
             
             # Check
             if not existing_file.exists():
-                silico.log.get_logger().warning("The given {} file '{}' does not appear to exist".format(self.output_file_type, existing_file))
+                warnings.warn("The given {} file '{}' does not appear to exist".format(self.output_file_type, existing_file))
                 # Continue anyway.
             
             # Set our output appropriately, and continue as normal.
