@@ -82,3 +82,86 @@ def check_orbitals(orbitals, num_occ, num_unocc, homo, lumo):
     
     # Check ordering.
     assert [orbital.level for orbital in orbitals] == list(range(1, num_occ + num_unocc +1))
+
+
+def check_rendered_image(base_name):
+    """Check whether the eight separate images of a given rendered image have been created."""
+    for extension in ["jpg", "png"]:
+        for orientation in ["x0y0z0", "x0y90z0", "x45y45z45", "x90y0z0"]:
+            assert Path(base_name.parent, f"{base_name.name}.{orientation}.{extension}").exists()
+
+
+def check_report(report_folder, base_name, *,
+    optimisation = False,
+    vibrations = False,
+    excited_states = False,
+    absorption = False,
+    s1_tdm = False,
+    s1_diff = False,
+    t1_diff = False,
+    s1_nto = False,
+    t1_nto = False,
+    vertical_emission = False,
+    adiabatic_emission = False):
+    """
+    Check that certain report and image files have been correctly rendered.
+    """
+    # First, check the report file itself is there
+    assert (Path(report_folder, f"{base_name}.journal.pdf").exists() and Path(report_folder, f"{base_name}.traditional.pdf").exists()) or Path(report_folder, f"{base_name}.pdf").exists()
+    
+    # Now check for images.
+    image_folder = Path(report_folder, "image")
+    # HOMO and LUMO
+    for image in ["HOMO", "LUMO"]:
+        check_rendered_image(Path(image_folder, f"{image}", f"{base_name}.{image}"))
+    
+    # HOMO-LUMO overlap
+    check_rendered_image(Path(image_folder, "HOMO LUMO", f"{base_name}.HOMO_LUMO"))
+    
+    # Structure and density.
+    check_rendered_image(Path(image_folder, "Structure", f"{base_name}.structure"))
+    check_rendered_image(Path(image_folder, "Density", f"{base_name}.SCF"))
+    
+    # Dipole.
+    check_rendered_image(Path(image_folder, "Dipole Moment", f"{base_name}.dipole"))
+    
+    if optimisation:
+        assert Path(image_folder, f"{base_name}.SCF_graph.png").exists()
+    
+    # HOMO-LUMO diagrams.
+    assert Path(image_folder, "Orbital Diagram", f"{base_name}.HOMO_LUMO.png").exists()
+    assert Path(image_folder, "Orbital Diagram", f"{base_name}.orbitals.png").exists()
+    
+    # Excited state stuff.
+    if s1_tdm:
+        check_rendered_image(Path(image_folder, "S(1) Transition Dipole Moment", f"{base_name}.S(1)_dipole"))
+    
+    if s1_diff:
+        check_rendered_image(Path(image_folder, "S(1)", f"{base_name}.S(1)_difference_density"))
+    
+    if t1_diff:
+        check_rendered_image(Path(image_folder, "T(1)", f"{base_name}.T(1)_difference_density"))
+        
+    if s1_nto:
+        check_rendered_image(Path(image_folder, "S(1)", f"{base_name}.S(1)_NTO"))
+    
+    if t1_nto:
+        check_rendered_image(Path(image_folder, "T(1)", f"{base_name}.T(1)_NTO"))
+        
+    if excited_states:
+        assert Path(image_folder, f"{base_name}.excited_states.png").exists()
+    
+    if absorption:
+        assert Path(image_folder, f"{base_name}.simulated_absorption_spectrum.png").exists()
+        
+    if vertical_emission:
+        assert Path(image_folder, f"{base_name}.vertical_S(1)_emission_states.png").exists()
+        assert Path(image_folder, f"{base_name}.simulated_vertical_S(1)_emission_spectrum.png").exists()
+    
+    if adiabatic_emission:
+        assert Path(image_folder, f"{base_name}.adiabatic_S(1)_emission_states.png").exists()
+        assert Path(image_folder, f"{base_name}.simulated_adiabatic_S(1)_emission_spectrum.png").exists()
+    
+    # Vibrations.
+    if vibrations:
+        assert Path(image_folder, f"{base_name}.simulated_frequencies.png").exists()
