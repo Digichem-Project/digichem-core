@@ -37,6 +37,18 @@ def test_631g_str_str():
     # Check Turbomole version.
     assert all(["6-31G**" == basis_set.to_turbomole() for basis_set in basis_sets])
     
+def test_def2_svp_p():
+    """
+    Test weird gaussian name for def2-SV(P).
+    """
+    assert Basis_set("def2-SV(P)").to_gaussian() == "def2SVPP"
+
+@pytest.mark.parametrize("basis_set_name", ["def2-SVP", "def2-TZVP", "def2-QZVP"])
+def test_karlsruhe(basis_set_name):
+    """
+    Test weird gaussian names for Karlsruhe basis sets.
+    """
+    assert "-" not in Basis_set(basis_set_name).to_gaussian()
     
 def test_ccpvdz():
     assert Basis_set("cc-PvDz").to_gaussian() == "cc-pVDZ"
