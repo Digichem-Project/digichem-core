@@ -116,7 +116,7 @@ class Basis_set(Translate):
         # BSE's database has some semi-duplicate entries (such as '6-31g(d,p)' and '6-31g_st__st_').
         # Although these basis sets are identical, they have reversed metadata (ie, for '6-31g(d,p)', 'display_name' is set to '6-31G(d,p)' and 'other_names'
         # contains '6-31G**', while for '6-31g_st__st_' 'display_name' is '6-31G**' and 'other_names' is '6-31G(d,p)'.
-        # This is a problem for us because we need to predictable choose from these names (ie the star form '6-31G**' is suitable for both
+        # This is a problem for us because we need to predictably choose from these names (ie the star form '6-31G**' is suitable for both
         # Gaussian and Turbomole), but the keys referring to these same names are different.
         #
         # Firstly, build a new dict using basename as the key, which appears to be the same even for duplicates.
@@ -141,6 +141,15 @@ class Basis_set(Translate):
             # it prefers the star format.
             if basis_set['name'][-5:] == "(d,p)":
                 basis_set["turbomole"] = basis_set['name'][:-5] + "**"
+                
+            # Gaussian has a strange, contracted style naming scheme for Karlsruhe,
+            # and a misleading/incorrect name for def2-SVP(P).
+            #print(basis_set['name'])
+            if basis_set['name'] == "def2-SV(P)":
+                basis_set['gaussian'] = "def2SVPP"
+                
+            elif basis_set['name'][:5] == "def2-":
+                basis_set['gaussian'] = basis_set['name'][:4] + basis_set['name'][5:]
             
             new_db[basis_key] = basis_set
             
