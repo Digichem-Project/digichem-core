@@ -43,7 +43,7 @@ def test_def2_svp_p():
     """
     assert Basis_set("def2-SV(P)").to_gaussian() == "def2SVPP"
 
-@pytest.mark.parametrize("basis_set_name", ["def2-SVP", "def2-TZVP", "def2-QZVP"])
+@pytest.mark.parametrize("basis_set_name", ["def2-SVP", "def2-TZV", "def2-TZVP", "def2-QZV", "def2-QZVP"])
 def test_karlsruhe(basis_set_name):
     """
     Test weird gaussian names for Karlsruhe basis sets.
