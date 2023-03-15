@@ -156,6 +156,13 @@ class Basis_set(Translate):
             # TODO: Need to support aux basis sets (which end in things like -rifit, -jfit, -jkfit etc.
             # Orca, for example, uses /C, /J and /JK instead...
             # Turbomole uses nothing.
+        
+        # Basis set exchange seems to be missing some non-polarized Karlsruhe basis sets (or else Gaussian made them up).
+        # Add them manually so we can still convert from Gaussian's weird representation.
+        new_db.update({
+            "def2-TZV": {"key": "def2-TZV", "name": "def2-TZV", "aliases": [], "meta": {}, "gaussian": "def2TZV"},
+            "def2-QZV": {"key": "def2-QZV", "name": "def2-QZV", "aliases": [], "meta": {}, "gaussian": "def2QZV"}
+        })
                 
         return new_db
     
