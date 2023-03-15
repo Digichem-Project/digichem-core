@@ -160,8 +160,8 @@ class Basis_set(Translate):
         # Basis set exchange seems to be missing some non-polarized Karlsruhe basis sets (or else Gaussian made them up).
         # Add them manually so we can still convert from Gaussian's weird representation.
         new_db.update({
-            "def2-TZV": {"key": "def2-TZV", "name": "def2-TZV", "aliases": [], "meta": {}, "gaussian": "def2TZV"},
-            "def2-QZV": {"key": "def2-QZV", "name": "def2-QZV", "aliases": [], "meta": {}, "gaussian": "def2QZV"}
+            "def2-TZV": {"key": "def2-TZV", "name": "def2-TZV", "aliases": [], "meta": {}, "gaussian": "def2TZV"},#, "turbomole": "def2-TZV"},
+            "def2-QZV": {"key": "def2-QZV", "name": "def2-QZV", "aliases": [], "meta": {}, "gaussian": "def2QZV"}#, "turbomole": "def2-TZV"}
         })
                 
         return new_db
@@ -188,7 +188,8 @@ class Basis_set(Translate):
         # Try again, this time ignoring case and looking through all possible names.
         str_hint = "".join(str(hint).lower().split())
         for basis_set in db.values():
-            if str_hint in [name.lower() for name in basis_set['aliases'] + [basis_set['key'], basis_set['name'], basis_set['gaussian'], basis_set['turbomole']] if name is not None]:
+            names = [basis_set.get(name, "") for name in ("key", "name", "gaussian", "turbomole")] + basis_set['aliases']
+            if str_hint in [name.lower() for name in names if name is not None]:
                 return basis_set
         
         # No luck.
