@@ -290,19 +290,24 @@ class Atom(Result_object):
     Class that represents an atom.
     """
     
-    def __init__(self, atomic_number, coords, mass = None):
+    def __init__(self, index, atomic_number, coords, mass = None):
         """
         Construct an Atom class.
         
+        :param index: The numerical index of this atom, starting from 1.
         :param atomic_number: The atomic/proton number of the atom. Conventional wisdom suggests this has to be an integer, but we make no check here.
         :param mass: The mass of the atom (in Daltons). This isn't always available for some reason (eg, Gaussian Freq calculations), but when it is it identifies the isotope of the given atom.
         :param coords: The coords of the atom, as an (x, y, z) tuple.        
         """
         # Just save each of our attributes.
+        self.index = index
         self.mass = mass
         self.coords = coords
         # Get our element class.
         self.element = periodictable.elements[atomic_number]
+        
+    def __hash__(self):
+        return hash(self.index)
         
     def __str__(self):
         """
@@ -330,6 +335,7 @@ class Atom(Result_object):
         Get a representation of this result object in primitive format.
         """
         return {
+            "index": self.index,
             "element": self.element.number,
             "coords": {
                 "x": {
@@ -359,7 +365,7 @@ class Atom(Result_object):
         :param data: The data to parse.
         :param result_set: The partially constructed result set which is being populated.
         """
-        return [self(atom_dict['element'], (atom_dict['coords']['x']['value'], atom_dict['coords']['y']['value'], atom_dict['coords']['z']['value']), atom_dict['mass']['value']) for atom_dict in data]
+        return [self(atom_dict.get('index', index), atom_dict['element'], (atom_dict['coords']['x']['value'], atom_dict['coords']['y']['value'], atom_dict['coords']['z']['value']), atom_dict['mass']['value']) for index, atom_dict in enumerate(data)]
     
     @classmethod
     def list_from_parser(self, parser):
@@ -390,6 +396,6 @@ class Atom(Result_object):
         zip_data = zip_longest(atomnos, atomcoords, atommasses, fillvalue = None)
         
         # Loop through and rebuild our objects.
-        return [self(atomic_number, tuple(coords), mass) for atomic_number, coords, mass in zip_data]
+        return [self(index, atomic_number, tuple(coords), mass) for index, (atomic_number, coords, mass) in enumerate(zip_data)]
         
         
