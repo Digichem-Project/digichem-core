@@ -305,6 +305,10 @@ class Atom(Result_object):
         self.coords = coords
         # Get our element class.
         self.element = periodictable.elements[atomic_number]
+    
+    @property
+    def label(self):
+        return "{}{}".format(self.element, self.index)
         
     def __hash__(self):
         return hash(self.index)
@@ -365,7 +369,7 @@ class Atom(Result_object):
         :param data: The data to parse.
         :param result_set: The partially constructed result set which is being populated.
         """
-        return [self(atom_dict.get('index', index), atom_dict['element'], (atom_dict['coords']['x']['value'], atom_dict['coords']['y']['value'], atom_dict['coords']['z']['value']), atom_dict['mass']['value']) for index, atom_dict in enumerate(data)]
+        return [self(atom_dict.get('index', index +1), atom_dict['element'], (atom_dict['coords']['x']['value'], atom_dict['coords']['y']['value'], atom_dict['coords']['z']['value']), atom_dict['mass']['value']) for index, atom_dict in enumerate(data)]
     
     @classmethod
     def list_from_parser(self, parser):
@@ -396,6 +400,6 @@ class Atom(Result_object):
         zip_data = zip_longest(atomnos, atomcoords, atommasses, fillvalue = None)
         
         # Loop through and rebuild our objects.
-        return [self(index, atomic_number, tuple(coords), mass) for index, (atomic_number, coords, mass) in enumerate(zip_data)]
+        return [self(index+1, atomic_number, tuple(coords), mass) for index, (atomic_number, coords, mass) in enumerate(zip_data)]
         
         
