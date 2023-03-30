@@ -21,6 +21,7 @@ from silico.result.dipole_moment import Dipole_moment
 from silico.result.vibration import Vibrations_list
 from silico.exception.base import Silico_exception
 from silico.result.emission import Relaxed_excited_state
+from silico.result.nmr import NMR_shielding, NMR_spin_couplings_list, NMR_list
 
 
 # NOTE: This is a repeat of the list in util to avoid circular import nonsense.
@@ -168,6 +169,9 @@ class Parser_abc():
         self.results.vibrations = self.load_result_part(Vibrations_list)
         
         # NMR.
+        self.results.nmr_shieldings = NMR_shielding.dict_from_parser(self)
+        self.results.nmr_couplings = NMR_spin_couplings_list.from_parser(self)
+        self.results.nmr = NMR_list.from_parser(self)
         
         # Finally, try and set emission.
         self.results.emission.vertical, self.results.emission.adiabatic = Relaxed_excited_state.guess_from_results(self.results)
