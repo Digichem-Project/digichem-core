@@ -25,10 +25,9 @@ class Result_set(Result_object):
     def __init__(self, **attributes):
         """Constructor for Result_set objects."""
         super().__init__()
-        self._id = attributes.pop('database_id')
+        self._id = attributes.pop('database_id', None)
         self.results = (self,)
-        emission = attributes.pop('emission')
-        self.emission = emission if emission is not None else Emissions()
+        self.emission = attributes.pop('emission', Emissions())
         
         for attr_name, attribute in attributes.items():
             setattr(self, attr_name, attribute)
