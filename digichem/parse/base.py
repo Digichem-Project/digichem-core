@@ -167,6 +167,8 @@ class Parser_abc():
         # Frequencies.
         self.results.vibrations = self.load_result_part(Vibrations_list)
         
+        # NMR.
+        
         # Finally, try and set emission.
         self.results.emission.vertical, self.results.emission.adiabatic = Relaxed_excited_state.guess_from_results(self.results)
         
