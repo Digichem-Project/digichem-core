@@ -225,6 +225,15 @@ class Atom_list(Result_container, Unmergeable_container_mixin):
         """
         return self(Atom.list_from_dump(data['values'], result_set), charge = data['charge'])
     
+    @classmethod
+    def from_coords(self, coords):
+        """
+        Get an instance of this class from a Silico input coordinates object.
+        
+        :param coords: Silico input coords.
+        """
+        return self(Atom.list_from_coords(coords), charge = coords.charge)
+    
     def dump(self, silico_options):
         """
         Get a representation of this result object in primitive format.
@@ -401,5 +410,13 @@ class Atom(Result_object):
         
         # Loop through and rebuild our objects.
         return [self(index+1, atomic_number, tuple(coords), mass) for index, (atomic_number, coords, mass) in enumerate(zip_data)]
+    
+    @classmethod
+    def list_from_coords(self, coords):
+        """
+        Get a list of Atom objects from a Silico input coordinates object.
         
-        
+        :param coords: Silico input coords.
+        :result: A list of Atom objects. An empty list is returned if no atom data is available.
+        """
+        return [self(index+1, getattr(periodictable.elements, atom['atom']).number, (atom["x"], atom["y"], atom["z"])) for index, atom in enumerate(coords.atoms)]
