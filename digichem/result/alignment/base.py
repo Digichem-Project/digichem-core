@@ -8,7 +8,7 @@ class Alignment(Atom_list, Dynamic_parent):
     A class that carries out a series of transformations to realign the Cartesian axes of a set of atoms in a particular manner.
     """
     
-    def __init__(self, atoms, *args, charge, **kwargs):
+    def __init__(self, atoms, *args, charge = None, **kwargs):
         """
         Constructor for this alignment class.
         
