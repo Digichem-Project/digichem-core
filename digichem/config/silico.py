@@ -34,7 +34,10 @@ class Silico_options(Configurable):
     skeletal_image = Options(
         help = "Options for controlling the rendering of 2D skeletal images.",
         render_backend = Option(help = "The library to use for rendering.", choices = ["rdkit", "obabel"], default = "rdkit"),
-        resolution = Option("The resolution for rendered images.", type = int, default = 1024)
+        resolution = Options(help = "The resolution for rendered images", 
+            absolute = Option(help = "The output resolution (x and y) in pixels", type = int, default = None),
+            relative = Option(help = "The output resolution (x and y) in multiples of the length of the molecule", type = int, default = 100)
+        )
     )
     
     logging = Options(
