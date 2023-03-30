@@ -22,44 +22,16 @@ class Result_set(Result_object):
     This class is a bit heavy and might not be around for long...
     """
     
-    def __init__(
-            self,
-            metadata = None,
-            energies = None,
-            raw_atoms = None,
-            atoms = None,
-            pdm = None,
-            transition_dipole_moments = None,
-            orbitals = None,
-            beta_orbitals = None,
-            ground_state = None,
-            excited_states = None,
-            energy_states = None,
-            vibrations = None,
-            soc = None,
-            emission = None,
-            database_id = None,):
-        """
-        Constructor for Result_set objects.
-        
-        """
+    def __init__(self, **attributes):
+        """Constructor for Result_set objects."""
         super().__init__()
-        self._id = database_id
-        self.metadata = metadata
+        self._id = attributes.pop('database_id')
         self.results = (self,)
-        self.energies = energies
-        self.pdm = pdm
-        self.transition_dipole_moments = transition_dipole_moments
-        self.raw_atoms = raw_atoms
-        self.atoms = atoms
-        self.orbitals = orbitals
-        self.beta_orbitals = beta_orbitals
-        self.ground_state = ground_state
-        self.excited_states = excited_states
-        self.energy_states = energy_states
-        self.vibrations = vibrations
-        self.soc = soc
+        emission = attributes.pop('emission')
         self.emission = emission if emission is not None else Emissions()
+        
+        for attr_name, attribute in attributes.items():
+            setattr(self, attr_name, attribute)
         
     @property
     def alignment(self):
