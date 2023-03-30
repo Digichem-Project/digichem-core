@@ -82,6 +82,11 @@ class Skeletal_image_maker(Image_maker):
                 raise Exception("Failed to parse coordinates with rdkit")
             rdkit.Chem.AllChem.Compute2DCoords(molecule)
             
+            # Add atom labelling.
+            for atom in molecule.GetAtoms():
+                # For each atom, set the property "atomNote" to a index+1 of the atom
+                molecule.SetProp("atomNote", str(atom.GetIdx()+1))
+            
             # Then write the file.
             rdkit.Chem.Draw.MolToFile(molecule, str(self.output), (self.resolution, self.resolution))
             
