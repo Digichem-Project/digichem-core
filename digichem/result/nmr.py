@@ -55,7 +55,7 @@ class NMR_list(Result_container):
             elif index is not None:
                 criteria_string = "index = '{}'".format(index)
             
-            raise Result_unavailable_error("NMR", "could not NMR data for atom '{}'".format(criteria_string))
+            raise Result_unavailable_error("NMR", "could not find NMR data for atom '{}'".format(criteria_string))
         
         return found
         
@@ -172,7 +172,7 @@ class NMR(Result_object):
     """
     A result object containing all the NMR related data for a single atom.
     
-    For a given atom, this class will containg:
+    For a given atom, this class will contain:
         - The chemical shielding of this atom (including a breakdown by tensors, if available).
         - The spin-spin coupling constants between this atom and all other atoms for which couplings were calculated (also with a breakdown by tensor, if available).
     """
@@ -199,7 +199,8 @@ class NMR(Result_object):
         """
         return {
             "atom": self.atom.label,
-            "shielding": self.shielding.dump(silico_options)
+            "shielding": self.shielding.dump(silico_options),
+            "couplings": self.couplings.dump(silico_options)
         }
         
 
@@ -207,6 +208,7 @@ class NMR_tensor_ABC(Result_object):
     """ABC for classes that contain dicts of NMR tensors."""
     
     tensor_names = ()
+    units = ""
     
     def __init__(self, tensors, total_isotropic):
         self.tensors = tensors
@@ -242,9 +244,9 @@ class NMR_tensor_ABC(Result_object):
         Get a representation of this result object in primitive format.
         """
         return {
-            "tensors": {t_type: {"value": list(list(map(float, dim)) for dim in tensor), "units": "ppm"} for t_type, tensor in self.tensors.items()},
-            "eigenvalues": {t_type: {"value": list(list(map(float, self.eigenvalues(t_type)))), "units": "ppm"} for t_type in self.tensors},
-            "isotropic": {t_type: {"value": float(self.isotropic(t_type)), "units": "ppm"} for t_type in self.tensors}
+            "tensors": {t_type: {"value": list(list(map(float, dim)) for dim in tensor), "units": self.units} for t_type, tensor in self.tensors.items()},
+            "eigenvalues": {t_type: {"value": list(list(map(float, self.eigenvalues(t_type)))), "units": self.units} for t_type in self.tensors},
+            "isotropic": {t_type: {"value": float(self.isotropic(t_type)), "units": self.units} for t_type in self.tensors}
         }
 
 
@@ -254,6 +256,7 @@ class NMR_shielding(NMR_tensor_ABC):
     """
     
     tensor_names = ("paramagnetic", "diamagnetic", "total")
+    units = "ppm"
     
     def __init__(self, atom, tensors, total_isotropic):
         """
@@ -311,21 +314,44 @@ class NMR_spin_couplings_list(Result_container):
         """
         return self(NMR_spin_coupling.list_from_parser(parser))
     
+    def find(self, criteria = None, *, label = None, index = None):
+        """
+        """
+        if label is None and index is None and criteria is None:
+            raise ValueError("One of 'criteria', 'label' or 'index' must be given")
+        
+        if criteria is not None:
+            if str(criteria).isdigit():
+                index = int(criteria)
+            
+            else:
+                label = criteria
+        
+        # Now get our filter func.
+        if label is not None:
+            filter_func = lambda coupling: label not in [atom.label for atom in coupling.atoms]
+        
+        elif index is not None:
+            filter_func = lambda coupling: index not in [atom.index for atom in coupling.atoms]
+        
+        # Now search.
+        found = type(self)(filterfalse(filter_func, self))
+        
+        if len(found) == 0:
+            if label is not None:
+                criteria_string = "label = '{}'".format(label)
+            
+            elif index is not None:
+                criteria_string = "index = '{}'".format(index)
+            
+            raise Result_unavailable_error("NMR", "could not NMR data for atom '{}'".format(criteria_string))
+        
+        return found
+    
     def between(self, atom1, atom1_isotopes = None, atom2 = None, atom2_isotopes = None):
         """
         Return a list containing all couplings involving either one or two atoms.
         """
-#         new_list = self()
-#         
-#         for coupling in self:
-#             if atom1 in coupling.atoms and
-#             (atom2 is None or atom2 in coupling.atoms) and
-#             (atom1_isotopes is None or coupling.isotopes[coupling.atoms.index(atom1)] in atom1_isotopes) and
-#             (atom2_isotopes is None or atom2 is None or coupling.isotopes[coupling.atoms.index(atom2)] in atom2_isotopes)
-#             
-#             :
-#                 # Decide if any of our isotopes match.
-#                 atom1_index
         return type(self)([coupling for coupling in self
             if atom1 in coupling.atoms and
             (atom2 is None or atom2 in coupling.atoms) and
@@ -339,6 +365,7 @@ class NMR_spin_coupling(NMR_tensor_ABC):
     """
     
     tensor_names = ("paramagnetic", "diamagnetic", "fermi", "spin-dipolar", "spin-dipolar-fermi", "total")
+    units = "Hz"
     
     def __init__(self, atoms, isotopes, tensors, total_isotropic):
         """
@@ -370,3 +397,15 @@ class NMR_spin_coupling(NMR_tensor_ABC):
             return []
         
         return couplings
+    
+    def dump(self, silico_options):
+        """
+        Get a representation of this result object in primitive format.
+        """
+        dump_dic = {
+            "atoms": (self.atoms[0].label, self.atoms[1].label),
+            "isotopes": (self.isotopes[0], self.isotopes[1]),
+        }
+        
+        dump_dic.update(super().dump(silico_options))
+        return dump_dic
