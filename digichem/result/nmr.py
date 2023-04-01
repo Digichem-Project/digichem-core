@@ -1,17 +1,31 @@
 import numpy
+from rdkit import Chem
 from itertools import filterfalse
 
 from silico.result.base import Result_object, Result_container
 from silico.exception.base import Result_unavailable_error
 
 
+def dict_list_index(dictionary, item):
+    "Find the key in a dictionary which contains the list which contains an item."
+    for dict_key, dict_value in dictionary.items():
+        if item in dict_value:
+            return dict_key
+
 class NMR_list(Result_container):
+    
+    def __init__(self, *args, atoms, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.atoms = atoms
     
     @classmethod
     def from_parser(self, parser):
-        return self(NMR.list_from_parser(parser))
+        return self(NMR.list_from_parser(parser), atoms = parser.results.atoms)
     
     def find(self, criteria = None, *, label = None, index = None):
+        return self.search(criteria = criteria, label = label, index = index, allow_empty = False)[0]
+    
+    def search(self, criteria = None, *, label = None, index = None, allow_empty = True):
         """
         """
         if label is None and index is None and criteria is None:
@@ -32,12 +46,9 @@ class NMR_list(Result_container):
             filter_func = lambda nmr: nmr.atom.index != index
         
         # Now search.
-        found = type(self)(filterfalse(filter_func, self))
+        found = type(self)(filterfalse(filter_func, self), atoms = self.atoms)
         
-        try:
-            return found[0]
-        
-        except IndexError:
+        if not allow_empty and len(found) == 0:
             if label is not None:
                 criteria_string = "label = '{}'".format(label)
             
@@ -45,7 +56,117 @@ class NMR_list(Result_container):
                 criteria_string = "index = '{}'".format(index)
             
             raise Result_unavailable_error("NMR", "could not NMR data for atom '{}'".format(criteria_string))
-
+        
+        return found
+        
+    def group(self, atoms, no_self_coupling = True):
+        """
+        """
+        # First, decide which atoms are actually equivalent.
+        # We can do this by comparing canonical SMILES groupings.
+        molecule = atoms.to_rdkit_molecule()
+        groupings = list(Chem.rdmolfiles.CanonicalRankAtoms(molecule, breakTies = False))
+        
+        groups = {}
+        for atom_index, group_num in enumerate(groupings):
+            try:
+                groups[group_num].append(atom_index +1)
+            
+            except KeyError:
+                groups[group_num] = [atom_index +1]
+                
+        # Fix group numberings.
+        groups = {new_group_num+1: group for new_group_num, group in enumerate(groups.values())}
+        
+        nmr_groups = {}
+        # Next, assemble group objects.
+        for group_num, atom_indices in groups.items():
+            # Atoms contributing to this group.
+            group_atoms = [atoms[atom_index -1] for atom_index in atom_indices]
+            nmr_results = [nmr_result for nmr_result in self if nmr_result.atom in group_atoms]
+            
+            if len(nmr_results) == 0:
+                continue
+            
+            # Shieldings.
+            shieldings = [nmr_result.shielding for nmr_result in nmr_results]
+            # Only keep couplings in which at least one of the two atoms is not in this group (discard self coupling)
+            couplings = [coupling for nmr_result in nmr_results for coupling in nmr_result.couplings if not no_self_coupling or len(set(group_atoms).intersection(coupling.atoms)) != 2]
+            
+            nmr_groups[group_num] = {"atoms": group_atoms, "shieldings": shieldings, "couplings": couplings}
+            #nmr_groups[group_num] = NMR_group(group_atoms, shieldings, couplings)
+        
+        # Now everything is assembled into groups, re-calculate couplings based on groups only.
+        # We need to do this after initial group assembly in order to discard self coupling.
+        # Get unique couplings (so we don't consider any twice).
+        group_couplings = {}
+        unique_couplings = {(coupling.atoms, coupling.isotopes): coupling for group in nmr_groups.values() for coupling in group['couplings']}.values()        
+        for coupling in unique_couplings:
+            # Find the group numbers that correspond to the two atoms in the coupling.
+            coupling_groups = tuple(dict_list_index(groups, atom.index) for atom_index, atom in enumerate(coupling.atoms))
+            isotopes = coupling.isotopes
+            
+            # Append the isotropic coupling constant to the group.
+            if coupling_groups not in group_couplings:
+                group_couplings[coupling_groups] = {}
+                
+            if isotopes not in group_couplings[coupling_groups]:
+                group_couplings[coupling_groups][isotopes] = []
+                
+            group_couplings[coupling_groups][isotopes].append(coupling.isotropic('total'))        
+            
+        # Average each 'equivalent' coupling.
+        group_couplings = {
+            group_key: {
+                isotope_key: {
+                    "groups": group_key,
+                    "isotopes": isotope_key,
+                    "total": float(sum(isotope_couplings) / len(isotope_couplings))
+                } for isotope_key, isotope_couplings in  isotopes.items()}
+            for group_key, isotopes in group_couplings.items()
+        }
+        
+        # Assembly the final group objects.
+        nmr_object_groups = {}
+        for group_num, raw_group in nmr_groups.items():
+            # Get appropriate couplings.
+            
+            coupling = [isotope_coupling for group_key, group_coupling in group_couplings.items() for isotope_coupling in group_coupling.values() if group_num in group_key]
+            nmr_object_groups[group_num] = NMR_group(raw_group['atoms'], raw_group['shieldings'], coupling)
+        
+        return nmr_object_groups
+    
+    def dump(self, silico_options):
+        dump_dict = {
+            "values": Result_container.dump(self, silico_options),
+            "groups": {group_id: group.dump(silico_options) for group_id, group in self.group(self.atoms).items()}
+        }
+        return dump_dict
+    
+class NMR_group(Result_object):
+    
+    
+    def __init__(self, atoms, shieldings, couplings):
+        self.atoms = atoms
+        self.shieldings = shieldings
+        self.couplings = couplings
+        
+        # Calculate average shieldings and couplings.
+        self.shielding = float(sum([shielding.isotropic("total") for shielding in shieldings]) / len(shieldings))
+    
+    def dump(self, silico_options):
+        """
+        Get a representation of this result object in primitive format.
+        """
+        return {
+            "atoms": [atom.label for atom in self.atoms],
+            "shielding": {
+                "units": "ppm",
+                "value": self.shielding
+            },
+            "couplings": [coupling for coupling in self.couplings],
+        }
+    
 
 class NMR(Result_object):
     """
