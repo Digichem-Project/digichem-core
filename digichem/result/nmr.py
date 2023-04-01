@@ -59,19 +59,7 @@ class NMR_list(Result_container):
         """
         # First, decide which atoms are actually equivalent.
         # We can do this by comparing canonical SMILES groupings.
-        molecule = atoms.to_rdkit_molecule()
-        groupings = list(Chem.rdmolfiles.CanonicalRankAtoms(molecule, breakTies = False))
-        
-        groups = {}
-        for atom_index, group_num in enumerate(groupings):
-            try:
-                groups[group_num].append(atom_index +1)
-            
-            except KeyError:
-                groups[group_num] = [atom_index +1]
-                
-        # Fix group numberings.
-        groups = {new_group_num+1: group for new_group_num, group in enumerate(groups.values())}
+        groups = get_chemical_group_mapping(self.atoms.to_rdkit_molecule())
         
         nmr_groups = {}
         # Next, assemble group objects.
