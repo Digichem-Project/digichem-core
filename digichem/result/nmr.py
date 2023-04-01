@@ -4,13 +4,8 @@ from itertools import filterfalse
 
 from silico.result.base import Result_object, Result_container
 from silico.exception.base import Result_unavailable_error
-
-
-def dict_list_index(dictionary, item):
-    "Find the key in a dictionary which contains the list which contains an item."
-    for dict_key, dict_value in dictionary.items():
-        if item in dict_value:
-            return dict_key
+from silico.misc.base import dict_list_index
+from silico.result.atom import get_chemical_group_mapping
 
 class NMR_list(Result_container):
     
