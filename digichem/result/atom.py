@@ -3,12 +3,14 @@ import math
 import periodictable
 from itertools import zip_longest
 from openbabel import pybel
+from rdkit import Chem
 
 # Silico imports
 from silico.result import Result_container
 from silico.result import Result_object
 from silico.result import Unmergeable_container_mixin
 from silico.exception.base import Result_unavailable_error
+from silico.file.babel import Openbabel_converter
 
 
 class Atom_list(Result_container, Unmergeable_container_mixin):
@@ -292,6 +294,19 @@ class Atom_list(Result_container, Unmergeable_container_mixin):
             xyz += "{}    {}    {}    {}\n".format(atom.element.symbol, atom.coords[0], atom.coords[1], atom.coords[2])
             
         return xyz
+    
+    def to_mol(self):
+        """
+        Convert this list of atoms to mol format (useful for reading with rdkit).
+        """
+        return Openbabel_converter.get_cls("xyz")(input_file = self.to_xyz(), input_file_path = "internal atoms object", input_file_type = "xyz").convert("mol", charge = self.charge)
+    
+    def to_rdkit_molecule(self):
+        """
+        Convert this list of atoms to an rdkit molecule object.
+        """
+        # NOTE: Conversion directly from xyz is broken for lots of reasons. Mol is much more reliable.
+        return Chem.MolFromMolBlock(self.to_mol(), removeHs = False)
 
 
 class Atom(Result_object):
