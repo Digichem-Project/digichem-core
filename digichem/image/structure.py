@@ -6,8 +6,9 @@ import silico.log
 
 # Silico imports.
 from silico.image.base import Image_maker
-from silico.result.atom import Atom_list
+from silico.result.atom import Atom_list, get_chemical_group_mapping
 from silico.result.alignment.base import Minimal
+from silico.misc.base import dict_list_index
 
 
 class Skeletal_image_maker(Image_maker):
@@ -15,7 +16,7 @@ class Skeletal_image_maker(Image_maker):
     A class for rendering skeletal-style molecule structure images.
     """
     
-    def __init__(self, output, coords, *args, abs_resolution = None, rel_resolution = 100, render_backend = "rdkit", numbering = False, explicit_h = False, **kwargs):
+    def __init__(self, output, coords, *args, abs_resolution = None, rel_resolution = 100, render_backend = "rdkit", numbering = "group", explicit_h = True, **kwargs):
         """
         Constructor for Structure_image_maker objects.
         
@@ -23,7 +24,7 @@ class Skeletal_image_maker(Image_maker):
         :param coords: The coordinates of the molecule/system to render as a Silico_coords object.
         :param resolution: The width and height of the rendered image.
         :param render_backend: The library to prefer to use for rendering, possible options are 'rdkit' or 'obabel'. If 'rdkit' is chosen but is not available, obabel will be used as a fallback. 
-        :param numbering: Whether to show atom numberings.
+        :param numbering: Whether to show atom numberings, either False (off), "atomic" (for atom wise) or "group" (for group wise).
         :param explicit_h: Whether to show explicit H.
         """
         self.coords = coords
@@ -97,11 +98,23 @@ class Skeletal_image_maker(Image_maker):
             
             rdkit.Chem.AllChem.Compute2DCoords(molecule)
             
-            if self.numbering:
+            # Calculate atom groupings.
+            groups = get_chemical_group_mapping(molecule)
+            
+            if self.numbering == "both":
                 # Add atom labelling.
                 for atom in molecule.GetAtoms():
                     #atom.SetProp("molAtomMapNumber", str(atom.GetIdx()+1))
-                    atom.SetProp("atomNote", str(atom.GetIdx()+1))
+                    atom.SetProp("atomNote",  "{} ({})".format(dict_list_index(groups, atom.GetIdx()+1), atom.GetIdx()+1))
+            
+            elif self.numbering == "atomic":
+                for atom in molecule.GetAtoms():
+                    atom.SetProp("atomNote",  "{}".format(atom.GetIdx()+1))
+            
+            elif self.numbering == "group":
+                for atom in molecule.GetAtoms():
+                    atom.SetProp("atomNote",  "{}".format(dict_list_index(groups, atom.GetIdx()+1)))
+            
             
             # Then write the file.
             rdkit.Chem.Draw.MolToFile(molecule, str(self.output), (resolution, resolution))
