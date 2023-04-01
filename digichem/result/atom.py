@@ -12,6 +12,26 @@ from silico.result import Unmergeable_container_mixin
 from silico.exception.base import Result_unavailable_error
 from silico.file.babel import Openbabel_converter
 
+def get_chemical_group_mapping(rdkit_molecule):
+    """
+    Determine chemically equivalent atoms in this atom list.
+    
+    :return: A mapping between each group number and the atoms it contains.
+    """
+    molecule = rdkit_molecule
+    groupings = list(Chem.rdmolfiles.CanonicalRankAtoms(molecule, breakTies = False))
+    
+    groups = {}
+    for atom_index, group_num in enumerate(groupings):
+        try:
+            groups[group_num].append(atom_index +1)
+        
+        except KeyError:
+            groups[group_num] = [atom_index +1]
+            
+    # Fix group numberings.
+    return {new_group_num+1: group for new_group_num, group in enumerate(groups.values())}
+    
 
 class Atom_list(Result_container, Unmergeable_container_mixin):
     """
