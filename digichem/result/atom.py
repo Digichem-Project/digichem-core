@@ -341,7 +341,7 @@ class Atom(Result_object):
         """
         Stringify this atom.
         """
-        return "'{}' at '{}'".format(self.element, self.coords)
+        return "'{}' at '{}'".format(self.label, self.coords)
         
     def __eq__(self, other):
         """
