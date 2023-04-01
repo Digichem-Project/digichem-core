@@ -1,3 +1,9 @@
+def dict_list_index(dictionary, item):
+    "Find the key in a dictionary which contains the list which contains an item."
+    for dict_key, dict_value in dictionary.items():
+        if item in dict_value:
+            return dict_key
+
 def to_bool(booly):
     """
     Convert something that might be a bool into a bool.
