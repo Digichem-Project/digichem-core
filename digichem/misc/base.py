@@ -1,3 +1,26 @@
+def regular_range(median, number, spacing):
+    """
+    Generate a range of numbers with a given median and spacing.
+    """
+    if number % 2 == 0:
+        # Even number of peaks
+        peaks = []
+        for magnitude in range(int(number /2)):
+            peaks.append(median + (spacing /2 + magnitude * spacing))
+            peaks.append(median - (spacing /2 + magnitude * spacing))
+        
+    else:
+        # Odd number of peaks.
+        peaks = [median]
+        
+        for magnitude in range(int((number -1) /2)):
+            magnitude = magnitude+1
+            peaks.append(median + magnitude * spacing)
+            peaks.append(median - magnitude * spacing)
+        
+    return sorted(peaks)
+    
+
 def dict_list_index(dictionary, item):
     "Find the key in a dictionary which contains the list which contains an item."
     for dict_key, dict_value in dictionary.items():
