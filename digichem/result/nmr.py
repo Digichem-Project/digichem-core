@@ -1,11 +1,175 @@
 import numpy
-from rdkit import Chem
 from itertools import filterfalse
+import periodictable
+from fractions import Fraction
+import re
 
 from silico.result.base import Result_object, Result_container
 from silico.exception.base import Result_unavailable_error
-from silico.misc.base import dict_list_index
-from silico.result.atom import get_chemical_group_mapping
+from silico.misc.base import dict_list_index, regular_range
+from silico.result.atom import get_chemical_group_mapping, Atom_group
+from math import isclose
+from silico.result.spectroscopy import Spectroscopy_graph
+
+
+class NMR_spectrometer():
+    """
+    A class for generating NMR spectra on-demand.
+    """
+    
+    def __init__(self, nmr_results, frequency = 300, merge_threshold = None):
+        """
+        Constructor for NMR_spectrometer.
+        
+        :param nmr_results: A list of NMR_group result objects.
+        """
+        self.nmr_results = nmr_results
+    
+    def parse_shotcode(self, code):
+        """
+        Parse an NMR shortcode.
+        
+        Each shortcode specifies an element and one of its isotopes to investigate, optionally followed by a list of isotopes to decouple (not show coupling for).
+        For example:
+            13C{1H} - Carbon-13 spectrum with protons decoupled.
+        """
+        match = re.search(r'(\d+)([A-z][A-z]?){?((\d+[A-z][A-z]?,?)*)}?', code)
+        
+        if match is None:
+            raise ValueError("Unable to process NMR shortcode '{}'".format(code))
+        
+        match_groups = match.groups()
+        isotope = match_groups[0]
+        element = getattr(periodictable, match_groups[1])
+        decoupling = [tuple(re.search("(\d+)([A-z][A-z]?)", decouple).groups()) for decouple in match_groups[2].split(",")]
+        
+        return isotope, element, decoupling
+    
+    def __contains__(self, item):
+        """
+        Can this spectrometer generate a given spectrum.
+        """
+        self.parse_shortcode(item)
+        return True
+    
+    def __getitem__(self, item):
+        """
+        Generate a spectrum for a given shortcode.
+        """
+        return self.simulate(*self.parse_shotcode(item))
+
+    def simulate(self, element, isotope, decoupling = None):
+        """
+        Simulate vertical NMR peaks.
+        
+        :param nmr_results: A list of NMR results to simulate.
+        :param element: The element to simulate (as a proton number).
+        :param isotope: The isotope of the element to simulate.
+        :param decoupling: A list of elements to 'decouple' (not consider couplings to). Each element should be specified as a tuple of (proton_number, isotope).
+        :param frequency: The simulated frequency of the spectrometer.
+        """
+        decoupling = [] if decoupling is None else decoupling
+        
+        group_peaks = {}
+        
+        for nmr_result in self.nmr_results:
+            if nmr_result.group.element.number != element:
+                # Wrong element, skip.
+                continue
+                
+            # Matches our element.
+            couplings = []
+            for coupling in nmr_result.couplings:
+                # Check the main isotope matches.
+                main_index = coupling['groups'].index(nmr_result.group)
+                second_index = 1 if main_index == 0 else 0
+                if coupling['isotopes'][main_index] == isotope:
+                    no_couple = False
+                    # Check we haven't been asked to de-couple this coupling.
+                    for decouple_element, decouple_isotope in decoupling:
+                        if coupling['groups'][second_index].element.number == decouple_element \
+                        and coupling['isotopes'][second_index] == decouple_isotope:
+                            # This coupling is good.
+                            no_couple = True
+                            break
+                    
+                    if not no_couple:
+                        couplings.append(coupling)
+                                
+            # Sort couplings.
+            couplings.sort(key = lambda coupling: coupling['total'])
+            
+            # Make some peaks.
+            # Start with a single shift peak.
+            peaks = {nmr_result.shielding: {"shift": nmr_result.shielding, "intensity": len(nmr_result.group.atoms)}}
+            
+            # Now split it by each coupling.
+            for coupling in couplings:
+                main_index = coupling['groups'].index(nmr_result.group)
+                second_index = 1 if main_index == 0 else 0
+                
+                # Each atom in the group we are coupling to.
+                for atom in range(len(coupling['groups'][second_index].atoms)):
+                    new_peaks = {}
+                    for old_peak in peaks.values():
+                        # Calculate the shift of the new peaks (one upfield, one downfield).
+                        coupling_constant = coupling['total'] / self.frequency
+                        
+                        # Bafflingly, calling 'neutron' here is necessary to make nuclear_spin available.
+                        ele = getattr(periodictable, coupling['groups'][second_index].element.symbol)
+                        iso = ele[coupling['isotopes'][second_index]]
+                        iso.neutron
+                        spin = Fraction(iso.nuclear_spin)
+                        num_peaks = 2 * spin +1
+                        
+                        # Add the new peaks to the shifts originating from coupling between these two groups.
+                        for new_peak in [{"shift": sub_peak, "intensity": old_peak["intensity"] / num_peaks} for sub_peak in regular_range(old_peak["shift"], num_peaks, coupling_constant)]:
+                            if new_peak['shift'] in new_peaks:
+                                new_peaks[new_peak['shift']]['intensity'] += new_peak['intensity']
+                            
+                            else:
+                                new_peaks[new_peak['shift']] = new_peak
+                    
+                    peaks = new_peaks
+            
+            peaks = list(peaks.values())
+            
+            # If we've been asked to, merge similar peaks.
+            # We do this last so as to not carry forward rounding and averaging errors.
+            # TODO: This has not been adequately tested.
+            if self.merge_threshold:
+                new_peaks = []
+                old_peaks = list(peaks.values())
+                
+                for index_old_peak, old_peak in enumerate(old_peaks):
+                    if old_peak is None:
+                        continue
+                    
+                    similar_shifts = [old_peak['shift']]
+                    similar_intensity = [old_peak['intensity']]
+                    for other_index, other_peak in enumerate(old_peaks[index_old_peak+1:]):
+                        # If we've already done this peak, skip.
+                        if other_peak is None:
+                            continue
+                        
+                        # If the average shift of the 'new' combined peak is close enough to this one, add it in.
+                        if isclose(sum(similar_shifts) / len(similar_shifts), other_peak['shift'], abs_tol = self.merge_threshold):
+                            # Close enough!
+                            similar_shifts.append(other_peak['shift'])
+                            similar_intensity.append(other_peak['intensity'])
+                            
+                            # 'Delete' the old peak so we don't include it again down the line.
+                            old_peaks[other_index] = None
+                            
+                    new_peaks.append({"shift": sum(similar_shifts) / len(similar_shifts), "intensity": sum(similar_intensity)})
+                
+                peaks = new_peaks
+                
+            # Done for this group of atoms.
+            group_peaks[nmr_result.group] = peaks
+            
+        return group_peaks
+    
 
 class NMR_list(Result_container):
     
@@ -60,13 +224,16 @@ class NMR_list(Result_container):
         # First, decide which atoms are actually equivalent.
         # We can do this by comparing canonical SMILES groupings.
         groups = get_chemical_group_mapping(self.atoms.to_rdkit_molecule())
+        atom_groups = {}
         
         nmr_groups = {}
         # Next, assemble group objects.
         for group_num, atom_indices in groups.items():
             # Atoms contributing to this group.
-            group_atoms = [atoms[atom_index -1] for atom_index in atom_indices]
-            nmr_results = [nmr_result for nmr_result in self if nmr_result.atom in group_atoms]
+            atom_group = Atom_group(group_num, [atoms[atom_index -1] for atom_index in atom_indices])
+            atom_groups[group_num] = atom_group
+            
+            nmr_results = [nmr_result for nmr_result in self if nmr_result.atom in atom_group.atoms]
             
             if len(nmr_results) == 0:
                 continue
@@ -74,9 +241,9 @@ class NMR_list(Result_container):
             # Shieldings.
             shieldings = [nmr_result.shielding for nmr_result in nmr_results]
             # Only keep couplings in which at least one of the two atoms is not in this group (discard self coupling)
-            couplings = [coupling for nmr_result in nmr_results for coupling in nmr_result.couplings if not no_self_coupling or len(set(group_atoms).intersection(coupling.atoms)) != 2]
+            couplings = [coupling for nmr_result in nmr_results for coupling in nmr_result.couplings if not no_self_coupling or len(set(atom_group.atoms).intersection(coupling.atoms)) != 2]
             
-            nmr_groups[group_num] = {"atoms": group_atoms, "shieldings": shieldings, "couplings": couplings}
+            nmr_groups[group_num] = {"group": atom_group, "shieldings": shieldings, "couplings": couplings}
             #nmr_groups[group_num] = NMR_group(group_atoms, shieldings, couplings)
         
         # Now everything is assembled into groups, re-calculate couplings based on groups only.
@@ -102,52 +269,96 @@ class NMR_list(Result_container):
         group_couplings = {
             group_key: {
                 isotope_key: {
-                    "groups": group_key,
+                    "groups": [atom_groups[group_sub_key] for group_sub_key in group_key],
                     "isotopes": isotope_key,
-                    "total": float(sum(isotope_couplings) / len(isotope_couplings))
+                    # Take the absolute of each coupling.
+                    "total": float(sum(map(abs, isotope_couplings)) / len(isotope_couplings))
                 } for isotope_key, isotope_couplings in  isotopes.items()}
             for group_key, isotopes in group_couplings.items()
         }
         
-        # Assembly the final group objects.
-        nmr_object_groups = {}
+        # Assemble the final group objects.
+        nmr_object_groups = []
         for group_num, raw_group in nmr_groups.items():
             # Get appropriate couplings.
             
             coupling = [isotope_coupling for group_key, group_coupling in group_couplings.items() for isotope_coupling in group_coupling.values() if group_num in group_key]
-            nmr_object_groups[group_num] = NMR_group(raw_group['atoms'], raw_group['shieldings'], coupling)
+            nmr_object_groups.append(NMR_group(raw_group['group'], raw_group['shieldings'], coupling))
         
         return nmr_object_groups
     
     def dump(self, silico_options):
+        grouping = self.group(self.atoms)
         dump_dict = {
             "values": Result_container.dump(self, silico_options),
-            "groups": {group_id: group.dump(silico_options) for group_id, group in self.group(self.atoms).items()}
+            "groups": [group.dump(silico_options) for group in grouping],#{group_id: group.dump(silico_options) for group_id, group in self.group(self.atoms).items()},
         }
         return dump_dict
     
+    def generate_for_dump(self):
+        """
+        Method used to get a dictionary used to generate on-demand values for dumping.
+        
+        This functionality is useful for hiding expense properties from the normal dump process, while still exposing them when specifically requested.
+        
+        Each key in the returned dict is the name of a dumpable item, each value is a function to call with silico_options as its only param.
+        """
+        return {"spectra": self.generate_spectrum}
+    
+    def generate_spectrum(self, silico_options):
+        """
+        Abstract function that is called to generate an on-demand value for dumping.
+        
+        This functionality is useful for hiding expense properties from the normal dump process, while still exposing them when specifically requested.
+        
+        :param key: The key being requested.
+        :param silico_options: Silico options being used to dump.
+        """
+        grouping = self.group(self.atoms)
+        spectrum = Spectroscopy_graph([(peak['shift'], peak['intensity']) for group_peaks in simulate_nmr_peaks(grouping, 1, 1, [(6, 13)]).values() for peak in group_peaks])
+        
+        fwhm = 0.001
+        resolution = 0.001
+        
+        try:
+            spectrum_data = spectrum.plot_cumulative_gaussian(fwhm, resolution)
+            
+            spectrum_data = [{"x":{"value": float(x), "units": "ppm"}, "y": {"value":float(y), "units": "abs"}} for x,y in spectrum_data]
+            spectrum_peaks = [{"x":{"value": float(x), "units": "ppm"}, "y": {"value":float(y), "units": "ab"}} for x, y in spectrum.peaks(fwhm, resolution)]
+        
+        except Exception:
+            raise
+            spectrum_data = []
+            spectrum_peaks = []
+        
+        return {
+            "values": spectrum_data,
+            "peaks": spectrum_peaks
+        }
+
+
 class NMR_group(Result_object):
     
-    
-    def __init__(self, atoms, shieldings, couplings):
-        self.atoms = atoms
+    def __init__(self, group, shieldings, couplings):
+        self.group = group
         self.shieldings = shieldings
         self.couplings = couplings
         
         # Calculate average shieldings and couplings.
-        self.shielding = float(sum([shielding.isotropic("total") for shielding in shieldings]) / len(shieldings))
+        self.shielding = float(sum([shielding.isotropic("total") for shielding in shieldings]) / len(shieldings))        
     
     def dump(self, silico_options):
         """
         Get a representation of this result object in primitive format.
         """
         return {
-            "atoms": [atom.label for atom in self.atoms],
+            "group": self.group.label,
+            "atoms": [atom.label for atom in self.group.atoms],
             "shielding": {
                 "units": "ppm",
                 "value": self.shielding
             },
-            "couplings": [coupling for coupling in self.couplings],
+            "couplings": [{"groups": [group.label for group in coupling['groups']], "isotopes": coupling["isotopes"], "total": coupling["total"]} for coupling in self.couplings],
         }
     
 
