@@ -9,7 +9,7 @@ from rdkit import Chem
 from silico.result import Result_container
 from silico.result import Result_object
 from silico.result import Unmergeable_container_mixin
-from silico.exception.base import Result_unavailable_error
+from silico.exception.base import Result_unavailable_error, Silico_exception
 from silico.file.babel import Openbabel_converter
 
 def get_chemical_group_mapping(rdkit_molecule):
@@ -329,7 +329,56 @@ class Atom_list(Result_container, Unmergeable_container_mixin):
         return Chem.MolFromMolBlock(self.to_mol(), removeHs = False)
 
 
-class Atom(Result_object):
+class Atom_ABC(Result_object):
+    """
+    ABC for atom-like result objects.
+    """
+    
+    @property
+    def label(self):
+        return "{}{}".format(self.element, self.index)
+    
+    def __hash__(self):
+        return hash(self.index)
+
+
+class Atom_group(Atom_ABC):
+    """
+    A class that represents a group of atoms that are chemically equivalent.
+    """
+    
+    def __init__(self, index, atoms):
+        self.index = index
+        self.atoms = atoms
+        # Check all elements are the same.
+        self.element
+        
+    @property
+    def element(self):
+        elements = list(set(atom.element for atom in self.atoms))
+        
+        if len(elements) > 1:
+            raise Silico_exception("Multiple element types found in atom group '{}'".format(elements))
+        
+        return elements[0]
+    
+    def __str__(self):
+        """
+        Stringify this atom group.
+        """
+        return "G:{}".format(self.label)
+        
+    def __eq__(self, other):
+        """
+        Is this atom group equal to another?
+        """
+        return self.atoms == other.atoms
+    
+    def __hash__(self):
+        return super().__hash__()
+
+
+class Atom(Atom_ABC):
     """
     Class that represents an atom.
     """
@@ -349,13 +398,6 @@ class Atom(Result_object):
         self.coords = coords
         # Get our element class.
         self.element = periodictable.elements[atomic_number]
-    
-    @property
-    def label(self):
-        return "{}{}".format(self.element, self.index)
-        
-    def __hash__(self):
-        return hash(self.index)
         
     def __str__(self):
         """
@@ -369,6 +411,9 @@ class Atom(Result_object):
         """
         # Atoms are considered equal if they are the same element in the same position.
         return self.element == other.element and self.coords == other.coords
+    
+    def __hash__(self):
+        return super().__hash__()
             
     def distance(self, foreign_atom):
         """
