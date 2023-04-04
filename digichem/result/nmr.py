@@ -231,7 +231,7 @@ class NMR_spectrometer():
                         ele = getattr(periodictable, coupling['groups'][second_index].element.symbol)
                         iso = ele[coupling['isotopes'][second_index]]
                         iso.neutron
-                        spin = Fraction(iso.nuclear_spin)
+                        spin = float(Fraction(iso.nuclear_spin))
                         num_peaks = 2 * spin +1
                         
                         # Add the new peaks to the shifts originating from coupling between these two groups.
