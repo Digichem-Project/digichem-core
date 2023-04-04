@@ -17,62 +17,174 @@ class NMR_spectrometer():
     A class for generating NMR spectra on-demand.
     """
     
-    def __init__(self, nmr_results, frequency = 300, merge_threshold = None):
+    def __init__(self, nmr_results, frequency = 300, fwhm = 0.001, resolution = 0.001, cutoff = 0.01, merge_threshold = None, isotope_options = None):
         """
         Constructor for NMR_spectrometer.
         
         :param nmr_results: A list of NMR_group result objects.
+        :param frequency: The frequency of the simulated spectrometer.
+        :param fwhm: The full-width at half-maximum of the simulated peaks (in ppm).
+        :param fwhm: The resolution/step-size of the plotted peaks (in ppm). Decreasing this value may increase computational time.
         """
         self.nmr_results = nmr_results
+        self.frequency = frequency
+        self.merge_threshold = merge_threshold
+        self.fwhm = fwhm
+        self.resolution = resolution
+        self.cutoff = cutoff
+        self._isotope_options = isotope_options if isotope_options is not None else {}
+        
+    def isotope_options(self, element, isotope):
+        options = {
+            "frequency": self.frequency,
+            "merge_threshold": self.merge_threshold,
+            "fwhm": self.fwhm,
+            "resolution": self.resolution,
+            "cutoff": self.cutoff
+        }
+        options.update(self._isotope_options.get((element, isotope), {}))
+        return options
+        
+    @classmethod
+    def from_options(self, nmr_results, *, options, **kwargs):
+        """
+        Constructor that takes a dictionary of config like options.
+        """        
+        return self(
+            nmr_results,
+            frequency = options['nmr']['frequency'],
+            fwhm = options['nmr']['fwhm'],
+            resolution = options['nmr']['gaussian_resolution'],
+            cutoff = options['nmr']['gaussian_cutoff'],
+            merge_threshold = options['nmr']['merge_threshold'],
+            isotope_options = options['nmr']['isotopes'],
+            **kwargs
+        )
     
-    def parse_shotcode(self, code):
+    @property
+    def available(self):
+        """
+        Determine which nuclei NMR can be simulated for.
+        
+        :return: A set of the available nuclie, each as a tuple of (proton_number, isotope). Note that the special value of 0 is used to indicate isotope-independent data is available. Eg, (6, 0) would indicate isotope-independent (no coupling) carbon NMR. 
+        """
+        nuclei = set()
+        
+        for nmr_result in self.nmr_results.values():
+            # Add the generic (non-isotope specific) element to our list of supported types.
+            nuclei.add((nmr_result.group.element.number, 0))
+            
+            # Also add any specific isotopes we have coupling for.
+            for coupling in nmr_result.couplings:
+                main_index = coupling['groups'].index(nmr_result.group)
+                
+                nuclei.add((nmr_result.group.element.number, coupling['isotopes'][main_index]))
+        return nuclei
+    
+    def parse_shortcode(self, code):
         """
         Parse an NMR shortcode.
         
         Each shortcode specifies an element and one of its isotopes to investigate, optionally followed by a list of isotopes to decouple (not show coupling for).
         For example:
-            13C{1H} - Carbon-13 spectrum with protons decoupled.
+            13C{1H}    - Carbon-13 spectrum with protons decoupled.
+            1H{1H,13C} - Hydrogen-1 spectrum with protons and 13C decoupled.
+            *C or 0C   - Carbon NMR spectrum with no coupling considered.
         """
-        match = re.search(r'(\d+)([A-z][A-z]?){?((\d+[A-z][A-z]?,?)*)}?', code)
+        match = re.search(r'(\d+|\*)([A-z][A-z]?){?((\d+[A-z][A-z]?,?)*)}?', code)
         
         if match is None:
             raise ValueError("Unable to process NMR shortcode '{}'".format(code))
         
         match_groups = match.groups()
-        isotope = match_groups[0]
-        element = getattr(periodictable, match_groups[1])
+        isotope = int(match_groups[0]) if match_groups[0] != "*" else 0
+        element = getattr(periodictable, match_groups[1]).number
         decoupling = [tuple(re.search("(\d+)([A-z][A-z]?)", decouple).groups()) for decouple in match_groups[2].split(",")]
+        decoupling = [(getattr(periodictable, ele).number, iso) for iso, ele in decoupling]
         
-        return isotope, element, decoupling
+        return element, isotope, decoupling
     
     def __contains__(self, item):
         """
         Can this spectrometer generate a given spectrum.
         """
-        self.parse_shortcode(item)
-        return True
+        element, isotope, decoupling = self.parse_shortcode(item)
+        return (element, isotope) in self.available
     
     def __getitem__(self, item):
         """
         Generate a spectrum for a given shortcode.
         """
-        return self.simulate(*self.parse_shotcode(item))
+        # We return a lambda function here because of the slightly strange dumping mechanism.
+        # This object is setup as a generate_for_dump() target. generate_for_dump() returns a
+        # dict of callables. We don't actually require this behaviour, but we still need to 
+        # match the interface.
+        return lambda silico_options: self.spectrum(*self.parse_shortcode(item))
+    
+    def generate_for_dump(self):
+        """
+        Method used to get a dictionary used to generate on-demand values for dumping.
+        
+        This functionality is useful for hiding expense properties from the normal dump process, while still exposing them when specifically requested.
+        
+        Each key in the returned dict is the name of a dumpable item, each value is a function to call with silico_options as its only param.
+        """
+        return self
+    
+    def dump(self, silico_options):
+        return {}
+    
+    def spectrum(self, element, isotope, decoupling = None):
+        """
+        Simulate a full NMR spectrum.
+        
+        :param element: The element to simulate (as a proton number).
+        :param isotope: The isotope of the element to simulate.
+        :param decoupling: A list of elements to 'decouple' (not consider couplings to). Each element should be specified as a tuple of (proton_number, isotope).
+        """
+        # First, simulate vertical peaks.
+        # Each peaks is grouped by the atom-group that causes it.
+        # This allows us to plot merged peaks separately, for example if two atoms result in overlapping chemical shift.
+        peaks = self.simulate(element, isotope, decoupling)
+        
+        # Plot a mini-spectrum for each atom group.
+        spectra = {atom_group: Spectroscopy_graph([(peak['shift'], peak['intensity']) for peak in group_peaks]) for atom_group, group_peaks in peaks.items()}
+        # Also plot an overall spectrum.
+        spectrum = Spectroscopy_graph([(peak['shift'], peak['intensity']) for group_peaks in peaks.values() for peak in group_peaks])
+        
+        # Get options specific to the isotope we're looking at.
+        isotope_options = self.isotope_options(element, isotope)
+        
+        return {
+            "values": [
+                {"x":{"value": float(x), "units": "ppm"}, "y": {"value": float(y), "units": "arb"}}
+                for x,y in spectrum.plot_cumulative_gaussian(isotope_options['fwhm'], isotope_options['resolution'], isotope_options['cutoff'])
+            ],
+            "groups": {
+                atom_group.label: [
+                    {"x":{"value": float(x), "units": "ppm"}, "y": {"value": float(y), "units": "arb"}}
+                    for x,y in group_spectrum.plot_cumulative_gaussian(isotope_options['fwhm'], isotope_options['resolution'], isotope_options['resolution'])
+                ]
+                for atom_group, group_spectrum in spectra.items()
+            }
+        }
 
     def simulate(self, element, isotope, decoupling = None):
         """
         Simulate vertical NMR peaks.
         
-        :param nmr_results: A list of NMR results to simulate.
         :param element: The element to simulate (as a proton number).
         :param isotope: The isotope of the element to simulate.
         :param decoupling: A list of elements to 'decouple' (not consider couplings to). Each element should be specified as a tuple of (proton_number, isotope).
-        :param frequency: The simulated frequency of the spectrometer.
         """
-        decoupling = [] if decoupling is None else decoupling
+        element = int(element)
+        isotope = int(isotope)
+        decoupling = [(int(decouple_ele), int(decouple_iso)) for decouple_ele, decouple_iso in decoupling] if decoupling is not None else None
+        isotope_options = self.isotope_options(element, isotope)
         
         group_peaks = {}
         
-        for nmr_result in self.nmr_results:
+        for nmr_result in self.nmr_results.values():
             if nmr_result.group.element.number != element:
                 # Wrong element, skip.
                 continue
@@ -113,7 +225,7 @@ class NMR_spectrometer():
                     new_peaks = {}
                     for old_peak in peaks.values():
                         # Calculate the shift of the new peaks (one upfield, one downfield).
-                        coupling_constant = coupling['total'] / self.frequency
+                        coupling_constant = coupling['total'] / isotope_options['frequency']
                         
                         # Bafflingly, calling 'neutron' here is necessary to make nuclear_spin available.
                         ele = getattr(periodictable, coupling['groups'][second_index].element.symbol)
@@ -278,12 +390,12 @@ class NMR_list(Result_container):
         }
         
         # Assemble the final group objects.
-        nmr_object_groups = []
+        nmr_object_groups = {}
         for group_num, raw_group in nmr_groups.items():
             # Get appropriate couplings.
             
             coupling = [isotope_coupling for group_key, group_coupling in group_couplings.items() for isotope_coupling in group_coupling.values() if group_num in group_key]
-            nmr_object_groups.append(NMR_group(raw_group['group'], raw_group['shieldings'], coupling))
+            nmr_object_groups[raw_group['group']] = (NMR_group(raw_group['group'], raw_group['shieldings'], coupling))
         
         return nmr_object_groups
     
@@ -291,50 +403,10 @@ class NMR_list(Result_container):
         grouping = self.group(self.atoms)
         dump_dict = {
             "values": Result_container.dump(self, silico_options),
-            "groups": [group.dump(silico_options) for group in grouping],#{group_id: group.dump(silico_options) for group_id, group in self.group(self.atoms).items()},
+            "groups": {group_id.label: group.dump(silico_options) for group_id, group in grouping.items()},#[group.dump(silico_options) for group in grouping],#{group_id: group.dump(silico_options) for group_id, group in self.group(self.atoms).items()},
+            "spectra": NMR_spectrometer.from_options(grouping, options = silico_options)
         }
         return dump_dict
-    
-    def generate_for_dump(self):
-        """
-        Method used to get a dictionary used to generate on-demand values for dumping.
-        
-        This functionality is useful for hiding expense properties from the normal dump process, while still exposing them when specifically requested.
-        
-        Each key in the returned dict is the name of a dumpable item, each value is a function to call with silico_options as its only param.
-        """
-        return {"spectra": self.generate_spectrum}
-    
-    def generate_spectrum(self, silico_options):
-        """
-        Abstract function that is called to generate an on-demand value for dumping.
-        
-        This functionality is useful for hiding expense properties from the normal dump process, while still exposing them when specifically requested.
-        
-        :param key: The key being requested.
-        :param silico_options: Silico options being used to dump.
-        """
-        grouping = self.group(self.atoms)
-        spectrum = Spectroscopy_graph([(peak['shift'], peak['intensity']) for group_peaks in simulate_nmr_peaks(grouping, 1, 1, [(6, 13)]).values() for peak in group_peaks])
-        
-        fwhm = 0.001
-        resolution = 0.001
-        
-        try:
-            spectrum_data = spectrum.plot_cumulative_gaussian(fwhm, resolution)
-            
-            spectrum_data = [{"x":{"value": float(x), "units": "ppm"}, "y": {"value":float(y), "units": "abs"}} for x,y in spectrum_data]
-            spectrum_peaks = [{"x":{"value": float(x), "units": "ppm"}, "y": {"value":float(y), "units": "ab"}} for x, y in spectrum.peaks(fwhm, resolution)]
-        
-        except Exception:
-            raise
-            spectrum_data = []
-            spectrum_peaks = []
-        
-        return {
-            "values": spectrum_data,
-            "peaks": spectrum_peaks
-        }
 
 
 class NMR_group(Result_object):
