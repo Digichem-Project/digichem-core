@@ -346,6 +346,62 @@ class Frequency_graph_maker(Spectroscopy_graph_maker):
         # We use automatic Y scaling, except we don't go past 0 and we are reversed (this is typical for IR).
         self.axes.autoscale(enable = True, axis = 'y')
         self.axes.set_ylim(self.axes.get_ylim()[1], 0)
+
+
+class NMR_graph_maker(Spectroscopy_graph_maker):
+    """
+    A graph for displaying NMR spectra
+    """
+            
+    def __init__(self, output, graph, **kwargs):
+        """
+        Constructor for frequency graphs.
+        
+        :param output: A path to an output file to write to. The extension of this path is used to determine the format of the file (eg, png, jpeg).
+        :param spectrometer: An NMR_spectrometer instance to use to generate spectra.
+        """
+        # Call our parent.
+        super().__init__(output, graph, **kwargs)
+        
+        # Axes labels.
+        self.x_label = "Chemical Shift /ppm"
+        self.y_label = "Intensity /arb"
+        
+        # Space to allocate per unit of the y axis.
+        self.inch_per_x = 0.5
         
         
+    @classmethod
+    def from_options(self, output, *, nmr_peaks, options, **kwargs):
+        """
+        Constructor that takes a dictionary of config like options.
+        """
+        return self(
+            output,
+            Spectroscopy_graph([(peak['shift'], peak['intensity']) for group_peaks in nmr_peaks.values() for peak in group_peaks]),
+            **{
+                "enable_rendering": options['nmr']['enable_rendering'],
+                "fwhm": options['nmr']['fwhm'],
+                "gaussian_cutoff": options['nmr']['gaussian_cutoff'],
+                "gaussian_resolution": options['nmr']['gaussian_resolution'],
+            },
+            **kwargs
+        )
+
+    def auto_x_limits(self):
+        """
+        Limit the X axis so all plotted peaks are visible.
+        """
+        # We use automatic X scaling, except we don't go past 0 and our scale is reversed (this is typical for NMR).
+        self.axes.autoscale(enable = True, axis = 'x')
+        #self.axes.set_xlim(self.axes.get_xlim()[1], 0)
+        self.axes.set_xlim(self.axes.get_xlim()[1], self.axes.get_xlim()[0])
+        
+    def auto_y_limits(self):
+        """
+        Limit the y axis so all plotted peaks are visible.
+        """
+        # We use automatic Y scaling, except we don't go past 0 and we are reversed (this is typical for IR).
+        self.axes.autoscale(enable = True, axis = 'y')
+        self.axes.set_ylim(0, self.axes.get_ylim()[1])
         
