@@ -330,7 +330,7 @@ class NMR_list(Result_container):
         
         return found
         
-    def group(self, atoms, no_self_coupling = True):
+    def group(self, no_self_coupling = True):
         """
         """
         # First, decide which atoms are actually equivalent.
@@ -342,7 +342,7 @@ class NMR_list(Result_container):
         # Next, assemble group objects.
         for group_num, atom_indices in groups.items():
             # Atoms contributing to this group.
-            atom_group = Atom_group(group_num, [atoms[atom_index -1] for atom_index in atom_indices])
+            atom_group = Atom_group(group_num, [self.atoms[atom_index -1] for atom_index in atom_indices])
             atom_groups[group_num] = atom_group
             
             nmr_results = [nmr_result for nmr_result in self if nmr_result.atom in atom_group.atoms]
