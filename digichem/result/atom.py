@@ -362,6 +362,10 @@ class Atom_group(Atom_ABC):
         
         return elements[0]
     
+    @property
+    def label(self):
+        return "{}{}".format(self.element, self.index)
+    
     def __str__(self):
         """
         Stringify this atom group.
