@@ -135,7 +135,8 @@ class NMR_spectrometer(Result_object):
         return self
     
     def dump(self, silico_options):
-        return {}
+        # Return a list of possible spectra we can generate.
+        return list(self.available)
     
     def spectrum(self, element, isotope, decoupling = None):
         """
@@ -428,11 +429,22 @@ class NMR_list(Result_container):
     def dump(self, silico_options):
         grouping = self.group(self.atoms)
         dump_dict = {
-            "values": Result_container.dump(self, silico_options),
-            "groups": {group_id.label: group.dump(silico_options) for group_id, group in grouping.items()},#[group.dump(silico_options) for group in grouping],#{group_id: group.dump(silico_options) for group_id, group in self.group(self.atoms).items()},
-            "spectra": NMR_spectrometer.from_options(grouping, options = silico_options)
+            "values": super().dump(silico_options),
+            "groups": {group_id.label: group.dump(silico_options) for group_id, group in grouping.items()},
         }
         return dump_dict
+    
+    def generate_for_dump(self):
+        """
+        Method used to get a dictionary used to generate on-demand values for dumping.
+        
+        This functionality is useful for hiding expense properties from the normal dump process, while still exposing them when specifically requested.
+        
+        Each key in the returned dict is the name of a dumpable item, each value is a function to call with silico_options as its only param.
+        """
+        return {
+            "spectra": lambda silico_options: NMR_spectrometer.from_options(self.group(self.atoms), options = silico_options)
+        }
 
 
 class NMR_group(Result_object):
@@ -456,7 +468,7 @@ class NMR_group(Result_object):
                 "units": "ppm",
                 "value": self.shielding
             },
-            "couplings": [{"groups": [group.label for group in coupling['groups']], "isotopes": coupling["isotopes"], "total": coupling["total"]} for coupling in self.couplings],
+            "couplings": [{"groups": [group.label for group in coupling['groups']], "isotopes": list(coupling["isotopes"]), "total": coupling["total"]} for coupling in self.couplings],
         }
     
 
