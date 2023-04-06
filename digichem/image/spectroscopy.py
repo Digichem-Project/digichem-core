@@ -15,10 +15,6 @@ class Spectroscopy_graph_maker(Graph_image_maker):
         graph,
         *,
         # Keyword only arguments from here:
-        # Gaussian options.
-        fwhm = 0.4,
-        gaussian_cutoff = 0.001,
-        gaussian_resolution = 0.01,
         
         # Options that control what to show in the graph.
         plot_bars = True,
@@ -55,11 +51,6 @@ class Spectroscopy_graph_maker(Graph_image_maker):
         # Save our graph object (holds coordinates to plot).
         self.graph = graph
         
-        # Controls for plotting Gaussian's.
-        self.fwhm = fwhm
-        self.gaussian_cutoff = gaussian_cutoff
-        self.gaussian_resolution = gaussian_resolution
-        
         # Options controlling what to plot.
         self.should_plot_bars = plot_bars
         self.should_plot_peaks = plot_peaks
@@ -73,6 +64,10 @@ class Spectroscopy_graph_maker(Graph_image_maker):
         self.peak_cutoff = peak_cutoff
         self.x_limits_method = x_limits
         self.y_limits_method = y_limits
+        
+    @property
+    def fwhm(self):
+        return self.graph.fwhm
         
     @classmethod
     def transpose(self, coordinates):
@@ -121,7 +116,7 @@ class Spectroscopy_graph_maker(Graph_image_maker):
         """
         Plot x and y values as individual lines on the graph we are building.
         """            
-        for plot in self.graph.plot_gaussian(self.fwhm, self.gaussian_resolution, self.gaussian_cutoff):
+        for plot in self.graph.plot_gaussian():
             data = self.transpose(plot)
             self.axes.plot(*data, 'C0-', linewidth = 1)
             
@@ -129,7 +124,7 @@ class Spectroscopy_graph_maker(Graph_image_maker):
         """
         Plot x and y values as a single line on the graph we are building.
         """
-        data = self.transpose(self.graph.plot_cumulative_gaussian(self.fwhm, self.gaussian_resolution, self.gaussian_cutoff))
+        data = self.transpose(self.graph.plot_cumulative_gaussian())
         self.axes.plot(*data, 'C0-', linewidth = 2)
     
     @property
@@ -137,7 +132,7 @@ class Spectroscopy_graph_maker(Graph_image_maker):
         """
         A list of peaks (in x units).
         """
-        return [x for x,y in self.graph.peaks(self.fwhm, self.gaussian_resolution, self.gaussian_cutoff)]
+        return [x for x,y in self.graph.peaks()]
     
     def selected_peaks(self, decimals = 0, number = None):
         """
@@ -148,7 +143,7 @@ class Spectroscopy_graph_maker(Graph_image_maker):
         :returns: A list of ordered peaks as floats (if decimals > 0) or ints.
         """
         if number is not None:
-            peaks = self.graph.peaks(self.fwhm, self.gaussian_resolution, self.gaussian_cutoff)
+            peaks = self.graph.peaks()
             peaks.sort(key = lambda coord: coord[1])
             peaks = [x for x,y in peaks[-number:]]
         
@@ -217,18 +212,18 @@ class Absorption_emission_graph_maker(Spectroscopy_graph_maker):
     # The key/name of where our options are stored in the main config.
     options_name = None
     
-    def __init__(self, output, excited_states, *args, adjust_zero = False, use_jacobian = True, **kwargs):
+    def __init__(self, output, graph, *args, **kwargs):
         """
         Constructor for UV-Vis type absorption graphs.
         
         :param output: A path to an output file to write to. The extension of this path is used to determine the format of the file (eg, png, jpeg).
-        :param excited_states: List of excited states to plot.
+        :param graph: An instance of a silico.result.spectroscopy.Spectroscopy_graph that contains data to plot.
         :param adjust_zero: If all the intensities of the given excited states are zero, whether to arbitrarily set the y coords to 1.
         :param peak_cutoff: The minimum oscillator strength a peak must have to be drawn, as a fraction of the tallest peak. Set to 0 for no cutoff.
         :param max_width: The maximum width in pixels of the graph.
         """        
         # Call our parent.
-        super().__init__(output, Absorption_emission_graph.from_excited_states(excited_states, adjust_zero = adjust_zero, use_jacobian = use_jacobian), *args, **kwargs)
+        super().__init__(output, graph, *args, **kwargs)
         
         # The amount of space (in matplotlib inches) to allocate per unit of the x axis.
         self.inch_per_x = 0.0192
@@ -244,14 +239,14 @@ class Absorption_emission_graph_maker(Spectroscopy_graph_maker):
             self.hide_y = True
     
     @classmethod
-    def from_options(self, output, *, excited_states, options, **kwargs):
+    def from_options(self, output, *, excited_states, options, adjust_zero = True, **kwargs):
         """
         Constructor that takes a dictionary of config like options.
         """    
         return self(
             output,
-            excited_states = excited_states,
-            **options[self.options_name],
+            Absorption_emission_graph.from_excited_states(excited_states, options['IR_spectrum']['fwhm'], options['IR_spectrum']['gaussian_resolution'], options['IR_spectrum']['gaussian_cutoff'], use_jacobian = options[self.options_name]['use_jacobian'], adjust_zero = adjust_zero),
+            **{key: value for key, value in options[self.options_name].items() if key not in ["gaussian_cutoff", "gaussian_resolution", "fwhm", "use_jacobian"]},
             **kwargs
         )
     
@@ -299,17 +294,17 @@ class Frequency_graph_maker(Spectroscopy_graph_maker):
     A graph for displaying vibrational frequencies.
     """
             
-    def __init__(self, output, vibrations, *args, fwhm = 80, gaussian_resolution = 1, **kwargs):
+    def __init__(self, output, graph, *args, **kwargs):
         """
         Constructor for frequency graphs.
         
-        :param vibrations: List of vibrations that we're going to plot.
         :param output: A path to an output file to write to. The extension of this path is used to determine the format of the file (eg, png, jpeg).
+        :param graph: An instance of a silico.result.spectroscopy.Spectroscopy_graph that contains data to plot.
         :param x_limits_method: String controlling how the x axis limits are set. Options are 'auto' for standard auto scaling, showing all plotted peaks. Alternatively, a tuple of (x_min, x_max) which will be used directly as axis limits.
         :param y_limits_method: String controlling how the y axis limits are set. Options are 'auto' for standard auto scaling. Alternatively, a tuple of (y_min, y_max) which will be used directly as axis limits.
         """
         # Call our parent.
-        super().__init__(output, Spectroscopy_graph.from_vibrations(vibrations), *args, fwhm = fwhm, gaussian_resolution = gaussian_resolution, **kwargs)
+        super().__init__(output, graph, *args, **kwargs)
         
         # Axes labels.
         self.x_label = "Frequency /cm$^{-1}$"
@@ -326,8 +321,8 @@ class Frequency_graph_maker(Spectroscopy_graph_maker):
         """        
         return self(
             output,
-            vibrations = vibrations,
-            **options['IR_spectrum'],
+            graph = Spectroscopy_graph.from_vibrations(vibrations, options['IR_spectrum']['fwhm'], options['IR_spectrum']['gaussian_resolution'], options['IR_spectrum']['gaussian_cutoff']),
+            **{key: value for key, value in options['IR_spectrum'].items() if key not in ["gaussian_cutoff", "gaussian_resolution", "fwhm"]},
             **kwargs
         )
 
