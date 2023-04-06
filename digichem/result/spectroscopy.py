@@ -77,7 +77,7 @@ class Spectroscopy_graph():
         """
         return self.base_coordinates
     
-    def peaks(self, fwhm, resolution = 1, cutoff = 0.01):
+    def peaks(self):
         """
         Find peaks in the cumulative graph.
         
@@ -85,7 +85,7 @@ class Spectroscopy_graph():
         """
         coords = self.plot_cumulative_gaussian()
         y_coords = [y for x,y in coords]
-        indexes = scipy.signal.find_peaks(y_coords, height = max(y_coords) * cutoff)[0]
+        indexes = scipy.signal.find_peaks(y_coords, height = max(y_coords) * self.cutoff)[0]
         return [coords[index] for index in indexes]
         
     def plot_gaussian(self):
