@@ -25,7 +25,16 @@ class Spectroscopy_graph():
         :param adjust_zero: If True and all y values are 0, set all y values to 1 (so that something can be plotted).
         """
         # We save our coordinates under two properties.
-        # Base coordinates are untransformed, coordinates (which is by default is the same as base_coordinates) are transformed.
+        # base_coordinates are untransformed.
+        # coordinates (which is by default the same as base_coordinates) are transformed.        
+        self.false_intensity = False
+        # Set arb y value if we've been asked to.
+        if adjust_zero:
+            # Check if all the y axis is zero.
+            if all([y == 0 for x,y in coordinates]):
+                coordinates = [(x, 1) for x, y in coordinates]
+                self.false_intensity = True
+        
         self.base_coordinates = [(x, y) for x,y in coordinates if y != 0]
         self.fwhm = fwhm
         self.resolution = resolution
@@ -36,7 +45,28 @@ class Spectroscopy_graph():
         """
         Alternative constructor from a Vibrations_list object.
         """
-        return self([(vibration.frequency, vibration.intensity) for vibration in vibrations if vibration.intensity != 0])
+        return self([(vibration.frequency, vibration.intensity) for vibration in vibrations], *args, **kwargs)
+    
+    @classmethod
+    def from_excited_states(self, excited_states, *args, **kwargs):
+        """
+        An alternative constructor that takes a list of excited states as argument.
+        
+        :param excited_states: An Excited_states_list object to construct from.
+        :param adjust_zero: If all the intensities of the given excited states are zero, whether to arbitrarily set the y coords to 1.
+        :param **kwargs: Passed to the real constructor.
+        """
+        coords = [(excited_state.energy, excited_state.oscillator_strength if excited_state.oscillator_strength is not None else 0) for excited_state in excited_states]
+        return self(coords, *args, **kwargs)
+    
+    @classmethod
+    def from_nmr(self, nmr_peaks, *args, **kwargs):
+        """
+        An alternative constructor that takes a list of simulated NMR peaks as argument.
+        
+        :param nmr_peaks: Simulated NMR peaks. See result.nmr.NMR_spectrometer for how to obtain this data.
+        """
+        return self([(peak['shift'], peak['intensity']) for peak in nmr_peaks], *args, **kwargs)
     
     @property
     def coordinates(self):
@@ -100,9 +130,11 @@ class Spectroscopy_graph():
         :return: A tuple of (minlim, maxlim, num) where minlim is the most negative value, maxlim the most positive and num the integer number of points to plot between them to achieve resolution.
         """
         # Calculate limits for each set of coordinates given to us.
-        all_limits = [self.gaussian_x(y, x, c, cutoff * y) for x, y in self.base_coordinates]
+        all_limits = [self.gaussian_x(y, x, self.fwhm_to_c(self.fwhm), self.cutoff * y) for x, y in self.base_coordinates]
+        
         try:
             limits = (min(itertools.chain.from_iterable(all_limits)), max(itertools.chain.from_iterable(all_limits)))
+        
         except ValueError:
             if len(list(itertools.chain.from_iterable(all_limits))) == 0:
                 # Nothing to plot.
@@ -174,10 +206,12 @@ class Spectroscopy_graph():
     
 class Absorption_emission_graph(Spectroscopy_graph):
     """
-    Class for graphing absorption/emission spectra.
+    Class for graphing absorption/emission spectra in nm.
+    
+    Use the normal Spectroscopy_graph object for plotting in eV.
     """
     
-    def __init__(self, coordinates, *, false_intensity = False, use_jacobian = True):
+    def __init__(self, *args, use_jacobian = True, **kwargs):
         """
         Constructor for Absorption_emission_graph objects.
         
@@ -185,9 +219,8 @@ class Absorption_emission_graph(Spectroscopy_graph):
         :param use_jacobian: Whether to use the jacobian transform to scale the y axis.
         """
         # Get our x,y values from our excited states.
-        super().__init__(coordinates)
+        super().__init__(*args, **kwargs)
         self.use_jacobian = use_jacobian
-        self.false_intensity = false_intensity
         
     @property
     def coordinates(self):
@@ -197,25 +230,6 @@ class Absorption_emission_graph(Spectroscopy_graph):
         Note that this property may be transformed into different units, use base_coordinates for untransformed variant.
         """
         return self.nm_coordinates
-        
-    @classmethod
-    def from_excited_states(self, excited_states, *, adjust_zero = False, **kwargs):
-        """
-        An alternative constructor that takes a list of excited states as argument.
-        
-        :param excited_states: An Excited_states_list object to construct from.
-        :param adjust_zero: If all the intensities of the given excited states are zero, whether to arbitrarily set the y coords to 1.
-        :param **kwargs: Passed to the real constructor.
-        """
-        false_intensity = False
-        coords = [(excited_state.energy, excited_state.oscillator_strength if excited_state.oscillator_strength is not None else 0) for excited_state in excited_states]
-        if adjust_zero:
-            # Check if all the y axis is zero.
-            if all([y == 0 for x,y in coords]):
-                coords = [(x, 1) for x, y in coords]
-                false_intensity = True
-        
-        return self(coords, false_intensity = false_intensity, **kwargs)
     
     @property
     def nm_coordinates(self):
