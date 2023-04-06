@@ -242,7 +242,7 @@ class Excited_state_list(Result_container):
         """
         Abstract function that is called to generate an on-demand value for dumping.
         
-        This functionality is useful for hiding expense properties from the normal dump process, while still exposing them when specifically requested.
+        This functionality is useful for hiding expensive properties from the normal dump process, while still exposing them when specifically requested.
         
         :param key: The key being requested.
         :param silico_options: Silico options being used to dump.
