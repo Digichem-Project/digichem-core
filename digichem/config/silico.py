@@ -228,6 +228,10 @@ To disable the maximum width, set to null.""", type = int, default = 1500),
         gaussian_resolution = Option(help = "The spacing between x values to plot using the Gaussian function, in ppm. Values that are too large will result in 'curves' made up of a series of straight edges.", type = float, default = 0.001),
         frequency = Option(help = "The frequency to run the simulated spectrometer at. Larger values will result in narrower coupling. Units are MHz", type = float, default = 100),
         merge_threshold = Option(help = "The threshold within which similar peaks will be merged together. Units in ppm.", type = float, default = None),
+        references = Option(help = "The chemical shift of a reference peak (in ppm) to use to adjust the spectrum. One for each element.", type = Nested_dict_type, default = {
+            1: 31.68766666666667,
+            6: 197.90316666666664
+        }),
         
         # TODO: Validation on these sorts of options is poor and needs looking at.
         isotopes = Option(help = "Isotope specific options. Each key should consist of a tuple of (proton_number, isotope).", type = Nested_dict_type, default = {
