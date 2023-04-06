@@ -100,7 +100,10 @@ class Spectroscopy_graph():
         limits = self.gaussian_limits()
         
         # Plot and return.
-        return [[(x, self.gaussian(a, b, c, x)) for x in numpy.linspace(*limits)] for b, a in self.base_coordinates]
+        silico.log.get_logger().info("Plotting gaussian peaks from {:0.2f} to {:0.2f} with a step size of {} ({} total points)".format(limits[0], limits[1], self.resolution, limits[2]))
+        gaussians = [[(x, self.gaussian(a, b, c, x)) for x in numpy.linspace(*limits)] for b, a in self.base_coordinates]
+        
+        return gaussians
     
     def plot_cumulative_gaussian(self):
         """
