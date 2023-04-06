@@ -12,8 +12,9 @@ from silico.result.atom import get_chemical_group_mapping, Atom_group
 from silico.result.spectroscopy import Spectroscopy_graph
 import silico.log
 
-
-class NMR_spectrometer():
+# TODO: NMR tensors are currently not re-orientated according to the alignment method used.
+# This needs implementing.
+class NMR_spectrometer(Result_object):
     """
     A class for generating NMR spectra on-demand.
     """
