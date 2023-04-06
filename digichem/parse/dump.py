@@ -16,6 +16,7 @@ from silico.result.dipole_moment import Dipole_moment
 from silico.result.vibration import Vibrations_list
 from silico.result.emission import Relaxed_excited_state
 import silico.log
+from silico.result.alignment.base import Alignment, Minimal
 
 
 class Dump_multi_parser_abc(Parser_abc):
@@ -48,26 +49,26 @@ class Dump_multi_parser_abc(Parser_abc):
     def get_sub_parser(self):
         raise NotImplementedError("Implement in subclass")
             
-    def process_all(self, alignment_class):
+    def process_all(self, options):
         """
         Get all the Result set objects produced by this parser.
         
-        :param: alignment_class: An alignment class object to use to reorientate atoms. If not specified the Minimal alignment method will be used by default.
+        :param options: A Silico options nested dictionary containing options to control parsing.
         :return: A list of the populated result sets.
         """
         # Unlike most other parsers, our data can actually contain lots of results.
-        self.all_results = [self.get_sub_parser()(self.log_file_path, raw_data = data).process(alignment_class) for data in self.data]
+        self.all_results = [self.get_sub_parser()(self.log_file_path, raw_data = data).process(options) for data in self.data]
         
         return self.all_results
     
-    def process(self, alignment_class):
+    def process(self, options):
         """
         Get a Result set object from this parser.
         
-        :param: alignment_class: An alignment class object to use to reorientate atoms. If not specified the Minimal alignment method will be used by default.
+        :param options: A Silico options nested dictionary containing options to control parsing.
         :return: The populated result set.
         """
-        self.process_all(alignment_class)
+        self.process_all(options)
         return self.results
     
     
@@ -125,21 +126,21 @@ class Dump_parser_abc(Parser_abc):
     def from_data(self, input_file, data):
         return self(input_file, raw_data = data)
     
-    def process_all(self, alignment_class):
+    def process_all(self, options):
         """
         Get all the Result set objects produced by this parser.
         
-        :param: alignment_class: An alignment class object to use to reorientate atoms. If not specified the Minimal alignment method will be used by default.
+        :param options: A Silico options nested dictionary containing options to control parsing.
         :return: A list of the populated result sets.
         """
-        self.process(alignment_class)
+        self.process(options)
         return [self.results]
             
-    def process(self, alignment_class):
+    def process(self, options):
         """
         Get a Result set object from this parser.
         
-        :param: alignment_class: An alignment class object to use to reorientate atoms. If not specified the Minimal alignment method will be used by default.
+        :param options: A Silico options nested dictionary containing options to control parsing.
         :return: The populated result set.
         """
         
@@ -153,8 +154,7 @@ class Dump_parser_abc(Parser_abc):
         self.results.orbitals = Molecular_orbital_list.from_dump(self.data['orbitals'], self.results)
         self.results.beta_orbitals = Molecular_orbital_list.from_dump(self.data['beta_orbitals'], self.results)
         
-        # Assign total levels.
-        #self.results.orbitals.assign_total_level(self.results.beta_orbitals)
+        alignment_class = Alignment.from_class_handle(options['alignment']) if options['alignment'] is not None else Minimal
         
         # Our alignment orientation data.
         # The constructor for each alignment class automatically performs realignment.

@@ -8,6 +8,7 @@ from silico.result.ground_state import Ground_state
 from silico.result.excited_state import Excited_state_list
 from silico.result.emission import Relaxed_excited_state
 from silico.result.orbital import Molecular_orbital_list
+from silico.result.alignment.base import Alignment, Minimal
 
 
 class Merged(Result_set):
@@ -27,12 +28,12 @@ class Merged(Result_set):
         self.emission.adiabatic = adiabatic_emission if adiabatic_emission is not None else {}
             
     @classmethod
-    def from_results(self, *results, alignment_class):
+    def from_results(self, *results, options):
         """
         Create a Merged result set object from a number of result sets.
         
         :param *results: List of result sets to merge.
-        :param alignment_class: An alignment class to use. 
+        :param options: A Silico config nested dictionary containing options to control parsing.
         """
         # First, get a merged metadata object.
         metadatas = [result.metadata for result in results]
@@ -41,6 +42,7 @@ class Merged(Result_set):
         # 'Merge' our atoms.
         raw_atoms = Atom_list.merge(*[result.raw_atoms for result in results], charge = merged_metadata.charge)
         # And alignment.
+        alignment_class = Alignment.from_class_handle(options['alignment']) if options['alignment'] is not None else Minimal
         atoms = alignment_class(raw_atoms, charge = merged_metadata.charge)
         
         # Use special method for merging orbitals.

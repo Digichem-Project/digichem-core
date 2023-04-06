@@ -94,14 +94,14 @@ class Turbomole_parser(Cclib_parser):
         if len(self.data.metadata['cpu_time']) == 0:
             del(self.data.metadata['cpu_time'])
 
-    def process(self, alignment_class):
+    def process(self, options):
         """
         Get a Result set object from this parser.
         
-        :param: alignment_class: An alignment class object to use to reorientate atoms. If not specified the Minimal alignment method will be used by default.
+        :param options: A Silico options nested dictionary containing options to control parsing.
         :return: The populated result set.
         """
-        super().process(alignment_class)
+        super().process(options)
         
         # After processing is complete, have a look for excited state density files.
         # These have the general file name:

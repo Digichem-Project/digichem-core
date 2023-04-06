@@ -22,6 +22,7 @@ from silico.result.vibration import Vibrations_list
 from silico.exception.base import Silico_exception
 from silico.result.emission import Relaxed_excited_state
 from silico.result.nmr import NMR_shielding, NMR_spin_couplings_list, NMR_list
+from silico.result.alignment.base import Minimal, Alignment
 
 
 # NOTE: This is a repeat of the list in util to avoid circular import nonsense.
@@ -109,27 +110,30 @@ class Parser_abc():
         """
         raise NotImplementedError("Implement in subclass")
             
-    def process_all(self, alignment_class):
+    def process_all(self, options):
         """
         Get all the Result set objects produced by this parser.
         
-        :param: alignment_class: An alignment class object to use to reorientate atoms. If not specified the Minimal alignment method will be used by default.
+        :param options: A Silico options nested dictionary containing options to control parsing.
         :return: A list of the populated result sets.
         """
-        self.process(alignment_class)
+        self.process(options)
         return [self.results]
 
-    def process(self, alignment_class):
+    def process(self, options):
         """
         Get a Result set object from this parser.
         
-        :param: alignment_class: An alignment class object to use to reorientate atoms. If not specified the Minimal alignment method will be used by default.
+        :param options: A Silico options nested dictionary containing options to control parsing.
         :return: The populated result set.
         """
+        self.options = options
         # Get our result set.
         self.results = Result_set(
             metadata = self.load_result_part(Metadata)
             )
+        
+        alignment_class = Alignment.from_class_handle(options['alignment']) if options['alignment'] is not None else Minimal
         
         # First get our list of MOs (because we need them for excited states too.)
         self.results.orbitals = self.load_result_part(Molecular_orbital_list)
