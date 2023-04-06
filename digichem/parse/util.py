@@ -296,6 +296,8 @@ def parse_multiple_calculations(*log_files, aux_files = None, options, pool = No
         own_pool = True
         #pool = multiprocessing.Pool(processes, initializer = init_func, initargs = init_args if init_args is not None else [])
         pool = pathos.pools.ProcessPool(processes, initializer = init_func, initargs = init_args if init_args is not None else [])
+        # Pathos pools are singletons for some reason. Call restart in case this is the same object as before and we've already closed it.
+        pool.restart()
     
     # Do some parsing.
     try:
@@ -388,6 +390,8 @@ def parse_and_merge_multiple_calculations(*multiple_results, options, format_hin
     try:
         #pool = multiprocessing.Pool(processes, initializer = init_func, initargs = init_args if init_args is not None else [])
         pool = pathos.pools.ProcessPool(processes, initializer = init_func, initargs = init_args if init_args is not None else [])
+        # Pathos pools are singletons for some reason. Call restart in case this is the same object as before and we've already closed it.
+        pool.restart()
         
         result_lists = list(
             filterfalse(lambda x: x is None,
