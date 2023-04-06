@@ -365,7 +365,8 @@ class NMR_graph_maker(Spectroscopy_graph_maker):
         
         # Axes labels.
         self.x_label = "Chemical Shift /ppm"
-        self.y_label = "Intensity /arb"
+        #self.y_label = "Intensity /arb"
+        self.hide_y = True
         
         # Space to allocate per unit of the y axis.
         self.inch_per_x = 0.5
