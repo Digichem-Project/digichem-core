@@ -10,6 +10,7 @@ from silico.exception.base import Result_unavailable_error
 from silico.misc.base import dict_list_index, regular_range
 from silico.result.atom import get_chemical_group_mapping, Atom_group
 from silico.result.spectroscopy import Spectroscopy_graph
+import silico.log
 
 
 class NMR_spectrometer():
@@ -148,15 +149,27 @@ class NMR_spectrometer():
         # This allows us to plot merged peaks separately, for example if two atoms result in overlapping chemical shift.
         peaks = self.simulate(element, isotope, decoupling)
         
-        # Plot a mini-spectrum for each atom group.
-        spectra = {atom_group: Spectroscopy_graph([(peak['shift'], peak['intensity']) for peak in group_peaks]) for atom_group, group_peaks in peaks.items()}
-        # Also plot an overall spectrum.
-        spectrum = Spectroscopy_graph([(peak['shift'], peak['intensity']) for group_peaks in peaks.values() for peak in group_peaks])
-        
         # Get options specific to the isotope we're looking at.
         isotope_options = self.isotope_options(element, isotope)
         
-        return {
+        # Plot a mini-spectrum for each atom group.
+        #spectra = {atom_group: Spectroscopy_graph([(peak['shift'], peak['intensity']) for peak in group_peaks]) for atom_group, group_peaks in peaks.items()}
+        spectra = {atom_group: Spectroscopy_graph.from_nmr(group_peaks, isotope_options['fwhm'], isotope_options['resolution'], isotope_options['cutoff']) for atom_group, group_peaks in peaks.items()}
+        
+        # Also plot an overall spectrum.
+        #spectrum = Spectroscopy_graph([(peak['shift'], peak['intensity']) for group_peaks in peaks.values() for peak in group_peaks])
+        # The total spectrum takes all simulated peaks.
+        # These are grouped by atom_group, flatten this list before passing to spectroscopy.
+        spectrum = Spectroscopy_graph.from_nmr([peak for group_peaks in peaks.values() for peak in group_peaks], isotope_options['fwhm'], isotope_options['resolution'], isotope_options['cutoff'])
+        
+        silico.log.get_logger().info("Simulating broadened NMR peaks for {}{} at {} MHz with {} decoupling".format(
+            isotope,
+            periodictable.elements[element].symbol,
+            isotope_options['frequency'],
+            ",".join(["{}{}".format(decouple_iso, periodictable.elements[decouple_ele].symbol) for decouple_ele, decouple_iso in decoupling])
+        ))
+        
+        values = {
             "values": [
                 {"x":{"value": float(x), "units": "ppm"}, "y": {"value": float(y), "units": "arb"}}
                 for x,y in spectrum.plot_cumulative_gaussian()
@@ -169,6 +182,8 @@ class NMR_spectrometer():
                 for atom_group, group_spectrum in spectra.items()
             }
         }
+        silico.log.get_logger().info("Done simulating NMR spectrum")
+        return values
 
     def simulate(self, element, isotope, decoupling = None):
         """
@@ -184,6 +199,13 @@ class NMR_spectrometer():
         isotope_options = self.isotope_options(element, isotope)
         
         group_peaks = {}
+        
+        silico.log.get_logger().info("Simulating NMR peaks for {}{} at {} MHz with {} decoupling".format(
+            isotope,
+            periodictable.elements[element].symbol,
+            isotope_options['frequency'],
+            ",".join(["{}{}".format(decouple_iso, periodictable.elements[decouple_ele].symbol) for decouple_ele, decouple_iso in decoupling])
+        ))
         
         for nmr_result in self.nmr_results.values():
             if nmr_result.group.element.number != element:
@@ -280,7 +302,9 @@ class NMR_spectrometer():
                 
             # Done for this group of atoms.
             group_peaks[nmr_result.group] = peaks
-            
+        
+        silico.log.get_logger().info("Done simulating NMR peaks")
+        
         return group_peaks
     
 
