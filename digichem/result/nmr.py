@@ -562,14 +562,30 @@ class NMR_shielding(NMR_tensor_ABC):
     tensor_names = ("paramagnetic", "diamagnetic", "total")
     units = "ppm"
     
-    def __init__(self, atom, tensors, total_isotropic):
+    def __init__(self, atom, tensors, total_isotropic, reference = None):
         """
         :param atom: The atom this shielding applies to.
         :param tensors: A dictionary of tensors.
         :param total_isotropic: The isotropic value for the total tensor.
+        :param reference: An optional reference isotropic value to correct this shielding by.
         """
         super().__init__(tensors, total_isotropic)
         self.atom = atom
+        self.reference = reference
+        
+    def isotropic(self, tensor = "total", correct = True):
+        """
+        Calculate the isotropic value for a given tensor.
+        
+        :param tensor: The name of a tensor to calculate for (see tensor_names). Use 'total' for the total tensor.
+        :param correct: Whether to correct this shielding value by the reference.
+        """
+        eigenvalues = self.eigenvalues(tensor)
+        absolute = sum(eigenvalues) / len(eigenvalues)
+        if correct and self.reference is not None:
+            return self.reference - absolute
+        else:
+            return absolute
         
     @classmethod
     def dict_from_parser(self, parser):
@@ -584,7 +600,12 @@ class NMR_shielding(NMR_tensor_ABC):
         try:
             for atom_index, tensors in parser.data.nmrtensors.items():
                 total_isotropic = tensors.pop("isotropic")
-                shieldings[parser.results.atoms[atom_index]] = self(parser.results.atoms[atom_index], tensors, total_isotropic)
+                shieldings[parser.results.atoms[atom_index]] = self(
+                    parser.results.atoms[atom_index],
+                    tensors,
+                    total_isotropic,
+                    reference = parser.options['nmr']['references'].get(parser.results.atoms[atom_index].element.number, None)
+                )
         
         except AttributeError:
             return {}
