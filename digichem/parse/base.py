@@ -1,7 +1,6 @@
 # General imports.
 from pathlib import Path
 import cclib.io
-import itertools
 import pwd
 import os
 
@@ -130,33 +129,33 @@ class Parser_abc():
         self.options = options
         # Get our result set.
         self.results = Result_set(
-            metadata = self.load_result_part(Metadata)
+            metadata = Metadata.from_parser(self)
             )
         
         alignment_class = Alignment.from_class_handle(options['alignment']) if options['alignment'] is not None else Minimal
         
         # First get our list of MOs (because we need them for excited states too.)
-        self.results.orbitals = self.load_result_part(Molecular_orbital_list)
-        self.results.beta_orbitals = self.load_result_part(Molecular_orbital_list, cls = Beta_orbital)
+        self.results.orbitals = Molecular_orbital_list.from_parser(self)
+        self.results.beta_orbitals = Molecular_orbital_list.from_parser(self, cls = Beta_orbital)
         
         # Assign total levels.
         self.results.orbitals.assign_total_level(self.results.beta_orbitals)
         
         # Our alignment orientation data.
-        self.results.atoms = self.load_result_part(alignment_class)
-        self.results.raw_atoms = self.load_result_part(Atom_list)
+        self.results.atoms = alignment_class.from_parser(self)
+        self.results.raw_atoms = Atom_list.from_parser(self)
         
         # TEDM and TMDM.
-        self.results.transition_dipole_moments = self.load_result_part(Transition_dipole_moment)
+        self.results.transition_dipole_moments = Transition_dipole_moment.from_parser(self)
         
         # Excited states.
-        self.results.excited_states = self.load_result_part(Excited_state_list)
+        self.results.excited_states = Excited_state_list.from_parser(self)
         
         # Energies.
-        self.results.energies = self.load_result_part(Energies)
+        self.results.energies = Energies.from_parser(self)
         
         # Our ground state.
-        self.results.ground_state = self.load_result_part(Ground_state)
+        self.results.ground_state = Ground_state.from_parser(self)
         
         # And a similar list but also including the ground.
         self.results.energy_states = Excited_state_list()
@@ -164,13 +163,13 @@ class Parser_abc():
         self.results.energy_states.extend(self.results.excited_states)
         
         # SOC.
-        self.results.soc = self.load_result_part(SOC_list)
+        self.results.soc = SOC_list.from_parser(self)
         
         # PDM
-        self.results.pdm = self.load_result_part(Dipole_moment)
+        self.results.pdm = Dipole_moment.from_parser(self)
         
         # Frequencies.
-        self.results.vibrations = self.load_result_part(Vibrations_list)
+        self.results.vibrations = Vibrations_list.from_parser(self)
         
         # NMR.
         self.results.nmr_shieldings = NMR_shielding.dict_from_parser(self)
@@ -182,17 +181,6 @@ class Parser_abc():
         
         # Return the populated result set for convenience.
         return self.results
-            
-    def load_result_part(self, result_cls, *, data = None, **kwargs):
-        """
-        Get part of a result file.
-        
-        For most parsers, this will simply call from_parser() of the given class, but some parsers do something more interesting.
-        Any arguments other than cls will be parsed to the underlying function.
-        """
-        # TODO: This mechanism is no-longer needed and should be removed.
-        data = self if data is None else data
-        return result_cls.from_parser(data, **kwargs)
 
 
 class Cclib_parser(Parser_abc):
