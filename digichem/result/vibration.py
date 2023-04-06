@@ -41,10 +41,6 @@ class Vibrations_list(Result_container, Unmergeable_container_mixin):
         """
         return self(Vibration.list_from_parser(parser))
     
-    @property
-    def spectrum(self):
-        return Spectroscopy_graph.from_vibrations(self)
-    
     def generate_for_dump(self):
         """
         Method used to get a dictionary used to generate on-demand values for dumping.
@@ -64,13 +60,13 @@ class Vibrations_list(Result_container, Unmergeable_container_mixin):
         :param key: The key being requested.
         :param silico_options: Silico options being used to dump.
         """
-        spectrum = self.spectrum
+        spectrum = Spectroscopy_graph.from_vibrations(self, silico_options['IR_spectrum']['fwhm'], silico_options['IR_spectrum']['gaussian_resolution'], silico_options['IR_spectrum']['gaussian_cutoff'])
         
         try:
-            spectrum_data = spectrum.plot_cumulative_gaussian(silico_options['IR_spectrum']['fwhm'], silico_options['IR_spectrum']['gaussian_resolution'], silico_options['IR_spectrum']['gaussian_cutoff'])
+            spectrum_data = spectrum.plot_cumulative_gaussian()
             
             spectrum_data = [{"x":{"value": float(x), "units": "c m^-1"}, "y": {"value":float(y), "units": "km mol^-1"}} for x,y in spectrum_data]
-            spectrum_peaks = [{"x":{"value": float(x), "units": "c m^-1"}, "y": {"value":float(y), "units": "km mol^-1"}} for x, y in spectrum.peaks(silico_options['IR_spectrum']['fwhm'], silico_options['IR_spectrum']['gaussian_resolution'], silico_options['IR_spectrum']['gaussian_cutoff'])]
+            spectrum_peaks = [{"x":{"value": float(x), "units": "c m^-1"}, "y": {"value":float(y), "units": "km mol^-1"}} for x, y in spectrum.peaks()]
         
         except Exception:
             spectrum_data = []
@@ -86,10 +82,6 @@ class Vibrations_list(Result_container, Unmergeable_container_mixin):
             "num_vibrations": len(self),
             "num_negative": len(self.negative),
             "values": super().dump(silico_options),
-#             "spectrum": {
-#                 "values": spectrum_data,
-#                 "peaks": spectrum_peaks
-#             }
         }
         return dump_dict
 

@@ -250,25 +250,25 @@ class Excited_state_list(Result_container):
         # Get spectrum data.
         # For excited states, we dump two spectra. One in nm, one in eV (which have different scaling).
         # TODO: It's weird that these spectra are only available in dumped format, there should be some property/function on the class that also returns them...
-        spectrum_nm = Absorption_emission_graph.from_excited_states(self, use_jacobian = silico_options['absorption_spectrum']['use_jacobian'])
-        spectrum_ev = Spectroscopy_graph([(excited_state.energy, excited_state.oscillator_strength) for excited_state in self])
+        spectrum_nm = Absorption_emission_graph.from_excited_states(self, silico_options['absorption_spectrum']['fwhm'], silico_options['absorption_spectrum']['gaussian_resolution'], silico_options['absorption_spectrum']['gaussian_cutoff'], use_jacobian = silico_options['absorption_spectrum']['use_jacobian'])
+        spectrum_ev = Spectroscopy_graph([(excited_state.energy, excited_state.oscillator_strength) for excited_state in self], silico_options['absorption_spectrum']['fwhm'], silico_options['absorption_spectrum']['gaussian_resolution'], silico_options['absorption_spectrum']['gaussian_cutoff'])
         
         try:
-            spectrum_nm_data = spectrum_nm.plot_cumulative_gaussian(silico_options['absorption_spectrum']['fwhm'], silico_options['absorption_spectrum']['gaussian_resolution'], silico_options['absorption_spectrum']['gaussian_cutoff'])
+            spectrum_nm_data = spectrum_nm.plot_cumulative_gaussian()
             y_units = "arb. unit" if silico_options['absorption_spectrum']['use_jacobian'] else "oscillator_strength"
             
             spectrum_nm_data = [{"x":{"value": float(x), "units": "nm"}, "y": {"value":float(y), "units": y_units}} for x,y in spectrum_nm_data]
-            spectrum_nm_peaks = [{"x":{"value": float(x), "units": "nm"}, "y": {"value":float(y), "units": y_units}} for x, y in spectrum_nm.peaks(silico_options['absorption_spectrum']['fwhm'], silico_options['absorption_spectrum']['gaussian_resolution'], silico_options['absorption_spectrum']['gaussian_cutoff'])]
+            spectrum_nm_peaks = [{"x":{"value": float(x), "units": "nm"}, "y": {"value":float(y), "units": y_units}} for x, y in spectrum_nm.peaks()]
         
         except Exception:
             spectrum_nm_data = []
             spectrum_nm_peaks = []
         
         try:
-            spectrum_ev_data = spectrum_ev.plot_cumulative_gaussian(silico_options['absorption_spectrum']['fwhm'], silico_options['absorption_spectrum']['gaussian_resolution'], silico_options['absorption_spectrum']['gaussian_cutoff'])
+            spectrum_ev_data = spectrum_ev.plot_cumulative_gaussian()
             
             spectrum_ev_data = [{"x":{"value": float(x), "units": "eV"}, "y": {"value":float(y), "units": "oscillator_strength"}} for x,y in spectrum_ev_data]
-            spectrum_ev_peaks = [{"x":{"value": float(x), "units": "eV"}, "y": {"value":float(y), "units": "oscillator_strength"}} for x, y in spectrum_ev.peaks(silico_options['absorption_spectrum']['fwhm'], silico_options['absorption_spectrum']['gaussian_resolution'], silico_options['absorption_spectrum']['gaussian_cutoff'])]
+            spectrum_ev_peaks = [{"x":{"value": float(x), "units": "eV"}, "y": {"value":float(y), "units": "oscillator_strength"}} for x, y in spectrum_ev.peaks()]
         
         except Exception:
             spectrum_ev_data = []

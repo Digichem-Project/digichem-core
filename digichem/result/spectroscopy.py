@@ -14,18 +14,25 @@ class Spectroscopy_graph():
     For generating pictures of these graphs, see silico.image.spectroscopy
     """
     
-    def __init__(self, coordinates):
+    def __init__(self, coordinates, fwhm, resolution = 1, cutoff = 0.01, adjust_zero = False):
         """
         Constructor for Spectroscopy_graph objects
         
         :param coordinates: A list of (energy, intensity) tuples to plot. The units of energy and intensity are irrelevant here (but should be consistent). Note that coordinates with 0 intensity will be removed.
+        :param fwhm: The full-width at half-maximum to plot peaks with (in units of the x axis).
+        :param resolution: The spacing (or step-size) between points to plot using the gaussian function, in units of the x-axis.
+        :param cutoff: The minimum y value to plot using the gaussian function, as a fraction of the intensity.
+        :param adjust_zero: If True and all y values are 0, set all y values to 1 (so that something can be plotted).
         """
         # We save our coordinates under two properties.
         # Base coordinates are untransformed, coordinates (which is by default is the same as base_coordinates) are transformed.
         self.base_coordinates = [(x, y) for x,y in coordinates if y != 0]
+        self.fwhm = fwhm
+        self.resolution = resolution
+        self.cutoff = cutoff
         
     @classmethod
-    def from_vibrations(self, vibrations):
+    def from_vibrations(self, vibrations, *args, **kwargs):
         """
         Alternative constructor from a Vibrations_list object.
         """
@@ -46,38 +53,33 @@ class Spectroscopy_graph():
         
         :return: A list of x,y coords that are peaks.
         """
-        coords = self.plot_cumulative_gaussian(fwhm = fwhm, resolution = resolution, cutoff = cutoff)
+        coords = self.plot_cumulative_gaussian()
         y_coords = [y for x,y in coords]
         indexes = scipy.signal.find_peaks(y_coords, height = max(y_coords) * cutoff)[0]
         return [coords[index] for index in indexes]
         
-    def plot_gaussian(self, fwhm, resolution = 1, cutoff = 0.01):
+    def plot_gaussian(self):
         """
         Plot a gaussian distribution around a set of coordinates.
-        
-        :param fwhm: The full-width at half-maximum of the gaussian function.
-        :param cutoff: The minimum y value to plot using the gaussian function, as the fraction of the intensity.
-        :param resolution: The spacing between points to plot using the gaussian function, in units of the x-axis.
         :return: A list of lists of tuples of (x, y) coordinates plotted by the gaussian function (one list per input coordinate).
         """
         # First, determine our c value.
-        c = self.fwhm_to_c(fwhm)
+        c = self.fwhm_to_c(self.fwhm)
         
         # Next, determine the limits in which we'll plot.
-        limits = self.gaussian_limits(c, cutoff, resolution)
+        limits = self.gaussian_limits()
         
         # Plot and return.
         return [[(x, self.gaussian(a, b, c, x)) for x in numpy.linspace(*limits)] for b, a in self.base_coordinates]
     
-    def plot_cumulative_gaussian(self, *args, **kwargs):
+    def plot_cumulative_gaussian(self):
         """
         Plot an additive gaussian distribution around a set of coordinates.
         
-        :param *args: The same as for plot_gaussian().
         :return: A single list of tuples of (x, y) coordinates plotted by the gaussian function.
         """
         # First, get our gaussian plots.
-        gplots = self.plot_gaussian(*args, **kwargs)
+        gplots = self.plot_gaussian()
         
         # Sum our y values.
         coords = {}
@@ -87,9 +89,8 @@ class Spectroscopy_graph():
                 
         # Now return as list of tuples.
         return list(coords.items())    
-        
-        
-    def gaussian_limits(self, c, cutoff, resolution):
+    
+    def gaussian_limits(self):
         """
         Determine min and max x limits to plot a gaussian function.
         
@@ -112,10 +113,10 @@ class Spectroscopy_graph():
         # Now we need to generate the x values which we'll plot for.
         # This is a little more complicated than it needs to be because there's no simple range() for floats.
         # Calculate the number of points (and round up).
-        num_points = round( math.fabs(limits[1] - limits[0]) / resolution)
+        num_points = round( math.fabs(limits[1] - limits[0]) / self.resolution)
         
         # Extend our limits so they are a clean multiple of num_points.
-        limits = (limits[0], limits[0] + num_points * resolution)
+        limits = (limits[0], limits[0] + num_points * self.resolution)
         
         # And now shift our limits so they are still centred.
         xs = [x for x, y in self.base_coordinates]
@@ -159,8 +160,7 @@ class Spectroscopy_graph():
         
         # Now return our two solutions.
         return (-d + b, d + b)
-        
-        
+    
     @classmethod
     def fwhm_to_c(self, fwhm):
         """
@@ -247,18 +247,15 @@ class Absorption_emission_graph(Spectroscopy_graph):
         """
         return ((E * scipy.constants.electron_volt)**2  * f_E) / (scipy.constants.Planck * scipy.constants.c)
     
-    def plot_gaussian(self, *args, **kwargs):
+    def plot_gaussian(self):
         """
         Plot a gaussian distribution around our excited state energies.
         
-        :param fwhm: The full-width at half-maximum of the gaussian function.
-        :param cutoff: The minimum y value to plot using the gaussian function, as the fraction of the intensity.
-        :param resolution: The spacing between points to plot using the gaussian function, in units of the x-axis.
         :return: A list of lists of tuples of (x, y) coordinates plotted by the gaussian function (one list per input coordinate).
         """
         # All we need to do over our parent is convert x values from e to wavelength.
         # And scale y values using the jacobian transform.
-        return [[self.energy_to_wavelength(coord, self.use_jacobian) for coord in plot] for plot in super().plot_gaussian(*args, **kwargs)]
+        return [[self.energy_to_wavelength(coord, self.use_jacobian) for coord in plot] for plot in super().plot_gaussian()]
     
     
     

@@ -24,7 +24,8 @@ class NMR_spectrometer():
         :param nmr_results: A list of NMR_group result objects.
         :param frequency: The frequency of the simulated spectrometer.
         :param fwhm: The full-width at half-maximum of the simulated peaks (in ppm).
-        :param fwhm: The resolution/step-size of the plotted peaks (in ppm). Decreasing this value may increase computational time.
+        :param resolution: The resolution/step-size of the plotted peaks (in ppm). Decreasing this value may increase computational time.
+        :param reference: An optional reference isotropic value to correct this shielding by.
         """
         self.nmr_results = nmr_results
         self.frequency = frequency
@@ -40,7 +41,7 @@ class NMR_spectrometer():
             "merge_threshold": self.merge_threshold,
             "fwhm": self.fwhm,
             "resolution": self.resolution,
-            "cutoff": self.cutoff
+            "cutoff": self.cutoff,
         }
         options.update(self._isotope_options.get((element, isotope), {}))
         return options
@@ -158,12 +159,12 @@ class NMR_spectrometer():
         return {
             "values": [
                 {"x":{"value": float(x), "units": "ppm"}, "y": {"value": float(y), "units": "arb"}}
-                for x,y in spectrum.plot_cumulative_gaussian(isotope_options['fwhm'], isotope_options['resolution'], isotope_options['cutoff'])
+                for x,y in spectrum.plot_cumulative_gaussian()
             ],
             "groups": {
                 atom_group.label: [
                     {"x":{"value": float(x), "units": "ppm"}, "y": {"value": float(y), "units": "arb"}}
-                    for x,y in group_spectrum.plot_cumulative_gaussian(isotope_options['fwhm'], isotope_options['resolution'], isotope_options['resolution'])
+                    for x,y in group_spectrum.plot_cumulative_gaussian()
                 ]
                 for atom_group, group_spectrum in spectra.items()
             }
