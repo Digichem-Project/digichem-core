@@ -2,13 +2,13 @@ import numpy
 from itertools import filterfalse
 import periodictable
 from fractions import Fraction
+from math import isclose
 import re
 
 from silico.result.base import Result_object, Result_container
 from silico.exception.base import Result_unavailable_error
 from silico.misc.base import dict_list_index, regular_range
 from silico.result.atom import get_chemical_group_mapping, Atom_group
-from math import isclose
 from silico.result.spectroscopy import Spectroscopy_graph
 
 
