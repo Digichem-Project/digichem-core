@@ -6,10 +6,6 @@ import warnings
 
 # Silico imports.
 from silico.exception import Result_unavailable_error
-from silico.result.alignment.AAA import Adjusted_average_angle
-from silico.result.alignment.AA import Average_angle
-from silico.result.alignment.FAP import Furthest_atom_pair
-from silico.result.alignment import Minimal
 from silico.result import Result_object
 import silico.result.excited_state
 from silico.result.emission import Emissions
