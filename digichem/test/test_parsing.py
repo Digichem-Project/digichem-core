@@ -12,25 +12,25 @@ from silico.parse import parse_multiple_calculations, parse_and_merge_calculatio
 from silico.result.format.yaml import Yaml_dumper
 
 @pytest.mark.parametrize("result_data", list(itertools.chain(result_files['gaussian'], result_files['turbomole'])))
-def test_parsing(result_data):
+def test_parsing(result_data, silico_options):
     """Test whether we can parse various calc results."""
-    result = parse_calculation(result_data)
+    result = parse_calculation(result_data, options = silico_options)
     assert isinstance(result, Result_set)
 
         
-def test_multi_parsing():
+def test_multi_parsing(silico_options):
     """Test whether we can parse in parallel."""
     
-    results = parse_multiple_calculations(*list(itertools.chain(result_files['gaussian'], result_files['turbomole'])))
+    results = parse_multiple_calculations(*list(itertools.chain(result_files['gaussian'], result_files['turbomole'])), options = silico_options)
     
     # Check length.
     assert len(results) == len(result_files['gaussian']) + len(result_files['turbomole'])
 
 
 @pytest.mark.parametrize("data_set", [result_files['gaussian'], result_files['turbomole']])
-def test_merged_parsing(data_set):
+def test_merged_parsing(data_set, silico_options):
     """Test whether we can parse and merge calc results."""
-    result = parse_and_merge_calculations(*data_set)
+    result = parse_and_merge_calculations(*data_set, options = silico_options)
     
     assert isinstance(result, Result_set)
     assert len(result.results) == 3
@@ -43,14 +43,14 @@ def test_dump_and_parse(result_file, tmp_path, silico_options):
     numpy.seterr(invalid = 'raise', divide = 'raise')
     
     # Parse the raw data.
-    raw = parse_calculation(result_file)
+    raw = parse_calculation(result_file, options = silico_options)
     
     # Instead of just dumping to memory we'll dump to a file to test the full mechanism.
     with open(Path(tmp_path, "dump.sir"), "wt") as dump_file:
         dump_file.write(Yaml_dumper(silico_options = silico_options).dump(raw))
     
     # Now load the result back again.
-    parsed = parse_calculation(Path(tmp_path, "dump.sir"))
+    parsed = parse_calculation(Path(tmp_path, "dump.sir"), options = silico_options)
     
     # Dump both the raw and parsed result sets and compare to make sure they're the same.
     assert raw.dump(silico_options) == parsed.dump(silico_options)

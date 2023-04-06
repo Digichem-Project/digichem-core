@@ -3,13 +3,13 @@
 import pytest
 from pathlib import Path
 
-from silico.test.util import data_directory
+from silico.test.util import data_directory, silico_options
 from silico.parse.util import parse_calculation
 
 
 @pytest.fixture(scope="module")
-def formaldehyde_SOC_result():
-    return parse_calculation(Path(data_directory(), "Formaldehyde/Gaussian 09 Excited States TD-DFT 4 Singlets 4 Triplets B3LYP Gas Phase TZVP.tar.gz"))
+def formaldehyde_SOC_result(silico_options):
+    return parse_calculation(Path(data_directory(), "Formaldehyde/Gaussian 09 Excited States TD-DFT 4 Singlets 4 Triplets B3LYP Gas Phase TZVP.tar.gz"), options = silico_options)
 
 
 @pytest.mark.parametrize("result_set, singlet, triplet, SOC", [
