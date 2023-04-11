@@ -7,66 +7,10 @@ import scipy.signal
 import silico.result.excited_state
 from silico.exception.base import Silico_exception
 
-class Spectroscopy_graph():
+class Spectroscopy_graph_abc():
     """
-    Top level class for graphing spectroscopy results (energy vs intensity).
-    
-    For generating pictures of these graphs, see silico.image.spectroscopy
+    ABC for classes used to plot Gaussians over spectroscopic results. 
     """
-    
-    def __init__(self, coordinates, fwhm, resolution = 1, cutoff = 0.01, adjust_zero = False):
-        """
-        Constructor for Spectroscopy_graph objects
-        
-        :param coordinates: A list of (energy, intensity) tuples to plot. The units of energy and intensity are irrelevant here (but should be consistent). Note that coordinates with 0 intensity will be removed.
-        :param fwhm: The full-width at half-maximum to plot peaks with (in units of the x axis).
-        :param resolution: The spacing (or step-size) between points to plot using the gaussian function, in units of the x-axis.
-        :param cutoff: The minimum y value to plot using the gaussian function, as a fraction of the intensity.
-        :param adjust_zero: If True and all y values are 0, set all y values to 1 (so that something can be plotted).
-        """
-        # We save our coordinates under two properties.
-        # base_coordinates are untransformed.
-        # coordinates (which is by default the same as base_coordinates) are transformed.        
-        self.false_intensity = False
-        # Set arb y value if we've been asked to.
-        if adjust_zero:
-            # Check if all the y axis is zero.
-            if all([y == 0 for x,y in coordinates]):
-                coordinates = [(x, 1) for x, y in coordinates]
-                self.false_intensity = True
-        
-        self.base_coordinates = [(x, y) for x,y in coordinates if y != 0]
-        self.fwhm = fwhm
-        self.resolution = resolution
-        self.cutoff = cutoff
-        
-    @classmethod
-    def from_vibrations(self, vibrations, *args, **kwargs):
-        """
-        Alternative constructor from a Vibrations_list object.
-        """
-        return self([(vibration.frequency, vibration.intensity) for vibration in vibrations], *args, **kwargs)
-    
-    @classmethod
-    def from_excited_states(self, excited_states, *args, **kwargs):
-        """
-        An alternative constructor that takes a list of excited states as argument.
-        
-        :param excited_states: An Excited_states_list object to construct from.
-        :param adjust_zero: If all the intensities of the given excited states are zero, whether to arbitrarily set the y coords to 1.
-        :param **kwargs: Passed to the real constructor.
-        """
-        coords = [(excited_state.energy, excited_state.oscillator_strength if excited_state.oscillator_strength is not None else 0) for excited_state in excited_states]
-        return self(coords, *args, **kwargs)
-    
-    @classmethod
-    def from_nmr(self, nmr_peaks, *args, **kwargs):
-        """
-        An alternative constructor that takes a list of simulated NMR peaks as argument.
-        
-        :param nmr_peaks: Simulated NMR peaks. See result.nmr.NMR_spectrometer for how to obtain this data.
-        """
-        return self([(peak['shift'], peak['intensity']) for peak in nmr_peaks], *args, **kwargs)
     
     @property
     def coordinates(self):
@@ -75,7 +19,7 @@ class Spectroscopy_graph():
         
         Note that this property may be transformed into different units, use base_coordinates for untransformed variant.
         """
-        return self.base_coordinates
+        raise NotImplementedError("Implement in subclass")
     
     def peaks(self):
         """
@@ -93,17 +37,7 @@ class Spectroscopy_graph():
         Plot a gaussian distribution around a set of coordinates.
         :return: A list of lists of tuples of (x, y) coordinates plotted by the gaussian function (one list per input coordinate).
         """
-        # First, determine our c value.
-        c = self.fwhm_to_c(self.fwhm)
-        
-        # Next, determine the limits in which we'll plot.
-        limits = self.gaussian_limits()
-        
-        # Plot and return.
-        silico.log.get_logger().info("Plotting gaussian peaks from {:0.2f} to {:0.2f} with a step size of {} ({} total points)".format(limits[0], limits[1], self.resolution, limits[2]))
-        gaussians = [[(x, self.gaussian(a, b, c, x)) for x in numpy.linspace(*limits)] for b, a in self.base_coordinates]
-        
-        return gaussians
+        raise NotImplementedError("Implement in subclass")
     
     def plot_cumulative_gaussian(self):
         """
@@ -121,44 +55,7 @@ class Spectroscopy_graph():
                 coords[x] = coords.get(x, 0) + y
                 
         # Now return as list of tuples.
-        return list(coords.items())    
-    
-    def gaussian_limits(self):
-        """
-        Determine min and max x limits to plot a gaussian function.
-        
-        :param c: The width of the peak.
-        :param cutoff: The minimum y value to plot using the gaussian function, as the fraction of a.
-        :param resolution: The spacing between points to plot using the gaussian function, in units of the x-axis.
-        :return: A tuple of (minlim, maxlim, num) where minlim is the most negative value, maxlim the most positive and num the integer number of points to plot between them to achieve resolution.
-        """
-        # Calculate limits for each set of coordinates given to us.
-        all_limits = [self.gaussian_x(y, x, self.fwhm_to_c(self.fwhm), self.cutoff * y) for x, y in self.base_coordinates]
-        
-        try:
-            limits = (min(itertools.chain.from_iterable(all_limits)), max(itertools.chain.from_iterable(all_limits)))
-        
-        except ValueError:
-            if len(list(itertools.chain.from_iterable(all_limits))) == 0:
-                # Nothing to plot.
-                raise Silico_exception("'{}' cannot plot spectrum; there are no values".format(type(self).__name__))
-            else:
-                raise
-        
-        # Now we need to generate the x values which we'll plot for.
-        # This is a little more complicated than it needs to be because there's no simple range() for floats.
-        # Calculate the number of points (and round up).
-        num_points = round( math.fabs(limits[1] - limits[0]) / self.resolution)
-        
-        # Extend our limits so they are a clean multiple of num_points.
-        limits = (limits[0], limits[0] + num_points * self.resolution)
-        
-        # And now shift our limits so they are still centred.
-        xs = [x for x, y in self.base_coordinates]
-        centre = (max(xs) - min(xs)) /2 + min(xs)
-        limits = (centre - ((limits[1] - limits[0]) / 2) , centre + ((limits[1] - limits[0]) / 2))
-
-        return (limits[0], limits[1], num_points +1)
+        return list(coords.items())
     
     @classmethod
     def gaussian(self, a, b, c, x):
@@ -205,6 +102,170 @@ class Spectroscopy_graph():
         :return: The c-value.
         """
         return fwhm / (2 * math.sqrt(2 * math.log(2)))
+
+
+class Spectroscopy_graph(Spectroscopy_graph_abc):
+    """
+    Top level class for graphing spectroscopy results (energy vs intensity).
+    
+    For generating pictures of these graphs, see silico.image.spectroscopy
+    """
+    
+    def __init__(self, coordinates, fwhm, resolution = 1, cutoff = 0.01, adjust_zero = False):
+        """
+        Constructor for Spectroscopy_graph objects
+        
+        :param coordinates: A list of (energy, intensity) tuples to plot. The units of energy and intensity are irrelevant here (but should be consistent). Note that coordinates with 0 intensity will be removed.
+        :param fwhm: The full-width at half-maximum to plot peaks with (in units of the x axis).
+        :param resolution: The spacing (or step-size) between points to plot using the gaussian function, in units of the x-axis.
+        :param cutoff: The minimum y value to plot using the gaussian function, as a fraction of the intensity.
+        :param adjust_zero: If True and all y values are 0, set all y values to 1 (so that something can be plotted).
+        """
+        # We save our coordinates under two properties.
+        # base_coordinates are untransformed.
+        # coordinates (which is by default the same as base_coordinates) are transformed.        
+        self.false_intensity = False
+        # Set arb y value if we've been asked to.
+        if adjust_zero:
+            # Check if all the y axis is zero.
+            if all([y == 0 for x,y in coordinates]):
+                coordinates = [(x, 1) for x, y in coordinates]
+                self.false_intensity = True
+        
+        self.base_coordinates = [(x, y) for x,y in coordinates if y != 0]
+        self.fwhm = fwhm
+        self.resolution = resolution
+        self.cutoff = cutoff
+        
+        # Caches
+        self._gaussians = []
+        self._cumulative_gaussians = []
+        
+    @classmethod
+    def from_vibrations(self, vibrations, *args, **kwargs):
+        """
+        Alternative constructor from a Vibrations_list object.
+        """
+        return self([(vibration.frequency, vibration.intensity) for vibration in vibrations], *args, **kwargs)
+    
+    @classmethod
+    def from_excited_states(self, excited_states, *args, **kwargs):
+        """
+        An alternative constructor that takes a list of excited states as argument.
+        
+        :param excited_states: An Excited_states_list object to construct from.
+        :param adjust_zero: If all the intensities of the given excited states are zero, whether to arbitrarily set the y coords to 1.
+        :param **kwargs: Passed to the real constructor.
+        """
+        coords = [(excited_state.energy, excited_state.oscillator_strength if excited_state.oscillator_strength is not None else 0) for excited_state in excited_states]
+        return self(coords, *args, **kwargs)
+    
+    @classmethod
+    def from_nmr(self, nmr_peaks, *args, **kwargs):
+        """
+        An alternative constructor that takes a list of simulated NMR peaks as argument.
+        
+        :param nmr_peaks: Simulated NMR peaks. See result.nmr.NMR_spectrometer for how to obtain this data.
+        """
+        return self([(peak['shift'], peak['intensity']) for peak in nmr_peaks], *args, **kwargs)
+    
+    @property
+    def coordinates(self):
+        """
+        Get the coordinates around which this graph is plotted.
+        
+        Note that this property may be transformed into different units, use base_coordinates for untransformed variant.
+        """
+        return self.base_coordinates
+        
+    def plot_gaussian(self, refresh = False):
+        """
+        Plot a gaussian distribution around a set of coordinates.
+        :return: A list of lists of tuples of (x, y) coordinates plotted by the gaussian function (one list per input coordinate).
+        """
+        if len(self._gaussians) == 0 or refresh:
+            self._gaussians = self.get_gaussian()
+        
+        return self._gaussians
+        
+    def get_gaussian(self):
+        # First, determine our c value.
+        c = self.fwhm_to_c(self.fwhm)
+        
+        # Next, determine the limits in which we'll plot.
+        limits = self.gaussian_limits()
+        
+        # Plot and return.
+        silico.log.get_logger().info("Plotting gaussian peaks from {:0.2f} to {:0.2f} with a step size of {} ({} total points) for {} peaks ({} total iterations)".format(limits[0], limits[1], self.resolution, * limits[2], len(self.base_coordinates), len(self.base_coordinates) * limits[2]))
+        gaussians = [
+            [(x, self.gaussian(a, b, c, x)) for x in numpy.linspace(*limits)]
+            for b, a in self.base_coordinates
+        ]
+        
+        return gaussians
+    
+    def plot_cumulative_gaussian(self, refresh = False):
+        """
+        Plot an additive gaussian distribution around a set of coordinates.
+        
+        :return: A single list of tuples of (x, y) coordinates plotted by the gaussian function.
+        """
+        if len(self._cumulative_gaussians) == 0 or refresh:
+            self._cumulative_gaussians = self.get_cumulative_gaussian()
+        
+        return self._cumulative_gaussians
+        
+    def get_cumulative_gaussian(self):
+        # First, determine our c value.
+        c = self.fwhm_to_c(self.fwhm)
+        
+        # Next, determine the limits in which we'll plot.
+        limits = self.gaussian_limits()
+        
+        # Plot and return.
+        silico.log.get_logger().info("Plotting cumulative gaussian peaks from {:0.2f} to {:0.2f} with a step size of {} ({} total points) for {} peaks ({} total iterations)".format(limits[0], limits[1], self.resolution, limits[2], len(self.base_coordinates), len(self.base_coordinates) * limits[2]))
+        gaussian = [
+            (x, sum((self.gaussian(a, b, c, x) for b, a in self.base_coordinates))) for x in numpy.linspace(*limits)
+        ]
+        
+        return gaussian
+    
+    def gaussian_limits(self):
+        """
+        Determine min and max x limits to plot a gaussian function.
+        
+        :param c: The width of the peak.
+        :param cutoff: The minimum y value to plot using the gaussian function, as the fraction of a.
+        :param resolution: The spacing between points to plot using the gaussian function, in units of the x-axis.
+        :return: A tuple of (minlim, maxlim, num) where minlim is the most negative value, maxlim the most positive and num the integer number of points to plot between them to achieve resolution.
+        """
+        # Calculate limits for each set of coordinates given to us.
+        all_limits = [self.gaussian_x(y, x, self.fwhm_to_c(self.fwhm), self.cutoff * y) for x, y in self.base_coordinates]
+        
+        try:
+            limits = (min(itertools.chain.from_iterable(all_limits)), max(itertools.chain.from_iterable(all_limits)))
+        
+        except ValueError:
+            if len(list(itertools.chain.from_iterable(all_limits))) == 0:
+                # Nothing to plot.
+                raise Silico_exception("'{}' cannot plot spectrum; there are no values".format(type(self).__name__))
+            else:
+                raise
+        
+        # Now we need to generate the x values which we'll plot for.
+        # This is a little more complicated than it needs to be because there's no simple range() for floats.
+        # Calculate the number of points (and round up).
+        num_points = round( math.fabs(limits[1] - limits[0]) / self.resolution)
+        
+        # Extend our limits so they are a clean multiple of num_points.
+        limits = (limits[0], limits[0] + num_points * self.resolution)
+        
+        # And now shift our limits so they are still centred.
+        xs = [x for x, y in self.base_coordinates]
+        centre = (max(xs) - min(xs)) /2 + min(xs)
+        limits = (centre - ((limits[1] - limits[0]) / 2) , centre + ((limits[1] - limits[0]) / 2))
+
+        return (limits[0], limits[1], num_points +1)
     
     
 class Absorption_emission_graph(Spectroscopy_graph):
@@ -275,6 +336,50 @@ class Absorption_emission_graph(Spectroscopy_graph):
         return [[self.energy_to_wavelength(coord, self.use_jacobian) for coord in plot] for plot in super().plot_gaussian()]
     
     
+class Combined_graph(Spectroscopy_graph_abc):
+    """
+    A class for plotting one graph from multiple, individual graphs.
+    """
     
+    def __init__(self, graphs):
+        """
+        Constructor for Combined_graph objects.
+        
+        :param graphs: A dictionary of individual Spectroscopy_graph objects to combine.
+        """
+        self.graphs = graphs
+        
+    @classmethod
+    def from_nmr(self, grouped_peaks, *args, **kwargs):
+        """
+        Construct a Combined_graph from a dictionary of grouped NMR peaks
+        
+        :param grouped_peaks: A dictionary of lists of NMR peaks. Each key in the dictionary should correspond to one atom group.
+        """
+        return self(
+            {
+                peak_key: Spectroscopy_graph.from_nmr(peaks, *args, **kwargs) for peak_key, peaks in grouped_peaks.items()
+            }
+        )
     
+    @property
+    def coordinates(self):
+        """
+        Get the coordinates around which this graph is plotted.
+        
+        Note that this property may be transformed into different units, use base_coordinates for untransformed variant.
+        """
+        return list(itertools.chain([graph.coordinates for graph in self.graphs.values()]))
+        
+    def plot_gaussian(self):
+        """
+        Plot a gaussian distribution around a set of coordinates.
+        :return: A list of lists of tuples of (x, y) coordinates plotted by the gaussian function (one list per input coordinate).
+        """
+        # Because this class represents one additional layer of abstractions,
+        # we'll combine the results returned by each sub graph together, to obtain a single nested list.
+        return [
+            graph.plot_cumulative_gaussian()
+            for graph in self.graphs.values()
+        ]
     
