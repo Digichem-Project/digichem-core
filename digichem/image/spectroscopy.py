@@ -3,7 +3,7 @@ from matplotlib import ticker
 import matplotlib.collections
 from silico.exception.base import File_maker_exception
 from silico.result.spectroscopy import Spectroscopy_graph,\
-    Absorption_emission_graph
+    Absorption_emission_graph, Combined_graph
 
 class Spectroscopy_graph_maker(Graph_image_maker):
     """
@@ -65,6 +65,11 @@ class Spectroscopy_graph_maker(Graph_image_maker):
         self.x_limits_method = x_limits
         self.y_limits_method = y_limits
         
+        # Line-widths.
+        self.linewidth = 1
+        self.cumulative_linewidth = 2
+        self.column_linewidth = 1.5
+        
     @property
     def fwhm(self):
         return self.graph.fwhm
@@ -91,19 +96,19 @@ class Spectroscopy_graph_maker(Graph_image_maker):
             # If we aren't going to plot any curves, plot some invisible points so we get automatic axis scaling.
             if not self.should_plot_peaks and not self.should_plot_cumulative_peak:
                 self.plot_hidden_points()
-                
-        if self.should_plot_peaks:
-            self.plot_lines()
             
         if self.should_plot_cumulative_peak:
             self.plot_cumulative_line()
+                
+        if self.should_plot_peaks:
+            self.plot_lines()
                         
     def plot_columns(self):
         """
         Plot vertical columns for each plot on the graph we are building.
         """
         columns = [[(x, 0) , (x, y)] for x, y in self.graph.coordinates]
-        self.axes.add_collection(matplotlib.collections.LineCollection(columns, colors = (0,0,0)))
+        self.axes.add_collection(matplotlib.collections.LineCollection(columns, linewidths = self.column_linewidth, colors = (0,0,0)))
         
     def plot_hidden_points(self):
         """
@@ -118,14 +123,14 @@ class Spectroscopy_graph_maker(Graph_image_maker):
         """            
         for plot in self.graph.plot_gaussian():
             data = self.transpose(plot)
-            self.axes.plot(*data, 'C0-', linewidth = 1)
+            self.axes.plot(*data, 'C0-', linewidth = self.linewidth)
             
     def plot_cumulative_line(self):
         """
         Plot x and y values as a single line on the graph we are building.
         """
         data = self.transpose(self.graph.plot_cumulative_gaussian())
-        self.axes.plot(*data, 'C0-', linewidth = 2)
+        self.axes.plot(*data, 'C0-', linewidth = self.cumulative_linewidth)
     
     @property
     def peaks(self):
@@ -161,7 +166,7 @@ class Spectroscopy_graph_maker(Graph_image_maker):
         highest_point = max(self.transpose(self.graph.coordinates)[1])
         
         # Now filter by a fraction of that amount.
-        visible_x_values = [x for x, y in self.graph.plot_cumulative_gaussian(self.fwhm, self.gaussian_resolution, self.gaussian_cutoff) if y >= (highest_point * self.peak_cutoff)]
+        visible_x_values = [x for x, y in self.graph.plot_cumulative_gaussian() if y >= (highest_point * self.peak_cutoff)]
         
         # Now we can just get our min-max, remembering to include our x-padding, and never extending beyond 0 (because negative energy has no meaning in this context(?)).
         self.axes.set_xlim(max(min(visible_x_values) - self.x_padding, 0), max(visible_x_values) + self.x_padding)
@@ -190,9 +195,11 @@ class Spectroscopy_graph_maker(Graph_image_maker):
             if method == "auto":
                 # Call the automatic function.
                 getattr(self, "auto_{}_limits".format(axis))()
+            
             elif isinstance(method, tuple) or isinstance(method, list):
                 # Manual, explicit limits.
                 getattr(self.axes, "set_{}lim".format(axis))(method[0], method[1])
+            
             else:
                 # Don't recognise method.
                 raise ValueError("Unknown {} limits method '{}'".format(axis, method))
@@ -353,20 +360,26 @@ class NMR_graph_maker(Spectroscopy_graph_maker):
         Constructor for frequency graphs.
         
         :param output: A path to an output file to write to. The extension of this path is used to determine the format of the file (eg, png, jpeg).
-        :param spectrometer: An NMR_spectrometer instance to use to generate spectra.
+        :param graph: An instance of a silico.result.spectroscopy.Spectroscopy_graph that contains data to plot.
         """
         # Call our parent.
         super().__init__(output, graph, **kwargs)
         
         # Axes labels.
         self.x_label = "Chemical Shift /ppm"
-        #self.y_label = "Intensity /arb"
+        self.y_label = ""
         self.hide_y = True
+        self.max_width = 1600
         
         # Space to allocate per unit of the y axis.
-        self.inch_per_x = 0.5
+        self.inch_per_x = 15
         
+        self.linewidth = 0.5
+        self.cumulative_linewidth = 1
+        self.column_linewidth = 0.5
         
+        self.x_padding = 0.05
+    
     @classmethod
     def from_options(self, output, *, nmr_peaks, options, **kwargs):
         """
@@ -374,13 +387,12 @@ class NMR_graph_maker(Spectroscopy_graph_maker):
         """
         return self(
             output,
-            Spectroscopy_graph([(peak['shift'], peak['intensity']) for group_peaks in nmr_peaks.values() for peak in group_peaks]),
-            **{
-                "enable_rendering": options['nmr']['enable_rendering'],
-                "fwhm": options['nmr']['fwhm'],
-                "gaussian_cutoff": options['nmr']['gaussian_cutoff'],
-                "gaussian_resolution": options['nmr']['gaussian_resolution'],
-            },
+            Combined_graph.from_nmr(nmr_peaks,
+                fwhm = options['nmr']['fwhm'],
+                cutoff = options['nmr']['gaussian_cutoff'],
+                resolution = options['nmr']['gaussian_resolution'],
+            ),
+            enable_rendering = options['nmr']['enable_rendering'],
             **kwargs
         )
 
@@ -388,16 +400,105 @@ class NMR_graph_maker(Spectroscopy_graph_maker):
         """
         Limit the X axis so all plotted peaks are visible.
         """
-        # We use automatic X scaling, except we don't go past 0 and our scale is reversed (this is typical for NMR).
-        self.axes.autoscale(enable = True, axis = 'x')
-        #self.axes.set_xlim(self.axes.get_xlim()[1], 0)
+        super().auto_x_limits()
         self.axes.set_xlim(self.axes.get_xlim()[1], self.axes.get_xlim()[0])
         
     def auto_y_limits(self):
         """
         Limit the y axis so all plotted peaks are visible.
         """
-        # We use automatic Y scaling, except we don't go past 0 and we are reversed (this is typical for IR).
-        self.axes.autoscale(enable = True, axis = 'y')
+        super().auto_y_limits()
         self.axes.set_ylim(0, self.axes.get_ylim()[1])
+
+
+class NMR_graph_zoom_maker(NMR_graph_maker):
+    """
+    A class for generating a zoomed NMR spectrum of a single (split) peak.
+    """
+    
+    def __init__(self, output, graph, focus, plot_background_peaks = False, **kwargs):
+        """
+        Constructor for frequency graphs.
+        
+        :param output: A path to an output file to write to. The extension of this path is used to determine the format of the file (eg, png, jpeg).
+        :param graph: An instance of a silico.result.spectroscopy.Spectroscopy_graph that contains data to plot.
+        :param focus: The name of an atom group to focus on.
+        """
+        # Call our parent.
+        super().__init__(
+            output,
+            graph,
+            plot_peaks = True,
+            plot_bars = True,
+            plot_cumulative_peak = True,
+            x_limits = 'auto',
+            #peak_cutoff = 0.01, # No cutoff, show everything.
+            **kwargs)
+        
+        self.plot_background_peaks = plot_background_peaks
+        self.focus = focus
+        
+        if self.focus not in self.graph.graphs:
+            raise ValueError("The sub-graph '{}' is not recognised".format(self.focus))
+        
+    def auto_x_limits(self):
+        """
+        Limit the X axis so all plotted peaks are visible.
+        """
+        # Get the graph object corresponding to the peak we are interested in.
+        graph = self.graph.graphs[self.focus]
+        
+        # We need to get a list of all peaks that are above our cutoff point.
+        # First determine our highest point.
+        highest_point = max(self.transpose(graph.coordinates)[1])
+        
+        # Now filter by a fraction of that amount.
+        visible_x_values = [x for x, y in graph.plot_cumulative_gaussian() if y >= (highest_point * self.peak_cutoff)]
+        
+        # Now we can just get our min-max, remembering to include our x-padding, and never extending beyond 0 (because negative energy has no meaning in this context(?)).
+        self.axes.set_xlim(
+            max(visible_x_values) + self.x_padding,
+            max(min(visible_x_values) - self.x_padding, 0))
+        
+    def auto_y_limits(self):
+        """
+        Limit the y axis so all plotted peaks are visible.
+        """
+        # Get the graph object corresponding to the peak we are interested in.
+        graph = self.graph.graphs[self.focus]
+        focus_spectrum = self.transpose(graph.plot_cumulative_gaussian())
+        
+        # We need to get a list of all peaks that are above our cutoff point.
+        # First determine our highest point.
+        #highest_point = max(self.transpose(graph.plot_cumulative_gaussian())[1])
+        
+        # Get all peaks.
+        spectrum = self.transpose(self.graph.plot_cumulative_gaussian())
+        
+        # Cut the full spectrum within the limits of our focus graph.
+        cut_start = spectrum[0].index(focus_spectrum[0][0])
+        cut_end = spectrum[0].index(focus_spectrum[0][-1])
+        
+        cut_spectrum = (spectrum[0][cut_start:cut_end], spectrum[1][cut_start:cut_end])
+        highest_point = max(cut_spectrum[1])
+        
+        # Clamp to 0 -> pos.
+        self.axes.set_ylim(0, highest_point * 1.1)
+        
+    def plot_lines(self):
+        """
+        Plot x and y values as individual lines on the graph we are building.
+        """
+        if self.plot_background_peaks:
+            for graph_name, graph in self.graph.graphs.items():
+                if graph_name != self.focus:
+                    plot = graph.plot_cumulative_gaussian()
+                    data = self.transpose(plot)
+                    self.axes.plot(*data, 'C0--', linewidth = self.linewidth)
+                
+        # Plot our focus last (so it appears on top).
+        plot = self.graph.graphs[self.focus].plot_cumulative_gaussian()
+        data = self.transpose(plot)
+        self.axes.plot(*data, 'r-', linewidth = self.cumulative_linewidth)
+        
         
