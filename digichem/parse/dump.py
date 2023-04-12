@@ -24,13 +24,13 @@ class Dump_multi_parser_abc(Parser_abc):
     ABC for classes that can read multiple result sets from dumped data.
     """
     
-    def __init__(self, input_file, *other_log_files, raw_data = None, **aux_files):
+    def __init__(self, input_file, *other_log_files, raw_data = None, **auxiliary_files):
         """
         Top level constructor for calculation parsers.
         
         :param input_file: The path to read from.
         """
-        # Neither other_log_files nor aux_files are currently used...
+        # Neither other_log_files nor auxiliary_files are currently used...
         super().__init__(input_file, raw_data = raw_data)
         self.all_results = []
         
@@ -45,6 +45,19 @@ class Dump_multi_parser_abc(Parser_abc):
     @results.setter
     def results(self, value):
         pass
+    
+    def post_parse(self):
+        """
+        Perform any required operations after line-by-line parsing.
+        """
+        for result in self.data:
+            # Add current username.
+            # TODO: It would probably be better if we used the name of the user who owns the output file, rather than the current user...
+            result['metadata']['user'] = self.get_current_username()
+            
+            # Set our file paths.
+            result['metadata']['log_files'] = self.log_file_paths
+            result['metadata']['auxiliary_files'] = {}
     
     def get_sub_parser(self):
         raise NotImplementedError("Implement in subclass")
@@ -80,7 +93,7 @@ class Yaml_multi_parser(Dump_multi_parser_abc):
     def get_sub_parser(self):
         return Yaml_parser
     
-    def parse(self):
+    def _parse(self):
         """
         Extract results from our output files.
         """
@@ -98,7 +111,7 @@ class Json_multi_parser(Dump_multi_parser_abc):
     def get_sub_parser(self):
         return Json_parser
     
-    def parse(self):
+    def _parse(self):
         """
         Extract results from our output files.
         """
@@ -113,13 +126,13 @@ class Dump_parser_abc(Parser_abc):
     ABC for parsers that read dumped data.
     """
     
-    def __init__(self, input_file, *other_log_files, raw_data = None, **aux_files):
+    def __init__(self, input_file, *other_log_files, raw_data = None, **auxiliary_files):
         """
         Top level constructor for calculation parsers.
         
         :param input_file: The path to the input file to read.
         """
-        # Neither other_log_files nor aux_files are currently used...
+        # Neither other_log_files nor auxiliary_files are currently used...
         super().__init__(input_file, raw_data = raw_data)
         
     @classmethod
@@ -199,7 +212,7 @@ class Yaml_parser(Dump_parser_abc):
     Parser for reading from dumped result sets in yaml format.
     """
     
-    def parse(self):
+    def _parse(self):
         """
         Extract results from our output files.
         """
@@ -214,7 +227,7 @@ class Json_parser(Dump_parser_abc):
     Parser for reading from TinyDB json files.
     """
     
-    def parse(self):
+    def _parse(self):
         """
         Extract results from our output files.
         """

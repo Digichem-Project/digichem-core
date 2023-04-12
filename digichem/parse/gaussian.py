@@ -100,7 +100,7 @@ class Gaussian_parser(Cclib_parser):
             raise Result_unavailable_error("Spin-orbit coupling", "There are no excited states available")
         
         # Get a PySOC parser.
-        soc_calculator = pysoc.io.SOC.Calculator(self.log_file_path, rwf_file_name = self.aux_files['rwf_file'])
+        soc_calculator = pysoc.io.SOC.Calculator(self.log_file_path, rwf_file_name = self.auxiliary_files['rwf_file'])
         soc_calculator.calculate()
         SOC_table = soc_calculator.soc_td.SOC
         

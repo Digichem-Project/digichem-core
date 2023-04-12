@@ -107,7 +107,46 @@ class Parser_abc():
         """
         Extract results from our output files.
         """
+        self._parse()
+    
+        # Make any final adjustments.
+        self.post_parse()
+    
+    def _parse(self):
+        """
+        Extract results from our output files.
+        """
         raise NotImplementedError("Implement in subclass")
+        
+    @classmethod
+    def get_current_username(self):
+        """
+        Get the username of the currently logged in user.
+        
+        :returns: The username as a string, or None if the username could not be determined.
+        """
+        # Based on https://stackoverflow.com/questions/842059/is-there-a-portable-way-to-get-the-current-username-in-python
+        try:
+            return pwd.getpwuid(os.getuid()).pw_name
+        
+        except Exception as e:
+            return None
+        
+    def post_parse(self):
+        """
+        Perform any required operations after line-by-line parsing.
+        """
+        # Add our name.
+        if self.name is not None:
+            self.data.metadata['name'] = self.name
+            
+        # Add current username.
+        # TODO: It would probably be better if we used the name of the user who owns the output file, rather than the current user...
+        self.data.metadata['user'] = self.get_current_username()
+        
+        # Set our file paths.
+        self.data.metadata['log_files'] = self.log_file_paths
+        self.data.metadata['auxiliary_files'] = self.auxiliary_files
             
     def process_all(self, options):
         """
@@ -191,15 +230,15 @@ class Cclib_parser(Parser_abc):
     # A dictionary of recognised auxiliary file types.
     INPUT_FILE_TYPES = {}
     
-    def __init__(self, *log_files, **aux_files):
+    def __init__(self, *log_files, **auxiliary_files):
         """
         Top level constructor for calculation parsers.
         
         :param log_files: A list of output file to analyse/parse. The first log_file given will be used for naming purposes.
-        :param aux_files: A dictionary of auxiliary input files related to the calculation.
+        :param auxiliary_files: A dictionary of auxiliary input files related to the calculation.
         """
         # Also save our aux files, stripping None.
-        self.aux_files = {name: aux_file for name,aux_file in aux_files.items() if aux_file is not None}
+        self.auxiliary_files = {name: aux_file for name,aux_file in auxiliary_files.items() if aux_file is not None}
         
         super().__init__(*log_files)
         
@@ -211,18 +250,18 @@ class Cclib_parser(Parser_abc):
         :param given_log_files: Output file(s) to parse or a directory of output files to parse.
         """
         # Have a look for aux. files.
-        aux_files = {}
+        auxiliary_files = {}
         
         for found_log_file in log_files:
-            aux_files.update(self.find_aux_files(found_log_file))
+            auxiliary_files.update(self.find_auxiliary_files(found_log_file))
             
-        # Finally, update our aux_files with kwargs, so any user specified aux files take precedence.
-        aux_files.update(kwargs)
+        # Finally, update our auxiliary_files with kwargs, so any user specified aux files take precedence.
+        auxiliary_files.update(kwargs)
         
-        return self(*log_files, **aux_files)
+        return self(*log_files, **auxiliary_files)
     
     @classmethod
-    def find_aux_files(self, hint):
+    def find_auxiliary_files(self, hint):
         """
         Find auxiliary files from a given hint.
         
@@ -232,15 +271,15 @@ class Cclib_parser(Parser_abc):
         hint = Path(hint)
         
         # Now have a look for aux. input files, which are defined by each parser's INPUT_FILE_TYPES
-        aux_files = {}
+        auxiliary_files = {}
         for file_type in self.INPUT_FILE_TYPES:
             for extension in file_type.extensions:
                 if hint.with_suffix(extension).exists():
-                    aux_files[self.INPUT_FILE_TYPES[file_type]] = hint.with_suffix(extension)
+                    auxiliary_files[self.INPUT_FILE_TYPES[file_type]] = hint.with_suffix(extension)
         
-        return aux_files
+        return auxiliary_files
     
-    def parse(self):
+    def _parse(self):
         """
         Extract results from our output files.
         
@@ -269,9 +308,6 @@ class Cclib_parser(Parser_abc):
                 for line in log_file:
                     self.parse_output_line(log_file, line)
         
-        # Make any final adjustments.
-        self.post_parse()
-        
     def parse_output_line(self, log_file, line):
         """
         Perform custom line-by-line parsing of an output file.
@@ -286,36 +322,6 @@ class Cclib_parser(Parser_abc):
         Perform any setup before line-by-line parsing.
         """
         # Do nothing.
-        
-    def post_parse(self):
-        """
-        Perform any required operations after line-by-line parsing.
-        """
-        # Add our name.
-        if self.name is not None:
-            self.data.metadata['name'] = self.name
-            
-        # Add current username.
-        # TODO: It would probably be better if we used the name of the user who owns the output file, rather than the current user...
-        self.data.metadata['user'] = self.get_current_username()
-        
-        # Set our file paths.
-        self.data.metadata['log_files'] = self.log_file_paths
-        self.data.metadata['aux_files'] = self.aux_files
-        
-    @classmethod
-    def get_current_username(self):
-        """
-        Get the username of the currently logged in user.
-        
-        :returns: The username as a string, or None if the username could not be determined.
-        """
-        # Based on https://stackoverflow.com/questions/842059/is-there-a-portable-way-to-get-the-current-username-in-python
-        try:
-            return pwd.getpwuid(os.getuid()).pw_name
-        
-        except Exception as e:
-            return None
         
     @classmethod
     def au_to_debye(self, au):

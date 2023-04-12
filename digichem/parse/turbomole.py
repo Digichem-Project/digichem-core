@@ -111,7 +111,7 @@ class Turbomole_parser(Cclib_parser):
         #  |    ---------------------- Excited state
         #  --------------------------- Method (MP2, ADC(2), CC2). 
         #
-        # Each found density file will be stored under aux_files['excited_state_cao_files'][state_symbol] where state_symbol is the corresponding state, eg S(1).
+        # Each found density file will be stored under auxiliary_files['excited_state_cao_files'][state_symbol] where state_symbol is the corresponding state, eg S(1).
         # If we have no excited states we can skip this altogether.
         if len(self.results.excited_states) != 0:
             for log_file in self.log_file_paths:
@@ -143,7 +143,7 @@ class Turbomole_parser(Cclib_parser):
                     
                     state_num += 1
                     
-                # Update aux_files with new files.
+                # Update auxiliary_files with new files.
                 if len(excited_densities) > 0:
                     try:
                         self.results.metadata.auxiliary_files['excited_state_cao_files'].update(excited_densities)
@@ -157,14 +157,14 @@ class Turbomole_parser(Cclib_parser):
         return self.results
             
     @classmethod
-    def find_aux_files(self, hint):
+    def find_auxiliary_files(self, hint):
         """
         Find auxiliary files from a given hint.
         
         :param hint: A path to a file to use as a hint to find additional files.
         :returns: A dictionary of found aux files.
         """
-        aux_files = super().find_aux_files(hint)
+        auxiliary_files = super().find_auxiliary_files(hint)
         
         parent = pathlib.Path(hint).parent
             
@@ -182,16 +182,16 @@ class Turbomole_parser(Cclib_parser):
         ground_densities.sort()
         
         if len(ground_densities) > 0:
-            aux_files['ground_state_cao_file'] = pathlib.Path(ground_densities[0])
+            auxiliary_files['ground_state_cao_file'] = pathlib.Path(ground_densities[0])
         
         # Print a warning if there's more than one (because we don't know how to handle that scenario).
         if len(ground_densities) > 1:
-            warnings.warn("Found multiple ground state density files in Turbomole calculation directory '{}'; using file '{}' and ignoring '{}'".format(parent, pathlib.Path(aux_files['ground_state_cao_file']).name, ", ".join([pathlib.Path(density).name for density in ground_densities[1:]])))
+            warnings.warn("Found multiple ground state density files in Turbomole calculation directory '{}'; using file '{}' and ignoring '{}'".format(parent, pathlib.Path(auxiliary_files['ground_state_cao_file']).name, ", ".join([pathlib.Path(density).name for density in ground_densities[1:]])))
         
         ######################################################################################################
         # Note that excited state densities are also located, but this is done in the process() method. #
         ######################################################################################################
         
-        return aux_files
+        return auxiliary_files
 
     

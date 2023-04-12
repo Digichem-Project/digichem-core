@@ -152,7 +152,7 @@ def class_from_log_files(*log_files, format_hint = "auto"):
     else:
         return Cclib_parser
 
-def from_log_files(*log_files, format_hint = "auto", **aux_files):
+def from_log_files(*log_files, format_hint = "auto", **auxiliary_files):
     """
     Get an output file parser of appropriate type.
     
@@ -161,9 +161,9 @@ def from_log_files(*log_files, format_hint = "auto", **aux_files):
     :param format_hint: A hint as to the format of the given log files. Either 'auto' (to guess), 'log' (calc log file), 'sir' (silico result file) or 'sid' (silico database file).
     """
     log_files = find_log_files(*log_files)
-    return class_from_log_files(*log_files, format_hint = format_hint).from_logs(*log_files, **aux_files)
+    return class_from_log_files(*log_files, format_hint = format_hint).from_logs(*log_files, **auxiliary_files)
     
-def parse_calculation(*log_files, options, parse_all = False, format_hint = "auto", keep_archive = False, **aux_files):
+def parse_calculation(*log_files, options, parse_all = False, format_hint = "auto", keep_archive = False, **auxiliary_files):
     """
     Parse a single calculation result.
     
@@ -171,25 +171,25 @@ def parse_calculation(*log_files, options, parse_all = False, format_hint = "aut
     :param options: A Silico options nested dictionary containing options to control parsing.
     :param parse_all: Whether to parse all results in the given log file. If True, a list of result sets will be returned, if False, only the first result will be returned if there are multiple.
     :param format_hint: A hint as to the format of the given log files. Either 'auto' (to guess), 'log' (calc log file), 'sir' (silico result file) or 'sid' (silico database file).
-    :param aux_files: Optional auxiliary calculation files corresponding to the calculation.
+    :param auxiliary_files: Optional auxiliary calculation files corresponding to the calculation.
     :return: A single Result_set object.
     """        
     # Handle aux files.
     # Auxiliary files are files associated with a calculation but that do not contain calculation output directly (they are not log files).
     # Often, these files are written in a program-dependent binary format, and may be used for eg, program restarting, post-calculations, or image generation.
     # For example, common aux files for Gaussian include: .chk, .fchk and .rwf.
-    # Auxiliary files to associate with a log file(s) can be given by the aux_files key-word argument, but this is cumbersome in some instances.
+    # Auxiliary files to associate with a log file(s) can be given by the auxiliary_files key-word argument, but this is cumbersome in some instances.
     # Alternatively, aux files can be given as normal log_files by prefixing the file name with 'aux':, where aux is the type of file.
     # For example, a chk file could be given as "chk:calc/output.chk".
     real_log_files = []
     for maybe_log_file in log_files:
         maybe_log_file = str(maybe_log_file)
         found = False
-        # Loop through all known aux_files:
+        # Loop through all known auxiliary_files:
         for file_type, aux_file_name in itertools.chain(Gaussian_parser.INPUT_FILE_TYPES.items(), Turbomole_parser.INPUT_FILE_TYPES.items(), Orca_parser.INPUT_FILE_TYPES.items()):
             code_len = len(file_type.short_code) +1
             if maybe_log_file[:code_len] == file_type.short_code + ":":
-                aux_files[aux_file_name] = maybe_log_file[code_len:]
+                auxiliary_files[aux_file_name] = maybe_log_file[code_len:]
             
                 # Done.
                 found = True
@@ -213,10 +213,10 @@ def parse_calculation(*log_files, options, parse_all = False, format_hint = "aut
         open_log_files = archive.open()
         
         if parse_all:
-            results = from_log_files(*open_log_files, format_hint = format_hint, **aux_files).process_all(options)
+            results = from_log_files(*open_log_files, format_hint = format_hint, **auxiliary_files).process_all(options)
         
         else:       
-            results = from_log_files(*open_log_files, format_hint = format_hint, **aux_files).process(options)
+            results = from_log_files(*open_log_files, format_hint = format_hint, **auxiliary_files).process(options)
         
     finally:
         if not keep_archive:
@@ -234,12 +234,12 @@ def parse_calculation(*log_files, options, parse_all = False, format_hint = "aut
 #     with open_for_parsing(*log_files) as open_log_files:
 #         
 #         if parse_all:
-#             return from_log_files(*open_log_files, format_hint = format_hint, **aux_files).process_all(options)
+#             return from_log_files(*open_log_files, format_hint = format_hint, **auxiliary_files).process_all(options)
 #         
 #         else:       
-#             return from_log_files(*open_log_files, format_hint = format_hint, **aux_files).process(options)
+#             return from_log_files(*open_log_files, format_hint = format_hint, **auxiliary_files).process(options)
 
-def multi_parser(log_files, aux_files, *, options, format_hint = "auto", keep_archive = False):
+def multi_parser(log_files, auxiliary_files, *, options, format_hint = "auto", keep_archive = False):
         """
         The inner function which will be called in parallel to parse files.
         """
@@ -260,20 +260,20 @@ def multi_parser(log_files, aux_files, *, options, format_hint = "auto", keep_ar
             logs = (log_files,)
         
         try:    
-            return parse_calculation(*logs, options = options, parse_all = True, format_hint = format_hint, keep_archive = keep_archive, **aux_files)
+            return parse_calculation(*logs, options = options, parse_all = True, format_hint = format_hint, keep_archive = keep_archive, **auxiliary_files)
             
         except Exception:
             silico.log.get_logger().warning("Unable to parse calculation result file '{}'; skipping".format(logs[0]), exc_info = True)
             return None
 
-def parse_multiple_calculations(*log_files, aux_files = None, options, pool = None, init_func = None, init_args = None, format_hint = "auto", processes = 1, keep_archive = False):
+def parse_multiple_calculations(*log_files, auxiliary_files = None, options, pool = None, init_func = None, init_args = None, format_hint = "auto", processes = 1, keep_archive = False):
     """
     Parse a number of separate calculation results in parallel.
     
     If the argument 'pool' is not given, a multiprocessing.pool object will first be created using the arguments init_func and num_cpu.
     
     :param log_files: A number of calculation result files corresponding to different calculations. Each item can optionally be a list itself, to specify files from the same calculation but which are spread across multiple files.
-    :param aux_files: A list of dicts of aux files. The ordering of the dicts should correspond to that of log_files.
+    :param auxiliary_files: A list of dicts of aux files. The ordering of the dicts should correspond to that of log_files.
     :param options: A Silico options nested dictionary containing options to control parsing.
     :param pool: An optional subprocessing.pool object to use for parallel parsing.
     :param init_func: An optional function to call to init each newly created process.
@@ -284,8 +284,8 @@ def parse_multiple_calculations(*log_files, aux_files = None, options, pool = No
         # Give up now.
         return []
     
-    if aux_files is None:
-        aux_files = [{}] * len(log_files)
+    if auxiliary_files is None:
+        auxiliary_files = [{}] * len(log_files)
     
     if len(log_files) < processes:
         processes = len(log_files)
@@ -303,8 +303,8 @@ def parse_multiple_calculations(*log_files, aux_files = None, options, pool = No
     try:
         result_lists = list(
             filterfalse(lambda x: x is None,
-                #pool.starmap(partial(multi_parser, options = options, format_hint = format_hint, keep_archive = keep_archive), zip_longest(log_files, aux_files, fillvalue = {}))
-                pool.map(partial(multi_parser, options = options, format_hint = format_hint, keep_archive = keep_archive), *transpose(list(zip_longest(log_files, aux_files, fillvalue = {})), 2))
+                #pool.starmap(partial(multi_parser, options = options, format_hint = format_hint, keep_archive = keep_archive), zip_longest(log_files, auxiliary_files, fillvalue = {}))
+                pool.map(partial(multi_parser, options = options, format_hint = format_hint, keep_archive = keep_archive), *transpose(list(zip_longest(log_files, auxiliary_files, fillvalue = {})), 2))
             )
         )
         
@@ -318,8 +318,10 @@ def parse_multiple_calculations(*log_files, aux_files = None, options, pool = No
         # Do some cleanup if we need to.
         if own_pool:
             pool.close()
+            # This seems to be necessary to stop an at-exit hang.
+            pool.terminate()
     
-def parse_and_merge_calculations(*log_files, aux_files = None, options, format_hint = "auto", inner_pool = None, keep_archive = False):
+def parse_and_merge_calculations(*log_files, auxiliary_files = None, options, format_hint = "auto", inner_pool = None, keep_archive = False):
     """
     Get a single result object by parsing a number of computational log files.
     
@@ -333,10 +335,10 @@ def parse_and_merge_calculations(*log_files, aux_files = None, options, format_h
     :param log_files: A list of paths to computational chemistry log files to parse. If more than one file is given, each is assumed to correspond to a separate calculation in which case the parsed results will be merged together. In addition, each given 'log file' can be an iterable of log file paths, which will be considered to correspond to an individual calculation.
     :param options: A Silico options nested dictionary containing options to control parsing.: An alignment class to use to reorientate each molecule.
     :param format_hint: A hint as to the format of the given log files. Either 'auto' (to guess), 'log' (calc log file), 'sir' (silico result file) or 'sid' (silico database file).
-    :param aux_files: A list of dictionaries of auxiliary files. The ordering of aux_files should match that of log_files.
+    :param auxiliary_files: A list of dictionaries of auxiliary files. The ordering of auxiliary_files should match that of log_files.
     :return: A single Result_set object (or child thereof).
     """    
-    parsed_results = parse_multiple_calculations(*log_files, options = options, format_hint = format_hint, pool = inner_pool, aux_files = aux_files, keep_archive = keep_archive)
+    parsed_results = parse_multiple_calculations(*log_files, options = options, format_hint = format_hint, pool = inner_pool, auxiliary_files = auxiliary_files, keep_archive = keep_archive)
     
     # If we asked for archives as well, unpack.
     if keep_archive:
@@ -358,18 +360,18 @@ def parse_and_merge_calculations(*log_files, aux_files = None, options, format_h
     else:
         return parsed_results
             
-def multi_merger_parser(log_files, aux_files, *, options, format_hint = "auto" , inner_pool = None, keep_archive = False):
+def multi_merger_parser(log_files, auxiliary_files, *, options, format_hint = "auto" , inner_pool = None, keep_archive = False):
         """
         The inner function which will be called in parallel to parse files.
         """
         try:
-            return parse_and_merge_calculations(*log_files, options = options, format_hint = format_hint, inner_pool = inner_pool, aux_files = aux_files, keep_archive = keep_archive)
+            return parse_and_merge_calculations(*log_files, options = options, format_hint = format_hint, inner_pool = inner_pool, auxiliary_files = auxiliary_files, keep_archive = keep_archive)
             
         except Exception:
             silico.log.get_logger().warning("Unable to parse and merge calculation results '{}'; skipping".format(", ".join([str(log_file) for log_file in log_files])), exc_info = True)
             return None
 
-def parse_and_merge_multiple_calculations(*multiple_results, options, format_hint = "auto", init_func = None, init_args = None, processes = None, aux_files = None, keep_archive = False):
+def parse_and_merge_multiple_calculations(*multiple_results, options, format_hint = "auto", init_func = None, init_args = None, processes = None, auxiliary_files = None, keep_archive = False):
     """
     Parse a number of separate calculation results in parallel, merging some or all of the results into combined result sets.
     
@@ -379,11 +381,11 @@ def parse_and_merge_multiple_calculations(*multiple_results, options, format_hin
     :param pool: An optional subprocessing.pool object to use for parallel parsing.
     :param init_func: An optional function to call to init each newly created process.
     :param processes: The max number of processes to create the new pool object with.
-    :param aux_files: An optional list of lists of dicts of auxiliary files. Each item in aux_files should match the corresponding log file in multiple_results.
+    :param auxiliary_files: An optional list of lists of dicts of auxiliary files. Each item in auxiliary_files should match the corresponding log file in multiple_results.
     :return: A single Result_set object (or child thereof).
     """
-    if aux_files is None:
-        aux_files = [None] * len(multiple_results)
+    if auxiliary_files is None:
+        auxiliary_files = [None] * len(multiple_results)
     
     # Do some parsing.
     # TODO: This parallelization isn't ideal, currently we process each group of to-be merged calcs separately, meaning processes can be wasted.
@@ -395,7 +397,7 @@ def parse_and_merge_multiple_calculations(*multiple_results, options, format_hin
         
         result_lists = list(
             filterfalse(lambda x: x is None,
-                map(partial(multi_merger_parser, options = options, format_hint = format_hint, inner_pool = pool, keep_archive = keep_archive), multiple_results, aux_files)
+                map(partial(multi_merger_parser, options = options, format_hint = format_hint, inner_pool = pool, keep_archive = keep_archive), multiple_results, auxiliary_files)
             )
         )
         

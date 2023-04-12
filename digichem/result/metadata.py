@@ -312,7 +312,7 @@ class Metadata(Result_object):
                 name = parser.data.metadata.get('name', None),
                 user = parser.data.metadata.get('user', None),
                 log_files = parser.data.metadata.get('log_files', None),
-                auxiliary_files = parser.data.metadata.get('aux_files', None),
+                auxiliary_files = parser.data.metadata.get('auxiliary_files', None),
                 date = date,
                 duration = duration,
                 package = parser.data.metadata.get('package', None),
