@@ -55,7 +55,7 @@ class Spectroscopy_graph_abc():
                 coords[x] = coords.get(x, 0) + y
                 
         # Now return as list of tuples.
-        return list(coords.items())
+        return sorted(list(coords.items()), key = lambda coord: coord[0])
     
     @classmethod
     def gaussian(self, a, b, c, x):
@@ -195,10 +195,13 @@ class Spectroscopy_graph(Spectroscopy_graph_abc):
         # Next, determine the limits in which we'll plot.
         limits = self.gaussian_limits()
         
+        # Apply rounding to nearest resolution step cover up floating-point errors.
+        points = [self.resolution *round(point / self.resolution) for point in numpy.linspace(*limits)]
+        
         # Plot and return.
         silico.log.get_logger().info("Plotting gaussian peaks from {:0.2f} to {:0.2f} with a step size of {} ({} total points) for {} peaks ({} total iterations)".format(limits[0], limits[1], self.resolution, * limits[2], len(self.base_coordinates), len(self.base_coordinates) * limits[2]))
         gaussians = [
-            [(x, self.gaussian(a, b, c, x)) for x in numpy.linspace(*limits)]
+            [(x, self.gaussian(a, b, c, x)) for x in points]
             for b, a in self.base_coordinates
         ]
         
@@ -222,10 +225,13 @@ class Spectroscopy_graph(Spectroscopy_graph_abc):
         # Next, determine the limits in which we'll plot.
         limits = self.gaussian_limits()
         
+        # Apply rounding to nearest resolution step cover up floating-point errors.
+        points = [self.resolution *round(point / self.resolution) for point in numpy.linspace(*limits)]
+        
         # Plot and return.
         silico.log.get_logger().info("Plotting cumulative gaussian peaks from {:0.2f} to {:0.2f} with a step size of {} ({} total points) for {} peaks ({} total iterations)".format(limits[0], limits[1], self.resolution, limits[2], len(self.base_coordinates), len(self.base_coordinates) * limits[2]))
         gaussian = [
-            (x, sum((self.gaussian(a, b, c, x) for b, a in self.base_coordinates))) for x in numpy.linspace(*limits)
+            (x, sum((self.gaussian(a, b, c, x) for b, a in self.base_coordinates))) for x in points
         ]
         
         return gaussian
@@ -251,19 +257,30 @@ class Spectroscopy_graph(Spectroscopy_graph_abc):
                 raise Silico_exception("'{}' cannot plot spectrum; there are no values".format(type(self).__name__))
             else:
                 raise
+            
+        # Align our start and end points to an integer multiple of resolution.
+        # This is necessary to facilitate easy summation of gaussians (because they all align to the same grid,
+        # assuming the same value of resolution)
+        start = math.floor(limits[0] / self.resolution) * self.resolution
+        end = math.ceil(limits[1] / self.resolution) * self.resolution
         
         # Now we need to generate the x values which we'll plot for.
         # This is a little more complicated than it needs to be because there's no simple range() for floats.
         # Calculate the number of points (and round up).
-        num_points = round( math.fabs(limits[1] - limits[0]) / self.resolution)
+        #num_points = round( math.fabs(limits[1] - limits[0]) / self.resolution)
+        num_points = round( math.fabs(end - start) / self.resolution)
+        
+#         # Unless we happened to be already aligned, we are now missing a fraction of a point. Add one back.
+#         if limits[0] - start != 0:
+#             num_points += 1
         
         # Extend our limits so they are a clean multiple of num_points.
-        limits = (limits[0], limits[0] + num_points * self.resolution)
-        
-        # And now shift our limits so they are still centred.
-        xs = [x for x, y in self.base_coordinates]
-        centre = (max(xs) - min(xs)) /2 + min(xs)
-        limits = (centre - ((limits[1] - limits[0]) / 2) , centre + ((limits[1] - limits[0]) / 2))
+        limits = (start, start + num_points * self.resolution)
+#         
+#         # And now shift our limits so they are still centred.
+#         xs = [x for x, y in self.base_coordinates]
+#         centre = (max(xs) - min(xs)) /2 + min(xs)
+#         limits = (centre - ((limits[1] - limits[0]) / 2) , centre + ((limits[1] - limits[0]) / 2))
 
         return (limits[0], limits[1], num_points +1)
     
@@ -369,7 +386,7 @@ class Combined_graph(Spectroscopy_graph_abc):
         
         Note that this property may be transformed into different units, use base_coordinates for untransformed variant.
         """
-        return list(itertools.chain([graph.coordinates for graph in self.graphs.values()]))
+        return list(itertools.chain(*[graph.coordinates for graph in self.graphs.values()]))
         
     def plot_gaussian(self):
         """
