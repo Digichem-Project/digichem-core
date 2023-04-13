@@ -375,7 +375,7 @@ class NMR_graph_maker(Spectroscopy_graph_maker):
         self.inch_per_x = 15
         
         self.linewidth = 0.5
-        self.cumulative_linewidth = 1
+        self.cumulative_linewidth = 0.5
         self.column_linewidth = 0.5
         
         self.x_padding = 0.05
@@ -438,6 +438,8 @@ class NMR_graph_zoom_maker(NMR_graph_maker):
         self.plot_background_peaks = plot_background_peaks
         self.focus = focus
         
+        self.cumulative_linewidth = 1
+        
         if self.focus not in self.graph.graphs:
             raise ValueError("The sub-graph '{}' is not recognised".format(self.focus))
         
@@ -468,14 +470,13 @@ class NMR_graph_zoom_maker(NMR_graph_maker):
         graph = self.graph.graphs[self.focus]
         focus_spectrum = self.transpose(graph.plot_cumulative_gaussian())
         
-        # We need to get a list of all peaks that are above our cutoff point.
-        # First determine our highest point.
-        #highest_point = max(self.transpose(graph.plot_cumulative_gaussian())[1])
-        
         # Get all peaks.
         spectrum = self.transpose(self.graph.plot_cumulative_gaussian())
         
         # Cut the full spectrum within the limits of our focus graph.
+        # NOTE: This works well, but as the plotted graph is normally wider than
+        # just the values of the peak of interest (because of x_padding), there
+        # may still be peaks in view which are cut off...
         cut_start = spectrum[0].index(focus_spectrum[0][0])
         cut_end = spectrum[0].index(focus_spectrum[0][-1])
         
