@@ -223,6 +223,7 @@ To disable the maximum width, set to null.""", type = int, default = 1500),
     
     nmr = Options(help = "Options for controlling simulated NMR spectra",
         enable_rendering = Option(help = "Set to False to disable image rendering.", type = bool, default = True),
+        coupling_filter = Option(help = "Discard J coupling that is below this threshold (in Hz)", type = float, default = 1),
         fwhm = Option(help = "The full-width at half-maximum; changes how wide the drawn peaks are. Note that the choice of peak width is essentially arbitrary; only the peak height is given by calculation. Units are ppm.", type = int, default = 0.005),
         gaussian_cutoff = Option(help = "The minimum y value to plot using the Gaussian function (controls how close to the x axis we draw the gaussian) as a fraction of the max peak height.", type = float, default = 0.01),
         gaussian_resolution = Option(help = "The spacing between x values to plot using the Gaussian function, in ppm. Values that are too large will result in 'curves' made up of a series of straight edges.", type = float, default = 0.0005),
