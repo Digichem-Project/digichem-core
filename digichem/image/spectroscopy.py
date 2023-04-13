@@ -502,4 +502,17 @@ class NMR_graph_zoom_maker(NMR_graph_maker):
         data = self.transpose(plot)
         self.axes.plot(*data, 'r-', linewidth = self.cumulative_linewidth)
         
-        
+    def plot_columns(self):
+        """
+        Plot vertical columns for each plot on the graph we are building.
+        """
+        for graph_name, graph in self.graph.graphs.items():
+            if graph_name != self.focus:
+                columns = [[(x, 0) , (x, y)] for x, y in graph.coordinates]
+                colors = (0,0,0)
+                self.axes.add_collection(matplotlib.collections.LineCollection(columns, linewidths = self.column_linewidth, colors = colors))
+                
+        graph = self.graph.graphs[self.focus]
+        columns = [[(x, 0) , (x, y)] for x, y in graph.coordinates]
+        colors = (1,0,0)
+        self.axes.add_collection(matplotlib.collections.LineCollection(columns, linewidths = self.column_linewidth, colors = colors))
