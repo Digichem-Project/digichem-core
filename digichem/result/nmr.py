@@ -19,7 +19,7 @@ class NMR_spectrometer(Result_object):
     A class for generating NMR spectra on-demand.
     """
     
-    def __init__(self, nmr_results, frequency = 300, fwhm = 0.001, resolution = 0.001, cutoff = 0.01, merge_threshold = None, isotope_options = None):
+    def __init__(self, nmr_results, frequency = 300, fwhm = 0.001, resolution = 0.001, cutoff = 0.01, coupling_filter = 0.0001, merge_threshold = None, isotope_options = None):
         """
         Constructor for NMR_spectrometer.
         
@@ -35,6 +35,7 @@ class NMR_spectrometer(Result_object):
         self.fwhm = fwhm
         self.resolution = resolution
         self.cutoff = cutoff
+        self.coupling_filter = coupling_filter
         self._isotope_options = isotope_options if isotope_options is not None else {}
         
     def isotope_options(self, element, isotope):
@@ -43,6 +44,7 @@ class NMR_spectrometer(Result_object):
             "merge_threshold": self.merge_threshold,
             "fwhm": self.fwhm,
             "resolution": self.resolution,
+            "coupling_filter": self.coupling_filter,
             "cutoff": self.cutoff,
         }
         options.update(self._isotope_options.get((element, isotope), {}))
@@ -59,6 +61,7 @@ class NMR_spectrometer(Result_object):
             fwhm = options['nmr']['fwhm'],
             resolution = options['nmr']['gaussian_resolution'],
             cutoff = options['nmr']['gaussian_cutoff'],
+            coupling_filter = options['nmr']['coupling_filter'],
             merge_threshold = options['nmr']['merge_threshold'],
             isotope_options = options['nmr']['isotopes'],
             **kwargs
@@ -268,7 +271,10 @@ class NMR_spectrometer(Result_object):
                 # Check the main isotope matches.
                 main_index = coupling['groups'].index(nmr_result.group)
                 second_index = 1 if main_index == 0 else 0
-                if coupling['isotopes'][main_index] == isotope:
+                
+                # Only include this coupling if it involves our isotope,
+                # and if it's value is above our filter.
+                if coupling['isotopes'][main_index] == isotope and coupling['total'] > isotope_options['coupling_filter']:
                     no_couple = False
                     # Check we haven't been asked to de-couple this coupling.
                     for decouple_element, decouple_isotope in decoupling:
