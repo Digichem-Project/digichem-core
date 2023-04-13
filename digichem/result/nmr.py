@@ -7,9 +7,9 @@ import re
 
 from silico.result.base import Result_object, Result_container
 from silico.exception.base import Result_unavailable_error
-from silico.misc.base import dict_list_index, regular_range
+from silico.misc.base import dict_list_index, regular_range, powerset
 from silico.result.atom import get_chemical_group_mapping, Atom_group
-from silico.result.spectroscopy import Spectroscopy_graph, Combined_graph
+from silico.result.spectroscopy import Combined_graph
 import silico.log
 
 # TODO: NMR tensors are currently not re-orientated according to the alignment method used.
@@ -72,20 +72,41 @@ class NMR_spectrometer(Result_object):
         """
         Determine which nuclei NMR can be simulated for.
         
-        :return: A set of the available nuclie, each as a tuple of (proton_number, isotope). Note that the special value of 0 is used to indicate isotope-independent data is available. Eg, (6, 0) would indicate isotope-independent (no coupling) carbon NMR. 
+        :return: A set of the available nuclei, each as a tuple of (proton_number, isotope). Note that the special value of 0 is used to indicate isotope-independent data is available. Eg, (6, 0) would indicate isotope-independent (no coupling) carbon NMR. 
         """
         nuclei = set()
         
         for nmr_result in self.nmr_results.values():
             # Add the generic (non-isotope specific) element to our list of supported types.
-            nuclei.add((nmr_result.group.element.number, 0))
+            nuclei.add((nmr_result.group.element.number, 0, ()))
             
-            # Also add any specific isotopes we have coupling for.
+            couplings = {}
+            
+            # Also consider specific isotope coupling.
             for coupling in nmr_result.couplings:
                 main_index = coupling['groups'].index(nmr_result.group)
+                second_index = abs(1 - main_index)
                 
-                nuclei.add((nmr_result.group.element.number, coupling['isotopes'][main_index]))
-        return nuclei
+                if coupling['isotopes'][main_index] not in couplings:
+                    couplings[coupling['isotopes'][main_index]] = set()
+                
+                couplings[coupling['isotopes'][main_index]].add( (coupling['groups'][second_index].element.number, coupling['isotopes'][second_index]) )
+            
+            for isotope, isotope_couplings in couplings.items():
+                for combination in powerset(isotope_couplings):
+                    nuclei.add((nmr_result.group.element.number, isotope, tuple(combination)))
+                
+        return {
+            "{}{}".format(isotope, periodictable.elements[element].symbol) + (
+                "{{{}}}".format(",".join(["{}{}".format(decouple[1], periodictable.elements[decouple[0]]) for decouple in decoupling]))
+                if len(decoupling) > 0 else ""
+            ):
+            {
+            "element": element,
+            "isotope": isotope,
+            #"decoupling": [list(decouple) for decouple in decoupling],
+            "decoupling": list(decoupling)
+        } for element, isotope, decoupling in sorted(nuclei, key = lambda nmr: (nmr[0], nmr[1]))}
     
     def parse_shortcode(self, code):
         """
@@ -107,7 +128,7 @@ class NMR_spectrometer(Result_object):
         element = getattr(periodictable, match_groups[1]).number
         
         decoupling = [tuple(re.search("(\d+)([A-z][A-z]?)", decouple).groups()) for decouple in match_groups[2].split(",") if re.search("(\d+)([A-z][A-z]?)", decouple) is not None]
-        decoupling = [(getattr(periodictable, ele).number, iso) for iso, ele in decoupling]
+        decoupling = [(getattr(periodictable, ele).number, int(iso)) for iso, ele in decoupling]
         
         return element, isotope, decoupling
     
@@ -116,7 +137,13 @@ class NMR_spectrometer(Result_object):
         Can this spectrometer generate a given spectrum.
         """
         element, isotope, decoupling = self.parse_shortcode(item)
-        return (element, isotope) in self.available
+        
+        #for available_element, available_isotope, available_decoupling in self.available.values():
+        for available in self.available.values():
+            if element == available['element'] and isotope == available['isotope'] and sorted(decoupling) == sorted(available['decoupling']):
+                return True
+        
+        return False
     
     def __getitem__(self, item):
         """
@@ -140,7 +167,10 @@ class NMR_spectrometer(Result_object):
     
     def dump(self, silico_options):
         # Return a list of possible spectra we can generate.
-        return list(self.available)
+        return {
+            "codes": list(self.available.keys()),
+            #"available": list(self.available.values()),
+        }
     
     def spectrum(self, element, isotope, decoupling = None):
         """
