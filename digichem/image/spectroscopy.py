@@ -395,6 +395,14 @@ class NMR_graph_maker(Spectroscopy_graph_maker):
             enable_rendering = options['nmr']['enable_rendering'],
             **kwargs
         )
+        
+    def get_zoomed(self, output, focus, options, **kwargs):
+        """
+        Return a zoomed spectrum (a NMR_graph_zoom_maker object) focusing on a single peak.
+        
+        :param focus: The name of a peak.
+        """
+        return NMR_graph_zoom_maker.from_options(output, combined_graph = self.graph, focus = focus, options = options, **kwargs)
 
     def auto_x_limits(self):
         """
@@ -442,6 +450,18 @@ class NMR_graph_zoom_maker(NMR_graph_maker):
         
         if self.focus not in self.graph.graphs:
             raise ValueError("The sub-graph '{}' is not recognised".format(self.focus))
+        
+    @classmethod
+    def from_options(self, output, *, combined_graph, options, **kwargs):
+        """
+        Constructor that takes a dictionary of config like options.
+        """
+        return self(
+            output,
+            combined_graph,
+            enable_rendering = options['nmr']['enable_rendering'],
+            **kwargs
+        )
         
     def auto_x_limits(self):
         """
