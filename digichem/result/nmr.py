@@ -450,8 +450,10 @@ class NMR_list(Result_container):
                 isotope_key: {
                     "groups": [atom_groups[group_sub_key] for group_sub_key in group_key],
                     "isotopes": isotope_key,
+                    # Not sure this is the right thing to do? Disabled for now.
                     # Take the absolute of each coupling.
-                    "total": float(sum(map(abs, isotope_couplings)) / len(isotope_couplings))
+                    #"total": float(sum(map(abs, isotope_couplings)) / len(isotope_couplings))
+                    "total": float(sum(isotope_couplings) / len(isotope_couplings))
                 } for isotope_key, isotope_couplings in  isotopes.items()}
             for group_key, isotopes in group_couplings.items()
         }
