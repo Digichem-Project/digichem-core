@@ -33,8 +33,8 @@ class NMR_spectrometer(Result_object):
         self.frequency = frequency
         self.merge_threshold = merge_threshold
         self.fwhm = fwhm
-        self.resolution = resolution
-        self.cutoff = cutoff
+        self.gaussian_resolution = resolution
+        self.gaussian_cutoff = cutoff
         self.coupling_filter = coupling_filter
         self._isotope_options = isotope_options if isotope_options is not None else {}
         
@@ -43,9 +43,9 @@ class NMR_spectrometer(Result_object):
             "frequency": self.frequency,
             "merge_threshold": self.merge_threshold,
             "fwhm": self.fwhm,
-            "resolution": self.resolution,
+            "gaussian_resolution": self.gaussian_resolution,
             "coupling_filter": self.coupling_filter,
-            "cutoff": self.cutoff,
+            "gaussian_cutoff": self.gaussian_cutoff,
         }
         options.update(self._isotope_options.get((element, isotope), {}))
         return options
@@ -192,14 +192,14 @@ class NMR_spectrometer(Result_object):
          
         # Plot a mini-spectrum for each atom group.
         #spectra = {atom_group: Spectroscopy_graph([(peak['shift'], peak['intensity']) for peak in group_peaks]) for atom_group, group_peaks in peaks.items()}
-        #spectra = {atom_group: Spectroscopy_graph.from_nmr(group_peaks, isotope_options['fwhm'], isotope_options['resolution'], isotope_options['cutoff']) for atom_group, group_peaks in peaks.items()}
+        #spectra = {atom_group: Spectroscopy_graph.from_nmr(group_peaks, isotope_options['fwhm'], isotope_options['gaussian_resolution'], isotope_options['gaussian_cutoff']) for atom_group, group_peaks in peaks.items()}
          
         # Also plot an overall spectrum.
         #spectrum = Spectroscopy_graph([(peak['shift'], peak['intensity']) for group_peaks in peaks.values() for peak in group_peaks])
         # The total spectrum takes all simulated peaks.
         # These are grouped by atom_group, flatten this list before passing to spectroscopy.
-        #spectrum = Spectroscopy_graph.from_nmr([peak for group_peaks in peaks.values() for peak in group_peaks], isotope_options['fwhm'], isotope_options['resolution'], isotope_options['cutoff'])
-        spectrum = Combined_graph.from_nmr(grouped_peaks, isotope_options['fwhm'], isotope_options['resolution'], isotope_options['cutoff'])
+        #spectrum = Spectroscopy_graph.from_nmr([peak for group_peaks in peaks.values() for peak in group_peaks], isotope_options['fwhm'], isotope_options['gaussian_resolution'], isotope_options['gaussian_cutoff'])
+        spectrum = Combined_graph.from_nmr(grouped_peaks, isotope_options['fwhm'], isotope_options['gaussian_resolution'], isotope_options['gaussian_cutoff'])
          
         silico.log.get_logger().info("Simulating broadened NMR peaks for {}{} at {} MHz with {} decoupling".format(
             isotope,
