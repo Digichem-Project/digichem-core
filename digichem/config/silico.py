@@ -224,9 +224,9 @@ To disable the maximum width, set to null.""", type = int, default = 1500),
     nmr = Options(help = "Options for controlling simulated NMR spectra",
         enable_rendering = Option(help = "Set to False to disable image rendering.", type = bool, default = True),
         coupling_filter = Option(help = "Discard J coupling that is below this threshold (in Hz)", type = float, default = 1),
-        fwhm = Option(help = "The full-width at half-maximum; changes how wide the drawn peaks are. Note that the choice of peak width is essentially arbitrary; only the peak height is given by calculation. Units are ppm.", type = int, default = 0.005),
-        gaussian_cutoff = Option(help = "The minimum y value to plot using the Gaussian function (controls how close to the x axis we draw the gaussian) as a fraction of the max peak height.", type = float, default = 0.01),
-        gaussian_resolution = Option(help = "The spacing between x values to plot using the Gaussian function, in ppm. Values that are too large will result in 'curves' made up of a series of straight edges.", type = float, default = 0.0005),
+        fwhm = Option(help = "The full-width at half-maximum; changes how wide the drawn peaks are. Note that the choice of peak width is essentially arbitrary; only the peak height is given by calculation. Units are ppm.", type = int, default = 0.01),
+        gaussian_cutoff = Option(help = "The minimum y value to plot using the Gaussian function (controls how close to the x axis we draw the gaussian) as a fraction of the max peak height.", type = float, default = 0.001),
+        gaussian_resolution = Option(help = "The spacing between x values to plot using the Gaussian function, in ppm. Values that are too large will result in 'curves' made up of a series of straight edges.", type = float, default = 0.001),
         frequency = Option(help = "The frequency to run the simulated spectrometer at. Larger values will result in narrower coupling. Units are MHz", type = float, default = 100),
         merge_threshold = Option(help = "The threshold within which similar peaks will be merged together. Units in ppm.", type = float, default = None),
         references = Option(help = "The chemical shift of a reference peak (in ppm) to use to adjust the spectrum. One for each element.", type = Nested_dict_type, default = {
@@ -236,7 +236,9 @@ To disable the maximum width, set to null.""", type = int, default = 1500),
         
         # TODO: Validation on these sorts of options is poor and needs looking at.
         isotopes = Option(help = "Isotope specific options. Each key should consist of a tuple of (proton_number, isotope).", type = Nested_dict_type, default = {
-            (1, 1): {"frequency": 400},
+            # 1H, increase fidelity to see more detail.
+            (1, 1): {"frequency": 400, "fhwm": 0.005, "gaussian_resolution": 0.0005, "coupling_filter": 0.001},
+            # 13C.
             (6, 13): {"frequency": 70}
         })
     )
