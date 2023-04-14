@@ -7,12 +7,12 @@ import itertools
 
 from silico.config import Config
 from silico.config.silico import Silico_options
-from silico.config.configurable.loader import Partial_loader, Update_loader,\
+from silico.configurable.loader import Partial_loader, Update_loader,\
     Configurable_list
-from silico.config.configurable.loader import Single_loader
-from silico.config.configurable.exception import Configurable_loader_exception
+from silico.configurable.loader import Single_loader
+from silico.configurable.exception import Configurable_loader_exception
 from silico.config.locations import master_config_path, system_config_location, user_config_location
-from silico.config.configurable.util import setopt, appendopt, getopt, hasopt
+from silico.configurable.util import setopt, appendopt, getopt, hasopt
 
 
 class Config_parser():
