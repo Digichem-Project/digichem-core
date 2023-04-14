@@ -212,7 +212,7 @@ Possible options are:
   - 'auto': Limits are set automatically so all peaks are clearly visible.
   - a list of [x_min, x_max], where x_min is the most negative value on the X axis, and x_max is the most positive value on the X axis (both in cm-1).""", type = Auto_type, default = "auto"
         ),
-        fwhm = Option(help = "The full-width at half-maximum; changes how wide the drawn peaks are. Note that the choice of peak width is essentially arbitrary; only the peak height is given by calculation. Units are cm-1.", type = int, default = 80),
+        fwhm = Option(help = "The full-width at half-maximum; changes how wide the drawn peaks are. Note that the choice of peak width is essentially arbitrary; only the peak height is given by calculation. Units are cm-1.", type = float, default = 80),
         max_width = Option(help =\
 """The maximum image width in pixels.
 IR spectra will grow/shrink their width to fit available data, keeping a constant scale (constant pixels to nm ratio) but only up to this maximum.
@@ -224,7 +224,7 @@ To disable the maximum width, set to null.""", type = int, default = 1500),
     nmr = Options(help = "Options for controlling simulated NMR spectra",
         enable_rendering = Option(help = "Set to False to disable image rendering.", type = bool, default = True),
         coupling_filter = Option(help = "Discard J coupling that is below this threshold (in Hz)", type = float, default = 1),
-        fwhm = Option(help = "The full-width at half-maximum; changes how wide the drawn peaks are. Note that the choice of peak width is essentially arbitrary; only the peak height is given by calculation. Units are ppm.", type = int, default = 0.01),
+        fwhm = Option(help = "The full-width at half-maximum; changes how wide the drawn peaks are. Note that the choice of peak width is essentially arbitrary; only the peak height is given by calculation. Units are ppm.", type = float, default = 0.01),
         gaussian_cutoff = Option(help = "The minimum y value to plot using the Gaussian function (controls how close to the x axis we draw the gaussian) as a fraction of the max peak height.", type = float, default = 0.001),
         gaussian_resolution = Option(help = "The spacing between x values to plot using the Gaussian function, in ppm. Values that are too large will result in 'curves' made up of a series of straight edges.", type = float, default = 0.001),
         frequency = Option(help = "The frequency to run the simulated spectrometer at. Larger values will result in narrower coupling. Units are MHz", type = float, default = 100),
