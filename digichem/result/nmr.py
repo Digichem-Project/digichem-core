@@ -171,14 +171,12 @@ class NMR_spectrometer(Result_object):
             "codes": list(self.available.keys()),
             #"available": list(self.available.values()),
         }
-    
-    def spectrum(self, element, isotope, decoupling = None):
-        """
-        Simulate a full NMR spectrum.
         
-        :param element: The element to simulate (as a proton number).
-        :param isotope: The isotope of the element to simulate.
-        :param decoupling: A list of elements to 'decouple' (not consider couplings to). Each element should be specified as a tuple of (proton_number, isotope).
+    def get_graph(self, element, isotope, decoupling = None):
+        """
+        Return a result.spectroscopy.Combined_graph object that can be used to generate a spectrum (with Gaussian broadened peaks) for a given experiment.
+        
+        If you are only interested in the spectrum itself (not the machinery that generates it), try spectrum().
         """
         decoupling = decoupling if decoupling is not None else []
          
@@ -189,17 +187,25 @@ class NMR_spectrometer(Result_object):
          
         # Get options specific to the isotope we're looking at.
         isotope_options = self.isotope_options(element, isotope)
-         
-        # Plot a mini-spectrum for each atom group.
-        #spectra = {atom_group: Spectroscopy_graph([(peak['shift'], peak['intensity']) for peak in group_peaks]) for atom_group, group_peaks in peaks.items()}
-        #spectra = {atom_group: Spectroscopy_graph.from_nmr(group_peaks, isotope_options['fwhm'], isotope_options['gaussian_resolution'], isotope_options['gaussian_cutoff']) for atom_group, group_peaks in peaks.items()}
-         
-        # Also plot an overall spectrum.
-        #spectrum = Spectroscopy_graph([(peak['shift'], peak['intensity']) for group_peaks in peaks.values() for peak in group_peaks])
+        
         # The total spectrum takes all simulated peaks.
         # These are grouped by atom_group, flatten this list before passing to spectroscopy.
-        #spectrum = Spectroscopy_graph.from_nmr([peak for group_peaks in peaks.values() for peak in group_peaks], isotope_options['fwhm'], isotope_options['gaussian_resolution'], isotope_options['gaussian_cutoff'])
-        spectrum = Combined_graph.from_nmr(grouped_peaks, isotope_options['fwhm'], isotope_options['gaussian_resolution'], isotope_options['gaussian_cutoff'])
+        graph = Combined_graph.from_nmr(grouped_peaks, isotope_options['fwhm'], isotope_options['gaussian_resolution'], isotope_options['gaussian_cutoff'])
+        
+        return graph
+    
+    def spectrum(self, element, isotope, decoupling = None):
+        """
+        Simulate a full NMR spectrum.
+        
+        :param element: The element to simulate (as a proton number).
+        :param isotope: The isotope of the element to simulate.
+        :param decoupling: A list of elements to 'decouple' (not consider couplings to). Each element should be specified as a tuple of (proton_number, isotope).
+        """
+        # Get options specific to the isotope we're looking at.
+        isotope_options = self.isotope_options(element, isotope)
+        
+        graph = self.get_graph(element, isotope, decoupling)
          
         silico.log.get_logger().info("Simulating broadened NMR peaks for {}{} at {} MHz with {} decoupling".format(
             isotope,
@@ -211,14 +217,14 @@ class NMR_spectrometer(Result_object):
         values = {
             "values": [
                 {"x":{"value": float(x), "units": "ppm"}, "y": {"value": float(y), "units": "arb"}}
-                for x,y in spectrum.plot_cumulative_gaussian()
+                for x,y in graph.plot_cumulative_gaussian()
             ],
             "groups": {
                 atom_group.label: [
                     {"x":{"value": float(x), "units": "ppm"}, "y": {"value": float(y), "units": "arb"}}
                     for x,y in group_spectrum.plot_cumulative_gaussian()
                 ]
-                for atom_group, group_spectrum in spectrum.graphs.items()
+                for atom_group, group_spectrum in graph.graphs.items()
             }
         }
         silico.log.get_logger().info("Done simulating NMR spectrum")
