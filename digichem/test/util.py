@@ -4,7 +4,7 @@ import pytest
 from pathlib import Path
 import pkg_resources
 
-from silico.config.parser import Config_file_parser
+from silico.config.parse import Config_file_parser
 
 
 def data_directory():
