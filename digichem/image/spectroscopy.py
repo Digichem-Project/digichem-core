@@ -350,15 +350,13 @@ class Frequency_graph_maker(Spectroscopy_graph_maker):
         self.axes.set_ylim(self.axes.get_ylim()[1], 0)
 
 
-class NMR_graph_maker(Spectroscopy_graph_maker):
+class NMR_graph_maker_abc(Spectroscopy_graph_maker):
     """
-    A graph for displaying NMR spectra
+    ABC for NMR spectra.
     """
             
     def __init__(self, output, graph, **kwargs):
-        """
-        Constructor for frequency graphs.
-        
+        """        
         :param output: A path to an output file to write to. The extension of this path is used to determine the format of the file (eg, png, jpeg).
         :param graph: An instance of a silico.result.spectroscopy.Spectroscopy_graph that contains data to plot.
         """
@@ -367,8 +365,8 @@ class NMR_graph_maker(Spectroscopy_graph_maker):
         
         # Axes labels.
         self.x_label = "Chemical Shift /ppm"
-        self.y_label = ""
-        self.hide_y = True
+        self.y_label = "Arbitrary Units"
+        #self.hide_y = True
         self.max_width = 1600
         
         # Space to allocate per unit of the y axis.
@@ -379,19 +377,47 @@ class NMR_graph_maker(Spectroscopy_graph_maker):
         self.column_linewidth = 0.5
         
         self.x_padding = 0.05
+
+
+class NMR_graph_maker(NMR_graph_maker_abc):
+    """
+    A graph for displaying NMR spectra
+    """
+    
+    def __init__(self, output, graph, **kwargs):
+        """        
+        :param output: A path to an output file to write to. The extension of this path is used to determine the format of the file (eg, png, jpeg).
+        :param graph: An instance of a silico.result.spectroscopy.Spectroscopy_graph that contains data to plot.
+        """
+        # Call our parent.
+        super().__init__(output, graph, **kwargs)
+        
+        self.x_padding = None
+        self.x_padding_percent = 0.1
+        
+        # NMR graphs have a range of different units depending on the atom and isotope being studied.
+        # For example, 1H NMR typically range from ~10 -> 0
+        # 13C typically range from 300-200 -> 0 etc.
+        # To account for this, the 'scale' (in pixels) of the x-axis will be adjusted depending on the
+        # range of values we have.
+        # This is in inches.
+        self.target_width = 10
+        
+        # Space to allocate per unit of the y axis.
+        self.inch_per_x = None
+        
+        self.linewidth = 0.5
+        self.cumulative_linewidth = 0.5
+        self.column_linewidth = 0.5
     
     @classmethod
-    def from_options(self, output, *, nmr_peaks, options, **kwargs):
+    def from_options(self, output, graph, *, options, **kwargs):
         """
         Constructor that takes a dictionary of config like options.
         """
         return self(
             output,
-            Combined_graph.from_nmr(nmr_peaks,
-                fwhm = options['nmr']['fwhm'],
-                cutoff = options['nmr']['gaussian_cutoff'],
-                resolution = options['nmr']['gaussian_resolution'],
-            ),
+            graph,
             enable_rendering = options['nmr']['enable_rendering'],
             **kwargs
         )
@@ -402,14 +428,49 @@ class NMR_graph_maker(Spectroscopy_graph_maker):
         
         :param focus: The name of a peak.
         """
-        return NMR_graph_zoom_maker.from_options(output, combined_graph = self.graph, focus = focus, options = options, **kwargs)
-
+        return NMR_graph_zoom_maker.from_options(output, self.graph, focus = focus, options = options, **kwargs)
+    
     def auto_x_limits(self):
         """
         Limit the X axis so all plotted peaks are visible.
         """
-        super().auto_x_limits()
-        self.axes.set_xlim(self.axes.get_xlim()[1], self.axes.get_xlim()[0])
+        # We need to get a list of all peaks that are above our cutoff point.
+        # First determine our highest point.
+        highest_point = max(self.transpose(self.graph.coordinates)[1])
+        
+        # Now filter by a fraction of that amount.
+        visible_x_values = [x for x, y in self.graph.plot_cumulative_gaussian() if y >= (highest_point * self.peak_cutoff)]
+        
+        # Now we can just get our min-max.
+        # NMR is typically shown on a relative scale, meaning that negative values are absolutely possible.
+        # We always want to make sure that zero is shown however.
+        #
+        # NMR is also typically shown on a reversed scale.
+              
+        x_padding = (
+            max(max(visible_x_values), 0) - min(min(visible_x_values), 0)
+        ) * self.x_padding_percent
+        
+        # If we have no negative shifts, set zero as the end of one scale.
+        if min(visible_x_values) < 0:
+            minimum = min(visible_x_values) - x_padding
+        
+        else:
+            # Don't extend beyond zero if there are no negative values.
+            #minimum = max(min(visible_x_values) - self.x_padding, 0)
+            minimum = 0
+            
+        # If we have no positive shifts, set zero as the end of one scale.
+        if max(visible_x_values) > 0:
+            maximum = max(visible_x_values) + x_padding
+        
+        else:
+            maximum = 0
+            
+        # Space to allocate per unit of the y axis.
+        self.inch_per_x = self.target_width / (maximum - minimum) 
+        
+        return self.axes.set_xlim(maximum, minimum)
         
     def auto_y_limits(self):
         """
@@ -419,7 +480,7 @@ class NMR_graph_maker(Spectroscopy_graph_maker):
         self.axes.set_ylim(0, self.axes.get_ylim()[1])
 
 
-class NMR_graph_zoom_maker(NMR_graph_maker):
+class NMR_graph_zoom_maker(NMR_graph_maker_abc):
     """
     A class for generating a zoomed NMR spectrum of a single (split) peak.
     """
@@ -446,19 +507,27 @@ class NMR_graph_zoom_maker(NMR_graph_maker):
         self.plot_background_peaks = plot_background_peaks
         self.focus = focus
         
+        self.x_padding = None
+        self.x_padding_percent = 0.01
+        
+        self.target_width = 3
+        
+        # Space to allocate per unit of the y axis.
+        self.inch_per_x = None
+        
         self.cumulative_linewidth = 1
         
         if self.focus not in self.graph.graphs:
             raise ValueError("The sub-graph '{}' is not recognised".format(self.focus))
         
     @classmethod
-    def from_options(self, output, *, combined_graph, options, **kwargs):
+    def from_options(self, output, graph, *, options, **kwargs):
         """
         Constructor that takes a dictionary of config like options.
         """
         return self(
             output,
-            combined_graph,
+            graph,
             enable_rendering = options['nmr']['enable_rendering'],
             **kwargs
         )
@@ -477,10 +546,21 @@ class NMR_graph_zoom_maker(NMR_graph_maker):
         # Now filter by a fraction of that amount.
         visible_x_values = [x for x, y in graph.plot_cumulative_gaussian() if y >= (highest_point * self.peak_cutoff)]
         
-        # Now we can just get our min-max, remembering to include our x-padding, and never extending beyond 0 (because negative energy has no meaning in this context(?)).
+        x_padding = (
+            max(max(visible_x_values), 0) - min(min(visible_x_values), 0)
+        ) * self.x_padding_percent
+        
+        maximum = max(visible_x_values) + x_padding
+        minimum = min(visible_x_values) - x_padding
+        
+        # Space to allocate per unit of the y axis.
+        self.inch_per_x = self.target_width / (maximum - minimum) 
+        
+        # Now we can just get our min-max.
         self.axes.set_xlim(
-            max(visible_x_values) + self.x_padding,
-            max(min(visible_x_values) - self.x_padding, 0))
+            maximum,
+            minimum
+        )
         
     def auto_y_limits(self):
         """
