@@ -316,15 +316,6 @@ Example:
         delattr(self, key)
     
     @property
-    def methods(self):
-        """
-        A list of known methods which have been loaded from config files.
-        
-        This is a configurable list of destinations, which can be traversed to also find programs and then calculations.
-        """
-        return self.destinations
-    
-    @property
     def urwid_palette(self):
         """
         A shortcut for accessing the urwid palette (in a format that can be passed directly to urwid).
