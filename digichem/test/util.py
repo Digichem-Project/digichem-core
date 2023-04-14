@@ -4,7 +4,7 @@ import pytest
 from pathlib import Path
 import pkg_resources
 
-from silico.config.parse import Config_file_parser
+import silico.config
 
 
 def data_directory():
@@ -41,7 +41,7 @@ result_files = {
 
 @pytest.fixture(scope="package")
 def silico_options(tmpdir_factory):
-    config = Config_file_parser.silico_options()
+    config = silico.config.get_config()
     # Change the default DB location to prevent SPAM.
     #config['database']['db_type']
     config['database']['path'] = Path(tmpdir_factory.mktemp("silico_database"), "tmp.db")
