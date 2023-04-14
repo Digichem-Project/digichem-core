@@ -1,18 +1,18 @@
-from openbabel import pybel
-from copy import deepcopy
+# General imports.
 import yaml
 from pathlib import Path
 
 # Silico imports.
 from silico.config.base import Auto_type
 from silico.configurable.base import Configurable
-from silico.configurable.option import Option, Method_target_option
+from silico.submit.option import Option, Method_target_option
 from silico.configurable.options import Options
 from silico.config.locations import user_config_location
 from silico.misc.io import atomic_write
 from silico.submit.calculation.turbomole import Turbomole_memory
 from silico.submit.translate import Cube_grid_points
 from silico.submit.memory import Memory
+from silico.submit import method_library
 
 
 class Silico_options(Configurable):
@@ -222,18 +222,18 @@ To disable the maximum width, set to null.""", type = int, default = 1500),
         turbomole = Options(help = "Options that control the running of Turbomole calculations to generate cube files from completed calculations. Note that when reports are created automatically following calculation completion these options will be overridden with the specifics of that calculation.",
             num_cpu = Option(help = "The number of CPUs with which to run.", type = int, default = 1),
             memory = Option(help = "The amount of memory with which to run.", type = Turbomole_memory, default = Turbomole_memory("1GB")),
-            program = Method_target_option(lambda option, config: config.programs, help = "A program definition from the internal library to run.", default = None)
+            program = Method_target_option(method_library.programs, help = "A program definition from the internal library to run.", default = None)
         ),
         gaussian = Options(help = "Options that control the running of Gaussian calculations to generate NTO cube files from completed calculations. Note that when reports are created automatically following calculation completion these options will be overridden with the specifics of that calculation.",
             num_cpu = Option(help = "The number of CPUs with which to run.", type = int, default = 1),
             memory = Option(help = "The amount of memory with which to run.", type = Memory, default = Memory("1GB")),
-            program = Method_target_option(lambda option, config: config.programs, help = "A program definition from the internal library to run.", default = None),
+            program = Method_target_option(method_library.programs, help = "A program definition from the internal library to run.", default = None),
             # TODO: This needs expanding.
             scratch_path = Option(help = "Path to the top of the scratch directory.", default = "/scratch")
         ),
         orca = Options(help = "Options that control the running of orca_plot to generate cube files from completed calculations. Note that when reports are created automatically following calculation completion these options will be overridden with the specifics of that calculation.",
             memory = Option(help = "The amount of memory with which to run. If left blank, no maximum will be specified.", type = Memory, default = None),
-            program = Method_target_option(lambda option, config: config.programs, help = "A program definition from the internal library to run.", default = None)
+            program = Method_target_option(method_library.programs, help = "A program definition from the internal library to run.", default = None)
         ),
         cleanup = Option(help =\
 """Whether to delete intermediate files that are written during the report generation process.
@@ -290,15 +290,10 @@ Example:
         timeout = Option(help = "Maximum amount of time (in seconds) to wait for the database lock before giving up", type = float, default = 60.0)
     )
     
-    def __init__(self, validate_now = True, palette = None, destinations = None, programs = None, calculations = None, **kwargs):
+    def __init__(self, validate_now = True, palette = None, **kwargs):
         """
         Constructor for Silico_options objects.
         """
-        # Set Configurable lists.
-        self.destinations = destinations
-        self.programs = programs
-        self.calculations = calculations
-        
         # The palette to use for urwid.
         # A palette is a list of tuples, where the first item of each tuple identifies the name of an attribute, and the remaining specify how that attribute should appear.
         # However, we instead store the palette as a dictionary, as this would appear to fit the format better.
@@ -370,41 +365,4 @@ Example:
         
         # Done.
         return palette
-            
-        # Unless we are in DEBUG, hide warnings from openbabel.
-        if logger.level!= 10:
-            pybel.ob.obErrorLog.SetOutputLevel(0)
-            
-    def __deepcopy__(self, memo):
-        """
-        Overriding deep copy.
-        
-        Because Silico_options can contain large lists of Configurables (complex objects), real deepcopy can be very slow.
-        We overcome this by excluding these lists.
-        """
-        # TODO: Need to review whether this is necessary and how it could be improved.
-        destinations = self.destinations
-        self.destinations = []
-        programs = self.programs
-        self.programs = []
-        calculations = self.calculations
-        self.calculations = []
-        # TMP remove __deepcopy__ so we don't recurse.
-        copyfunc = self.__deepcopy__
-        self.__deepcopy__ = None
-        
-        new = deepcopy(self, memo)
-
-        
-        # Restore.
-        self.destinations = destinations
-        new.destinations = destinations
-        self.programs = programs
-        new.programs = programs
-        self.calculations = calculations
-        new.calculations = calculations
-        self.__deepcopy__ = copyfunc
-        
-        # And return.
-        return new
             
