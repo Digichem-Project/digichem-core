@@ -357,14 +357,25 @@ class NMR_spectrometer(Result_object):
     
 
 class NMR_list(Result_container):
+    """
+    A container to hold a list of NMR results.
     
-    def __init__(self, *args, atoms, **kwargs):
+    For practicle applications, see the output of the group() method or the spectrometer attribute.
+    """
+    
+    def __init__(self, *args, atoms, options, **kwargs):
+        """
+        :param *args: A list of NMR objects.
+        :param atoms: An Atom_list object.
+        :param options: A silico options object.
+        """
         super().__init__(*args, **kwargs)
         self.atoms = atoms
+        self.spectrometer = NMR_spectrometer.from_options(self.group(self.atoms), options = options)
     
     @classmethod
     def from_parser(self, parser):
-        return self(NMR.list_from_parser(parser), atoms = parser.results.atoms)
+        return self(NMR.list_from_parser(parser), atoms = parser.results.atoms, options = parser.options)
     
     def find(self, criteria = None, *, label = None, index = None):
         return self.search(criteria = criteria, label = label, index = index, allow_empty = False)[0]
@@ -485,13 +496,13 @@ class NMR_list(Result_container):
     def generate_for_dump(self):
         """
         Method used to get a dictionary used to generate on-demand values for dumping.
-        
+         
         This functionality is useful for hiding expense properties from the normal dump process, while still exposing them when specifically requested.
-        
+         
         Each key in the returned dict is the name of a dumpable item, each value is a function to call with silico_options as its only param.
         """
         return {
-            "spectra": lambda silico_options: NMR_spectrometer.from_options(self.group(self.atoms), options = silico_options)
+            "spectra": lambda silico_options: self.spectrometer
         }
 
 
