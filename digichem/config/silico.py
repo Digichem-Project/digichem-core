@@ -239,10 +239,17 @@ To disable the maximum width, set to null.""", type = int, default = 1500),
         
         # TODO: Validation on these sorts of options is poor and needs looking at.
         isotopes = Option(help = "Isotope specific options. Each key should consist of a tuple of (proton_number, isotope).", type = Nested_dict_type, default = {
+            # Resonance frequencies calculated at 9.3947 T.
             # 1H, increase fidelity to see more detail.
-            (1, 1): {"frequency": 400, "fhwm": 0.005, "gaussian_resolution": 0.0005, "coupling_filter": 0.001},
+            (1, 1): {"frequency": 400, "fwhm": 0.005, "gaussian_resolution": 0.0005, "coupling_filter": 0.001},
+            # 11B.
+            (5, 11): {"frequency": 128.3},
             # 13C.
-            (6, 13): {"frequency": 70}
+            (6, 13): {"frequency": 100.6},
+            # 19F
+            (9, 19): {"frequency": 376.5},
+            # 31P
+            (15, 31): {"frequency": 162.0}
         })
     )
     
