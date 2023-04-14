@@ -646,7 +646,7 @@ class NMR_shielding(NMR_tensor_ABC):
                     parser.results.atoms[atom_index],
                     tensors,
                     total_isotropic,
-                    reference = parser.options['nmr']['references'].get(parser.results.atoms[atom_index].element.number, None)
+                    reference = parser.options['nmr']['standards'].get(parser.results.atoms[atom_index].element.number, None)
                 )
         
         except AttributeError:
