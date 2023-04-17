@@ -2,8 +2,9 @@ import numpy
 from itertools import filterfalse
 import periodictable
 from fractions import Fraction
-from math import isclose
 import re
+import statistics
+import math
 
 from silico.result.base import Result_object, Result_container
 from silico.exception.base import Result_unavailable_error
@@ -19,7 +20,7 @@ class NMR_spectrometer(Result_object):
     A class for generating NMR spectra on-demand.
     """
     
-    def __init__(self, nmr_results, frequency = 300, fwhm = 0.001, resolution = 0.001, cutoff = 0.01, coupling_filter = 0.0001, merge_threshold = None, isotope_options = None):
+    def __init__(self, nmr_results, frequency = 300, fwhm = 0.001, resolution = 0.001, cutoff = 0.01, coupling_filter = 0.1, merge_threshold = 0.001, isotope_options = None):
         """
         Constructor for NMR_spectrometer.
         
@@ -349,37 +350,43 @@ class NMR_spectrometer(Result_object):
                     peaks = new_peaks
             
             peaks = list(peaks.values())
+            peaks.sort(key = lambda peak: peak['shift'])
             
             # If we've been asked to, merge similar peaks.
             # We do this last so as to not carry forward rounding and averaging errors.
-            # TODO: This has not been adequately tested.
-            if self.merge_threshold:
-                new_peaks = []
-                old_peaks = list(peaks.values())
+            if isotope_options['merge_threshold']:
+                # Each generated peak will be aligned to a 'grid', the spacing of which is
+                # given by merge_threshold.
+                # Start by generating our grid.
+                # We want to make sure there is a grid point exactly on our mid-point, this should preserve symmetry.
+                median = statistics.median((peak['shift'] for peak in peaks))
+                start = median - math.ceil((median - peaks[0]['shift']) / isotope_options['merge_threshold']) * isotope_options['merge_threshold']
+                stop =  median + math.ceil((peaks[-1]['shift'] - median) / isotope_options['merge_threshold']) * isotope_options['merge_threshold']
+                steps = round(((stop - start) / isotope_options['merge_threshold'])) +1
+                new_shifts = numpy.linspace(start, stop, steps)
                 
-                for index_old_peak, old_peak in enumerate(old_peaks):
-                    if old_peak is None:
-                        continue
-                    
-                    similar_shifts = [old_peak['shift']]
-                    similar_intensity = [old_peak['intensity']]
-                    for other_index, other_peak in enumerate(old_peaks[index_old_peak+1:]):
-                        # If we've already done this peak, skip.
-                        if other_peak is None:
-                            continue
+                new_peaks = {}
+                new_shift_index = 0
+                
+                for peak in peaks:
+                    # Find where this peak best aligns to our grid.
+                    # Because we are going through in order, we don't need to start from the beginning of our new peaks.
+                    for index, new_shift in enumerate(new_shifts[new_shift_index:]):
+                        if peak['shift'] < (new_shift + isotope_options['merge_threshold'] /2):
+                            if new_shift not in new_peaks:
+                                # New peaks at this shift.
+                                new_peaks[new_shift] = {"shift": new_shift, "intensity": peak['intensity']}
+                            
+                            else:
+                                # Existing peak here, add to intensity.
+                                new_peaks[new_shift]['intensity'] += peak['intensity']
+                            
+                            # Update our index.
+                            new_shift_index = index
+                            
+                            break
                         
-                        # If the average shift of the 'new' combined peak is close enough to this one, add it in.
-                        if isclose(sum(similar_shifts) / len(similar_shifts), other_peak['shift'], abs_tol = self.merge_threshold):
-                            # Close enough!
-                            similar_shifts.append(other_peak['shift'])
-                            similar_intensity.append(other_peak['intensity'])
-                            
-                            # 'Delete' the old peak so we don't include it again down the line.
-                            old_peaks[other_index] = None
-                            
-                    new_peaks.append({"shift": sum(similar_shifts) / len(similar_shifts), "intensity": sum(similar_intensity)})
-                
-                peaks = new_peaks
+                peaks = list(new_peaks.values())
                 
             # Done for this group of atoms.
             group_peaks[nmr_result.group] = peaks
