@@ -1,9 +1,12 @@
-from silico.image.graph import Graph_image_maker
 from matplotlib import ticker
 import matplotlib.collections
+import statistics
+
 from silico.exception.base import File_maker_exception
 from silico.result.spectroscopy import Spectroscopy_graph,\
-    Absorption_emission_graph, Combined_graph
+    Absorption_emission_graph
+from silico.image.graph import Graph_image_maker
+
 
 class Spectroscopy_graph_maker(Graph_image_maker):
     """
@@ -355,7 +358,7 @@ class NMR_graph_maker_abc(Spectroscopy_graph_maker):
     ABC for NMR spectra.
     """
             
-    def __init__(self, output, graph, **kwargs):
+    def __init__(self, output, graph, plot_labels = True, **kwargs):
         """        
         :param output: A path to an output file to write to. The extension of this path is used to determine the format of the file (eg, png, jpeg).
         :param graph: An instance of a silico.result.spectroscopy.Spectroscopy_graph that contains data to plot.
@@ -376,7 +379,37 @@ class NMR_graph_maker_abc(Spectroscopy_graph_maker):
         self.cumulative_linewidth = 0.5
         self.column_linewidth = 0.5
         
+        self.should_plot_labels = plot_labels
+        
         self.x_padding = 0.05
+        
+    def plot(self):
+        """
+        Plot the contents of our graph.
+        """
+        super().plot()
+        if self.should_plot_labels:
+            self.plot_labels()
+        
+    def plot_labels(self):
+        """
+        Plot labels for each peak.
+        """
+        for atom_group, graph in self.graph.graphs.items():
+            # Get the median of the x values (the middle point).
+            x_coords, y_coords = self.transpose(graph.plot_cumulative_gaussian())
+            
+            x_coord = statistics.median(x_coords)
+            y_coord = max(y_coords)
+            
+            self.axes.annotate(
+                "{}".format(atom_group.label),
+                (x_coord, y_coord),
+                textcoords = "offset pixels",
+                xytext = (0, 5),
+                horizontalalignment = "center",
+                fontsize = 8
+            )
 
 
 class NMR_graph_maker(NMR_graph_maker_abc):
@@ -491,7 +524,7 @@ class NMR_graph_zoom_maker(NMR_graph_maker_abc):
         
         :param output: A path to an output file to write to. The extension of this path is used to determine the format of the file (eg, png, jpeg).
         :param graph: An instance of a silico.result.spectroscopy.Spectroscopy_graph that contains data to plot.
-        :param focus: The name of an atom group to focus on.
+        :param focus: An atom group to focus on.
         """
         # Call our parent.
         super().__init__(
