@@ -417,13 +417,16 @@ class NMR_graph_maker(NMR_graph_maker_abc):
     A graph for displaying NMR spectra
     """
     
-    def __init__(self, output, graph, **kwargs):
+    def __init__(self, output, graph, coupling = None, **kwargs):
         """        
         :param output: A path to an output file to write to. The extension of this path is used to determine the format of the file (eg, png, jpeg).
         :param graph: An instance of a silico.result.spectroscopy.Spectroscopy_graph that contains data to plot.
         """
         # Call our parent.
         super().__init__(output, graph, **kwargs)
+        
+        # A dictionary of dicts. The outer key is the atom group 
+        self.coupling = coupling if coupling is not None else {}
         
         self.x_padding = None
         self.x_padding_percent = 0.1
