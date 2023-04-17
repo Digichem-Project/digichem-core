@@ -229,6 +229,57 @@ class NMR_spectrometer(Result_object):
         }
         silico.log.get_logger().info("Done simulating NMR spectrum")
         return values
+    
+    def coupling(self, element, isotope, decoupling = None):
+        """
+        Return couplings for a given experiment.
+        
+        Be aware that small couplings may be filtered out (not returned) depending on the value of coupling_filter.
+        
+        :returns: The relevant couplings, as a dictionary of dictionary of dicts. The keys of the two outer dict correspond to the atom groups this coupling is between. The inner dict is a coupling dict, containing 'total', 'isotopes' and 'groups'.
+        """
+        isotope_options = self.isotope_options(element, isotope)
+        outer_coupling = {}
+        for nmr_result in self.nmr_results.values():
+            if nmr_result.group.element.number != element:
+                # Wrong element, skip.
+                continue
+                
+            # Matches our element.
+            inner_coupling = {}
+            for coupling in nmr_result.couplings:
+                # Check the main isotope matches.
+                main_index = coupling['groups'].index(nmr_result.group)
+                second_index = 1 if main_index == 0 else 0
+                
+                # Only include this coupling if it involves our isotope,
+                # and if it's value is above our filter.
+                if coupling['isotopes'][main_index] == isotope and abs(coupling['total']) > isotope_options['coupling_filter']:
+                    no_couple = False
+                    # Check we haven't been asked to de-couple this coupling.
+                    for decouple_element, decouple_isotope in decoupling:
+                        if coupling['groups'][second_index].element.number == decouple_element \
+                        and coupling['isotopes'][second_index] == decouple_isotope:
+                            # This coupling is good.
+                            no_couple = True
+                            break
+                    
+                    if not no_couple:
+                        inner_coupling[(coupling['groups'][second_index], coupling['isotopes'][second_index])] = coupling
+                                
+            # Sort couplings.
+            inner_coupling = {
+                inner_group: coupling
+                for inner_group, coupling
+                in sorted(
+                    inner_coupling.items(),
+                    key = lambda item: abs(item[1]['total']),
+                    reverse = True
+            )}
+            
+            outer_coupling[nmr_result.group] = inner_coupling
+        
+        return outer_coupling
 
     def simulate(self, element, isotope, decoupling = None):
         """
@@ -252,42 +303,24 @@ class NMR_spectrometer(Result_object):
             ",".join(["{}{}".format(decouple_iso, periodictable.elements[decouple_ele].symbol) for decouple_ele, decouple_iso in decoupling] if len(decoupling) != 0 else ["no"])
         ))
         
+        # Get relevant couplings.
+        all_coupling = self.coupling(element, isotope, decoupling)
+        
         for nmr_result in self.nmr_results.values():
             if nmr_result.group.element.number != element:
                 # Wrong element, skip.
                 continue
                 
             # Matches our element.
-            couplings = []
-            for coupling in nmr_result.couplings:
-                # Check the main isotope matches.
-                main_index = coupling['groups'].index(nmr_result.group)
-                second_index = 1 if main_index == 0 else 0
-                
-                # Only include this coupling if it involves our isotope,
-                # and if it's value is above our filter.
-                if coupling['isotopes'][main_index] == isotope and coupling['total'] > isotope_options['coupling_filter']:
-                    no_couple = False
-                    # Check we haven't been asked to de-couple this coupling.
-                    for decouple_element, decouple_isotope in decoupling:
-                        if coupling['groups'][second_index].element.number == decouple_element \
-                        and coupling['isotopes'][second_index] == decouple_isotope:
-                            # This coupling is good.
-                            no_couple = True
-                            break
-                    
-                    if not no_couple:
-                        couplings.append(coupling)
-                                
-            # Sort couplings.
-            couplings.sort(key = lambda coupling: coupling['total'])
+            
+            group_coupling = all_coupling.get(nmr_result.group, {}).values()
             
             # Make some peaks.
             # Start with a single shift peak.
             peaks = {nmr_result.shielding: {"shift": nmr_result.shielding, "intensity": len(nmr_result.group.atoms)}}
             
             # Now split it by each coupling.
-            for coupling in couplings:
+            for coupling in group_coupling:
                 main_index = coupling['groups'].index(nmr_result.group)
                 second_index = 1 if main_index == 0 else 0
                 
