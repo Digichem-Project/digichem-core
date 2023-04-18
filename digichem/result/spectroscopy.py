@@ -342,38 +342,56 @@ class NMR_graph(Spectroscopy_graph):
     For plotting an entire spectrum, use a Combined_graph of NMR_graph objects.
     """
     
-    def __init__(self, coordinates, *args, coupling = None, **kwargs):
-        """
-        :param coordinates: A list of (energy, intensity) tuples to plot. The units of energy and intensity are irrelevant here (but should be consistent). Note that coordinates with 0 intensity will be removed.
-        :param coupling: An optional dictionary of NMR coupling to use for annotation.
-        """
-        super().__init__(coordinates, *args, **kwargs)
-        
-        # A dictionary of dicts. The outer key is the atom group 
-        self.coupling = coupling if coupling is not None else {}
-        
-    @property
-    def multiplicity(self):
+    def multiplicity(self, atom_group, coupling):
         """
         Determine the multiplicity of this peak.
         
         Note that the returned multiplicity might not match exactly the observed multiplicity of the peak
         due to line-broadening and overlapping signals.
+        
+        :param atom_group: The atom_group that this peak corresponds to.
+        :param coupling: NMR_group_spin_coupling objects between this atom_group and other groups.
         """
         # First, determine how many peaks are visible.
         peaks = self.peaks()
         
+        if len(peaks) == 1:
+            return [{"symbol": "s", "number": 1, "multiplicity": "singlet"}]
         
+        # A list of multiplicity dicts.
+        mults = []
+        total_peaks = 1
+        coupling_index = 0
+        couplings = list(coupling.values())
+        
+        # We will keep requesting more splitting until we are able to account for all the peaks we can see.
+        while len(peaks) > total_peaks:
+            # Get the next coupling available.
+            try:
+                group_coupling = couplings[coupling_index]
+            
+            except IndexError:
+                # Ran out of coupling.
+                break
+            
+            multiplicity = group_coupling.multiplicity(atom_group)
+            
+            mults.append(multiplicity)
+            total_peaks *= multiplicity['number']
+            
+            # Update counter.
+            coupling_index += 1
+        
+        return mults
         
     @classmethod
-    def from_nmr(self, nmr_peaks, *args, coupling = None, **kwargs):
+    def from_nmr(self, nmr_peaks, *args, **kwargs):
         """
         An alternative constructor that takes a list of simulated NMR peaks as argument.
         
         :param nmr_peaks: Simulated NMR peaks. See result.nmr.NMR_spectrometer for how to obtain this data.
-        :param coupling: An optional dictionary of NMR coupling to use for annotation.
         """
-        return self([(peak['shift'], peak['intensity']) for peak in nmr_peaks], *args, coupling = coupling, **kwargs)
+        return self([(peak['shift'], peak['intensity']) for peak in nmr_peaks], *args, **kwargs)
 
 
 class Combined_graph(Spectroscopy_graph_abc):
