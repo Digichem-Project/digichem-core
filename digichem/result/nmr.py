@@ -13,6 +13,7 @@ from silico.result.atom import get_chemical_group_mapping, Atom_group
 from silico.result.spectroscopy import Combined_graph
 import silico.log
 
+
 # TODO: NMR tensors are currently not re-orientated according to the alignment method used.
 # This needs implementing.
 class NMR_spectrometer(Result_object):
@@ -85,13 +86,13 @@ class NMR_spectrometer(Result_object):
             
             # Also consider specific isotope coupling.
             for coupling in nmr_result.couplings:
-                main_index = coupling['groups'].index(nmr_result.group)
+                main_index = coupling.groups.index(nmr_result.group)
                 second_index = abs(1 - main_index)
                 
-                if coupling['isotopes'][main_index] not in couplings:
-                    couplings[coupling['isotopes'][main_index]] = set()
+                if coupling.isotopes[main_index] not in couplings:
+                    couplings[coupling.isotopes[main_index]] = set()
                 
-                couplings[coupling['isotopes'][main_index]].add( (coupling['groups'][second_index].element.number, coupling['isotopes'][second_index]) )
+                couplings[coupling.isotopes[main_index]].add( (coupling.groups[second_index].element.number, coupling.isotopes[second_index]) )
             
             for isotope, isotope_couplings in couplings.items():
                 for combination in powerset(isotope_couplings):
@@ -250,23 +251,23 @@ class NMR_spectrometer(Result_object):
             inner_coupling = {}
             for coupling in nmr_result.couplings:
                 # Check the main isotope matches.
-                main_index = coupling['groups'].index(nmr_result.group)
+                main_index = coupling.groups.index(nmr_result.group)
                 second_index = 1 if main_index == 0 else 0
                 
                 # Only include this coupling if it involves our isotope,
                 # and if it's value is above our filter.
-                if coupling['isotopes'][main_index] == isotope and abs(coupling['total']) > isotope_options['coupling_filter']:
+                if coupling.isotopes[main_index] == isotope and abs(coupling.total) > isotope_options['coupling_filter']:
                     no_couple = False
                     # Check we haven't been asked to de-couple this coupling.
                     for decouple_element, decouple_isotope in decoupling:
-                        if coupling['groups'][second_index].element.number == decouple_element \
-                        and coupling['isotopes'][second_index] == decouple_isotope:
+                        if coupling.groups[second_index].element.number == decouple_element \
+                        and coupling.isotopes[second_index] == decouple_isotope:
                             # This coupling is good.
                             no_couple = True
                             break
                     
                     if not no_couple:
-                        inner_coupling[(coupling['groups'][second_index], coupling['isotopes'][second_index])] = coupling
+                        inner_coupling[(coupling.groups[second_index], coupling.isotopes[second_index])] = coupling
                                 
             # Sort couplings.
             inner_coupling = {
@@ -274,7 +275,7 @@ class NMR_spectrometer(Result_object):
                 for inner_group, coupling
                 in sorted(
                     inner_coupling.items(),
-                    key = lambda item: abs(item[1]['total']),
+                    key = lambda item: abs(item[1].total),
                     reverse = True
             )}
             
@@ -322,19 +323,19 @@ class NMR_spectrometer(Result_object):
             
             # Now split it by each coupling.
             for coupling in group_coupling:
-                main_index = coupling['groups'].index(nmr_result.group)
+                main_index = coupling.groups.index(nmr_result.group)
                 second_index = 1 if main_index == 0 else 0
                 
                 # Each atom in the group we are coupling to.
-                for atom in range(len(coupling['groups'][second_index].atoms)):
+                for atom in range(len(coupling.groups[second_index].atoms)):
                     new_peaks = {}
                     for old_peak in peaks.values():
                         # Calculate the shift of the new peaks (one upfield, one downfield).
-                        coupling_constant = coupling['total'] / isotope_options['frequency']
+                        coupling_constant = coupling.total / isotope_options['frequency']
                         
                         # Bafflingly, calling 'neutron' here is necessary to make nuclear_spin available.
-                        ele = getattr(periodictable, coupling['groups'][second_index].element.symbol)
-                        iso = ele[coupling['isotopes'][second_index]]
+                        ele = getattr(periodictable, coupling.groups[second_index].element.symbol)
+                        iso = ele[coupling.isotopes[second_index]]
                         iso.neutron
                         spin = float(Fraction(iso.nuclear_spin))
                         num_peaks = 2 * spin +1
@@ -499,19 +500,16 @@ class NMR_list(Result_container):
             if isotopes not in group_couplings[coupling_groups]:
                 group_couplings[coupling_groups][isotopes] = []
                 
-            group_couplings[coupling_groups][isotopes].append(coupling.isotropic('total'))        
+            group_couplings[coupling_groups][isotopes].append(coupling)
             
         # Average each 'equivalent' coupling.
         group_couplings = {
             group_key: {
-                isotope_key: {
-                    "groups": [atom_groups[group_sub_key] for group_sub_key in group_key],
-                    "isotopes": isotope_key,
-                    # Not sure this is the right thing to do? Disabled for now.
-                    # Take the absolute of each coupling.
-                    #"total": float(sum(map(abs, isotope_couplings)) / len(isotope_couplings))
-                    "total": float(sum(isotope_couplings) / len(isotope_couplings))
-                } for isotope_key, isotope_couplings in  isotopes.items()}
+                isotope_key: NMR_group_spin_coupling(
+                    groups = [atom_groups[group_sub_key] for group_sub_key in group_key],
+                    isotopes = isotope_key,
+                    couplings = isotope_couplings
+                ) for isotope_key, isotope_couplings in  isotopes.items()}
             for group_key, isotopes in group_couplings.items()
         }
         
@@ -567,9 +565,96 @@ class NMR_group(Result_object):
                 "units": "ppm",
                 "value": self.shielding
             },
-            "couplings": [{"groups": [group.label for group in coupling['groups']], "isotopes": list(coupling["isotopes"]), "total": coupling["total"]} for coupling in self.couplings],
+            #"couplings": [{"groups": [group.label for group in coupling['groups']], "isotopes": list(coupling["isotopes"]), "total": coupling["total"]} for coupling in self.couplings],
+            "couplings": [coupling.dump(silico_options) for coupling in self.couplings]
         }
+        
+class NMR_group_spin_coupling(Result_object):
+    """
+    A result object containing the average coupling between two different groups of nuclei.
+    """
     
+    def __init__(self, groups, isotopes, couplings):
+        """
+        :param groups: The two atom groups that this coupling is between.
+        :param isotopes: The isotopes of the two groups (the order should match that of groups).
+        :param couplings: A list of individual coupling constants between the atoms of these two groups.
+        """
+        self.groups = groups
+        self.isotopes = isotopes
+        self.couplings = couplings
+        
+    @property
+    def total(self):
+        """
+        The total (average coupling) between the atoms of the groups contributing to this coupling.
+        """
+        return sum([coupling.isotropic('total') for coupling in self.couplings]) / len(self.couplings)
+    
+    def dump(self, silico_options):
+        """
+        Get a representation of this result object in primitive format.
+        """
+        return {
+            "groups": [group.label for group in self.groups],
+            "isotopes": list(self.isotopes),
+            "total": {
+                "units": "Hz",
+                "value": float(self.total),
+            }
+            #"couplings": [coupling.dump(silico_options) for coupling in self.couplings]
+        }
+        
+    def multiplicity(self, atom_group):
+        """
+        Calculate the multiplicity (number of peaks generated) by this coupling.
+        
+        :param atom_group: The atom_group who's corresponding peak is to split. This should be one of the two groups in self.groups.
+        """
+        second_index = abs(1 - self.groups.index(atom_group))
+        # Calculate how many peaks are going to be generated.
+        # This is the number of equivalent nuclei * (2 * spin) + 1
+        
+        ele = getattr(periodictable, self['groups'][second_index].element.symbol)
+        iso = ele[self['isotopes'][second_index]]
+        iso.neutron
+        spin = float(Fraction(iso.nuclear_spin))
+        number = len(self.groups[second_index].atoms) * 2 * spin + 1
+        
+        # Multiplicity label
+        if number == 1:
+            multiplicity = "singlet"
+            symbol = "s"
+        elif number == 2:
+            multiplicity = "doublet"
+            symbol = "d"
+        elif number == 3:
+            multiplicity = "triplet"
+            symbol = "t"
+        elif number == 4:
+            multiplicity = "quartet"
+            symbol = "q"
+        elif number == 5:
+            multiplicity = "pentet"
+            symbol = "p"
+        elif number == 6:
+            multiplicity = "sextet"
+            symbol = "sext"
+        elif number == 7:
+            multiplicity = "septet"
+            symbol = "sept"
+        elif number == 8:
+            multiplicity = "octet"
+            symbol = "oct"
+        elif number == 9:
+            multiplicity = "nonet"
+            symbol = "non"
+        else:
+            multiplicity = "10"
+            symbol = "10"
+        
+        return {"symbol": symbol, "number": number, "multiplicity": multiplicity}
+
 
 class NMR(Result_object):
     """
