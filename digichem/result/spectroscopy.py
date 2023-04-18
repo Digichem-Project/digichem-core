@@ -160,15 +160,6 @@ class Spectroscopy_graph(Spectroscopy_graph_abc):
         coords = [(excited_state.energy, excited_state.oscillator_strength if excited_state.oscillator_strength is not None else 0) for excited_state in excited_states]
         return self(coords, *args, **kwargs)
     
-    @classmethod
-    def from_nmr(self, nmr_peaks, *args, **kwargs):
-        """
-        An alternative constructor that takes a list of simulated NMR peaks as argument.
-        
-        :param nmr_peaks: Simulated NMR peaks. See result.nmr.NMR_spectrometer for how to obtain this data.
-        """
-        return self([(peak['shift'], peak['intensity']) for peak in nmr_peaks], *args, **kwargs)
-    
     @property
     def coordinates(self):
         """
@@ -267,20 +258,10 @@ class Spectroscopy_graph(Spectroscopy_graph_abc):
         # Now we need to generate the x values which we'll plot for.
         # This is a little more complicated than it needs to be because there's no simple range() for floats.
         # Calculate the number of points (and round up).
-        #num_points = round( math.fabs(limits[1] - limits[0]) / self.resolution)
         num_points = round( math.fabs(end - start) / self.resolution)
-        
-#         # Unless we happened to be already aligned, we are now missing a fraction of a point. Add one back.
-#         if limits[0] - start != 0:
-#             num_points += 1
         
         # Extend our limits so they are a clean multiple of num_points.
         limits = (start, start + num_points * self.resolution)
-#         
-#         # And now shift our limits so they are still centred.
-#         xs = [x for x, y in self.base_coordinates]
-#         centre = (max(xs) - min(xs)) /2 + min(xs)
-#         limits = (centre - ((limits[1] - limits[0]) / 2) , centre + ((limits[1] - limits[0]) / 2))
 
         return (limits[0], limits[1], num_points +1)
     
@@ -351,8 +332,50 @@ class Absorption_emission_graph(Spectroscopy_graph):
         # All we need to do over our parent is convert x values from e to wavelength.
         # And scale y values using the jacobian transform.
         return [[self.energy_to_wavelength(coord, self.use_jacobian) for coord in plot] for plot in super().plot_gaussian()]
+
+
+class NMR_graph(Spectroscopy_graph):
+    """
+    A class for plotting a single NMR peak.
     
+    A 'single' NMR peak here refers to the signal that would be observed from only one atom (or atom group).
+    For plotting an entire spectrum, use a Combined_graph of NMR_graph objects.
+    """
     
+    def __init__(self, coordinates, *args, coupling = None, **kwargs):
+        """
+        :param coordinates: A list of (energy, intensity) tuples to plot. The units of energy and intensity are irrelevant here (but should be consistent). Note that coordinates with 0 intensity will be removed.
+        :param coupling: An optional dictionary of NMR coupling to use for annotation.
+        """
+        super().__init__(coordinates, *args, **kwargs)
+        
+        # A dictionary of dicts. The outer key is the atom group 
+        self.coupling = coupling if coupling is not None else {}
+        
+    @property
+    def multiplicity(self):
+        """
+        Determine the multiplicity of this peak.
+        
+        Note that the returned multiplicity might not match exactly the observed multiplicity of the peak
+        due to line-broadening and overlapping signals.
+        """
+        # First, determine how many peaks are visible.
+        peaks = self.peaks()
+        
+        
+        
+    @classmethod
+    def from_nmr(self, nmr_peaks, *args, coupling = None, **kwargs):
+        """
+        An alternative constructor that takes a list of simulated NMR peaks as argument.
+        
+        :param nmr_peaks: Simulated NMR peaks. See result.nmr.NMR_spectrometer for how to obtain this data.
+        :param coupling: An optional dictionary of NMR coupling to use for annotation.
+        """
+        return self([(peak['shift'], peak['intensity']) for peak in nmr_peaks], *args, coupling = coupling, **kwargs)
+
+
 class Combined_graph(Spectroscopy_graph_abc):
     """
     A class for plotting one graph from multiple, individual graphs.
@@ -375,7 +398,7 @@ class Combined_graph(Spectroscopy_graph_abc):
         """
         return self(
             {
-                peak_key: Spectroscopy_graph.from_nmr(peaks, *args, **kwargs) for peak_key, peaks in grouped_peaks.items()
+                peak_key: NMR_graph.from_nmr(peaks, *args, **kwargs) for peak_key, peaks in grouped_peaks.items()
             }
         )
     
