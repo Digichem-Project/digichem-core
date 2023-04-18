@@ -612,14 +612,14 @@ class NMR_group_spin_coupling(Result_object):
         """
         Calculate the multiplicity (number of peaks generated) by this coupling.
         
-        :param atom_group: The atom_group who's corresponding peak is to split. This should be one of the two groups in self.groups.
+        :param atom_group: The atom_group who's corresponding peak is to be split. This should be one of the two groups in self.groups.
         """
         second_index = abs(1 - self.groups.index(atom_group))
         # Calculate how many peaks are going to be generated.
         # This is the number of equivalent nuclei * (2 * spin) + 1
         
-        ele = getattr(periodictable, self['groups'][second_index].element.symbol)
-        iso = ele[self['isotopes'][second_index]]
+        ele = getattr(periodictable, self.groups[second_index].element.symbol)
+        iso = ele[self.isotopes[second_index]]
         iso.neutron
         spin = float(Fraction(iso.nuclear_spin))
         number = len(self.groups[second_index].atoms) * 2 * spin + 1
