@@ -545,6 +545,9 @@ class NMR_list(Result_container):
 
 
 class NMR_group(Result_object):
+    """
+    A result object containing all the NMR related data for a group of equivalent nuclei.
+    """
     
     def __init__(self, group, shieldings, couplings):
         self.group = group
