@@ -358,13 +358,16 @@ class NMR_graph_maker_abc(Spectroscopy_graph_maker):
     ABC for NMR spectra.
     """
             
-    def __init__(self, output, graph, plot_labels = True, **kwargs):
+    def __init__(self, output, graph, coupling = None, plot_labels = True, **kwargs):
         """        
         :param output: A path to an output file to write to. The extension of this path is used to determine the format of the file (eg, png, jpeg).
         :param graph: An instance of a silico.result.spectroscopy.Spectroscopy_graph that contains data to plot.
         """
         # Call our parent.
         super().__init__(output, graph, **kwargs)
+        
+        # A dictionary of dicts. The outer key is the atom group 
+        self.coupling = coupling if coupling is not None else {}
         
         # Axes labels.
         self.x_label = "Chemical Shift /ppm"
@@ -390,26 +393,43 @@ class NMR_graph_maker_abc(Spectroscopy_graph_maker):
         super().plot()
         if self.should_plot_labels:
             self.plot_labels()
+            
+    def get_label_for_peak(self, atom_group, graph):
+        # Get the median of the x values (the middle point).
+        x_coords, y_coords = self.transpose(graph.plot_cumulative_gaussian())
+        
+        x_coord = statistics.median(x_coords)
+        y_coord = max(y_coords)
+        
+        # Get multiplicity of the peak.
+        mult = graph.multiplicity(atom_group, self.coupling[atom_group])
+        mult_string = "".join((multiplicity['symbol'] for multiplicity in mult))
+        
+        label = r"$\mathdefault{{{{{}}}_{{{}}}}}$ ({})".format(atom_group.element, atom_group.index, mult_string)
+        #label += "\n" + r"$\int$ = {}{}".format(len(atom_group.atoms), atom_group.element.symbol)
+        label += "\n{:.2f} ppm".format(x_coord) + r", $\int$ = {}{}".format(len(atom_group.atoms), atom_group.element.symbol)
+        
+        return label, x_coord, y_coord
+            
+    def plot_label_for_peak(self, label, x_coord, y_coord):
+        """
+        Plot a label for a given sub-graph.
+        """
+        self.axes.annotate(
+            "{}".format(label),
+            (x_coord, y_coord),
+            textcoords = "offset pixels",
+            xytext = (0, 8),
+            horizontalalignment = "center",
+            fontsize = 8
+        )
         
     def plot_labels(self):
         """
         Plot labels for each peak.
         """
         for atom_group, graph in self.graph.graphs.items():
-            # Get the median of the x values (the middle point).
-            x_coords, y_coords = self.transpose(graph.plot_cumulative_gaussian())
-            
-            x_coord = statistics.median(x_coords)
-            y_coord = max(y_coords)
-            
-            self.axes.annotate(
-                "{}".format(atom_group.label),
-                (x_coord, y_coord),
-                textcoords = "offset pixels",
-                xytext = (0, 5),
-                horizontalalignment = "center",
-                fontsize = 8
-            )
+            self.plot_label_for_peak(*self.get_label_for_peak(atom_group, graph))
 
 
 class NMR_graph_maker(NMR_graph_maker_abc):
@@ -423,10 +443,7 @@ class NMR_graph_maker(NMR_graph_maker_abc):
         :param graph: An instance of a silico.result.spectroscopy.Spectroscopy_graph that contains data to plot.
         """
         # Call our parent.
-        super().__init__(output, graph, **kwargs)
-        
-        # A dictionary of dicts. The outer key is the atom group 
-        self.coupling = coupling if coupling is not None else {}
+        super().__init__(output, graph, coupling = coupling, **kwargs)
         
         self.x_padding = None
         self.x_padding_percent = 0.1
@@ -464,7 +481,7 @@ class NMR_graph_maker(NMR_graph_maker_abc):
         
         :param focus: The name of a peak.
         """
-        return NMR_graph_zoom_maker.from_options(output, self.graph, focus = focus, options = options, **kwargs)
+        return NMR_graph_zoom_maker.from_options(output, self.graph, coupling = self.coupling, focus = focus, options = options, **kwargs)
     
     def auto_x_limits(self):
         """
@@ -521,7 +538,7 @@ class NMR_graph_zoom_maker(NMR_graph_maker_abc):
     A class for generating a zoomed NMR spectrum of a single (split) peak.
     """
     
-    def __init__(self, output, graph, focus, plot_background_peaks = False, **kwargs):
+    def __init__(self, output, graph, focus, coupling = None, plot_background_peaks = False, **kwargs):
         """
         Constructor for frequency graphs.
         
@@ -533,6 +550,7 @@ class NMR_graph_zoom_maker(NMR_graph_maker_abc):
         super().__init__(
             output,
             graph,
+            coupling = coupling,
             plot_peaks = True,
             plot_bars = True,
             plot_cumulative_peak = True,
@@ -620,7 +638,7 @@ class NMR_graph_zoom_maker(NMR_graph_maker_abc):
         highest_point = max(cut_spectrum[1])
         
         # Clamp to 0 -> pos.
-        self.axes.set_ylim(0, highest_point * 1.1)
+        self.axes.set_ylim(0, highest_point * 1.3)
         
     def plot_lines(self):
         """
@@ -642,8 +660,8 @@ class NMR_graph_zoom_maker(NMR_graph_maker_abc):
         """
         Plot vertical columns for each plot on the graph we are building.
         """
-        for graph_name, graph in self.graph.graphs.items():
-            if graph_name != self.focus:
+        for atom_group, graph in self.graph.graphs.items():
+            if atom_group != self.focus:
                 columns = [[(x, 0) , (x, y)] for x, y in graph.coordinates]
                 colors = (0,0,0)
                 self.axes.add_collection(matplotlib.collections.LineCollection(columns, linewidths = self.column_linewidth, colors = colors))
@@ -652,3 +670,31 @@ class NMR_graph_zoom_maker(NMR_graph_maker_abc):
         columns = [[(x, 0) , (x, y)] for x, y in graph.coordinates]
         colors = (1,0,0)
         self.axes.add_collection(matplotlib.collections.LineCollection(columns, linewidths = self.column_linewidth, colors = colors))
+        
+    def plot_labels(self):
+        """
+        Plot labels for each peak.
+        """
+        for atom_group, graph in self.graph.graphs.items():
+            if atom_group != self.focus:
+                self.plot_label_for_peak(*self.get_label_for_peak(atom_group, graph))
+                
+        # Plot a more complete label for our focus peak.
+        label, x_coord, y_coord = self.get_label_for_peak(self.focus, self.graph.graphs[self.focus])
+        mult = self.graph.graphs[self.focus].multiplicity(self.focus, self.coupling[self.focus])
+        
+        # Add coupling info if we have it.
+        couplings = self.coupling.get(self.focus, {})
+        if len(couplings) > 0 and mult[0]["number"] != 1:
+            # Only show couplings for peaks we can actually distinguish.
+            for (coupling_group, coupling_isotope), coupling in list(couplings.items())[:len(mult)]:
+                label += "\n" + r"J = {:.2f} Hz ($\mathdefault{{^{{{}}}{}_{{{}}}}}$, {}{})".format(
+                    coupling.total,
+                    coupling_isotope,
+                    coupling_group.element,
+                    coupling_group.index,
+                    len(coupling_group.atoms),
+                    coupling_group.element
+                )
+        
+        self.plot_label_for_peak(label, x_coord, y_coord)
