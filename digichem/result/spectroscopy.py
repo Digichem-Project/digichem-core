@@ -391,7 +391,7 @@ class NMR_graph(Spectroscopy_graph):
         
         :param nmr_peaks: Simulated NMR peaks. See result.nmr.NMR_spectrometer for how to obtain this data.
         """
-        return self([(peak['shift'], peak['intensity']) for peak in nmr_peaks], *args, **kwargs)
+        return self(nmr_peaks, *args, **kwargs)
 
 
 class Combined_graph(Spectroscopy_graph_abc):

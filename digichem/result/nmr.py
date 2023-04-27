@@ -319,7 +319,8 @@ class NMR_spectrometer(Result_object):
             
             # Make some peaks.
             # Start with a single shift peak.
-            peaks = {nmr_result.shielding: {"shift": nmr_result.shielding, "intensity": len(nmr_result.group.atoms)}}
+            # 0: chemical shift, 1: intensity
+            peaks = {nmr_result.shielding: [nmr_result.shielding, len(nmr_result.group.atoms)]}
             
             # Now split it by each coupling.
             for coupling in group_coupling:
@@ -330,7 +331,7 @@ class NMR_spectrometer(Result_object):
                 for atom in range(len(coupling.groups[second_index].atoms)):
                     new_peaks = {}
                     for old_peak in peaks.values():
-                        # Calculate the shift of the new peaks (one upfield, one downfield).
+                        # Calculate the shift of the new peaks (in ppm).
                         coupling_constant = coupling.total / isotope_options['frequency']
                         
                         # Bafflingly, calling 'neutron' here is necessary to make nuclear_spin available.
@@ -341,17 +342,17 @@ class NMR_spectrometer(Result_object):
                         num_peaks = 2 * spin +1
                         
                         # Add the new peaks to the shifts originating from coupling between these two groups.
-                        for new_peak in [{"shift": sub_peak, "intensity": old_peak["intensity"] / num_peaks} for sub_peak in regular_range(old_peak["shift"], num_peaks, coupling_constant)]:
-                            if new_peak['shift'] in new_peaks:
-                                new_peaks[new_peak['shift']]['intensity'] += new_peak['intensity']
+                        for new_peak in ([sub_peak, old_peak[1] / num_peaks] for sub_peak in regular_range(old_peak[0], num_peaks, coupling_constant)):
+                            if new_peak[0] in new_peaks:
+                                new_peaks[new_peak[0]][1] += new_peak[1]
                             
                             else:
-                                new_peaks[new_peak['shift']] = new_peak
+                                new_peaks[new_peak[0]] = new_peak
                     
                     peaks = new_peaks
             
             peaks = list(peaks.values())
-            peaks.sort(key = lambda peak: peak['shift'])
+            peaks.sort(key = lambda peak: peak[0])
             
             # If we've been asked to, merge similar peaks.
             # We do this last so as to not carry forward rounding and averaging errors.
@@ -360,9 +361,9 @@ class NMR_spectrometer(Result_object):
                 # given by merge_threshold.
                 # Start by generating our grid.
                 # We want to make sure there is a grid point exactly on our mid-point, this should preserve symmetry.
-                median = statistics.median((peak['shift'] for peak in peaks))
-                start = median - math.ceil((median - peaks[0]['shift']) / isotope_options['merge_threshold']) * isotope_options['merge_threshold']
-                stop =  median + math.ceil((peaks[-1]['shift'] - median) / isotope_options['merge_threshold']) * isotope_options['merge_threshold']
+                median = statistics.median((peak[0] for peak in peaks))
+                start = median - math.ceil((median - peaks[0][0]) / isotope_options['merge_threshold']) * isotope_options['merge_threshold']
+                stop =  median + math.ceil((peaks[-1][0] - median) / isotope_options['merge_threshold']) * isotope_options['merge_threshold']
                 steps = round(((stop - start) / isotope_options['merge_threshold'])) +1
                 new_shifts = numpy.linspace(start, stop, steps)
                 
@@ -373,14 +374,14 @@ class NMR_spectrometer(Result_object):
                     # Find where this peak best aligns to our grid.
                     # Because we are going through in order, we don't need to start from the beginning of our new peaks.
                     for index, new_shift in enumerate(new_shifts[new_shift_index:]):
-                        if peak['shift'] < (new_shift + isotope_options['merge_threshold'] /2):
+                        if peak[0] < (new_shift + isotope_options['merge_threshold'] /2):
                             if new_shift not in new_peaks:
                                 # New peaks at this shift.
-                                new_peaks[new_shift] = {"shift": new_shift, "intensity": peak['intensity']}
+                                new_peaks[new_shift] = [new_shift,  peak[1]]
                             
                             else:
                                 # Existing peak here, add to intensity.
-                                new_peaks[new_shift]['intensity'] += peak['intensity']
+                                new_peaks[new_shift][1] += peak[1]
                             
                             # Update our index.
                             new_shift_index = index
