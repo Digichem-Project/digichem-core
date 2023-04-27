@@ -228,7 +228,8 @@ To disable the maximum width, set to null.""", type = int, default = 1500),
         gaussian_cutoff = Option(help = "The minimum y value to plot using the Gaussian function (controls how close to the x axis we draw the gaussian) as a fraction of the max peak height.", type = float, default = 0.001),
         gaussian_resolution = Option(help = "The spacing between x values to plot using the Gaussian function, in ppm. Values that are too large will result in 'curves' made up of a series of straight edges.", type = float, default = 0.001),
         frequency = Option(help = "The frequency to run the simulated spectrometer at. Larger values will result in narrower coupling. Units are MHz", type = float, default = 100),
-        merge_threshold = Option(help = "The threshold within which similar peaks will be merged together. Units in ppm.", type = float, default = 0.1),
+        pre_merge = Option(help = "The threshold within which similar peaks will be merged together, before they are split by coupling. This option typically results in faster execution, but more error, compared to post_merge. Units in ppm.", type = float, default = 0.01),
+        post_merge = Option(help = "The threshold within which similar peaks will be merged together. Units in ppm.", type = float, default = None),
         standards = Option(help = "The chemical shift of a standard reference peak (in ppm) to use to adjust the spectrum. One for each element.", type = Nested_dict_type, default = {
             1: 31.68766666666667,
             5: 111.27199999999999,
@@ -241,7 +242,7 @@ To disable the maximum width, set to null.""", type = int, default = 1500),
         isotopes = Option(help = "Isotope specific options. Each key should consist of a tuple of (proton_number, isotope).", type = Nested_dict_type, default = {
             # Resonance frequencies calculated at 9.3947 T.
             # 1H, increase fidelity to see more detail.
-            (1, 1): {"frequency": 400, "fwhm": 0.005, "gaussian_resolution": 0.0005, "coupling_filter": 0.001, "merge_threshold": 0.001},
+            (1, 1): {"frequency": 400, "fwhm": 0.005, "gaussian_resolution": 0.0005, "coupling_filter": 0.001, "pre_merge": 0.001},
             # 11B.
             (5, 11): {"frequency": 128.3},
             # 13C.
