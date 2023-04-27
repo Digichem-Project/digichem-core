@@ -21,7 +21,7 @@ class NMR_spectrometer(Result_object):
     A class for generating NMR spectra on-demand.
     """
     
-    def __init__(self, nmr_results, frequency = 300, fwhm = 0.001, resolution = 0.001, cutoff = 0.01, coupling_filter = 0.1, merge_threshold = 0.001, isotope_options = None):
+    def __init__(self, nmr_results, frequency = 300, fwhm = 0.001, resolution = 0.001, cutoff = 0.01, coupling_filter = 0.1, pre_merge = 0.01, post_merge = None, isotope_options = None):
         """
         Constructor for NMR_spectrometer.
         
@@ -33,7 +33,8 @@ class NMR_spectrometer(Result_object):
         """
         self.nmr_results = nmr_results
         self.frequency = frequency
-        self.merge_threshold = merge_threshold
+        self.pre_merge = pre_merge
+        self.post_merge = post_merge
         self.fwhm = fwhm
         self.gaussian_resolution = resolution
         self.gaussian_cutoff = cutoff
@@ -43,7 +44,8 @@ class NMR_spectrometer(Result_object):
     def isotope_options(self, element, isotope):
         options = {
             "frequency": self.frequency,
-            "merge_threshold": self.merge_threshold,
+            "pre_merge": self.pre_merge,
+            "post_merge": self.post_merge,
             "fwhm": self.fwhm,
             "gaussian_resolution": self.gaussian_resolution,
             "coupling_filter": self.coupling_filter,
@@ -64,7 +66,8 @@ class NMR_spectrometer(Result_object):
             resolution = options['nmr']['gaussian_resolution'],
             cutoff = options['nmr']['gaussian_cutoff'],
             coupling_filter = options['nmr']['coupling_filter'],
-            merge_threshold = options['nmr']['merge_threshold'],
+            pre_merge = options['nmr']['pre_merge'],
+            post_merge = options['nmr']['post_merge'],
             isotope_options = options['nmr']['isotopes'],
             **kwargs
         )
@@ -320,7 +323,16 @@ class NMR_spectrometer(Result_object):
             # Make some peaks.
             # Start with a single shift peak.
             # 0: chemical shift, 1: intensity
-            peaks = {nmr_result.shielding: [nmr_result.shielding, len(nmr_result.group.atoms)]}
+            #
+            # If we are merging to a nearest point, do so now (to preserve symmetry).
+            if isotope_options['pre_merge']:
+                # FYI: Round breaks ties by rounding to the nearest even number (banker's rounding), not by rounding upwards.
+                initial_shielding = round(nmr_result.shielding / isotope_options['pre_merge']) * isotope_options['pre_merge']
+                
+            else:
+                initial_shielding = nmr_result.shielding
+            
+            peaks = {nmr_result.shielding: [initial_shielding, len(nmr_result.group.atoms)]}
             
             # Now split it by each coupling.
             for coupling in group_coupling:
@@ -333,6 +345,10 @@ class NMR_spectrometer(Result_object):
                     for old_peak in peaks.values():
                         # Calculate the shift of the new peaks (in ppm).
                         coupling_constant = coupling.total / isotope_options['frequency']
+                        
+                        # If we're merging peaks, round the value appropriately.
+                        if isotope_options['pre_merge']:
+                            coupling_constant = round(coupling_constant / isotope_options['pre_merge']) * isotope_options['pre_merge']
                         
                         # Bafflingly, calling 'neutron' here is necessary to make nuclear_spin available.
                         ele = getattr(periodictable, coupling.groups[second_index].element.symbol)
@@ -356,15 +372,15 @@ class NMR_spectrometer(Result_object):
             
             # If we've been asked to, merge similar peaks.
             # We do this last so as to not carry forward rounding and averaging errors.
-            if isotope_options['merge_threshold']:
+            if isotope_options['post_merge']:
                 # Each generated peak will be aligned to a 'grid', the spacing of which is
-                # given by merge_threshold.
+                # given by post_merge.
                 # Start by generating our grid.
                 # We want to make sure there is a grid point exactly on our mid-point, this should preserve symmetry.
                 median = statistics.median((peak[0] for peak in peaks))
-                start = median - math.ceil((median - peaks[0][0]) / isotope_options['merge_threshold']) * isotope_options['merge_threshold']
-                stop =  median + math.ceil((peaks[-1][0] - median) / isotope_options['merge_threshold']) * isotope_options['merge_threshold']
-                steps = round(((stop - start) / isotope_options['merge_threshold'])) +1
+                start = median - math.ceil((median - peaks[0][0]) / isotope_options['post_merge']) * isotope_options['post_merge']
+                stop =  median + math.ceil((peaks[-1][0] - median) / isotope_options['post_merge']) * isotope_options['post_merge']
+                steps = round(((stop - start) / isotope_options['post_merge'])) +1
                 new_shifts = numpy.linspace(start, stop, steps)
                 
                 new_peaks = {}
@@ -374,7 +390,7 @@ class NMR_spectrometer(Result_object):
                     # Find where this peak best aligns to our grid.
                     # Because we are going through in order, we don't need to start from the beginning of our new peaks.
                     for index, new_shift in enumerate(new_shifts[new_shift_index:]):
-                        if peak[0] < (new_shift + isotope_options['merge_threshold'] /2):
+                        if peak[0] < (new_shift + isotope_options['post_merge'] /2):
                             if new_shift not in new_peaks:
                                 # New peaks at this shift.
                                 new_peaks[new_shift] = [new_shift,  peak[1]]
