@@ -562,7 +562,7 @@ class NMR_graph_zoom_maker(NMR_graph_maker_abc):
         self.focus = focus
         
         self.x_padding = None
-        self.x_padding_percent = 0.01
+        self.x_padding_percent = 0.05
         
         self.target_width = 3
         
@@ -586,9 +586,9 @@ class NMR_graph_zoom_maker(NMR_graph_maker_abc):
             **kwargs
         )
         
-    def auto_x_limits(self):
+    def visible_window(self):
         """
-        Limit the X axis so all plotted peaks are visible.
+        Determine the x-axis window that is to be displayed.
         """
         # Get the graph object corresponding to the peak we are interested in.
         graph = self.graph.graphs[self.focus]
@@ -606,6 +606,14 @@ class NMR_graph_zoom_maker(NMR_graph_maker_abc):
         
         maximum = max(visible_x_values) + x_padding
         minimum = min(visible_x_values) - x_padding
+        
+        return (minimum, maximum)
+        
+    def auto_x_limits(self):
+        """
+        Limit the X axis so all plotted peaks are visible.
+        """
+        minimum, maximum = self.visible_window()
         
         # Space to allocate per unit of the y axis.
         self.inch_per_x = self.target_width / (maximum - minimum) 
@@ -675,9 +683,15 @@ class NMR_graph_zoom_maker(NMR_graph_maker_abc):
         """
         Plot labels for each peak.
         """
+        minimum, maximum = self.visible_window()
+        
         for atom_group, graph in self.graph.graphs.items():
             if atom_group != self.focus:
-                self.plot_label_for_peak(*self.get_label_for_peak(atom_group, graph))
+                # Only plot the label if the peak is within our visible window.
+                x_coords, y_coords = self.transpose(graph.plot_cumulative_gaussian())
+                x_coord = statistics.median(x_coords)
+                if x_coord > minimum and x_coord < maximum:
+                    self.plot_label_for_peak(*self.get_label_for_peak(atom_group, graph))
                 
         # Plot a more complete label for our focus peak.
         label, x_coord, y_coord = self.get_label_for_peak(self.focus, self.graph.graphs[self.focus])
