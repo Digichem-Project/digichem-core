@@ -482,10 +482,11 @@ class NMR_list(Result_container):
         
         nmr_groups = {}
         # Next, assemble group objects.
-        for group_num, atom_indices in groups.items():
+        for group_id, atom_indices in groups.items():
+            group_num = group_id[0]
             # Atoms contributing to this group.
             atom_group = Atom_group(group_num, [self.atoms[atom_index -1] for atom_index in atom_indices])
-            atom_groups[group_num] = atom_group
+            atom_groups[(group_num, atom_group.element.symbol)] = atom_group
             
             nmr_results = [nmr_result for nmr_result in self if nmr_result.atom in atom_group.atoms]
             
