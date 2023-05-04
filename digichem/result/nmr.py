@@ -429,6 +429,7 @@ class NMR_list(Result_container):
         """
         super().__init__(*args, **kwargs)
         self.atoms = atoms
+        self.options = options
         self.spectrometer = NMR_spectrometer.from_options(self.group(self.atoms), options = options)
     
     @classmethod
@@ -459,7 +460,7 @@ class NMR_list(Result_container):
             filter_func = lambda nmr: nmr.atom.index != index
         
         # Now search.
-        found = type(self)(filterfalse(filter_func, self), atoms = self.atoms)
+        found = type(self)(filterfalse(filter_func, self), atoms = self.atoms, options = self.options)
         
         if not allow_empty and len(found) == 0:
             if label is not None:
