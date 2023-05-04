@@ -16,7 +16,7 @@ class Skeletal_image_maker(Image_maker):
     A class for rendering skeletal-style molecule structure images.
     """
     
-    def __init__(self, output, coords, *args, abs_resolution = None, rel_resolution = 100, render_backend = "rdkit", numbering = "group", explicit_h = True, **kwargs):
+    def __init__(self, output, coords, *args, abs_resolution = None, rel_resolution = 100, render_backend = "rdkit", numbering = "group", explicit_h = False, **kwargs):
         """
         Constructor for Structure_image_maker objects.
         
@@ -91,12 +91,10 @@ class Skeletal_image_maker(Image_maker):
             # for now, disable logging...
             rdkit.RDLogger.DisableLog('rdApp.*')
             
-            molecule = rdkit.Chem.MolFromMolBlock(self.coords.to_format("mol"), removeHs = not self.explicit_h)
-            # rdkit will silently return None if parsing fails, best to a check.
+            molecule = rdkit.Chem.MolFromMolBlock(self.coords.to_format("mol"), removeHs = False)
+            # rdkit will silently return None if parsing fails, best to check.
             if molecule is None:
                 raise Exception("Failed to parse coordinates with rdkit")
-            
-            rdkit.Chem.AllChem.Compute2DCoords(molecule)
             
             # Calculate atom groupings.
             groups = get_chemical_group_mapping(molecule)
@@ -105,7 +103,7 @@ class Skeletal_image_maker(Image_maker):
                 # Add atom labelling.
                 for atom in molecule.GetAtoms():
                     #atom.SetProp("molAtomMapNumber", str(atom.GetIdx()+1))
-                    atom.SetProp("atomNote",  "{} ({})".format(dict_list_index(groups, atom.GetIdx()+1), atom.GetIdx()+1))
+                    atom.SetProp("atomNote",  "{} ({})".format(dict_list_index(groups, atom.GetIdx()+1)[0], atom.GetIdx()+1))
             
             elif self.numbering == "atomic":
                 for atom in molecule.GetAtoms():
@@ -113,8 +111,23 @@ class Skeletal_image_maker(Image_maker):
             
             elif self.numbering == "group":
                 for atom in molecule.GetAtoms():
-                    atom.SetProp("atomNote",  "{}".format(dict_list_index(groups, atom.GetIdx()+1)))
+                    atom.SetProp("atomNote",  "{}".format(dict_list_index(groups, atom.GetIdx()+1)[0]))
             
+            # Remove C-H, if we've been asked to.
+            if not self.explicit_h:
+                edit_mol = rdkit.Chem.EditableMol(molecule)
+                atoms = list(edit_mol.GetMol().GetAtoms())
+                for atom_index, atom in enumerate(reversed(atoms)):
+                    # If this atom is a hydrogen, and it has a single bond to a carbon, delete it.
+                    if atom.GetSymbol() == "H":
+                        bonds = list(atom.GetBonds())
+                        if len(bonds) == 1 and bonds[0].GetOtherAtom(atom).GetSymbol() == "C":
+                            # This is an implicit H.
+                            edit_mol.RemoveAtom(atom.GetIdx())
+                            
+                molecule = edit_mol.GetMol()
+            
+            rdkit.Chem.AllChem.Compute2DCoords(molecule)
             
             # Then write the file.
             rdkit.Chem.Draw.MolToFile(molecule, str(self.output), (resolution, resolution))
