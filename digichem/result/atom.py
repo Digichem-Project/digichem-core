@@ -19,18 +19,40 @@ def get_chemical_group_mapping(rdkit_molecule):
     :return: A mapping between each group number and the atoms it contains.
     """
     molecule = rdkit_molecule
+    
     groupings = list(Chem.rdmolfiles.CanonicalRankAtoms(molecule, breakTies = False))
     
+    atoms = list(molecule.GetAtoms())
+    
     groups = {}
-    for atom_index, group_num in enumerate(groupings):
+    for atom_index, atom in enumerate(atoms):
+        # For most atoms, just use the assigned group number.
+        group_num = groupings[atom_index]
+        
+        # If this atom is a hydrogen, and it has a single bond to a carbon, use that carbon's group number instead.
+        if atom.GetSymbol() == "H":
+            bonds = list(atom.GetBonds())
+            if len(bonds) == 1 and bonds[0].GetOtherAtom(atom).GetSymbol() == "C":
+                # This is an implicit H.
+                other_atom = bonds[0].GetOtherAtom(atom)
+                group_num = groupings[other_atom.GetIdx()]
+        
         try:
-            groups[group_num].append(atom_index +1)
+            groups[(group_num, atom.GetSymbol())].append(atom_index +1)
         
         except KeyError:
-            groups[group_num] = [atom_index +1]
-            
+            groups[(group_num, atom.GetSymbol())] = [atom_index +1]
+    
     # Fix group numberings.
-    return {new_group_num+1: group for new_group_num, group in enumerate(groups.values())}
+    mapping = {
+        old_num: new_num +1 for new_num, old_num
+        in enumerate(
+            set(
+                sorted((group[0] for group in groups))
+            )
+        )
+    }
+    return {(mapping[group_id[0]], group_id[1]): group for group_id, group in groups.items()}
     
 
 class Atom_list(Result_container, Unmergeable_container_mixin):
