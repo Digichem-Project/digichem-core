@@ -499,7 +499,7 @@ class NMR_list(Result_container):
             # Only keep couplings in which at least one of the two atoms is not in this group (discard self coupling)
             couplings = [coupling for nmr_result in nmr_results for coupling in nmr_result.couplings if not no_self_coupling or len(set(atom_group.atoms).intersection(coupling.atoms)) != 2]
             
-            nmr_groups[group_num] = {"group": atom_group, "shieldings": shieldings, "couplings": couplings}
+            nmr_groups[group_id] = {"group": atom_group, "shieldings": shieldings, "couplings": couplings}
             #nmr_groups[group_num] = NMR_group(group_atoms, shieldings, couplings)
         
         # Now everything is assembled into groups, re-calculate couplings based on groups only.
@@ -534,10 +534,15 @@ class NMR_list(Result_container):
         
         # Assemble the final group objects.
         nmr_object_groups = {}
-        for group_num, raw_group in nmr_groups.items():
+        for group_id, raw_group in nmr_groups.items():
             # Get appropriate couplings.
             
-            coupling = [isotope_coupling for group_key, group_coupling in group_couplings.items() for isotope_coupling in group_coupling.values() if group_num in group_key]
+            coupling = [
+                isotope_coupling
+                for group_key, group_coupling in group_couplings.items()
+                    for isotope_coupling in group_coupling.values()
+                        if group_id in group_key
+            ]
             nmr_object_groups[raw_group['group']] = (NMR_group(raw_group['group'], raw_group['shieldings'], coupling))
         
         return nmr_object_groups
