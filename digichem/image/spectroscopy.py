@@ -389,6 +389,7 @@ class NMR_graph_maker_abc(Spectroscopy_graph_maker):
         self.y_padding_percent = 1.5
         
         self.annotations = []
+        self.focus_label = None
         
     def plot(self):
         """
@@ -398,28 +399,35 @@ class NMR_graph_maker_abc(Spectroscopy_graph_maker):
         if self.should_plot_labels:
             self.plot_labels()
             
-    def get_label_for_peak(self, atom_group, graph):
+    def get_label_for_peak(self, atom_group, graph, full = False):
         # Get the median of the x values (the middle point).
         x_coords, y_coords = self.transpose(graph.plot_cumulative_gaussian())
         
         x_coord = statistics.median(x_coords)
         y_coord = max(y_coords)
         
+        # Now filter by a fraction of that amount.
+        visible_x_values = [x for x, y in graph.plot_cumulative_gaussian() if y >= (y_coord * 0.95)]
+        
         # Also get the height of the total curve at this point.
-        total_x_coord, total_y_coords = self.transpose(((x,y) for x, y in self.graph.plot_cumulative_gaussian() if x >= x_coords[0] and x <= x_coords[-1]))
+        total_x_coord, total_y_coords = self.transpose(((x,y) for x, y in self.graph.plot_cumulative_gaussian() if x >= min(visible_x_values) and x <= max(visible_x_values)))
         total_max_y = max(total_y_coords)
         
         # Get multiplicity of the peak.
         mult = graph.multiplicity(atom_group, self.coupling[atom_group])
         mult_string = "".join((multiplicity['symbol'] for multiplicity in mult))
         
-        label = r"$\mathdefault{{{{{}}}_{{{}}}}}$ ({})".format(atom_group.element, atom_group.index, mult_string)
-        #label += "\n" + r"$\int$ = {}{}".format(len(atom_group.atoms), atom_group.element.symbol)
-        #label += "\n{:.2f} ppm".format(x_coord) + r", $\int$ = {}{}".format(len(atom_group.atoms), atom_group.element.symbol)
-        label += "\n{:.2f} ppm".format(x_coord) + r", {}{}".format(len(atom_group.atoms), atom_group.element.symbol)
+        if full:
+            label = r"$\mathdefault{{{{{}}}_{{{}}}}}$ ({})".format(atom_group.element, atom_group.index, mult_string)
+            #label += "\n" + r"$\int$ = {}{}".format(len(atom_group.atoms), atom_group.element.symbol)
+            #label += "\n{:.2f} ppm".format(x_coord) + r", $\int$ = {}{}".format(len(atom_group.atoms), atom_group.element.symbol)
+            label += "\n{:.2f} ppm".format(x_coord) + r", {}{}".format(len(atom_group.atoms), atom_group.element.symbol)
         
-        #return label, x_coord, y_coord
+        else:
+            label = r"$\mathdefault{{{{{}}}_{{{}}}}}$".format(atom_group.element, atom_group.index)
+        
         return label, x_coord, total_max_y
+        #return label, x_coord, y_coord
             
     def plot_label_for_peak(self, label, x_coord, y_coord):
         """
@@ -433,12 +441,15 @@ class NMR_graph_maker_abc(Spectroscopy_graph_maker):
 #             horizontalalignment = "center",
 #             fontsize = 8
 #         )
-        return self.axes.text(
-            x_coord, y_coord,
+        text = self.axes.text(
+            # Pop the label 5% above the peak.
+            x_coord, y_coord * 1.025,
             label,
             horizontalalignment = "center",
             fontsize = 8
         )
+        text.set_bbox({"facecolor": 'white', "alpha": 0.75})
+        return text
         
     def plot_labels(self):
         """
@@ -457,17 +468,20 @@ class NMR_graph_maker_abc(Spectroscopy_graph_maker):
             #textalloc.allocate_text(figure, self.axes, x, y, self.annotations)
             adjustText.adjust_text(
                 self.annotations,
-                #x = x,
-                #y = y,
+                x = x,
+                y = y,
+                objects = [self.focus_label] if self.focus_label is not None else None,
                 ax = self.axes,
-                avoid_self = True,
+                avoid_self = False,
                 expand_axes = False,
-                expand = (1.2, 1.2),
-                #arrowprops = {"arrowstyle": '-', "linewidth": 0.5},
+                #expand = (1.2, 1.2),
+                arrowprops = {"arrowstyle": '-', "linewidth": 0.5},
+                min_arrow_len = 1,
                 # Don't allow moving down on the y axis.
                 #only_move = "xy+"
-                only_move = "xy+",
-                time_lim = 5
+                only_move = "xy",
+                #only_move = "y+",
+                time_lim = 2
             )
         return figure
 
@@ -595,16 +609,16 @@ class NMR_graph_zoom_maker(NMR_graph_maker_abc):
             plot_bars = True,
             plot_cumulative_peak = True,
             x_limits = 'auto',
-            #peak_cutoff = 0.01, # No cutoff, show everything.
+            #peak_cutoff = 0.01,
             **kwargs)
         
         self.plot_background_peaks = plot_background_peaks
         self.focus = focus
         
         self.x_padding = None
-        self.x_padding_percent = 0.05
+        self.x_padding_percent = 1.0
         
-        self.target_width = 3
+        self.target_width = 3.5
         
         # Space to allocate per unit of the y axis.
         self.inch_per_x = None
@@ -641,7 +655,7 @@ class NMR_graph_zoom_maker(NMR_graph_maker_abc):
         visible_x_values = [x for x, y in graph.plot_cumulative_gaussian() if y >= (highest_point * self.peak_cutoff)]
         
         x_padding = (
-            max(max(visible_x_values), 0) - min(min(visible_x_values), 0)
+            max(visible_x_values) -min(visible_x_values)
         ) * self.x_padding_percent
         
         maximum = max(visible_x_values) + x_padding
@@ -673,17 +687,21 @@ class NMR_graph_zoom_maker(NMR_graph_maker_abc):
         focus_spectrum = self.transpose(graph.plot_cumulative_gaussian())
         
         # Get all peaks.
-        spectrum = self.transpose(self.graph.plot_cumulative_gaussian())
+        minimum, maximum = self.visible_window()
+        spectrum = self.transpose([(x,y) for x, y in self.graph.plot_cumulative_gaussian() if x >= minimum and x <= maximum])
         
-        # Cut the full spectrum within the limits of our focus graph.
-        # NOTE: This works well, but as the plotted graph is normally wider than
-        # just the values of the peak of interest (because of x_padding), there
-        # may still be peaks in view which are cut off...
-        cut_start = spectrum[0].index(focus_spectrum[0][0])
-        cut_end = spectrum[0].index(focus_spectrum[0][-1])
+#         # Cut the full spectrum within the limits of our focus graph.
+#         # NOTE: This works well, but as the plotted graph is normally wider than
+#         # just the values of the peak of interest (because of x_padding), there
+#         # may still be peaks in view which are cut off...
+#         cut_start = spectrum[0].index(focus_spectrum[0][0])
+#         cut_end = spectrum[0].index(focus_spectrum[0][-1])
+#         
+#         cut_spectrum = (spectrum[0][cut_start:cut_end], spectrum[1][cut_start:cut_end])
         
-        cut_spectrum = (spectrum[0][cut_start:cut_end], spectrum[1][cut_start:cut_end])
-        highest_point = max(cut_spectrum[1])
+        
+        
+        highest_point = max(spectrum[1])
         
         # Clamp to 0 -> pos.
         self.axes.set_ylim(0, highest_point * 1.3)
@@ -726,18 +744,18 @@ class NMR_graph_zoom_maker(NMR_graph_maker_abc):
         self.annotations = []
         minimum, maximum = self.visible_window()
         
-#         for atom_group, graph in self.graph.graphs.items():
-#             if atom_group != self.focus:
-#                 # Only plot the label if the peak is within our visible window.
-#                 x_coords, y_coords = self.transpose(graph.plot_cumulative_gaussian())
-#                 x_coord = statistics.median(x_coords)
-#                 if x_coord > minimum and x_coord < maximum:
-#                     self.annotations.append(
-#                         self.plot_label_for_peak(*self.get_label_for_peak(atom_group, graph))
-#                     )
+        for atom_group, graph in self.graph.graphs.items():
+            if atom_group != self.focus:
+                # Only plot the label if the peak is within our visible window.
+                x_coords, y_coords = self.transpose(graph.plot_cumulative_gaussian())
+                x_coord = statistics.median(x_coords)
+                if x_coord > minimum and x_coord < maximum:
+                    self.annotations.append(
+                        self.plot_label_for_peak(*self.get_label_for_peak(atom_group, graph))
+                    )
                 
         # Plot a more complete label for our focus peak.
-        label, x_coord, y_coord = self.get_label_for_peak(self.focus, self.graph.graphs[self.focus])
+        label, x_coord, y_coord = self.get_label_for_peak(self.focus, self.graph.graphs[self.focus], full = True)
         mult = self.graph.graphs[self.focus].multiplicity(self.focus, self.coupling[self.focus])
         
         # Add coupling info if we have it.
@@ -753,5 +771,5 @@ class NMR_graph_zoom_maker(NMR_graph_maker_abc):
                     len(coupling_group.atoms),
                     coupling_group.element
                 )
-        
+        #self.focus_label = self.plot_label_for_peak(label, x_coord, y_coord)
         self.annotations.append(self.plot_label_for_peak(label, x_coord, y_coord))
