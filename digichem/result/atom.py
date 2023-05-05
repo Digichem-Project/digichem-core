@@ -4,6 +4,7 @@ import periodictable
 from itertools import zip_longest
 from openbabel import pybel
 from rdkit import Chem
+import re
 
 # Silico imports
 from silico.result import Result_container
@@ -53,6 +54,64 @@ def get_chemical_group_mapping(rdkit_molecule):
         )
     }
     return {(mapping[group_id[0]], group_id[1]): group for group_id, group in groups.items()}
+
+
+class Nucleus():
+    """
+    A class that identifies a specific nucleus (having an element and isotope).
+    """
+    
+    # A regex that can be used to identify a nucleus.
+    regex = r'(\d+|\*)?([A-z][A-z]?)'
+    
+    def __init__(self, element):
+        self.isotope = None
+        
+        if isinstance(element, type(self)):
+            self.element = element.element
+            self.isotope = element.isotope
+        
+        elif isinstance(element, list) or isinstance(element, tuple):
+            # A list, first item is the element, second (if present) is the isotope).
+            self.element = element[0]
+            if len(element) > 1:
+                self.isotope = element[1]
+        
+        elif isinstance(element, str):
+            self.element, self.isotope = self.split_string(element)
+        
+        elif isinstance(element, int):
+            self.element = periodictable.elements[element]
+            
+        else:
+            raise TypeError("Unknown nucleus type '{}' {}".format(element, type(element)))
+        
+    @classmethod
+    def split_string(self, string):
+        """
+        """
+        match = re.search(self.regex, string)
+        
+        if match is None:
+            raise ValueError("Unable to process nucleus string '{}'".format(string))
+        
+        match_groups = match.groups()
+        isotope = int(match_groups[0]) if match_groups[0] != "*" else None
+        
+        if isinstance(match_groups[1], int):
+            element = periodictable.elements[match_groups[1]]
+            
+        else:
+            element = periodictable.elements.symbol(match_groups[1])
+        
+        return (element, isotope)
+    
+    def __str__(self):
+        if self.isotope is not None:
+            return "{}{}".format(self.isotope, self.element.symbol)
+        
+        else:
+            return self.element.symbol
     
 
 class Atom_list(Result_container, Unmergeable_container_mixin):
