@@ -527,6 +527,7 @@ class NMR_graph_maker(NMR_graph_maker_abc):
             output,
             graph,
             enable_rendering = options['nmr']['enable_rendering'],
+            plot_bars = options['nmr']['plot_bars'],
             **kwargs
         )
         
@@ -607,10 +608,9 @@ class NMR_graph_zoom_maker(NMR_graph_maker_abc):
             graph,
             coupling = coupling,
             plot_peaks = True,
-            plot_bars = True,
             plot_cumulative_peak = True,
             x_limits = 'auto',
-            peak_cutoff = 0.01,
+            peak_cutoff = 0.02,
             **kwargs)
         
         self.plot_background_peaks = plot_background_peaks
@@ -638,6 +638,7 @@ class NMR_graph_zoom_maker(NMR_graph_maker_abc):
             output,
             graph,
             enable_rendering = options['nmr']['enable_rendering'],
+            plot_bars = options['nmr']['plot_zoom_bars'],
             **kwargs
         )
         
