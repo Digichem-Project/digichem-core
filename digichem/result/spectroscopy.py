@@ -6,6 +6,7 @@ import scipy.signal
 
 import silico.result.excited_state
 from silico.exception.base import Silico_exception
+from silico.misc.base import transpose
 
 class Spectroscopy_graph_abc():
     """
@@ -342,7 +343,7 @@ class NMR_graph(Spectroscopy_graph):
     For plotting an entire spectrum, use a Combined_graph of NMR_graph objects.
     """
     
-    def multiplicity(self, atom_group, coupling):
+    def multiplicity(self, atom_group, coupling, satellite_threshold = 0.02):
         """
         Determine the multiplicity of this peak.
         
@@ -351,9 +352,13 @@ class NMR_graph(Spectroscopy_graph):
         
         :param atom_group: The atom_group that this peak corresponds to.
         :param coupling: NMR_group_spin_coupling objects between this atom_group and other groups.
-        """
+        """        
         # First, determine how many peaks are visible.
         peaks = self.peaks()
+        
+        # Filter out peaks which are significantly smaller than the tallest peak.
+        max_peak = max(transpose(peaks, 2)[1])
+        peaks = [peak for peak in peaks if peak[1] > max_peak * satellite_threshold]
         
         if len(peaks) == 1:
             return [{"symbol": "s", "number": 1, "multiplicity": "singlet"}]
@@ -362,7 +367,23 @@ class NMR_graph(Spectroscopy_graph):
         mults = []
         total_peaks = 1
         coupling_index = 0
+        
+        # Coupling is a series of nested dicts.
+        # We don't care about the hierarchy of isotopes and atoms,
+        # we just want the biggest coupling values.
+        # Unpack and order by magnitude.
+        #couplings = list(coupling.values())
+        # Also filter out couplings from elements with low natural abundances.
+#         couplings = [isotope_coupling for atom_dict in coupling.values() for isotope_coupling in atom_dict.values() 
+#                      if isotope_coupling.groups[isotope_coupling.other(atom_group)].element[isotope_coupling.isotopes[isotope_coupling.other(atom_group)]].abundance / 100 > satellite_threshold
+#         ]
+#         couplings.sort(key = lambda item: abs(item.total), reverse = True)
         couplings = list(coupling.values())
+        
+        # Unless coupling has been calculated for all available isotopes for each atom group (unlikely),
+        # there will be one additional peak for each atom group from non-NMR active nuclei.
+        # Make sure we don't count this peak multiple times.
+        residual_isotope_peaks = set()
         
         # We will keep requesting more splitting until we are able to account for all the peaks we can see.
         while len(peaks) > total_peaks:
@@ -374,10 +395,17 @@ class NMR_graph(Spectroscopy_graph):
                 # Ran out of coupling.
                 break
             
+            other_group = group_coupling.groups[group_coupling.other(atom_group)]
+            residual = other_group not in residual_isotope_peaks
             multiplicity = group_coupling.multiplicity(atom_group)
+            residual_isotope_peaks.add(other_group)
             
             mults.append(multiplicity)
-            total_peaks *= multiplicity['number']
+            num = multiplicity['number']
+            if residual:
+                num += 1
+            
+            total_peaks *= num
             
             # Update counter.
             coupling_index += 1

@@ -7,6 +7,7 @@ from silico.exception.base import File_maker_exception
 from silico.result.spectroscopy import Spectroscopy_graph,\
     Absorption_emission_graph
 from silico.image.graph import Graph_image_maker
+from silico.result.nmr import unpack_coupling
 
 
 class Spectroscopy_graph_maker(Graph_image_maker):
@@ -414,7 +415,8 @@ class NMR_graph_maker_abc(Spectroscopy_graph_maker):
         total_max_y = max(total_y_coords)
         
         # Get multiplicity of the peak.
-        mult = graph.multiplicity(atom_group, self.coupling[atom_group])
+        couplings = unpack_coupling(self.coupling.get(atom_group, {}))
+        mult = graph.multiplicity(atom_group, couplings)
         mult_string = "".join((multiplicity['symbol'] for multiplicity in mult))
         
         if full:
@@ -609,7 +611,7 @@ class NMR_graph_zoom_maker(NMR_graph_maker_abc):
             plot_bars = True,
             plot_cumulative_peak = True,
             x_limits = 'auto',
-            #peak_cutoff = 0.01,
+            peak_cutoff = 0.01,
             **kwargs)
         
         self.plot_background_peaks = plot_background_peaks
@@ -756,13 +758,27 @@ class NMR_graph_zoom_maker(NMR_graph_maker_abc):
                 
         # Plot a more complete label for our focus peak.
         label, x_coord, y_coord = self.get_label_for_peak(self.focus, self.graph.graphs[self.focus], full = True)
-        mult = self.graph.graphs[self.focus].multiplicity(self.focus, self.coupling[self.focus])
+        
+        # Get couplings for our main atom group.
+        couplings = unpack_coupling(self.coupling.get(self.focus, {}))
+        
+        # Get the multiplicities of our peak.
+        mult = self.graph.graphs[self.focus].multiplicity(self.focus, couplings)
         
         # Add coupling info if we have it.
-        couplings = self.coupling.get(self.focus, {})
+#         couplings = self.coupling.get(self.focus, {})
+#         couplings = {
+#             (coupling_group, coupling_isotope): isotope_coupling for coupling_group, atom_dict in couplings.items() for coupling_isotope, isotope_coupling in atom_dict.items()
+#             if isotope_coupling.groups[isotope_coupling.other(atom_group)].element[isotope_coupling.isotopes[isotope_coupling.other(atom_group)]].abundance / 100 > satellite_threshold
+#         }
+#         # Sort couplings.
+#         couplings = dict(sorted(couplings.items(), key = lambda coupling: abs(coupling[1].total), reverse = True))
+        
+        # Add coupling info.
         if len(couplings) > 0 and mult[0]["number"] != 1:
             # Only show couplings for peaks we can actually distinguish.
             for (coupling_group, coupling_isotope), coupling in list(couplings.items())[:len(mult)]:
+            #for (coupling_group, coupling_isotope), coupling in [isotope_coupling for atom_dict in couplings.values() for isotope_coupling in atom_dict.items()][:len(mult)]:
                 label += "\n" + r"J = {:.2f} Hz ($\mathdefault{{^{{{}}}{}_{{{}}}}}$, {}{})".format(
                     coupling.total,
                     coupling_isotope,

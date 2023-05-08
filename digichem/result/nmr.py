@@ -14,6 +14,22 @@ from silico.result.spectroscopy import Combined_graph
 import silico.log
 
 
+def unpack_coupling(couplings, satellite_threshold = 0.02):
+    """
+    Unpack a nested dict of dict of NMR_group_spin_coupling objects into a single, ordered dict.
+    
+    The keys of the returned dict will be a tuple of (foreign_atom_group, foreign_isotope).
+    """
+    couplings = {
+            (coupling_group, coupling_isotope): isotope_coupling for coupling_group, atom_dict in couplings.items() for coupling_isotope, isotope_coupling in atom_dict.items()
+            if coupling_group.element[coupling_isotope].abundance / 100 > satellite_threshold
+        }
+    # Sort couplings.
+    couplings = dict(sorted(couplings.items(), key = lambda coupling: abs(coupling[1].total), reverse = True))
+    
+    return couplings
+
+
 # TODO: NMR tensors are currently not re-orientated according to the alignment method used.
 # This needs implementing.
 class NMR_spectrometer(Result_object):
@@ -270,21 +286,71 @@ class NMR_spectrometer(Result_object):
                             break
                     
                     if not no_couple:
-                        inner_coupling[(coupling.groups[second_index], coupling.isotopes[second_index])] = coupling
-                                
-            # Sort couplings.
-            inner_coupling = {
-                inner_group: coupling
-                for inner_group, coupling
-                in sorted(
-                    inner_coupling.items(),
-                    key = lambda item: abs(item[1].total),
-                    reverse = True
-            )}
+                        #inner_coupling[(coupling.groups[second_index], coupling.isotopes[second_index])] = coupling
+                        
+                        # Create a dictionary for this foreign atom.
+                        if coupling.groups[second_index] not in inner_coupling:
+                            inner_coupling[coupling.groups[second_index]] = {}
+                        
+                        # Add another for the isotope of this foreign atom.
+                        inner_coupling[coupling.groups[second_index]][coupling.isotopes[second_index]] = coupling
+                            
+#             # Sort couplings.
+#             inner_coupling = {
+#                 inner_group: coupling
+#                 for inner_group, coupling
+#                 in sorted(
+#                     inner_coupling.items(),
+#                     key = lambda item: abs(item[1].total),
+#                     reverse = True
+#             )}
             
             outer_coupling[nmr_result.group] = inner_coupling
         
         return outer_coupling
+    
+    def split_peaks(self, nmr_result, coupling, peaks, isotope_options):
+        """
+        Split a list of peaks according to a given coupling.
+        
+        :param nmr_result: The NMR result which gives rise to the peak(s) being split.
+        :param coupling: The coupling that is being used to cause the splitting.
+        :param peaks: An existing list of peaks to split.
+        :param isotope_options: Isotope options for this atom.
+        """
+        main_index = coupling.groups.index(nmr_result.group)
+        second_index = 1 if main_index == 0 else 0
+        
+        # Each atom in the group we are coupling to.
+        for atom in range(len(coupling.groups[second_index].atoms)):
+            new_peaks = {}
+            for old_peak in peaks.values():
+                # Calculate the shift of the new peaks (in ppm).
+                coupling_constant = coupling.total / isotope_options['frequency']
+                
+                # If we're merging peaks, round the value appropriately.
+                if isotope_options['pre_merge']:
+                    coupling_constant = round(coupling_constant / isotope_options['pre_merge']) * isotope_options['pre_merge']
+                
+                # Bafflingly, calling 'neutron' here is necessary to make nuclear_spin available.
+                ele = getattr(periodictable, coupling.groups[second_index].element.symbol)
+                iso = ele[coupling.isotopes[second_index]]
+                iso.neutron
+                spin = float(Fraction(iso.nuclear_spin))
+                #abundance = iso.abundance /100
+                num_peaks = 2 * spin +1
+                
+                # Add the new peaks to the shifts originating from coupling between these two groups.
+                for new_peak in ([sub_peak, old_peak[1] / num_peaks] for sub_peak in regular_range(old_peak[0], num_peaks, coupling_constant)):
+                    if new_peak[0] in new_peaks:
+                        new_peaks[new_peak[0]][1] += new_peak[1]
+                    
+                    else:
+                        new_peaks[new_peak[0]] = new_peak
+            
+            peaks = new_peaks
+            
+        return peaks
 
     def simulate(self, element, isotope, decoupling = None):
         """
@@ -318,7 +384,7 @@ class NMR_spectrometer(Result_object):
                 
             # Matches our element.
             
-            group_coupling = all_coupling.get(nmr_result.group, {}).values()
+            group_coupling = all_coupling.get(nmr_result.group, {})
             
             # Make some peaks.
             # Start with a single shift peak.
@@ -332,40 +398,43 @@ class NMR_spectrometer(Result_object):
             else:
                 initial_shielding = nmr_result.shielding
             
-            peaks = {nmr_result.shielding: [initial_shielding, len(nmr_result.group.atoms)]}
+            peaks = {initial_shielding: [initial_shielding, len(nmr_result.group.atoms)]}
             
             # Now split it by each coupling.
-            for coupling in group_coupling:
-                main_index = coupling.groups.index(nmr_result.group)
-                second_index = 1 if main_index == 0 else 0
+            for foreign_atom_group, isotopes in group_coupling.items():
+                # Each atom-group that we're going to couple to may have couplings for a number of isotopes.
+                # Additionally, any percentage abundance not taken up by the isotopes for which coupling is available
+                # will result in an unsplit peak.
+                total_abundance = sum([foreign_atom_group.element[isotope].abundance for isotope in isotopes.keys()])
                 
-                # Each atom in the group we are coupling to.
-                for atom in range(len(coupling.groups[second_index].atoms)):
-                    new_peaks = {}
-                    for old_peak in peaks.values():
-                        # Calculate the shift of the new peaks (in ppm).
-                        coupling_constant = coupling.total / isotope_options['frequency']
-                        
-                        # If we're merging peaks, round the value appropriately.
-                        if isotope_options['pre_merge']:
-                            coupling_constant = round(coupling_constant / isotope_options['pre_merge']) * isotope_options['pre_merge']
-                        
-                        # Bafflingly, calling 'neutron' here is necessary to make nuclear_spin available.
-                        ele = getattr(periodictable, coupling.groups[second_index].element.symbol)
-                        iso = ele[coupling.isotopes[second_index]]
-                        iso.neutron
-                        spin = float(Fraction(iso.nuclear_spin))
-                        num_peaks = 2 * spin +1
-                        
-                        # Add the new peaks to the shifts originating from coupling between these two groups.
-                        for new_peak in ([sub_peak, old_peak[1] / num_peaks] for sub_peak in regular_range(old_peak[0], num_peaks, coupling_constant)):
-                            if new_peak[0] in new_peaks:
-                                new_peaks[new_peak[0]][1] += new_peak[1]
-                            
-                            else:
-                                new_peaks[new_peak[0]] = new_peak
+                new_peaks = {}
+                
+                for isotope, coupling in isotopes.items():
+                    # Decrease the apparent peak intensity by the natural abundance.
                     
-                    peaks = new_peaks
+                    abundance = foreign_atom_group.element[isotope].abundance / 100
+                    isotope_peaks = {peak[0]: (peak[0], peak[1] * abundance) for peak in peaks.values()}
+                    
+                    for new_peak in self.split_peaks(nmr_result, coupling, isotope_peaks, isotope_options).values():
+                        if new_peak[0] in new_peaks:
+                            new_peaks[new_peak[0]][1] += new_peak[1]
+                        else:
+                            new_peaks[new_peak[0]] = new_peak
+                            
+                # After splitting by all isotopes, if we have any abundance not accounted for,
+                # we'll add back the original unsplit peaks (with their intensity decreased by the remaining
+                # abundance).
+                if 100 - total_abundance > 0.0:
+                    # The stating height of any remaining unsplit peaks.
+                    abundance = (100 - total_abundance) / 100
+                    
+                    for new_peak in ((peak[0], peak[1] * abundance) for peak in peaks.values()):
+                        if new_peak[0] in new_peaks:
+                            new_peaks[new_peak[0]][1] += new_peak[1]
+                        else:
+                            new_peaks[new_peak[0]] = new_peak
+                            
+                peaks = new_peaks
             
             peaks = list(peaks.values())
             peaks.sort(key = lambda peak: peak[0])
@@ -632,13 +701,21 @@ class NMR_group_spin_coupling(Result_object):
             #"couplings": [coupling.dump(silico_options) for coupling in self.couplings]
         }
         
+    def other(self, atom_group):
+        """
+        Get the index of the other atom_group involved in this coupling.
+        
+        :param atom_group: One of the two atom groups.
+        """
+        return abs(1 - self.groups.index(atom_group))
+        
     def multiplicity(self, atom_group):
         """
         Calculate the multiplicity (number of peaks generated) by this coupling.
         
         :param atom_group: The atom_group who's corresponding peak is to be split. This should be one of the two groups in self.groups.
         """
-        second_index = abs(1 - self.groups.index(atom_group))
+        second_index = self.other(atom_group)
         # Calculate how many peaks are going to be generated.
         # This is the number of equivalent nuclei * (2 * spin) + 1
         
