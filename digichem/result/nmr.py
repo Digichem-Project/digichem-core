@@ -278,16 +278,6 @@ class NMR_spectrometer(Result_object):
                         
                         # Add another for the isotope of this foreign atom.
                         inner_coupling[coupling.groups[second_index]][coupling.isotopes[second_index]] = coupling
-                            
-#             # Sort couplings.
-#             inner_coupling = {
-#                 inner_group: coupling
-#                 for inner_group, coupling
-#                 in sorted(
-#                     inner_coupling.items(),
-#                     key = lambda item: abs(item[1].total),
-#                     reverse = True
-#             )}
             
             outer_coupling[nmr_result.group] = inner_coupling
         
