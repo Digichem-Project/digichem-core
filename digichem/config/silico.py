@@ -237,6 +237,8 @@ To disable the maximum width, set to null.""", type = int, default = 1500),
             9: 183.2779999999999,
             15: 290.8630000000001,
         }),
+        plot_bars = Option(help = "Whether to plot vertical bars for each NMR shift", type = bool, default = False),
+        plot_zoom_bars = Option(help = "Whether to plot vertical bars for each NMR shift in zoomed spectra", type = bool, default = True),
         
         # TODO: Validation on these sorts of options is poor and needs looking at.
         isotopes = Option(help = "Isotope specific options. Each key should consist of a tuple of (proton_number, isotope).", type = Nested_dict_type, default = {
