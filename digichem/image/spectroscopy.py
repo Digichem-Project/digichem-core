@@ -444,7 +444,7 @@ class NMR_graph_maker_abc(Spectroscopy_graph_maker):
 #         )
         text = self.axes.text(
             # Pop the label 5% above the peak.
-            x_coord, y_coord * 1.025,
+            x_coord, y_coord * 1.1,
             label,
             horizontalalignment = "center",
             fontsize = 8
@@ -463,10 +463,14 @@ class NMR_graph_maker_abc(Spectroscopy_graph_maker):
     def make_graph(self):
         figure = super().make_graph()
         
-        x, y = self.transpose(self.graph.plot_cumulative_gaussian())
+#         x, y = self.transpose(self.graph.plot_cumulative_gaussian())
+#         # Filter out some points to improve speed of adjust text.
+#         x = x[0::20]
+#         y = y[0::20]
+        
+        x, y = self.transpose(self.graph.coordinates)
         
         if len(self.annotations) > 0:
-            #textalloc.allocate_text(figure, self.axes, x, y, self.annotations)
             adjustText.adjust_text(
                 self.annotations,
                 x = x,
@@ -475,14 +479,14 @@ class NMR_graph_maker_abc(Spectroscopy_graph_maker):
                 ax = self.axes,
                 avoid_self = False,
                 expand_axes = False,
-                #expand = (1.2, 1.2),
+                expand = (1.5, 1.3),
                 arrowprops = {"arrowstyle": '-', "linewidth": 0.5},
                 min_arrow_len = 1,
                 # Don't allow moving down on the y axis.
                 #only_move = "xy+"
                 only_move = "xy",
                 #only_move = "y+",
-                time_lim = 2
+                time_lim = 10
             )
         return figure
 
@@ -566,7 +570,7 @@ class NMR_graph_maker(NMR_graph_maker_abc):
         
         else:
             # Don't extend beyond zero if there are no negative values.
-            #minimum = max(min(visible_x_values) - self.x_padding, 0)
+            #minimum = min(visible_x_values) - x_padding
             minimum = 0
             
         # If we have no positive shifts, set zero as the end of one scale.
@@ -785,7 +789,8 @@ class NMR_graph_zoom_maker(NMR_graph_maker_abc):
                     coupling_isotope,
                     coupling_group.element,
                     coupling_group.index,
-                    len(coupling_group.atoms),
+                    #len(coupling_group.atoms),
+                    coupling.num_coupled_atoms(self.focus),
                     coupling_group.element
                 )
         #self.focus_label = self.plot_label_for_peak(label, x_coord, y_coord)
