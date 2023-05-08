@@ -336,7 +336,7 @@ class Absorption_emission_graph(Spectroscopy_graph):
 
 
 
-
+# TODO: Find this a better home?
 def unpack_coupling(couplings, satellite_threshold = 0.02):
     """
     Unpack a nested dict of dict of NMR_group_spin_coupling objects into a single, ordered dict.
