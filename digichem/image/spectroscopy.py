@@ -5,9 +5,8 @@ import adjustText
 
 from silico.exception.base import File_maker_exception
 from silico.result.spectroscopy import Spectroscopy_graph,\
-    Absorption_emission_graph
+    Absorption_emission_graph, unpack_coupling
 from silico.image.graph import Graph_image_maker
-from silico.result.nmr import unpack_coupling
 
 
 class Spectroscopy_graph_maker(Graph_image_maker):
@@ -415,8 +414,8 @@ class NMR_graph_maker_abc(Spectroscopy_graph_maker):
         total_max_y = max(total_y_coords)
         
         # Get multiplicity of the peak.
-        couplings = unpack_coupling(self.coupling.get(atom_group, {}))
-        mult = graph.multiplicity(atom_group, couplings)
+        coupling = self.coupling.get(atom_group, {})
+        mult = graph.multiplicity(atom_group, coupling)
         mult_string = "".join((multiplicity['symbol'] for multiplicity in mult))
         
         if full:
@@ -760,10 +759,11 @@ class NMR_graph_zoom_maker(NMR_graph_maker_abc):
         label, x_coord, y_coord = self.get_label_for_peak(self.focus, self.graph.graphs[self.focus], full = True)
         
         # Get couplings for our main atom group.
-        couplings = unpack_coupling(self.coupling.get(self.focus, {}))
+        coupling = self.coupling.get(self.focus, {})
         
         # Get the multiplicities of our peak.
-        mult = self.graph.graphs[self.focus].multiplicity(self.focus, couplings)
+        mult = self.graph.graphs[self.focus].multiplicity(self.focus, coupling)
+        couplings = unpack_coupling(coupling)
         
         # Add coupling info if we have it.
 #         couplings = self.coupling.get(self.focus, {})

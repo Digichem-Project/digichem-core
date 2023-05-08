@@ -14,22 +14,6 @@ from silico.result.spectroscopy import Combined_graph
 import silico.log
 
 
-def unpack_coupling(couplings, satellite_threshold = 0.02):
-    """
-    Unpack a nested dict of dict of NMR_group_spin_coupling objects into a single, ordered dict.
-    
-    The keys of the returned dict will be a tuple of (foreign_atom_group, foreign_isotope).
-    """
-    couplings = {
-            (coupling_group, coupling_isotope): isotope_coupling for coupling_group, atom_dict in couplings.items() for coupling_isotope, isotope_coupling in atom_dict.items()
-            if coupling_group.element[coupling_isotope].abundance / 100 > satellite_threshold
-        }
-    # Sort couplings.
-    couplings = dict(sorted(couplings.items(), key = lambda coupling: abs(coupling[1].total), reverse = True))
-    
-    return couplings
-
-
 # TODO: NMR tensors are currently not re-orientated according to the alignment method used.
 # This needs implementing.
 class NMR_spectrometer(Result_object):

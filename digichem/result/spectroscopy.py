@@ -335,6 +335,24 @@ class Absorption_emission_graph(Spectroscopy_graph):
         return [[self.energy_to_wavelength(coord, self.use_jacobian) for coord in plot] for plot in super().plot_gaussian()]
 
 
+
+
+def unpack_coupling(couplings, satellite_threshold = 0.02):
+    """
+    Unpack a nested dict of dict of NMR_group_spin_coupling objects into a single, ordered dict.
+    
+    The keys of the returned dict will be a tuple of (foreign_atom_group, foreign_isotope).
+    """
+    couplings = {
+            (coupling_group, coupling_isotope): isotope_coupling for coupling_group, atom_dict in couplings.items() for coupling_isotope, isotope_coupling in atom_dict.items()
+            if coupling_group.element[coupling_isotope].abundance / 100 > satellite_threshold
+        }
+    # Sort couplings.
+    couplings = dict(sorted(couplings.items(), key = lambda coupling: abs(coupling[1].total), reverse = True))
+    
+    return couplings
+
+
 class NMR_graph(Spectroscopy_graph):
     """
     A class for plotting a single NMR peak.
@@ -368,22 +386,19 @@ class NMR_graph(Spectroscopy_graph):
         total_peaks = 1
         coupling_index = 0
         
-        # Coupling is a series of nested dicts.
-        # We don't care about the hierarchy of isotopes and atoms,
-        # we just want the biggest coupling values.
-        # Unpack and order by magnitude.
-        #couplings = list(coupling.values())
-        # Also filter out couplings from elements with low natural abundances.
-#         couplings = [isotope_coupling for atom_dict in coupling.values() for isotope_coupling in atom_dict.values() 
-#                      if isotope_coupling.groups[isotope_coupling.other(atom_group)].element[isotope_coupling.isotopes[isotope_coupling.other(atom_group)]].abundance / 100 > satellite_threshold
-#         ]
-#         couplings.sort(key = lambda item: abs(item.total), reverse = True)
-        couplings = list(coupling.values())
+        # Get couplings.
+        couplings = unpack_coupling(coupling)
+        couplings = list(couplings.values())
         
         # Unless coupling has been calculated for all available isotopes for each atom group (unlikely),
         # there will be one additional peak for each atom group from non-NMR active nuclei.
         # Make sure we don't count this peak multiple times.
-        residual_isotope_peaks = set()
+        #
+        # For atoms in which the majority of the abundance is already accounted for (1H, for example),
+        # exclude the residual peak.
+        residual_isotope_peaks = set(
+            [atom_group for atom_group, isotopes in coupling.items() if sum((atom_group.element[isotope].abundance for isotope in isotopes.keys())) / 100 > satellite_threshold]
+        )
         
         # We will keep requesting more splitting until we are able to account for all the peaks we can see.
         while len(peaks) > total_peaks:
