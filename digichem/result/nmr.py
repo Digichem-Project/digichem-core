@@ -601,6 +601,16 @@ class NMR_list(Result_container):
         }
         return dump_dict
     
+    @classmethod
+    def from_dump(self, data, result_set):
+        """
+        Get an instance of this class from its dumped representation.
+        
+        :param data: The data to parse.
+        :param result_set: The partially constructed result set which is being populated.
+        """
+        return self(NMR.list_from_dump(data['values'], result_set))
+    
     def generate_for_dump(self):
         """
         Method used to get a dictionary used to generate on-demand values for dumping.
