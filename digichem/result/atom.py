@@ -12,6 +12,7 @@ from silico.result import Result_object
 from silico.result import Unmergeable_container_mixin
 from silico.exception.base import Result_unavailable_error, Silico_exception
 from silico.file.babel import Openbabel_converter
+from silico.misc.base import dict_list_index
 
 def get_chemical_group_mapping(rdkit_molecule):
     """
@@ -43,17 +44,30 @@ def get_chemical_group_mapping(rdkit_molecule):
         
         except KeyError:
             groups[(group_num, atom.GetSymbol())] = [atom_index +1]
+            
+    # We now need to re-assign group numbers to ensure they are:
+    # 1) Sparse (no missing values, possible because of the hydrogens we removed).
+    # 2) Consecutive in terms of the molecule's skeleton (so adjacent numbers are ideally placed
+    # adjacent to each other).
+    #
+    # 2) is challenging to ensure, so for now we simply use the original atom position (because
+    # molecules are normally written fairly consecutively).
+    # TODO: Find a better way to ensure atom numbering is both deterministic and consecutive.
     
-    # Fix group numberings.
-    mapping = {
-        old_num: new_num +1 for new_num, old_num
-        in enumerate(
-            set(
-                sorted((group[0] for group in groups))
-            )
-        )
-    }
-    return {(mapping[group_id[0]], group_id[1]): group for group_id, group in groups.items()}
+    order = []
+    
+    for atom_index, atom in enumerate(atoms):
+        # Find the current group num of the group this atom is a part of.
+        cur_group = dict_list_index(groups, atom_index +1)
+        
+        # If we've already processed this group, ignore.
+        if cur_group[0] not in order:
+            # Else, add it next.
+            order.append(cur_group[0])
+            
+    new_groups = {(order.index(group_key[0]) +1, group_key[1]): group for group_key, group in groups.items()}
+    
+    return new_groups
 
 
 class Nucleus():
