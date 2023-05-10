@@ -462,7 +462,7 @@ class NMR_list(Result_container):
     """
     A container to hold a list of NMR results.
     
-    For practicle applications, see the output of the group() method or the spectrometer attribute.
+    For practical applications, see the output of the group() method or the spectrometer attribute.
     """
     
     def __init__(self, *args, atoms, options, **kwargs):
@@ -591,6 +591,9 @@ class NMR_list(Result_container):
         return nmr_object_groups
     
     def dump(self, silico_options):
+        """
+        Dump this list of NMR results to a list of primitive types.
+        """
         grouping = self.group(self.atoms)
         dump_dict = {
             "values": super().dump(silico_options),
