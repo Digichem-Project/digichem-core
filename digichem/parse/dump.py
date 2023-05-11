@@ -161,31 +161,31 @@ class Dump_parser_abc(Parser_abc):
         # Get our result set.
         self.results = Result_set(
             database_id = self.data.get("_id"),
-            metadata = Metadata.from_dump(self.data['metadata'], self.results)
+            metadata = Metadata.from_dump(self.data['metadata'], self.results, options)
         )
         
         # First get our list of MOs (because we need them for excited states too.)
-        self.results.orbitals = Molecular_orbital_list.from_dump(self.data['orbitals'], self.results)
-        self.results.beta_orbitals = Molecular_orbital_list.from_dump(self.data['beta_orbitals'], self.results)
+        self.results.orbitals = Molecular_orbital_list.from_dump(self.data['orbitals'], self.results, options)
+        self.results.beta_orbitals = Molecular_orbital_list.from_dump(self.data['beta_orbitals'], self.results, options)
         
         alignment_class = Alignment.from_class_handle(options['alignment']) if options['alignment'] is not None else Minimal
         
         # Our alignment orientation data.
         # The constructor for each alignment class automatically performs realignment.
-        self.results.atoms = alignment_class.from_dump(self.data['atoms'], self.results)
-        self.results.raw_atoms = Atom_list.from_dump(self.data['raw_atoms'], self.results)
+        self.results.atoms = alignment_class.from_dump(self.data['atoms'], self.results, options)
+        self.results.raw_atoms = Atom_list.from_dump(self.data['raw_atoms'], self.results, options)
         
         # TEDM and TMDM.
-        self.results.transition_dipole_moments = Transition_dipole_moment.list_from_dump(self.data['excited_states']['values'], self.results)
+        self.results.transition_dipole_moments = Transition_dipole_moment.list_from_dump(self.data['excited_states']['values'], self.results, options)
         
         # Excited states.
-        self.results.excited_states = Excited_state_list.from_dump(self.data['excited_states'], self.results)
+        self.results.excited_states = Excited_state_list.from_dump(self.data['excited_states'], self.results, options)
         
         # Energies.
-        self.results.energies = Energies.from_dump(self.data['energies'], self.results)
+        self.results.energies = Energies.from_dump(self.data['energies'], self.results, options)
         
         # Our ground state.
-        self.results.ground_state = Ground_state.from_dump(self.data['ground_state'], self.results)
+        self.results.ground_state = Ground_state.from_dump(self.data['ground_state'], self.results, options)
         
         # And a similar list but also including the ground.
         self.results.energy_states = Excited_state_list()
@@ -193,13 +193,13 @@ class Dump_parser_abc(Parser_abc):
         self.results.energy_states.extend(self.results.excited_states)
         
         # SOC.
-        self.results.soc = SOC_list.from_dump(self.data['soc'], self.results)
+        self.results.soc = SOC_list.from_dump(self.data['soc'], self.results, options)
         
         # PDM
-        self.results.pdm = Dipole_moment.from_dump(self.data['pdm'], self.results)
+        self.results.pdm = Dipole_moment.from_dump(self.data['pdm'], self.results, options)
         
         # Frequencies.
-        self.results.vibrations = Vibrations_list.from_dump(self.data['vibrations'], self.results)
+        self.results.vibrations = Vibrations_list.from_dump(self.data['vibrations'], self.results, options)
         
         # NMR.
         if "nmr" in self.data:
