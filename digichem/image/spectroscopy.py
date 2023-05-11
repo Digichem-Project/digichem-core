@@ -463,12 +463,12 @@ class NMR_graph_maker_abc(Spectroscopy_graph_maker):
     def make_graph(self):
         figure = super().make_graph()
         
-#         x, y = self.transpose(self.graph.plot_cumulative_gaussian())
-#         # Filter out some points to improve speed of adjust text.
-#         x = x[0::20]
-#         y = y[0::20]
+                
+        x, y = self.transpose(self.graph.peaks())
+        # Decrease the value of all y (because adjusttext will repel labels away if they are too close)
+        y = [val * 0.8 for val in y]
         
-        x, y = self.transpose(self.graph.coordinates)
+        #self.annotations = []
         
         if len(self.annotations) > 0:
             adjustText.adjust_text(
