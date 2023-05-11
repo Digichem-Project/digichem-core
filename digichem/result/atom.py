@@ -136,9 +136,17 @@ class Atom_list(Result_container, Unmergeable_container_mixin):
     # A warning issued when attempting to merge non-equivalent atom lists.
     MERGE_WARNING = "Attempting to merge lists of atoms that are not identical; non-equivalent atoms will be ignored"
     
-    def __init__(self, *args, charge = None, **kwargs):
+    def __init__(self, *args, charge = None, assign_groups = True, **kwargs):
+        """
+        :param charge: The electronic charge of the system.
+        :param assign_groups: If True (the default), assign groupings to all the atoms of this list. Call assign_groups() to re-calculate these groupings whenever atoms are added/removed.
+        """
         super().__init__(*args, **kwargs)
         self.charge = charge if charge is not None else 0
+        self._groups = None
+        
+        if assign_groups:
+            self.assign_groups()
         
     @property
     def mass(self):
@@ -216,6 +224,64 @@ class Atom_list(Result_container, Unmergeable_container_mixin):
             formula_string += " {}{}".format(abs(self.charge), "-" if self.charge < 0 else "+")
             
         return formula_string
+    
+    @property
+    def groups(self):
+        """
+        Get a list of the groups of atoms in this list.
+        
+        Atom groups combine chemically equivalent atom positions into a single group.
+        """
+        if self._groups is None:
+            self.assign_groups()
+            
+        return self._groups
+    
+    def find(self, criteria = None, *, label = None, index = None):
+        """
+        Find an atom that matches a given criteria
+        
+        :raises ValueError: If the requested atom could not be found.
+        :param criteria: Automatically determine which criteria to search by.
+        :param label: The label (a string, such as C1), to find.
+        :param index: The index (an int or string that looks like an int) of the atom
+        :return: The requested atom.
+        """
+        if criteria is not None:
+            if criteria.isdigit() or isinstance(criteria, int):
+                index = int(criteria)
+            else:
+                label = criteria
+        
+        if index:
+            # Fetch by index.
+            try:
+                return self[int(index)]
+            
+            except IndexError:
+                raise Result_unavailable_error("Atom", "could not find atom with index {}".format(index)) from None
+            
+        else:
+            # Search by label.
+            try:
+                return [atom for atom in self if atom.label == label][0]
+            
+            except IndexError:
+                raise Result_unavailable_error("Atom", "could not find atom with label {}".format(label)) from None
+    
+    def assign_groups(self):
+        """
+        Assign groupings to all the atoms of this system.
+        
+        Atom groups combine chemically equivalent atom positions into a single group.
+        """
+        group_mappings = get_chemical_group_mapping(self.to_rdkit_molecule())            
+        self._groups = {group_id: Atom_group(group_id[0], [self[atom_index -1] for atom_index in atom_indices]) for group_id, atom_indices in group_mappings.items()}
+        
+        for atom in self:
+            group = [group for group in self.groups.values() if atom in group.atoms][0]
+            
+            atom.group = group
     
     @property
     def smiles(self):
@@ -421,7 +487,13 @@ class Atom_list(Result_container, Unmergeable_container_mixin):
         Convert this list of atoms to an rdkit molecule object.
         """
         # NOTE: Conversion directly from xyz is broken for lots of reasons. Mol is much more reliable.
-        return Chem.MolFromMolBlock(self.to_mol(), removeHs = False)
+        # NOTE: rdkit can fail silently and return None, best to check.
+        mol = Chem.MolFromMolBlock(self.to_mol(), removeHs = False)
+        
+        if mol is None:
+            raise Exception("Failed to parse coordinates with rdkit")
+        
+        return mol
 
 
 class Atom_ABC(Result_object):
@@ -456,6 +528,10 @@ class Atom_group(Atom_ABC):
             raise Silico_exception("Multiple element types found in atom group '{}'".format(elements))
         
         return elements[0]
+    
+    @property
+    def id(self):
+        return (self.index, self.element.symbol)
     
     @property
     def label(self):
@@ -497,6 +573,8 @@ class Atom(Atom_ABC):
         self.coords = coords
         # Get our element class.
         self.element = periodictable.elements[atomic_number]
+        # Atom groups are assigned by Atom_list objects.
+        self.group = None
         
     def __str__(self):
         """
@@ -526,9 +604,11 @@ class Atom(Atom_ABC):
         """
         Get a representation of this result object in primitive format.
         """
-        return {
+        dump_dict = {
             "index": self.index,
             "element": self.element.number,
+            "label": self.label,
+            "group": self.group.label if self.group else None,
             "coords": {
                 "x": {
                     "value": float(self.coords[0]),
@@ -548,6 +628,7 @@ class Atom(Atom_ABC):
                 "units": "g mol^-1"
             }
         }
+        return dump_dict
         
     @classmethod
     def list_from_dump(self, data, result_set):
