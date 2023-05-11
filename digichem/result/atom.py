@@ -399,14 +399,14 @@ class Atom_list(Result_container, Unmergeable_container_mixin):
         return self(Atom.list_from_parser(parser), charge = parser.results.metadata.charge)
     
     @classmethod
-    def from_dump(self, data, result_set):
+    def from_dump(self, data, result_set, options):
         """
         Get an instance of this class from its dumped representation.
         
         :param data: The data to parse.
         :param result_set: The partially constructed result set which is being populated.
         """
-        return self(Atom.list_from_dump(data['values'], result_set), charge = data['charge'])
+        return self(Atom.list_from_dump(data['values'], result_set, options), charge = data['charge'])
     
     @classmethod
     def from_coords(self, coords):
@@ -631,7 +631,7 @@ class Atom(Atom_ABC):
         return dump_dict
         
     @classmethod
-    def list_from_dump(self, data, result_set):
+    def list_from_dump(self, data, result_set, options):
         """
         Get a list of instances of this class from its dumped representation.
         

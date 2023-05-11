@@ -450,6 +450,12 @@ class Combined_graph(Spectroscopy_graph_abc):
         """
         self.graphs = graphs
         
+    @property
+    def cutoff(self):
+        """
+        """
+        return max((graph.cutoff for graph in self.graphs.values()))
+        
     @classmethod
     def from_nmr(self, grouped_peaks, *args, **kwargs):
         """

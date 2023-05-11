@@ -82,16 +82,16 @@ class Energies(Result_object):
         return dump
         
     @classmethod
-    def from_dump(self, data, result_set):
+    def from_dump(self, data, result_set, options):
         """
         Get an instance of this class from its dumped representation.
         
         :param data: The data to parse.
         :param result_set: The partially constructed result set which is being populated.
         """
-        scf = SCF_energy_list.from_dump(data['scf'], result_set)
-        #mp = MP_energy_list.from_dump(data['mp'], result_set)
-        cc = CC_energy_list.from_dump(data['cc'], result_set)
+        scf = SCF_energy_list.from_dump(data['scf'], result_set, options)
+        #mp = MP_energy_list.from_dump(data['mp'], result_set, options)
+        cc = CC_energy_list.from_dump(data['cc'], result_set, options)
         
         # TODO: consider using a dict so list indices make sense?
         mp_energies = []
@@ -99,7 +99,7 @@ class Energies(Result_object):
         # Other MP energies.
         for mp_order in itertools.count(2):
             if "mp{}".format(mp_order) in data:
-                mp_energies.append(MP_energy_list.from_dump(data["mp{}".format(mp_order)], result_set))
+                mp_energies.append(MP_energy_list.from_dump(data["mp{}".format(mp_order)], result_set, options))
             
             else:
                 break
@@ -224,7 +224,7 @@ class Energy_list(Result_container, Unmergeable_container_mixin):
         }
         
     @classmethod
-    def from_dump(self, data, result_set, **kwargs):
+    def from_dump(self, data, result_set, options, **kwargs):
         """
         Get a list of instances of this class from its dumped representation.
         
@@ -279,14 +279,14 @@ class MP_energy_list(Energy_list):
         return dump
     
     @classmethod
-    def from_dump(self, data, result_set, **kwargs):
+    def from_dump(self, data, result_set, options):
         """
         Get a list of instances of this class from its dumped representation.
         
         :param data: The data to parse.
         :param result_set: The partially constructed result set which is being populated.
         """
-        return super().from_dump(data, result_set, order = data['order'])
+        return super().from_dump(data, result_set, options, order = data['order'])
         
     @classmethod
     def list_from_parser(self, parser):

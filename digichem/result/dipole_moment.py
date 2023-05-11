@@ -308,7 +308,7 @@ class Dipole_moment(Dipole_moment_ABC, Electric_dipole_moment_mixin):
     """
         
     @classmethod
-    def from_dump(self, data, result_set):
+    def from_dump(self, data, result_set, options):
         """
         Get a list of instances of this class from its dumped representation.
         

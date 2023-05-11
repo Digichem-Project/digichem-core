@@ -384,7 +384,7 @@ class Metadata(Result_object):
         return attr_dict
     
     @classmethod
-    def from_dump(self, data, result_set):
+    def from_dump(self, data, result_set, options):
         """
         Get an instance of this class from its dumped representation.
         

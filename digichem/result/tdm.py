@@ -28,7 +28,7 @@ class Transition_dipole_moment_ABC(Dipole_moment_ABC):
         self.dipole_type = "transition"
         
     @classmethod
-    def from_dump(self, data, result_set):
+    def from_dump(self, data, result_set, options):
         """
         Get a list of instances of this class from its dumped representation.
         
@@ -181,7 +181,7 @@ class Transition_dipole_moment(Result_object):
             raise AttributeError(name)
         
     @classmethod
-    def list_from_dump(self, data, result_set):
+    def list_from_dump(self, data, result_set, options):
         """
         Get a list of instances of this class from its dumped representation.
         
@@ -192,10 +192,10 @@ class Transition_dipole_moment(Result_object):
         # In the dumped format, tdms are not stored as their own list (but rather as a sub dict of the relevant excited state),
         # but in order to avoid recursive imports, a list of tdms does need to be created when excited states are loaded again.
         # This being the case, 'data' here is actually a list of excited states, not tdms...
-        return [self.from_dump(excited_state['tdm'], result_set) for excited_state in data]
+        return [self.from_dump(excited_state['tdm'], result_set, options) for excited_state in data]
         
     @classmethod
-    def from_dump(self, data, result_set):
+    def from_dump(self, data, result_set, options):
         """
         Get a list of instances of this class from its dumped representation.
         
@@ -207,13 +207,13 @@ class Transition_dipole_moment(Result_object):
     
         # Build the individual parts.
         if data['electric'] is not None:
-            electric = Electric_transition_dipole_moment.from_dump(data['electric'], result_set)
+            electric = Electric_transition_dipole_moment.from_dump(data['electric'], result_set, options)
         
         else:
             electric = None
         
         if data['magnetic'] is not None:
-            magnetic = Magnetic_transition_dipole_moment.from_dump(data['magnetic'], result_set)
+            magnetic = Magnetic_transition_dipole_moment.from_dump(data['magnetic'], result_set, options)
         
         else:
             magnetic = None

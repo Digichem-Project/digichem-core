@@ -227,6 +227,7 @@ class Result_set(Result_object):
             "excited_states": self.excited_states.dump(silico_options),
             "soc": self.soc.dump(silico_options),
             "vibrations": self.vibrations.dump(silico_options),
+            "nmr": self.nmr.dump(silico_options),
             "emission": self.emission.dump(silico_options)
         })
         

@@ -219,7 +219,7 @@ class Molecular_orbital_list(Result_container):
             return self()
         
     @classmethod
-    def from_dump(self, data, result_set):
+    def from_dump(self, data, result_set, options):
         """
         Get an instance of this class from its dumped representation.
         
@@ -237,7 +237,7 @@ class Molecular_orbital_list(Result_container):
             # No orbitals, no type defined.
             return self()
         
-        return self(cls.list_from_dump(data['values'], result_set))
+        return self(cls.list_from_dump(data['values'], result_set, options))
     
     def dump(self, silico_options):
         """
@@ -516,7 +516,7 @@ class Molecular_orbital(Result_object, Floatable_mixin):
         }
         
     @classmethod
-    def list_from_dump(self, data, result_set):
+    def list_from_dump(self, data, result_set, options):
         """
         Get a list of instances of this class from its dumped representation.
         

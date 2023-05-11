@@ -309,14 +309,14 @@ class Excited_state_list(Result_container):
         return dump_dict
     
     @classmethod
-    def from_dump(self, data, result_set):
+    def from_dump(self, data, result_set, options):
         """
         Get a list of instances of this class from its dumped representation.
         
         :param data: The data to parse.
         :param result_set: The partially constructed result set which is being populated.
         """
-        return self(Excited_state.list_from_dump(data['values'], result_set))
+        return self(Excited_state.list_from_dump(data['values'], result_set, options))
 
 
 class Excited_state_transition(Result_object):
@@ -410,7 +410,7 @@ class Excited_state_transition(Result_object):
             return []
         
     @classmethod
-    def list_from_dump(self, data, result_set):
+    def list_from_dump(self, data, result_set, options):
         """
         Get a list of instances of this class from its dumped representation.
         
@@ -753,7 +753,7 @@ class Excited_state(Energy_state):
         return excited_states
     
     @classmethod
-    def list_from_dump(self, data, result_set):
+    def list_from_dump(self, data, result_set, options):
         """
         Get a list of instances of this class from its dumped representation.
         
@@ -776,7 +776,7 @@ class Excited_state(Energy_state):
                 es_dict['symmetry'],
                 es_dict['energy']['value'],
                 es_dict['oscillator_strength'],
-                Excited_state_transition.list_from_dump(es_dict['transitions'], result_set),
+                Excited_state_transition.list_from_dump(es_dict['transitions'], result_set, options),
                 tdm
             ))
         
