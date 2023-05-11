@@ -2,13 +2,16 @@
 import silico.log
 
 # General imports.
-# rdkit is an optional, hidden import
+import rdkit.Chem.Draw
+import rdkit.Chem.AllChem
+import rdkit.RDLogger
 
 # Silico imports.
 from silico.image.base import Image_maker
 from silico.result.atom import Atom_list, get_chemical_group_mapping
 from silico.result.alignment.base import Minimal
 from silico.misc.base import dict_list_index
+from silico.input.silico import Silico_coords
 
 
 class Skeletal_image_maker(Image_maker):
@@ -16,37 +19,37 @@ class Skeletal_image_maker(Image_maker):
     A class for rendering skeletal-style molecule structure images.
     """
     
-    def __init__(self, output, coords, *args, abs_resolution = None, rel_resolution = 100, render_backend = "rdkit", numbering = "group", explicit_h = False, **kwargs):
+    def __init__(self, output, atoms, *args, abs_resolution = None, rel_resolution = 100, numbering = "group", explicit_h = False, **kwargs):
         """
         Constructor for Structure_image_maker objects.
         
         :param output: A path to an output file to write to. The extension of this path is used to determine the format of the file (eg: png, jpeg).
-        :param coords: The coordinates of the molecule/system to render as a Silico_coords object.
+        :param atoms: A list of atom of the molecule/system to render.
         :param resolution: The width and height of the rendered image.
         :param render_backend: The library to prefer to use for rendering, possible options are 'rdkit' or 'obabel'. If 'rdkit' is chosen but is not available, obabel will be used as a fallback. 
         :param numbering: Whether to show atom numberings, either False (off), "atomic" (for atom wise) or "group" (for group wise).
         :param explicit_h: Whether to show explicit H.
         """
-        self.coords = coords
+        self.atoms = atoms
         self.abs_resolution = abs_resolution
         self.rel_resolution = rel_resolution
-        self.render_backend = render_backend
+        #self.render_backend = render_backend
         self.numbering = numbering
         self.explicit_h = explicit_h
-        assert self.render_backend == "rdkit" or self.render_backend == "obabel"
+        #assert self.render_backend == "rdkit" or self.render_backend == "obabel"
         super().__init__(output, *args, **kwargs)
         
     @classmethod
-    def from_options(self, output, *, coords, options, **kwargs):
+    def from_options(self, output, *, atoms, options, **kwargs):
         """
         Constructor that takes a dictionary of config like options.
         """    
         return self(
             output,
-            coords = coords,
+            atoms = atoms,
             abs_resolution = options['skeletal_image']['resolution']['absolute'],
             rel_resolution = options['skeletal_image']['resolution']['relative'],
-            render_backend = options['skeletal_image']['render_backend'],
+            #render_backend = options['skeletal_image']['render_backend'],
             **kwargs
         )
         
@@ -58,83 +61,86 @@ class Skeletal_image_maker(Image_maker):
             resolution = self.abs_resolution
         
         else:
-            resolution = int(self.rel_resolution * Minimal.from_coords(self.coords).X_length)
+            #resolution = int(self.rel_resolution * Minimal.from_coords(self.coords).X_length)
+            resolution = int(self.rel_resolution * self.atoms.X_length)
         
-        render_backend = self.render_backend
-        if render_backend == "rdkit":
-            # Try and import rdkit.
-            try:
-                import rdkit.Chem.Draw
-                import rdkit.Chem.AllChem
-                #import rdkit.Chem.rdchem
-                import rdkit.RDLogger
-                
-            except ModuleNotFoundError:
-                # Missing rdkit module.
-                silico.log.get_logger().warning("Failed to import module 'rdkit', falling back to openbabel for 2D structure images", exc_info = True)
-                render_backend = 'obabel'
-            
-            except Exception:
-                # Something went wrong.
-                silico.log.get_logger().error("An error occurred trying to import module 'rdkit', falling back to openbabel for 2D structure images", exc_info = True)
-                render_backend = 'obabel'
+#         render_backend = self.render_backend
+#         if render_backend == "rdkit":
+#             # Try and import rdkit.
+#             try:
+#                 import rdkit.Chem.Draw
+#                 import rdkit.Chem.AllChem
+#                 #import rdkit.Chem.rdchem
+#                 import rdkit.RDLogger
+#                 
+#             except ModuleNotFoundError:
+#                 # Missing rdkit module.
+#                 silico.log.get_logger().warning("Failed to import module 'rdkit', falling back to openbabel for 2D structure images", exc_info = True)
+#                 render_backend = 'obabel'
+#             
+#             except Exception:
+#                 # Something went wrong.
+#                 silico.log.get_logger().error("An error occurred trying to import module 'rdkit', falling back to openbabel for 2D structure images", exc_info = True)
+#                 render_backend = 'obabel'
 
 
-        if render_backend == "rdkit":
-            # We've been asked to use rdkit.
-            # First, convert our geometry to a format that can be used by rdkit.
-            # WrapLogs() outputs rdkit logging to python's stderr (which might be redirected to an urwid widget).
-            # If/when rdkit is further intergrated into silico, this call will likely be moved elsewhere. 
-            #rdkit.Chem.rdchem.WrapLogs()
-            # Sadly the behaviour of WrapLogs() is a bit bizzare, although we do get redirection to our custom widgets etc,
-            # logs are also still dumped to screen...
-            # for now, disable logging...
-            rdkit.RDLogger.DisableLog('rdApp.*')
+        #if render_backend == "rdkit":
+        # We've been asked to use rdkit.
+        # First, convert our geometry to a format that can be used by rdkit.
+        # WrapLogs() outputs rdkit logging to python's stderr (which might be redirected to an urwid widget).
+        # If/when rdkit is further intergrated into silico, this call will likely be moved elsewhere. 
+        #rdkit.Chem.rdchem.WrapLogs()
+        # Sadly the behaviour of WrapLogs() is a bit bizzare, although we do get redirection to our custom widgets etc,
+        # logs are also still dumped to screen...
+        # for now, disable logging...
+        rdkit.RDLogger.DisableLog('rdApp.*')
+        
+#         molecule = rdkit.Chem.MolFromMolBlock(self.coords.to_format("mol"), removeHs = False)
+#         # rdkit will silently return None if parsing fails, best to check.
+#         if molecule is None:
+#             raise Exception("Failed to parse coordinates with rdkit")
+        molecule = self.atoms.to_rdkit_molecule()
+        
+        # Calculate atom groupings.
+        #groups = get_chemical_group_mapping(molecule)
+        atom_groups = self.atoms.groups
+        
+        for atom in molecule.GetAtoms():
             
-            molecule = rdkit.Chem.MolFromMolBlock(self.coords.to_format("mol"), removeHs = False)
-            # rdkit will silently return None if parsing fails, best to check.
-            if molecule is None:
-                raise Exception("Failed to parse coordinates with rdkit")
-            
-            # Calculate atom groupings.
-            groups = get_chemical_group_mapping(molecule)
-            
+            group = [group for group in atom_groups.values() if atom.GetIdx() +1 in [atom.index for atom in group.atoms]][0]
+        
             if self.numbering == "both":
                 # Add atom labelling.
-                for atom in molecule.GetAtoms():
-                    #atom.SetProp("molAtomMapNumber", str(atom.GetIdx()+1))
-                    atom.SetProp("atomNote",  "{} ({})".format(dict_list_index(groups, atom.GetIdx()+1)[0], atom.GetIdx()+1))
+                #atom.SetProp("molAtomMapNumber", str(atom.GetIdx()+1))
+                atom.SetProp("atomNote",  "{} ({})".format(group.id[0], atom.GetIdx()+1))
             
             elif self.numbering == "atomic":
-                for atom in molecule.GetAtoms():
-                    atom.SetProp("atomNote",  "{}".format(atom.GetIdx()+1))
+                atom.SetProp("atomNote",  "{}".format(atom.GetIdx()+1))
             
             elif self.numbering == "group":
-                for atom in molecule.GetAtoms():
-                    atom.SetProp("atomNote",  "{}".format(dict_list_index(groups, atom.GetIdx()+1)[0]))
+                atom.SetProp("atomNote",  "{}".format(group.id[0]))
+        
+        # Remove C-H, if we've been asked to.
+        if not self.explicit_h:
+            edit_mol = rdkit.Chem.EditableMol(molecule)
+            atoms = list(edit_mol.GetMol().GetAtoms())
+            for atom_index, atom in enumerate(reversed(atoms)):
+                # If this atom is a hydrogen, and it has a single bond to a carbon, delete it.
+                if atom.GetSymbol() == "H":
+                    bonds = list(atom.GetBonds())
+                    if len(bonds) == 1 and bonds[0].GetOtherAtom(atom).GetSymbol() == "C":
+                        # This is an implicit H.
+                        edit_mol.RemoveAtom(atom.GetIdx())
+                        
+            molecule = edit_mol.GetMol()
+        
+        rdkit.Chem.AllChem.Compute2DCoords(molecule)
+        
+        # Then write the file.
+        rdkit.Chem.Draw.MolToFile(molecule, str(self.output), (resolution, resolution))
             
-            # Remove C-H, if we've been asked to.
-            if not self.explicit_h:
-                edit_mol = rdkit.Chem.EditableMol(molecule)
-                atoms = list(edit_mol.GetMol().GetAtoms())
-                for atom_index, atom in enumerate(reversed(atoms)):
-                    # If this atom is a hydrogen, and it has a single bond to a carbon, delete it.
-                    if atom.GetSymbol() == "H":
-                        bonds = list(atom.GetBonds())
-                        if len(bonds) == 1 and bonds[0].GetOtherAtom(atom).GetSymbol() == "C":
-                            # This is an implicit H.
-                            edit_mol.RemoveAtom(atom.GetIdx())
-                            
-                molecule = edit_mol.GetMol()
-            
-            rdkit.Chem.AllChem.Compute2DCoords(molecule)
-            
-            # Then write the file.
-            rdkit.Chem.Draw.MolToFile(molecule, str(self.output), (resolution, resolution))
-            
-        else:
-            # We've been asked to use obabel
-            self.coords.to_format("png", self.output)
-
-
-
+#         else:
+#             # We've been asked to use obabel
+#             coords = Silico_coords.from_xyz(self.atoms.to_xyz())
+#             
+#             coords.to_format("png", self.output)
