@@ -596,14 +596,14 @@ class NMR_list(Result_container):
         return dump_dict
     
     @classmethod
-    def from_dump(self, data, result_set):
+    def from_dump(self, data, result_set, options):
         """
         Get an instance of this class from its dumped representation.
         
         :param data: The data to parse.
         :param result_set: The partially constructed result set which is being populated.
         """
-        return self(NMR.list_from_dump(data['values'], result_set))
+        return self(NMR.list_from_dump(data['values'], result_set, options), atoms = result_set.atoms, options = options)
     
     def generate_for_dump(self):
         """
@@ -776,8 +776,25 @@ class NMR(Result_object):
     def list_from_parser(self, parser):
         """
         """
-        return list([self(atom, parser.results.nmr_shieldings[atom], parser.results.nmr_couplings.between(atom)) for atom in parser.results.atoms if atom in parser.results.nmr_shieldings])
+        return [self(atom, parser.results.nmr_shieldings[atom], parser.results.nmr_couplings.between(atom)) for atom in parser.results.atoms if atom in parser.results.nmr_shieldings]
+    
+    @classmethod
+    def list_from_dump(self, data, result_set, options):
+        """
+        Get a list of instances of this class from its dumped representation.
+          
+        :param data: The data to parse.
+        :param result_set: The partially constructed result set which is being populated.
+        """
+        return [
+            self(
+                result_set.atoms.find(nmr_dict['atom']),
+                NMR_shielding.from_dump(nmr_dict['shielding'], result_set, options),
+                NMR_spin_couplings_list.from_dump(nmr_dict['couplings'], result_set, options)
+            ) for nmr_dict in data
+        ]
         
+    
     def dump(self, silico_options):
         """
         Get a representation of this result object in primitive format.
@@ -795,9 +812,11 @@ class NMR_tensor_ABC(Result_object):
     tensor_names = ()
     units = ""
     
-    def __init__(self, tensors, total_isotropic):
+    def __init__(self, tensors):
         self.tensors = tensors
-        self.total_isotropic = total_isotropic
+        
+        # This is unused.
+        #self.total_isotropic = total_isotropic
     
     def eigenvalues(self, tensor = "total", real_only = True):
         """
@@ -843,14 +862,13 @@ class NMR_shielding(NMR_tensor_ABC):
     tensor_names = ("paramagnetic", "diamagnetic", "total")
     units = "ppm"
     
-    def __init__(self, atom, tensors, total_isotropic, reference = None):
+    def __init__(self, atom, tensors, reference = None):
         """
         :param atom: The atom this shielding applies to.
         :param tensors: A dictionary of tensors.
-        :param total_isotropic: The isotropic value for the total tensor.
         :param reference: An optional reference isotropic value to correct this shielding by.
         """
-        super().__init__(tensors, total_isotropic)
+        super().__init__(tensors)
         self.atom = atom
         self.reference = reference
         
@@ -884,7 +902,7 @@ class NMR_shielding(NMR_tensor_ABC):
                 shieldings[parser.results.atoms[atom_index]] = self(
                     parser.results.atoms[atom_index],
                     tensors,
-                    total_isotropic,
+                    #total_isotropic,
                     reference = parser.options['nmr']['standards'].get(parser.results.atoms[atom_index].element.number, None)
                 )
         
@@ -899,10 +917,24 @@ class NMR_shielding(NMR_tensor_ABC):
         """
         dump_dic = {
             "atom": self.atom.label,
+            "reference": self.reference,
         }
         
         dump_dic.update(super().dump(silico_options))
         return dump_dic
+    
+    @classmethod
+    def from_dump(self, data, result_set, options):
+        tensors = {
+            t_type: tensor_dict['value']
+            for t_type, tensor_dict
+            in data['tensors'].items()
+        }
+        return self(
+            result_set.atoms.find(data['atom']),
+            tensors,
+            reference = data['reference']
+        )
 
 
 # We could look at some more advanced type of container for couplings.
@@ -919,6 +951,10 @@ class NMR_spin_couplings_list(Result_container):
         :return: A NMR_spin_couplings_list object. The list will be empty if no NMR data is available.
         """
         return self(NMR_spin_coupling.list_from_parser(parser))
+    
+    @classmethod
+    def from_dump(self, data, result_set, options):
+        return self(NMR_spin_coupling.list_from_dump(data, result_set, options))
     
     def find(self, criteria = None, *, label = None, index = None):
         """
@@ -973,14 +1009,13 @@ class NMR_spin_coupling(NMR_tensor_ABC):
     tensor_names = ("paramagnetic", "diamagnetic", "fermi", "spin-dipolar", "spin-dipolar-fermi", "total")
     units = "Hz"
     
-    def __init__(self, atoms, isotopes, tensors, total_isotropic):
+    def __init__(self, atoms, isotopes, tensors):
         """
         :param atoms: Tuple of atoms that this coupling is between.
         :param isotopes: Tuple of the specific isotopes of atoms.
         :param tensors: A dictionary of tensors.
-        :param total_isotropic: The isotropic value for the total tensor.
         """
-        super().__init__(tensors, total_isotropic)
+        super().__init__(tensors)
         self.atoms = atoms
         self.isotopes = isotopes
         
@@ -997,12 +1032,28 @@ class NMR_spin_coupling(NMR_tensor_ABC):
             for atom_tuple, isotopes in parser.data.nmrcouplingtensors.items():
                 for isotope_tuple, tensors in isotopes.items():
                     total_isotropic = tensors.pop("isotropic")
-                    couplings.append(self((parser.results.atoms[atom_tuple[0]], parser.results.atoms[atom_tuple[1]]), isotope_tuple, tensors, total_isotropic))
+                    couplings.append(self((parser.results.atoms[atom_tuple[0]], parser.results.atoms[atom_tuple[1]]), isotope_tuple, tensors))
         
         except AttributeError:
             return []
         
         return couplings
+    
+    @classmethod
+    def list_from_dump(self, data, result_set, options):
+        return [
+            self(
+                tuple(result_set.atoms.find(atom_label) for atom_label in dump_dict['atoms']),
+                tuple(dump_dict['isotopes']),
+                {
+                    t_type: tensor_dict['value']
+                    for t_type, tensor_dict
+                    in dump_dict['tensors'].items()
+                }
+            )
+            for dump_dict
+            in data
+        ]
     
     def dump(self, silico_options):
         """

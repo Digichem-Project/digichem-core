@@ -17,6 +17,7 @@ from silico.result.vibration import Vibrations_list
 from silico.result.emission import Relaxed_excited_state
 import silico.log
 from silico.result.alignment.base import Alignment, Minimal
+from silico.result.nmr import NMR_list
 
 
 class Dump_multi_parser_abc(Parser_abc):
@@ -199,6 +200,13 @@ class Dump_parser_abc(Parser_abc):
         
         # Frequencies.
         self.results.vibrations = Vibrations_list.from_dump(self.data['vibrations'], self.results)
+        
+        # NMR.
+        if "nmr" in self.data:
+            self.results.nmr = NMR_list.from_dump(self.data['nmr'], self.results, options)
+        
+        else:
+            self.results.nmr = NMR_list(atoms = self.results.atoms, options = options)
         
         # Finally, try and set emission.
         self.results.emission.vertical, self.results.emission.adiabatic = Relaxed_excited_state.guess_from_results(self.results)
