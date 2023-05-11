@@ -297,6 +297,7 @@ def parse_multiple_calculations(*log_files, auxiliary_files = None, options, poo
         #pool = multiprocessing.Pool(processes, initializer = init_func, initargs = init_args if init_args is not None else [])
         pool = pathos.pools.ProcessPool(processes, initializer = init_func, initargs = init_args if init_args is not None else [])
         # Pathos pools are singletons for some reason. Call restart in case this is the same object as before and we've already closed it.
+        
         pool.restart()
     
     # Do some parsing.
@@ -404,8 +405,12 @@ def parse_and_merge_multiple_calculations(*multiple_results, options, format_hin
         return result_lists
     
     finally:
+        #pool.__exit__(None, None, None)
         # Do some cleanup if we need to.
         pool.close()
+         
+        # This seems to be necessary to stop an at-exit hang.
+        pool.terminate()
     
 
 class open_for_parsing():
