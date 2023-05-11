@@ -8,8 +8,7 @@ import math
 
 from silico.result.base import Result_object, Result_container
 from silico.exception.base import Result_unavailable_error
-from silico.misc.base import dict_list_index, regular_range, powerset
-from silico.result.atom import get_chemical_group_mapping, Atom_group
+from silico.misc.base import regular_range, powerset
 from silico.result.spectroscopy import Combined_graph
 import silico.log
 
@@ -522,17 +521,11 @@ class NMR_list(Result_container):
         """
         # First, decide which atoms are actually equivalent.
         # We can do this by comparing canonical SMILES groupings.
-        groups = get_chemical_group_mapping(self.atoms.to_rdkit_molecule())
-        atom_groups = {}
+        atom_groups = self.atoms.groups
         
         nmr_groups = {}
         # Next, assemble group objects.
-        for group_id, atom_indices in groups.items():
-            group_num = group_id[0]
-            # Atoms contributing to this group.
-            atom_group = Atom_group(group_num, [self.atoms[atom_index -1] for atom_index in atom_indices])
-            atom_groups[(group_num, atom_group.element.symbol)] = atom_group
-            
+        for group_id, atom_group in atom_groups.items():
             nmr_results = [nmr_result for nmr_result in self if nmr_result.atom in atom_group.atoms]
             
             if len(nmr_results) == 0:
@@ -552,7 +545,8 @@ class NMR_list(Result_container):
         unique_couplings = {(coupling.atoms, coupling.isotopes): coupling for group in nmr_groups.values() for coupling in group['couplings']}.values()        
         for coupling in unique_couplings:
             # Find the group numbers that correspond to the two atoms in the coupling.
-            coupling_groups = tuple(dict_list_index(groups, atom.index) for atom_index, atom in enumerate(coupling.atoms))
+            coupling_groups = tuple([atom_group.id for atom_group in atom_groups.values() if atom in atom_group.atoms][0] for atom in coupling.atoms)
+            
             isotopes = coupling.isotopes
             
             # Append the isotropic coupling constant to the group.
