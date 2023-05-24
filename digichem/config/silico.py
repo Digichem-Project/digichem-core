@@ -316,7 +316,7 @@ Example:
             beta_distances = Option(help = "Include beta orbitals by distance from the HOMO.", list_type = list, type = int, default = [0, 1])
         ),
         frequency_table = Options(help = "Options that control how many vibrational frequencies to list in the frequencies table. ",
-            min_frequency = Option(help = "The most negative frequency to show in the table (remember that frequencies can go negative). 'null' is for no limit. Units are cm-1.", type = float, default = None),
+            min_frequency = Option(help = "The most negative frequency to show in the table (remember that frequencies can be negative). 'null' is for no limit. Units are cm-1.", type = float, default = None),
             max_frequency = Option(help = "The most positive frequency to show in the table. 'null' is for no limit. Units are cm-1.", type = float, default = None),
             max_num = Option(help = "The maximum number of frequencies to show in the table.", type = int, default = None)
         )
