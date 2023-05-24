@@ -1,17 +1,11 @@
-# Silico logging.
-import silico.log
-
 # General imports.
 import rdkit.Chem.Draw
 import rdkit.Chem.AllChem
 import rdkit.RDLogger
+from PIL import Image
 
 # Silico imports.
 from silico.image.base import Image_maker
-from silico.result.atom import Atom_list, get_chemical_group_mapping
-from silico.result.alignment.base import Minimal
-from silico.misc.base import dict_list_index
-from silico.input.silico import Silico_coords
 
 
 class Skeletal_image_maker(Image_maker):
