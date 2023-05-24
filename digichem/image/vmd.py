@@ -4,7 +4,6 @@ from pathlib import Path
 import subprocess
 import math
 from PIL import Image
-import numpy as np
 import pkg_resources
 from uuid import uuid4
 import os
@@ -328,38 +327,6 @@ class VMD_image_maker(File_converter):
             except Exception:
                 pass
             raise
-                
-    
-    def auto_crop_image(self, im):
-        """
-        Automatically remove excess white pixels around the outside of our image.
-        
-        :param im: A PIL Image object.
-        :returns: A new PIL Image object with white-space removed.
-        """
-        # (try to) load our image from file.
-        #im = Image.open(file_path, "r")
-        im.load()
-                
-        # This solution was inspired by https://stackoverflow.com/questions/14211340/automatically-cropping-an-image-with-python-pil
-        image_data = np.asarray(im)
-        # Axis 2 is the tuple/array of RGB values for each pixel. We want to know which ones are fully white (255,255,255), so we'll take the min of the 3 values and see if this is equal to 255. If it is, then all the pixels are 255        
-        image_data_bw = image_data.min(axis = 2)
-        
-        # Now we just check which rows and columns are not pure white.
-        non_empty_columns = np.where(image_data_bw.min(axis = 0) != 255)[0]
-        non_empty_rows = np.where(image_data_bw.min(axis = 1) != 255)[0]
-        
-        # Get the bounding box of non-white stuff.
-        cropBox = (min(non_empty_rows), max(non_empty_rows), min(non_empty_columns), max(non_empty_columns))
-        
-        # Copy the image data we want.
-        image_data_new = image_data[cropBox[0]:cropBox[1]+1, cropBox[2]:cropBox[3]+1 , :]
-        
-        # And save over our old file.
-        new_image = Image.fromarray(image_data_new)
-        return new_image
-        #new_image.save(file_path)
         
 
 class Structure_image_maker(VMD_image_maker):
