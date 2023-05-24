@@ -319,6 +319,9 @@ Example:
             min_frequency = Option(help = "The most negative frequency to show in the table (remember that frequencies can be negative). 'null' is for no limit. Units are cm-1.", type = float, default = None),
             max_frequency = Option(help = "The most positive frequency to show in the table. 'null' is for no limit. Units are cm-1.", type = float, default = None),
             max_num = Option(help = "The maximum number of frequencies to show in the table.", type = int, default = None)
+        ),
+        nmr_image = Options(help = "Options which specify which NMR spectra to render.",
+            codes = Option(help = "TODO", type = str, list_type = list, default = ["1H", "13C{1H}"])
         )
     )
     
