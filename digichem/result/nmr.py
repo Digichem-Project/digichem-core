@@ -112,6 +112,7 @@ class NMR_spectrometer(Result_object):
             "decoupling": list(decoupling)
         } for element, isotope, decoupling in sorted(nuclei, key = lambda nmr: (nmr[0], nmr[1]))}
     
+    @classmethod
     def parse_shortcode(self, code):
         """
         Parse an NMR shortcode.
