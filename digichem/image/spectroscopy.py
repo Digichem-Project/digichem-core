@@ -447,7 +447,7 @@ class NMR_graph_maker_abc(Spectroscopy_graph_maker):
             x_coord, y_coord * 1.1,
             label,
             horizontalalignment = "center",
-            fontsize = 8
+            fontsize = 10
         )
         text.set_bbox({"facecolor": 'white', "alpha": 0.75})
         return text
@@ -505,7 +505,7 @@ class NMR_graph_maker(NMR_graph_maker_abc):
         super().__init__(output, graph, coupling = coupling, **kwargs)
         
         self.x_padding = None
-        self.x_padding_percent = 0.1
+        self.x_padding_percent = 0.05
         
         # NMR graphs have a range of different units depending on the atom and isotope being studied.
         # For example, 1H NMR typically range from ~10 -> 0
@@ -561,7 +561,7 @@ class NMR_graph_maker(NMR_graph_maker_abc):
         # NMR is also typically shown on a reversed scale.
               
         x_padding = (
-            max(max(visible_x_values), 0) - min(min(visible_x_values), 0)
+            max(visible_x_values) - min(visible_x_values)
         ) * self.x_padding_percent
         
         # If we have no negative shifts, set zero as the end of one scale.
@@ -570,8 +570,8 @@ class NMR_graph_maker(NMR_graph_maker_abc):
         
         else:
             # Don't extend beyond zero if there are no negative values.
-            #minimum = min(visible_x_values) - x_padding
-            minimum = 0
+            minimum = min(visible_x_values) - x_padding
+            #minimum = 0
             
         # If we have no positive shifts, set zero as the end of one scale.
         if max(visible_x_values) > 0:
