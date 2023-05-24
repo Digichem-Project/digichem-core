@@ -215,7 +215,7 @@ class VMD_image_maker(File_converter):
                 else:
                     cropped_image = im
                 
-                # Now save in out main output format.
+                # Now save in our main output format.
                 cropped_image.save(image_path)
                 
                 # And also as a higher quality png if we've been asked to.
