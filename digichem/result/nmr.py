@@ -863,14 +863,12 @@ class NMR_shielding(NMR_tensor_ABC):
     tensor_names = ("paramagnetic", "diamagnetic", "total")
     units = "ppm"
     
-    def __init__(self, atom, tensors, reference = None):
+    def __init__(self, tensors, reference = None):
         """
-        :param atom: The atom this shielding applies to.
         :param tensors: A dictionary of tensors.
         :param reference: An optional reference isotropic value to correct this shielding by.
         """
         super().__init__(tensors)
-        self.atom = atom
         self.reference = reference
         
     def isotropic(self, tensor = "total", correct = True):
@@ -901,9 +899,7 @@ class NMR_shielding(NMR_tensor_ABC):
             for atom_index, tensors in parser.data.nmrtensors.items():
                 total_isotropic = tensors.pop("isotropic")
                 shieldings[parser.results.atoms[atom_index]] = self(
-                    parser.results.atoms[atom_index],
                     tensors,
-                    #total_isotropic,
                     reference = parser.options['nmr']['standards'].get(parser.results.atoms[atom_index].element.number, None)
                 )
         
@@ -917,7 +913,6 @@ class NMR_shielding(NMR_tensor_ABC):
         Get a representation of this result object in primitive format.
         """
         dump_dic = {
-            "atom": self.atom.label,
             "reference": self.reference,
         }
         
