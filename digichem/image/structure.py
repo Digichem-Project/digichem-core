@@ -132,6 +132,12 @@ class Skeletal_image_maker(Image_maker):
         
         # Then write the file.
         rdkit.Chem.Draw.MolToFile(molecule, str(self.output), (resolution, resolution))
+        
+        # Crop it to remove whitespace.
+        with Image.open(str(self.output), "r") as im:
+            cropped_image = self.auto_crop_image(im)
+        
+        cropped_image.save(self.output)
             
 #         else:
 #             # We've been asked to use obabel
