@@ -455,6 +455,12 @@ class Combined_graph(Spectroscopy_graph_abc):
         """
         """
         return max((graph.cutoff for graph in self.graphs.values()))
+    
+    @property
+    def fwhm(self):
+        """
+        """
+        return sum((graph.fwhm for graph in self.graphs.values())) / len(self.graphs)
         
     @classmethod
     def from_nmr(self, grouped_peaks, *args, **kwargs):
