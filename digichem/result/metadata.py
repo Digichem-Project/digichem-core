@@ -225,6 +225,9 @@ class Metadata(Result_object):
         if "Excited States" in self.calculations:
             calculations.append("excited states")
             
+        if "NMR" in self.calculations:
+            calculations.append("NMR properties")
+            
         if len(calculations) == 0:
             # Use a generic term.
             calculations.append("properties")
@@ -248,6 +251,8 @@ class Metadata(Result_object):
             calcs.append('Frequencies')
         if hasattr(ccdata, 'etenergies'):
             calcs.append('Excited States')
+        if hasattr(ccdata, 'nmrtensors'):
+            calcs.append('NMR')
         # If our list is empty, assume we did an SP.
         if len(calcs) == 0 and ( hasattr(ccdata, 'scfenergies') or hasattr(ccdata, 'mpenergies') or hasattr(ccdata, 'ccenergies') ):
                 calcs = ['Single Point']
