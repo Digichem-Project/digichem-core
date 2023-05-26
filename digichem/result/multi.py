@@ -48,6 +48,9 @@ class Merged(Result_set):
         # Use special method for merging orbitals.
         orbitals, beta_orbitals = Molecular_orbital_list.merge_orbitals([result.orbitals for result in results], [result.beta_orbitals for result in results])
         
+        # Merge NMR (which depends on atoms and options).
+        nmr = type(getattr(results[0], "nmr")).merge(*[getattr(result, "nmr") for result in results], atoms = atoms, options = options)
+        
         # Merge remaining attributes.
         attrs = {}
         for attr in ["energies", "pdm", "excited_states", "vibrations", "soc"]:
@@ -70,6 +73,7 @@ class Merged(Result_set):
             energy_states = energy_states,
             orbitals = orbitals,
             beta_orbitals = beta_orbitals,
+            nmr = nmr,
             **attrs
             )
         
