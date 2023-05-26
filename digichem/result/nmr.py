@@ -106,11 +106,12 @@ class NMR_spectrometer(Result_object):
                 if len(decoupling) > 0 else ""
             ):
             {
-            "element": element,
-            "isotope": isotope,
-            #"decoupling": [list(decouple) for decouple in decoupling],
-            "decoupling": list(decoupling)
-        } for element, isotope, decoupling in sorted(nuclei, key = lambda nmr: (nmr[0], nmr[1]))}
+                "element": element,
+                "isotope": isotope,
+                #"decoupling": [list(decouple) for decouple in decoupling],
+                "decoupling": list(decoupling)
+            } for element, isotope, decoupling in sorted(nuclei, key = lambda nmr: (nmr[0], nmr[1]))
+        }
     
     @classmethod
     def parse_shortcode(self, code):
