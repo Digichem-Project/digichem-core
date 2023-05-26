@@ -6,7 +6,7 @@ import re
 import statistics
 import math
 
-from silico.result.base import Result_object, Result_container
+from silico.result.base import Result_object, Result_container, Floatable_mixin
 from silico.exception.base import Result_unavailable_error
 from silico.misc.base import regular_range, powerset
 from silico.result.spectroscopy import Combined_graph
@@ -627,7 +627,7 @@ class NMR_list(Result_container):
         }
 
 
-class NMR_group(Result_object):
+class NMR_group(Result_object, Floatable_mixin):
     """
     A result object containing all the NMR related data for a group of equivalent nuclei.
     """
@@ -638,7 +638,10 @@ class NMR_group(Result_object):
         self.couplings = couplings
         
         # Calculate average shieldings and couplings.
-        self.shielding = float(sum([shielding.isotropic("total") for shielding in shieldings]) / len(shieldings))        
+        self.shielding = float(sum([shielding.isotropic("total") for shielding in shieldings]) / len(shieldings))
+        
+    def __float__(self):
+        return float(self.shielding)
     
     def dump(self, silico_options):
         """
@@ -762,7 +765,7 @@ class NMR_group_spin_coupling(Result_object):
         return {"symbol": symbol, "number": number, "multiplicity": multiplicity}
 
 
-class NMR(Result_object):
+class NMR(Result_object, Floatable_mixin):
     """
     A result object containing all the NMR related data for a single atom.
     
@@ -780,6 +783,12 @@ class NMR(Result_object):
         self.atom = atom
         self.shielding = shielding
         self.couplings = couplings
+        
+    def __float__(self):
+        return float(self.shielding.isotropic())
+    
+#     def __eq__(self, other):
+#         return self.atom == other.atom and self.shielding == other.shielding and self.couplings == other.couplings
     
     @classmethod
     def list_from_parser(self, parser):
