@@ -321,7 +321,8 @@ Example:
             max_num = Option(help = "The maximum number of frequencies to show in the table.", type = int, default = None)
         ),
         nmr_image = Options(help = "Options which specify which NMR spectra to render.",
-            codes = Option(help = "TODO", type = str, list_type = list, default = ["1H", "13C{1H}"])
+            auto = Option(help = "If True, at least one experiment will be included for each element and isotope pair (for which NMR data is available). If no expt is explicitly requested (via codes), then the spectra will be the one with the least decoupling.", default = True, type = bool),
+            codes = Option(help = "Explicitly include certain NMR experiments.", type = str, list_type = list, default = ["13C{1H}"])
         )
     )
     
