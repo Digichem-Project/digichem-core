@@ -109,7 +109,7 @@ class NMR_spectrometer(Result_object):
                 "element": element,
                 "isotope": isotope,
                 #"decoupling": [list(decouple) for decouple in decoupling],
-                "decoupling": list(decoupling)
+                "decoupling": set(decoupling)
             } for element, isotope, decoupling in sorted(nuclei, key = lambda nmr: (nmr[0], nmr[1]))
         }
     
@@ -134,7 +134,7 @@ class NMR_spectrometer(Result_object):
         element = getattr(periodictable, match_groups[1]).number
         
         decoupling = [tuple(re.search("(\d+)([A-z][A-z]?)", decouple).groups()) for decouple in match_groups[2].split(",") if re.search("(\d+)([A-z][A-z]?)", decouple) is not None]
-        decoupling = [(getattr(periodictable, ele).number, int(iso)) for iso, ele in decoupling]
+        decoupling = set((getattr(periodictable, ele).number, int(iso)) for iso, ele in decoupling)
         
         return element, isotope, decoupling
     
