@@ -94,6 +94,38 @@ def turbomole_ADC2_singlets_result(silico_options):
 def turbomole_ADC2_triplets_result(silico_options):
     return parse_calculation(Path(data_directory(), "Naphthalene/Turbomole Excited States ADC(2) T(1) and T(2) cc-pVDZ.tar.gz"), options = silico_options)
 
+########
+# ORCA #
+########
+
+@pytest.fixture(scope="module")
+def orca_SP_result(silico_options):
+    return parse_calculation(Path(data_directory(), "Pyridine/Orca Single Point PBE0 (GD3BJ) Gas Phase Pople Basis Sets STO-3G.tar.gz"), options = silico_options)
+
+@pytest.fixture(scope="module")
+def orca_grad_result(silico_options):
+    return parse_calculation(Path(data_directory(), "Pyridine/Orca Gradient PBE0 (GD3BJ) Gas Phase Pople Basis Sets STO-3G.tar.gz"), options = silico_options)
+
+@pytest.fixture(scope="module")
+def orca_opt_result(silico_options):
+    return parse_calculation(Path(data_directory(), "Pyridine/Orca Optimisation PBE0 (GD3BJ) Gas Phase Pople Basis Sets STO-3G.tar.gz"), options = silico_options)
+
+@pytest.fixture(scope="module")
+def orca_opt_freq_result(silico_options):
+    return parse_calculation(Path(data_directory(), "Pyridine/Orca Optimisation Frequencies PBE0 (GD3BJ) Gas Phase Pople Basis Sets STO-3G.tar.gz"), options = silico_options)
+
+@pytest.fixture(scope="module")
+def orca_freq_result(silico_options):
+    return parse_calculation(Path(data_directory(), "Pyridine/Orca Frequencies PBE0 (GD3BJ) Gas Phase Pople Basis Sets STO-3G.tar.gz"), options = silico_options)
+
+@pytest.fixture(scope="module")
+def orca_nmr_result(silico_options):
+    return parse_calculation(Path(data_directory(), "Pyridine/Orca NMR PBE0 (GD3BJ) Gas Phase Pople Basis Sets STO-3G.tar.gz"), options = silico_options)
+
+@pytest.fixture(scope="module")
+def orca_ES_result(silico_options):
+    return parse_calculation(Path(data_directory(), "Pyridine/Orca Excited States TDA 10 Singlets 10 Triplets PBE0 (GD3BJ) Gas Phase Pople Basis Sets STO-3G.tar.gz"), options = silico_options)
+
 
 @pytest.mark.parametrize("result_set, num, final", [
         (pytest.lazy_fixture("gaussian_SP_result"), 1, -10488.990333747),

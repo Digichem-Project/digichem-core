@@ -11,7 +11,7 @@ from silico.result import Result_set
 from silico.parse import parse_multiple_calculations, parse_and_merge_calculations
 from silico.result.format.yaml import Yaml_dumper
 
-@pytest.mark.parametrize("result_data", list(itertools.chain(result_files['gaussian'], result_files['turbomole'])))
+@pytest.mark.parametrize("result_data", list(itertools.chain(*list(result_files.values()))))
 def test_parsing(result_data, silico_options):
     """Test whether we can parse various calc results."""
     result = parse_calculation(result_data, options = silico_options)
@@ -21,19 +21,19 @@ def test_parsing(result_data, silico_options):
 def test_multi_parsing(silico_options):
     """Test whether we can parse in parallel."""
     
-    results = parse_multiple_calculations(*list(itertools.chain(result_files['gaussian'], result_files['turbomole'])), options = silico_options)
+    results = parse_multiple_calculations(*list(itertools.chain(*list(result_files.values()))), options = silico_options)
     
     # Check length.
-    assert len(results) == len(result_files['gaussian']) + len(result_files['turbomole'])
+    assert len(results) == len(list(itertools.chain(*list(result_files.values()))))
 
 
-@pytest.mark.parametrize("data_set", [result_files['gaussian'], result_files['turbomole']])
+@pytest.mark.parametrize("data_set", list(result_files.values()))
 def test_merged_parsing(data_set, silico_options):
     """Test whether we can parse and merge calc results."""
     result = parse_and_merge_calculations(*data_set, options = silico_options)
     
     assert isinstance(result, Result_set)
-    assert len(result.results) == 3
+    assert len(result.results) == len(data_set)
 
 
 @pytest.mark.parametrize("result_file", [result_file for program_files in result_files.values() for result_file in program_files])

@@ -36,6 +36,15 @@ result_files = {
         'Naphthalene/Turbomole Optimisation ADC(2) cc-pVDZ.tar.gz',
         'Naphthalene/Turbomole Excited States ADC(2) S(1) and S(2) cc-pVDZ.tar.gz',
         'Naphthalene/Turbomole Excited States ADC(2) T(1) and T(2) cc-pVDZ.tar.gz',
+    ]],
+    "orca": [Path(data_directory(), datum) for datum in [
+        'Pyridine/Orca Single Point PBE0 (GD3BJ) Gas Phase Pople Basis Sets STO-3G.tar.gz',
+        'Pyridine/Orca Gradient PBE0 (GD3BJ) Gas Phase Pople Basis Sets STO-3G.tar.gz',
+        'Pyridine/Orca Optimisation PBE0 (GD3BJ) Gas Phase Pople Basis Sets STO-3G.tar.gz',
+        'Pyridine/Orca Optimisation Frequencies PBE0 (GD3BJ) Gas Phase Pople Basis Sets STO-3G.tar.gz',
+        'Pyridine/Orca Frequencies PBE0 (GD3BJ) Gas Phase Pople Basis Sets STO-3G.tar.gz',
+        'Pyridine/Orca NMR PBE0 (GD3BJ) Gas Phase Pople Basis Sets STO-3G.tar.gz',
+        'Pyridine/Orca Excited States TDA 10 Singlets 10 Triplets PBE0 (GD3BJ) Gas Phase Pople Basis Sets STO-3G.tar.gz'
     ]]
 }
 
