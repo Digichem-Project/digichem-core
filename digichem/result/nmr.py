@@ -97,19 +97,16 @@ class NMR_spectrometer(Result_object):
                 couplings[coupling.isotopes[main_index]].add( (coupling.groups[second_index].element.number, coupling.isotopes[second_index]) )
             
             for isotope, isotope_couplings in couplings.items():
-                for combination in powerset(isotope_couplings):
+                for combination in powerset(sorted(isotope_couplings)):
                     nuclei.add((nmr_result.group.element.number, isotope, tuple(combination)))
                 
         return {
-            "{}{}".format(isotope, periodictable.elements[element].symbol) + (
-                "{{{}}}".format(",".join(["{}{}".format(decouple[1], periodictable.elements[decouple[0]]) for decouple in decoupling]))
-                if len(decoupling) > 0 else ""
-            ):
+            self.make_shortcode(element, isotope, decoupling):
             {
                 "element": element,
                 "isotope": isotope,
                 #"decoupling": [list(decouple) for decouple in decoupling],
-                "decoupling": set(decoupling)
+                "decoupling": list(decoupling)
             } for element, isotope, decoupling in sorted(nuclei, key = lambda nmr: (nmr[0], nmr[1]))
         }
     
@@ -134,9 +131,19 @@ class NMR_spectrometer(Result_object):
         element = getattr(periodictable, match_groups[1]).number
         
         decoupling = [tuple(re.search("(\d+)([A-z][A-z]?)", decouple).groups()) for decouple in match_groups[2].split(",") if re.search("(\d+)([A-z][A-z]?)", decouple) is not None]
-        decoupling = set((getattr(periodictable, ele).number, int(iso)) for iso, ele in decoupling)
+        decoupling = sorted([(getattr(periodictable, ele).number, int(iso)) for iso, ele in decoupling])
         
         return element, isotope, decoupling
+    
+    @classmethod
+    def make_shortcode(self, element, isotope, decoupling):
+        """
+        Create an NMR shortcode from a given NMR experiment.
+        """
+        return "{}{}".format(isotope, periodictable.elements[element].symbol) + (
+                "{{{}}}".format(",".join(["{}{}".format(decouple[1], periodictable.elements[decouple[0]]) for decouple in decoupling]))
+                if len(decoupling) > 0 else "")
+        
     
     def __contains__(self, item):
         """
