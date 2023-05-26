@@ -344,6 +344,19 @@ Example:
         
         super().__init__(validate_now=validate_now, **kwargs)
         
+    @classmethod
+    def _from_reduce(self, kwargs):
+        """
+        Function to help un-pickling this class.
+        """
+        return self(**kwargs)
+    
+    def __reduce__(self):
+        """
+        Magic function to help pickling this class.
+        """
+        return (self._from_reduce, (self.dump(),))
+        
     # These methods allow the main silico options object to be accessed as a dict.
     # This is largely to provide compatibility with legacy code, where the silico options object was, in fact, a dict.
     def __getitem__(self, key):
