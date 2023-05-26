@@ -234,7 +234,7 @@ class Gbw_to_cube(File_converter):
     # Text description of our output file type, used for error messages etc.
     output_file_type = file_types.gaussian_cube_file
     
-    def __init__(self, *args, gbw_file = None, density_file = None, plot_type = 1, orbital = None, alpha_beta = 0, npts = None, cube_file = None, memory = None, prog_def, **kwargs):
+    def __init__(self, *args, gbw_file = None, density_file = None, plot_type = 1, orbital = None, alpha_beta = 0, npts = None, cube_file = None, memory = None, orca_plot_executable = "orca_plot", prog_def, **kwargs):
         """
         Constructor for Fchk_to_cube objects.
         
@@ -259,6 +259,7 @@ class Gbw_to_cube(File_converter):
         self.npts = npts
         self.memory = Memory(memory) if memory is not None else None
         self.prog_def = prog_def
+        self.orca_plot_executable = orca_plot_executable
         
     @property
     def type(self):
@@ -325,7 +326,7 @@ class Gbw_to_cube(File_converter):
             input_str = TemplateLookup(directories = str(silico.default_template_directory())).get_template("/submit/orca/orca_plot.mako").render_unicode(gbw_to_cube = self)
             
             # Get signature.
-            signature = ["orca_plot", str(input_file), "-i"]
+            signature = [str(self.orca_plot_executable), str(input_file), "-i"]
             
             if self.memory is not None:
                 signature.extend(("-m", str(self.memory.MB)))
@@ -343,7 +344,7 @@ class Gbw_to_cube(File_converter):
                 )
             
             except FileNotFoundError:
-                raise File_maker_exception(self, "Could not locate orca_plot executable '{}'".format(self.cubegen_executable))
+                raise File_maker_exception(self, "Could not locate orca_plot executable '{}'".format(self.orca_plot_executable))
         
             # If something went wrong, dump output.
             if orca_plot_proc.returncode != 0:
