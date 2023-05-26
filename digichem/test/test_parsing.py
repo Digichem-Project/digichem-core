@@ -53,5 +53,15 @@ def test_dump_and_parse(result_file, tmp_path, silico_options):
     parsed = parse_calculation(Path(tmp_path, "dump.sir"), options = silico_options)
     
     # Dump both the raw and parsed result sets and compare to make sure they're the same.
-    assert raw.dump(silico_options) == parsed.dump(silico_options)
+    raw_dump = raw.dump(silico_options)
+    parsed_dump = parsed.dump(silico_options)
     
+    # Aux files are not preserved, so don't compare these.
+    raw_dump['metadata'].pop("auxiliary_files")
+    raw_dump['metadata'].pop("log_files")
+    parsed_dump['metadata'].pop("auxiliary_files")
+    parsed_dump['metadata'].pop("log_files")
+    
+    
+    assert raw_dump == parsed_dump
+        
