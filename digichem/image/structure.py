@@ -2,10 +2,13 @@
 import rdkit.Chem.Draw
 import rdkit.Chem.AllChem
 import rdkit.RDLogger
+from rdkit.Chem.Draw.MolDrawing import DrawingOptions
 from PIL import Image
+from io import BytesIO
 
 # Silico imports.
 from silico.image.base import Image_maker
+from rdkit.Chem.Draw import rdMolDraw2D
 
 
 class Skeletal_image_maker(Image_maker):
@@ -13,7 +16,7 @@ class Skeletal_image_maker(Image_maker):
     A class for rendering skeletal-style molecule structure images.
     """
     
-    def __init__(self, output, atoms, *args, abs_resolution = None, rel_resolution = 100, numbering = "group", explicit_h = False, **kwargs):
+    def __init__(self, output, atoms, *args, abs_resolution = None, rel_resolution = 100, numbering = "group", numbering_font_size = 0.7, explicit_h = False, **kwargs):
         """
         Constructor for Structure_image_maker objects.
         
@@ -27,10 +30,9 @@ class Skeletal_image_maker(Image_maker):
         self.atoms = atoms
         self.abs_resolution = abs_resolution
         self.rel_resolution = rel_resolution
-        #self.render_backend = render_backend
         self.numbering = numbering
+        self.numbering_font_size = numbering_font_size
         self.explicit_h = explicit_h
-        #assert self.render_backend == "rdkit" or self.render_backend == "obabel"
         super().__init__(output, *args, **kwargs)
         
     @classmethod
@@ -58,29 +60,6 @@ class Skeletal_image_maker(Image_maker):
             #resolution = int(self.rel_resolution * Minimal.from_coords(self.coords).X_length)
             resolution = int(self.rel_resolution * self.atoms.X_length)
         
-#         render_backend = self.render_backend
-#         if render_backend == "rdkit":
-#             # Try and import rdkit.
-#             try:
-#                 import rdkit.Chem.Draw
-#                 import rdkit.Chem.AllChem
-#                 #import rdkit.Chem.rdchem
-#                 import rdkit.RDLogger
-#                 
-#             except ModuleNotFoundError:
-#                 # Missing rdkit module.
-#                 silico.log.get_logger().warning("Failed to import module 'rdkit', falling back to openbabel for 2D structure images", exc_info = True)
-#                 render_backend = 'obabel'
-#             
-#             except Exception:
-#                 # Something went wrong.
-#                 silico.log.get_logger().error("An error occurred trying to import module 'rdkit', falling back to openbabel for 2D structure images", exc_info = True)
-#                 render_backend = 'obabel'
-
-
-        #if render_backend == "rdkit":
-        # We've been asked to use rdkit.
-        # First, convert our geometry to a format that can be used by rdkit.
         # WrapLogs() outputs rdkit logging to python's stderr (which might be redirected to an urwid widget).
         # If/when rdkit is further intergrated into silico, this call will likely be moved elsewhere. 
         #rdkit.Chem.rdchem.WrapLogs()
@@ -96,7 +75,6 @@ class Skeletal_image_maker(Image_maker):
         molecule = self.atoms.to_rdkit_molecule()
         
         # Calculate atom groupings.
-        #groups = get_chemical_group_mapping(molecule)
         atom_groups = self.atoms.groups
         
         for atom in molecule.GetAtoms():
@@ -128,19 +106,25 @@ class Skeletal_image_maker(Image_maker):
                         
             molecule = edit_mol.GetMol()
         
-        rdkit.Chem.AllChem.Compute2DCoords(molecule)
+        # Different libraries for generating 2D depictions.
+        # Coordgen is typically superior.
+        #rdkit.Chem.AllChem.Compute2DCoords(molecule)
         
-        # Then write the file.
-        rdkit.Chem.Draw.MolToFile(molecule, str(self.output), (resolution, resolution))
+        ps = rdkit.Chem.rdCoordGen.CoordGenParams()
+        ps.minimizerPrecision = ps.sketcherBestPrecision
+        rdkit.Chem.rdCoordGen.AddCoords(molecule, ps)
+        rdkit.Chem.rdDepictor.NormalizeDepiction(molecule)
+        
+        # Then write the file, setting any options we need to.
+        d = rdMolDraw2D.MolDraw2DCairo(resolution, resolution)
+        d.drawOptions().annotationFontScale = self.numbering_font_size
+        d.DrawMolecule(molecule)
+        d.FinishDrawing()
+        # To save directly, but we're going to open in PIL to crop.
+        #d.WriteDrawingText(str(self.output))
         
         # Crop it to remove whitespace.
-        with Image.open(str(self.output), "r") as im:
+        with Image.open(BytesIO(d.GetDrawingText()), "r") as im:
             cropped_image = self.auto_crop_image(im)
         
         cropped_image.save(self.output)
-            
-#         else:
-#             # We've been asked to use obabel
-#             coords = Silico_coords.from_xyz(self.atoms.to_xyz())
-#             
-#             coords.to_format("png", self.output)
