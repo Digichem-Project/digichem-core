@@ -3,8 +3,6 @@
 # General imports.
 import cclib.parser.gaussianparser
 import cclib.parser.turbomoleparser
-#import multiprocessing
-import pathos
 from functools import partial
 from itertools import filterfalse, zip_longest
 from pathlib import Path
@@ -13,6 +11,9 @@ import shutil
 from tempfile import mkdtemp
 import collections
 import warnings
+
+# IMPORTANT: Do not replace multiprocessing pools with pathos, the latter is too buggy for production ATM (26-05-2023).
+import multiprocessing
 
 # Silico imports.
 from silico.parse.base import Cclib_parser
@@ -294,18 +295,14 @@ def parse_multiple_calculations(*log_files, auxiliary_files = None, options, poo
     own_pool = False
     if pool is None:
         own_pool = True
-        #pool = multiprocessing.Pool(processes, initializer = init_func, initargs = init_args if init_args is not None else [])
-        pool = pathos.pools.ProcessPool(processes, initializer = init_func, initargs = init_args if init_args is not None else [])
-        # Pathos pools are singletons for some reason. Call restart in case this is the same object as before and we've already closed it.
-        
-        pool.restart()
+        pool = multiprocessing.Pool(processes, initializer = init_func, initargs = init_args if init_args is not None else [])
     
     # Do some parsing.
     try:
         result_lists = list(
             filterfalse(lambda x: x is None,
-                #pool.starmap(partial(multi_parser, options = options, format_hint = format_hint, keep_archive = keep_archive), zip_longest(log_files, auxiliary_files, fillvalue = {}))
-                pool.map(partial(multi_parser, options = options, format_hint = format_hint, keep_archive = keep_archive), *transpose(list(zip_longest(log_files, auxiliary_files, fillvalue = {})), 2))
+                pool.starmap(partial(multi_parser, options = options, format_hint = format_hint, keep_archive = keep_archive), zip_longest(log_files, auxiliary_files, fillvalue = {}))
+                #pool.map(partial(multi_parser, options = options, format_hint = format_hint, keep_archive = keep_archive), *transpose(list(zip_longest(log_files, auxiliary_files, fillvalue = {})), 2))
             )
         )
         
@@ -318,9 +315,7 @@ def parse_multiple_calculations(*log_files, auxiliary_files = None, options, poo
     finally:
         # Do some cleanup if we need to.
         if own_pool:
-            pool.close()
-            # This seems to be necessary to stop an at-exit hang.
-            pool.terminate()
+            pool.__exit__(None, None, None)
     
 def parse_and_merge_calculations(*log_files, auxiliary_files = None, options, format_hint = "auto", inner_pool = None, keep_archive = False):
     """
@@ -391,10 +386,7 @@ def parse_and_merge_multiple_calculations(*multiple_results, options, format_hin
     # Do some parsing.
     # TODO: This parallelization isn't ideal, currently we process each group of to-be merged calcs separately, meaning processes can be wasted.
     try:
-        #pool = multiprocessing.Pool(processes, initializer = init_func, initargs = init_args if init_args is not None else [])
-        pool = pathos.pools.ProcessPool(processes, initializer = init_func, initargs = init_args if init_args is not None else [])
-        # Pathos pools are singletons for some reason. Call restart in case this is the same object as before and we've already closed it.
-        pool.restart()
+        pool = multiprocessing.Pool(processes, initializer = init_func, initargs = init_args if init_args is not None else [])
         
         result_lists = list(
             filterfalse(lambda x: x is None,
@@ -405,12 +397,7 @@ def parse_and_merge_multiple_calculations(*multiple_results, options, format_hin
         return result_lists
     
     finally:
-        #pool.__exit__(None, None, None)
-        # Do some cleanup if we need to.
-        pool.close()
-         
-        # This seems to be necessary to stop an at-exit hang.
-        pool.terminate()
+        pool.__exit__(None, None, None)
     
 
 class open_for_parsing():
