@@ -188,9 +188,9 @@ class Turbomole_parser(Cclib_parser):
         if len(ground_densities) > 1:
             warnings.warn("Found multiple ground state density files in Turbomole calculation directory '{}'; using file '{}' and ignoring '{}'".format(parent, pathlib.Path(auxiliary_files['ground_state_cao_file']).name, ", ".join([pathlib.Path(density).name for density in ground_densities[1:]])))
         
-        ######################################################################################################
+        #################################################################################################
         # Note that excited state densities are also located, but this is done in the process() method. #
-        ######################################################################################################
+        #################################################################################################
         
         return auxiliary_files
 

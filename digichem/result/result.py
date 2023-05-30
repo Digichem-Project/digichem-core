@@ -21,7 +21,17 @@ class Result_set(Result_object):
     def __init__(self, **attributes):
         """Constructor for Result_set objects."""
         super().__init__()
-        self._id = attributes.pop('database_id', None)
+        
+        # The ID uniquely identifies this calculation result.
+        # In most cases, it is generated from the combined chekcsum of the log files from which the results was parsed.
+        # If this result was not read from log files (but was read from a database or from a .si calc result or similar),
+        # then the id will simply be the same as was written previously.
+        #
+        # Note that the underscore here does not imply that this attribute is 'hidden'. Instead, this is used for 
+        # consistency with mongo-like DBs, where the ID field is also typically named _id.
+        #self._id = attributes.pop('database_id', None)
+        self._id = attributes.pop('_id', None)
+        
         self.results = (self,)
         self.emission = attributes.pop('emission', Emissions())
         

@@ -160,7 +160,7 @@ class Dump_parser_abc(Parser_abc):
         
         # Get our result set.
         self.results = Result_set(
-            database_id = self.data.get("_id"),
+            _id = self.data.get("_id"),
             metadata = Metadata.from_dump(self.data['metadata'], self.results, options)
         )
         

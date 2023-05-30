@@ -3,6 +3,7 @@ from pathlib import Path
 import cclib.io
 import pwd
 import os
+import hashlib
 
 # Silico imports
 import silico.log
@@ -168,6 +169,7 @@ class Parser_abc():
         self.options = options
         # Get our result set.
         self.results = Result_set(
+            _id = self.data._id,
             metadata = Metadata.from_parser(self)
             )
         
@@ -298,6 +300,18 @@ class Cclib_parser(Parser_abc):
         
         # Get data from cclib.
         self.data = cclib.io.ccread(file_paths if len(file_paths) > 1 else file_paths[0])
+        
+        # Get a unique ID (checksum) from the given log files.
+        # First, order the list of filenames so we also process in the same order.
+        # We do this because not all parsers define a custom sort.
+        
+        file_paths.sort()
+        hasher = hashlib.sha1()
+        
+        for file_path in file_paths:
+            hasher.update(Path(file_path).read_bytes())
+            
+        self.data._id = hasher.hexdigest()
         
         # Do some setup.
         self.pre_parse()
