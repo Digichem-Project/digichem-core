@@ -20,7 +20,7 @@ from silico.parse.base import Cclib_parser
 from silico.parse.gaussian import Gaussian_parser
 from silico.parse.turbomole import Turbomole_parser
 from silico.parse.orca import Orca_parser
-from silico.misc.base import is_iter, transpose
+from silico.misc.base import is_iter
 from silico.result.multi import Merged
 from silico.result.result import Result_set
 from silico.exception.base import Silico_exception
@@ -124,7 +124,7 @@ def class_from_log_files(*log_files, format_hint = "auto"):
     """
     Get a parser class based on some calculation log files.
     
-    :param format_hint: A hint as to the format of the given log files. Either 'auto' (to guess), 'log' (calc log file), 'sir' (silico result file) or 'sid' (silico database file).
+    :param format_hint: A hint as to the format of the given log files. Either 'auto' (to guess), 'cclib' (calc log file), 'sir' (silico result file) or 'sid' (silico database file).
     """
     if format_hint in custom_parsing_formats:
         return custom_parsing_formats[format_hint]
@@ -423,7 +423,7 @@ class open_for_parsing():
         # A list of tempfile.TemporaryDirectory objects that should be closed when we are finished.
         self.temp_dirs = []
     
-    @property
+    @classmethod
     def archive_formats(self):
         """
         Get a list of supported archive formats.
@@ -442,7 +442,7 @@ class open_for_parsing():
         """
         new_log_files = []
         
-        formats = self.archive_formats
+        formats = self.archive_formats()
         
         for log_file in self.log_files:
             

@@ -43,6 +43,7 @@ class Metadata(Result_object):
             user = None,
             log_files = None,
             auxiliary_files = None,
+            history = None,
             date = None,
             duration = None,
             package = None,
@@ -66,6 +67,7 @@ class Metadata(Result_object):
         :param user: The username of the user who parsed this result.
         :param log_files: An optional list of text-based calculation log files from which this result was parsed.
         :param auxiliary_files: An optional dict of auxiliary files associated with this calculation result.
+        :param history: Optional SHA of the calculation from which the coordinates of this calculation were generated.
         :param num_calculations: Optional number of individual calculations this metadata represents.
         :param date: Optional date (datetime object) of this calculation result.
         :param duration: Optional duration (timedelta object) of this calculation.
@@ -88,6 +90,7 @@ class Metadata(Result_object):
         self.user = user
         self.log_files = log_files if log_files is not None else []
         self.auxiliary_files = auxiliary_files if auxiliary_files is not None and len(auxiliary_files) != 0 else {}
+        self.history = history
         self.date = date
         self.duration = duration
         self.package = package
@@ -350,6 +353,7 @@ class Metadata(Result_object):
         }
         
         attrs = [
+            "history",
             "charge",
             "multiplicity",
             "user",
