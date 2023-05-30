@@ -3,7 +3,8 @@
 import pytest
 from pathlib import Path
 
-from silico.test.util import pyridine_si_v2, pyridine_si_v1, pyridine_cml, pyridine_resume_pickle
+from silico.test.util import pyridine_si_v2, pyridine_si_v1, pyridine_cml, pyridine_resume_pickle,\
+    result_files
 from silico.input.silico import si_from_file
 
 @pytest.mark.parametrize("file_path", [
@@ -44,4 +45,21 @@ def test_si_writing(tmp_path):
     
     # Check they're the same.
     assert new_si_file == si_file
- 
+
+
+@pytest.mark.parametrize("file_path, sha", [
+        [result_files['gaussian'][0], "ebd4f4e9f81cdb57ec2d2f2e1fba9cef0698f4c0"],
+        [result_files['turbomole'][0], "60a8ebd9e701b849cfccd9cbb41684519a7fdf0b"],
+        [result_files['orca'][0], "e48e7f653f4e67c1bd4c5c4bb76405fad2d441d0"],
+     ])
+def test_input_history(file_path, sha):
+    """
+    Test whether the history attribute is set properly.
+    """
+    si_file = si_from_file(file_path)
+    
+    assert si_file.history == sha
+    
+    dump = si_file.dict
+    
+    assert dump['history'] == sha
