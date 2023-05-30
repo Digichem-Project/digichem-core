@@ -53,7 +53,6 @@ def find_log_files_from_hint(hint):
         parent = hint
         log_files = [found_log_file for found_log_file in itertools.chain(*[parent.glob(log_type) for log_type in log_types])]
         
-        #log_files = [Path(found_log_file) for found_log_file in iglob(str(Path(parent, "*.log")))]
         # Remove any 'silico.log' files as we know these are not calc log files.
         # We don't actually write 'silico.log' files anymore either (we use silico.out instead),
         # but older versions did...
