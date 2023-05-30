@@ -50,11 +50,14 @@ class Openbabel_converter():
         self.add_H = True
         
     @classmethod
-    def type_from_file_name(self, input_file_name):
+    def type_from_file_name(self, input_file_name, allow_none = False):
         """
         Get the type of a file based on its file name.
         
         This method largely uses the file extension (.com, .tmol etc), with a few other simple rules.
+        
+        :param input_file_name: The name of the file to check.
+        :param allow_none: If the type of the file cannot be determined and allow_none is False (the default), an exception is raised. Otherwise, None is returned.
         """
         input_file_name = Path(input_file_name)
         
@@ -68,8 +71,12 @@ class Openbabel_converter():
             # This is a turbomole file.
             return "tmol"
         else:
-            # Don't recognise the file format.
-            raise Silico_exception("Could not determine file format of file '{}'; the file does not have an extension and is not recognised".format(input_file_name))
+            if allow_none:
+                return None
+            
+            else:
+                # Don't recognise the file format.
+                raise Silico_exception("Could not determine file format of file '{}'; the file does not have an extension and is not recognised".format(input_file_name))
         
         
     @property
