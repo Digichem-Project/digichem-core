@@ -12,8 +12,9 @@ from math import fabs
 # Silico imports.
 from silico.exception.base import File_maker_exception
 from silico.file import File_converter
+from silico.image.base import Cropable_mixin
 
-class VMD_image_maker(File_converter):
+class VMD_image_maker(File_converter, Cropable_mixin):
     """
     Class for generating image files from Gaussian outputs using VMD.
     
