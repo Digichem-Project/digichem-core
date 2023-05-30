@@ -92,12 +92,13 @@ def find_log_files_from_hint(hint):
             
     # If we have no log files, and there's a directory called Output or Result that we can use, try again using that as the hint.
     elif hint.is_dir():
-        if Path(hint, "Results").is_dir():
-            log_files = find_log_files_from_hint(Path(hint, "Results"))
-        
-        # If we still have nothing, try the output dir.
-        if len(log_files) == 0 and Path(hint, "Output").is_dir():
+        # Try the Output dir first.
+        if Path(hint, "Output").is_dir():
             log_files = find_log_files_from_hint(Path(hint, "Output"))
+            
+        # If we still have nothing, try the Results dir.
+        if len(log_files) == 0 and Path(hint, "Results").is_dir():
+            log_files = find_log_files_from_hint(Path(hint, "Results"))
             
     return log_files
 
