@@ -11,6 +11,8 @@ from silico.file.gaussian import Gaussian_input_parser
 from silico.file.babel import Openbabel_converter
 import silico.log
 from silico.input import Input_file
+from silico.parse.util import parse_calculation, open_for_parsing
+import silico.config
 
 # Custom formats to allow literal strings in yaml output.
 # Adapted from https://stackoverflow.com/questions/6432605/any-yaml-libraries-in-python-that-support-dumping-of-long-strings-as-block-liter
@@ -49,6 +51,29 @@ class Silico_coords_ABC(Input_file):
         :param name: Name of the system/molecule
         """
         raise NotImplementedError("Implement in subclass")
+    
+    @classmethod
+    def from_result(self, result, **kwargs):
+        if not kwargs.get('charge'):
+            kwargs['charge'] = result.atoms.charge
+        
+        if not kwargs.get('multiplicity'):
+            kwargs['multiplicity'] = result.metadata.multiplicity
+            
+        if not kwargs.get('history'):
+            # Note it's not the history of the old calc we want here, this old calc IS our new history.
+            kwargs['history'] = result._id
+            
+        if not kwargs.get('file_name'):
+            kwargs['file_name'] = result.metadata.log_files[0]
+        
+        if not kwargs.get('name'):
+            kwargs['name'] = result.metadata.name
+        
+        return self.from_xyz(
+            result.atoms.to_xyz(),
+            **kwargs
+        )
         
     @property
     def dict(self):
@@ -56,11 +81,12 @@ class Silico_coords_ABC(Input_file):
         Get this input file as a dict.
         """
         return {
-            'version': "2.0.0",
+            'version': "2.1.0",
             'name': self.name,
             'charge': self.charge,
             'multiplicity': self.multiplicity,
             'atoms': self.atoms,
+            'history': self.history,
         }
         
     @property
@@ -212,7 +238,6 @@ class Silico_coords_ABC(Input_file):
         
         except AssertionError:
             return False
-        
 
 
 class Silico_coords_v2(Silico_coords_ABC):
@@ -222,7 +247,7 @@ class Silico_coords_v2(Silico_coords_ABC):
     The .si format is YAML based and stores atom positions in a dictionary format along with charge and multiplicity.
     """
     
-    def __init__(self, atoms, *, charge = None, multiplicity = None, name = None, version = "2.0.0", file_name = None):
+    def __init__(self, atoms, *, charge = None, multiplicity = None, name = None, version = "2.1.0", file_name = None, history = None):
         """
         Constructor for .si files.
          
@@ -233,7 +258,7 @@ class Silico_coords_v2(Silico_coords_ABC):
         :param version: The version of the .si file.
         :param file_name: The name of the file which was loaded. This can be used as a back-up file name.
         """
-        super().__init__(charge, multiplicity, name, file_name)
+        super().__init__(charge, multiplicity, name, file_name, history = history)
         self.atoms = atoms
         self.version = version
         
@@ -320,32 +345,6 @@ class Silico_coords_v1(Silico_coords_ABC):
     @property
     def atoms(self):
         return Silico_coords_v2.from_xyz(self.xyz, charge = self.charge, multiplicity = self.multiplicity, name = self.name, file_name = self.file_name).atoms
-        
-#     @property
-#     def dict(self):
-#         """
-#         Get this input file as a dict.
-#         """
-#         return {
-#             'name': self.name,
-#             'charge': self.charge,
-#             'multiplicity': self.multiplicity,
-#             'geometry': self.geometry,
-#         }
-#         
-#     @property
-#     def yaml(self):
-#         """
-#         Get this input file in yaml format.
-#         """
-#         # Get in dict format.
-#         intermediate = self.dict
-#         
-#         # Wrap geometry in literal format (so it will appear line by line).
-#         intermediate['geometry'] = literal_str(intermediate['geometry'])
-#         
-#         # Convert.
-#         return yaml.dump(intermediate, sort_keys=False)
 
 
 ####################
@@ -397,9 +396,11 @@ def si_from_file(file_name, file_type = None, *, gen3D = None, **kwargs):
         """
         file_name = Path(file_name)
         silico.log.get_logger().info("Parsing coordinate file '{}'".format(file_name))
+        auto_file_type = False
         
         # Get the file format.
         if file_type is None:
+            auto_file_type = True
             file_type = Openbabel_converter.type_from_file_name(file_name)
                 
         # Certain formats we support natively; others we convert to an intermediate format.
@@ -420,6 +421,14 @@ def si_from_file(file_name, file_type = None, *, gen3D = None, **kwargs):
                 destination = dill.load(pickle_file)
                 
                 return destination.program.calculation.input_coords
+            
+        elif file_type in ["dat", "log", "out", "output"] \
+            or (auto_file_type and "".join(file_name.suffixes) in open_for_parsing.archive_formats()):
+            # Log file.
+            # Parse and extract coordinates.
+            result = parse_calculation(file_name, options = silico.config.options, format_hint = "cclib")
+            
+            return Silico_coords.from_result(result, file_name = file_name)
             
         else:
             # Generic input format.
