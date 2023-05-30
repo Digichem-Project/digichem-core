@@ -401,7 +401,7 @@ def si_from_file(file_name, file_type = None, *, gen3D = None, **kwargs):
         # Get the file format.
         if file_type is None:
             auto_file_type = True
-            file_type = Openbabel_converter.type_from_file_name(file_name)
+            file_type = Openbabel_converter.type_from_file_name(file_name, allow_none = True)
                 
         # Certain formats we support natively; others we convert to an intermediate format.
         if file_type in ["com", "gau", "gjc", "gjf"]:
@@ -421,8 +421,10 @@ def si_from_file(file_name, file_type = None, *, gen3D = None, **kwargs):
                 destination = dill.load(pickle_file)
                 
                 return destination.program.calculation.input_coords
-            
-        elif file_type in ["dat", "log", "out", "output"] \
+        
+        # NOTE: Here we assume files without an extension are log files.
+        # This works fine for directories, but might change in future.
+        elif file_type in ["dat", "log", "out", "output", None] \
             or (auto_file_type and "".join(file_name.suffixes) in open_for_parsing.archive_formats()):
             # Log file.
             # Parse and extract coordinates.
