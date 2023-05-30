@@ -944,7 +944,6 @@ class NMR_shielding(NMR_tensor_ABC):
             in data['tensors'].items()
         }
         return self(
-            result_set.atoms.find(data['atom']),
             tensors,
             reference = data['reference']
         )
