@@ -267,7 +267,7 @@ class Total_spin_orbit_coupling(Spin_orbit_coupling):
                 triplet_state = parser.results.energy_states.get_state(state_symbol = triplet_symbol),
                 total = total
             ) for (singlet_symbol, triplet_symbol), total in zip(parser.data.socstates, parser.data.socenergies)]
-        except AttributeError:
+        except (AttributeError, Result_unavailable_error):
             # No data.
             return []
         
