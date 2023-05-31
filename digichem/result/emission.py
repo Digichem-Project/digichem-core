@@ -328,12 +328,18 @@ class Relaxed_excited_state(Excited_state):
         """
         Get a representation of this result object in primitive format.
         """
+        
         dump_dict = super().dump(silico_options)
-        dump_dict.update({
-            "emission_type": self.emission_type,
-            "emission_rate": {
+        dump_dict['emission_type'] = self.emission_type
+        
+        
+        try:
+            dump_dict["emission_rate"] = {
                 "value": float(self.emission_rate),
                 "units": "s^-1"
             }
-        })
+        
+        except Result_unavailable_error:
+            pass
+        
         return dump_dict
