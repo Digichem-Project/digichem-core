@@ -163,7 +163,7 @@ class VMD_image_maker(File_converter, Cropable_mixin):
         """
         A short message that may (depending on log-level) be printed to the user before make_files() is called.
         """
-        return "Rendering {} to file(s)".format(self.output)
+        return "Rendering '{}' to file(s)".format(self.output if self.full_path_names else self.output.name)
         
     def make_files(self):
         """
