@@ -123,3 +123,12 @@ class Memory():
     
     def __eq__(self, other):
         return int(self) == other
+
+
+class Turbomole_memory(Memory):
+    """
+    A class for representing memory quantities in formats suitable for turbomole.
+    """
+    
+    # When outputting units, whether to separate the number and unit with a space.
+    SPACE_UNIT = False
