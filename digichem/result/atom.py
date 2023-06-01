@@ -143,10 +143,10 @@ class Atom_list(Result_container, Unmergeable_container_mixin):
         """
         super().__init__(*args, **kwargs)
         self.charge = charge if charge is not None else 0
-        self._groups = None
+        self._groups = {}
         
         if assign_groups:
-            self.assign_groups()
+            self.groups
         
     @property
     def mass(self):
@@ -232,7 +232,7 @@ class Atom_list(Result_container, Unmergeable_container_mixin):
         
         Atom groups combine chemically equivalent atom positions into a single group.
         """
-        if self._groups is None:
+        if self._groups == {} and len(self) > 0:
             self.assign_groups()
             
         return self._groups
