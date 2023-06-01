@@ -55,3 +55,6 @@ last_updated = datetime.strptime(_last_updated_string, "%d/%m/%Y")
 
 def default_template_directory():
     return Path(pkg_resources.resource_filename('silico', 'data/templates'))
+
+# At end to avoid circular imports.
+import silico.config
