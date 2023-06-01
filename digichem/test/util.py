@@ -101,6 +101,7 @@ def check_rendered_image(base_name):
 
 
 def check_report(report_folder, base_name, *,
+    unrestricted = False,
     optimisation = False,
     vibrations = False,
     excited_states = False,
@@ -121,11 +122,16 @@ def check_report(report_folder, base_name, *,
     # Now check for images.
     image_folder = Path(report_folder, "image")
     # HOMO and LUMO
-    for image in ["HOMO", "LUMO"]:
+    for image in (["HOMO", "LUMO"] if not unrestricted else ["HOMO (alpha)", "HOMO (beta)", "LUMO (alpha)", "LUMO (beta)"]):
         check_rendered_image(Path(image_folder, f"{image}", f"{base_name}.{image}"))
     
     # HOMO-LUMO overlap
-    check_rendered_image(Path(image_folder, "HOMO LUMO", f"{base_name}.HOMO_LUMO"))
+    if not unrestricted:
+        check_rendered_image(Path(image_folder, "HOMO LUMO", f"{base_name}.HOMO_LUMO"))
+    
+    else:
+        check_rendered_image(Path(image_folder, "HOMO LUMO", f"{base_name}.alpha_HOMO_LUMO"))
+        check_rendered_image(Path(image_folder, "HOMO LUMO", f"{base_name}.beta_HOMO_LUMO"))
     
     # Structure and density.
     check_rendered_image(Path(image_folder, "Structure", f"{base_name}.structure"))
@@ -138,8 +144,15 @@ def check_report(report_folder, base_name, *,
         assert Path(image_folder, f"{base_name}.SCF_graph.png").exists()
     
     # HOMO-LUMO diagrams.
-    assert Path(image_folder, "Orbital Diagram", f"{base_name}.HOMO_LUMO.png").exists()
-    assert Path(image_folder, "Orbital Diagram", f"{base_name}.orbitals.png").exists()
+    if not unrestricted:
+        assert Path(image_folder, "Orbital Diagram", f"{base_name}.HOMO_LUMO.png").exists()
+        assert Path(image_folder, "Orbital Diagram", f"{base_name}.orbitals.png").exists()
+    
+    else:
+        assert Path(image_folder, "Orbital Diagram", f"{base_name}.alpha_HOMO_LUMO.png").exists()
+        assert Path(image_folder, "Orbital Diagram", f"{base_name}.beta_HOMO_LUMO.png").exists()
+        assert Path(image_folder, "Orbital Diagram", f"{base_name}.alpha_orbitals.png").exists()
+        assert Path(image_folder, "Orbital Diagram", f"{base_name}.beta_orbitals.png").exists()
     
     # Excited state stuff.
     if s1_tdm:
