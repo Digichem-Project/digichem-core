@@ -103,6 +103,7 @@ def check_rendered_image(base_name):
 def check_report(report_folder, base_name, *,
     unrestricted = False,
     optimisation = False,
+    dipole = True,
     vibrations = False,
     excited_states = False,
     absorption = False,
@@ -138,7 +139,8 @@ def check_report(report_folder, base_name, *,
     check_rendered_image(Path(image_folder, "Density", f"{base_name}.SCF"))
     
     # Dipole.
-    check_rendered_image(Path(image_folder, "Dipole Moment", f"{base_name}.dipole"))
+    if dipole:
+        check_rendered_image(Path(image_folder, "Dipole Moment", f"{base_name}.dipole"))
     
     if optimisation:
         assert Path(image_folder, f"{base_name}.SCF_graph.png").exists()
