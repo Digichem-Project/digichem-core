@@ -125,7 +125,7 @@ class File_maker(File_maker_ABC):
     # Text description of our output file type, used for error messages etc. This can be changed by inheriting classes.
     output_file_type = "output"
     
-    def __init__(self, output, existing_file = None, dont_modify = False, use_existing = False):
+    def __init__(self, output, existing_file = None, dont_modify = False, use_existing = False, full_path_names = False):
         """
         Constructor for File_converter objects.
         
@@ -133,6 +133,7 @@ class File_maker(File_maker_ABC):
         :param existing_file: An optional existing file of the type we're converting to. If this is given, then no conversion is done. This option exists so the user can specify files they have already converted themselves.
         :param dont_modify: Flag that prevents modifying the file on disk. If True, no new file will be written even if one does not already exist. dont_modify is automatically set to True if existing_file is not None (to prevent over-writing whatever file the user gave us).
         :param use_existing: Flag that modifies how file conversion works. If True, existing files will be preferentially used if available (set to False to force overwriting existing files).
+        :param full_path_names: Whether to print full path names in log messages.
         """
         # If we've been given an existing_file explicitly, check it exists.
         if existing_file is not None:
@@ -161,6 +162,8 @@ class File_maker(File_maker_ABC):
         self.done_file_creation = False
         
         self.failed_file_creation = False
+        
+        self.full_path_names = full_path_names
         
         super().__init__(output)
     
@@ -213,7 +216,7 @@ class File_maker(File_maker_ABC):
         """
         A short message that may (depending on log-level) be printed to the user before make_files() is called.
         """
-        return "Generating {} file '{}'".format(self.output_file_type, self.output)
+        return "Generating {} file '{}'".format(self.output_file_type, self.output if self.full_path_names else self.output.name)
     
     def check_can_make(self):
         """

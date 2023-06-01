@@ -77,7 +77,7 @@ class Image_maker(File_maker, Cropable_mixin):
         """
         A short message that may (depending on log-level) be printed to the user before make_files() is called.
         """
-        return "Rendering '{}' to file(s)".format(self.output.name)
+        return "Rendering '{}' to file(s)".format(self.output if self.full_path_names else self.output.name)
     
         
     def get_constrained_size(self, max_width, max_height):
