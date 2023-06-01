@@ -359,4 +359,4 @@ class File_converter(File_maker):
         """
         A short message that may (depending on log-level) be printed to the user before make_files() is called.
         """
-        return "Converting {} file '{}' to {} file '{}'".format(self.input_file_type, self.input_file if self.full_path_names else self.input_file.name, self.output_file_type, self.output if self.full_path_names else self.output.name)        
+        return "Converting {} file '{}' to {} file '{}'".format(self.input_file_type, self.input_file if self.full_path_names else Path(str(self.input_file)).name, self.output_file_type, self.output if self.full_path_names else Path(str(self.output)).name)        
