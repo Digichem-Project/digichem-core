@@ -3,17 +3,16 @@ import yaml
 from pathlib import Path
 
 # Silico imports.
-from silico.config.base import Auto_type
 from silico.configurable.base import Configurable
-from silico.submit.option import Option, Method_target_option
 from silico.configurable.options import Options
+from silico.configurable.option import Nested_dict_type
+from silico.config.base import Auto_type
 from silico.config.locations import user_config_location
 from silico.misc.io import atomic_write
-from silico.submit.calculation.turbomole import Turbomole_memory
+from silico.submit.memory import Turbomole_memory, Memory
 from silico.submit.translate import Cube_grid_points
-from silico.submit.memory import Memory
-from silico.submit import method_library
-from silico.configurable.option import Nested_dict_type
+from silico.submit.library import method_library
+from silico.submit.option import Option, Method_target_option
 
 
 class Silico_options(Configurable):
