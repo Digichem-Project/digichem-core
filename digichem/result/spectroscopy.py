@@ -191,7 +191,16 @@ class Spectroscopy_graph(Spectroscopy_graph_abc):
         points = [self.resolution *round(point / self.resolution) for point in numpy.linspace(*limits)]
         
         # Plot and return.
-        silico.log.get_logger().debug("Plotting gaussian peaks from {:0.2f} to {:0.2f} with a step size of {} ({} total points) for {} peaks ({} total iterations)".format(limits[0], limits[1], self.resolution, * limits[2], len(self.base_coordinates), len(self.base_coordinates) * limits[2]))
+        silico.log.get_logger().debug(
+            "Plotting gaussian peaks from {:0.2f} to {:0.2f} with a step size of {} ({} total points) for {} peaks ({} total iterations)".format(
+                limits[0],
+                limits[1],
+                self.resolution,
+                limits[2],
+                len(self.base_coordinates),
+                len(self.base_coordinates) * limits[2]
+            )
+        )
         gaussians = [
             [(x, self.gaussian(a, b, c, x)) for x in points]
             for b, a in self.base_coordinates
