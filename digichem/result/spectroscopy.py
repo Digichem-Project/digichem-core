@@ -342,7 +342,14 @@ class Absorption_emission_graph(Spectroscopy_graph):
         # All we need to do over our parent is convert x values from e to wavelength.
         # And scale y values using the jacobian transform.
         return [[self.energy_to_wavelength(coord, self.use_jacobian) for coord in plot] for plot in super().plot_gaussian()]
-
+    
+    def plot_cumulative_gaussian(self):
+        """
+        Plot an additive gaussian distribution around a set of coordinates.
+        
+        :return: A single list of tuples of (x, y) coordinates plotted by the gaussian function.
+        """
+        return [self.energy_to_wavelength(coord, self.use_jacobian) for coord in super().plot_cumulative_gaussian()]
 
 
 # TODO: Find this a better home?
