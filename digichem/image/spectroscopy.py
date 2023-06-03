@@ -256,7 +256,7 @@ class Absorption_emission_graph_maker(Spectroscopy_graph_maker):
         """    
         return self(
             output,
-            Absorption_emission_graph.from_excited_states(excited_states, options['IR_spectrum']['fwhm'], options['IR_spectrum']['gaussian_resolution'], options['IR_spectrum']['gaussian_cutoff'], use_jacobian = options[self.options_name]['use_jacobian'], adjust_zero = adjust_zero),
+            Absorption_emission_graph.from_excited_states(excited_states, options[self.options_name]['fwhm'], options[self.options_name]['gaussian_resolution'], options[self.options_name]['gaussian_cutoff'], use_jacobian = options[self.options_name]['use_jacobian'], adjust_zero = adjust_zero),
             **{key: value for key, value in options[self.options_name].items() if key not in ["gaussian_cutoff", "gaussian_resolution", "fwhm", "use_jacobian"]},
             **kwargs
         )
