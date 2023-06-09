@@ -107,6 +107,7 @@ def check_report(report_folder, base_name, *,
     vibrations = False,
     excited_states = False,
     absorption = False,
+    nmr = False,
     s1_tdm = False,
     s1_diff = False,
     t1_diff = False,
@@ -155,6 +156,10 @@ def check_report(report_folder, base_name, *,
         assert Path(image_folder, "Orbital Diagram", f"{base_name}.beta_HOMO_LUMO.png").exists()
         assert Path(image_folder, "Orbital Diagram", f"{base_name}.alpha_orbitals.png").exists()
         assert Path(image_folder, "Orbital Diagram", f"{base_name}.beta_orbitals.png").exists()
+        
+    # NMR.
+    if nmr:
+        assert len(Path(image_folder, "NMR").iterdir()) != 0
     
     # Excited state stuff.
     if s1_tdm:
