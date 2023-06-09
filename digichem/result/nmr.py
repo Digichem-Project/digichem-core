@@ -482,7 +482,8 @@ class NMR_list(Result_container):
         super().__init__(*args, **kwargs)
         self.atoms = atoms
         self.options = options
-        self.spectrometer = NMR_spectrometer.from_options(self.group(self.atoms), options = options)
+        self.groups = self.group()
+        self.spectrometer = NMR_spectrometer.from_options(self.groups, options = options)
     
     @classmethod
     def from_parser(self, parser):
@@ -597,7 +598,7 @@ class NMR_list(Result_container):
         """
         Dump this list of NMR results to a list of primitive types.
         """
-        grouping = self.group(self.atoms)
+        grouping = self.groups
         dump_dict = {
             "values": super().dump(silico_options),
             "groups": {group_id.label: group.dump(silico_options) for group_id, group in grouping.items()},
