@@ -587,7 +587,8 @@ class Atom(Atom_ABC):
         Is this atom equal to another?
         """
         # Atoms are considered equal if they are the same element in the same position.
-        return self.element == other.element and self.coords == other.coords
+        #return self.element == other.element and self.coords == other.coords
+        return self.element == other.element and self.index == other.index
     
     def __hash__(self):
         return super().__hash__()
