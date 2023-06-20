@@ -57,14 +57,6 @@ class Skeletal_image_maker(Image_maker):
             #resolution = int(self.rel_resolution * Minimal.from_coords(self.coords).X_length)
             resolution = int(self.rel_resolution * self.atoms.X_length)
         
-        # WrapLogs() outputs rdkit logging to python's stderr (which might be redirected to an urwid widget).
-        # If/when rdkit is further intergrated into silico, this call will likely be moved elsewhere. 
-        #rdkit.Chem.rdchem.WrapLogs()
-        # Sadly the behaviour of WrapLogs() is a bit bizzare, although we do get redirection to our custom widgets etc,
-        # logs are also still dumped to screen...
-        # for now, disable logging...
-        rdkit.RDLogger.DisableLog('rdApp.*')
-        
 #         molecule = rdkit.Chem.MolFromMolBlock(self.coords.to_format("mol"), removeHs = False)
 #         # rdkit will silently return None if parsing fails, best to check.
 #         if molecule is None:
