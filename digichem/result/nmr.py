@@ -918,7 +918,7 @@ class NMR_shielding(NMR_tensor_ABC):
                 total_isotropic = tensors.pop("isotropic")
                 shieldings[parser.results.atoms[atom_index]] = self(
                     tensors,
-                    reference = parser.options['nmr']['standards'].get(parser.results.atoms[atom_index].element.number, None)
+                    reference = parser.options['nmr']['standards'].get(parser.results.atoms[atom_index].element.symbol, None)
                 )
         
         except AttributeError:
