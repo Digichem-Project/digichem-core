@@ -350,11 +350,6 @@ Example:
     databases = Option(help = "A list of database configs.", list_type = list, type = Database_config.from_data, validate = validate_dbs, default = [
         Database_config.from_data("{name: main, path: ~/.silico/silico.main.db}")
     ])
-#     database = Options(help = "Options to configure the result database",
-#         db_type = Option(help = "The type of database to use. If none is given, the Silico database will be disabled.", choices = ["tinydb", "mongita", None], default = "mongita"),
-#         path = Option(help = "Path to the database file to use. If none is given, a default location in the user's home dir will be used.", type = Path, default = None),
-#         timeout = Option(help = "Maximum amount of time (in seconds) to wait for the database lock before giving up", type = float, default = 60.0)
-#     )
     
     def __init__(self, validate_now = True, palette = None, **kwargs):
         """
