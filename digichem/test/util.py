@@ -51,9 +51,19 @@ result_files = {
 @pytest.fixture(scope="package")
 def silico_options(tmpdir_factory):
     config = silico.config.get_config()
-    # Change the default DB location to prevent SPAM.
-    #config['database']['db_type']
-    config['database']['path'] = Path(tmpdir_factory.mktemp("silico_database"), "tmp.db")
+    
+    # Change the default DB locations to prevent SPAM.
+    config['databases'] = [
+        "{{name: test1, path: {}}}".format(
+            Path(tmpdir_factory.mktemp("silico_database1"), "tmp.db")
+        ),
+        "{{name: test2, path: {}}}".format(
+            Path(tmpdir_factory.mktemp("silico_database2"), "tmp.db")
+        ),
+        "{{name: test3, auto_fill: False, path: {}}}".format(
+            Path(tmpdir_factory.mktemp("silico_database3"), "tmp.db")
+        ),
+    ]
     return config
 
 
