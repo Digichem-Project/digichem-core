@@ -50,7 +50,7 @@ class NMR_spectrometer(Result_object):
             "coupling_filter": self.coupling_filter,
             "gaussian_cutoff": self.gaussian_cutoff,
         }
-        options.update(self._isotope_options.get((element, isotope), {}))
+        options.update(self._isotope_options.get("{}{}".format(isotope, periodictable.elements[element].symbol), {}))
         return options
         
     @classmethod
