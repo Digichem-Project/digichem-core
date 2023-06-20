@@ -449,4 +449,16 @@ def test_c_nmr_standard(orca_nmr_result):
     # Check the reference standard is available.
     assert all([nmr_result.shielding.reference == pytest.approx(reference, abs = 1e-4) for nmr_result in orca_nmr_result.nmr if nmr_result.atom.element.symbol == "C"])
 
+def test_nmr_h_isotope_options(orca_nmr_result):
+    # Check we have the right options set for H.
+    options = orca_nmr_result.nmr.spectrometer.isotope_options(1, 1)
+    assert options['frequency'] == 400
+    assert options['fwhm'] == 0.005
+    assert options['gaussian_resolution'] == 0.0005
+    assert options['coupling_filter'] == 0.001
+    assert options['pre_merge'] == 0.0005
 
+def test_nmr_c_isotope_options(orca_nmr_result):
+    # Check we have the right options set for H.
+    options = orca_nmr_result.nmr.spectrometer.isotope_options(6, 13)
+    assert options['frequency'] == 100.6
