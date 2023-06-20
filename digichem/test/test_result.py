@@ -437,3 +437,16 @@ def test_emission(result_set, transition_type, multiplicity, emission_type, ener
     assert emission.excited_energy == pytest.approx(excited_energy)
     assert emission.oscillator_strength == pytest.approx(oscillator_strength)
     assert emission.emission_rate == pytest.approx(rate)
+
+
+def test_h_nmr_standard(orca_nmr_result):
+    reference = 31.68766666666667
+    # Check the reference standard is available.
+    assert all([nmr_result.shielding.reference == pytest.approx(reference, abs = 1e-4) for nmr_result in orca_nmr_result.nmr if nmr_result.atom.element.symbol == "H"])
+
+def test_c_nmr_standard(orca_nmr_result):
+    reference = 197.90316666666664
+    # Check the reference standard is available.
+    assert all([nmr_result.shielding.reference == pytest.approx(reference, abs = 1e-4) for nmr_result in orca_nmr_result.nmr if nmr_result.atom.element.symbol == "C"])
+
+
