@@ -54,13 +54,8 @@ class Skeletal_image_maker(Image_maker):
             resolution = self.abs_resolution
         
         else:
-            #resolution = int(self.rel_resolution * Minimal.from_coords(self.coords).X_length)
             resolution = int(self.rel_resolution * self.atoms.X_length)
         
-#         molecule = rdkit.Chem.MolFromMolBlock(self.coords.to_format("mol"), removeHs = False)
-#         # rdkit will silently return None if parsing fails, best to check.
-#         if molecule is None:
-#             raise Exception("Failed to parse coordinates with rdkit")
         molecule = self.atoms.to_rdkit_molecule()
         
         # Calculate atom groupings.
@@ -96,7 +91,7 @@ class Skeletal_image_maker(Image_maker):
             molecule = edit_mol.GetMol()
         
         # Different libraries for generating 2D depictions.
-        # Coordgen is typically superior.
+        # Coordgen is supposedly superior.
         #rdkit.Chem.AllChem.Compute2DCoords(molecule)
         
         ps = rdkit.Chem.rdCoordGen.CoordGenParams()
