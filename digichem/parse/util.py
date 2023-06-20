@@ -161,8 +161,19 @@ def from_log_files(*log_files, format_hint = "auto", **auxiliary_files):
     
     :param format_hint: A hint as to the format of the given log files. Either 'auto' (to guess), 'log' (calc log file), 'sir' (silico result file) or 'sid' (silico database file).
     """
-    log_files = find_log_files(*log_files)
-    return class_from_log_files(*log_files, format_hint = format_hint).from_logs(*log_files, **auxiliary_files)
+    found_log_files = find_log_files(*log_files)
+    
+    #return class_from_log_files(*found_log_files, format_hint = format_hint).from_logs(*found_log_files, **auxiliary_files)
+
+    try:
+        return class_from_log_files(*found_log_files, format_hint = format_hint).from_logs(*found_log_files, **auxiliary_files)
+     
+    except Exception:
+        if len(found_log_files) == 0:
+            raise ValueError("There are no log files at '{}'".format(log_files[0] if len(log_files) == 1 else log_files)) from None
+         
+        else:
+            raise
     
 def parse_calculation(*log_files, options, parse_all = False, format_hint = "auto", keep_archive = False, **auxiliary_files):
     """
