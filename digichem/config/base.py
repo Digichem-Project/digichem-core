@@ -1,5 +1,6 @@
 import deepmerge
 import yaml
+from deepmerge import Merger
 
 class Config(dict):
     """
@@ -33,7 +34,24 @@ class Config(dict):
         :param new: A new dictionary to merge into the old.
         :param old: An old dictionary to be overwritten by new.
         """
-        return deepmerge.always_merger.merge(old, new)
+        # Taken from deepmerge docs: https://deepmerge.readthedocs.io/en/latest/
+        merger = Merger(
+            # pass in a list of tuple, with the
+            # strategies you are looking to apply
+            # to each type.
+            [
+                (list, ["override"]),
+                (dict, ["merge"]),
+                (set, ["union"])
+            ],
+            # next, choose the fallback strategies,
+            # applied to all other types:
+            ["override"],
+            # finally, choose the strategies in
+            # the case where the types conflict:
+            ["override"]
+        )
+        return merger.merge(old, new)
     
     def merge(self, new):
         """
