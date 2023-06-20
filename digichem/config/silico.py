@@ -13,6 +13,7 @@ from silico.submit.memory import Turbomole_memory, Memory
 from silico.submit.translate import Cube_grid_points
 from silico.submit.library import method_library
 from silico.submit.option import Option, Method_target_option
+from silico.configurable.exception import Configurable_exception
 
 
 class Database_config(Configurable):
@@ -20,6 +21,20 @@ class Database_config(Configurable):
     db_type = Option(help = "The type of database to use.", choices = ["tinydb", "mongita", None], default = "mongita")
     path = Option(help = "Path to the database file to use.", type = Path, required = True)
     timeout = Option(help = "Maximum amount of time (in seconds) to wait for the database lock before giving up", type = float, default = 60.0)
+    auto_fill = Option(help = "Whether to insert calculation results into this database when they finish.", type = bool, default = True)
+    
+def validate_dbs(option, owning_obj, value):
+    names = [db_config.name for db_config in value]
+    
+    # Make sure they're all unique.
+    seen = []
+    for name in names:
+        if name in seen:
+            raise Configurable_exception(owning_obj, "The name '{}' has been used for multiple databases.".format(name))
+        
+        seen.append(name)
+        
+    return True
 
 
 class Silico_options(Configurable):
@@ -332,7 +347,9 @@ Example:
         )
     )
     
-    databaseseses = Option(help = "blah", list_type = list, type = Database_config.from_data, default = None)
+    databases = Option(help = "A list of database configs.", list_type = list, type = Database_config.from_data, validate = validate_dbs, default = [
+        Database_config.from_data("{name: main, path: ~/.silico/silico.main.db}")
+    ])
 #     database = Options(help = "Options to configure the result database",
 #         db_type = Option(help = "The type of database to use. If none is given, the Silico database will be disabled.", choices = ["tinydb", "mongita", None], default = "mongita"),
 #         path = Option(help = "Path to the database file to use. If none is given, a default location in the user's home dir will be used.", type = Path, default = None),
