@@ -398,46 +398,50 @@ def si_from_file(file_name, file_type = None, *, gen3D = None, **kwargs):
         silico.log.get_logger().info("Parsing coordinate file '{}'".format(file_name))
         auto_file_type = False
         
-        # Get the file format.
-        if file_type is None:
-            auto_file_type = True
-            file_type = Openbabel_converter.type_from_file_name(file_name, allow_none = True)
+        try:
+            # Get the file format.
+            if file_type is None:
+                auto_file_type = True
+                file_type = Openbabel_converter.type_from_file_name(file_name, allow_none = True)
+                    
+            # Certain formats we support natively; others we convert to an intermediate format.
+            if file_type in ["com", "gau", "gjc", "gjf"]:
+                # Gaussian input format.
+                with open(file_name, "rt") as com_file:
+                    return Silico_coords.from_com(com_file.read(), file_name = file_name, **kwargs)
+    
+            elif file_type == "si":
+                # Silico input format.
+                with open(file_name, "rt") as si_file:
+                    return si_from_yaml(yaml.safe_load(si_file.read()), file_name = file_name, **kwargs)
                 
-        # Certain formats we support natively; others we convert to an intermediate format.
-        if file_type in ["com", "gau", "gjc", "gjf"]:
-            # Gaussian input format.
-            with open(file_name, "rt") as com_file:
-                return Silico_coords.from_com(com_file.read(), file_name = file_name, **kwargs)
-
-        elif file_type == "si":
-            # Silico input format.
-            with open(file_name, "rt") as si_file:
-                return si_from_yaml(yaml.safe_load(si_file.read()), file_name = file_name, **kwargs)
+            elif file_type == "pickle":
+                # A silico resume file.
+                # The resume file (should be) a pickled destination object.
+                with open(file_name, "rb") as pickle_file:
+                    destination = dill.load(pickle_file)
+                    
+                    return destination.program.calculation.input_coords
             
-        elif file_type == "pickle":
-            # A silico resume file.
-            # The resume file (should be) a pickled destination object.
-            with open(file_name, "rb") as pickle_file:
-                destination = dill.load(pickle_file)
+            # NOTE: Here we assume files without an extension are log files.
+            # This works fine for directories, but might change in future.
+            elif file_type in ["dat", "log", "out", "output", None] \
+                or (auto_file_type and "".join(file_name.suffixes) in open_for_parsing.archive_formats()):
+                # Log file.
+                # Parse and extract coordinates.
+                result = parse_calculation(file_name, options = silico.config.options, format_hint = "cclib")
                 
-                return destination.program.calculation.input_coords
-        
-        # NOTE: Here we assume files without an extension are log files.
-        # This works fine for directories, but might change in future.
-        elif file_type in ["dat", "log", "out", "output", None] \
-            or (auto_file_type and "".join(file_name.suffixes) in open_for_parsing.archive_formats()):
-            # Log file.
-            # Parse and extract coordinates.
-            result = parse_calculation(file_name, options = silico.config.options, format_hint = "cclib")
+                return Silico_coords.from_result(result, file_name = file_name)
+                
+            else:
+                # Generic input format.
+                
+                # We convert all formats to gaussian input formats (because this format contains charge and multiplicity, which we can extract).
+                com_file = Openbabel_converter.from_file(file_name, file_type).convert("com", gen3D = gen3D)         
             
-            return Silico_coords.from_result(result, file_name = file_name)
+                # Continue with other constructors.
+                return Silico_coords.from_com(com_file, file_name = file_name, **kwargs)
             
-        else:
-            # Generic input format.
-            
-            # We convert all formats to gaussian input formats (because this format contains charge and multiplicity, which we can extract).
-            com_file = Openbabel_converter.from_file(file_name, file_type).convert("com", gen3D = gen3D)         
-        
-            # Continue with other constructors.
-            return Silico_coords.from_com(com_file, file_name = file_name, **kwargs)
+        except:
+            raise ValueError("Could not parse input coordinates from '{}'".format(file_name))
     
