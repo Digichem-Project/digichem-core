@@ -15,6 +15,13 @@ from silico.submit.library import method_library
 from silico.submit.option import Option, Method_target_option
 
 
+class Database_config(Configurable):
+    name = Option(help = "The unique name of this database.", required = True)
+    db_type = Option(help = "The type of database to use.", choices = ["tinydb", "mongita", None], default = "mongita")
+    path = Option(help = "Path to the database file to use.", type = Path, required = True)
+    timeout = Option(help = "Maximum amount of time (in seconds) to wait for the database lock before giving up", type = float, default = 60.0)
+
+
 class Silico_options(Configurable):
     """
     Class for holding main Silico options from various sources.
@@ -325,11 +332,12 @@ Example:
         )
     )
     
-    database = Options(help = "Options to configure the result database",
-        db_type = Option(help = "The type of database to use. If none is given, the Silico database will be disabled.", choices = ["tinydb", "mongita", None], default = "mongita"),
-        path = Option(help = "Path to the database file to use. If none is given, a default location in the user's home dir will be used.", type = Path, default = None),
-        timeout = Option(help = "Maximum amount of time (in seconds) to wait for the database lock before giving up", type = float, default = 60.0)
-    )
+    databaseseses = Option(help = "blah", list_type = list, type = Database_config.from_data, default = None)
+#     database = Options(help = "Options to configure the result database",
+#         db_type = Option(help = "The type of database to use. If none is given, the Silico database will be disabled.", choices = ["tinydb", "mongita", None], default = "mongita"),
+#         path = Option(help = "Path to the database file to use. If none is given, a default location in the user's home dir will be used.", type = Path, default = None),
+#         timeout = Option(help = "Maximum amount of time (in seconds) to wait for the database lock before giving up", type = float, default = 60.0)
+#     )
     
     def __init__(self, validate_now = True, palette = None, **kwargs):
         """
