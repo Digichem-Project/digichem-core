@@ -48,6 +48,23 @@ __author__ = "The Silico Dev Team"
 _last_updated_string = "12/12/1234"
 last_updated = datetime.strptime(_last_updated_string, "%d/%m/%Y")
     
+    # And also data.
+    os.environ['BABEL_DATADIR'] = str(Path(sys._MEIPASS, "openbabel", "data", openbabel_version))
+    
+
+import rdkit.RDLogger
+# WrapLogs() outputs rdkit logging to python's stderr (which might be redirected to an urwid widget).
+# If/when rdkit is further intergrated into silico, this call will likely be moved elsewhere. 
+#rdkit.Chem.rdchem.WrapLogs()
+# Sadly the behaviour of WrapLogs() is a bit bizzare, although we do get redirection to our custom widgets etc,
+# logs are also still dumped to screen...
+# for now, disable logging...
+rdkit.RDLogger.DisableLog('rdApp.*')
+        
+
+# Setup the logger
+silico.log.init_logger()
+
 
 ########################
 # Function Definitions #
