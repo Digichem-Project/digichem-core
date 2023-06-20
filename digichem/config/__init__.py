@@ -4,15 +4,9 @@ from silico.config.silico import Silico_options
 from silico.config.locations import master_config_path, system_config_location, user_config_location
 from silico.config.parse import Config_file_parser, Config_parser
 
-# Load config options from file.
-# These objects are simple dicts.
-config = Config_file_parser(master_config_path).load(True)
-config.merge(Config_file_parser(system_config_location).load(True))
-config.merge(Config_file_parser(user_config_location).load(True))
-
 # The main silico options object.
 # When running as a program, this will be merged with run-time options.
-options = Silico_options(validate_now = True, **config)
+options = None
 
 def get_config(extra_config_files = None, extra_config_strings = None):
         """
@@ -28,6 +22,16 @@ def get_config(extra_config_files = None, extra_config_strings = None):
         
         :return: A Silico_options object (a fancy dict).
         """
+        # First, load options if not already done so.
+        if options is None:
+            # Load config options from file.
+            # These objects are simple dicts.
+            config = Config_file_parser(master_config_path).load(True)
+            config.merge(Config_file_parser(system_config_location).load(True))
+            config.merge(Config_file_parser(user_config_location).load(True))
+
+            globals()['options'] = Silico_options(validate_now = True, **config)
+        
         if extra_config_files is None:
             extra_config_files = []
             
