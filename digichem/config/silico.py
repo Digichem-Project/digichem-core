@@ -261,7 +261,7 @@ To disable the maximum width, set to null.""", type = int, default = 1500),
         plot_zoom_bars = Option(help = "Whether to plot vertical bars for each NMR shift in zoomed spectra", type = bool, default = True),
         
         # TODO: Validation on these sorts of options is poor and needs looking at.
-        isotopes = Option(help = "Isotope specific options. Each key should consist of a tuple of (proton_number, isotope).", type = Nested_dict_type, default = {
+        isotopes = Option(help = "Isotope specific options. Each key should consist of a tuple of (proton_number, isotope).", type = Nested_dict_type, default = Nested_dict_type({
             # Resonance frequencies calculated at 9.3947 T.
             # 1H, increase fidelity to see more detail.
             "1H": {"frequency": 400, "fwhm": 0.005, "gaussian_resolution": 0.0005, "coupling_filter": 0.001, "pre_merge": 0.0005},
@@ -273,7 +273,7 @@ To disable the maximum width, set to null.""", type = int, default = 1500),
             "19F": {"frequency": 376.5},
             # 31P
             "31P": {"frequency": 162.0}
-        })
+        }))
     )
     
     report = Options(help = "Options for controlling the generation of calculation reports.",
