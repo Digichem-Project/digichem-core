@@ -338,6 +338,9 @@ class Solvent(Translate):
         """
         if program == "turbomole":
             program = "epsilon"
+            
+        elif program == "orca":
+            program = "name"
         
         try:
             solvent_def = self.find_in_db(self.solvent)
