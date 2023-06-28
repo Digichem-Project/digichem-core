@@ -3,6 +3,7 @@ from .base import Config, Auto_type
 from silico.config.silico import Silico_options
 from silico.config.locations import master_config_path, system_config_location, user_config_location
 from silico.config.parse import Config_file_parser, Config_parser
+import silico.log
 
 # The main silico options object.
 # When running as a program, this will be merged with run-time options.
@@ -22,6 +23,9 @@ def get_config(extra_config_files = None, extra_config_strings = None):
         
         :return: A Silico_options object (a fancy dict).
         """
+        log_level = silico.log.get_logger().level
+        silico.log.get_logger().setLevel("DEBUG")
+        
         # First, load options if not already done so.
         if options is None:
             # Load config options from file.
@@ -55,3 +59,5 @@ def get_config(extra_config_files = None, extra_config_strings = None):
         
         # And return.
         return options
+    
+        silico.log.get_logger().setLevel(log_level)
