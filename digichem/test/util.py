@@ -64,6 +64,8 @@ def silico_options(tmpdir_factory):
             Path(tmpdir_factory.mktemp("silico_database3"), "tmp.db")
         ),
     ]
+    
+    config.validate()
     return config
 
 
