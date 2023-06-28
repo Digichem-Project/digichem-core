@@ -33,8 +33,9 @@ def get_config(extra_config_files = None, extra_config_strings = None):
             config = Config_file_parser(master_config_path).load(True)
             config.merge(Config_file_parser(system_config_location).load(True))
             config.merge(Config_file_parser(user_config_location).load(True))
-
-            globals()['options'] = Silico_options(validate_now = True, **config)
+            
+            # No need to validate here, we're going to do it later anyway.
+            globals()['options'] = Silico_options(validate_now = False, **config)
         
         if extra_config_files is None:
             extra_config_files = []
@@ -42,9 +43,9 @@ def get_config(extra_config_files = None, extra_config_strings = None):
         if extra_config_strings is None:
             extra_config_strings = []
             
-        if len(extra_config_files) == 0 and len(extra_config_strings) == 0:
-            # Do nothing.
-            return options
+#         if len(extra_config_files) == 0 and len(extra_config_strings) == 0:
+#             # Do nothing.
+#             return options
         
         # Load any additional config files.
         for extra_config_file in extra_config_files:
