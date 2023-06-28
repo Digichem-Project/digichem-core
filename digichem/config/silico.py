@@ -281,18 +281,18 @@ To disable the maximum width, set to null.""", type = int, default = 1500),
         turbomole = Options(help = "Options that control the running of Turbomole calculations to generate cube files from completed calculations. Note that when reports are created automatically following calculation completion these options will be overridden with the specifics of that calculation.",
             num_cpu = Option(help = "The number of CPUs with which to run.", type = int, default = 1),
             memory = Option(help = "The amount of memory with which to run.", type = Turbomole_memory, default = Turbomole_memory("1GB")),
-            program = Method_target_option(method_library.programs, help = "A program definition from the internal library to run.", default = None)
+            program = Method_target_option("programs", help = "A program definition from the internal library to run.", default = None)
         ),
         gaussian = Options(help = "Options that control the running of Gaussian calculations to generate NTO cube files from completed calculations. Note that when reports are created automatically following calculation completion these options will be overridden with the specifics of that calculation.",
             num_cpu = Option(help = "The number of CPUs with which to run.", type = int, default = 1),
             memory = Option(help = "The amount of memory with which to run.", type = Memory, default = Memory("1GB")),
-            program = Method_target_option(method_library.programs, help = "A program definition from the internal library to run.", default = None),
+            program = Method_target_option("programs", help = "A program definition from the internal library to run.", default = None),
             # TODO: This needs expanding.
             scratch_path = Option(help = "Path to the top of the scratch directory.", default = "/scratch")
         ),
         orca = Options(help = "Options that control the running of orca_plot to generate cube files from completed calculations. Note that when reports are created automatically following calculation completion these options will be overridden with the specifics of that calculation.",
             memory = Option(help = "The amount of memory with which to run. If left blank, no maximum will be specified.", type = Memory, default = None),
-            program = Method_target_option(method_library.programs, help = "A program definition from the internal library to run.", default = None)
+            program = Method_target_option("programs", help = "A program definition from the internal library to run.", default = None)
         ),
         cleanup = Option(help =\
 """Whether to delete intermediate files that are written during the report generation process.
@@ -430,4 +430,4 @@ Example:
         
         # Done.
         return palette
-            
+    
