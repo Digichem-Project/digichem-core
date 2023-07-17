@@ -60,6 +60,10 @@ import rdkit.RDLogger
 # logs are also still dumped to screen...
 # for now, disable logging...
 rdkit.RDLogger.DisableLog('rdApp.*')
+
+# Pybel warnings are useless and clutter up output, hide them.
+from openbabel import pybel
+pybel.ob.obErrorLog.SetOutputLevel(-1)
         
 
 # Setup the logger
