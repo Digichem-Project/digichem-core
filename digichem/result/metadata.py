@@ -53,6 +53,8 @@ class Metadata(Result_object):
             methods = None,
             functional = None,
             basis_set = None,
+            solvent_model = None,
+            solvent_name = None,
             charge = None,
             multiplicity = None,
             optimisation_converged = None,
@@ -100,6 +102,8 @@ class Metadata(Result_object):
         self.methods = methods if methods is not None else []
         self.functional = functional
         self.basis_set = basis_set
+        self.solvent_model = solvent_model
+        self.solvent_name = solvent_name
         # TODO: charge and mult should be deprecated here, they are available in ground_state.
         self.charge = charge
         self.multiplicity = multiplicity
@@ -330,6 +334,10 @@ class Metadata(Result_object):
                 methods = self.get_methods_from_cclib(parser.data),
                 functional = parser.data.metadata.get('functional', None),
                 basis_set = parser.data.metadata.get('basis_set', None),
+                
+                solvent_name = parser.data.metadata.get('solvent_name', None),
+                solvent_model = parser.data.metadata.get('solvent_model', None),
+                
                 charge = getattr(parser.data, 'charge', None),
                 multiplicity = getattr(parser.data, 'mult', None),
                 optimisation_converged = getattr(parser.data, 'optdone', None),
@@ -364,6 +372,8 @@ class Metadata(Result_object):
             "methods",
             "functional",
             "basis_set",
+            "solvent_model",
+            "solvent_name",
             "orbital_spin_type",
             "success",
             "optimisation_converged",
