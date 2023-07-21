@@ -1,4 +1,4 @@
-# Silico: Computational Chemistry Simplified
+# Silico: Computational Chemistry Made Easy
 
 A software toolkit that aims to reduce the complexity of computational chemistry, particularly for newcomers,
 by automating and/or simplifying the computational pipepline.
@@ -22,12 +22,12 @@ Silico currently supports the following:
  - SLURM
 
 #### Computational Packages
- - Gaussian 09
- - Gaussian 16
+ - Gaussian
  - Turbomole
+ - Orca
  
 #### Python
- - Python >= 3.7
+ - Python >= 3.8
  
 #### Operating Systems
  - Linux
