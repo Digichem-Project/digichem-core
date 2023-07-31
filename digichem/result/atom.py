@@ -473,7 +473,7 @@ class Atom_list(Result_container, Unmergeable_container_mixin):
         # No effort is made here to truncate coordinates to a certain precision.
         for atom in self:
             xyz += "{}    {}    {}    {}\n".format(atom.element.symbol, atom.coords[0], atom.coords[1], atom.coords[2])
-            
+        
         return xyz
     
     def to_mol(self):
@@ -486,9 +486,15 @@ class Atom_list(Result_container, Unmergeable_container_mixin):
         """
         Convert this list of atoms to an rdkit molecule object.
         """
-        # NOTE: Conversion directly from xyz is broken for lots of reasons. Mol is much more reliable.
+        # NOTE: Conversion directly from xyz is broken for lots of reasons.
+        # Mol is much more reliable, but still has its own problems. Sanitization will fail in lots of scenarios, eg for dative bonds.
         # NOTE: rdkit can fail silently and return None, best to check.
-        mol = Chem.MolFromMolBlock(self.to_mol(), removeHs = False)
+        mol = Chem.MolFromMolBlock(self.to_mol(), removeHs = False, sanitize = False)
+        
+#        mol = Chem.MolFromXYZBlock(self.to_xyz())
+#        mol.UpdatePropertyCache()
+#        import rdkit.Chem.rdDetermineBonds
+#        rdkit.Chem.rdDetermineBonds.DetermineConnectivity(mol)
         
         if mol is None:
             raise Exception("Failed to parse coordinates with rdkit")
