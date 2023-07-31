@@ -1,5 +1,8 @@
 # Render something with Beautiful Atoms.
 # To use this script, run something like:
+#
+# # To disabled possibly conflicting packages outside of the conda env.
+# PYTHONNOUSERSITE=1
 # blender -b -P batoms-renderer.py
 #
 # Where 'blender' is the path to the Beautiful Atoms Blender executable.
