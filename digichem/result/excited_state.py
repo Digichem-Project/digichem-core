@@ -698,7 +698,7 @@ class Excited_state(Energy_state):
                 "y": float(self.CIE_xy[1]),
             },
             "symmetry": self.symmetry,
-            "oscillator_strength": float(self.oscillator_strength),
+            "oscillator_strength": float(self.oscillator_strength) if self.oscillator_strength is not None else None,
             "tdm": self.transition_dipole_moment.dump(silico_options) if self.transition_dipole_moment is not None else None,
             "transitions": [tran.dump(silico_options) for tran in self.transitions],
         })
