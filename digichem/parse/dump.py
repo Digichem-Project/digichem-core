@@ -207,9 +207,17 @@ class Dump_parser_abc(Parser_abc):
         
         else:
             self.results.nmr = NMR_list(atoms = self.results.atoms, options = options)
-        
+            
         # Finally, try and set emission.
-        self.results.emission.vertical, self.results.emission.adiabatic = Relaxed_excited_state.guess_from_results(self.results)
+        try:
+            self.results.emission = self.results.emission.from_dump(self.data['emission'], self.results, options)
+        
+        except Exception:
+            silico.log.get_logger().warning("Failed to parse emission data", exc_info = True)
+        
+        # If we don't have explicit emission set, try and guess.
+        #if len(self.results.emission.vertical) == 0 and len(self.results.emission.adiabatic) == 0:
+        #    self.results.emission.vertical, self.results.emission.adiabatic = Relaxed_excited_state.guess_from_results(self.results)
         
         # Return the populated result set for convenience.
         return self.results
