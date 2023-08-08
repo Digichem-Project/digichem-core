@@ -33,6 +33,26 @@ class Emissions(Result_object):
             "adiabatic": {str(key):value.dump(silico_options) for key,value in self.adiabatic.items()},
             "vertical": {str(key):value.dump(silico_options) for key,value in self.vertical.items()}
         }
+        
+    @classmethod
+    def from_dump(self, data, result_set, options):
+        """
+        Get a list of instances of this class from its dumped representation.
+        
+        :param data: The data to parse.
+        :param result_set: The partially constructed result set which is being populated.
+        """
+        emissions = self()
+        
+        for transition_type in ("adiabatic", "vertical"):
+            if transition_type not in data:
+                continue
+            
+            setattr(emissions, transition_type,
+                {mult: Relaxed_excited_state.from_dump(state_data, result_set, options, transition_type = transition_type) for mult, state_data in data[transition_type].items()}
+            )
+            
+        return emissions
 
 
 class Relaxed_excited_state(Excited_state):
@@ -45,10 +65,45 @@ class Relaxed_excited_state(Excited_state):
     """
     
     def __init__(self,
+            level,
+            multiplicity,
+            multiplicity_level,
+            ground_multiplicity,
+            excited_energy,
+            ground_energy,
+            oscillator_strength,
+            transition_type,
+            # TODO: Add Support.
+            transitions = None,
+            # TODO: Add Support.
+            symmetry = None,
+            transition_dipole_moment = None,
+        ):
+        """
+        """
+        self.ground_energy = ground_energy
+        self.excited_energy = excited_energy
+        self.ground_multiplicity = ground_multiplicity
+        # The emission type (as a string), either fluorescence or phosphorescence.
+        if ground_multiplicity == multiplicity:
+            self.emission_type = "fluorescence"
+        
+        else:
+            self.emission_type = "phosphorescence"
+        
+        # Either adiabatic or vertical.
+        self.transition_type = transition_type
+        
+        super().__init__(level, multiplicity, multiplicity_level, symmetry, excited_energy - ground_energy, oscillator_strength, transitions if transitions is not None else [], transition_dipole_moment)
+        
+    
+    @classmethod
+    def from_results(self,
                  ground_state_result,
                  excited_state_result,
                  transition_type,
                  excited_state = None,
+                 # For now we assume this is the lowest possible excited state (may change in future).
                  level = 1,
                  multiplicity_level = 1,
         ):
@@ -61,35 +116,60 @@ class Relaxed_excited_state(Excited_state):
         :param excited_state: An optional Excited_state object. This is required (for example) in time dependent DFT where the total energy of excited_state_result is the ground state energy (at the excited state geometry).
         :param level: The level (ordered index) of this excited state, this has no effect if excited_state is not None (in which case it is taken from the given excited state).
         :param multiplicity_level: The ordered index of this excited state out of states with the same multiplicity, this has no effect if excited_state is not None (in which case it is taken from the given excited state).
-        """
-        # TODO: We don't call the Excited_state constructor (yet) because it handles energy differently.
-        Result_object.__init__(self)
-        
-        # TODO: Add support for these.
-        self.symmetry = None
-        self.transitions = []
-        
-        
-        self.ground_state_result = ground_state_result
-        self.excited_state_result = excited_state_result
-        self.excited_state = excited_state
-            
-        if self.excited_state is not None:
+        """            
+        if excited_state is not None:
             # If we have an excited state we can inherit certain properties from it.
-            self.level = self.excited_state.level
-            self.multiplicity_level = excited_state.multiplicity_level
-            self.oscillator_strength = self.excited_state.oscillator_strength
-            self.transition_dipole_moment = self.excited_state.transition_dipole_moment
+            level = excited_state.level
+            multiplicity_level = excited_state.multiplicity_level
+            oscillator_strength = excited_state.oscillator_strength
+            transition_dipole_moment = excited_state.transition_dipole_moment
         else:
-            # For now we assume this is the lowest possible excited state (may change in future).
-            self.level = level
-            self.multiplicity_level = multiplicity_level
-            
             # We don't have a concept of oscillator strength (yet?).
-            self.oscillator_strength = None
-            self.transition_dipole_moment = None
+            oscillator_strength = None
+            transition_dipole_moment = None
+        
+        # The total energy of the excited state in this transition.
+        # Start with our excited_state_result energy.
+        excited_energy = excited_state_result.energies.final
+        
+        # Add the excited state energy (if we have it).
+        if excited_state is not None:
+            excited_energy += excited_state.energy
+        
+        # The total energy of the ground state in this transition.
+        ground_energy = ground_state_result.energies.final
+        
+        # The multiplicity (as a number) of the excited state in this emission transition.
+        if excited_state is not None:
+            excited_multiplicity =  excited_state.multiplicity
+        else:
+            excited_multiplicity =  excited_state_result.ground_state.multiplicity
+        
+        # The multiplicity (as a number) of the ground state in this emission transition.
+        ground_multiplicity = ground_state_result.ground_state.multiplicity
             
-        self.transition_type = transition_type
+        return self(
+            level = level,
+            multiplicity = excited_multiplicity,
+            multiplicity_level = multiplicity_level,
+            ground_multiplicity = ground_multiplicity,
+            # TODO: Add Support.
+            symmetry = None,
+            excited_energy = excited_energy,
+            ground_energy = ground_energy,
+            oscillator_strength = oscillator_strength,
+            # TODO: Add Support.
+            transitions = None,
+            transition_dipole_moment = transition_dipole_moment,
+            transition_type = transition_type,
+        )
+    
+    @property
+    def excited_multiplicity(self):
+        """
+        This is an alias of multiplicity
+        """
+        return self.multiplicity
         
     @classmethod
     def guess_from_results(self, *results):
@@ -132,7 +212,7 @@ class Relaxed_excited_state(Excited_state):
                     ground_state_result = [result for result in opt_results if result.ground_state.multiplicity != excited_state_result.ground_state.multiplicity][0]
                     
                     # Get 'emission' object.
-                    emission = self(ground_state_result, excited_state_result, "adiabatic")
+                    emission = self.from_results(ground_state_result, excited_state_result, "adiabatic")
                     
                     # If the energy is negative we will ignore.
                     if emission.energy >= 0:
@@ -147,7 +227,7 @@ class Relaxed_excited_state(Excited_state):
                     ground_state_result = [result for result in results if "Single Point" in result.metadata.calculations and result.ground_state.multiplicity != excited_state_result.ground_state.multiplicity][0]
                     
                     # Get 'emission' object.
-                    emission = self(ground_state_result, excited_state_result, "vertical")
+                    emission = self.from_results(ground_state_result, excited_state_result, "vertical")
                     
                     # If the energy is negative we will ignore.
                     if emission.energy >= 0:
@@ -166,11 +246,11 @@ class Relaxed_excited_state(Excited_state):
         
         This method is useful because frequently only the lowest excited state of each mult is considered for emission, so there is one emission type per multiplicity. 
         """
-        return {multiplicity: self(ground_state_result, excited_state_result, transition_type, states[0]) for multiplicity, states in excited_state_result.excited_states.group().items()}
+        return {multiplicity: self.from_results(ground_state_result, excited_state_result, transition_type, states[0]) for multiplicity, states in excited_state_result.excited_states.group().items()}
                 
-        
+    # TODO: This might not be used anywhere?
     @classmethod
-    def from_results(self, main_result, *, ground_state_result = None, excited_state_result, transition_type = None, excited_state = None):
+    def determine_from_results(self, main_result, *, ground_state_result = None, excited_state_result, transition_type = None, excited_state = None):
         """
         Try and determine some emission energies from a number of result sets.
         
@@ -213,7 +293,7 @@ class Relaxed_excited_state(Excited_state):
                 # Emission from unrestricted triplet calc.
                 # This method requires another calc type to compare to.
                 if transition_type == "vertical":
-                    # For vertical, we wan't a singlet calc at the same geometry as the triplet calc.
+                    # For vertical, we want a singlet calc at the same geometry as the triplet calc.
                     if 'Single Point' in main_result.metadata.calculations:
                         ground_state_result = main_result
                     else:
@@ -236,7 +316,7 @@ class Relaxed_excited_state(Excited_state):
         
         else:
             # Get emission.
-            emission = self(
+            emission = self.from_results(
                 ground_state_result,
                 excited_state_result,
                 transition_type,
@@ -245,68 +325,7 @@ class Relaxed_excited_state(Excited_state):
             # Return as single dict.
             return {emission.multiplicity: emission}
     
-    @property
-    def excited_energy(self):
-        """
-        The total energy of the excited state in this transition.
-        """
-        # Start with our excited_state_result energy.
-        excited_energy = self.excited_state_result.energies.final
-        
-        # Add the excited state energy (if we have it).
-        if self.excited_state is not None:
-            excited_energy += self.excited_state.energy
-            
-        return excited_energy
-            
-    @property
-    def ground_energy(self):
-        """
-        The total energy of the ground state in this transition.
-        """
-        return self.ground_state_result.energies.final
-    
-    @property
-    def energy(self):
-        """
-        The energy of this transition (in eV).
-        """
-        # Return the difference between ground and excited.
-        return self.excited_energy - self.ground_energy
-    
-    @property
-    def multiplicity(self):
-        """
-        This is an alias of excited_multiplicity
-        """
-        return self.excited_multiplicity
-    
-    @property
-    def excited_multiplicity(self):
-        """
-        The multiplicity (as a number) of the excited state in this emission transition.
-        """
-        if self.excited_state is not None:
-            return self.excited_state.multiplicity
-        else:
-            return self.excited_state_result.ground_state.multiplicity
-        
-    @property
-    def ground_multiplicity(self):
-        """
-        The multiplicity (as a number) of the ground state in this emission transition.
-        """
-        return self.ground_state_result.ground_state.multiplicity
-    
-    @property
-    def emission_type(self):
-        """
-        The emission type (as a string), either fluorescence or phosphorescence.
-        """
-        if self.ground_multiplicity == self.excited_multiplicity:
-            return "fluorescence"
-        else:
-            return "phosphorescence"
+   
         
     @property
     def emission_rate(self):
@@ -331,6 +350,15 @@ class Relaxed_excited_state(Excited_state):
         
         dump_dict = super().dump(silico_options)
         dump_dict['emission_type'] = self.emission_type
+        dump_dict['ground_multiplicity'] = self.ground_multiplicity
+        dump_dict['excited_energy'] = {
+            "value": float(self.excited_energy),
+            "units": "eV"
+            }
+        dump_dict['ground_energy'] = {
+            "value": float(self.ground_energy),
+            "units": "eV"
+            }
         
         
         try:
@@ -343,3 +371,32 @@ class Relaxed_excited_state(Excited_state):
             pass
         
         return dump_dict
+    
+    @classmethod
+    def from_dump(self, data, result_set, options, transition_type):
+        """
+        Get an instance  of this class from its dumped representation.
+        
+        :param data: The data to parse.
+        :param result_set: The partially constructed result set which is being populated.
+        """
+        # Get our tdm (if available).
+        if 'tdm' in data and data['tdm'] is not None:
+            tdm = result_set.transition_dipole_moments[data['index']-1]
+        
+        else:
+            tdm = None
+        
+        return self(
+            level = data['index'],
+            multiplicity = data['multiplicity'],
+            multiplicity_level = data['multiplicity_index'],
+            ground_multiplicity = data['ground_multiplicity'],
+            excited_energy = data['excited_energy']['value'],
+            ground_energy = data['ground_energy']['value'],
+            oscillator_strength = data['oscillator_strength'],
+            transition_type = transition_type,
+            transition_dipole_moment = tdm,
+        )
+        
+        
