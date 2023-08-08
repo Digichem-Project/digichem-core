@@ -447,7 +447,7 @@ class Merged_metadata(Metadata):
         """
         # Our merged metadata.
         merged_metadata = self(num_calculations = len(multiple_metadatas))
-        for attr in ("name", "user", "package", "package_version", "functional", "basis_set"):
+        for attr in ("name", "user", "package", "package_version", "functional", "basis_set", "solvent_model", "solvent_name"):
             setattr(merged_metadata, attr, self.merged_attr(attr, multiple_metadatas))
             
         # We take the latest of the two dates.
