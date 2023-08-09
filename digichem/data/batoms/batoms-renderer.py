@@ -120,6 +120,80 @@ def add_molecule(
     
     return mol
 
+# Adapted from https://blender.stackexchange.com/questions/5898/how-can-i-create-a-cylinder-linking-two-points-with-python?newreg=f372ba9448694f5b97879a6dab963cee
+def draw_cylinder(start, end, radius, color):
+    """
+    """
+    dx = end[0] - start[0]
+    dy = end[1] - start[1]
+    dz = end[2] - start[2]  
+    dist = math.sqrt(dx**2 + dy**2 + dz**2)
+    
+    # First draw the cylinder.
+    bpy.ops.mesh.primitive_cylinder_add(
+        radius = radius, 
+        depth = dist,
+        location = (dx/2 + start[0], dy/2 + start[1], dz/2 + start[2]) 
+    )
+    # Get a reference to the object we just made.
+    obj = bpy.context.active_object
+    
+    phi = math.atan2(dy, dx)
+    theta = math.acos(dz/dist) 
+    
+    bpy.context.object.rotation_euler[1] = theta 
+    bpy.context.object.rotation_euler[2] = phi
+    
+    # Get material
+    mat = bpy.data.materials.new(name="Material")
+    
+    # assign to 1st material slot
+    #obj.data.materials[0] = mat
+    obj.active_material = mat
+        
+    mat.use_nodes = True
+    tree = mat.node_tree
+    nodes = tree.nodes
+    bsdf = nodes["Principled BSDF"]
+    bsdf.inputs["Base Color"].default_value = color
+    mat.diffuse_color = color
+    
+def draw_cone(start, end, radius, color):
+    """
+    """
+    dx = end[0] - start[0]
+    dy = end[1] - start[1]
+    dz = end[2] - start[2]  
+    dist = math.sqrt(dx**2 + dy**2 + dz**2)
+    
+    # First draw the cylinder.
+    bpy.ops.mesh.primitive_cone_add(
+        radius1 = radius,
+        depth = dist,
+        location = (dx/2 + start[0], dy/2 + start[1], dz/2 + start[2])
+    ) 
+    
+    phi = math.atan2(dy, dx)
+    theta = math.acos(dz/dist) 
+    
+    bpy.context.object.rotation_euler[1] = theta 
+    bpy.context.object.rotation_euler[2] = phi
+    
+    # Now add a point on top.
+    cone_length = 0.5
+    
+def draw_arrow(start, end, radius, color, split = 0.8):
+    # Decide what proportion of the total vector to dedicate to the arrow stem and head.
+    dx = end[0] - start[0]
+    dy = end[1] - start[1]
+    dz = end[2] - start[2]
+    dist = math.sqrt(dx**2 + dy**2 + dz**2)
+    
+    join = (dx * split + start[0], dy * split + start[1], dz * split + start[2])
+    draw_cylinder(start, join, radius, color)
+    draw_cone(join, end, radius*2, color)
+    
+
 
 def main():
     parser = argparse.ArgumentParser(
@@ -139,6 +213,7 @@ def main():
     parser.add_argument("--resolution", help = "The output resolution in px", type = int, default = 1024)
     parser.add_argument("--render-samples", help = "The maximum number of render samples, more generally results in higher quality but longer render times", type = int, default = 256)
     parser.add_argument("--rotations", help = "A list of rotations (in JSON) to rotate the molecule to a given alignment. The first item in each list item is the axis to rotate about (0=x, 1=y, 2=z), the second is the angle to rotate by (in radians)", default = None)
+    parser.add_argument("--dipoles", help = "Draw dipoles from a list of the following data (in JSON): 0) start coord, 1) end coord, 2) RGBA color information", nargs = "*", default = [])
     
     # Both blender and python share the same command line arguments.
     # They are separated by double dash ('--'), everything before is for blender,
@@ -182,6 +257,12 @@ def main():
             primary_color = args.primary_color if args.isocolor == "sign" else args.secondary_color,
             secondary_color = args.secondary_color
         )
+        
+    # Draw any dipoles.
+    if args.dipoles is not None:
+        dipoles = [yaml.safe_load(dipole) for dipole in args.dipoles]
+        for start_coord, end_coord, rgba in dipoles:
+            draw_arrow(start_coord, end_coord, 0.05, rgba)
         
     
     # Setup rendering settings.
