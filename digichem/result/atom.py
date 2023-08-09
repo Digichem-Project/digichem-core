@@ -4,6 +4,8 @@ import periodictable
 from itertools import zip_longest
 from openbabel import pybel
 from rdkit import Chem
+from rdkit.Chem import rdDetermineBonds
+import silico.log
 import re
 
 # Silico imports
@@ -14,6 +16,7 @@ from silico.exception.base import Result_unavailable_error, Silico_exception
 from silico.file.babel import Openbabel_converter
 from silico.misc.base import dict_list_index
 
+
 def get_chemical_group_mapping(rdkit_molecule):
     """
     Determine chemically equivalent atoms in this atom list.
@@ -22,7 +25,7 @@ def get_chemical_group_mapping(rdkit_molecule):
     """
     molecule = rdkit_molecule
     
-    groupings = list(Chem.rdmolfiles.CanonicalRankAtoms(molecule, breakTies = False))
+    groupings = list(Chem.rdmolfiles.CanonicalRankAtoms(molecule, breakTies = False, includeChirality = False))
     
     atoms = list(molecule.GetAtoms())
     
@@ -486,15 +489,33 @@ class Atom_list(Result_container, Unmergeable_container_mixin):
         """
         Convert this list of atoms to an rdkit molecule object.
         """
-        # NOTE: Conversion directly from xyz is broken for lots of reasons.
-        # Mol is much more reliable, but still has its own problems. Sanitization will fail in lots of scenarios, eg for dative bonds.
-        # NOTE: rdkit can fail silently and return None, best to check.
-        mol = Chem.MolFromMolBlock(self.to_mol(), removeHs = False, sanitize = False)
+        # RDKit has a lot of problems loading molecule information from other formats.
+        # Loading from Mol specifies atom and bonding types, but rdkit is very fragile when it comes to
+        # which bonds it considers allowed (tetravelent nitrogen is not allowed for example). This can
+        # be 'fixed'/ignored by specifying sanitize = False, but then lots of other rdkit function do't
+        # work properly, and rdkit does not detect symmetry correctly.
+        # Loading from SMILES is a bad idea because hydrogens are lost.
+        # Loading from xyz is much more robust and maintains Hs, but no bond information is read
+        # (because there isn't any). RDkit can try and determine bonding itself with DetermineBonds(),
+        # but this function is also fragile.
         
-#        mol = Chem.MolFromXYZBlock(self.to_xyz())
-#        mol.UpdatePropertyCache()
-#        import rdkit.Chem.rdDetermineBonds
-#        rdkit.Chem.rdDetermineBonds.DetermineConnectivity(mol)
+        # NOTE: rdkit can fail silently and return None, best to check.
+#        mol = Chem.MolFromMolBlock(self.to_mol(), removeHs = False, sanitize = False)
+        
+        
+#         parse_settings = Chem.rdmolfiles.SmilesParserParams()
+#         parse_settings.removeHs = False
+#         mol = Chem.MolFromSmiles(self.smiles, parse_settings)
+#         
+        mol = Chem.MolFromXYZBlock(self.to_xyz())
+        mol.UpdatePropertyCache()
+        rdDetermineBonds.DetermineConnectivity(mol)
+        try:
+            rdDetermineBonds.DetermineBonds(mol)
+        
+        except Exception:
+            # This function is not implemented for some atoms (eg, Se).
+            silico.log.get_logger().warning("Unable to determine bond ordering for molecule '{}'; all bonds will be represented as single bonds only".format(self.smiles), exc_info = True)
         
         if mol is None:
             raise Exception("Failed to parse coordinates with rdkit")
