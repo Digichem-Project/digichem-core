@@ -475,7 +475,7 @@ class Atom_list(Result_container, Unmergeable_container_mixin):
         # Then coordinates.
         # No effort is made here to truncate coordinates to a certain precision.
         for atom in self:
-            xyz += "{}    {}    {}    {}\n".format(atom.element.symbol, atom.coords[0], atom.coords[1], atom.coords[2])
+            xyz += "{}    {:f}    {:f}    {:f}\n".format(atom.element.symbol, atom.coords[0], atom.coords[1], atom.coords[2])
         
         return xyz
     
