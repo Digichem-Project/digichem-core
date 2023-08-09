@@ -508,6 +508,9 @@ class Atom_list(Result_container, Unmergeable_container_mixin):
 #         mol = Chem.MolFromSmiles(self.smiles, parse_settings)
 #         
         mol = Chem.MolFromXYZBlock(self.to_xyz())
+        if mol is None:
+            raise Exception("Failed to parse coordinates with rdkit")
+        
         mol.UpdatePropertyCache()
         rdDetermineBonds.DetermineConnectivity(mol)
         try:
@@ -516,9 +519,6 @@ class Atom_list(Result_container, Unmergeable_container_mixin):
         except Exception:
             # This function is not implemented for some atoms (eg, Se).
             silico.log.get_logger().warning("Unable to determine bond ordering for molecule '{}'; all bonds will be represented as single bonds only".format(self.smiles), exc_info = True)
-        
-        if mol is None:
-            raise Exception("Failed to parse coordinates with rdkit")
         
         return mol
 
