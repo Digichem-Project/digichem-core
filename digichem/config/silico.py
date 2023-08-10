@@ -49,8 +49,6 @@ class Silico_options(Configurable):
         help = "Options specifying paths to various external programs that silico may use. If no path is given, then these programs will simply be executed by name (so relying on OS path resolution to find the necessary executables, which is normally fine.)",
         formchk = Option(help = "Gaussian's formchk utility https://gaussian.com/formchk/", default = "formchk"),
         cubegen = Option(help = "Gaussian's cubegen utility https://gaussian.com/cubegen/", default = "cubegen"),
-        vmd = Option(help = "VMD (Visual Molecular Dynamics), used for rendering molecules https://www.ks.uiuc.edu/Research/vmd/", default = "vmd"),
-        tachyon = Option(help = "The tachyon ray-tracing library, performs the actual rendering. Tachyon is typically packaged with VMD, but often isn't added to the path automatically", default = "tachyon")
     )
     
     skeletal_image = Options(
@@ -65,17 +63,17 @@ class Silico_options(Configurable):
         help = "Options relating to output of error messages. Note that the final logging level is determined by combining both 'log_level' and 'verbose', so a 'log_level' of 'OFF' and 'verbose' of '2' is equal to 'ERROR'.",
         log_level = Option(help = "The level of messages to output, one of OFF (no logging at all), CRITICAL (fewest messages), ERROR, WARNING, INFO or DEBUG (most messages)", choices = ["OFF", "CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG"], default = "INFO"),
         verbose = Option(help = "Increase the verbosity of the program by this amount. Each integer increase of verbosity will increase 'log_level' by 1 degree.", type = int, default = 0),
-        vmd_logging = Option(help = "Whether to print output from vmd, the rendering program for density plots.", type = bool, default = False)
+        render_logging = Option(help = "Whether to print output from render engines.", type = bool, default = False)
     )
     
-    rendered_image = Options(
+    render = Options(
         help = "Options for controlling the appearance of 3D molecule images.",
         enable_rendering = Option(help = "Set to False to disable image rendering.", type = bool, default = True),
-        use_existing = Option(help =\
-"""If True, previously created files will be reused. If False, new images will rendered, replacing the old.
-This is on by default for 3D rendered images because they are expensive (time-consuming) to render.""", type = bool, default = True
-        ),
-        rendering_style = Option(help =\
+        engine = Option(help = "The rendering engine to use", choices = ["vmd", "batoms"], default = "batoms"),
+        vmd = Options(help = "VMD specific options (only applies of engine == 'vmd'",
+            executable = Option(help = "Path to the VMD (Visual Molecular Dynamics) executable", default = "vmd"),
+            tachyon = Option(help = "The tachyon ray-tracing library, performs the actual rendering. Tachyon is typically packaged with VMD, but often isn't added to the path automatically", default = "tachyon"),
+            rendering_style = Option(help =\
 """The render/display mode, changes the appearance of rendered molecules/orbitals.
 Possible options are:
  pastel: The default style, uses light, pastel-ish colours for orbitals with low transparency. Normal atom colours.
@@ -83,11 +81,24 @@ Possible options are:
  dark-pastel: Similar to pastel, but with darker orbital colours, reminiscant of the 'sharp' style.
  sharp: Orbitals are darkly coloured around their edge but have high transparency in their center. Normal atom colours.
  gaussian: A style attempting to mimic that of GaussView.
- vesta: A style attempting to mimic that of VESTA.""", choices = ["pastel", "light-pastel", "dark-pastel", "sharp", "gaussian", "vesta"], default = "pastel"
+ vesta: A style attempting to mimic that of VESTA.""",
+                choices = ["pastel", "light-pastel", "dark-pastel", "sharp", "gaussian", "vesta"], default = "pastel"
+            ),
         ),
-        auto_crop = Option(help = "Whether to enable  automatic cropping of excess whitespace around the border of generated images.  If False, overall image rendering is likely to take less time, but molecules may only occupy a small portion of the true image.", type = bool, default = True),
-        resolution = Option(help = "The target resolution for rendered images. Higher values will increase image quality, at the cost of increased render time and file size.", type = int, default = 1024),
+        batoms = Options(help = "Beautiful Atoms/Blender specific options (only applies if engine == 'batoms'",
+            blender = Option(help = "Path to the blender executable, in which beautiful atoms should be installed", default = None),
+            cpus = Option(help = "The number of CPUs/threads to use. This option is overridden if running in a calculation environemnt (where it uses the same number of CPUs as the calculation did)", type = int, default = 1),
+            render_samples = Option(help = "The number of render samples (or passes) to use. Higher values result in higher image quality and greater render times", type = int, default = 256),
+            perspective = Option(help = "The perspective mode", choices = ["orthographic", "perspective"], default = "orthographic")
+            # TODO: Colour options.
+        ),
+        use_existing = Option(help =\
+"""If True, previously created files will be reused. If False, new images will rendered, replacing the old.
+This is on by default for 3D rendered images because they are expensive (time-consuming) to render.""", type = bool, default = True
+        ),
         
+        auto_crop = Option(help = "Whether to enable  automatic cropping of excess whitespace around the border of generated images.  If False, overall image rendering is likely to take less time, but molecules may only occupy a small portion of the true image.", type = bool, default = True),
+        resolution = Option(help = "The target resolution for rendered images. Higher values will increase image quality, at the cost of increased render time and file size.", type = int, default = 512),
         orbital = Options(help = "Specific options for orbital density plots.",
             cube_grid_size = Option(help =\
 """The size of grid used to generate cube files.
@@ -103,7 +114,7 @@ Tiny, Small, Medium, Large, Huge or Default.""", type = Cube_grid_points, defaul
         ),
         density = Options(help = "Specific options for total density plots.",
             cube_grid_size = Option(help = "The size of the grid use to plot cube data.", type = Cube_grid_points, default = Cube_grid_points("Large")),
-            isovalue = Option(help = "The isovalue to use for plotting total density.", type = float, default = 0.0004)
+            isovalue = Option(help = "The isovalue to use for plotting total density.", type = float, default = 0.02)
         ),
         difference_density = Options(help = "Specific options for excited states difference density plots.",
             cube_grid_size = Option(help = "The size of the grid use to plot cube data.", type = Cube_grid_points, default = Cube_grid_points("Default")),
