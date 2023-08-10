@@ -121,7 +121,7 @@ def add_molecule(
     return mol
 
 # Adapted from https://blender.stackexchange.com/questions/5898/how-can-i-create-a-cylinder-linking-two-points-with-python?newreg=f372ba9448694f5b97879a6dab963cee
-def draw_cylinder(start, end, radius, color):
+def draw_primitive(start, end, radius, mesh_type, color, collection = None):
     """
     """
     dx = end[0] - start[0]
@@ -129,12 +129,24 @@ def draw_cylinder(start, end, radius, color):
     dz = end[2] - start[2]  
     dist = math.sqrt(dx**2 + dy**2 + dz**2)
     
-    # First draw the cylinder.
-    bpy.ops.mesh.primitive_cylinder_add(
-        radius = radius, 
-        depth = dist,
-        location = (dx/2 + start[0], dy/2 + start[1], dz/2 + start[2]) 
-    )
+    # First draw the shape.
+    if mesh_type == "cylinder":
+        bpy.ops.mesh.primitive_cylinder_add(
+            radius = radius, 
+            depth = dist,
+            vertices = 32,
+            location = (dx/2 + start[0], dy/2 + start[1], dz/2 + start[2]) 
+        )
+    elif mesh_type == "cone":
+        bpy.ops.mesh.primitive_cone_add(
+            radius1 = radius,
+            depth = dist,
+            vertices = 32,
+            location = (dx/2 + start[0], dy/2 + start[1], dz/2 + start[2])
+        )
+    else:
+        raise ValueError("Unknown mesh type '{}'".format(mesh_type))
+        
     # Get a reference to the object we just made.
     obj = bpy.context.active_object
     
@@ -148,7 +160,6 @@ def draw_cylinder(start, end, radius, color):
     mat = bpy.data.materials.new(name="Material")
     
     # assign to 1st material slot
-    #obj.data.materials[0] = mat
     obj.active_material = mat
         
     mat.use_nodes = True
@@ -156,33 +167,22 @@ def draw_cylinder(start, end, radius, color):
     nodes = tree.nodes
     bsdf = nodes["Principled BSDF"]
     bsdf.inputs["Base Color"].default_value = color
+    bsdf.inputs["Metallic"].default_value = 0.1
+    bsdf.inputs["Specular"].default_value = 0.2
+    bsdf.inputs["Roughness"].default_value = 0.2
     mat.diffuse_color = color
     
-def draw_cone(start, end, radius, color):
-    """
-    """
-    dx = end[0] - start[0]
-    dy = end[1] - start[1]
-    dz = end[2] - start[2]  
-    dist = math.sqrt(dx**2 + dy**2 + dz**2)
+    # If we've been asked to, asign our new object to a given collection.
+    # First unlink from any old collections
+    for coll in obj.users_collection:
+        # Unlink the object
+        coll.objects.unlink(obj)
+
+    # Link each object to the target collection
+    collection.objects.link(obj)
+
     
-    # First draw the cylinder.
-    bpy.ops.mesh.primitive_cone_add(
-        radius1 = radius,
-        depth = dist,
-        location = (dx/2 + start[0], dy/2 + start[1], dz/2 + start[2])
-    ) 
-    
-    phi = math.atan2(dy, dx)
-    theta = math.acos(dz/dist) 
-    
-    bpy.context.object.rotation_euler[1] = theta 
-    bpy.context.object.rotation_euler[2] = phi
-    
-    # Now add a point on top.
-    cone_length = 0.5
-    
-def draw_arrow(start, end, radius, color, split = 0.8):
+def draw_arrow(start, end, radius, color, split = 0.8, collection = None):
     # Decide what proportion of the total vector to dedicate to the arrow stem and head.
     dx = end[0] - start[0]
     dy = end[1] - start[1]
@@ -190,9 +190,8 @@ def draw_arrow(start, end, radius, color, split = 0.8):
     dist = math.sqrt(dx**2 + dy**2 + dz**2)
     
     join = (dx * split + start[0], dy * split + start[1], dz * split + start[2])
-    draw_cylinder(start, join, radius, color)
-    draw_cone(join, end, radius*2, color)
-    
+    draw_primitive(start, join, radius, "cylinder", color, collection = collection)
+    draw_primitive(join, end, radius*2, "cone", color, collection = collection)
 
 
 def main():
@@ -214,6 +213,8 @@ def main():
     parser.add_argument("--render-samples", help = "The maximum number of render samples, more generally results in higher quality but longer render times", type = int, default = 256)
     parser.add_argument("--rotations", help = "A list of rotations (in JSON) to rotate the molecule to a given alignment. The first item in each list item is the axis to rotate about (0=x, 1=y, 2=z), the second is the angle to rotate by (in radians)", default = None)
     parser.add_argument("--dipoles", help = "Draw dipoles from a list of the following data (in JSON): 0) start coord, 1) end coord, 2) RGBA color information", nargs = "*", default = [])
+    parser.add_argument("--alpha", help = "Override the opacity value for all molecule objects (but not dipoles) to this value, useful for showing dipole arrows more clearly", default = None, type = float)
+    parser.add_argument("--perspective", help = "The perspective mode, either orthographic or perspective", default = "perspective", choices = ["perspective", "orthographic"])
     
     # Both blender and python share the same command line arguments.
     # They are separated by double dash ('--'), everything before is for blender,
@@ -244,7 +245,11 @@ def main():
         primary_color = args.primary_color,
         secondary_color = args.secondary_color if args.isocolor == "sign" else args.primary_color
     )
-        
+    
+    # Uncomment to show atom labels.
+    # Needs some tweaking to appear in render (viewport only by default).
+    #mol.show_label = 'species'
+    
     # If we have a second cube, add that too.
     if args.second_cube is not None:
         mol2 = add_molecule(
@@ -257,12 +262,22 @@ def main():
             primary_color = args.primary_color if args.isocolor == "sign" else args.secondary_color,
             secondary_color = args.secondary_color
         )
+    
+    if args.alpha:
+        # Set all materials transparent.
+        for material in bpy.data.materials:
+            try:
+                material.node_tree.nodes['Principled BSDF'].inputs['Alpha'].default_value = args.alpha
+            except Exception as e:
+                pass
         
+    
     # Draw any dipoles.
     if args.dipoles is not None:
+        
         dipoles = [yaml.safe_load(dipole) for dipole in args.dipoles]
         for start_coord, end_coord, rgba in dipoles:
-            draw_arrow(start_coord, end_coord, 0.05, rgba)
+            draw_arrow(start_coord, end_coord, 0.08, rgba, collection = mol.coll)
         
     
     # Setup rendering settings.
@@ -285,6 +300,13 @@ def main():
     bpy.data.lights["batoms_light_Default"].node_tree.nodes["Emission"].inputs[1].default_value = 0.3
     #mol.render.lights["Default"].energy=10
     
+    # Change view mode.
+    if args.perspective == "perspective":
+        mol.render.camera.type = "PERSP"
+    
+    else:
+        mol.render.camera.type = "ORTHO"
+    
     # Enable to add an outline.
     #bpy.context.scene.render.use_freestyle = True
     
@@ -292,7 +314,7 @@ def main():
     bpy.context.scene.render.threads_mode = 'FIXED'
     bpy.context.scene.render.threads = args.cpus
     
-    mol.get_image(viewport = args.orientation, output = args.output)
+    mol.get_image(viewport = args.orientation, output = args.output, padding = 0.1)
     
     return 0
     
