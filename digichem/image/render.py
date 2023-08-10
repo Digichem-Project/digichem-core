@@ -4,10 +4,17 @@ Classes for rendering 3D images of molecules and densities, primarily with blend
 Also see vmd.py for an older render engine.
 """
 from pathlib import Path
+import os
+import copy
+import subprocess
+import yaml
+import pkg_resources
+from PIL import Image
 
 from silico.file.base import File_converter
 from silico.image.base import Cropable_mixin
-import pkg_resources
+from silico.exception.base import File_maker_exception
+import math
 
 class Render_maker(File_converter, Cropable_mixin):
     """
@@ -54,6 +61,10 @@ class Render_maker(File_converter, Cropable_mixin):
         self.target_resolution = resolution
         self.also_make_png = also_make_png
         self.isovalue = isovalue
+        
+        # TODO: These.
+        self.primary_colour = "red"
+        self.secondary_colour = "blue"
                 
         # These 4 attributes are file paths to the four images we create.
         # We'll keep the same file extension as the was given to us.
@@ -87,7 +98,7 @@ class Render_maker(File_converter, Cropable_mixin):
     @property
     def rotations(self):
         # Silico rotates the wrong way round for some reason, reverse for our rendering engine.
-        return [(axis, -theta) for axis, theta in self._rotations]
+        return [(axis, theta) for axis, theta in self._rotations]
 
 
 class Batoms_renderer(Render_maker):
@@ -99,6 +110,20 @@ class Batoms_renderer(Render_maker):
     input_file_type = "cube"
     # Text description of our output file type, used for error messages etc. This can be changed by inheriting classes.
     output_file_type = "render"
+    
+    # TODO: Do we need this? Can probably remove if/when VMD is dropped.
+    # Name of the section where we get some specific configs.
+    options_name = "orbital"
+    
+    test_resolution = 300
+    test_samples = 5
+    
+    @property
+    def batoms_script_path(self):
+        """
+        Get the file path to the VMD script to be used by this class to render images (as a pathlib Path).
+        """
+        return Path(pkg_resources.resource_filename('silico', 'data/batoms/batoms-renderer.py'))
     
     def __init__(
             self,
@@ -113,6 +138,7 @@ class Batoms_renderer(Render_maker):
             blender_executable = None,
             cpus = 1,
             perspective = "perspective",
+            logging = False,
             **kwargs):
         """
         Constructor for Image_maker objects.
@@ -122,9 +148,12 @@ class Batoms_renderer(Render_maker):
         :param rotations: A list of tuples of rotations, where the first index in the tuple specifies the axis to rotate about and the second is the angle to rotate (in radians).
         :param auto_crop: If False, images will not have excess white space cropped.
         :param resolution: The max width or height of the rendered images in pixels.
+        :param render_samples: The number of render samples, more results in longer render times but higher quality image.
         :param also_make_png: If True, additional images will be rendered in PNG format. This option is useful to generate higher quality images alongside more portable formats.
         :param isovalue: The isovalue to use for rendering isosurfaces. Has no effect when rendering only atoms.
-        :param blender_executable:
+        :param blender_executable: Bath to the blender executable (can be None to use a default).
+        :param cpus: Number of parallel threads to render with.
+        :param perspective: Perspective mode (orthographic or perspective)
         """
         super().__init__(
             *args,
@@ -133,7 +162,7 @@ class Batoms_renderer(Render_maker):
             auto_crop = auto_crop,
             resolution = resolution,
             also_make_png = also_make_png,
-            isovalue = isovalue,
+            isovalue = math.fabs(isovalue),
             **kwargs
         )
         
@@ -142,16 +171,18 @@ class Batoms_renderer(Render_maker):
         self.cpus = cpus
         self.perspective = perspective
         
+        self.logging = logging
+        
         # Use explicit blender location if given.
         if blender_executable is not None:
             self.blender_executable = blender_executable
         
         else:
             # Otherwise, use a default location.
-            self.blender_executable = Path(pkg_resources.resource_filename('silico', 'data/blender/blender'))
+            self.blender_executable = Path(pkg_resources.resource_filename('silico', 'data/batoms/blender/blender'))
             
     @classmethod
-    def from_options(self, output, *, cube_file = None, rotations = None, options, **kwargs):
+    def from_options(self, output, *, cube_file = None, rotations = None, cpus = None, options, **kwargs):
         """
         Constructor that takes a dictionary of config like options.
         """        
@@ -159,14 +190,409 @@ class Batoms_renderer(Render_maker):
             output,
             cube_file = cube_file,
             rotations = rotations,
-            auto_crop = options['rendered_image']['auto_crop'],
-            rendering_style = options['rendered_image']['rendering_style'],
-            resolution = options['rendered_image']['resolution'],
-            isovalue = options['rendered_image'][self.options_name]['isovalue'],
-            use_existing = options['rendered_image']['use_existing'],
-            dont_modify = not options['rendered_image']['enable_rendering'],
-            vmd_executable = options['external']['vmd'],
-            tachyon_executable = options['external']['tachyon'],
-            vmd_logging = options['logging']['vmd_logging'],
+            auto_crop = options['render']['auto_crop'],
+            resolution = options['render']['resolution'],
+            render_samples = options['render']['batoms']['render_samples'],
+            isovalue = options['render'][self.options_name]['isovalue'],
+            use_existing = options['render']['use_existing'],
+            dont_modify = not options['render']['enable_rendering'],
+            blender_executable = options['render']['batoms']['blender'],
+            cpus = cpus if cpus is not None else options['render']['batoms']['cpus'],
+            perspective = options['render']['batoms']['perspective'],
+            logging = options['logging']['render_logging'],
             **kwargs
         )
+        
+    def blender_signature(self, output, resolution, samples, orientation, padding = 1.0):
+        """
+        The signature passed to subprocess.run used to call Blender. Inheriting classes should write their own implementation.
+        """
+        args = [
+            # Blender args.
+            f"{self.blender_executable}",
+            # Run in background.
+            "-b",
+            # Our script.
+            "-P", f"{self.batoms_script_path}",
+            "--",
+            # Script specific args.
+            f"{self.input_file}",
+            f"{output}",
+            # Keywords.
+            "--cpus", f"{self.cpus}",
+            "--orientation", "{}".format(orientation[0]), "{}".format(orientation[1]), "{}".format(orientation[2]),
+            "--resolution", f"{resolution}",
+            "--render-samples", f"{samples}",
+            "--perspective", f"{self.perspective}",
+            "--padding", f"{padding}",
+            "--rotations",
+        ]
+        # Add rotations.
+        for rotation in self.rotations:
+            args.append(yaml.safe_dump(rotation))
+        
+        return args
+    
+    def run_blender(self, output, resolution, samples, orientation):
+        # Render with batoms.
+        env = copy.copy(os.environ)
+        
+        # Disabling the user dir helps prevent conflicting installs of certain packages
+        env["PYTHONNOUSERSITE"] = "1"
+        #env["PYTHONPATH"] = ":" + env["PYTHONPATH"]
+        
+        # Run Blender, which renders our image for us.
+        try:
+            subprocess.run(
+                self.blender_signature(output, resolution, samples, orientation),
+                stdin = subprocess.DEVNULL,
+                stdout = subprocess.DEVNULL if not self.logging else None,
+                stderr = subprocess.STDOUT,
+                universal_newlines = True,
+                check = True
+            )
+        except FileNotFoundError:
+            raise File_maker_exception(self, "Could not locate blender executable '{}'".format(self.blender_executable))
+        
+    
+    def make_files(self):
+        """
+        Make the image files referenced by this object.
+        
+        The new image will be written to file.
+        """
+        # TODO: This mechanism is clunky and inefficient if only one image is needed because its based off the old VMD renderer. With batoms we can do much better.
+        for image_name, orientation in [
+                ('x0y0z0', (0,0,1)),
+                ('x90y0z0', (1,0,0)),
+                ('x0y90z0', (0,1,0)),
+                ('x45y45z45',(1,1,1))
+            ]:
+            image_path = self.file_path[image_name]
+            try:
+                # First we'll render a test image at a lower resolution. We'll then crop it, and use the decrease in final resolution to know how much bigger we need to render in our final image to hit our target resolution.
+                # Unless of course auto_crop is False, in which case we use our target resolution immediately.
+                resolution = self.test_resolution if self.auto_crop else self.target_resolution
+                samples = self.test_samples if self.auto_crop else self.render_samples
+                self.run_blender(image_path.with_suffix(".tmp.png"), resolution, samples, orientation)
+                
+                if self.auto_crop:
+                    # Load the test image and autocrop it.
+                    with Image.open(image_path.with_suffix(".tmp.png"), "r") as test_im:
+                        small_test_im = self.auto_crop_image(test_im)
+                        
+                    # Get the cropped size. We're interested in the largest dimension, as this is what we'll output as.
+                    cropped_resolution = max(small_test_im.size)
+                    
+                    # From this we can work out the ratio between our true resolution and the resolution we've been asked for.
+                    resolution_ratio = cropped_resolution / self.test_resolution
+                    
+                    self.run_blender(image_path.with_suffix(".tmp.png"), int(self.target_resolution / resolution_ratio), self.render_samples, orientation)
+                
+            except Exception:
+                raise File_maker_exception(self, "Error in blender rendering")
+            
+            # Convert to a better set of formats.
+            # Open the file we just rendered.
+            with Image.open(image_path.with_suffix(".tmp.png"), "r") as im:
+                
+                # If we've been asked to autocrop, do so.
+                if self.auto_crop:
+                    try:
+                        cropped_image = self.auto_crop_image(im)
+                    except Exception:
+                        raise File_maker_exception(self, "Error in post-rendering auto-crop")
+                else:
+                    cropped_image = im
+                
+                # Save as a higher quality png if we've been asked to.
+                if self.also_make_png:
+                    cropped_image.save(self.file_path[image_name + "_big"])
+                    
+                # Remove transparency, which isn't supported by JPEG (which is essentially the only format we write here).
+                # TODO: Check if the output format can support transparency or not.
+                new_image = Image.new("RGBA", cropped_image.size, "WHITE") # Create a white rgba background
+                new_image.paste(cropped_image, (0, 0), cropped_image)              # Paste the image on the background. Go to the links given below for details.
+                cropped_image = new_image.convert('RGB')
+                
+                # Now save in our main output format.
+                cropped_image.save(image_path)
+                
+                # And delete the old .png.
+                os.remove(image_path.with_suffix(".tmp.png"))
+
+
+class Structure_image_maker(Batoms_renderer):
+    """
+    Class for creating structure images.
+    """
+        
+        
+class Orbital_image_maker(Structure_image_maker):
+    """
+    Class for creating orbital images.
+    """
+    
+    def blender_signature(self, output, resolution, samples, orientation, isotype = "both", isocolor = "sign"):
+        """
+        The signature passed to subprocess.run used to call Blender. Inheriting classes should write their own implementation.
+        """
+        sig = super().blender_signature(output, resolution, samples, orientation)
+        sig.extend(["--isovalues", f"{self.isovalue}"])
+        sig.extend(["--isotype", isotype])
+        sig.extend(["--isocolor", isocolor])
+        
+        return sig
+    
+
+class Difference_density_image_maker(Orbital_image_maker):
+    
+    # Name of the section where we get some specific configs.
+    options_name = "difference_density"
+
+
+class Spin_density_image_maker(Orbital_image_maker):
+    """
+    Class for creating spin density images.
+    """
+    
+    # Name of the section where we get some specific configs.
+    options_name = "spin"
+    
+    def __init__(self, *args, spin = "both", **kwargs):
+        """
+        Constructor for Spin_density_image_maker objects.
+        
+        See Orbital_image_maker for a complete constructor.
+        :param spin: A string indicating which net-spins to render, either 'positive', 'negative' or 'both'.
+        """
+        super().__init__(*args, **kwargs)
+        self.spin = spin
+                
+    def blender_signature(self, output, resolution, samples, orientation):
+        """
+        The signature passed to subprocess.run used to call Blender. Inheriting classes should write their own implementation.
+        """
+        sig = super().blender_signature(output, resolution, samples, orientation, isotype = self.spin)
+        return sig
+
+
+class Alpha_orbital_image_maker(Orbital_image_maker):
+    pass
+
+
+class Beta_orbital_image_maker(Orbital_image_maker):
+    pass
+
+
+class Density_image_maker(Orbital_image_maker):
+    """
+    Class for creating spin density images.
+    """
+    
+    # Name of the section where we get some specific configs.
+    options_name = "density"
+    
+    @property
+    def type(self):
+        """
+        The density type.
+        """
+        return self.input_file.type
+    
+    def blender_signature(self, output, resolution, samples, orientation):
+        """
+        The signature passed to subprocess.run used to call Blender. Inheriting classes should write their own implementation.
+        """
+        # There is no negative density for total density.
+        sig = super().blender_signature(output, resolution, samples, orientation, isotype = "positive")
+        return sig
+
+
+class Combined_orbital_image_maker(Orbital_image_maker):
+    """
+    Class for creating images with both the HOMO and LUMO shown together.
+    """
+    
+    vmd_script ="generate_combined_orbital_images.tcl"
+    
+    def __init__(self, *args, cube_file = None, LUMO_cube_file = None, **kwargs):
+        """
+        Constructor for combined orbital image maker objects.
+        
+        :param output: Path to write to. See the constructor for Batoms_renderer for how this works.
+        :param HOMO_cube_file: Path to the HOMO cube file.
+        :param LUMO_cube_file: Path to the LUMO cube file.
+        :param *args: See the constructor for Batoms_renderer for further options.
+        :param **kwargs: See the constructor for VMD_image_maker for further options.
+        """
+        super().__init__(*args, cube_file = cube_file, **kwargs)
+        self.LUMO_cube_file = LUMO_cube_file
+        
+    @property
+    def HOMO_cube_file(self):
+        return self.input_file
+        
+    @classmethod
+    def from_options(self, output, *, HOMO_cube_file = None, LUMO_cube_file = None, options, **kwargs):
+        """
+        Constructor that takes a dictionary of config like options.
+        """        
+        return super().from_options(
+            output,
+            cube_file = HOMO_cube_file,
+            LUMO_cube_file = LUMO_cube_file,
+            options = options,
+            **kwargs
+        ) 
+
+    def check_can_make(self):
+        """
+        Check whether it is feasible to try and render the image(s) that we represent.
+        
+        Reasons for rendering not being possible are varied and are up to the inheriting class, but include eg, a required input (cube, fchk) file not being given.
+        
+        This method returns nothing, but will raise a File_maker_exception exception if the rendering is not possible.
+        """
+        if self.HOMO_cube_file is None or self.HOMO_cube_file.safe_get_file() is None:
+            raise File_maker_exception(self, "No HOMO cube file is available")
+        if self.LUMO_cube_file is None  or self.LUMO_cube_file.safe_get_file() is None:
+            raise File_maker_exception(self, "No LUMO cube file is available")
+    
+    def blender_signature(self, output, resolution, samples, orientation):
+        """
+        The signature passed to subprocess.run used to call Blender. Inheriting classes should write their own implementation.
+        """
+        sig = super().blender_signature(output, resolution, samples, orientation, isotype = "both", isocolor = "cube")
+        sig.extend(["--second_cube", f"{self.LUMO_cube_file}"])
+        return sig
+
+
+class Dipole_image_maker(Structure_image_maker):
+    """
+    Class for creating dipole images.
+    """
+    
+    
+    def __init__(self, *args, dipole_moment = None, magnetic_dipole_moment = None, scaling = 1, magnetic_scaling = 1, **kwargs):
+        """
+        Constructor for Dipole_image_maker objects.
+        
+        :param output: Path to write to. See the constructor for VMD_image_maker for how this works.
+        :param cube_file: A Gaussian cube file to use to render the new images.
+        :param dipole_moment: A Dipole_moment object that will be rendered as a red arrow in the scene.
+        :param magnetic_dipole_moment: A second dipole moment object that will be rendered as a blue arrow in the scene.
+        :param scaling: A factor to scale the dipole moment by.
+        :param magnetic_scaling: A factor to scale the magnetic dipole moment by.
+        :param *args: See the constructor for VMD_image_maker for further options.
+        :param **kwargs: See the constructor for VMD_image_maker for further options.
+        """
+        super().__init__(*args, **kwargs)
+        self.dipole_moment = dipole_moment
+        self.magnetic_dipole_moment = magnetic_dipole_moment
+        self.scaling = scaling
+        self.magnetic_scaling = magnetic_scaling
+        self.electric_arrow_colour = "red"
+        self.magnetic_arrow_colour = "green"
+        
+    def get_dipoles(self):
+        """
+        Get required dipole information as a nested list.
+        """
+        dipoles = []
+        # First electric (if we have it).
+        for dipole, scaling, colour in [
+            (self.dipole_moment, self.scaling, [1.0, 0.0, 0.0, 1.0]),
+            (self.magnetic_dipole_moment, self.magnetic_scaling, [0.0, 1.0, 0.0, 1.0]),
+        ]:
+            if dipole is not None:
+                dipoles.append([
+                    [float(coord * scaling) for coord in dipole.origin_coords],
+                    [float(coord * scaling) for coord in dipole.vector_coords],
+                    colour
+                ])
+        
+        return dipoles
+    
+    def blender_signature(self, output, resolution, samples, orientation):
+        """
+        The signature passed to subprocess.run used to call Blender. Inheriting classes should write their own implementation.
+        """
+        sig = super().blender_signature(output, resolution, samples, orientation)
+        sig.append("--dipoles")
+        for dipole in self.get_dipoles():
+            sig.append(yaml.safe_dump(dipole))
+        sig.extend(["--alpha", "0.5"])
+        return sig
+
+    
+class Permanent_dipole_image_maker(Dipole_image_maker):
+    """
+    Class for creating dipole images.
+    """
+        
+    @classmethod
+    def from_options(self, output, *, dipole_moment = None, cube_file = None, rotations = None, options, **kwargs):
+        """
+        Constructor that takes a dictionary of config like options.
+        """
+        return super().from_options(
+            output,
+            dipole_moment = dipole_moment, 
+            cube_file = cube_file,
+            rotations = rotations,
+            scaling = options['render']['dipole_moment']['scaling'],
+            options = options,
+            **kwargs
+        )
+    
+    def check_can_make(self):
+        """
+        Check whether it is feasible to try and render the image(s) that we represent.
+        
+        Reasons for rendering not being possible are varied and are up to the inheriting class, but include eg, a required input (cube, fchk) file not being given.
+        
+        This method returns nothing, but will raise a File_maker_exception exception if the rendering is not possible.
+        """ 
+        super().check_can_make()
+        
+        # Also make sure we have a dipole.
+        if self.dipole_moment is None:
+            raise File_maker_exception(self, "No dipole moment is available.")
+    
+
+class Transition_dipole_image_maker(Dipole_image_maker):
+    """
+    Class for creating TDM images.
+    """
+    
+    def check_can_make(self):
+        """
+        Check whether it is feasible to try and render the image(s) that we represent.
+        
+        Reasons for rendering not being possible are varied and are up to the inheriting class, but include eg, a required input (cube, fchk) file not being given.
+        
+        This method returns nothing, but will raise a File_maker_exception exception if the rendering is not possible.
+        """ 
+        super().check_can_make()
+        
+        # Also make sure we have a dipole.
+        if self.dipole_moment is None and self.magnetic_dipole_moment is None:
+            raise File_maker_exception(self, "No dipole moment is available.")
+        
+    @classmethod
+    def from_options(self, output, *, dipole_moment = None, cube_file = None, magnetic_dipole_moment, rotations = None, options, **kwargs):
+        """
+        Constructor that takes a dictionary of config like options.
+        """
+        return super().from_options(
+            output,
+            dipole_moment = dipole_moment,
+            magnetic_dipole_moment = magnetic_dipole_moment,
+            cube_file = cube_file,
+            rotations = rotations,
+            scaling = options['render']['dipole_moment']['scaling'],
+            magnetic_scaling = options['render']['transition_dipole_moment']['magnetic_scaling'],
+            options = options,
+            **kwargs
+        )   

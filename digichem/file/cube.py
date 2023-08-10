@@ -70,8 +70,8 @@ class Fchk_to_cube(File_converter):
             fchk_file = fchk_file,
             cubegen_type = cubegen_type,
             orbital = orbital,
-            npts = options['rendered_image']['orbital']['cube_grid_size'].to_gaussian(),
-            dont_modify = not options['rendered_image']['enable_rendering'],
+            npts = options['render']['orbital']['cube_grid_size'].to_gaussian(),
+            dont_modify = not options['render']['enable_rendering'],
             cubegen_executable = options['external']['cubegen'],
             **kwargs
         )
@@ -144,8 +144,8 @@ class Fchk_to_spin_cube(Fchk_to_cube):
             output,
             fchk_file = fchk_file,
             spin_density = spin_density,
-            npts = options['rendered_image']['spin']['cube_grid_size'].to_gaussian(),
-            dont_modify = not options['rendered_image']['enable_rendering'],
+            npts = options['render']['spin']['cube_grid_size'].to_gaussian(),
+            dont_modify = not options['render']['enable_rendering'],
             cubegen_executable = options['external']['cubegen'],
             **kwargs
         )
@@ -181,8 +181,8 @@ class Fchk_to_density_cube(Fchk_to_cube):
             output,
             fchk_file = fchk_file,
             density_type = density_type,
-            npts = options['rendered_image']['density']['cube_grid_size'].to_gaussian(),
-            dont_modify = not options['rendered_image']['enable_rendering'],
+            npts = options['render']['density']['cube_grid_size'].to_gaussian(),
+            dont_modify = not options['render']['enable_rendering'],
             cubegen_executable = options['external']['cubegen'],
             **kwargs
         )
@@ -217,8 +217,8 @@ class Fchk_to_nto_cube(Fchk_to_cube):
             output,
             fchk_file = fchk_file,
             orbital = orbital,
-            npts = options['rendered_image']['natural_transition_orbital']['cube_grid_size'].to_gaussian(),
-            dont_modify = not options['rendered_image']['enable_rendering'],
+            npts = options['render']['natural_transition_orbital']['cube_grid_size'].to_gaussian(),
+            dont_modify = not options['render']['enable_rendering'],
             cubegen_executable = options['external']['cubegen'],
             **kwargs
         )
@@ -302,8 +302,8 @@ class Gbw_to_cube(File_converter):
             plot_type = plot_type,
             orbital = orbital,
             alpha_beta = alpha_beta,
-            npts = options['rendered_image']['orbital']['cube_grid_size'].to_orca(),
-            dont_modify = not options['rendered_image']['enable_rendering'],
+            npts = options['render']['orbital']['cube_grid_size'].to_orca(),
+            dont_modify = not options['render']['enable_rendering'],
             prog_def = prog_def,
             memory = options['report']['orca']['memory'] if memory is None else memory,
             **kwargs
@@ -528,7 +528,7 @@ class Turbomole_to_cube(File_converter):
             orbitals = [orbital.total_level for orbital in orbitals],
             density = density or spin,
             # TODO: We have the usual turbomole problem here that we have to generate all our cubes together (both MO and density), so we need to decide which option to use.
-            npts = options['rendered_image']['orbital']['cube_grid_size'].to_turbomole(),
+            npts = options['render']['orbital']['cube_grid_size'].to_turbomole(),
             options = options
            )
         
@@ -542,7 +542,7 @@ class Turbomole_to_cube(File_converter):
             orbitals = orbitals,
             density = density,
             spin = spin,
-            dont_modify = not options['rendered_image']['enable_rendering'],
+            dont_modify = not options['render']['enable_rendering'],
             silico_options = options,
             **kwargs
         )
@@ -563,7 +563,7 @@ class Turbomole_to_cube(File_converter):
             orbitals = orbitals,
             density = density,
             spin = spin,
-            dont_modify = not options['rendered_image']['enable_rendering'],
+            dont_modify = not options['render']['enable_rendering'],
             silico_options = options,
             **kwargs
         )

@@ -17,15 +17,24 @@ class Cropable_mixin():
         # (try to) load our image from file.
         #im = Image.open(file_path, "r")
         im.load()
-                
+        
         # This solution was inspired by https://stackoverflow.com/questions/14211340/automatically-cropping-an-image-with-python-pil
         image_data = np.asarray(im)
-        # Axis 2 is the tuple/array of RGB values for each pixel. We want to know which ones are fully white (255,255,255), so we'll take the min of the 3 values and see if this is equal to 255. If it is, then all the pixels are 255        
-        image_data_bw = image_data.min(axis = 2)
+        if im.mode == "RGBA":
+            image_data_bw = image_data[:,:,3]
+
+            # Now we just check which rows and columns are not pure white.
+            non_empty_columns = np.where(image_data_bw.max(axis = 0) != 0)[0]
+            non_empty_rows = np.where(image_data_bw.max(axis = 1) != 0)[0]
         
-        # Now we just check which rows and columns are not pure white.
-        non_empty_columns = np.where(image_data_bw.min(axis = 0) != 255)[0]
-        non_empty_rows = np.where(image_data_bw.min(axis = 1) != 255)[0]
+        else:
+            # Axis 2 is the tuple/array of RGB values for each pixel. We want to know which ones are fully white (255,255,255), so we'll take the min of the 3 values and see if this is equal to 255. If it is, then all the pixels are 255        
+            image_data_bw = image_data.min(axis = 2)
+        
+            # Now we just check which rows and columns are not pure white.
+            non_empty_columns = np.where(image_data_bw.min(axis = 0) != 255)[0]
+            non_empty_rows = np.where(image_data_bw.min(axis = 1) != 255)[0]
+        
         
         # Get the bounding box of non-white stuff.
         cropBox = (min(non_empty_rows), max(non_empty_rows), min(non_empty_columns), max(non_empty_columns))
