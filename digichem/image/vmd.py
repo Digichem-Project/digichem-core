@@ -1,5 +1,5 @@
 
-# General imorts.
+# General imports.
 from pathlib import Path
 import subprocess
 import math
@@ -11,10 +11,9 @@ from math import fabs
 
 # Silico imports.
 from silico.exception.base import File_maker_exception
-from silico.file import File_converter
-from silico.image.base import Cropable_mixin
+from silico.image.render import Render_maker
 
-class VMD_image_maker(File_converter, Cropable_mixin):
+class VMD_image_maker(Render_maker):
     """
     Class for generating image files from Gaussian outputs using VMD.
     
@@ -31,11 +30,6 @@ class VMD_image_maker(File_converter, Cropable_mixin):
     #tachyon_executable = "tachyon"
     # The initial resolution at which an image is rendered. This test image will then be discarded once relevant info has been extracted.
     test_resolution = 300
-    
-    # Text description of our input file type, used for error messages etc. This can be changed by inheriting classes.
-    input_file_type = "cube"
-    # Text description of our output file type, used for error messages etc. This can be changed by inheriting classes.
-    output_file_type = "image"
     
     # Name of the section where we get some specific configs.
     options_name = "orbital"
@@ -58,20 +52,19 @@ class VMD_image_maker(File_converter, Cropable_mixin):
         :param tachyon_executable: 'Path' to the tachyon executable to use for image rendering. Defaults to relying on the command 'tachyon'.
         :param vmd_logging: Whether to print output from vmd.
         """
-        super().__init__(*args, input_file = cube_file, **kwargs)
-        # Save our translations list.
-        #self.translations = translations if translations is not None else (0,0,0)
-        self.translations = (0,0,0)
-        # Save our rotations list.
-        # We save the negative of the rotations because VMD rotates the opposite way to us.
-        self.rotations = [(axis, math.degrees(-theta)) for axis, theta in rotations] if rotations is not None else []
+        super().__init__(
+            *args,
+            cube_file = cube_file,
+            rotations = rotations,
+            auto_crop = auto_crop,
+            resolution = resolution,
+            also_make_png = also_make_png,
+            isovalue = isovalue
+            **kwargs
+        )
         
         # Some options that control how we function.
-        self.auto_crop = auto_crop
         self.rendering_style = rendering_style
-        self.target_resolution = resolution
-        self.also_make_png = also_make_png
-        self.isovalue = isovalue
         
         # Save executable paths.
         self.vmd_executable = vmd_executable
@@ -94,20 +87,12 @@ class VMD_image_maker(File_converter, Cropable_mixin):
         else:
             self.primary_colour = "blue"
             self.secondary_colour = "red"
-                
-        # These 4 attributes are file paths to the four images we create.
-        # We'll keep the same file extension as the was given to us.
-        self.file_path = {
-            'x0y0z0': self.output.with_suffix(".x0y0z0" + self.output.suffix),
-            'x90y0z0': self.output.with_suffix(".x90y0z0" + self.output.suffix),
-            'x0y90z0': self.output.with_suffix(".x0y90z0" + self.output.suffix),
-            'x45y45z45': self.output.with_suffix(".x45y45z45"  + self.output.suffix),
-            # There are higher quality PNG versions.
-             'x0y0z0_big': self.output.with_suffix(".x0y0z0.png"),
-             'x90y0z0_big': self.output.with_suffix(".x90y0z0.png"),
-             'x0y90z0_big': self.output.with_suffix(".x0y90z0.png"),
-             'x45y45z45_big': self.output.with_suffix(".x45y45z45.png")
-            }
+        
+    @property
+    def rotations(self):
+        # Silico rotates the wrong way round for some reason, reverse for our rendering engine.
+        # VMD also likes degrees not radians.
+        return [(axis, math.degrees(-theta)) for axis, theta in self._rotations]
     
     @classmethod
     def from_options(self, output, *, cube_file = None, rotations = None, options, **kwargs):
@@ -129,20 +114,6 @@ class VMD_image_maker(File_converter, Cropable_mixin):
             vmd_logging = options['logging']['vmd_logging'],
             **kwargs
         )
-        
-    def get_image(self, name = 'file'):
-        """
-        Get the path to one of the images that this class represents, rendering the image to file first if necessary.
-        
-        The functioning of this method is controlled by the dont_modify & use_existing flags.
-        
-        You can also use the normal python attribute mechanism (either through getattr() or dot notation) to get these paths.
-        
-        :raises KeyError: If name is not the name of one of the images this class represents.
-        :param name: The name of an image to get. Depends on the images in self.file_path.
-        :return: A pathlib Path object pointing to the image represented by name, or None if no image could be created.
-        """
-        return self.safe_get_file(name)
         
     @property
     def vmd_script_path(self):
@@ -250,7 +221,6 @@ class VMD_image_maker(File_converter, Cropable_mixin):
         The signature pass to subprocess.run used to call VMD. Inheriting classes should write their own implementation.
         """
         return ""
-    
     
     def run_VMD_script(self):
         """
