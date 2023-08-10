@@ -14,6 +14,7 @@ import bpy
 import yaml
 import math
 from pathlib import Path
+import logging
 
 import ase.io
 from batoms import Batoms
@@ -185,7 +186,7 @@ def draw_primitive(start, end, radius, mesh_type, color, collection = None):
     collection.objects.link(obj)
 
     
-def draw_arrow(start, end, radius, color, split = 0.8, collection = None):
+def draw_arrow(start, end, radius, color, split = 0.9, collection = None):
     # Decide what proportion of the total vector to dedicate to the arrow stem and head.
     dx = end[0] - start[0]
     dy = end[1] - start[1]
@@ -208,16 +209,17 @@ def main():
     parser.add_argument("--isovalues", help = "List of isovalues to render", nargs = "*", type = float, default = [])
     parser.add_argument("--isotype", help = "Whether to render positive, negative or both isosurfaces for each isovalue", choices = ["positive", "negative", "both"], default = "both")
     parser.add_argument("--isocolor", help = "The colouring method to use for isosurfaces", choices = ["sign", "cube"], default = "sign")
-    parser.add_argument("--primary-color", help = "RGBA for one of the colors to use for isosurfaces", nargs = 4, default = [1, 0.058, 0.0, 0.50])
-    parser.add_argument("--secondary-color", help = "RGBA for the other color to use for isosurfaces", nargs = 4, default = [0.1, 0.1, 0.9, 0.50])
+    parser.add_argument("--primary-color", help = "RGBA for one of the colors to use for isosurfaces", nargs = 4, default = [0.1, 0.1, 0.9, 0.50])
+    parser.add_argument("--secondary-color", help = "RGBA for the other color to use for isosurfaces", nargs = 4, default = [1, 0.058, 0.0, 0.50])
     parser.add_argument("--cpus", help = "Number of parallel CPUs to use for rendering", type = int, default = 1)
     parser.add_argument("--orientation", help = "The orientation to render from, as x, y, z values", nargs = 3, type = float, default = [0, 0, 1])
     parser.add_argument("--resolution", help = "The output resolution in px", type = int, default = 1024)
     parser.add_argument("--render-samples", help = "The maximum number of render samples, more generally results in higher quality but longer render times", type = int, default = 256)
-    parser.add_argument("--rotations", help = "A list of rotations (in JSON) to rotate the molecule to a given alignment. The first item in each list item is the axis to rotate about (0=x, 1=y, 2=z), the second is the angle to rotate by (in radians)", default = None)
+    parser.add_argument("--rotations", help = "A list of rotations (in JSON) to rotate the molecule to a given alignment. The first item in each list item is the axis to rotate about (0=x, 1=y, 2=z), the second is the angle to rotate by (in radians)", nargs = "*", default = [])
     parser.add_argument("--dipoles", help = "Draw dipoles from a list of the following data (in JSON): 0) start coord, 1) end coord, 2) RGBA color information", nargs = "*", default = [])
     parser.add_argument("--alpha", help = "Override the opacity value for all molecule objects (but not dipoles) to this value, useful for showing dipole arrows more clearly", default = None, type = float)
     parser.add_argument("--perspective", help = "The perspective mode, either orthographic or perspective", default = "perspective", choices = ["perspective", "orthographic"])
+    parser.add_argument("--padding", help = "Padding", type = float, default = 1.0)
     
     # Both blender and python share the same command line arguments.
     # They are separated by double dash ('--'), everything before is for blender,
@@ -235,12 +237,8 @@ def main():
     if Path(args.output).suffix.lower() != ".png":
         raise ValueError("Output location must have a .png extension")
     
-    # Parse rotations.
     if args.rotations is not None:
-        rotations = yaml.safe_load(args.rotations)
-    
-    else:
-        rotations = None
+        rotations = [yaml.safe_load(rotation) for rotation in args.rotations]
     
     # Load the input data.
     mol = add_molecule(
@@ -263,7 +261,7 @@ def main():
         mol2 = add_molecule(
             args.second_cube,
             name = "molecule2",
-            visible = False,
+            visible = True,
             rotations = rotations,
             isovalues = args.isovalues,
             isotype = args.isotype,
@@ -325,11 +323,22 @@ def main():
     bpy.context.scene.render.threads_mode = 'FIXED'
     bpy.context.scene.render.threads = args.cpus
     
-    mol.get_image(viewport = args.orientation, output = args.output, padding = 0.3)
+    mol.get_image(viewport = args.orientation, output = args.output, padding = args.padding)
+#     # Move the camera.
+#     mol.render.camera.location = (100,0,0)
+#     mol.render.camera.look_at = mol.get_center_of_geometry()
+#     bpy.ops.object.select_all(action='DESELECT')
+#     for obj in mol.coll.objects[:]:
+#         obj.select_set(True)
+#     #bpy.ops.view3d.camera_to_view_selected()
     
     return 0
     
 # If we've been invoked as a program, call main().    
 if __name__ == '__main__':
-    main()
-    #sys.exit(main())
+    try:
+        sys.exit(main())
+    
+    except Exception as e:
+        logging.error("Erro", exc_info = True)
+        sys.exit(1)
