@@ -13,6 +13,7 @@ import itertools
 import bpy
 import yaml
 import math
+from pathlib import Path
 
 import ase.io
 from batoms import Batoms
@@ -95,7 +96,9 @@ def add_molecule(
     # If we have any rotations, apply those.
     for axis, angle in rotations:
         # Convert to degree.
+        # Not used.
         degree = angle * (180/math.pi)
+        
         if axis == 0:
             axis = "x"
         
@@ -205,8 +208,8 @@ def main():
     parser.add_argument("--isovalues", help = "List of isovalues to render", nargs = "*", type = float, default = [])
     parser.add_argument("--isotype", help = "Whether to render positive, negative or both isosurfaces for each isovalue", choices = ["positive", "negative", "both"], default = "both")
     parser.add_argument("--isocolor", help = "The colouring method to use for isosurfaces", choices = ["sign", "cube"], default = "sign")
-    parser.add_argument("--primary-color", help = "RGBA for one of the colors to use for isosurfaces", nargs = 4, default = [1, 0.058, 0.0, 0.55])
-    parser.add_argument("--secondary-color", help = "RGBA for the other color to use for isosurfaces", nargs = 4, default = [0.1, 0.1, 0.9, 0.55])
+    parser.add_argument("--primary-color", help = "RGBA for one of the colors to use for isosurfaces", nargs = 4, default = [1, 0.058, 0.0, 0.50])
+    parser.add_argument("--secondary-color", help = "RGBA for the other color to use for isosurfaces", nargs = 4, default = [0.1, 0.1, 0.9, 0.50])
     parser.add_argument("--cpus", help = "Number of parallel CPUs to use for rendering", type = int, default = 1)
     parser.add_argument("--orientation", help = "The orientation to render from, as x, y, z values", nargs = 3, type = float, default = [0, 0, 1])
     parser.add_argument("--resolution", help = "The output resolution in px", type = int, default = 1024)
@@ -226,6 +229,11 @@ def main():
         python_argv = []
     
     args = parser.parse_args(python_argv)
+    
+    # Batoms or blender will silently set the extension to png if it's not already.
+    # This is surprising, so stop now before that happens.
+    if Path(args.output).suffix.lower() != ".png":
+        raise ValueError("Output location must have a .png extension")
     
     # Parse rotations.
     if args.rotations is not None:
@@ -296,6 +304,9 @@ def main():
     bpy.context.scene.cycles.max_bounces = 48
     bpy.context.scene.cycles.transparent_max_bounces = 24
     
+    # Use maximum compression.
+    bpy.context.scene.render.image_settings.compression = 1000
+    
     # Change light intensity.
     bpy.data.lights["batoms_light_Default"].node_tree.nodes["Emission"].inputs[1].default_value = 0.3
     #mol.render.lights["Default"].energy=10
@@ -314,7 +325,7 @@ def main():
     bpy.context.scene.render.threads_mode = 'FIXED'
     bpy.context.scene.render.threads = args.cpus
     
-    mol.get_image(viewport = args.orientation, output = args.output, padding = 0.1)
+    mol.get_image(viewport = args.orientation, output = args.output, padding = 0.3)
     
     return 0
     
