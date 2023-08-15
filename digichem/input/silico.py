@@ -419,7 +419,11 @@ def si_from_file(file_name, file_type = None, *, gen3D = None, **kwargs):
                 # A silico resume file.
                 # The resume file (should be) a pickled destination object.
                 with open(file_name, "rb") as pickle_file:
-                    destination = dill.load(pickle_file)
+                    try:
+                        destination = dill.load(pickle_file)
+                    
+                    except Exception as e:
+                        raise Silico_exception("Failed to parse silico resume file") from e
                     
                     return destination.program.calculation.input_coords
             
