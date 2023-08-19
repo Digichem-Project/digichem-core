@@ -91,7 +91,7 @@ class Submission_error(Silico_exception):
         :param reason: String describing why the error occurred.
         """        
         # Do some quick type checking.
-        if calculation.meta['TYPE'] == "method":
+        if calculation.meta['TYPE'] == "destination":
             # 'Calculation' is actually a Method_target.
             calculation = calculation.program.calculation
         elif calculation.meta['TYPE'] == "program":
