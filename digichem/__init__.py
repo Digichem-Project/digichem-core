@@ -25,19 +25,15 @@ import silico.logging
 
 
 # Version information.
-major_version = 3
-minor_version = 2
+major_version = 4
+minor_version = 0
 revision = 0
 prerelease = 1
 # Whether this is a development version.
-development = False
-# Version information.
-major_version = 0
-minor_version = 20
-revision = 6
-version_number = "{}.{}.{}".format(major_version, minor_version, revision)
+development = prerelease is not None
+demonstration = True
 # The full version number of this package.
-__version__ = "{}.{}.{}{}".format(major_version, minor_version, revision, "-pre.{}".format(prerelease) if development else "")
+__version__ = "{}.{}.{}{}{}".format(major_version, minor_version, revision, "-pre.{}".format(prerelease) if development else "", "-demo" if development else "")
 # Deprecated:
 version = __version__
 
@@ -48,6 +44,14 @@ __author__ = "The Silico Dev Team"
 _last_updated_string = "12/12/1234"
 last_updated = datetime.strptime(_last_updated_string, "%d/%m/%Y")
 
+if demonstration:
+    # Pls no Hack.
+    # Date at which the demo will end.
+    demo_end_date = date = datetime.strptime("27/02/2024", "%d/%m/%Y")
+    
+    if datetime.now() > demo_end_date:
+        print("The demonstration period has now expired, thank you for trying Silico!\nFor continued usage, please contact InSiCo for a new license.")
+        raise Exception("License Expired")
 
 # Set-up openbabel.
 #
