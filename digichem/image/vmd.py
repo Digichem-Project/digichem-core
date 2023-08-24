@@ -250,7 +250,13 @@ class VMD_image_maker(Render_maker):
             for input_dst, input_src in inputs.items():
                 # Don't symlink if the source is already in the output dir.
                 if input_dst.absolute() != input_src.absolute():
-                    os.symlink(input_src, input_dst)
+                    try:
+                        os.symlink(input_src, input_dst)
+                    
+                    except Exception:
+                        # Couldn't symlink for some reason, print a warning and copy instead.
+                        silico.log.get_logger().warning("Failed to create symlink for VMD input file, falling back to copy (this may take a while)")
+                        shutil.copy(input_src, input_dst)
         
             # Run VMD, which renders our image for us.
             try:
