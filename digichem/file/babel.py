@@ -312,7 +312,8 @@ class Obabel_converter(Openbabel_converter):
         # Now delete BABEL_LIBDIR if we are frozen.
         if silico.frozen:
             try:
-                del env['BABEL_LIBDIR']
+                pass
+                #del env['BABEL_LIBDIR']
             except KeyError:
                 # The BABEL_LIBDIR isn't set.
                 pass
