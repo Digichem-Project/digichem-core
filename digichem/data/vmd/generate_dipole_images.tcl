@@ -45,6 +45,11 @@ molecule modmaterial 0 $mol_handle Transparent
 # Use standard display settings.
 standard_molecule_style 0 $mol_handle
 
+set dipole1_start [split $dipole1_start ":"]
+set dipole1_end [split $dipole1_end ":"]
+set dipole2_start [split $dipole2_start ":"]
+set dipole2_end [split $dipole2_end ":"]
+
 # Draw our dipole moment.
 # Only add them if they are not zero.
 if {[lindex $dipole1_end 0] != 0 || [lindex $dipole1_end 1] != 0 || [lindex $dipole1_end 2] != 0} {

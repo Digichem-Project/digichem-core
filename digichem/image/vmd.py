@@ -211,7 +211,7 @@ class VMD_image_maker(Render_maker):
         Our list of rotations in a form ready for VMD/Tcl.
         """
         # This is a stringified form of our list of tuples that we'll pass to VMD (or rather the TCL interpreter).
-        rot_string = " ".join(["{},{}".format(axis, angle) for axis, angle in self.rotations])
+        rot_string = ":".join(["{},{}".format(axis, angle) for axis, angle in self.rotations])
         return rot_string
         
     
@@ -666,11 +666,11 @@ class Dipole_image_maker(Structure_image_maker):
             # We don't use the normal origin_coords/vector_coords because these are already rotated, while we want/need to do this rotation with the camera in VMD.
             # Hence use _origin_coords/_vector_coods, which aren't rotated.
             # Dipole 1 (electric).
-            "{} {} {}".format(*self.get_coords(self.dipole_moment, self.scaling)[0]),
-            "{} {} {}".format(*self.get_coords(self.dipole_moment, self.scaling)[1]),
+            "{}:{}:{}".format(*self.get_coords(self.dipole_moment, self.scaling)[0]),
+            "{}:{}:{}".format(*self.get_coords(self.dipole_moment, self.scaling)[1]),
             # Dipole 2 (magnetic).
-            "{} {} {}".format(*self.get_coords(self.magnetic_dipole_moment, self.magnetic_scaling)[0]),
-            "{} {} {}".format(*self.get_coords(self.magnetic_dipole_moment, self.magnetic_scaling)[1]),
+            "{}:{}:{}".format(*self.get_coords(self.magnetic_dipole_moment, self.magnetic_scaling)[0]),
+            "{}:{}:{}".format(*self.get_coords(self.magnetic_dipole_moment, self.magnetic_scaling)[1]),
             "{}".format(self.file_path['x0y0z0'].with_suffix(self.scene_file_extension).name),
             "{}".format(self.file_path['x90y0z0'].with_suffix(self.scene_file_extension).name),
             "{}".format(self.file_path['x0y90z0'].with_suffix(self.scene_file_extension).name),
