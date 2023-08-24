@@ -222,6 +222,21 @@ class VMD_image_maker(Render_maker):
         """
         return ""
     
+    @property
+    def inputs(self):
+        """
+        A dictionary of all the input files required by VMD for this image.
+        
+        inputs is a dictionary where each key is the path to the locally accessible file,
+        and each value is the true location.
+        """
+        working_directory = self.output.parent
+        return {
+            Path(working_directory, self.vmd_script_path.name): self.vmd_script_path,
+            Path(working_directory, self.tcl_common_path.name): self.tcl_common_path,
+            Path(working_directory, Path(str(self.input_file)).name): Path(str(self.input_file))
+        }
+    
     def run_VMD_script(self):
         """
         Called as part of the make() method, inheriting classes can implement this method if they have a different VMD call signature.
@@ -240,14 +255,8 @@ class VMD_image_maker(Render_maker):
         working_directory = self.output.parent
         
         try:
-            inputs = {
-                Path(working_directory, self.vmd_script_path.name): self.vmd_script_path,
-                Path(working_directory, self.tcl_common_path.name): self.tcl_common_path,
-                Path(working_directory, Path(str(self.input_file)).name): Path(str(self.input_file))
-            }
-            
             # Create local links to our input files.
-            for input_dst, input_src in inputs.items():
+            for input_dst, input_src in self.inputs.items():
                 # Don't symlink if the source is already in the output dir.
                 if input_dst.absolute() != input_src.absolute():
                     try:
@@ -278,7 +287,7 @@ class VMD_image_maker(Render_maker):
         finally:
             # Clean up.
             # Remove the copied inputs
-            for input_dst, input_src in inputs.items():
+            for input_dst, input_src in self.inputs.items():
                 # Don't symlink if the source is already in the output dir.
                 if input_dst.absolute() != input_src.absolute():
                     try:
@@ -560,6 +569,22 @@ class Combined_orbital_image_maker(VMD_image_maker):
             raise File_maker_exception(self, "No LUMO cube file is available")
     
     @property
+    def inputs(self):
+        """
+        A dictionary of all the input files required by VMD for this image.
+        
+        inputs is a dictionary where each key is the path to the locally accessible file,
+        and each value is the true location.
+        """
+        working_directory = self.output.parent
+        return {
+            Path(working_directory, self.vmd_script_path.name): self.vmd_script_path,
+            Path(working_directory, self.tcl_common_path.name): self.tcl_common_path,
+            Path(working_directory, Path(str(self.HOMO_cube_file)).name): Path(str(self.HOMO_cube_file)),
+            Path(working_directory, Path(str(self.LUMO_cube_file)).name): Path(str(self.LUMO_cube_file))
+        }
+    
+    @property
     def VMD_signature(self):
         """
         The arguments which we'll pass to VMD, inheriting classes can implement this method if they have a different VMD call signature.
@@ -569,8 +594,8 @@ class Combined_orbital_image_maker(VMD_image_maker):
             "-dispdev", "none",
             "-e", "{}".format(self.vmd_script_path.name),
             "-args",
-            "{}".format(self.HOMO_cube_file),
-            "{}".format(self.LUMO_cube_file),
+            "{}".format(Path(str(self.HOMO_cube_file)).name),
+            "{}".format(Path(str(self.LUMO_cube_file)).name),
             "{}".format(self.tcl_common_path.name),
             "{}".format(self.rendering_style),
             "{}".format(fabs(self.isovalue)),
