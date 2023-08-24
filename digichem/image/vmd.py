@@ -1,5 +1,3 @@
-
-# General imports.
 from pathlib import Path
 import subprocess
 import math
@@ -8,10 +6,12 @@ import pkg_resources
 from uuid import uuid4
 import os
 from math import fabs
+import shutil
 
-# Silico imports.
 from silico.exception.base import File_maker_exception
 from silico.image.render import Render_maker
+import silico.log
+
 
 class VMD_image_maker(Render_maker):
     """
@@ -234,21 +234,54 @@ class VMD_image_maker(Render_maker):
         os.environ["VMDNOOPTIX"] = "1"
         os.environ["VMDNOOSPRAY"] = "1"
         
-        # Run VMD, which renders our image for us.
+        # VMD has two run scripts, one in C-shell (which is obviously garbage) and one in bash.
+        # Sadly, C-Shell is often the default, and it's doesn't support filenames properly.
+        # We'll use the usual workaround of changing the working directory and using relative file names.
+        working_directory = self.output.parent
+        
         try:
-            return subprocess.run(
-                self.VMD_signature,
-                # We normally capture and discard stdout (because VMD is VERY verbose), but if we're at a suitable log level, we'll print it.
-                # Nothing useful appears to be printed to stderr, so we'll treat it the same as stdout.,
-                stdin = subprocess.DEVNULL,
-                stdout = subprocess.DEVNULL if not self.vmd_logging else None,
-                stderr = subprocess.STDOUT,
-                universal_newlines = True,
-                # VMD has a tendency to sigsegv when closing with VMDNOOPTIX set to on (even tho everything is fine) so we can't check retval sadly.
-                #check = True
-            )
-        except FileNotFoundError:
-            raise File_maker_exception(self, "Could not locate vmd executable '{}'".format(self.vmd_executable))
+            inputs = {
+                Path(working_directory, self.vmd_script_path.name): self.vmd_script_path,
+                Path(working_directory, self.tcl_common_path.name): self.tcl_common_path,
+                Path(working_directory, Path(str(self.input_file)).name): Path(str(self.input_file))
+            }
+            
+            # Create local links to our input files.
+            for input_dst, input_src in inputs.items():
+                # Don't symlink if the source is already in the output dir.
+                if input_dst.absolute() != input_src.absolute():
+                    os.symlink(input_src, input_dst)
+        
+            # Run VMD, which renders our image for us.
+            try:
+                return subprocess.run(
+                    self.VMD_signature,
+                    # We normally capture and discard stdout (because VMD is VERY verbose), but if we're at a suitable log level, we'll print it.
+                    # Nothing useful appears to be printed to stderr, so we'll treat it the same as stdout.,
+                    stdin = subprocess.DEVNULL,
+                    stdout = subprocess.DEVNULL if not self.vmd_logging else None,
+                    stderr = subprocess.STDOUT,
+                    universal_newlines = True,
+                    cwd = working_directory,
+                    # VMD has a tendency to sigsegv when closing with VMDNOOPTIX set to on (even tho everything is fine) so we can't check retval sadly.
+                    #check = True
+                )
+            except FileNotFoundError:
+                raise File_maker_exception(self, "Could not locate vmd executable '{}'".format(self.vmd_executable))
+        
+        finally:
+            # Clean up.
+            # Remove the copied inputs
+            for input_dst, input_src in inputs.items():
+                # Don't symlink if the source is already in the output dir.
+                if input_dst.absolute() != input_src.absolute():
+                    try:
+                        input_dst.unlink()
+                    
+                    except Exception:
+                        # Warnings are useful here, if we can't delete the files we probably failed to copy them in the first place.
+                        silico.log.get_logger().warning("Failed to delete VMD input file '{}'".format(input_dst), exc_info = True)
+            
         
     def run_tachyon_renderer(self, scene_file, tga_file, resolution):
         """
@@ -315,17 +348,17 @@ class Structure_image_maker(VMD_image_maker):
         return [
                 "{}".format(self.vmd_executable),
                 "-dispdev", "none",
-                "-e", "{}".format(self.vmd_script_path),
+                "-e", "{}".format(self.vmd_script_path.name),
                 "-args",
-                "{}".format(self.input_file),
-                "{}".format(self.tcl_common_path),
+                "{}".format(Path(str(self.input_file)).name),
+                "{}".format(self.tcl_common_path.name),
                 "{}".format(self.rendering_style),
                 "{}".format(self.prepared_translations),
                 "{}".format(self.prepared_rotations),
-                "{}".format(self.file_path['x0y0z0'].with_suffix(self.scene_file_extension)),
-                "{}".format(self.file_path['x90y0z0'].with_suffix(self.scene_file_extension)),
-                "{}".format(self.file_path['x0y90z0'].with_suffix(self.scene_file_extension)),
-                "{}".format(self.file_path['x45y45z45'].with_suffix(self.scene_file_extension))
+                "{}".format(self.file_path['x0y0z0'].with_suffix(self.scene_file_extension).name),
+                "{}".format(self.file_path['x90y0z0'].with_suffix(self.scene_file_extension).name),
+                "{}".format(self.file_path['x0y90z0'].with_suffix(self.scene_file_extension).name),
+                "{}".format(self.file_path['x45y45z45'].with_suffix(self.scene_file_extension).name)
             ]
         
         
@@ -346,16 +379,16 @@ class Orbital_image_maker(Structure_image_maker):
                 "-dispdev", "none",
                 "-e", "{}".format(self.vmd_script_path),
                 "-args",
-                "{}".format(self.input_file),
-                "{}".format(self.tcl_common_path),
+                "{}".format(Path(str(self.input_file)).name),
+                "{}".format(self.tcl_common_path.name),
                 "{}".format(self.rendering_style),
                 "{}".format(self.isovalue),
                 "{}".format(self.prepared_translations),
                 "{}".format(self.prepared_rotations),
-                "{}".format(self.file_path['x0y0z0'].with_suffix(self.scene_file_extension)),
-                "{}".format(self.file_path['x90y0z0'].with_suffix(self.scene_file_extension)),
-                "{}".format(self.file_path['x0y90z0'].with_suffix(self.scene_file_extension)),
-                "{}".format(self.file_path['x45y45z45'].with_suffix(self.scene_file_extension))
+                "{}".format(self.file_path['x0y0z0'].with_suffix(self.scene_file_extension).name),
+                "{}".format(self.file_path['x90y0z0'].with_suffix(self.scene_file_extension).name),
+                "{}".format(self.file_path['x0y90z0'].with_suffix(self.scene_file_extension).name),
+                "{}".format(self.file_path['x45y45z45'].with_suffix(self.scene_file_extension).name)
             ]
     
 
@@ -393,19 +426,19 @@ class Spin_density_image_maker(Orbital_image_maker):
         return [
                 "{}".format(self.vmd_executable),
                 "-dispdev", "none",
-                "-e", "{}".format(self.vmd_script_path),
+                "-e", "{}".format(self.vmd_script_path.name),
                 "-args",
-                "{}".format(self.input_file),
-                "{}".format(self.tcl_common_path),
+                "{}".format(Path(str(self.input_file)).name),
+                "{}".format(self.tcl_common_path.name),
                 "{}".format(self.rendering_style),
                 "{}".format(fabs(self.isovalue)),
                 "{}".format(self.spin),
                 "{}".format(self.prepared_translations),
                 "{}".format(self.prepared_rotations),
-                "{}".format(self.file_path['x0y0z0'].with_suffix(self.scene_file_extension)),
-                "{}".format(self.file_path['x90y0z0'].with_suffix(self.scene_file_extension)),
-                "{}".format(self.file_path['x0y90z0'].with_suffix(self.scene_file_extension)),
-                "{}".format(self.file_path['x45y45z45'].with_suffix(self.scene_file_extension))
+                "{}".format(self.file_path['x0y0z0'].with_suffix(self.scene_file_extension).name),
+                "{}".format(self.file_path['x90y0z0'].with_suffix(self.scene_file_extension).name),
+                "{}".format(self.file_path['x0y90z0'].with_suffix(self.scene_file_extension).name),
+                "{}".format(self.file_path['x45y45z45'].with_suffix(self.scene_file_extension).name)
             ]
     
 class Alpha_orbital_image_maker(Orbital_image_maker):
@@ -450,18 +483,18 @@ class Density_image_maker(Orbital_image_maker):
         return [
                 "{}".format(self.vmd_executable),
                 "-dispdev", "none",
-                "-e", "{}".format(self.vmd_script_path),
+                "-e", "{}".format(self.vmd_script_path.name),
                 "-args",
-                "{}".format(self.input_file),
-                "{}".format(self.tcl_common_path),
+                "{}".format(Path(str(self.input_file)).name),
+                "{}".format(self.tcl_common_path.name),
                 "{}".format(self.rendering_style),
                 "{}".format(fabs(self.isovalue)),
                 "{}".format(self.prepared_translations),
                 "{}".format(self.prepared_rotations),
-                "{}".format(self.file_path['x0y0z0'].with_suffix(self.scene_file_extension)),
-                "{}".format(self.file_path['x90y0z0'].with_suffix(self.scene_file_extension)),
-                "{}".format(self.file_path['x0y90z0'].with_suffix(self.scene_file_extension)),
-                "{}".format(self.file_path['x45y45z45'].with_suffix(self.scene_file_extension))
+                "{}".format(self.file_path['x0y0z0'].with_suffix(self.scene_file_extension).name),
+                "{}".format(self.file_path['x90y0z0'].with_suffix(self.scene_file_extension).name),
+                "{}".format(self.file_path['x0y90z0'].with_suffix(self.scene_file_extension).name),
+                "{}".format(self.file_path['x45y45z45'].with_suffix(self.scene_file_extension).name)
             ]
     
 class Combined_orbital_image_maker(VMD_image_maker):
@@ -528,19 +561,19 @@ class Combined_orbital_image_maker(VMD_image_maker):
         return [
             "{}".format(self.vmd_executable),
             "-dispdev", "none",
-            "-e", "{}".format(self.vmd_script_path),
+            "-e", "{}".format(self.vmd_script_path.name),
             "-args",
             "{}".format(self.HOMO_cube_file),
             "{}".format(self.LUMO_cube_file),
-            "{}".format(self.tcl_common_path),
+            "{}".format(self.tcl_common_path.name),
             "{}".format(self.rendering_style),
             "{}".format(fabs(self.isovalue)),
             "{}".format(self.prepared_translations),
             "{}".format(self.prepared_rotations),
-            "{}".format(self.file_path['x0y0z0'].with_suffix(self.scene_file_extension)),
-            "{}".format(self.file_path['x90y0z0'].with_suffix(self.scene_file_extension)),
-            "{}".format(self.file_path['x0y90z0'].with_suffix(self.scene_file_extension)),
-            "{}".format(self.file_path['x45y45z45'].with_suffix(self.scene_file_extension))
+            "{}".format(self.file_path['x0y0z0'].with_suffix(self.scene_file_extension).name),
+            "{}".format(self.file_path['x90y0z0'].with_suffix(self.scene_file_extension).name),
+            "{}".format(self.file_path['x0y90z0'].with_suffix(self.scene_file_extension).name),
+            "{}".format(self.file_path['x45y45z45'].with_suffix(self.scene_file_extension).name)
         ]
 
 
@@ -592,10 +625,10 @@ class Dipole_image_maker(Structure_image_maker):
         return [
             "{}".format(self.vmd_executable),
             "-dispdev", "none",
-            "-e", "{}".format(self.vmd_script_path),
+            "-e", "{}".format(self.vmd_script_path.name),
             "-args",
-            "{}".format(self.input_file),
-            "{}".format(self.tcl_common_path),
+            "{}".format(Path(str(self.input_file)).name),
+            "{}".format(self.tcl_common_path.name),
             "{}".format(self.rendering_style),
             "{}".format(self.prepared_translations),
             "{}".format(self.prepared_rotations),
@@ -607,10 +640,10 @@ class Dipole_image_maker(Structure_image_maker):
             # Dipole 2 (magnetic).
             "{} {} {}".format(*self.get_coords(self.magnetic_dipole_moment, self.magnetic_scaling)[0]),
             "{} {} {}".format(*self.get_coords(self.magnetic_dipole_moment, self.magnetic_scaling)[1]),
-            "{}".format(self.file_path['x0y0z0'].with_suffix(self.scene_file_extension)),
-            "{}".format(self.file_path['x90y0z0'].with_suffix(self.scene_file_extension)),
-            "{}".format(self.file_path['x0y90z0'].with_suffix(self.scene_file_extension)),
-            "{}".format(self.file_path['x45y45z45'].with_suffix(self.scene_file_extension))
+            "{}".format(self.file_path['x0y0z0'].with_suffix(self.scene_file_extension).name),
+            "{}".format(self.file_path['x90y0z0'].with_suffix(self.scene_file_extension).name),
+            "{}".format(self.file_path['x0y90z0'].with_suffix(self.scene_file_extension).name),
+            "{}".format(self.file_path['x45y45z45'].with_suffix(self.scene_file_extension).name)
         ]
 
     
