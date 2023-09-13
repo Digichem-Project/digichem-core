@@ -17,6 +17,29 @@ from silico.misc.text import andjoin
 import silico
 
 
+class Solvent(Result_object):
+    """
+    Class for storing solvent metadata.
+    """
+    
+    def __init__(self, model = None, name = None, params = None):
+        self.model = model
+        self.name = name
+        self.params = params if params is not None else {}
+        
+    @classmethod
+    def from_parser(self, parser):
+        """
+        Construct a Metadata object from an output file parser.
+        
+        :param parser: Output data parser.
+        :return: A populated Metadata object.
+        """
+        
+    def dump(self, silico_options):
+        pass
+
+
 class Metadata(Result_object):
     """
     Class for storing calculation metadata.
@@ -372,8 +395,6 @@ class Metadata(Result_object):
             "methods",
             "functional",
             "basis_set",
-            "solvent_model",
-            "solvent_name",
             "orbital_spin_type",
             "success",
             "optimisation_converged",
@@ -381,6 +402,9 @@ class Metadata(Result_object):
         attr_dict.update({attr: getattr(self, attr) for attr in attrs})
         
         # Add some more complex stuff.
+        attr_dict['solvent'] = {
+        }
+        
         attr_dict['date'] = {
             "value": self.date.timestamp() if self.date is not None else None,
             "units": "s",
