@@ -15,6 +15,7 @@ from silico.misc.time import latest_datetime, total_timedelta, date_to_string,\
     timedelta_to_string
 from silico.misc.text import andjoin
 import silico
+from silico.submit import translate
 
 
 class Solvent(Result_object):
@@ -25,7 +26,17 @@ class Solvent(Result_object):
     def __init__(self, model = None, name = None, params = None):
         self.model = model
         self.name = name
+        # A raw dictionary of solvent related parameters.
         self.params = params if params is not None else {}
+        
+        # If we are missing only one of name and params['epsilon'], look up the missing value.
+        if name is None and "epsilon" in params:
+            try:
+                self.name = translate.Solvent.epsilon_to_name(params['epsilon'])
+            
+            except ValueError:
+                # Nothing close.
+                pass
         
     @classmethod
     def from_parser(self, parser):
@@ -35,9 +46,32 @@ class Solvent(Result_object):
         :param parser: Output data parser.
         :return: A populated Metadata object.
         """
+        return self(
+            name = parser.data.metadata.get('solvent_name', None),
+            model = parser.data.metadata.get('solvent_model', None),
+            params = parser.data.metadata.get('solvent_params', {}),
+        )
         
     def dump(self, silico_options):
-        pass
+        return {
+            "model": self.model,
+            "name": self.name,
+            "params": self.params
+        }
+    
+    @classmethod
+    def from_dump(self, data, result_set, options):
+        """
+        Get an instance of this class from its dumped representation.
+        
+        :param data: The data to parse.
+        :param result_set: The partially constructed result set which is being populated.
+        """
+        return self(
+            model = data.get('model', None),
+            name = data.get('name', None),
+            params = data.get('params', {})
+        )
 
 
 class Metadata(Result_object):
@@ -76,15 +110,18 @@ class Metadata(Result_object):
             methods = None,
             functional = None,
             basis_set = None,
-            solvent_model = None,
-            solvent_name = None,
             charge = None,
             multiplicity = None,
             optimisation_converged = None,
             temperature = None,
             pressure = None,
             orbital_spin_type = None,
-            silico_version = None):
+            silico_version = None,
+            solvent = None,
+            
+            # Deprecated.
+            solvent_model = None,
+            solvent_name = None,):
         """
         Constructor for result Metadata objects.
         
@@ -125,8 +162,6 @@ class Metadata(Result_object):
         self.methods = methods if methods is not None else []
         self.functional = functional
         self.basis_set = basis_set
-        self.solvent_model = solvent_model
-        self.solvent_name = solvent_name
         # TODO: charge and mult should be deprecated here, they are available in ground_state.
         self.charge = charge
         self.multiplicity = multiplicity
@@ -136,6 +171,14 @@ class Metadata(Result_object):
         self.orbital_spin_type = orbital_spin_type
         # TOOD: Ideally this would be parsed from the calculation output somehow, but this is fine for now.
         self.silico_version = silico.version if silico_version is None else silico_version
+        self.solvent = solvent 
+        
+        # Deprecated solvent system.
+        if solvent_model is not None:
+            self.solvent.model = solvent_model
+        
+        if solvent_name is not None:
+            self.solvent.name = solvent_name
     
     # TODO: This is more than a bit clumsy and in general the handling of names should be improved.
     @property
@@ -358,15 +401,14 @@ class Metadata(Result_object):
                 functional = parser.data.metadata.get('functional', None),
                 basis_set = parser.data.metadata.get('basis_set', None),
                 
-                solvent_name = parser.data.metadata.get('solvent_name', None),
-                solvent_model = parser.data.metadata.get('solvent_model', None),
-                
                 charge = getattr(parser.data, 'charge', None),
                 multiplicity = getattr(parser.data, 'mult', None),
                 optimisation_converged = getattr(parser.data, 'optdone', None),
                 temperature = getattr(parser.data, 'temperature', None),
                 pressure = getattr(parser.data, 'pressure', None),
                 orbital_spin_type = self.get_orbital_spin_type_from_cclib(parser.data),
+                
+                solvent = Solvent.from_parser(parser)
             )
         except AttributeError:
             # There is no metadata available, give up.
@@ -423,6 +465,7 @@ class Metadata(Result_object):
             "value": self.pressure,
             "units": "atm"
         }
+        attr_dict["solvent"] = self.solvent.dump(silico_options)
         
         return attr_dict
     
@@ -444,6 +487,8 @@ class Metadata(Result_object):
         
         kwargs['date'] = datetime.fromtimestamp(kwargs['date']) if kwargs['date'] is not None else None
         kwargs['duration'] = timedelta(seconds = kwargs['duration'])  if kwargs['duration'] is not None else None
+        
+        kwargs['solvent'] = Solvent.from_dump(data.get('solvent', {}), result_set, options)
         
         return self(**kwargs)
 
