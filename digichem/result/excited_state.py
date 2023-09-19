@@ -222,7 +222,7 @@ class Excited_state_list(Result_container):
                 
                 else:
                     # Already got this type of excited states.
-                    warnings.warn("Attempting to merge excited states of multiplicity '{}' but this multiplcity has already been provided by an earlier result, ignoring".format(multiplicity))
+                    warnings.warn("Attempting to merge excited states of multiplicity '{}' but this multiplicity has already been provided by an earlier result, ignoring".format(multiplicity))
         
         merged = self(itertools.chain(*multiplicities.values()), **kwargs)
         merged.sort()
@@ -235,7 +235,7 @@ class Excited_state_list(Result_container):
         
         This functionality is useful for hiding expense properties from the normal dump process, while still exposing them when specifically requested.
         
-        Each key in the returned dicrt is the name of a dumpable item, each value is a function to call with silico_options as its only param.
+        Each key in the returned dict is the name of a dumpable item, each value is a function to call with silico_options as its only param.
         """
         return {"spectrum": self.generate_spectrum}
     
