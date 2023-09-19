@@ -17,7 +17,6 @@ from silico.misc.time import latest_datetime, total_timedelta, date_to_string,\
 from silico.misc.text import andjoin
 import silico
 from silico.submit import translate
-from silico.submit.memory import Memory
 
 
 class Solvent(Result_object):
@@ -32,16 +31,13 @@ class Solvent(Result_object):
         self.params = params if params is not None else {}
         
         # If we are missing only one of name and params['epsilon'], look up the missing value.
-        if self.name is None and "epsilon" in self.params:
+        if name is None and "epsilon" in params:
             try:
-                self.name = translate.Solvent.epsilon_to_name(self.params['epsilon'])
+                self.name = translate.Solvent.epsilon_to_name(params['epsilon'])
             
             except ValueError:
                 # Nothing close.
                 pass
-        
-        if self.name is not None:    
-            self.name = self.name.capitalize()
         
     @classmethod
     def from_parser(self, parser):
@@ -57,45 +53,12 @@ class Solvent(Result_object):
             params = parser.data.metadata.get('solvent_params', {}),
         )
         
-    @property
-    def description(self):
-        """
-        A common-name description of this solvent.
-        """
-        # If we have no solvent, say so.
-        if self.model is None:
-            return "Gas-phase"
-        
-        # If we have a name, just use that.
-        elif self.name is not None:
-            return self.name
-        
-        # If we only have epsilon, use that.
-        elif "epsilon" in self.params:
-            return "ε = {}".format(self.params['epsilon'])
-        
-        # Give up.
-        else:
-            return "Unknown"
-        
     def dump(self, silico_options):
         return {
             "model": self.model,
             "name": self.name,
             "params": self.params
         }
-        
-    @classmethod
-    def merge(self, *multiple_objects):
-        """
-        Merge multiple solvent implementations together.
-        """
-        # Check all items are the same.
-        if not all(obj == multiple_objects[0] for obj in multiple_objects if obj is not None):
-            warnings.warn("Refusing to merge different solvent methods")
-            return self()
-            
-        return multiple_objects[0]
     
     @classmethod
     def from_dump(self, data, result_set, options):
@@ -110,37 +73,6 @@ class Solvent(Result_object):
             name = data.get('name', None),
             params = data.get('params', {})
         )
-        
-    def __eq__(self, other):
-        """Is this solvent implementation the same as another one?"""
-        return (
-            # Might want to do this case-insensitive.
-            self.model == other.model and
-            abs(self.params.get("epsilon", math.inf) - self.params.get("epsilon", math.inf)) < 0.001
-        )
-
-
-class Solvent(Result_object):
-    """
-    Class for storing solvent metadata.
-    """
-    
-    def __init__(self, model = None, name = None, params = None):
-        self.model = model
-        self.name = name
-        self.params = params if params is not None else {}
-        
-    @classmethod
-    def from_parser(self, parser):
-        """
-        Construct a Metadata object from an output file parser.
-        
-        :param parser: Output data parser.
-        :return: A populated Metadata object.
-        """
-        
-    def dump(self, silico_options):
-        pass
 
 
 class Metadata(Result_object):
@@ -187,9 +119,6 @@ class Metadata(Result_object):
             orbital_spin_type = None,
             silico_version = None,
             solvent = None,
-            num_cpu = None,
-            memory_available = None,
-            memory_used = None,
             
             # Deprecated.
             solvent_model = None,
@@ -246,10 +175,7 @@ class Metadata(Result_object):
         self.orbital_spin_type = orbital_spin_type
         # TOOD: Ideally this would be parsed from the calculation output somehow, but this is fine for now.
         self.silico_version = silico.version if silico_version is None else silico_version
-        self.solvent = solvent
-        self.num_cpu = num_cpu
-        self.memory_available = memory_available
-        self.memory_used = memory_used
+        self.solvent = solvent 
         
         # Deprecated solvent system.
         if solvent_model is not None:
@@ -489,11 +415,7 @@ class Metadata(Result_object):
                 pressure = getattr(parser.data, 'pressure', None),
                 orbital_spin_type = self.get_orbital_spin_type_from_cclib(parser.data),
                 
-                solvent = Solvent.from_parser(parser),
-                
-                num_cpu = parser.data.metadata.get('num_cpu', None),
-                memory_available = memory_available,
-                memory_used = memory_used,
+                solvent = Solvent.from_parser(parser)
             )
         except AttributeError:
             # There is no metadata available, give up.
@@ -552,20 +474,6 @@ class Metadata(Result_object):
         }
         attr_dict["solvent"] = self.solvent.dump(silico_options)
         
-        attr_dict['num_cpu'] = self.num_cpu
-        for attr_name in ("memory_used", "memory_available"):
-            if getattr(self, attr_name) is not None:
-                value, unit = getattr(self, attr_name).auto_units
-                attr_dict[attr_name] = {
-                    "value": value,
-                    "units": unit
-                }
-            else:
-                attr_dict[attr_name] = {
-                    "value": None,
-                    "units": None
-                }
-        
         return attr_dict
     
     @classmethod
@@ -588,13 +496,6 @@ class Metadata(Result_object):
         kwargs['duration'] = timedelta(seconds = kwargs['duration'])  if kwargs['duration'] is not None else None
         
         kwargs['solvent'] = Solvent.from_dump(data.get('solvent', {}), result_set, options)
-        
-        for attr_name in ("memory_used", "memory_available"):
-            if attr_name in data and data[attr_name]['value'] is not None:
-                kwargs[attr_name] = Memory.from_units(data[attr_name]["value"], data[attr_name]["units"])
-            
-            else:
-                kwargs[attr_name] = None
         
         return self(**kwargs)
 
