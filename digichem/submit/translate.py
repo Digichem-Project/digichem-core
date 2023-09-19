@@ -356,7 +356,7 @@ class Solvent(Translate):
     
     def translate(self, program):
         """
-        Translate this functional name to one recognised by a given program.
+        Translate this solvent name to one recognised by a given program.
         
         :param program: The program to translate for.
         """
