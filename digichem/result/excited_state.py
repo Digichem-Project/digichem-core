@@ -14,6 +14,7 @@ from silico.result.base import Floatable_mixin
 from silico.misc.text import andjoin
 from silico.result.spectroscopy import Spectroscopy_graph,\
     Absorption_emission_graph
+import silico.log
 
 
 class Excited_state_list(Result_container):
@@ -718,7 +719,24 @@ class Excited_state(Energy_state):
         # Assemble cclib's various arrays into a single list.
         # If we're missing etoscs, that's ok.
         etoscsc = getattr(parser.data, "etoscs", [])
-        excited_states_data = list(zip_longest(parser.data.etsyms, parser.data.etenergies, etoscsc, fillvalue = 0.0))
+        
+        try:
+            excited_states_data = list(zip_longest(parser.data.etsyms, parser.data.etenergies, etoscsc, fillvalue = 0.0))
+        
+        except AttributeError:
+            if not hasattr(parser.data, "etsyms") and not hasattr(parser.data, "etenergies"):
+                return []
+            
+            elif not hasattr(parser.data, "etsyms"):
+                silico.log.get_logger().warning("Unable to fully parse excited states because only energies are available, missing symmetries")
+                return []
+            
+            elif not hasattr(parser.data, "etenergies"):
+                silico.log.get_logger().warning("Unable to fully parse excited states because only symmetries are available, missing energies")
+                return []
+            
+            else:
+                raise
         
         # First get our transitions.
         transitions = Excited_state_transition.list_from_parser(parser)
