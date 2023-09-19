@@ -322,6 +322,30 @@ class Solvent(Translate):
         # No luck.
         raise ValueError("Could not find solvent definition for '{}'".format(hint))
     
+    @classmethod
+    def epsilon_to_name(self, epsilon, threshold = 0.0001):
+        """
+        Find the name of a solvent based on its epsilon value.
+        """
+        close = {}
+        for solvent_def in solvent_db.values():
+            if solvent_def['epsilon'] == epsilon:
+                # Exact match, stop.
+                return solvent_def['name']
+            
+            elif abs(solvent_def['epsilon'] - epsilon) < threshold:
+                # Close match.
+                close[abs(solvent_def['epsilon'] - epsilon)] = solvent_def['name']
+                
+        # Sort values that were close based on how close they were.
+        close_names = [close[closeness] for closeness in sorted(close)]
+        
+        try:
+            return close_names[0]
+        
+        except IndexError:
+            raise ValueError("No solvent definitions within {} of {}".format(threshold, epsilon)) from None
+    
     @property
     def epsilon(self):
         return self.find_in_db(self.solvent)['epsilon']
