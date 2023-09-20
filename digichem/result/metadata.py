@@ -62,6 +62,18 @@ class Solvent(Result_object):
             "name": self.name,
             "params": self.params
         }
+        
+    @classmethod
+    def merge(self, *multiple_objects):
+        """
+        Merge multiple solvent implementations together.
+        """
+        # Check all items are the same.
+        if not all(obj == multiple_objects[0] for obj in multiple_objects if obj is not None):
+            warnings.warn("Refusing to merge different solvent methods")
+            return self()
+            
+        return multiple_objects[0]
     
     @classmethod
     def from_dump(self, data, result_set, options):
@@ -75,6 +87,14 @@ class Solvent(Result_object):
             model = data.get('model', None),
             name = data.get('name', None),
             params = data.get('params', {})
+        )
+        
+    def __eq__(self, other):
+        """Is this solvent implementation the same as another one?"""
+        return (
+            # Might want to do this case-insensitive.
+            self.model == other.model and
+            abs(self.params.get("epsilon", math.inf) - self.params.get("epsilon", math.inf)) < 0.001
         )
 
 
@@ -448,9 +468,6 @@ class Metadata(Result_object):
         attr_dict.update({attr: getattr(self, attr) for attr in attrs})
         
         # Add some more complex stuff.
-        attr_dict['solvent'] = {
-        }
-        
         attr_dict['date'] = {
             "value": self.date.timestamp() if self.date is not None else None,
             "units": "s",
@@ -520,7 +537,7 @@ class Merged_metadata(Metadata):
         """
         # Our merged metadata.
         merged_metadata = self(num_calculations = len(multiple_metadatas))
-        for attr in ("name", "user", "package", "package_version", "functional", "basis_set", "solvent_model", "solvent_name"):
+        for attr in ("name", "user", "package", "package_version", "functional", "basis_set"):
             setattr(merged_metadata, attr, self.merged_attr(attr, multiple_metadatas))
             
         # We take the latest of the two dates.
@@ -531,6 +548,9 @@ class Merged_metadata(Metadata):
         # Merge methods and calculations (but keep unique only).
         merged_metadata.calculations = list(dict.fromkeys(itertools.chain(*(metadata.calculations for metadata in multiple_metadatas))))
         merged_metadata.methods = self.sorted_methods(set(itertools.chain(*(metadata.methods for metadata in multiple_metadatas))))
+        
+        # Keep the solvent if it's the same for all, otherwise discard.
+        merged_metadata.solvent = multiple_metadatas[0].solvent.merge(*[other.solvent for other in multiple_metadatas[1:]])
         
         # We are only successful if all calcs are successful.
         merged_metadata.success = all((metadata.success for metadata in multiple_metadatas))
