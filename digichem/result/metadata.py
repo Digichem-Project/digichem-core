@@ -62,6 +62,18 @@ class Solvent(Result_object):
             "name": self.name,
             "params": self.params
         }
+        
+    @classmethod
+    def merge(self, *multiple_objects):
+        """
+        Merge multiple solvent implementations together.
+        """
+        # Check all items are the same.
+        if not all(obj == multiple_objects[0] for obj in multiple_objects if obj is not None):
+            warnings.warn("Refusing to merge different solvent methods")
+            return self()
+            
+        return multiple_objects[0]
     
     @classmethod
     def from_dump(self, data, result_set, options):
@@ -75,6 +87,14 @@ class Solvent(Result_object):
             model = data.get('model', None),
             name = data.get('name', None),
             params = data.get('params', {})
+        )
+        
+    def __eq__(self, other):
+        """Is this solvent implementation the same as another one?"""
+        return (
+            # Might want to do this case-insensitive.
+            self.model == other.model and
+            abs(self.params.get("epsilon", math.inf) - self.params.get("epsilon", math.inf)) < 0.001
         )
 
 
@@ -454,9 +474,6 @@ class Metadata(Result_object):
         attr_dict.update({attr: getattr(self, attr) for attr in attrs})
         
         # Add some more complex stuff.
-        attr_dict['solvent'] = {
-        }
-        
         attr_dict['date'] = {
             "value": self.date.timestamp() if self.date is not None else None,
             "units": "s",
@@ -540,11 +557,6 @@ class Merged_metadata(Metadata):
         
         # Keep the solvent if it's the same for all, otherwise discard.
         merged_metadata.solvent = multiple_metadatas[0].solvent.merge(*[other.solvent for other in multiple_metadatas[1:]])
-        
-        # Combine performance data.
-        merged_metadata.num_cpu = sum([meta.num_cpu for meta in multiple_metadatas if meta.num_cpu is not None])
-        merged_metadata.memory_available = Memory(sum([int(meta.memory_available) for meta in multiple_metadatas if meta.memory_available is not None]))
-        merged_metadata.memory_used = Memory(sum([int(meta.memory_used) for meta in multiple_metadatas if meta.memory_used is not None]))
         
         # We are only successful if all calcs are successful.
         merged_metadata.success = all((metadata.success for metadata in multiple_metadatas))
