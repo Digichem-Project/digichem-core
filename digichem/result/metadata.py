@@ -7,6 +7,7 @@ import itertools
 from deepmerge import conservative_merger
 from pathlib import Path
 import copy
+import warnings
 
 # Silico imports.
 from silico.exception import Result_unavailable_error
@@ -30,13 +31,16 @@ class Solvent(Result_object):
         self.params = params if params is not None else {}
         
         # If we are missing only one of name and params['epsilon'], look up the missing value.
-        if name is None and "epsilon" in params:
+        if self.name is None and "epsilon" in self.params:
             try:
-                self.name = translate.Solvent.epsilon_to_name(params['epsilon'])
+                self.name = translate.Solvent.epsilon_to_name(self.params['epsilon'])
             
             except ValueError:
                 # Nothing close.
                 pass
+        
+        if self.name is not None:    
+            self.name = self.name.capitalize()
         
     @classmethod
     def from_parser(self, parser):
