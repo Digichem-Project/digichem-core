@@ -50,6 +50,14 @@ def gaussian_TDM_result(silico_options):
 def gaussian_PDM_ES_result(silico_options):
     return parse_calculation(Path(data_directory(), "Pyridine/Gaussian 16 Excited States TDA Optimised S(1) PBE1PBE (GD3BJ) Toluene 6-31G(d,p).tar.gz"), options = silico_options)
 
+#############
+# Turbomole #
+#############
+
+@pytest.fixture(scope="module")
+def turbomole_sp_result(silico_options):
+    return parse_calculation(Path(data_directory(), "Pyridine/Turbomole Single Point DFT PBE0 (GD3BJ) Toluene Pople Basis Sets STO-3G.tar.gz"), options = silico_options)
+
 @pytest.fixture(scope="module")
 def turbomole_opt_result(silico_options):
     return parse_calculation(Path(data_directory(), "Naphthalene/Turbomole Optimisation Frequency PBE0 (GD3BJ) 6-31G**.tar.gz"), options = silico_options)
@@ -101,6 +109,10 @@ def turbomole_ADC2_triplets_result(silico_options):
 @pytest.fixture(scope="module")
 def orca_SP_result(silico_options):
     return parse_calculation(Path(data_directory(), "Pyridine/Orca Single Point PBE0 (GD3BJ) Gas Phase Pople Basis Sets STO-3G.tar.gz"), options = silico_options)
+
+@pytest.fixture(scope="module")
+def orca_solvent_SP_result(silico_options):
+    return parse_calculation(Path(data_directory(), "Pyridine/Orca Single Point PBE0 (GD3BJ) Toluene Pople Basis Sets STO-3G.tar.gz"), options = silico_options)
 
 @pytest.fixture(scope="module")
 def orca_grad_result(silico_options):
@@ -462,3 +474,18 @@ def test_nmr_c_isotope_options(orca_nmr_result):
     # Check we have the right options set for H.
     options = orca_nmr_result.nmr.spectrometer.isotope_options(6, 13)
     assert options['frequency'] == 100.6
+
+@pytest.mark.parametrize("result_set", [
+        pytest.lazy_fixture("gaussian_SP_result"),
+        pytest.lazy_fixture("gaussian_emission_result"),
+        pytest.lazy_fixture("turbomole_sp_result"),
+        pytest.lazy_fixture("orca_solvent_SP_result"),
+    ])
+def test_metadata_solvent(result_set):
+    """Can we parse solution metadata correctly?"""
+    assert result_set.metadata.solvent.name == "Toluene"
+    # A bit of a rudimentary test, but there's already more advanced testing in cclib
+    assert result_set.metadata.solvent.model is not None
+    assert result_set.metadata.solvent.params['epsilon'] == pytest.approx(2.374, abs = 1e-3)
+    
+    
