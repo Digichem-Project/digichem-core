@@ -57,6 +57,27 @@ class Solvent(Result_object):
             params = parser.data.metadata.get('solvent_params', {}),
         )
         
+    @property
+    def description(self):
+        """
+        A common-name description of this solvent.
+        """
+        # If we have no solvent, say so.
+        if self.model is None:
+            return "Gas-phase"
+        
+        # If we have a name, just use that.
+        elif self.name is not None:
+            return self.name
+        
+        # If we only have epsilon, use that.
+        elif "epsilon" in self.params:
+            return "ε = {}".format(self.params['epsilon'])
+        
+        # Give up.
+        else:
+            return "Unknown"
+        
     def dump(self, silico_options):
         return {
             "model": self.model,
