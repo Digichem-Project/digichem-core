@@ -162,7 +162,7 @@ class Metadata(Result_object):
         :param date: Optional date (datetime object) of this calculation result.
         :param duration: Optional duration (timedelta object) of this calculation.
         :param package: Optional string identifying the computational chem program that performed the calculation.
-        :param package: Optional string identifying the version of the computational chem program that performed the calculation.
+        :param package_version: Optional string identifying the version of the computational chem program that performed the calculation.
         :param calculations: A list of strings of the different calculations carried out (Opt, Freq, TD, TDA, SP etc).
         :param success: Whether the calculation completed successfully or not.
         :param methods: List of methods (DFT, HF, MPn etc) used in the calculation.
