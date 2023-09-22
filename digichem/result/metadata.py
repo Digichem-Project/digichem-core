@@ -17,6 +17,7 @@ from silico.misc.time import latest_datetime, total_timedelta, date_to_string,\
 from silico.misc.text import andjoin
 import silico
 from silico.submit import translate
+from silico.submit.memory import Memory
 
 
 class Solvent(Result_object):
@@ -142,6 +143,9 @@ class Metadata(Result_object):
             orbital_spin_type = None,
             silico_version = None,
             solvent = None,
+            num_cpu = None,
+            memory_available = None,
+            memory_used = None,
             
             # Deprecated.
             solvent_model = None,
@@ -198,7 +202,10 @@ class Metadata(Result_object):
         self.orbital_spin_type = orbital_spin_type
         # TOOD: Ideally this would be parsed from the calculation output somehow, but this is fine for now.
         self.silico_version = silico.version if silico_version is None else silico_version
-        self.solvent = solvent 
+        self.solvent = solvent
+        self.num_cpu = num_cpu
+        self.memory_available = memory_available
+        self.memory_used = memory_used
         
         # Deprecated solvent system.
         if solvent_model is not None:
@@ -438,7 +445,11 @@ class Metadata(Result_object):
                 pressure = getattr(parser.data, 'pressure', None),
                 orbital_spin_type = self.get_orbital_spin_type_from_cclib(parser.data),
                 
-                solvent = Solvent.from_parser(parser)
+                solvent = Solvent.from_parser(parser),
+                
+                num_cpu = parser.data.metadata.get('num_cpu', None),
+                memory_available = memory_available,
+                memory_used = memory_used,
             )
         except AttributeError:
             # There is no metadata available, give up.
@@ -494,6 +505,20 @@ class Metadata(Result_object):
         }
         attr_dict["solvent"] = self.solvent.dump(silico_options)
         
+        attr_dict['num_cpu'] = self.num_cpu
+        for attr_name in ("memory_used", "memory_available"):
+            if getattr(self, attr_name) is not None:
+                value, unit = getattr(self, attr_name).auto_units
+                attr_dict[attr_name] = {
+                    "value": value,
+                    "units": unit
+                }
+            else:
+                attr_dict[attr_name] = {
+                    "value": None,
+                    "units": None
+                }
+        
         return attr_dict
     
     @classmethod
@@ -516,6 +541,13 @@ class Metadata(Result_object):
         kwargs['duration'] = timedelta(seconds = kwargs['duration'])  if kwargs['duration'] is not None else None
         
         kwargs['solvent'] = Solvent.from_dump(data.get('solvent', {}), result_set, options)
+        
+        for attr_name in ("memory_used", "memory_available"):
+            if attr_name in data and data[attr_name]['value'] is not None:
+                kwargs[attr_name] = Memory.from_units(data[attr_name]["value"], data[attr_name]["units"])
+            
+            else:
+                kwargs[attr_name] = None
         
         return self(**kwargs)
 
@@ -557,6 +589,11 @@ class Merged_metadata(Metadata):
         
         # Keep the solvent if it's the same for all, otherwise discard.
         merged_metadata.solvent = multiple_metadatas[0].solvent.merge(*[other.solvent for other in multiple_metadatas[1:]])
+        
+        # Combine performance data.
+        merged_metadata.num_cpu = sum([meta.num_cpu for meta in multiple_metadatas if meta.num_cpu is not None])
+        merged_metadata.memory_available = Memory(sum([int(meta.memory_available) for meta in multiple_metadatas if meta.memory_available is not None]))
+        merged_metadata.memory_used = Memory(sum([int(meta.memory_used) for meta in multiple_metadatas if meta.memory_used is not None]))
         
         # We are only successful if all calcs are successful.
         merged_metadata.success = all((metadata.success for metadata in multiple_metadatas))
