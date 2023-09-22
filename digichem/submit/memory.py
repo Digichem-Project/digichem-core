@@ -26,10 +26,20 @@ class Memory():
         self.print_decimal = print_decimal
         self.round_decimal = round_decimal
     
-    @property
-    def auto(self):
+    @classmethod
+    def from_units(self, value, units):
         """
-        Get the amount of memory, as a string, using an automatically determined suffix.
+        Create a memory object from a given amount of memory and a specified unit.
+        
+        :param value: The amount of memory.
+        :param units: The units of memory.
+        """
+        return self("{}{}".format(value, units))
+    
+    @property
+    def auto_units(self):
+        """
+        Get the amount of memory, as a tuple, using an automatically determined suffix.
         """
         # First, get an ordered list from our known units.
         ordered_units = sorted(self.UNITS.items(), key = lambda item: item[1])
@@ -62,8 +72,16 @@ class Memory():
         value = self.value / ordered_units[suffix_index][1]
         if not self.print_decimal:
             value = int(value)
-        
-        return "{}{}{}".format(value, " " if self.SPACE_UNIT else "", ordered_units[suffix_index][0])
+            
+        return (value, ordered_units[suffix_index][0])
+    
+    @property
+    def auto(self):
+        """
+        Get the amount of memory, as a string, using an automatically determined suffix.
+        """
+        value, units = self.auto_units
+        return "{}{}{}".format(value, " " if self.SPACE_UNIT else "", units)
             
         
     @auto.setter
