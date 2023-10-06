@@ -33,7 +33,7 @@ prerelease = 4
 development = prerelease is not None
 demonstration = False
 # The full version number of this package.
-__version__ = "{}.{}.{}{}{}".format(major_version, minor_version, revision, "-pre.{}".format(prerelease) if development else "", "-demo" if development else "")
+__version__ = "{}.{}.{}{}{}".format(major_version, minor_version, revision, "-pre.{}".format(prerelease) if development else "", "-demo" if demonstration else "")
 # Deprecated:
 version = __version__
 
