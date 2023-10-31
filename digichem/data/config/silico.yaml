@@ -2,7 +2,7 @@
 #
 # Options for controlling the appearance of simulated UV-Vis like absorption spectra.
 # required: False
-absorption_spectrum:
+#absorption_spectrum:
 #   Set to False to disable image rendering.
 #   type: wrapper_type, default: True, required: False
 #  enable_rendering: true
@@ -93,7 +93,7 @@ absorption_spectrum:
 # Options for controlling the appearance of simulated emission spectra. 'emission_spectrum' and 
 # 'absorption_spectrum 'take the same options.
 # required: False
-emission_spectrum:
+#emission_spectrum:
 #   Set to False to disable image rendering.
 #   type: wrapper_type, default: True, required: False
 #  enable_rendering: true
@@ -167,7 +167,7 @@ emission_spectrum:
 #    
 # Options that control the appearance of excited states energy diagrams.
 # required: False
-excited_states_diagram:
+#excited_states_diagram:
 #   Set to False to disable image rendering.
 #   type: wrapper_type, default: True, required: False
 #  enable_rendering: true
@@ -190,7 +190,7 @@ excited_states_diagram:
 # then these programs will simply be executed by name (so relying on OS path resolution to find the 
 # necessary executables, which is normally fine.)
 # required: False
-external:
+#external:
 #   Gaussian's formchk utility https://gaussian.com/formchk/
 #   default: formchk, required: False
 #  formchk: formchk
@@ -201,7 +201,7 @@ external:
 #    
 # Options for controlling the appearance of simulated IR like vibrational frequency spectra.
 # required: False
-IR_spectrum:
+#IR_spectrum:
 #   Set to False to disable image rendering.
 #   type: wrapper_type, default: True, required: False
 #  enable_rendering: true
@@ -249,7 +249,7 @@ IR_spectrum:
 # combining both 'log_level' and 'verbose', so a 'log_level' of 'OFF' and 'verbose' of '2' is equal 
 # to 'ERROR'.
 # required: False
-logging:
+#logging:
 #   The level of messages to output, one of OFF (no logging at all), CRITICAL (fewest messages), 
 #   ERROR, WARNING, INFO or DEBUG (most messages)
 #   default: INFO, choices: ['OFF', 'CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG'], required: 
@@ -267,7 +267,7 @@ logging:
 #    
 # Options for controlling simulated NMR spectra
 # required: False
-nmr:
+#nmr:
 #   Set to False to disable image rendering.
 #   type: wrapper_type, default: True, required: False
 #  enable_rendering: true
@@ -352,7 +352,7 @@ nmr:
 #    
 # Options that control the appearance of orbital energy diagrams.
 # required: False
-orbital_diagram:
+#orbital_diagram:
 #   Set to False to disable image rendering.
 #   type: wrapper_type, default: True, required: False
 #  enable_rendering: true
@@ -376,7 +376,7 @@ orbital_diagram:
 #    
 # Options for controlling the appearance of 3D molecule images.
 # required: False
-render:
+#render:
 #   Set to False to disable image rendering.
 #   type: wrapper_type, default: True, required: False
 #  enable_rendering: true
@@ -387,7 +387,7 @@ render:
 #    
 #   VMD specific options (only applies if engine == 'vmd'
 #   required: False
-  vmd:
+#  vmd:
 #     Path to the VMD (Visual Molecular Dynamics) executable
 #     default: vmd, required: False
 #    executable: vmd
@@ -414,7 +414,7 @@ render:
 #      
 #   Beautiful Atoms/Blender specific options (only applies if engine == 'batoms'
 #   required: False
-  batoms:
+#  batoms:
 #     Path to the blender executable, in which beautiful atoms should be installed
 #     required: False
 #    blender: null
@@ -453,7 +453,7 @@ render:
 #    
 #   Specific options for orbital density plots.
 #   required: False
-  orbital:
+#  orbital:
 #     The size of grid used to generate cube files.
 #     Densities are plotted on a 3D grid of points, this option controls how many points there are 
 #     in the grid (per dimension).
@@ -469,7 +469,7 @@ render:
 #      
 #   Specific options for spin density plots.
 #   required: False
-  spin:
+#  spin:
 #     The size of the grid use to plot cube data. As cubes of this type are rendered with a smaller 
 #     isovalue, it is often necessary to use a larger grid size than normal to maintain quality.
 #     type: wrapper_type, default: Large, required: False
@@ -481,7 +481,7 @@ render:
 #      
 #   Specific options for total density plots.
 #   required: False
-  density:
+#  density:
 #     The size of the grid use to plot cube data.
 #     type: wrapper_type, default: Large, required: False
 #    cube_grid_size: Large
@@ -492,7 +492,7 @@ render:
 #      
 #   Specific options for excited states difference density plots.
 #   required: False
-  difference_density:
+#  difference_density:
 #     The size of the grid use to plot cube data.
 #     type: wrapper_type, default: Default, required: False
 #    cube_grid_size: Default
@@ -503,7 +503,7 @@ render:
 #      
 #   Specific options for NTO plots.
 #   required: False
-  natural_transition_orbital:
+#  natural_transition_orbital:
 #     The size of the grid use to plot cube data.
 #     type: wrapper_type, default: Default, required: False
 #    cube_grid_size: Default
@@ -514,14 +514,14 @@ render:
 #      
 #   Specific options for permanent dipole moment plots.
 #   required: False
-  dipole_moment:
+#  dipole_moment:
 #     The value (x) to scale the TDM by, where 1 D = x Å.
 #     type: wrapper_type, default: 1.0, required: False
 #    scaling: 1.0
 #      
 #   Specific options for transition dipole moment plots.
 #   required: False
-  transition_dipole_moment:
+#  transition_dipole_moment:
 #     The value (x) to scale the TEDM by, where 1 D = x Å.
 #     type: wrapper_type, default: 5.0, required: False
 #    electric_scaling: 5.0
@@ -532,7 +532,7 @@ render:
 #      
 # Options for controlling the generation of calculation reports.
 # required: False
-report:
+#report:
 #   The image to use for the front page of the report.
 #   default: rendered, choices: ['skeletal', 'rendered'], required: False
 #  front_page_image: rendered
@@ -541,7 +541,7 @@ report:
 #    calculations. Note that when reports are created automatically following calculation completion
 #    these options will be overridden with the specifics of that calculation.
 #   required: False
-  turbomole:
+#  turbomole:
 #     The number of CPUs with which to run.
 #     type: wrapper_type, default: 1, required: False
 #    num_cpu: 1
@@ -558,7 +558,7 @@ report:
 #   completed calculations. Note that when reports are created automatically following calculation 
 #   completion these options will be overridden with the specifics of that calculation.
 #   required: False
-  gaussian:
+#  gaussian:
 #     The number of CPUs with which to run.
 #     type: wrapper_type, default: 1, required: False
 #    num_cpu: 1
@@ -579,7 +579,7 @@ report:
 #   calculations. Note that when reports are created automatically following calculation completion 
 #   these options will be overridden with the specifics of that calculation.
 #   required: False
-  orca:
+#  orca:
 #     The amount of memory with which to run. If left blank, no maximum will be specified.
 #     type: wrapper_type, required: False
 #    memory: null
@@ -612,7 +612,7 @@ report:
 #     min: null, max: 11: All orbitals with energy less than or equal to LUMO+10.
 #     min: 0, max: 1: HOMO and LUMO only.
 #   required: False
-  orbital_table:
+#  orbital_table:
 #     The highest orbital to show in the molecular orbital table.
 #     type: wrapper_type, default: 16, required: False
 #    max: 16
@@ -642,7 +642,7 @@ report:
 #      Would render orbital 5, HOMO-1, HOMO, LUMO and any orbitals involved in an excited state 
 #   transition with a probability 0.1 or greater.
 #   required: False
-  orbital_image:
+#  orbital_image:
 #     Include orbitals involved in an excited state transition with a probability of this value or 
 #     greater.
 #     type: wrapper_type, default: 0.1, required: False
@@ -670,7 +670,7 @@ report:
 #      
 #   Options that control how many vibrational frequencies to list in the frequencies table. 
 #   required: False
-  frequency_table:
+#  frequency_table:
 #     The most negative frequency to show in the table (remember that frequencies can be negative). 
 #     'null' is for no limit. Units are cm-1.
 #     type: wrapper_type, required: False
@@ -686,7 +686,7 @@ report:
 #      
 #   Options which specify which NMR spectra to render.
 #   required: False
-  nmr_image:
+#  nmr_image:
 #     If True, at least one experiment will be included for each element and isotope pair (for which
 #      NMR data is available). If no expt is explicitly requested (via codes), then the spectra will
 #      be the one with the least decoupling.
@@ -700,10 +700,10 @@ report:
 #      
 # Options for controlling the rendering of 2D skeletal images.
 # required: False
-skeletal_image:
+#skeletal_image:
 #   The resolution for rendered images
 #   required: False
-  resolution:
+#  resolution:
 #     The output resolution (x and y) in pixels
 #     type: wrapper_type, required: False
 #    absolute: null
