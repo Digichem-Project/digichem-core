@@ -3,15 +3,15 @@
 import basis_set_exchange as bse
 import csv
 from pathlib import Path
-import pkg_resources
 
 import silico.log
 from silico.misc.base import is_int
+from silico.datas import get_resource
 
 
 # Load functional conversion table from file.
 functional_db = {}
-with open(Path(pkg_resources.resource_filename('silico', 'data/functionals.csv'))) as csv_file:
+with open(get_resource('data/functionals.csv')) as csv_file:
     _reader = csv.reader(csv_file)
     headers = None
     for line_num, line in enumerate(_reader):
@@ -40,7 +40,7 @@ with open(Path(pkg_resources.resource_filename('silico', 'data/functionals.csv')
 
 # Load solvent conversion table from file.
 solvent_db = {}
-with open(Path(pkg_resources.resource_filename('silico', 'data/solvents.csv'))) as csv_file:
+with open(get_resource('data/solvents.csv')) as csv_file:
     _reader = csv.reader(csv_file)
     headers = None
     for line_num, line in enumerate(_reader):
