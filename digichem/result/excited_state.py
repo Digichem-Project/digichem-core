@@ -1,7 +1,5 @@
 # Hidden import for speed.
 #import colour
-# from silico.result.spectroscopy import Spectroscopy_graph,\
-#     Absorption_emission_graph
 
 # General imports.
 from itertools import filterfalse, zip_longest
