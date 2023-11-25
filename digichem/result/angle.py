@@ -20,6 +20,10 @@ class Angle():
 #             self._raise_angle_unit_error(angle_units)
 #         else:
 #             self._default_angle_units = angle_units
+
+    @property
+    def _default_angle_units(self):
+        return  silico.config.get_config()['angle_units']
             
     
     def __init__(self, angle, angle_units = None, output_units = "def"):
@@ -49,8 +53,7 @@ class Angle():
         # Save our output units (this is type checked for us).
         if output_units == "def":
             # Use our default (which can be set at the module level).
-            #self.units = self._default_angle_units
-            self.units = silico.config.get_config()['angle_units']
+            self.units = self._default_angle_units
         else:
             self.units = output_units
             
