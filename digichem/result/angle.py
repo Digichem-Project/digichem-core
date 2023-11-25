@@ -1,23 +1,25 @@
 import math
 
+import silico.config
+
 
 class Angle():
     """
     A class for representing angles (either in radians or degrees).
     """
     
-    # The default units to print angles in.
-    _default_angle_units = "deg"
-    
-    @classmethod
-    def set_default_angle_units(self, angle_units):
-        """
-        Change the default angle units used by subsequent objects.
-        """
-        if angle_units != "rad" and angle_units != "deg":
-            self._raise_angle_unit_error(angle_units)
-        else:
-            self._default_angle_units = angle_units
+#     # The default units to print angles in.
+#     _default_angle_units = "deg"
+#     
+#     @classmethod
+#     def set_default_angle_units(self, angle_units):
+#         """
+#         Change the default angle units used by subsequent objects.
+#         """
+#         if angle_units != "rad" and angle_units != "deg":
+#             self._raise_angle_unit_error(angle_units)
+#         else:
+#             self._default_angle_units = angle_units
             
     
     def __init__(self, angle, angle_units = None, output_units = "def"):
@@ -47,7 +49,8 @@ class Angle():
         # Save our output units (this is type checked for us).
         if output_units == "def":
             # Use our default (which can be set at the module level).
-            self.units = self._default_angle_units
+            #self.units = self._default_angle_units
+            self.units = silico.config.get_config()['angle_units']
         else:
             self.units = output_units
             
