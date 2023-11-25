@@ -2,7 +2,6 @@ from pathlib import Path
 import subprocess
 import math
 from PIL import Image
-import pkg_resources
 from uuid import uuid4
 import os
 from math import fabs
@@ -11,6 +10,7 @@ import shutil
 from silico.exception.base import File_maker_exception
 from silico.image.render import Render_maker
 import silico.log
+from silico.datas import get_resource
 
 
 class VMD_image_maker(Render_maker):
@@ -120,14 +120,14 @@ class VMD_image_maker(Render_maker):
         """
         Get the file path to the VMD script to be used by this class to render images (as a pathlib Path).
         """
-        return Path(pkg_resources.resource_filename('silico', 'data/vmd/{}'.format(self.vmd_script)))
+        return get_resource('data/vmd/{}'.format(self.vmd_script))
     
     @property
     def tcl_common_path(self):
         """
         Get the file path to the Tcl script that is common to all of our other Tcl scripts (as a pathlib Path).
         """
-        return Path(pkg_resources.resource_filename('silico', 'data/vmd/common.tcl'))
+        return get_resource('data/vmd/common.tcl')
     
     @property
     def creation_message(self):

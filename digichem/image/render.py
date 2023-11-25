@@ -8,13 +8,13 @@ import os
 import copy
 import subprocess
 import yaml
-import pkg_resources
 from PIL import Image
+import math
 
 from silico.file.base import File_converter
 from silico.image.base import Cropable_mixin
 from silico.exception.base import File_maker_exception
-import math
+from silico.datas import get_resource
 
 class Render_maker(File_converter, Cropable_mixin):
     """
@@ -123,7 +123,7 @@ class Batoms_renderer(Render_maker):
         """
         Get the file path to the VMD script to be used by this class to render images (as a pathlib Path).
         """
-        return Path(pkg_resources.resource_filename('silico', 'data/batoms/batoms-renderer.py'))
+        return get_resource('data/batoms/batoms-renderer.py')
     
     def __init__(
             self,
@@ -179,7 +179,7 @@ class Batoms_renderer(Render_maker):
         
         else:
             # Otherwise, use a default location.
-            self.blender_executable = Path(pkg_resources.resource_filename('silico', 'data/batoms/blender/blender'))
+            self.blender_executable = get_resource('data/batoms/blender/blender')
             
     @classmethod
     def from_options(self, output, *, cube_file = None, rotations = None, cpus = None, options, **kwargs):
