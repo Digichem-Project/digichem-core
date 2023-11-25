@@ -1,7 +1,9 @@
+# Hidden import for speed.
+#import colour
+
 # General imports.
 from itertools import filterfalse, zip_longest
 import numpy
-import colour
 import math
 import warnings
 import itertools
@@ -648,6 +650,7 @@ class Excited_state(Energy_state):
         """
         The CIE XYZ tristimulus values of the 'color' that corresponds to the energy of this excited state (as a numpy array).
         """
+        import colour
         try:
             return colour.wavelength_to_XYZ(self.wavelength)
         except ValueError:
@@ -659,6 +662,7 @@ class Excited_state(Energy_state):
         """
         The CIE xy chromaticity coordinates of the 'color' that corresponds to the energy of this excited state.
         """
+        import colour
         try:
             return colour.XYZ_to_xy(self.CIE_XYZ)
         except Exception:
@@ -674,6 +678,7 @@ class Excited_state(Energy_state):
         
     @classmethod
     def xyz_to_rgb(self, XYZ):
+        import colour
         rgb =  [numpy.clip(clr, 0, math.inf) for clr in colour.XYZ_to_sRGB(XYZ)]
         
         # Now we normalise if one of our values exceeds 1.
