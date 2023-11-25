@@ -2,16 +2,16 @@
 
 import pytest
 from pathlib import Path
-import pkg_resources
 
 import silico.config
+from silico.datas import get_resource
 
 
 def data_directory():
     """
     Get a path to the test data directory.
     """
-    return Path(pkg_resources.resource_filename('silico', 'test/data'))
+    return get_resource('test/data')
 
 
 # Input files.
