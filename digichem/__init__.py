@@ -2,12 +2,11 @@
 
 from datetime import datetime
 from pathlib import Path
-import pkg_resources
 import os
 import sys
 
-# Deal with obabel early.
-from .base import init_obabel
+import silico.log
+from silico.datas import get_resource
 
 # Decide on whether we are frozen or not.
 # The sys attribute 'frozen' is our flag, '_MEIPASS' is the dir location.
@@ -102,7 +101,7 @@ silico.log.init_logger()
 ########################
 
 def default_template_directory():
-    return Path(pkg_resources.resource_filename('silico', 'data/templates'))
+    return get_resource('data/templates')
 
 # At end to avoid circular imports.
 import silico.config
