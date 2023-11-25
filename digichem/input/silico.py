@@ -426,19 +426,36 @@ def si_from_file(file_name, file_type = None, *, gen3D = None, **kwargs):
                         raise Silico_exception("Failed to parse silico resume file") from e
                     
                     return destination.program.calculation.input_coords
-            
+                
             # NOTE: Here we assume files without an extension are log files.
             # This works fine for directories, but might change in future.
             elif file_type in ["dat", "log", "out", "output", None] \
                 or (auto_file_type and "".join(file_name.suffixes) in open_for_parsing.archive_formats()):
-                # Log file.
-                # Parse and extract coordinates.
-                result = parse_calculation(file_name, options = silico.config.options, format_hint = "cclib")
+                # Generic log-file (output) format.
+                # Most formats (.log, .dat etc) we can parse with either Obabel or Silico.
+                # Some broken log files (incomplete) we can parse only with Obabel.
+                # Some unusual formats (directories, archives) we can parse only with Silico.
                 
-                return Silico_coords.from_result(result, file_name = file_name)
+                # Try with Silico first.
+                try:
+                    result = parse_calculation(file_name, options = silico.config.options, format_hint = "cclib")
+                    return Silico_coords.from_result(result, file_name = file_name, **kwargs)
+                
+                except Exception as e:
+                    # No good, see if we can use obabel.
+                    try:
+                        com_file = Openbabel_converter.from_file(file_name, file_type).convert("com", gen3D = gen3D)
+                    
+                    except Exception:
+                        # Also no good, re-raise original exception.
+                        raise
+                    
+                    # Worked with fallback, log a message.
+                    silico.log.get_logger().warning(f"Failed to parse calculation output file '{file_name}'; using Obabel fallback mechanism")
+                    return Silico_coords.from_com(com_file, file_name = file_name, **kwargs)
                 
             else:
-                # Generic input format.
+                # Generic input format, use obabel.
                 
                 # We convert all formats to gaussian input formats (because this format contains charge and multiplicity, which we can extract).
                 com_file = Openbabel_converter.from_file(file_name, file_type).convert("com", gen3D = gen3D)         
