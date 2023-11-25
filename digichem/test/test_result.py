@@ -487,5 +487,3 @@ def test_metadata_solvent(result_set):
     # A bit of a rudimentary test, but there's already more advanced testing in cclib
     assert result_set.metadata.solvent.model is not None
     assert result_set.metadata.solvent.params['epsilon'] == pytest.approx(2.374, abs = 1e-3)
-    
-    
