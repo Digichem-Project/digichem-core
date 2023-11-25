@@ -6,7 +6,9 @@ import warnings
 from silico.result import Result_container
 from silico.result import Result_object
 from silico.result import Floatable_mixin, Unmergeable_container_mixin
-from silico.result.spectroscopy import Spectroscopy_graph
+
+# Hidden.
+#from silico.result.spectroscopy import Spectroscopy_graph
 
 
 class Vibrations_list(Result_container, Unmergeable_container_mixin):
@@ -60,6 +62,9 @@ class Vibrations_list(Result_container, Unmergeable_container_mixin):
         :param key: The key being requested.
         :param silico_options: Silico options being used to dump.
         """
+        from silico.result.spectroscopy import Spectroscopy_graph
+        
+        
         spectrum = Spectroscopy_graph.from_vibrations(self, silico_options['IR_spectrum']['fwhm'], silico_options['IR_spectrum']['gaussian_resolution'], silico_options['IR_spectrum']['gaussian_cutoff'])
         
         try:

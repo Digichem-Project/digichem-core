@@ -1,5 +1,7 @@
 # Hidden import for speed.
 #import colour
+# from silico.result.spectroscopy import Spectroscopy_graph,\
+#     Absorption_emission_graph
 
 # General imports.
 from itertools import filterfalse, zip_longest
@@ -14,8 +16,6 @@ from silico.result import Result_object
 from silico.exception.base import Result_unavailable_error
 from silico.result.base import Floatable_mixin
 from silico.misc.text import andjoin
-from silico.result.spectroscopy import Spectroscopy_graph,\
-    Absorption_emission_graph
 import silico.log
 
 
@@ -250,10 +250,21 @@ class Excited_state_list(Result_container):
         :param key: The key being requested.
         :param silico_options: Silico options being used to dump.
         """
+        from silico.result.spectroscopy import Spectroscopy_graph, Absorption_emission_graph
+        
+        
         # Get spectrum data.
         # For excited states, we dump two spectra. One in nm, one in eV (which have different scaling).
         # TODO: It's weird that these spectra are only available in dumped format, there should be some property/function on the class that also returns them...
-        spectrum_nm = Absorption_emission_graph.from_excited_states(self, silico_options['absorption_spectrum']['fwhm'], silico_options['absorption_spectrum']['gaussian_resolution'], silico_options['absorption_spectrum']['gaussian_cutoff'], use_jacobian = silico_options['absorption_spectrum']['use_jacobian'])
+        spectrum_nm = Absorption_emission_graph.from_excited_states(
+            self,
+            silico_options['absorption_spectrum']['fwhm'],
+            silico_options['absorption_spectrum']['gaussian_resolution'],
+            silico_options['absorption_spectrum']['gaussian_cutoff'],
+            use_jacobian = silico_options['absorption_spectrum']['use_jacobian']
+        )
+        
+        
         spectrum_ev = Spectroscopy_graph([(excited_state.energy, excited_state.oscillator_strength) for excited_state in self], silico_options['absorption_spectrum']['fwhm'], silico_options['absorption_spectrum']['gaussian_resolution'], silico_options['absorption_spectrum']['gaussian_cutoff'])
         
         try:

@@ -9,8 +9,10 @@ import math
 from silico.result.base import Result_object, Result_container, Floatable_mixin
 from silico.exception.base import Result_unavailable_error
 from silico.misc.base import regular_range, powerset
-from silico.result.spectroscopy import Combined_graph
 import silico.log
+
+# Hidden.
+#from silico.result.spectroscopy import Combined_graph
 
 
 # TODO: NMR tensors are currently not re-orientated according to the alignment method used.
@@ -191,6 +193,9 @@ class NMR_spectrometer(Result_object):
         
         If you are only interested in the spectrum itself (not the machinery that generates it), try spectrum().
         """
+        from silico.result.spectroscopy import Combined_graph
+        
+        
         decoupling = decoupling if decoupling is not None else []
          
         # First, simulate vertical peaks.
@@ -624,7 +629,7 @@ class NMR_list(Result_container):
         Each key in the returned dict is the name of a dumpable item, each value is a function to call with silico_options as its only param.
         """
         return {
-            "spectra": lambda silico_options: self.spectrometer
+            "spectrum": lambda silico_options: self.spectrometer
         }
 
 
