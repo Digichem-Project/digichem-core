@@ -1,11 +1,13 @@
 """This module contains translation tables between various different, but equivalent, terms expected by different calculation programs."""
 
 import csv
-from pathlib import Path
 
 import silico.log
 from silico.misc.base import is_int
 from silico.datas import get_resource
+
+# Hidden imports.
+#import basis_set_exchange as bse
 
 
 # Load functional conversion table from file.
