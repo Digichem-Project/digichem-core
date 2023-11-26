@@ -1,6 +1,8 @@
-import basis_set_exchange.writers
 import deepmerge
 
+# Hidden imports.
+# import basis_set_exchange.misc
+# import basis_set_exchange.writers
 
 class BSE_basis_set(dict):
     """
@@ -30,6 +32,8 @@ class BSE_basis_set(dict):
         """
         Get a descriptive name of this basis set.
         """
+        import basis_set_exchange.misc
+        
         names = []
         
         for basis_set_name, basis_set_elements in self.items():
@@ -55,6 +59,8 @@ class BSE_basis_set(dict):
         
         :param elements_filter: A list of elements to filter by. Only elements given here will be printed in the final format. Each item can be an int or str representing a single element (1, '1', 'H' etc), or a range of elements ('1-5' etc).
         """
+        import basis_set_exchange.misc
+        
         elements_filter = basis_set_exchange.misc.expand_elements(elements_filter) if elements_filter is not None else None
         
         basis_sets = {}
@@ -93,6 +99,8 @@ class BSE_basis_set(dict):
         :param elements_filter: A list of elements to filter by. Only elements given here will be printed in the final format. Each item can be an int or str representing a single element (1, '1', 'H' etc), or a range of elements ('1-5' etc).
         :returns: The formatted basis set.
         """
+        import basis_set_exchange.writers
+        
         basis_sets = self.to_dict(elements_filter)
             
         # Output the merged basis set.

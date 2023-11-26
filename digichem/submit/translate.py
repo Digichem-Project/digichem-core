@@ -1,12 +1,13 @@
 """This module contains translation tables between various different, but equivalent, terms expected by different calculation programs."""
 
-import basis_set_exchange as bse
 import csv
-from pathlib import Path
 
 import silico.log
 from silico.misc.base import is_int
 from silico.datas import get_resource
+
+# Hidden imports.
+#import basis_set_exchange as bse
 
 
 # Load functional conversion table from file.
@@ -112,6 +113,7 @@ class Basis_set(Translate):
         
         :returns: A dictionary, where each key is the name of a basis set and each value is a BSE metadata dict.
         """
+        import basis_set_exchange as bse
         # Build a database of basis set metadata, adding the display name and alternative names as additional keys for each basis set.
         # BSE's database has some semi-duplicate entries (such as '6-31g(d,p)' and '6-31g_st__st_').
         # Although these basis sets are identical, they have reversed metadata (ie, for '6-31g(d,p)', 'display_name' is set to '6-31G(d,p)' and 'other_names'
