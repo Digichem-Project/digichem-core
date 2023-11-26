@@ -1,12 +1,14 @@
 # General imports.
-from cclib.io.ccio import sort_turbomole_outputs
 import re
 from datetime import timedelta, datetime
 import glob, pathlib
 import warnings
 
 # Silico imports.
-from silico.parse.base import Cclib_parser
+from silico.parse.cclib import Cclib_parser
+
+# Hidden imports.
+#from cclib.io.ccio import sort_turbomole_outputs
 
 
 class Turbomole_parser(Cclib_parser):
@@ -23,6 +25,8 @@ class Turbomole_parser(Cclib_parser):
         """
         Sort a list of log files into a particular order, if required for this parser.
         """
+        from cclib.io.ccio import sort_turbomole_outputs
+        
         return sort_turbomole_outputs(log_files)
     
     def duration_to_timedelta(self, duration_str):

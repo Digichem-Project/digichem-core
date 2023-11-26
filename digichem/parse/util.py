@@ -1,8 +1,6 @@
 """Utilities and handy functions for reading and parsing result files."""
 
 # General imports.
-import cclib.parser.gaussianparser
-import cclib.parser.turbomoleparser
 from functools import partial
 from itertools import filterfalse, zip_longest
 from pathlib import Path
@@ -16,7 +14,7 @@ import warnings
 import multiprocessing
 
 # Silico imports.
-from silico.parse.base import Cclib_parser
+from silico.parse.cclib import Cclib_parser
 from silico.parse.gaussian import Gaussian_parser
 from silico.parse.turbomole import Turbomole_parser
 from silico.parse.orca import Orca_parser
@@ -27,6 +25,9 @@ from silico.exception.base import Silico_exception
 import silico.log
 from silico.parse.dump import Yaml_multi_parser, Json_multi_parser
 
+# Hidden imports.
+#import cclib.io
+#import cclib.parser
 
 custom_parsing_formats = {
     "sir": Yaml_multi_parser,
@@ -126,6 +127,9 @@ def class_from_log_files(*log_files, format_hint = "auto"):
     
     :param format_hint: A hint as to the format of the given log files. Either 'auto' (to guess), 'cclib' (calc log file), 'sir' (silico result file) or 'sid' (silico database file).
     """
+    import cclib.io
+    import cclib.parser
+    
     if format_hint in custom_parsing_formats:
         return custom_parsing_formats[format_hint]
     

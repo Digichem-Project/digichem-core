@@ -3,8 +3,6 @@ import math
 import periodictable
 from itertools import zip_longest
 from openbabel import pybel
-from rdkit import Chem
-from rdkit.Chem import rdDetermineBonds
 import silico.log
 import re
 
@@ -16,6 +14,8 @@ from silico.exception.base import Result_unavailable_error, Silico_exception
 from silico.file.babel import Openbabel_converter
 from silico.misc.base import dict_list_index
 
+# Hidden import.
+
 
 def get_chemical_group_mapping(rdkit_molecule):
     """
@@ -23,6 +23,8 @@ def get_chemical_group_mapping(rdkit_molecule):
     
     :return: A mapping between each group number and the atoms it contains.
     """
+    from rdkit import Chem
+
     molecule = rdkit_molecule
     
     groupings = list(Chem.rdmolfiles.CanonicalRankAtoms(molecule, breakTies = False, includeChirality = False))
@@ -489,6 +491,9 @@ class Atom_list(Result_container, Unmergeable_container_mixin):
         """
         Convert this list of atoms to an rdkit molecule object.
         """
+        from rdkit import Chem
+        from rdkit.Chem import rdDetermineBonds
+        
         # RDKit has a lot of problems loading molecule information from other formats.
         # Loading from Mol specifies atom and bonding types, but rdkit is very fragile when it comes to
         # which bonds it considers allowed (tetravelent nitrogen is not allowed for example). This can

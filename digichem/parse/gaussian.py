@@ -1,13 +1,14 @@
 # General imports.
-import pysoc.io.SOC
 from datetime import datetime, timedelta
 
 # Silico imports.
-from silico.parse.base import Cclib_parser
+from silico.parse.cclib import Cclib_parser
 import silico.log
 from silico.exception.base import Result_unavailable_error
 import silico.file.types as file_types
 
+# Hidden imports.
+#import pysoc.io.SOC
 
 class Gaussian_parser(Cclib_parser):
     """
@@ -93,6 +94,12 @@ class Gaussian_parser(Cclib_parser):
         """
         Parse spin-orbit coupling using PySOC.
         """
+        try:
+            import pysoc.io.SOC
+        
+        except Exception:
+            raise Result_unavailable_error("Spin-orbit coupling", "PySOC is not available", exc_info = True)
+        
         # For SOC, we need both .log and .rwf file.
         # No need to check for these tho; pysoc does that for us.
         # We also need etsyms to decide which excited state is which.

@@ -1,4 +1,4 @@
-from silico.parse.base import Cclib_parser
+from silico.parse.cclib import Cclib_parser
 import silico.file.types as file_types
 import silico.log
 
