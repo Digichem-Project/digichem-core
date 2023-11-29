@@ -97,8 +97,8 @@ class Gaussian_parser(Cclib_parser):
         try:
             import pysoc.io.SOC
         
-        except Exception:
-            raise Result_unavailable_error("Spin-orbit coupling", "PySOC is not available", exc_info = True)
+        except Exception as e:
+            raise Result_unavailable_error("Spin-orbit coupling", "PySOC is not available") from e
         
         # For SOC, we need both .log and .rwf file.
         # No need to check for these tho; pysoc does that for us.
