@@ -38,7 +38,7 @@ class Fchk_to_cube(File_converter):
     # Text description of our output file type, used for error messages etc.
     output_file_type = file_types.gaussian_cube_file
     
-    def __init__(self, *args, fchk_file = None, cubegen_type = "MO", orbital = "HOMO", npts = 0, cube_file = None, memory = None, cubegen_executable = "cubegen", **kwargs):
+    def __init__(self, *args, fchk_file = None, cubegen_type = "MO", orbital = "HOMO", npts = 0, cube_file = None, num_cpu = None, memory = None, cubegen_executable = "cubegen", **kwargs):
         """
         Constructor for Fchk_to_cube objects.
         
@@ -50,6 +50,7 @@ class Fchk_to_cube(File_converter):
         :param orbital: The orbital to be included in the cube file when we make it. Possible values are 'HOMO', 'LUMO' or the integer level of the desired orbital.
         :param npts: The 'npts' option of cubegen, controls how detailed the resulting file is. Common options are 0 (default), -2 ('low' quality), -3 (medium quality), -4 (very high quality).
         :param cube_file: An optional file path to an existing cube file to use. If this is given (and points to an actual file), then a new cube will not be made and this file will be used instead.
+        :param num_cpu: The number of CPUs/processes for cubegen to use. If not given, the number of CPUs available will be used.
         :param memory: The amount of memory for cubegen to use.
         """
         super().__init__(*args, input_file = fchk_file, existing_file = cube_file, **kwargs)
@@ -58,6 +59,8 @@ class Fchk_to_cube(File_converter):
         self.npts = npts
         memory = memory if memory is not None else "3 GB"
         self.memory = Memory(memory)
+        # Default to number of CPUs of the system.
+        self.num_cpu = int(num_cpu) if num_cpu is not None else os.cpu_count()
         self.cubegen_executable = cubegen_executable
         
     @classmethod
@@ -83,12 +86,13 @@ class Fchk_to_cube(File_converter):
         # The signature we'll use to call cubegen.
         signature = [
             "{}".format(self.cubegen_executable),
-            "0",
+            "{}".format(self.num_cpu),
             "{}={}".format(self.cubegen_type, self.orbital),
             str(self.input_file),
             str(self.output),
             str(self.npts)
         ]
+        print(signature)
         
         try:
             cubegen_proc =  subprocess.run(
