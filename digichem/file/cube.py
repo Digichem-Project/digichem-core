@@ -93,7 +93,6 @@ class Fchk_to_cube(File_converter):
             str(self.output),
             str(self.npts)
         ]
-        print(signature)
         
         try:
             cubegen_proc =  subprocess.run(
