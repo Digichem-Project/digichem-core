@@ -86,7 +86,8 @@ class Fchk_to_cube(File_converter):
         # The signature we'll use to call cubegen.
         signature = [
             "{}".format(self.cubegen_executable),
-            "{}".format(self.num_cpu),
+            #"{}".format(self.num_cpu),
+            "0", # Disable CPUs for now, cubegen does not respond well to >1.
             "{}={}".format(self.cubegen_type, self.orbital),
             str(self.input_file),
             str(self.output),
