@@ -305,6 +305,7 @@ To disable the maximum width, set to null.""", type = int, default = 1500),
             memory = Option(help = "The amount of memory with which to run. If left blank, no maximum will be specified.", type = Memory, default = None),
             program = Method_target_option("programs", help = "A program definition from the internal library to run.", default = None)
         ),
+        keep_cubes = Option(help = "Whether to keep cube files", type = bool, default = False),
         cleanup = Option(help =\
 """Whether to delete intermediate files that are written during the report generation process.
 Intermediate files include:
