@@ -20,6 +20,44 @@ from silico.submit.memory import Memory
 from mako.lookup import TemplateLookup
 
 
+def sanitize_modern_cubes(cube_file_path):
+    """
+    'Sanitize' or 'fix' modern cube files to be compatible with older parsers.
+    
+    Modern cubes can store more than one density per coordinate, but many programs don't like this.
+    
+    :param cube_file: Path to the cube file to modify.
+    """
+    cube_file_path = Path(cube_file_path)
+    with open(cube_file_path, "rt") as old_cube_file, \
+        tempfile.NamedTemporaryFile("wt", dir = cube_file_path.parent, delete = False) as temp_cube:
+        for line_index, line in enumerate(old_cube_file):
+            # Line 3 (index 2) contains this header:
+            #   -11  -10.884822  -13.392441  -10.884822    1
+            # The final '1' is unsupported on older software.
+            if line_index == 2:
+                line_split = line.split()
+                if len(line_split) == 5:
+                    # We have a line that needs cleaning.
+                    if line_split[-1] != "1":
+                        # Can't touch this one, it has more than one density.
+                        silico.log.get_logger().warning(
+                            "Unable to convert cube file '{}' to old format; this cube contains more than 1 density ('{}' densities found)".format(
+                                cube_file_path,
+                                line_split[-1]
+                            )
+                        )
+                    
+                    else:
+                        #line = line[:-2] + "\n"
+                        line = " " + " ".join(line_split[:-1]) + "\n"
+            
+            temp_cube.write(line)
+            
+        # Replace old cube with new cube.
+        os.rename(temp_cube.name, cube_file_path)
+    
+
 class Fchk_to_cube(File_converter):
     """
     Class for handling file references to Gaussian cube files.
@@ -38,7 +76,19 @@ class Fchk_to_cube(File_converter):
     # Text description of our output file type, used for error messages etc.
     output_file_type = file_types.gaussian_cube_file
     
-    def __init__(self, *args, fchk_file = None, cubegen_type = "MO", orbital = "HOMO", npts = 0, cube_file = None, num_cpu = None, memory = None, cubegen_executable = "cubegen", **kwargs):
+    def __init__(
+            self,
+            *args,
+            fchk_file = None,
+            cubegen_type = "MO",
+            orbital = "HOMO",
+            npts = 0,
+            cube_file = None,
+            num_cpu = None,
+            memory = None,
+            cubegen_executable = "cubegen",
+            sanitize = False,
+            **kwargs):
         """
         Constructor for Fchk_to_cube objects.
         
@@ -52,6 +102,7 @@ class Fchk_to_cube(File_converter):
         :param cube_file: An optional file path to an existing cube file to use. If this is given (and points to an actual file), then a new cube will not be made and this file will be used instead.
         :param num_cpu: The number of CPUs/processes for cubegen to use. If not given, the number of CPUs available will be used.
         :param memory: The amount of memory for cubegen to use.
+        :param sanitize: Whether to modify the cube file to make it compatible with older software.
         """
         super().__init__(*args, input_file = fchk_file, existing_file = cube_file, **kwargs)
         self.cubegen_type = cubegen_type
@@ -62,6 +113,7 @@ class Fchk_to_cube(File_converter):
         # Default to number of CPUs of the system.
         self.num_cpu = int(num_cpu) if num_cpu is not None else os.cpu_count()
         self.cubegen_executable = cubegen_executable
+        self.sanitize = sanitize
         
     @classmethod
     def from_options(self, output, *, fchk_file = None, cubegen_type = "MO", orbital = "HOMO", options, **kwargs):
@@ -76,6 +128,7 @@ class Fchk_to_cube(File_converter):
             npts = options['render']['orbital']['cube_grid_size'].to_gaussian(),
             dont_modify = not options['render']['enable_rendering'],
             cubegen_executable = options['external']['cubegen'],
+            sanitize = options['render']['safe_cubes'],
             **kwargs
         )
             
@@ -115,7 +168,9 @@ class Fchk_to_cube(File_converter):
             # Everything appeared to go ok.
             # Dump cubegen output if we're in debug.
             silico.log.get_logger().debug(cubegen_proc.stdout)
-
+        
+        if self.sanitize:
+            sanitize_modern_cubes(self.output)
 
 
 class Fchk_to_spin_cube(Fchk_to_cube):
@@ -151,9 +206,10 @@ class Fchk_to_spin_cube(Fchk_to_cube):
             npts = options['render']['spin']['cube_grid_size'].to_gaussian(),
             dont_modify = not options['render']['enable_rendering'],
             cubegen_executable = options['external']['cubegen'],
+            sanitize = options['render']['safe_cubes'],
             **kwargs
         )
-        
+
 class Fchk_to_density_cube(Fchk_to_cube):
     """
     A variation of the cube maker designed for making density cubes.
@@ -188,6 +244,7 @@ class Fchk_to_density_cube(Fchk_to_cube):
             npts = options['render']['density']['cube_grid_size'].to_gaussian(),
             dont_modify = not options['render']['enable_rendering'],
             cubegen_executable = options['external']['cubegen'],
+            sanitize = options['render']['safe_cubes'],
             **kwargs
         )
 
@@ -224,6 +281,7 @@ class Fchk_to_nto_cube(Fchk_to_cube):
             npts = options['render']['natural_transition_orbital']['cube_grid_size'].to_gaussian(),
             dont_modify = not options['render']['enable_rendering'],
             cubegen_executable = options['external']['cubegen'],
+            sanitize = options['render']['safe_cubes'],
             **kwargs
         )
 
@@ -238,7 +296,22 @@ class Gbw_to_cube(File_converter):
     # Text description of our output file type, used for error messages etc.
     output_file_type = file_types.gaussian_cube_file
     
-    def __init__(self, *args, gbw_file = None, density_file = None, plot_type = 1, orbital = None, alpha_beta = 0, npts = None, cube_file = None, memory = None, orca_plot_executable = "orca_plot", prog_def, **kwargs):
+    def __init__(
+        self,
+        *args,
+        gbw_file = None,
+        density_file = None,
+        plot_type = 1,
+        orbital = None,
+        alpha_beta = 0,
+        npts = None,
+        cube_file = None,
+        memory = None,
+        orca_plot_executable = "orca_plot",
+        sanitize = False,
+        prog_def,
+        **kwargs
+    ):
         """
         Constructor for Fchk_to_cube objects.
         
@@ -263,7 +336,8 @@ class Gbw_to_cube(File_converter):
         self.npts = npts
         self.memory = Memory(memory) if memory is not None else None
         self.prog_def = prog_def
-        self.orca_plot_executable = orca_plot_executable
+        self.orca_plot_executable = orca_plot_executable,
+        self.sanitize = sanitize
         
     @property
     def type(self):
@@ -310,6 +384,7 @@ class Gbw_to_cube(File_converter):
             dont_modify = not options['render']['enable_rendering'],
             prog_def = prog_def,
             memory = options['report']['orca']['memory'] if memory is None else memory,
+            sanitize = options['render']['safe_cubes'],
             **kwargs
         )
             
@@ -375,6 +450,10 @@ class Gbw_to_cube(File_converter):
             
             # Copy the cube file to our destination.
             shutil.move(cube_files[0], self.output, copy_function = shutil.copy)
+            
+            # Finally, sanitize if we've been asked to.
+            if self.sanitize:
+                sanitize_modern_cubes(self.output)
 
 # TODO: This module is fast becoming Turbomole centric, may be wise to move some of these classes somewhere else.
         
@@ -464,7 +543,7 @@ class Turbomole_to_cube(File_converter):
     # Text description of our output file type, used for error messages etc.
     output_file_type = file_types.gaussian_cube_file
     
-    def __init__(self, *args, calculation_directory = None, calc_t, prog_t, orbitals = [], density, spin, silico_options, **kwargs):
+    def __init__(self, *args, calculation_directory = None, calc_t, prog_t, orbitals = [], density, spin, silico_options, sanitize = False, **kwargs):
         """
         Constructor for Turbomole_to_cube objects.
         
@@ -510,6 +589,8 @@ class Turbomole_to_cube(File_converter):
         # Given calc.
         self.calc_t = calc_t
         
+        self.sanitize = sanitize
+        
     @classmethod
     def from_options(self, output, *args, calculation_directory = None, orbitals = [], density = True, spin = False, options, **kwargs):
         """
@@ -547,6 +628,7 @@ class Turbomole_to_cube(File_converter):
             density = density,
             spin = spin,
             dont_modify = not options['render']['enable_rendering'],
+            sanitize = options['render']['safe_cubes'],
             silico_options = options,
             **kwargs
         )
@@ -568,6 +650,7 @@ class Turbomole_to_cube(File_converter):
             density = density,
             spin = spin,
             dont_modify = not options['render']['enable_rendering'],
+            sanitize = options['render']['safe_cubes'],
             silico_options = options,
             **kwargs
         )
@@ -615,6 +698,10 @@ class Turbomole_to_cube(File_converter):
             except FileNotFoundError as e:
                 # The requested cube wasn't where we expected; either the calculation didn't do what we ask, or the requested cube isn't made by the calc.
                 raise File_maker_exception(self, "The requested cube file could not be found, perhaps it is not generated by this type of calculation?") from e
+            
+            # Sanitize the file (if we've been asked to).
+            if self.sanitize:
+                sanitize_modern_cubes(dst)
                 
         # All went well, delete the dir.
         shutil.rmtree(str(destination.calc_dir))
@@ -637,7 +724,7 @@ class Turbomole_to_anadens_cube(File_converter):
     # The file name we'll ask the $anadens data group to write to.
     anadens_file_name = "anadens.cub"
     
-    def __init__(self, *args, calculation_directory = None, first_density, second_density, calc_t, prog_t, silico_options, **kwargs):
+    def __init__(self, *args, calculation_directory = None, first_density, second_density, calc_t, prog_t, silico_options, sanitize = False, **kwargs):
         """
         Constructor for Turbomole_to_cube objects.
         
@@ -672,6 +759,8 @@ class Turbomole_to_anadens_cube(File_converter):
         
         # Given calc.
         self.calc_t = calc_t
+        
+        self.sanitize = False
         
     @classmethod
     def from_options(self, output, *args, calculation_directory, first_density, second_density, operator = "-",  options, **kwargs):
@@ -708,6 +797,7 @@ class Turbomole_to_anadens_cube(File_converter):
             calc_t = calc_t.inner_cls,
             prog_t = prog_t.inner_cls,
             silico_options = options,
+            sanitize = options['render']['safe_cubes'],
             **kwargs
         )
         
@@ -726,6 +816,7 @@ class Turbomole_to_anadens_cube(File_converter):
             calc_t = calc_t.inner_cls,
             prog_t = type(turbomole_calculation.program),
             silico_options = options,
+            sanitize = options['render']['safe_cubes'],
             **kwargs
         )
         
@@ -756,6 +847,10 @@ class Turbomole_to_anadens_cube(File_converter):
             
         except FileNotFoundError as e:
             raise File_maker_exception(self, "The requested anadens cube file could not be found, perhaps the calculation was setup incorrectly?") from e
+        
+        # Sanitize the file (if we've been asked to).
+        if self.sanitize:
+            sanitize_modern_cubes(self.output)
         
         # All went well, delete the dir.
         shutil.rmtree(str(destination.calc_dir))
