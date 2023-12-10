@@ -336,7 +336,7 @@ class Gbw_to_cube(File_converter):
         self.npts = npts
         self.memory = Memory(memory) if memory is not None else None
         self.prog_def = prog_def
-        self.orca_plot_executable = orca_plot_executable,
+        self.orca_plot_executable = orca_plot_executable
         self.sanitize = sanitize
         
     @property
