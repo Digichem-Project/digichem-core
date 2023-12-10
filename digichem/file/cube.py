@@ -40,17 +40,14 @@ def sanitize_modern_cubes(cube_file_path):
                 if len(line_split) == 5:
                     # We have a line that needs cleaning.
                     if line_split[-1] != "1":
-                        # Can't touch this one, it has more than one density.
                         silico.log.get_logger().warning(
-                            "Unable to convert cube file '{}' to old format; this cube contains more than 1 density ('{}' densities found)".format(
+                            "Cube file {} contains more than 1 density ('{}' densities found), this file may no longer be fully compliant".format(
                                 cube_file_path,
                                 line_split[-1]
                             )
                         )
                     
-                    else:
-                        #line = line[:-2] + "\n"
-                        line = " " + " ".join(line_split[:-1]) + "\n"
+                    line = " " + " ".join(line_split[:-1]) + "\n"
             
             temp_cube.write(line)
             
