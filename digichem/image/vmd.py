@@ -228,9 +228,12 @@ class VMD_image_maker(Render_maker):
         Our list of rotations in a form ready for VMD/Tcl.
         """
         # This is a stringified form of our list of tuples that we'll pass to VMD (or rather the TCL interpreter).
-        rot_string = ":".join(["{},{}".format(axis, angle) for axis, angle in self.rotations])
+        if len(self.rotations) > 0:
+            rot_string = ":".join(["{},{}".format(axis, angle) for axis, angle in self.rotations])
+        else:
+            # An empty string will be misinterpreted on the command line.
+            rot_string = "0,0"
         return rot_string
-        
     
     @property
     def VMD_signature(self):
