@@ -92,6 +92,7 @@ Possible options are:
             perspective = Option(help = "The perspective mode", choices = ["orthographic", "perspective"], default = "orthographic")
             # TODO: Colour options.
         ),
+        safe_cubes = Option(help = "Whether to sanitize cubes so older software can parse them (VMD < 1.9.2 etc)", type = bool, default = False),
         use_existing = Option(help =\
 """If True, previously created files will be reused. If False, new images will rendered, replacing the old.
 This is on by default for 3D rendered images because they are expensive (time-consuming) to render.""", type = bool, default = True
