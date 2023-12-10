@@ -475,7 +475,9 @@ class Energy_state(Result_object, Floatable_mixin):
         :param energy: The energy of this state in eV. Whether this value is absolute or relative to another state depends on the implementing class.
         """
         self.level = level
-        self.multiplicity = multiplicity
+        self.multiplicity = round(multiplicity)
+        # 'True' multiplicity is unrounded (do something smarter)
+        self.true_multiplicity = multiplicity
         self.multiplicity_level = multiplicity_level
         self.energy = energy
         
@@ -522,22 +524,24 @@ class Energy_state(Result_object, Floatable_mixin):
     
     @property
     def multiplicity_symbol(self):
+        multiplicity = self.multiplicity
+        
         # Get a shorthand symbol if we can.
-        if  self.multiplicity == 1:
+        if  multiplicity == 1:
             return "S"
-        elif  self.multiplicity == 2:
+        elif  multiplicity == 2:
             return "D"
-        elif  self.multiplicity == 3:
+        elif  multiplicity == 3:
             return "T"
-        elif  self.multiplicity == 4:
+        elif  multiplicity == 4:
             return "Q"
-        elif self.multiplicity == 0:
+        elif multiplicity == 0:
             return "?"
-        elif self.multiplicity % 1 == 0:
+        elif multiplicity % 1 == 0:
             # Multiplicity is an integer, so return as a stringy whole number.
-            return str(int(self.multiplicity))
+            return str(int(multiplicity))
         else:
-            return str(self.multiplicity)
+            return str(multiplicity)
     
     @property
     def state_symbol(self):
