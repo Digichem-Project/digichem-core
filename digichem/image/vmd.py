@@ -332,10 +332,11 @@ class VMD_image_maker(Render_maker):
         working_directory = tga_file.parent
         tmpfile_name = ".tachyon_output_" + uuid4().hex + ".tga"
         tmpfile_full_path = Path(tga_file.parent, tmpfile_name)
+        tachyon_process = None
         try:
             try:
                 # Now we can run tachyon.
-                subprocess.run(
+                tachyon_process = subprocess.run(
                     [
                         "{}".format(self.tachyon_executable),
                         scene_file.relative_to(working_directory),
@@ -343,7 +344,7 @@ class VMD_image_maker(Render_maker):
                         "-res", "{}".format(resolution), "{}".format(resolution),
                         "-o", tmpfile_name
                     ],
-                    stdout = subprocess.DEVNULL if not self.vmd_logging else None,
+                    stdout = subprocess.PIPE if not self.vmd_logging else None,
                     stderr = subprocess.STDOUT,
                     universal_newlines = True,
                     check = True,
@@ -357,12 +358,18 @@ class VMD_image_maker(Render_maker):
             # Now rename our tmpfile.
             #os.rename(tmpfile_full_path, tga_file)
             tmpfile_full_path.rename(tga_file)
+        
         except Exception:
             # Something went wrong, remove our tmpfile.
             try:
                 os.remove(tmpfile_full_path)
             except Exception:
                 pass
+            
+            # If we didn't already show output, dump it now.
+            if not self.vmd_logging and tachyon_process is not None:
+                silico.log.get_logger().error("Tachyon did not exit successfully, dumping output:\n{}".format(tachyon_process.stdout))
+                
             raise
         
 
