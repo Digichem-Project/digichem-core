@@ -716,6 +716,14 @@
 # Colour palette for urwid interfaces.
 palette:
     # Please see http://urwid.org/manual/displayattributes.html for allowed combinations.
+    logo__light:
+        - dark red
+        - light gray
+        
+    logo__dark:
+        - black
+        - light gray
+    
     body:
         # Foreground.
         - black
