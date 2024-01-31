@@ -364,6 +364,11 @@ Example:
         Database_config.from_data("{name: main, path: ~/.silico/silico.main.db}")
     ])
     
+    server = Options(help = "Options controlling the REST HTTP server", 
+        lock_file = Option(help = "Path to the lock file containing the PID and port of the currently running server process", type = Path, default = "~/.silico/server/server.lock"),
+        log_file = Option(help = "Path to the server log file", type = Path, default = "~/.silico/server/server.log")
+    )
+    
     def __init__(self, validate_now = True, palette = None, **kwargs):
         """
         Constructor for Silico_options objects.
