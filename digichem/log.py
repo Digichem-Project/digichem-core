@@ -1,5 +1,6 @@
 import warnings
 import logging
+import logging.handlers
 import sys
 import textwrap
 from subprocess import CalledProcessError
@@ -11,9 +12,11 @@ LOGGING_HANDLER = None
 LOGGER_NAME = "silico"
 
 
-def init_logger():
+def init_logger(file_name = None):
     """
     Init the package wide logger.
+    
+    :param file_name: Optional file to write to. If not given, messages are logged to stderr.
     """
     global LOGGING_HANDLER
     
@@ -22,17 +25,31 @@ def init_logger():
     logger = logging.getLogger(LOGGER_NAME)
     warnings_logger = logging.getLogger("py.warnings")
     
-    # The console handler, where we'll print most messages.
-    #LOGGING_HANDLER = logging.StreamHandler(sys.stderr)
-    LOGGING_HANDLER = Handler(sys.stderr)
+    # Choose our handler.
+    if file_name is None:
+        # STDERR logging.
+        # The console handler, where we'll print most messages.
+        LOGGING_HANDLER = Handler(sys.stderr)
+    
+    else:
+        # File logging.
+        LOGGING_HANDLER = logging.handlers.RotatingFileHandler(file_name, maxBytes = 1024, backupCount = 5)
+        
     # Handle everything.
     LOGGING_HANDLER.setLevel(logging.DEBUG)
     # Set its formatter.
     var_formatter = Variable_formatter(logger, default_warning_formatter = warnings.formatwarning)
     LOGGING_HANDLER.setFormatter(var_formatter)
+    
+    # Remove old handlers.
+    loggers = (logger, warnings_logger)
+    for log in loggers:
+        while len(log.handlers) > 0:
+            log.removeHandler(log.handlers[0])
+            
+        log.addHandler(LOGGING_HANDLER)
+    
     # Add the handler.
-    logger.addHandler(LOGGING_HANDLER)
-    warnings_logger.addHandler(LOGGING_HANDLER)
     warnings.formatwarning = var_formatter.formatWarning
     
     
