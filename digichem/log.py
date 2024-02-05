@@ -1,5 +1,4 @@
 import warnings
-import logging
 import logging.handlers
 import sys
 import textwrap
@@ -12,11 +11,12 @@ LOGGING_HANDLER = None
 LOGGER_NAME = "silico"
 
 
-def init_logger(file_name = None):
+def init_logger(file_name = None, time = False):
     """
     Init the package wide logger.
     
     :param file_name: Optional file to write to. If not given, messages are logged to stderr.
+    :param time: Whether to include the time in the logging message.
     """
     global LOGGING_HANDLER
     
@@ -38,7 +38,7 @@ def init_logger(file_name = None):
     # Handle everything.
     LOGGING_HANDLER.setLevel(logging.DEBUG)
     # Set its formatter.
-    var_formatter = Variable_formatter(logger, default_warning_formatter = warnings.formatwarning)
+    var_formatter = Variable_formatter(logger, show_time = time, default_warning_formatter = warnings.formatwarning)
     LOGGING_HANDLER.setFormatter(var_formatter)
     
     # Remove old handlers.
@@ -101,12 +101,19 @@ class Variable_formatter(logging.Formatter):
     The logging formatter used by silico, the format changes depending on a logger's log_level.
     """
     
-    default_format = 'silico: %(levelname)s: %(message)s'
+    # Different formatters fro printing the message.
+    DEFAULT_FORMATTER = '%(levelname)s: %(message)s'
+    WHEN_FORMATTER = '%(asctime)s: %(levelname)s: %(message)s'
     
-    def __init__(self, logger, fmt=None, datefmt=None, style='%', *, default_warning_formatter):
-        if fmt is None:
-            fmt = self.default_format
-        super().__init__(fmt, datefmt, style)
+    # Format string for printing the date/time.
+    DATE_FORMAT = '%Y-%m-%d %H:%M:%S'
+    
+    def __init__(self, logger, show_time = False, *, default_warning_formatter):
+        super().__init__(
+            fmt = "silico: " + self.WHEN_FORMATTER if show_time else self.DEFAULT_FORMATTER,
+            datefmt = '%Y-%m-%d %H:%M:%S',
+            style = '%'
+        )
         # Save our logger.
         self.logger = logger
         self.default_warning_formatter = default_warning_formatter
