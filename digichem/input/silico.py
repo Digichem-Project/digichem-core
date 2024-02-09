@@ -1,18 +1,19 @@
 # General imports.
 import yaml
 from pathlib import Path
-from openbabel import pybel
 import packaging.version
 import dill
+import periodictable
 
 # Silico imports.
 from silico.exception.base import Silico_exception
 from silico.file.gaussian import Gaussian_input_parser
-from silico.file.babel import Openbabel_converter
+from silico.file.babel import Openbabel_converter, Obabel_formats
 import silico.log
 from silico.input import Input_file
 from silico.parse.util import parse_calculation, open_for_parsing
 import silico.config
+from silico.result.atom import Molecule_mixin
 
 # Custom formats to allow literal strings in yaml output.
 # Adapted from https://stackoverflow.com/questions/6432605/any-yaml-libraries-in-python-that-support-dumping-of-long-strings-as-block-liter
@@ -35,7 +36,7 @@ yaml.add_representer(flow_mapping, flow_mapping_representer)
 # Classes #
 ###########
 
-class Silico_coords_ABC(Input_file):
+class Silico_coords_ABC(Input_file, Molecule_mixin):
     """
     ABC for classes that represents an input file in the silico input (.si) format.
     """
@@ -90,6 +91,23 @@ class Silico_coords_ABC(Input_file):
         }
         
     @property
+    def element_dict(self):
+        """
+        Get a dictionary where each key is one of the elements in this molecules (C, H, N etc) and the value is the number of that element that appears in the molecule
+        
+        :return: The element dictionary.
+        """
+        elements = {}
+        for atom in self.atoms:
+            # Try and increment the count of the atom.
+            try:
+                elements[atom['atom']] += 1
+            except KeyError:
+                # Add the new atom.
+                elements[atom['atom']] = 1
+        return elements
+        
+    @property
     def yaml(self):
         """
         Get this input file in yaml format.
@@ -108,21 +126,18 @@ class Silico_coords_ABC(Input_file):
         """
         Get the geometry of this input file in XYZ format.
         """
-        return "{}\n\n{}".format(len(self.geometry.strip().split("\n")), self.geometry) 
-        
-    @property
-    def formula(self):
-        """
-        """
-        molecule = pybel.readstring("xyz", self.to_format("xyz"))
-        return molecule.formula
+        return "{}\n\n{}".format(len(self.geometry.strip().split("\n")), self.geometry)
     
     @property
     def elements(self):
         """
         A unique list of the elements in this input file.
+        
+        The elemets are returned as a list of integers (atomic numbers)
         """
-        return list(set([atom.atomicnum for atom in pybel.readstring("xyz", self.to_format("xyz")).atoms]))
+        return list(set(
+            periodictable.elements.symbol(coord['atom']).number for coord in self.atoms
+        ))
     
     @classmethod
     def from_com(self, geometry, *, charge = None, multiplicity = None, **kwargs):
@@ -182,7 +197,7 @@ class Silico_coords_ABC(Input_file):
         """
         Get this input file in an arbitrary format.
         
-        :param file_type: The format of the file; a string recognised by openbabel.
+        :param file_type: The format of the file; see output_formats()
         :param file: An optional file to write to, if not given the converted file is returned as a string.
         """
         if file_type.lower() == "si":
@@ -202,13 +217,13 @@ class Silico_coords_ABC(Input_file):
         Each key is the short-code of the format (eg, si, com, xyz etc) while the value is a longer description.
         """
         formats = {
-            "si": "Silico input format",
+            "si": "Silico Input Format",
             "com": "Gaussian Input",
             "gau": "Gaussian Input",
             "gjc": "Gaussian Input",
             "gjf": "Gaussian Input"
         }
-        formats.update(pybel.informats)
+        formats.update(Obabel_formats().read())
         return formats
 
     @classmethod
@@ -218,8 +233,8 @@ class Silico_coords_ABC(Input_file):
         
         Each key is the short-code of the format (eg, si, com, xyz etc) while the value is a longer description.
         """
-        formats = {"si": "Silico input format"}
-        formats.update(pybel.outformats)
+        formats = {"si": "Silico Input Format"}
+        formats.update(Obabel_formats().write())
         return formats
     
     def __eq__(self, other):
@@ -389,7 +404,7 @@ def si_from_file(file_name, file_type = None, *, gen3D = None, **kwargs):
         Create a Silico_coords object from a file in arbitrary format.
         
         :param file_name: Name/path of the input file to read from.
-        :param file_type: The format of the file; a string recognised by openbabel. If not given, an attempt will be made to guess from the file name (see Openbabel_converter.type_from_file_name()).
+        :param file_type: The format of the file; a string recognised by Silico_coords.input_formats(). If not given, an attempt will be made to guess from the file name (see Openbabel_converter.type_from_file_name()).
         :param charge: The molecular charge.
         :param multiplicity: The molecular multiplicity (as an integer).
         :param name: Name of the system/molecule.

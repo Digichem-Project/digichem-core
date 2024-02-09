@@ -52,31 +52,12 @@ if demonstration:
         print("The demonstration period has now expired, thank you for trying Digichem!\nFor continued usage, please contact @DigichemProject for a new license.")
         raise Exception("License Expired")
 
-# Set-up openbabel.
-#
-# This must be done prior to an obabel import.
-#     
-# When frozen with pyinstaller we take a version of the openbabel C library with us (along with the relevant python bindings of course).
-# This library is split into several .so files corresponding to the various formats obabel supports, and while the main libopenbabel.so file is found automatically, these supplementary library files are not.
-# So, when we are frozen, we manually set the location of these library files so openbabel will work.
-# If we are not frozen we do not do this as we expect openbabel to be correctly configured.
 # The sys attribute 'frozen' is our flag, '_MEIPASS' is the dir location.
 # https://pyinstaller.readthedocs.io/en/stable/runtime-information.html#run-time-information
 if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
     frozen = True
 else:
     frozen = False
-
-openbabel_version = "3.1.0"
-# The sys attribute 'frozen' is our flag, '_MEIPASS' is the dir location.
-# https://pyinstaller.readthedocs.io/en/stable/runtime-information.html#run-time-information
-if silico.frozen:
-    # We need to tell openbabel where its library components are.
-    os.environ['BABEL_LIBDIR'] = str(Path(sys._MEIPASS, "openbabel", "lib", openbabel_version))
-    
-    # And also data.
-    os.environ['BABEL_DATADIR'] = str(Path(sys._MEIPASS, "openbabel", "data", openbabel_version))
-    
 
 import rdkit.RDLogger
 # WrapLogs() outputs rdkit logging to python's stderr (which might be redirected to an urwid widget).
@@ -86,11 +67,6 @@ import rdkit.RDLogger
 # logs are also still dumped to screen...
 # for now, disable logging...
 rdkit.RDLogger.DisableLog('rdApp.*')
-
-# Pybel warnings are useless and clutter up output, hide them.
-from openbabel import pybel
-pybel.ob.obErrorLog.SetOutputLevel(0)
-        
 
 # Setup the logger
 silico.log.init_logger()
