@@ -118,7 +118,21 @@ class Memory():
         The value of this memory in MB.
         """
         return round(self.value/1000000, None)
-        
+    
+    @property
+    def KiB(self):
+        """
+        The value of this memory in KiB.
+        """
+        return round(self.value/1024, None)
+    
+    @property
+    def KB(self):
+        """
+        The value of this memory in KB.
+        """
+        return round(self.value/1000, None)
+    
     def __float__(self):
         """
         Floatify this memory amount (returning the number of bytes).
