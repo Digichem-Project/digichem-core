@@ -2,7 +2,6 @@
 import math
 import periodictable
 from itertools import zip_longest
-from openbabel import pybel
 import silico.log
 import re
 
@@ -131,9 +130,66 @@ class Nucleus():
         
         else:
             return self.element.symbol
+        
+
+# Molecule_mixin is used for silico.result.atom.Atom_list and silico.input.silico.Silico_coords_ABC 
+class Molecule_mixin():
+    """
+    Mixin for classes that represent molecules, compounds, or other molecular-like collections of atoms.
+    
+    Classes that inherit from this mixin must define 'element_dict' (as either an attribute or property).
+    See the implementation in Atom_list for what this does.
+    """
+    
+    # TODO: lots of opportunity to move stuff out of Atom_list and into this mixin.
+    
+    
+    @property
+    def formula(self):
+        """
+        Get a formula representation of this atom list.
+        
+        :return: The formula as a periodictable.formula object (which can be safely cast to string).
+        """
+        # A dictionary where each key is a type of atom (N, C, H etc) and the value is the number of that atom.
+        atoms = self.element_dict
+        # Build a string rep.
+        form_string = ""
+        for atom in atoms:
+            form_string += "{}{}".format(atom, atoms[atom])
+
+        # Get and return the formula object.
+        return periodictable.formula(form_string)
+        
+    @property
+    def formula_string(self):
+        """
+        Get a formula representation of this atom list as a string, including optional charge.
+        """
+        # Get the base formula
+        formula_string = str(self.formula)
+        
+        # Add charge, if we have one.
+        if self.charge == 1:
+            formula_string += " +"
+        elif self.charge == -1:
+            formula_string += " -"
+        elif self.charge != 0:
+            formula_string += " {}{}".format(abs(self.charge), "-" if self.charge < 0 else "+")
+            
+        return formula_string
+        
+    @property
+    def molar_mass(self):
+        """
+        The molar mass of the molecule (takes into account different isotopes and relative isotope abundances, unlike the mass attribute).
+        
+        :return: The mass (in Daltons / gmol-1).
+        """
+        return self.formula.mass
     
 
-class Atom_list(Result_container, Unmergeable_container_mixin):
+class Atom_list(Result_container, Unmergeable_container_mixin, Molecule_mixin):
     """
     Class for representing a group of atoms.
     """
@@ -167,15 +223,6 @@ class Atom_list(Result_container, Unmergeable_container_mixin):
             raise Result_unavailable_error("Exact mass") from None
         
     @property
-    def molar_mass(self):
-        """
-        The molar mass of the molecule (takes into account different isotopes and relative isotope abundances, unlike the mass attribute).
-        
-        :return: The mass (in Daltons).
-        """
-        return self.formula.mass
-        
-    @property
     def element_dict(self):
         """
         Get a dictionary where each key is one of the elements in the atom list (C, H, N etc) and the value is the number of that element that appears in the atom list.
@@ -190,45 +237,7 @@ class Atom_list(Result_container, Unmergeable_container_mixin):
             except KeyError:
                 # Add the new atom.
                 atoms[atom.element.symbol] = 1
-        return atoms;
-    
-    @property
-    def formula(self):
-        """
-        Get a formula representation of this atom list.
-        
-        :return: The formula as a periodictable.formula object (which can be safely cast to string).
-        """
-        # A dictionary where each key is a type of atom (N, C, H etc) and the value is the number of that atom.
-        atoms = self.element_dict
-        # Build a string rep.
-        form_string = ""
-        for atom in atoms:
-            form_string += "{}{}".format(atom, atoms[atom])
-        # Add our charge.
-        #if self.charge
-        #form_string += "{{{0}}}".format(self.charge)
-        # Get and return the formula object.
-        return periodictable.formula(form_string)
-        #return periodictable.formula([atoms[key] for key in atoms])
-        
-    @property
-    def formula_string(self):
-        """
-        Get a formula representation of this atom list as a string, including optional charge.
-        """
-        # Get the base formula
-        formula_string = str(self.formula)
-        
-        # Add charge, if we have one.
-        if self.charge == 1:
-            formula_string += " +"
-        elif self.charge == -1:
-            formula_string += " -"
-        elif self.charge != 0:
-            formula_string += " {}{}".format(abs(self.charge), "-" if self.charge < 0 else "+")
-            
-        return formula_string
+        return atoms
     
     @property
     def groups(self):
@@ -292,15 +301,18 @@ class Atom_list(Result_container, Unmergeable_container_mixin):
     def smiles(self):
         """
         Get this geometry in (canonical) SMILES format.
-        
-        This property uses the pybel smiles algorithm.
         """
         try:
-            molecule = pybel.readstring("xyz", self.to_xyz())
-            return molecule.write("can").strip()
+            return self._smiles
         
-        except Exception:
-            return ""
+        except AttributeError:
+            # Cache miss, go do some work.
+            
+            # TODO: Handle cases where obabel isn't available
+            conv = Openbabel_converter.get_cls("xyz")(input_file = self.to_xyz(), input_file_type = "xyz")
+            # Cache the result in case we need it again.
+            self._smiles = conv.convert("can").strip()
+            return self._smiles
         
     @property
     def X_length(self):
@@ -497,7 +509,7 @@ class Atom_list(Result_container, Unmergeable_container_mixin):
         # RDKit has a lot of problems loading molecule information from other formats.
         # Loading from Mol specifies atom and bonding types, but rdkit is very fragile when it comes to
         # which bonds it considers allowed (tetravelent nitrogen is not allowed for example). This can
-        # be 'fixed'/ignored by specifying sanitize = False, but then lots of other rdkit function do't
+        # be 'fixed'/ignored by specifying sanitize = False, but then lots of other rdkit functions don't
         # work properly, and rdkit does not detect symmetry correctly.
         # Loading from SMILES is a bad idea because hydrogens are lost.
         # Loading from xyz is much more robust and maintains Hs, but no bond information is read
