@@ -224,6 +224,10 @@ class Silico_coords_ABC(Input_file, Molecule_mixin):
             "gjf": "Gaussian Input"
         }
         formats.update(Obabel_formats().read())
+        
+        # Some formats supported by obabel don't make sense for us to use.
+        formats.pop('text', None)
+        formats.pop('txt', None)
         return formats
 
     @classmethod
@@ -235,6 +239,15 @@ class Silico_coords_ABC(Input_file, Molecule_mixin):
         """
         formats = {"si": "Silico Input Format"}
         formats.update(Obabel_formats().write())
+        
+        # Some formats supported by obabel don't make sense for us to use.
+        formats.pop('copy', None)
+        formats.pop('k', None)
+        formats.pop('confabreport', None)
+        formats.pop('nul', None)
+        formats.pop('text', None)
+        formats.pop('txt', None)
+        
         return formats
     
     def __eq__(self, other):
