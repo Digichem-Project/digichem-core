@@ -49,7 +49,7 @@ if demonstration:
     demo_end_date = date = datetime.strptime("27/02/2024", "%d/%m/%Y")
     
     if datetime.now() > demo_end_date:
-        print("The demonstration period has now expired, thank you for trying Silico!\nFor continued usage, please contact InSiCo for a new license.")
+        print("The demonstration period has now expired, thank you for trying Digichem!\nFor continued usage, please contact @DigichemProject for a new license.")
         raise Exception("License Expired")
 
 # Set-up openbabel.
