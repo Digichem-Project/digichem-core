@@ -64,5 +64,9 @@ def get_config(extra_config_files = None, extra_config_strings = None):
             # And return.
             return options
         
-        finally:
+        except Exception:
+            raise
+        
+        else:
+            # Only restore log level if there was no problem.
             get_logger().setLevel(log_level)
