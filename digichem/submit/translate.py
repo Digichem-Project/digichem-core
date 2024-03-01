@@ -2,8 +2,9 @@
 
 import csv
 
+from configurables.misc import is_int
+
 import silico.log
-from silico.misc.base import is_int
 from silico.datas import get_resource
 
 # Hidden imports.
