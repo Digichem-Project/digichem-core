@@ -9,16 +9,16 @@ import shutil
 from tempfile import mkdtemp
 import collections
 import warnings
-
 # IMPORTANT: Do not replace multiprocessing pools with pathos, the latter is too buggy for production ATM (26-05-2023).
 import multiprocessing
+
+from configurables.misc import is_iter
 
 # Silico imports.
 from silico.parse.cclib import Cclib_parser
 from silico.parse.gaussian import Gaussian_parser
 from silico.parse.turbomole import Turbomole_parser
 from silico.parse.orca import Orca_parser
-from silico.misc.base import is_iter
 from silico.result.multi import Merged
 from silico.result.result import Result_set
 from silico.exception.base import Silico_exception

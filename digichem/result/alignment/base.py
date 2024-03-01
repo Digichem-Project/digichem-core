@@ -1,7 +1,9 @@
 import math
 
+from configurables.parent import Dynamic_parent
+
 from silico.result.atom import Atom_list
-from silico.misc import Dynamic_parent
+
 
 class Alignment(Atom_list, Dynamic_parent):
     """
