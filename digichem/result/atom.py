@@ -5,13 +5,14 @@ from itertools import zip_longest
 import silico.log
 import re
 
+from digichem.misc.base import dict_list_index
+
 # Silico imports
 from silico.result import Result_container
 from silico.result import Result_object
 from silico.result import Unmergeable_container_mixin
 from silico.exception.base import Result_unavailable_error, Silico_exception
 from silico.file.babel import Openbabel_converter
-from silico.misc.base import dict_list_index
 
 # Hidden import.
 

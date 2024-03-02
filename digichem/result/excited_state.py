@@ -10,12 +10,13 @@ import math
 import warnings
 import itertools
 
+from digichem.misc.text import andjoin
+
 # Silico imports.
 from silico.result import Result_container
 from silico.result import Result_object
 from silico.exception.base import Result_unavailable_error
 from silico.result.base import Floatable_mixin
-from silico.misc.text import andjoin
 import silico.log
 
 

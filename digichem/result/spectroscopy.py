@@ -4,9 +4,10 @@ import itertools
 import scipy.constants
 import scipy.signal
 
+from digichem.misc.base import transpose
+
 import silico.result.excited_state
 from silico.exception.base import Silico_exception
-from silico.misc.base import transpose
 
 class Spectroscopy_graph_abc():
     """

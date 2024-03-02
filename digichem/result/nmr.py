@@ -6,9 +6,10 @@ import re
 import statistics
 import math
 
+from digichem.misc.base import regular_range, powerset
+
 from silico.result.base import Result_object, Result_container, Floatable_mixin
 from silico.exception.base import Result_unavailable_error
-from silico.misc.base import regular_range, powerset
 import silico.log
 
 # Hidden.

@@ -4,10 +4,12 @@ from timeit import default_timer as timer
 import datetime
 import warnings
 
+from digichem import misc
+
 # Silico imports.
 import silico.log
 from silico.exception.base import File_maker_exception, Silico_exception
-from silico import misc
+
 
 class File_maker_ABC():
     """

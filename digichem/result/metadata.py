@@ -9,12 +9,13 @@ from pathlib import Path
 import copy
 import warnings
 
+from digichem.misc.time import latest_datetime, total_timedelta, date_to_string,\
+    timedelta_to_string
+from digichem.misc.text import andjoin
+
 # Silico imports.
 from silico.exception import Result_unavailable_error
 from silico.result import Result_object
-from silico.misc.time import latest_datetime, total_timedelta, date_to_string,\
-    timedelta_to_string
-from silico.misc.text import andjoin
 import silico
 from silico.submit import translate
 from silico.submit.memory import Memory
