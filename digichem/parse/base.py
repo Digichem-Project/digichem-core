@@ -3,6 +3,8 @@ from pathlib import Path
 import pwd
 import os
 
+from digichem.exception.base import Digichem_exception
+
 # Silico imports
 from silico.result.orbital import Molecular_orbital_list,\
     Beta_orbital
@@ -16,7 +18,6 @@ from silico.result.ground_state import Ground_state
 from silico.result.soc import SOC_list
 from silico.result.dipole_moment import Dipole_moment
 from silico.result.vibration import Vibrations_list
-from silico.exception.base import Silico_exception
 from silico.result.emission import Relaxed_excited_state
 from silico.result.nmr import NMR_shielding, NMR_spin_couplings_list, NMR_list
 from silico.result.alignment.base import Minimal, Alignment
@@ -44,7 +45,7 @@ class Parser_abc():
         
         # Panic if we have no logs.
         if len(self.log_file_paths) == 0:
-            raise Silico_exception("Cannot parse calculation output; no available log files. Are you sure the given path is a log file or directory containing log files?")
+            raise Digichem_exception("Cannot parse calculation output; no available log files. Are you sure the given path is a log file or directory containing log files?")
         
         # An object that we will populate with raw results.
         self.data = raw_data
@@ -57,7 +58,7 @@ class Parser_abc():
             if self.data is None:
                 self.parse()
         except Exception:
-            raise Silico_exception("Error parsing calculation result '{}'".format(self.description))
+            raise Digichem_exception("Error parsing calculation result '{}'".format(self.description))
 
     @classmethod
     def from_logs(self, *log_files, **kwargs):

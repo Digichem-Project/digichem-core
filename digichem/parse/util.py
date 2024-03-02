@@ -14,6 +14,8 @@ import multiprocessing
 
 from configurables.misc import is_iter
 
+from digichem.exception.base import Digichem_exception
+
 # Silico imports.
 from silico.parse.cclib import Cclib_parser
 from silico.parse.gaussian import Gaussian_parser
@@ -21,7 +23,6 @@ from silico.parse.turbomole import Turbomole_parser
 from silico.parse.orca import Orca_parser
 from silico.result.multi import Merged
 from silico.result.result import Result_set
-from silico.exception.base import Silico_exception
 import silico.log
 from silico.parse.dump import Yaml_multi_parser, Json_multi_parser
 
@@ -145,7 +146,7 @@ def class_from_log_files(*log_files, format_hint = "auto"):
         
     except Exception as e:
         # cclib couldn't figure out the file type, it probably wasn't a .log file.
-        raise Silico_exception("Could not determine file type of file(s): '{}'; are you sure these are computational log files?".format(", ".join((str(log_file) for log_file in log_files)))) from e
+        raise Digichem_exception("Could not determine file type of file(s): '{}'; are you sure these are computational log files?".format(", ".join((str(log_file) for log_file in log_files)))) from e
     
     # Either get a more complex parser if we have one, or just return the base parser.
     if log_file_type == cclib.parser.gaussianparser.Gaussian:

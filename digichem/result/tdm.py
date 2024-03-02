@@ -1,8 +1,9 @@
 import itertools
 
+from digichem.exception.base import Result_unavailable_error
+
 from silico.result.dipole_moment import Electric_dipole_moment_mixin, Dipole_moment_ABC, Magnetic_dipole_moment_mixin
 from silico.result.base import Result_object
-from silico.exception.base import Result_unavailable_error
 
 
 class Transition_dipole_moment_ABC(Dipole_moment_ABC):

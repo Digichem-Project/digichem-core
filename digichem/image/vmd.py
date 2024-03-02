@@ -7,7 +7,8 @@ import os
 from math import fabs
 import shutil
 
-from silico.exception.base import File_maker_exception
+from digichem.exception.base import File_maker_exception
+
 from silico.image.render import Render_maker
 import silico.log
 from silico.datas import get_resource

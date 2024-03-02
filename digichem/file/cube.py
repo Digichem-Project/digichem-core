@@ -1,14 +1,14 @@
 # Objects for making cube files.
 
-# General imports.
 from pathlib import Path
 import subprocess
 import tempfile
 import shutil
 import os
+from mako.lookup import TemplateLookup
 
-# Silico imports.
-from silico.exception.base import File_maker_exception
+from digichem.exception.base import File_maker_exception
+
 from silico.file import File_converter
 import silico.file.types as file_types
 import silico.log
@@ -17,7 +17,6 @@ from silico.submit.calculation.turbomole import make_orbital_calc, Turbomole_mem
     make_anadens_calc
 from silico.file.base import File_maker, Dummy_file_maker
 from silico.submit.memory import Memory
-from mako.lookup import TemplateLookup
 
 
 def sanitize_modern_cubes(cube_file_path):

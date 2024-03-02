@@ -5,10 +5,10 @@ import datetime
 import warnings
 
 from digichem import misc
+from digichem.exception.base import File_maker_exception, Digichem_exception
 
 # Silico imports.
 import silico.log
-from silico.exception.base import File_maker_exception, Silico_exception
 
 
 class File_maker_ABC():
@@ -286,7 +286,7 @@ class File_maker(File_maker_ABC):
             try:
                 # First check we're allowed to delete the file.
                 if self.dont_modify:
-                    raise Silico_exception("Unable to delete file '{}'; dont_modify is True".format(file_path))
+                    raise Digichem_exception("Unable to delete file '{}'; dont_modify is True".format(file_path))
                 
                 # DELETE.
                 file_path.unlink()

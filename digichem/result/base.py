@@ -5,7 +5,7 @@ import itertools
 import math
 
 # Silico imports.
-from silico.exception.base import Result_unavailable_error
+from digichem.exception.base import Result_unavailable_error
 
 
 class Result_object():

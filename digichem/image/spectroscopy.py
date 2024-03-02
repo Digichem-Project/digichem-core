@@ -3,7 +3,8 @@ import matplotlib.collections
 import statistics
 import adjustText
 
-from silico.exception.base import File_maker_exception
+from digichem.exception.base import File_maker_exception
+
 from silico.result.spectroscopy import Spectroscopy_graph,\
     Absorption_emission_graph, unpack_coupling
 from silico.image.graph import Graph_image_maker

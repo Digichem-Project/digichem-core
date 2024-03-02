@@ -12,9 +12,9 @@ import warnings
 from digichem.misc.time import latest_datetime, total_timedelta, date_to_string,\
     timedelta_to_string
 from digichem.misc.text import andjoin
+from digichem.exception import Result_unavailable_error
 
 # Silico imports.
-from silico.exception import Result_unavailable_error
 from silico.result import Result_object
 import silico
 from silico.submit import translate

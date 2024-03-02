@@ -11,9 +11,10 @@ import yaml
 from PIL import Image
 import math
 
+from digichem.exception.base import File_maker_exception
+
 from silico.file.base import File_converter
 from silico.image.base import Cropable_mixin
-from silico.exception.base import File_maker_exception
 from silico.datas import get_resource
 
 class Render_maker(File_converter, Cropable_mixin):

@@ -4,8 +4,8 @@
 import itertools
 import warnings
 
-# Silico imports.
-from silico.exception import Result_unavailable_error
+from digichem.exception import Result_unavailable_error
+
 from silico.result import Result_object
 import silico.result.excited_state
 from silico.result.emission import Emissions

@@ -1,7 +1,8 @@
 # Functions and classes for determining file types etc.
 from pathlib import Path
 from itertools import accumulate
-from silico.exception.base import Unknown_file_type_exception
+
+from digichem.exception.base import Unknown_file_type_exception
 
 class File_type():
     """

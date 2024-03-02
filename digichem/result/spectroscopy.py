@@ -5,9 +5,9 @@ import scipy.constants
 import scipy.signal
 
 from digichem.misc.base import transpose
+from digichem.exception.base import Digichem_exception
 
 import silico.result.excited_state
-from silico.exception.base import Silico_exception
 
 class Spectroscopy_graph_abc():
     """
@@ -90,7 +90,7 @@ class Spectroscopy_graph_abc():
         except ZeroDivisionError:
             # a (max height) is zero; the intensity is zero.
             # We could instead return b?
-            raise Silico_exception("'{}' cannot calculate Gaussian function limits; a (intensity) is zero".format(self.__name__))
+            raise Digichem_exception("'{}' cannot calculate Gaussian function limits; a (intensity) is zero".format(self.__name__))
         
         # Now return our two solutions.
         return (-d + b, d + b)
@@ -256,7 +256,7 @@ class Spectroscopy_graph(Spectroscopy_graph_abc):
         except ValueError:
             if len(list(itertools.chain.from_iterable(all_limits))) == 0:
                 # Nothing to plot.
-                raise Silico_exception("'{}' cannot plot spectrum; there are no values".format(type(self).__name__))
+                raise Digichem_exception("'{}' cannot plot spectrum; there are no values".format(type(self).__name__))
             else:
                 raise
             

@@ -1,9 +1,10 @@
 import math
 from scipy.constants import epsilon_0, Planck, c
 
+from digichem.exception.base import Digichem_exception, Result_unavailable_error
+
 from silico.result.excited_state import Excited_state
 from silico.result import Result_object
-from silico.exception.base import Silico_exception, Result_unavailable_error
 
 # Dirac constant.
 h_bar = Planck / (math.pi *2)
@@ -287,7 +288,7 @@ class Relaxed_excited_state(Excited_state):
                         
                     else:
                         # No explicit ground given and out main result is not an Opt, so it probably isn't suitable.            
-                        raise Silico_exception("Unable to determine ground state in adiabatic emission; no explicit ground state given and this calculation is not an optimisation")
+                        raise Digichem_exception("Unable to determine ground state in adiabatic emission; no explicit ground state given and this calculation is not an optimisation")
                         
             else:
                 # Emission from unrestricted triplet calc.
@@ -297,7 +298,7 @@ class Relaxed_excited_state(Excited_state):
                     if 'Single Point' in main_result.metadata.calculations:
                         ground_state_result = main_result
                     else:
-                        raise Silico_exception("Unable to determine ground state in vertical emission; no explicit ground state given and this calculation is not a single point")
+                        raise Digichem_exception("Unable to determine ground state in vertical emission; no explicit ground state given and this calculation is not a single point")
                     
                 elif transition_type == "adiabatic":
                     # For adiabatic, we need an opt.
@@ -305,7 +306,7 @@ class Relaxed_excited_state(Excited_state):
                         ground_state_result = main_result
                     else:
                         # No explicit ground given and out main result is not an Opt, so it probably isn't suitable.            
-                        raise Silico_exception("Unable to determine ground state in adiabatic emission; no explicit ground state given and this calculation is not an optimisation")
+                        raise Digichem_exception("Unable to determine ground state in adiabatic emission; no explicit ground state given and this calculation is not an optimisation")
             
         # Now decide which excited state to use.
         excited_state = excited_state if excited_state is None or isinstance(excited_state, Excited_state) else excited_state_result.excited_states.get_state(excited_state)

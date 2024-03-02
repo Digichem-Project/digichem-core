@@ -3,9 +3,10 @@ import subprocess
 import os
 from pathlib import Path
 
+from digichem.exception.base import File_maker_exception
+
 # Silico imports.
 from silico.file import File_converter
-from silico.exception.base import File_maker_exception
 import silico.file.types as file_types
 import silico.log
 from silico.submit.memory import Memory

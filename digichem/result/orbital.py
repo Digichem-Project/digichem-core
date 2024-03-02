@@ -5,10 +5,11 @@ from itertools import filterfalse, zip_longest, chain
 import warnings
 import math
 
+from digichem.exception import Result_unavailable_error
+
 # Silico imports.
 from silico.result import Result_container
 from silico.result import Result_object
-from silico.exception import Result_unavailable_error
 from silico.result import Floatable_mixin
 
 

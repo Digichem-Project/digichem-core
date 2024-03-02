@@ -11,11 +11,11 @@ import warnings
 import itertools
 
 from digichem.misc.text import andjoin
+from digichem.exception.base import Result_unavailable_error
 
 # Silico imports.
 from silico.result import Result_container
 from silico.result import Result_object
-from silico.exception.base import Result_unavailable_error
 from silico.result.base import Floatable_mixin
 import silico.log
 

@@ -2,8 +2,9 @@
 import itertools
 import scipy.constants
 
+from digichem.exception.base import Result_unavailable_error
+
 from silico.result import Result_container
-from silico.exception.base import Result_unavailable_error
 from silico.result import Unmergeable_container_mixin
 from silico.result import Result_object
 

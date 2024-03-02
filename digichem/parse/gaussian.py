@@ -1,10 +1,11 @@
 # General imports.
 from datetime import datetime, timedelta
 
+from digichem.exception.base import Result_unavailable_error
+
 # Silico imports.
 from silico.parse.cclib import Cclib_parser
 import silico.log
-from silico.exception.base import Result_unavailable_error
 import silico.file.types as file_types
 
 # Hidden imports.

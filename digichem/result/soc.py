@@ -1,9 +1,10 @@
 # General imports.
 import math
 
+from digichem.exception import Result_unavailable_error
+
 # Silico imports.
 from silico.result import Result_container
-from silico.exception import Result_unavailable_error
 from silico.result import Result_object
 from silico.result.base import Floatable_mixin
 

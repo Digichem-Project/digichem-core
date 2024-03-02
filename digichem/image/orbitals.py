@@ -1,8 +1,11 @@
-from silico.image.graph import OneD_graph_image_maker
 from matplotlib import ticker
 import statistics
 import math
-from silico.exception.base import Result_unavailable_error
+
+from digichem.exception.base import Result_unavailable_error
+
+from silico.image.graph import OneD_graph_image_maker
+
 
 class Orbital_diagram_maker(OneD_graph_image_maker):
     """
