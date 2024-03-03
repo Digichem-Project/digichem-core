@@ -1,8 +1,8 @@
 # Exceptions and other errors.
 
-class Silico_exception(Exception):
+class Digichem_exception(Exception):
     """
-    General silico exception.
+    General digichem exception.
     """
     
     def __init__(self, message):
@@ -12,7 +12,7 @@ class Silico_exception(Exception):
         return self.message
     
 
-class Result_unavailable_error(Silico_exception):
+class Result_unavailable_error(Digichem_exception):
     """
     Exception for when a requested result is not available (because it could not be found in the calculation results for example).
     """
@@ -33,7 +33,7 @@ class Result_unavailable_error(Silico_exception):
         """
         return "'{}' is not available; {}".format(self.result_name, self.reason)
         
-class File_maker_exception(Silico_exception):
+class File_maker_exception(Digichem_exception):
     """
     Exception for when a file cannot be made/rendered for whatever reason.
     """
@@ -54,7 +54,7 @@ class File_maker_exception(Silico_exception):
         """
         return "Error making '{}' file '{}'; {}".format(type(self.file_maker).__name__, self.file_maker.output, self.reason)
     
-class Unknown_file_type_exception(Silico_exception):
+class Unknown_file_type_exception(Digichem_exception):
     """
     Exception for when a file is given but its type cannot be determined.
     """
@@ -78,7 +78,7 @@ class Unknown_file_type_exception(Silico_exception):
             err_str = "{}; expected file of type '{}'".format(err_str, self.expected)
         return err_str
                 
-class Submission_error(Silico_exception):
+class Submission_error(Digichem_exception):
     """
     Exceptions for when an error occurs during calculation submission.
     """
@@ -113,7 +113,7 @@ class Submission_error(Silico_exception):
         return "Error submitting file '{}' to '{}'; {}".format(self.file_name, self.calculation.meta['name'], self.reason)
     
     
-class Format_error(Silico_exception):
+class Format_error(Digichem_exception):
     """
     Exceptions for when an error occurs during result formatting.
     """

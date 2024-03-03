@@ -1,13 +1,13 @@
 import signal
 
-class Uncatchable_silico_exception(BaseException):
+class Uncatchable_exception(BaseException):
     """
     Superclass for exceptions that are not normally caught.
     
     Note that no attempt is made to stop you catching these exceptions if you want, but they will not be caught by 'except Exception' clauses.
     """
     
-class Submission_paused(Uncatchable_silico_exception):
+class Submission_paused(Uncatchable_exception):
     """
     Exception raised during some submission routines.
     
@@ -16,7 +16,7 @@ class Submission_paused(Uncatchable_silico_exception):
     You do not normally want to catch this exception; it is raised during the normal submission process.
     """
     
-class Signal_caught(Uncatchable_silico_exception):
+class Signal_caught(Uncatchable_exception):
     """
     Exception raised when a kill-type signal is sent and caught by the process.
     
