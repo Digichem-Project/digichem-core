@@ -4,11 +4,11 @@ import sys
 import textwrap
 from subprocess import CalledProcessError
 
-# The handler object silico uses for logging.
+# The handler object digichem uses for logging.
 LOGGING_HANDLER = None
 
-# The name of the silico logger, can be passed to logging.get_logger() to get the silico logging object.
-LOGGER_NAME = "silico"
+# The name of the digichem logger, can be passed to logging.get_logger() to get the digichem logging object.
+LOGGER_NAME = "digichem"
 
 
 def init_logger(file_name = None, time = False):
@@ -55,7 +55,7 @@ def init_logger(file_name = None, time = False):
     
 def set_logging_level(log_level, verbose = None):
     """
-    Set the logging level of the silico logger object.
+    Set the logging level of the digichem logger object.
     
     :param log_level: The base logging level as a string.
     :param verbose: An integer which specifies how much to increase the logging level by. If verbose is zero (or None) then the logging level is determined only by log_level.
@@ -87,7 +87,7 @@ def set_logging_level(log_level, verbose = None):
 
 def get_logger():
     """
-    Get the logger used by all parts of silico.
+    Get the logger used by all parts of digichem.
     """
     return logging.getLogger(LOGGER_NAME)
 
@@ -98,10 +98,10 @@ class Handler(logging.StreamHandler):
     
 class Variable_formatter(logging.Formatter):
     """
-    The logging formatter used by silico, the format changes depending on a logger's log_level.
+    The logging formatter used by digichem, the format changes depending on a logger's log_level.
     """
     
-    # Different formatters fro printing the message.
+    # Different formatters for printing the message.
     DEFAULT_FORMATTER = '%(levelname)s: %(message)s'
     WHEN_FORMATTER = '%(asctime)s: %(levelname)s: %(message)s'
     
@@ -110,7 +110,7 @@ class Variable_formatter(logging.Formatter):
     
     def __init__(self, logger, show_time = False, *, default_warning_formatter):
         super().__init__(
-            fmt = "silico: " + self.WHEN_FORMATTER if show_time else self.DEFAULT_FORMATTER,
+            fmt = "digichem: " + self.WHEN_FORMATTER if show_time else self.DEFAULT_FORMATTER,
             datefmt = '%Y-%m-%d %H:%M:%S',
             style = '%'
         )
