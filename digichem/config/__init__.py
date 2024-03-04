@@ -1,5 +1,4 @@
-from .base import Config, Auto_type
-from .silico import Digichem_options
+from .base import Config, Auto_type, Digichem_options
 from .locations import master_config_path, system_config_location, user_config_location
 from .parse import Config_file_parser, Config_parser
 
