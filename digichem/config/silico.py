@@ -6,34 +6,11 @@ from configurables import Configurable, Options
 from configurables.option import Nested_dict_type
 from configurables.exception import Configurable_exception
 
-from silico.config.base import Auto_type
-from silico.config.locations import user_config_location
-from silico.misc.io import atomic_write
-from silico.submit.memory import Turbomole_memory, Memory
+from digichem.config import Auto_type
+from digichem.config import user_config_location
+from digichem.misc.io import atomic_write
+
 from silico.submit.translate import Cube_grid_points
-from silico.submit.library import method_library
-from silico.submit.option import Option, Method_target_option
-
-
-class Database_config(Configurable):
-    name = Option(help = "The unique name of this database.", required = True)
-    db_type = Option(help = "The type of database to use.", choices = ["tinydb", "mongita", None], default = "mongita")
-    path = Option(help = "Path to the database file to use.", type = Path, required = True)
-    timeout = Option(help = "Maximum amount of time (in seconds) to wait for the database lock before giving up", type = float, default = 60.0)
-    auto_fill = Option(help = "Whether to insert calculation results into this database when they finish.", type = bool, default = True)
-    
-def validate_dbs(option, owning_obj, value):
-    names = [db_config.name for db_config in value]
-    
-    # Make sure they're all unique.
-    seen = []
-    for name in names:
-        if name in seen:
-            raise Configurable_exception(owning_obj, "The name '{}' has been used for multiple databases.".format(name))
-        
-        seen.append(name)
-        
-    return True
 
 
 class Silico_options(Configurable):
@@ -285,87 +262,6 @@ To disable the maximum width, set to null.""", type = int, default = 1500),
             # 31P
             "31P": {"frequency": 162.0}
         }))
-    )
-    
-    report = Options(help = "Options for controlling the generation of calculation reports.",
-        front_page_image = Option(help = "The image to use for the front page of the report.", choices = ["skeletal", "rendered"], default = "rendered"),
-        turbomole = Options(help = "Options that control the running of Turbomole calculations to generate cube files from completed calculations. Note that when reports are created automatically following calculation completion these options will be overridden with the specifics of that calculation.",
-            num_cpu = Option(help = "The number of CPUs with which to run.", type = int, default = 1),
-            memory = Option(help = "The amount of memory with which to run.", type = Turbomole_memory, default = Turbomole_memory("1GB")),
-            program = Method_target_option("programs", help = "A program definition from the internal library to run.", default = None)
-        ),
-        gaussian = Options(help = "Options that control the running of Gaussian calculations to generate NTO cube files from completed calculations. Note that when reports are created automatically following calculation completion these options will be overridden with the specifics of that calculation.",
-            num_cpu = Option(help = "The number of CPUs with which to run.", type = int, default = 1),
-            memory = Option(help = "The amount of memory with which to run.", type = Memory, default = Memory("1GB")),
-            program = Method_target_option("programs", help = "A program definition from the internal library to run.", default = None),
-            # TODO: This needs expanding.
-            scratch_path = Option(help = "Path to the top of the scratch directory.", default = "/scratch")
-        ),
-        orca = Options(help = "Options that control the running of orca_plot to generate cube files from completed calculations. Note that when reports are created automatically following calculation completion these options will be overridden with the specifics of that calculation.",
-            memory = Option(help = "The amount of memory with which to run. If left blank, no maximum will be specified.", type = Memory, default = None),
-            program = Method_target_option("programs", help = "A program definition from the internal library to run.", default = None)
-        ),
-        keep_cubes = Option(help = "Whether to keep cube files", type = bool, default = False),
-        cleanup = Option(help =\
-"""Whether to delete intermediate files that are written during the report generation process.
-Intermediate files include:
-   - .cube files.
-   - .fchk files.
-   - .html files.
-   - .css files.
-Note that this option will only delete new files written by the program; existing files given by the user are never deleted.""", type = bool, default = True
-        ),
-        orbital_table = Options(help =\
-"""Options which control how many orbitals to print in the MO table.
-These numbers are relative to the HOMO for both the min and max.
-null can be specified for either/both the min/max to print all available orbitals in that direction.
-If both alpha and beta orbitals are available (for unrestricted calculations, for example), then additional orbitals may be printed outside of the given min/max to ensure the given value is met for both sets of orbitals. This is common for triplet calculations, where the alpha and beta frontier MOs are at different levels.
-Examples:
-  min: -10, max: 16: From HOMO-10 to LUMO+15 inclusive (total of 27 orbitals).
-  min: null, max: 11: All orbitals with energy less than or equal to LUMO+10.
-  min: 0, max: 1: HOMO and LUMO only.""",
-            max = Option(help = "The highest orbital to show in the molecular orbital table.", type = int, default = 16),
-            min = Option(help = "The lowest orbital to show in the molecular orbital table.", type = int, default = -15)
-        ),
-        orbital_image = Options(help = \
-"""Options which specify which orbitals to render 3D images of. The default is the HOMO and LUMO.
-Orbitals can be specified by level (an index starting at 1 for the most negative orbital, useful if you want images of a particular orbital) and/or by distance from the HOMO (useful for more day-to-day operation.
-In addition, excited_state_transition_threshold: can be used to add orbitals that are involved in an excited state transition with a probability above a certain threshold.
-Duplicates will be automatically ignored, as will orbitals specified here that are not actually available in the calculation result file.
-Alpha and beta are set separately. Beta will be ignored if there are no beta orbitals available. 
-Example:
-   orbital_levels:
-     - 5
-   orbital_distance:
-     - -1
-     - 0
-     - 1
-   excited_state_transition_threshold: 0.1
-   Would render orbital 5, HOMO-1, HOMO, LUMO and any orbitals involved in an excited state transition with a probability 0.1 or greater.""",
-            et_transition_threshold = Option(help = "Include orbitals involved in an excited state transition with a probability of this value or greater.", type = float, default = 0.1),
-            orbital_levels = Option(help = "Include normal/alpha orbitals by level.", list_type = list, type = int, default = None),
-            beta_levels = Option(help = "Include beta orbitals by level.", list_type = list, type = int, default = None),
-            orbital_distances = Option(help = "Include normal/alpha orbitals by distance from the HOMO.", list_type = list, type = int, default = [0, 1]),
-            beta_distances = Option(help = "Include beta orbitals by distance from the HOMO.", list_type = list, type = int, default = [0, 1])
-        ),
-        frequency_table = Options(help = "Options that control how many vibrational frequencies to list in the frequencies table. ",
-            min_frequency = Option(help = "The most negative frequency to show in the table (remember that frequencies can be negative). 'null' is for no limit. Units are cm-1.", type = float, default = None),
-            max_frequency = Option(help = "The most positive frequency to show in the table. 'null' is for no limit. Units are cm-1.", type = float, default = None),
-            max_num = Option(help = "The maximum number of frequencies to show in the table.", type = int, default = None)
-        ),
-        nmr_image = Options(help = "Options which specify which NMR spectra to render.",
-            auto = Option(help = "If True, at least one experiment will be included for each element and isotope pair (for which NMR data is available). If no expt is explicitly requested (via codes), then the spectra will be the one with the least decoupling.", default = True, type = bool),
-            codes = Option(help = "Explicitly include certain NMR experiments.", type = str, list_type = list, default = ["13C{1H}"])
-        )
-    )
-    
-    databases = Option(help = "A list of database configs.", list_type = list, type = Database_config.from_data, validate = validate_dbs, default = [
-        Database_config.from_data("{name: main, path: ~/.silico/silico.main.db}")
-    ])
-    
-    server = Options(help = "Options controlling the REST HTTP server", 
-        lock_file = Option(help = "Path to the lock file containing the PID and port of the currently running server process", type = Path, default = "~/.silico/server/server.lock"),
-        log_file = Option(help = "Path to the server log file", type = Path, default = "~/.silico/server/server.log")
     )
     
     def __init__(self, validate_now = True, palette = None, **kwargs):
