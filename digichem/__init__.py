@@ -5,7 +5,8 @@ from pathlib import Path
 import os
 import sys
 
-import silico.log
+import digichem.log
+
 from silico.datas import get_resource
 
 # Decide on whether we are frozen or not.
@@ -37,7 +38,7 @@ __version__ = "{}.{}.{}{}{}".format(major_version, minor_version, revision, "-pr
 version = __version__
 
 # The blokes who wrote this.
-__author__ = "The Silico Dev Team"
+__author__ = "Oliver S. Lee"
 
 # Program date (when we were last updated). This is changed automatically.
 _last_updated_string = "12/12/1234"
@@ -61,7 +62,7 @@ else:
 
 import rdkit.RDLogger
 # WrapLogs() outputs rdkit logging to python's stderr (which might be redirected to an urwid widget).
-# If/when rdkit is further intergrated into silico, this call will likely be moved elsewhere. 
+# If/when rdkit is further intergrated into digichem, this call will likely be moved elsewhere. 
 #rdkit.Chem.rdchem.WrapLogs()
 # Sadly the behaviour of WrapLogs() is a bit bizzare, although we do get redirection to our custom widgets etc,
 # logs are also still dumped to screen...
@@ -69,7 +70,7 @@ import rdkit.RDLogger
 rdkit.RDLogger.DisableLog('rdApp.*')
 
 # Setup the logger
-silico.log.init_logger()
+digichem.log.init_logger()
 
 
 ########################
@@ -80,4 +81,4 @@ def default_template_directory():
     return get_resource('data/templates')
 
 # At end to avoid circular imports.
-import silico.config
+import digichem.config
