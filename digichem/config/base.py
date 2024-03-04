@@ -83,16 +83,16 @@ class Auto_type():
         return yaml.safe_load(value)
 
 
-class Silico_options(Configurable):
+class Digichem_options(Configurable):
     """
-    Class for holding main Silico options from various sources.
+    Class for holding main digichem options from various sources.
     """
     
     alignment = Option(help = "The default alignment method to use, MIN: minimal, FAP: furthest atom pair, AA: average angle, AAA: advanced average angle.", choices = ["MIN", "FAP", "AA", "AAA"], default = "MIN")
     angle_units = Option(help = "The default angle units to use, deg: degrees, rad: radians.", choices = ["deg", "rad"], default = "deg")
     
     external = Options(
-        help = "Options specifying paths to various external programs that silico may use. If no path is given, then these programs will simply be executed by name (so relying on OS path resolution to find the necessary executables, which is normally fine.)",
+        help = "Options specifying paths to various external programs that digichem may use. If no path is given, then these programs will simply be executed by name (so relying on OS path resolution to find the necessary executables, which is normally fine.)",
         formchk = Option(help = "Gaussian's formchk utility https://gaussian.com/formchk/", default = "formchk"),
         cubegen = Option(help = "Gaussian's cubegen utility https://gaussian.com/cubegen/", default = "cubegen"),
     )
@@ -336,7 +336,7 @@ To disable the maximum width, set to null.""", type = int, default = 1500),
     
     def __init__(self, validate_now = True, palette = None, **kwargs):
         """
-        Constructor for Silico_options objects.
+        Constructor for Digichem_options objects.
         """
         # The palette to use for urwid.
         # A palette is a list of tuples, where the first item of each tuple identifies the name of an attribute, and the remaining specify how that attribute should appear.
@@ -359,8 +359,8 @@ To disable the maximum width, set to null.""", type = int, default = 1500),
         """
         return (self._from_reduce, (self.dump(),))
         
-    # These methods allow the main silico options object to be accessed as a dict.
-    # This is largely to provide compatibility with legacy code, where the silico options object was, in fact, a dict.
+    # These methods allow the main digichem options object to be accessed as a dict.
+    # This is largely to provide compatibility with legacy code, where the digichem options object was, in fact, a dict.
     def __getitem__(self, key):
         return getattr(self, key)
     

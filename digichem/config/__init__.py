@@ -8,19 +8,19 @@ from digichem.log import get_logger
 # When running as a program, this will be merged with run-time options.
 options = None
 
-def get_config(extra_config_files = None, extra_config_strings = None):
+def get_config(extra_config_files = None, extra_config_strings = None, cls = Digichem_options):
         """
-        Get a Silico options object.
+        Get a Digichem options object.
         
         The returned object will take options from three sources:
-        1) Any config files found in the default locations (see silico.config.locations).
+        1) Any config files found in the default locations (see digichem.config.locations).
         2) Any additional config files specified as an argument.
         3) Any additional config strings specified as an argument.
         
         IMPORTANT: The returned options object will be merged with any additional options without prior copying.
         Hence the object returned by this function will be the same as the options attribute of this module.
         
-        :return: A Silico_options object (a fancy dict).
+        :return: A Digichem_options object (a fancy dict).
         """
         log_level = get_logger().level
         get_logger().setLevel("DEBUG")
@@ -35,7 +35,7 @@ def get_config(extra_config_files = None, extra_config_strings = None):
                 config.merge(Config_file_parser(user_config_location).load(True))
                 
                 # No need to validate here, we're going to do it later anyway.
-                globals()['options'] = Silico_options(validate_now = False, **config)
+                globals()['options'] = cls(validate_now = False, **config)
             
             if extra_config_files is None:
                 extra_config_files = []
