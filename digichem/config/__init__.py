@@ -1,13 +1,11 @@
 from .base import Config, Auto_type
+from .silico import Digichem_options
+from .locations import master_config_path, system_config_location, user_config_location
+from .parse import Config_file_parser, Config_parser
 
-from silico.config.silico import Silico_options
-from silico.config.locations import master_config_path, system_config_location, user_config_location
-from silico.config.parse import Config_file_parser, Config_parser
+from digichem.log import get_logger
 
-from silico.log import get_logger
-#import silico.log
-
-# The main silico options object.
+# The main digichem options object.
 # When running as a program, this will be merged with run-time options.
 options = None
 
