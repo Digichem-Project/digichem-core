@@ -221,7 +221,7 @@ class Metadata(Result_object):
         self.pressure = pressure
         self.orbital_spin_type = orbital_spin_type
         # TOOD: Ideally this would be parsed from the calculation output somehow, but this is fine for now.
-        self.digichem_version = digichem.version if digichem_version is None else digichem_version
+        self.digichem_version = digichem.__version__ if digichem_version is None else digichem_version
         self.solvent = solvent
         self.num_cpu = num_cpu
         self.memory_available = memory_available
