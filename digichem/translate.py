@@ -4,8 +4,8 @@ import csv
 
 from configurables.misc import is_int
 
-import silico.log
-from silico.datas import get_resource
+import digichem.log
+from digichem.datas import get_resource
 
 # Hidden imports.
 #import basis_set_exchange as bse
@@ -211,7 +211,7 @@ class Basis_set(Translate):
         except ValueError:
             # Just return as is.
             if self.basis_set != "auto":
-                silico.log.get_logger().debug("Could not find basis set with name '{}' in the basis set exchange; using name unmodified".format(self.basis_set))
+                digichem.log.get_logger().debug("Could not find basis set with name '{}' in the basis set exchange; using name unmodified".format(self.basis_set))
             return self.basis_set
     
         except KeyError:
