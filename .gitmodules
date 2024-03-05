@@ -1,0 +1,3 @@
+[submodule "digichem/test/data"]
+	path = digichem/test/data
+	url = https://github.com/Digichem-Project/digichem-test-data.git
