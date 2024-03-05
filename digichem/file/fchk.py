@@ -5,11 +5,11 @@ from pathlib import Path
 
 from digichem.exception.base import File_maker_exception
 
-# Silico imports.
-from silico.file import File_converter
-import silico.file.types as file_types
-import silico.log
-from silico.submit.memory import Memory
+# Digichem imports.
+from digichem.file import File_converter
+import digichem.file.types as file_types
+import digichem.log
+from digichem.submit.memory import Memory
 
 class Chk_to_fchk(File_converter):
     """
@@ -76,5 +76,5 @@ class Chk_to_fchk(File_converter):
         else:
             # Everything appeared to go ok.
             # Dump formchk output if we're in debug.
-            silico.log.get_logger().debug(formchk_proc.stdout)
+            digichem.log.get_logger().debug(formchk_proc.stdout)
             

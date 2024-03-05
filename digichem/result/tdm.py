@@ -1,9 +1,8 @@
 import itertools
 
 from digichem.exception.base import Result_unavailable_error
-
-from silico.result.dipole_moment import Electric_dipole_moment_mixin, Dipole_moment_ABC, Magnetic_dipole_moment_mixin
-from silico.result.base import Result_object
+from digichem.result.dipole_moment import Electric_dipole_moment_mixin, Dipole_moment_ABC, Magnetic_dipole_moment_mixin
+from digichem.result.base import Result_object
 
 
 class Transition_dipole_moment_ABC(Dipole_moment_ABC):
@@ -43,12 +42,12 @@ class Transition_dipole_moment_ABC(Dipole_moment_ABC):
             atoms = result_set.atoms
             )
         
-    def dump(self, silico_options):
+    def dump(self, digichem_options):
         """
         Get a representation of this result object in primitive format.
         """
         data = {'state_level': self.state_level}
-        data.update(super().dump(silico_options))
+        data.update(super().dump(digichem_options))
         return data
     
     @property
@@ -221,13 +220,13 @@ class Transition_dipole_moment(Result_object):
         
         return self(electric = electric, magnetic = magnetic)
         
-    def dump(self, silico_options):
+    def dump(self, digichem_options):
         """
         Get a representation of this result object in primitive format.
         """
         return {
-            "electric": self.electric.dump(silico_options) if self.electric is not None else None,
-            "magnetic": self.magnetic.dump(silico_options) if self.magnetic is not None else None,
+            "electric": self.electric.dump(digichem_options) if self.electric is not None else None,
+            "magnetic": self.magnetic.dump(digichem_options) if self.magnetic is not None else None,
             "angle": {
                 "value": float(self.angle().angle) if self.electric is not None and self.magnetic is not None else None,
                 "units": self.angle().units if self.electric is not None and self.magnetic is not None else None,

@@ -1,8 +1,9 @@
-from silico.image import Image_maker
 from matplotlib import ticker
 from matplotlib.transforms import Bbox
 import matplotlib.figure
 import math
+
+from digichem.image import Image_maker
 
 class Graph_image_maker(Image_maker):
     """

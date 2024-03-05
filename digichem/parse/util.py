@@ -14,17 +14,16 @@ import multiprocessing
 
 from configurables.misc import is_iter
 
+# Digichem imports.
 from digichem.exception.base import Digichem_exception
-
-# Silico imports.
-from silico.parse.cclib import Cclib_parser
-from silico.parse.gaussian import Gaussian_parser
-from silico.parse.turbomole import Turbomole_parser
-from silico.parse.orca import Orca_parser
-from silico.result.multi import Merged
-from silico.result.result import Result_set
-import silico.log
-from silico.parse.dump import Yaml_multi_parser, Json_multi_parser
+from digichem.parse.cclib import Cclib_parser
+from digichem.parse.gaussian import Gaussian_parser
+from digichem.parse.turbomole import Turbomole_parser
+from digichem.parse.orca import Orca_parser
+from digichem.result.multi import Merged
+from digichem.result.result import Result_set
+import digichem.log
+from digichem.parse.dump import Yaml_multi_parser, Json_multi_parser
 
 # Hidden imports.
 #import cclib.io
@@ -55,10 +54,10 @@ def find_log_files_from_hint(hint):
         parent = hint
         log_files = [found_log_file for found_log_file in itertools.chain(*[parent.glob(log_type) for log_type in log_types])]
         
-        # Remove any 'silico.log' files as we know these are not calc log files.
-        # We don't actually write 'silico.log' files anymore either (we use silico.out instead),
+        # Remove any 'digichem.log' files as we know these are not calc log files.
+        # We don't actually write 'digichem.log' files anymore either (we use digichem.out instead),
         # but older versions did...
-        log_files = [log_file for log_file in log_files if log_file.name not in ["silico.log", "silico.out"]]
+        log_files = [log_file for log_file in log_files if log_file.name not in ["digichem.log", "digichem.out"]]
     else:
         parent = hint.parent
         log_files = [hint]
@@ -126,7 +125,7 @@ def class_from_log_files(*log_files, format_hint = "auto"):
     """
     Get a parser class based on some calculation log files.
     
-    :param format_hint: A hint as to the format of the given log files. Either 'auto' (to guess), 'cclib' (calc log file), 'sir' (silico result file) or 'sid' (silico database file).
+    :param format_hint: A hint as to the format of the given log files. Either 'auto' (to guess), 'cclib' (calc log file), 'sir' (digichem result file) or 'sid' (digichem database file).
     """
     import cclib.io
     import cclib.parser
@@ -164,7 +163,7 @@ def from_log_files(*log_files, format_hint = "auto", **auxiliary_files):
     
     This is a convenience function.
     
-    :param format_hint: A hint as to the format of the given log files. Either 'auto' (to guess), 'log' (calc log file), 'sir' (silico result file) or 'sid' (silico database file).
+    :param format_hint: A hint as to the format of the given log files. Either 'auto' (to guess), 'log' (calc log file), 'sir' (digichem result file) or 'sid' (digichem database file).
     """
     found_log_files = find_log_files(*log_files)
     
@@ -185,9 +184,9 @@ def parse_calculation(*log_files, options, parse_all = False, format_hint = "aut
     Parse a single calculation result.
     
     :param log_files: A number of calculation result files corresponding to the same calculation.
-    :param options: A Silico options nested dictionary containing options to control parsing.
+    :param options: A Digichem options nested dictionary containing options to control parsing.
     :param parse_all: Whether to parse all results in the given log file. If True, a list of result sets will be returned, if False, only the first result will be returned if there are multiple.
-    :param format_hint: A hint as to the format of the given log files. Either 'auto' (to guess), 'log' (calc log file), 'sir' (silico result file) or 'sid' (silico database file).
+    :param format_hint: A hint as to the format of the given log files. Either 'auto' (to guess), 'log' (calc log file), 'sir' (digichem result file) or 'sid' (digichem database file).
     :param auxiliary_files: Optional auxiliary calculation files corresponding to the calculation.
     :return: A single Result_set object.
     """        
@@ -280,7 +279,7 @@ def multi_parser(log_files, auxiliary_files, *, options, format_hint = "auto", k
             return parse_calculation(*logs, options = options, parse_all = True, format_hint = format_hint, keep_archive = keep_archive, **auxiliary_files)
             
         except Exception:
-            silico.log.get_logger().warning("Unable to parse calculation result file '{}'; skipping".format(logs[0]), exc_info = True)
+            digichem.log.get_logger().warning("Unable to parse calculation result file '{}'; skipping".format(logs[0]), exc_info = True)
             return None
 
 def parse_multiple_calculations(*log_files, auxiliary_files = None, options, pool = None, init_func = None, init_args = None, format_hint = "auto", processes = 1, keep_archive = False):
@@ -291,10 +290,10 @@ def parse_multiple_calculations(*log_files, auxiliary_files = None, options, poo
     
     :param log_files: A number of calculation result files corresponding to different calculations. Each item can optionally be a list itself, to specify files from the same calculation but which are spread across multiple files.
     :param auxiliary_files: A list of dicts of aux files. The ordering of the dicts should correspond to that of log_files.
-    :param options: A Silico options nested dictionary containing options to control parsing.
+    :param options: A Digichem options nested dictionary containing options to control parsing.
     :param pool: An optional subprocessing.pool object to use for parallel parsing.
     :param init_func: An optional function to call to init each newly created process.
-    :param format_hint: A hint as to the format of the given log files. Either 'auto' (to guess), 'log' (calc log file), 'sir' (silico result file) or 'sid' (silico database file).
+    :param format_hint: A hint as to the format of the given log files. Either 'auto' (to guess), 'log' (calc log file), 'sir' (digichem result file) or 'sid' (digichem database file).
     :param processes: The max number of processes to create the new pool object with; if the number of given log_files is less than processes, then len(log_files) will be used instead.
     """
     if len(log_files) == 0:
@@ -345,8 +344,8 @@ def parse_and_merge_calculations(*log_files, auxiliary_files = None, options, fo
     Would parse three separate calculations (calc1, calc2 and calc3), of which the first is contained in two output files (primary.log and secondary.log), merging the result sets together.
     
     :param log_files: A list of paths to computational chemistry log files to parse. If more than one file is given, each is assumed to correspond to a separate calculation in which case the parsed results will be merged together. In addition, each given 'log file' can be an iterable of log file paths, which will be considered to correspond to an individual calculation.
-    :param options: A Silico options nested dictionary containing options to control parsing.: An alignment class to use to reorientate each molecule.
-    :param format_hint: A hint as to the format of the given log files. Either 'auto' (to guess), 'log' (calc log file), 'sir' (silico result file) or 'sid' (silico database file).
+    :param options: A Digichem options nested dictionary containing options to control parsing.: An alignment class to use to reorientate each molecule.
+    :param format_hint: A hint as to the format of the given log files. Either 'auto' (to guess), 'log' (calc log file), 'sir' (digichem result file) or 'sid' (digichem database file).
     :param auxiliary_files: A list of dictionaries of auxiliary files. The ordering of auxiliary_files should match that of log_files.
     :return: A single Result_set object (or child thereof).
     """    
@@ -380,7 +379,7 @@ def multi_merger_parser(log_files, auxiliary_files, *, options, format_hint = "a
             return parse_and_merge_calculations(*log_files, options = options, format_hint = format_hint, inner_pool = inner_pool, auxiliary_files = auxiliary_files, keep_archive = keep_archive)
             
         except Exception:
-            silico.log.get_logger().warning("Unable to parse and merge calculation results '{}'; skipping".format(", ".join([str(log_file) for log_file in log_files])), exc_info = True)
+            digichem.log.get_logger().warning("Unable to parse and merge calculation results '{}'; skipping".format(", ".join([str(log_file) for log_file in log_files])), exc_info = True)
             return None
 
 def parse_and_merge_multiple_calculations(*multiple_results, options, format_hint = "auto", init_func = None, init_args = None, processes = None, auxiliary_files = None, keep_archive = False):
@@ -388,8 +387,8 @@ def parse_and_merge_multiple_calculations(*multiple_results, options, format_hin
     Parse a number of separate calculation results in parallel, merging some or all of the results into combined result sets.
     
     :param multiple_results: A list of two dimensions, where the first dimension is a list of separate results to process, and the second dimension is a list of results that should be merged together.
-    :param options: A Silico options nested dictionary containing options to control parsing.
-    :param format_hint: A hint as to the format of the given log files. Either 'auto' (to guess), 'log' (calc log file), 'sir' (silico result file) or 'sid' (silico database file).
+    :param options: A Digichem options nested dictionary containing options to control parsing.
+    :param format_hint: A hint as to the format of the given log files. Either 'auto' (to guess), 'log' (calc log file), 'sir' (digichem result file) or 'sid' (digichem database file).
     :param pool: An optional subprocessing.pool object to use for parallel parsing.
     :param init_func: An optional function to call to init each newly created process.
     :param processes: The max number of processes to create the new pool object with.
@@ -500,7 +499,7 @@ class open_for_parsing():
         self.temp_dirs.append(tempdir)
         
         # Extract to it.
-        silico.log.get_logger().info("Extracting archive '{}'...".format(file_name))
+        digichem.log.get_logger().info("Extracting archive '{}'...".format(file_name))
         shutil.unpack_archive(file_name, tempdir)
         
         # Add any files/directories that were unpacked.

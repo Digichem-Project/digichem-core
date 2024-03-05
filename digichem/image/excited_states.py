@@ -3,9 +3,9 @@ from matplotlib.ticker import FuncFormatter
 from itertools import chain
 import math
 
-from silico.image.graph import OneD_graph_image_maker
-#from silico.result.excited_state import Excited_state, Excited_state_list
-import silico.result.excited_state
+from digichem.image.graph import OneD_graph_image_maker
+#from digichem.result.excited_state import Excited_state, Excited_state_list
+import digichem.result.excited_state
 
 class Excited_states_diagram_maker(OneD_graph_image_maker):
     """
@@ -233,7 +233,7 @@ class Excited_states_diagram_maker(OneD_graph_image_maker):
             # Check to see if our x is in our list of multiplicities.
             if x % self.plot_options['lineoffsets'] == 0 and x >= 0:
                 try:
-                    return silico.result.excited_state.Excited_state.multiplicity_number_to_string((mult[int(x / self.plot_options['lineoffsets'])]))
+                    return digichem.result.excited_state.Excited_state.multiplicity_number_to_string((mult[int(x / self.plot_options['lineoffsets'])]))
                     
                 except IndexError:
                     # Out of range.
@@ -241,7 +241,7 @@ class Excited_states_diagram_maker(OneD_graph_image_maker):
         else:
             # Matplotlib uses different counting when there's only 1 column :(.
             if x == 1:
-                return silico.result.excited_state.Excited_state.multiplicity_number_to_string(mult[0])
+                return digichem.result.excited_state.Excited_state.multiplicity_number_to_string(mult[0])
             else:
                 return ""
             

@@ -6,8 +6,7 @@ import scipy.signal
 
 from digichem.misc.base import transpose
 from digichem.exception.base import Digichem_exception
-
-import silico.result.excited_state
+import digichem.result.excited_state
 
 class Spectroscopy_graph_abc():
     """
@@ -110,7 +109,7 @@ class Spectroscopy_graph(Spectroscopy_graph_abc):
     """
     Top level class for graphing spectroscopy results (energy vs intensity).
     
-    For generating pictures of these graphs, see silico.image.spectroscopy
+    For generating pictures of these graphs, see digichem.image.spectroscopy
     """
     
     def __init__(self, coordinates, fwhm, resolution = 1, cutoff = 0.01, adjust_zero = False):
@@ -192,7 +191,7 @@ class Spectroscopy_graph(Spectroscopy_graph_abc):
         points = [self.resolution *round(point / self.resolution) for point in numpy.linspace(*limits)]
         
         # Plot and return.
-        silico.log.get_logger().debug(
+        digichem.log.get_logger().debug(
             "Plotting gaussian peaks from {:0.2f} to {:0.2f} with a step size of {} ({} total points) for {} peaks ({} total iterations)".format(
                 limits[0],
                 limits[1],
@@ -231,7 +230,7 @@ class Spectroscopy_graph(Spectroscopy_graph_abc):
         points = [self.resolution *round(point / self.resolution) for point in numpy.linspace(*limits)]
         
         # Plot and return.
-        silico.log.get_logger().debug("Plotting cumulative gaussian peaks from {:0.2f} to {:0.2f} with a step size of {} ({} total points) for {} peaks ({} total iterations)".format(limits[0], limits[1], self.resolution, limits[2], len(self.base_coordinates), len(self.base_coordinates) * limits[2]))
+        digichem.log.get_logger().debug("Plotting cumulative gaussian peaks from {:0.2f} to {:0.2f} with a step size of {} ({} total points) for {} peaks ({} total iterations)".format(limits[0], limits[1], self.resolution, limits[2], len(self.base_coordinates), len(self.base_coordinates) * limits[2]))
         gaussian = [
             (x, sum((self.gaussian(a, b, c, x) for b, a in self.base_coordinates))) for x in points
         ]
@@ -320,7 +319,7 @@ class Absorption_emission_graph(Spectroscopy_graph):
         :return: A tuple of (nm, i), where i is intensity.
         """
         x, y = coord
-        return (silico.result.excited_state.Excited_state.energy_to_wavelength(x), self.jacobian(x, y) if use_jacobian else y)
+        return (digichem.result.excited_state.Excited_state.energy_to_wavelength(x), self.jacobian(x, y) if use_jacobian else y)
         
     @classmethod
     def jacobian(self, E, f_E):

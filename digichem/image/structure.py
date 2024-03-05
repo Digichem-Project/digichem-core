@@ -1,11 +1,12 @@
 # General imports.
-import rdkit.RDLogger
 from PIL import Image
 from io import BytesIO
 
-# Silico imports.
-from silico.image.base import Image_maker
+import rdkit.RDLogger
 from rdkit.Chem.Draw import rdMolDraw2D
+
+# Digichem imports.
+from digichem.image.base import Image_maker
 
 
 class Skeletal_image_maker(Image_maker):

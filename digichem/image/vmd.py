@@ -8,10 +8,9 @@ from math import fabs
 import shutil
 
 from digichem.exception.base import File_maker_exception
-
-from silico.image.render import Render_maker
-import silico.log
-from silico.datas import get_resource
+from digichem.image.render import Render_maker
+import digichem.log
+from digichem.datas import get_resource
 
 
 class VMD_image_maker(Render_maker):
@@ -45,7 +44,7 @@ class VMD_image_maker(Render_maker):
         :param cube_file: The path to a cube_file to use to render images.
         :param rotations: A list of tuples of rotations, where the first index in the tuple specifies the axis to rotate about and the second is the angle to rotate (in radians).
         :param auto_crop: If False, images will not have excess white space cropped.
-        :param rendering_style: A string describing the rendering style to use, either 'silico' or 'gaussian'.
+        :param rendering_style: A string describing the rendering style to use, either 'digichem' or 'gaussian'.
         :param resolution: The max width or height of the rendered images in pixels.
         :param also_make_png: If True, additional images will be rendered in PNG format. This option is useful to generate higher quality images alongside more portable formats. If 'output' is a .png file, then it is wise to set this option to False (otherwise two png files will be rendered, which is a waste).
         :param isovalue: The isovalue to use for rendering isosurfaces. Has no effect when rendering only atoms.
@@ -91,7 +90,7 @@ class VMD_image_maker(Render_maker):
         
     @property
     def rotations(self):
-        # Silico rotates the wrong way round for some reason, reverse for our rendering engine.
+        # Digichem rotates the wrong way round for some reason, reverse for our rendering engine.
         # VMD also likes degrees not radians.
         return [(axis, math.degrees(-theta)) for axis, theta in self._rotations]
     
@@ -285,10 +284,10 @@ class VMD_image_maker(Render_maker):
                     
                     except Exception:
                         # Couldn't symlink for some reason, print a warning and copy instead.
-                        silico.log.get_logger().warning("Failed to create symlink for VMD input file, falling back to copy (this may take a while)")
+                        digichem.log.get_logger().warning("Failed to create symlink for VMD input file, falling back to copy (this may take a while)")
                         shutil.copy(input_src, input_dst)
             
-            silico.log.get_logger().debug(str(self.VMD_signature))
+            digichem.log.get_logger().debug(str(self.VMD_signature))
             # Run VMD, which renders our image for us.
             try:
                 return subprocess.run(
@@ -317,7 +316,7 @@ class VMD_image_maker(Render_maker):
                     
                     except Exception:
                         # Warnings are useful here, if we can't delete the files we probably failed to copy them in the first place.
-                        silico.log.get_logger().warning("Failed to delete VMD input file '{}'".format(input_dst), exc_info = True)
+                        digichem.log.get_logger().warning("Failed to delete VMD input file '{}'".format(input_dst), exc_info = True)
             
         
     def run_tachyon_renderer(self, scene_file, tga_file, resolution):
@@ -372,7 +371,7 @@ class VMD_image_maker(Render_maker):
             
             # If we didn't already show output, dump it now.
             if not self.vmd_logging and tachyon_process is not None:
-                silico.log.get_logger().error("Tachyon did not exit successfully, dumping output:\n{}".format(tachyon_process.stdout))
+                digichem.log.get_logger().error("Tachyon did not exit successfully, dumping output:\n{}".format(tachyon_process.stdout))
                 
             raise
         

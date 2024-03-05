@@ -4,10 +4,9 @@ import statistics
 import adjustText
 
 from digichem.exception.base import File_maker_exception
-
-from silico.result.spectroscopy import Spectroscopy_graph,\
+from digichem.result.spectroscopy import Spectroscopy_graph,\
     Absorption_emission_graph, unpack_coupling
-from silico.image.graph import Graph_image_maker
+from digichem.image.graph import Graph_image_maker
 
 
 class Spectroscopy_graph_maker(Graph_image_maker):
@@ -37,7 +36,7 @@ class Spectroscopy_graph_maker(Graph_image_maker):
         Constructor for spectroscopy graphs.
         
         :param output: A path to an output file to write to. The extension of this path is used to determine the format of the file (eg, png, jpeg).
-        :param graph: An instance of a silico.result.spectroscopy.Spectroscopy_graph that contains data to plot.
+        :param graph: An instance of a digichem.result.spectroscopy.Spectroscopy_graph that contains data to plot.
         :param fwhm: The desired full width at half maximum of the peaks that we are going to plot.
         :param gaussian_cutoff: The minimum y value to plot using the gaussian function, as the fraction of the max intensity.
         :param gaussian_resolution: The spacing between points to plot using the gaussian function, in units of the x-axis.
@@ -229,7 +228,7 @@ class Absorption_emission_graph_maker(Spectroscopy_graph_maker):
         Constructor for UV-Vis type absorption graphs.
         
         :param output: A path to an output file to write to. The extension of this path is used to determine the format of the file (eg, png, jpeg).
-        :param graph: An instance of a silico.result.spectroscopy.Spectroscopy_graph that contains data to plot.
+        :param graph: An instance of a digichem.result.spectroscopy.Spectroscopy_graph that contains data to plot.
         :param adjust_zero: If all the intensities of the given excited states are zero, whether to arbitrarily set the y coords to 1.
         :param peak_cutoff: The minimum oscillator strength a peak must have to be drawn, as a fraction of the tallest peak. Set to 0 for no cutoff.
         :param max_width: The maximum width in pixels of the graph.
@@ -311,7 +310,7 @@ class Frequency_graph_maker(Spectroscopy_graph_maker):
         Constructor for frequency graphs.
         
         :param output: A path to an output file to write to. The extension of this path is used to determine the format of the file (eg, png, jpeg).
-        :param graph: An instance of a silico.result.spectroscopy.Spectroscopy_graph that contains data to plot.
+        :param graph: An instance of a digichem.result.spectroscopy.Spectroscopy_graph that contains data to plot.
         :param x_limits_method: String controlling how the x axis limits are set. Options are 'auto' for standard auto scaling, showing all plotted peaks. Alternatively, a tuple of (x_min, x_max) which will be used directly as axis limits.
         :param y_limits_method: String controlling how the y axis limits are set. Options are 'auto' for standard auto scaling. Alternatively, a tuple of (y_min, y_max) which will be used directly as axis limits.
         """
@@ -363,7 +362,7 @@ class NMR_graph_maker_abc(Spectroscopy_graph_maker):
     def __init__(self, output, graph, coupling = None, plot_labels = True, **kwargs):
         """        
         :param output: A path to an output file to write to. The extension of this path is used to determine the format of the file (eg, png, jpeg).
-        :param graph: An instance of a silico.result.spectroscopy.Spectroscopy_graph that contains data to plot.
+        :param graph: An instance of a digichem.result.spectroscopy.Spectroscopy_graph that contains data to plot.
         """
         # Call our parent.
         super().__init__(output, graph, **kwargs)
@@ -500,7 +499,7 @@ class NMR_graph_maker(NMR_graph_maker_abc):
     def __init__(self, output, graph, coupling = None, **kwargs):
         """        
         :param output: A path to an output file to write to. The extension of this path is used to determine the format of the file (eg, png, jpeg).
-        :param graph: An instance of a silico.result.spectroscopy.Spectroscopy_graph that contains data to plot.
+        :param graph: An instance of a digichem.result.spectroscopy.Spectroscopy_graph that contains data to plot.
         """
         # Call our parent.
         super().__init__(output, graph, coupling = coupling, **kwargs)
@@ -604,7 +603,7 @@ class NMR_graph_zoom_maker(NMR_graph_maker_abc):
         Constructor for frequency graphs.
         
         :param output: A path to an output file to write to. The extension of this path is used to determine the format of the file (eg, png, jpeg).
-        :param graph: An instance of a silico.result.spectroscopy.Spectroscopy_graph that contains data to plot.
+        :param graph: An instance of a digichem.result.spectroscopy.Spectroscopy_graph that contains data to plot.
         :param focus: An atom group to focus on.
         """
         # Call our parent.

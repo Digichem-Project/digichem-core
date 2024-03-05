@@ -2,11 +2,9 @@
 import math
 
 from digichem.exception import Result_unavailable_error
-
-# Silico imports.
-from silico.result import Result_container
-from silico.result import Result_object
-from silico.result.base import Floatable_mixin
+from digichem.result import Result_container
+from digichem.result import Result_object
+from digichem.result.base import Floatable_mixin
 
 
 class SOC_list(Result_container):
@@ -106,7 +104,7 @@ class Spin_orbit_coupling(Result_object, Floatable_mixin):
         self.zero = zero
         self.negative_one = negative_one
         
-    def dump(self, silico_options):
+    def dump(self, digichem_options):
         """
         Get a representation of this result object in primitive format.
         """
@@ -237,11 +235,11 @@ class Total_spin_orbit_coupling(Spin_orbit_coupling):
         """
         return "<{}|Hso|{}> (cm-1): {:10.5f}".format(self.singlet_state.state_symbol, self.triplet_state.state_symbol, self.root_sum_square)
     
-    def dump(self, silico_options):
+    def dump(self, digichem_options):
         """
         Get a representation of this result object in primitive format.
         """
-        dump_dic = super().dump(silico_options)
+        dump_dic = super().dump(digichem_options)
         # Remove elements.
         del(dump_dic['soc'])
         return dump_dic

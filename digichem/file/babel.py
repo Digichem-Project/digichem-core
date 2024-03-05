@@ -6,9 +6,9 @@ import os
 import copy
 from pathlib import Path
 
-# Silico imports.
-from silico.exception.base import Silico_exception
-import silico.log
+# Digichem imports.
+from digichem.exception.base import Digichem_exception
+import digichem.log
 
 
 # Try and load openbabel bindings.
@@ -20,10 +20,10 @@ HAVE_PYBEL = False
 #     HAVE_PYBEL = True
 # except ModuleNotFoundError:
 #     # No bindings, carry on.
-#     silico.log.get_logger().debug("Could not load python pybel bindings; falling back to obabel executable", exc_info = True)
+#     digichem.log.get_logger().debug("Could not load python pybel bindings; falling back to obabel executable", exc_info = True)
 # except Exception:
 #     # Some other error occurred; print an error but continue.
-#     silico.log.get_logger().error("Found but could not load python pybel bindings; falling back to obabel executable", exc_info = True)
+#     digichem.log.get_logger().error("Found but could not load python pybel bindings; falling back to obabel executable", exc_info = True)
     
 
 class Openbabel_converter():
@@ -79,7 +79,7 @@ class Openbabel_converter():
             
             else:
                 # Don't recognise the file format.
-                raise Silico_exception("Could not determine file format of file '{}'; the file does not have an extension and is not recognised".format(input_file_name))
+                raise Digichem_exception("Could not determine file format of file '{}'; the file does not have an extension and is not recognised".format(input_file_name))
         
         
     @property
@@ -194,11 +194,11 @@ class Openbabel_converter():
 #                         try:
 #                             molecule = next(molecules)
 #                         except StopIteration:
-#                             raise Silico_exception("Cannot read file '{}'; file does not contain any molecules".format(self.input_name)) from None
+#                             raise Digichem_exception("Cannot read file '{}'; file does not contain any molecules".format(self.input_name)) from None
 #                         
 #                         
 #                 except Exception as e:
-#                     raise Silico_exception("Failed to parse file '{}'".format(self.input_name)) from e
+#                     raise Digichem_exception("Failed to parse file '{}'".format(self.input_name)) from e
 #                 
 #                 if charge is not None:
 #                     molecule.OBMol.SetTotalCharge(charge)
@@ -209,12 +209,12 @@ class Openbabel_converter():
 #                 # If we got a 2D (or 1D) format, convert to 3D (but warn that we are doing so.)
 #                 if molecule.dim != 3 and gen3D:
 #                     # We're missing 3D coords.
-#                     silico.log.get_logger().warning("Generating 3D coordinates from {}D file '{}'; this will scramble atom coordinates".format(molecule.dim, self.input_name))
+#                     digichem.log.get_logger().warning("Generating 3D coordinates from {}D file '{}'; this will scramble atom coordinates".format(molecule.dim, self.input_name))
 #                     molecule.localopt()
 #                     
 #                 if self.add_H:
 #                     # Add hydrogens.
-#                     #silico.log.get_logger().info("Adding any missing hydrogens to structure loaded from file '{}'".format(self.input_name))
+#                     #digichem.log.get_logger().info("Adding any missing hydrogens to structure loaded from file '{}'".format(self.input_name))
 #                     molecule.addh()
 #                 
 #                 # Now convert and return
@@ -264,11 +264,11 @@ class Obabel_converter(Openbabel_converter):
         
         if charge is not None:
             # We can't set charge with obabel sadly.
-            silico.log.get_logger().warning("Unable to set charge '{}' of molecule loaded from file '{}' with obabel converter".format(charge, self.input_name))
+            digichem.log.get_logger().warning("Unable to set charge '{}' of molecule loaded from file '{}' with obabel converter".format(charge, self.input_name))
             
         if multiplicity is not None:
             # We can't set multiplicity with obabel sadly.
-            silico.log.get_logger().warning("Unable to set multiplicity '{}' of molecule loaded from file '{}' with obabel converter".format(multiplicity, self.input_name))
+            digichem.log.get_logger().warning("Unable to set multiplicity '{}' of molecule loaded from file '{}' with obabel converter".format(multiplicity, self.input_name))
         
         # Run
         return self.run_obabel(output_file_type, output_file, gen3D = gen3D)
@@ -297,12 +297,12 @@ class Obabel_converter(Openbabel_converter):
         
         # Add gen3D command if we've been asked to.
         if gen3D:
-            silico.log.get_logger().warning("Generating 3D coordinates from file '{}'; this will scramble atom coordinates".format(self.input_name))
+            digichem.log.get_logger().warning("Generating 3D coordinates from file '{}'; this will scramble atom coordinates".format(self.input_name))
             sig.append("--gen3D")
         
         # Add H if we've been asked.    
         if self.add_H:
-            #silico.log.get_logger().info("Adding any missing hydrogens to structure loaded from file '{}'".format(self.input_name))
+            #digichem.log.get_logger().info("Adding any missing hydrogens to structure loaded from file '{}'".format(self.input_name))
             sig.append("-h")
             
         # If a file to write to has been given, set it.
@@ -314,7 +314,7 @@ class Obabel_converter(Openbabel_converter):
         # Get our current environment.
         env = copy.copy(os.environ)
         # Now delete BABEL_LIBDIR if we are frozen.
-        if silico.frozen:
+        if digichem.frozen:
             try:
                 pass
                 #del env['BABEL_LIBDIR']
@@ -341,7 +341,7 @@ class Obabel_converter(Openbabel_converter):
         # We'll do basic error checking on whether our output contains a certain string.
         #if not self.obabel_success.search(done_process.stderr):
         if self.obabel_fail.search(done_process.stderr):
-            raise Silico_exception("obabel command did not appear to complete successfully") from CalledProcessError(done_process.returncode, " ".join(done_process.args), done_process.stdout, done_process.stderr)
+            raise Digichem_exception("obabel command did not appear to complete successfully") from CalledProcessError(done_process.returncode, " ".join(done_process.args), done_process.stdout, done_process.stderr)
         
         # Return our output.
         return done_process.stdout if output_file is None else None
@@ -397,7 +397,7 @@ class Obabel_formats():
         
         except Exception as e:
             # Output was bad.
-            raise Silico_exception("Failed to parse stdout from obabel command") from e
+            raise Digichem_exception("Failed to parse stdout from obabel command") from e
         
         return formats
 

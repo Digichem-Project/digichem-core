@@ -3,8 +3,7 @@ import statistics
 import math
 
 from digichem.exception.base import Result_unavailable_error
-
-from silico.image.graph import OneD_graph_image_maker
+from digichem.image.graph import OneD_graph_image_maker
 
 
 class Orbital_diagram_maker(OneD_graph_image_maker):

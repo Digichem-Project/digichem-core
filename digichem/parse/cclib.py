@@ -1,8 +1,8 @@
 from pathlib import Path
 import hashlib
 
-import silico.log
-from silico.parse.base import Parser_abc
+import digichem.log
+from digichem.parse.base import Parser_abc
 
 # Hidden imports.
 #import cclib.io
@@ -76,7 +76,7 @@ class Cclib_parser(Parser_abc):
         # We start by using cclib to get most of the data we need.
         
         # Output a message (because this is slow).
-        silico.log.get_logger().info("Parsing calculation result '{}'".format(self.description))
+        digichem.log.get_logger().info("Parsing calculation result '{}'".format(self.description))
         
         # Use cclib to open our log files.
         # ccread will accept a list of log files to read, but will sometimes choke if the list contains only one entry,

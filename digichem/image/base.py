@@ -1,7 +1,7 @@
 from PIL import Image
 import numpy as np
 
-from silico.file import File_maker
+from digichem.file import File_maker
 
 class Cropable_mixin():
     """Mixin class for those that can crop their images."""

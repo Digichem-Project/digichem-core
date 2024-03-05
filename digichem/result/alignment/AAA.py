@@ -1,4 +1,4 @@
-from silico.result.alignment.AA import Average_angle
+from digichem.result.alignment.AA import Average_angle
 from statistics import  mean
 
 class Adjusted_average_angle(Average_angle):

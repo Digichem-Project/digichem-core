@@ -3,10 +3,9 @@ import itertools
 import scipy.constants
 
 from digichem.exception.base import Result_unavailable_error
-
-from silico.result import Result_container
-from silico.result import Unmergeable_container_mixin
-from silico.result import Result_object
+from digichem.result import Result_container
+from digichem.result import Unmergeable_container_mixin
+from digichem.result import Result_object
 
 class Energies(Result_object):
     """
@@ -66,7 +65,7 @@ class Energies(Result_object):
             scf = SCF_energy_list.from_parser(parser)
         )
     
-    def dump(self, silico_options):
+    def dump(self, digichem_options):
         """
         Get a representation of this result object in primitive format.
         """
@@ -75,11 +74,11 @@ class Energies(Result_object):
                 "value": float(self.final),
                 "units": "eV"
             },
-            "scf": self.scf.dump(silico_options),
-            "mp": self.mp.dump(silico_options),
-            "cc": self.cc.dump(silico_options)
+            "scf": self.scf.dump(digichem_options),
+            "mp": self.mp.dump(digichem_options),
+            "cc": self.cc.dump(digichem_options)
         }
-        dump.update({"mp{}".format(index+2): energy.dump(silico_options) for index, energy in enumerate(self.mp_energies)})
+        dump.update({"mp{}".format(index+2): energy.dump(digichem_options) for index, energy in enumerate(self.mp_energies)})
         return dump
         
     @classmethod
@@ -211,7 +210,7 @@ class Energy_list(Result_container, Unmergeable_container_mixin):
         except AttributeError:
             return self()
         
-    def dump(self, silico_options):
+    def dump(self, digichem_options):
         """
         Get a representation of this result object in primitive format.
         """
@@ -271,11 +270,11 @@ class MP_energy_list(Energy_list):
         super().__init__(items)
         self.order = order
         
-    def dump(self, silico_options):
+    def dump(self, digichem_options):
         """
         Get a representation of this result object in primitive format.
         """
-        dump = super().dump(silico_options)
+        dump = super().dump(digichem_options)
         dump['order'] = self.order
         return dump
     

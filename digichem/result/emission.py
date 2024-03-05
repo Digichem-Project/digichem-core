@@ -2,9 +2,8 @@ import math
 from scipy.constants import epsilon_0, Planck, c
 
 from digichem.exception.base import Digichem_exception, Result_unavailable_error
-
-from silico.result.excited_state import Excited_state
-from silico.result import Result_object
+from digichem.result.excited_state import Excited_state
+from digichem.result import Result_object
 
 # Dirac constant.
 h_bar = Planck / (math.pi *2)
@@ -28,11 +27,11 @@ class Emissions(Result_object):
         self.adiabatic = adiabatic if adiabatic is not None else {}
         self.vertical = vertical if vertical is not None else {}
         
-    def dump(self, silico_options):
+    def dump(self, digichem_options):
         # Several dumpers (JSON, DB backends based on JSON etc) don't support non-string keys...
         return {
-            "adiabatic": {str(key):value.dump(silico_options) for key,value in self.adiabatic.items()},
-            "vertical": {str(key):value.dump(silico_options) for key,value in self.vertical.items()}
+            "adiabatic": {str(key):value.dump(digichem_options) for key,value in self.adiabatic.items()},
+            "vertical": {str(key):value.dump(digichem_options) for key,value in self.vertical.items()}
         }
         
     @classmethod
@@ -344,12 +343,12 @@ class Relaxed_excited_state(Excited_state):
             else:
                 raise
     
-    def dump(self, silico_options):
+    def dump(self, digichem_options):
         """
         Get a representation of this result object in primitive format.
         """
         
-        dump_dict = super().dump(silico_options)
+        dump_dict = super().dump(digichem_options)
         dump_dict['emission_type'] = self.emission_type
         dump_dict['ground_multiplicity'] = self.ground_multiplicity
         dump_dict['excited_energy'] = {

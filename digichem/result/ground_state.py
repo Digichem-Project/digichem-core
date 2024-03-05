@@ -5,7 +5,7 @@ This file is closely related to the excited_states.py file.
 These definitions may change or move.
 """
 
-from silico.result.excited_state import Energy_state
+from digichem.result.excited_state import Energy_state
 
 
 class Ground_state(Energy_state):
@@ -35,11 +35,11 @@ class Ground_state(Energy_state):
         """
         return self.charge == other.charge and self.multiplicity == other.multiplicity and self.energy == other.energy
         
-    def dump(self, silico_options):
+    def dump(self, digichem_options):
         """
         Get a representation of this result object in primitive format.
         """
-        parent_dict = super().dump(silico_options)
+        parent_dict = super().dump(digichem_options)
         return {
             "index": parent_dict['index'],
             "symbol": parent_dict['symbol'],

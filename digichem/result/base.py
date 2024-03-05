@@ -1,10 +1,8 @@
-# General imports.
 import scipy.constants
 import warnings
 import itertools
 import math
 
-# Silico imports.
 from digichem.exception.base import Result_unavailable_error
 
 
@@ -101,11 +99,11 @@ class Result_object():
         
         This functionality is useful for hiding expense properties from the normal dump process, while still exposing them when specifically requested.
         
-        Each key in the returned dicrt is the name of a dumpable item, each value is a function to call with silico_options as its only param.
+        Each key in the returned dicrt is the name of a dumpable item, each value is a function to call with digichem_options as its only param.
         """
         return {}
     
-    def dump(self, silico_options):
+    def dump(self, digichem_options):
         """
         Abstract function that is called to dump the value of the result object to a primitive type, suitable for serializing with yaml.
         
@@ -255,6 +253,6 @@ class Result_container(list, Result_object):
         else:
             return self.merge_default(*multiple_lists, **kwargs)
         
-    def dump(self, silico_options):
-        return [item.dump(silico_options) for item in self]
+    def dump(self, digichem_options):
+        return [item.dump(digichem_options) for item in self]
     

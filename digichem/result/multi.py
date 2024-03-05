@@ -1,15 +1,15 @@
 # General imports.
 import hashlib
 
-# Silico imports.
-from silico.result.result import Result_set
-from silico.result.metadata import Metadata
-from silico.result.atom import Atom_list
-from silico.result.ground_state import Ground_state
-from silico.result.excited_state import Excited_state_list
-from silico.result.emission import Relaxed_excited_state
-from silico.result.orbital import Molecular_orbital_list
-from silico.result.alignment.base import Alignment, Minimal
+# Digichem imports.
+from digichem.result.result import Result_set
+from digichem.result.metadata import Metadata
+from digichem.result.atom import Atom_list
+from digichem.result.ground_state import Ground_state
+from digichem.result.excited_state import Excited_state_list
+from digichem.result.emission import Relaxed_excited_state
+from digichem.result.orbital import Molecular_orbital_list
+from digichem.result.alignment.base import Alignment, Minimal
 
 
 class Merged(Result_set):
@@ -34,7 +34,7 @@ class Merged(Result_set):
         Create a Merged result set object from a number of result sets.
         
         :param *results: List of result sets to merge.
-        :param options: A Silico config nested dictionary containing options to control parsing.
+        :param options: A Digichem config nested dictionary containing options to control parsing.
         """
         # First, get a merged metadata object.
         metadatas = [result.metadata for result in results]

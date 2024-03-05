@@ -9,14 +9,14 @@ from mako.lookup import TemplateLookup
 
 from digichem.exception.base import File_maker_exception
 
-from silico.file import File_converter
-import silico.file.types as file_types
-import silico.log
-from silico.submit.destination.local import Series
-from silico.submit.calculation.turbomole import make_orbital_calc, Turbomole_memory,\
+from digichem.file import File_converter
+import digichem.file.types as file_types
+import digichem.log
+from digichem.submit.destination.local import Series
+from digichem.submit.calculation.turbomole import make_orbital_calc, Turbomole_memory,\
     make_anadens_calc
-from silico.file.base import File_maker, Dummy_file_maker
-from silico.submit.memory import Memory
+from digichem.file.base import File_maker, Dummy_file_maker
+from digichem.submit.memory import Memory
 
 
 def sanitize_modern_cubes(cube_file_path):
@@ -39,7 +39,7 @@ def sanitize_modern_cubes(cube_file_path):
                 if len(line_split) == 5:
                     # We have a line that needs cleaning.
                     if line_split[-1] != "1":
-                        silico.log.get_logger().warning(
+                        digichem.log.get_logger().warning(
                             "Cube file {} contains more than 1 density ('{}' densities found), this file may no longer be fully compliant".format(
                                 cube_file_path,
                                 line_split[-1]
@@ -163,7 +163,7 @@ class Fchk_to_cube(File_converter):
         else:
             # Everything appeared to go ok.
             # Dump cubegen output if we're in debug.
-            silico.log.get_logger().debug(cubegen_proc.stdout)
+            digichem.log.get_logger().debug(cubegen_proc.stdout)
         
         if self.sanitize:
             sanitize_modern_cubes(self.output)
@@ -398,7 +398,7 @@ class Gbw_to_cube(File_converter):
             shutil.copy(self.density_file, Path(temp_dir, root_name + ".density"))
             
             # Get input options.
-            input_str = TemplateLookup(directories = str(silico.default_template_directory())).get_template("/submit/orca/orca_plot.mako").render_unicode(gbw_to_cube = self)
+            input_str = TemplateLookup(directories = str(digichem.default_template_directory())).get_template("/submit/orca/orca_plot.mako").render_unicode(gbw_to_cube = self)
             
             # Get signature.
             signature = [str(self.orca_plot_executable), str(input_file), "-i"]
@@ -428,7 +428,7 @@ class Gbw_to_cube(File_converter):
             else:
                 # Everything appeared to go ok.
                 # Dump orca_plot output if we're in debug.
-                silico.log.get_logger().debug(orca_plot_proc.stdout)
+                digichem.log.get_logger().debug(orca_plot_proc.stdout)
                 
             # Get our output file (a .cube file).
             # It's hard to know exactly what our output file will be called.
@@ -539,7 +539,7 @@ class Turbomole_to_cube(File_converter):
     # Text description of our output file type, used for error messages etc.
     output_file_type = file_types.gaussian_cube_file
     
-    def __init__(self, *args, calculation_directory = None, calc_t, prog_t, orbitals = [], density, spin, silico_options, sanitize = False, **kwargs):
+    def __init__(self, *args, calculation_directory = None, calc_t, prog_t, orbitals = [], density, spin, digichem_options, sanitize = False, **kwargs):
         """
         Constructor for Turbomole_to_cube objects.
         
@@ -552,8 +552,8 @@ class Turbomole_to_cube(File_converter):
         """
         super().__init__(*args, **kwargs)
         
-        # Save our global silico options (we'll need it when creating our calcs).
-        self.silico_options = silico_options
+        # Save our global digichem options (we'll need it when creating our calcs).
+        self.digichem_options = digichem_options
         
         # Save our input calc dir.
         self.input_file = Path(calculation_directory) if calculation_directory is not None else None
@@ -625,7 +625,7 @@ class Turbomole_to_cube(File_converter):
             spin = spin,
             dont_modify = not options['render']['enable_rendering'],
             sanitize = options['render']['safe_cubes'],
-            silico_options = options,
+            digichem_options = options,
             **kwargs
         )
         
@@ -647,7 +647,7 @@ class Turbomole_to_cube(File_converter):
             spin = spin,
             dont_modify = not options['render']['enable_rendering'],
             sanitize = options['render']['safe_cubes'],
-            silico_options = options,
+            digichem_options = options,
             **kwargs
         )
         
@@ -665,7 +665,7 @@ class Turbomole_to_cube(File_converter):
         # Link.
         destination = self.destination_t()
         prog = self.prog_t(destination)
-        calc = self.calc_t(prog, global_silico_options = self.silico_options)
+        calc = self.calc_t(prog, global_digichem_options = self.digichem_options)
         
         # We'll write our calc to a sub folder of the output dir.
         # We'll delete it afterwards if all is well.
@@ -720,7 +720,7 @@ class Turbomole_to_anadens_cube(File_converter):
     # The file name we'll ask the $anadens data group to write to.
     anadens_file_name = "anadens.cub"
     
-    def __init__(self, *args, calculation_directory = None, first_density, second_density, calc_t, prog_t, silico_options, sanitize = False, **kwargs):
+    def __init__(self, *args, calculation_directory = None, first_density, second_density, calc_t, prog_t, digichem_options, sanitize = False, **kwargs):
         """
         Constructor for Turbomole_to_cube objects.
         
@@ -732,12 +732,12 @@ class Turbomole_to_anadens_cube(File_converter):
         :param second_density: Path to the other of the two density files to calculate from.
         :param calc_t: The calculation template that will be run to calculate the new density.
         :param prog_t: The program template that will be run to calculate the new density.
-        :param silico_options: Global silico options.
+        :param digichem_options: Global digichem options.
         """
         super().__init__(*args, input_file = calculation_directory, **kwargs)
         
-        # Save our global silico options (we'll need it when creating our calcs).
-        self.silico_options = silico_options
+        # Save our global digichem options (we'll need it when creating our calcs).
+        self.digichem_options = digichem_options
         
         # Also save the paths to the two density files (we'll need to copy these into the actual calc directory).
         self.first_density = first_density
@@ -792,7 +792,7 @@ class Turbomole_to_anadens_cube(File_converter):
             second_density = second_density,
             calc_t = calc_t.inner_cls,
             prog_t = prog_t.inner_cls,
-            silico_options = options,
+            digichem_options = options,
             sanitize = options['render']['safe_cubes'],
             **kwargs
         )
@@ -811,7 +811,7 @@ class Turbomole_to_anadens_cube(File_converter):
             second_density = second_density,
             calc_t = calc_t.inner_cls,
             prog_t = type(turbomole_calculation.program),
-            silico_options = options,
+            digichem_options = options,
             sanitize = options['render']['safe_cubes'],
             **kwargs
         )
@@ -823,7 +823,7 @@ class Turbomole_to_anadens_cube(File_converter):
         # Link.
         destination = self.destination_t()
         prog = self.prog_t(destination)
-        calc = self.calc_t(prog, global_silico_options = self.silico_options)
+        calc = self.calc_t(prog, global_digichem_options = self.digichem_options)
         
         # We'll write our calc to a sub folder of the output dir.
         # We'll delete it afterwards if all is well.

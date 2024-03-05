@@ -3,10 +3,10 @@ from datetime import datetime, timedelta
 
 from digichem.exception.base import Result_unavailable_error
 
-# Silico imports.
-from silico.parse.cclib import Cclib_parser
-import silico.log
-import silico.file.types as file_types
+# Digichem imports.
+from digichem.parse.cclib import Cclib_parser
+import digichem.log
+import digichem.file.types as file_types
 
 # Hidden imports.
 #import pysoc.io.SOC
@@ -89,7 +89,7 @@ class Gaussian_parser(Cclib_parser):
             self.calculate_SOC()
             
         except Exception:
-            silico.log.get_logger().debug("Cannot calculate spin-orbit-coupling from output file '{}'".format(self.log_file_path), exc_info = True)
+            digichem.log.get_logger().debug("Cannot calculate spin-orbit-coupling from output file '{}'".format(self.log_file_path), exc_info = True)
     
     def calculate_SOC(self):
         """

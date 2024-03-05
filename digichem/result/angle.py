@@ -1,6 +1,6 @@
 import math
 
-import silico.config
+import digichem.config
 
 
 class Angle():
@@ -23,7 +23,7 @@ class Angle():
 
     @property
     def _default_angle_units(self):
-        return  silico.config.get_config()['angle_units']
+        return  digichem.config.get_config()['angle_units']
             
     
     def __init__(self, angle, angle_units = None, output_units = "def"):

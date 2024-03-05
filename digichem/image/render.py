@@ -12,10 +12,9 @@ from PIL import Image
 import math
 
 from digichem.exception.base import File_maker_exception
-
-from silico.file.base import File_converter
-from silico.image.base import Cropable_mixin
-from silico.datas import get_resource
+from digichem.file.base import File_converter
+from digichem.image.base import Cropable_mixin
+from digichem.datas import get_resource
 
 class Render_maker(File_converter, Cropable_mixin):
     """
@@ -98,7 +97,7 @@ class Render_maker(File_converter, Cropable_mixin):
     
     @property
     def rotations(self):
-        # Silico rotates the wrong way round for some reason, reverse for our rendering engine.
+        # Digichem rotates the wrong way round for some reason, reverse for our rendering engine.
         return [(axis, theta) for axis, theta in self._rotations]
 
 

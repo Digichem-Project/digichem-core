@@ -7,8 +7,8 @@ import warnings
 from digichem import misc
 from digichem.exception.base import File_maker_exception, Digichem_exception
 
-# Silico imports.
-import silico.log
+# Digichem imports.
+import digichem.log
 
 
 class File_maker_ABC():
@@ -62,7 +62,7 @@ class File_maker_ABC():
             return self.get_file(name)
         
         except Exception:
-            silico.log.get_logger().error("Unable to get file '{}'".format(self.file_path[name]), exc_info = True)
+            digichem.log.get_logger().error("Unable to get file '{}'".format(self.file_path[name]), exc_info = True)
             
             return None
     
@@ -144,7 +144,7 @@ class File_maker(File_maker_ABC):
             
             # Force set dont_modify = True so we don't overwrite the input that the user has given us.
             dont_modify = True
-            silico.log.get_logger().debug("Setting dont_modify == True to prevent overwrite of user specified {} file '{}'".format(self.output_file_type, existing_file))
+            digichem.log.get_logger().debug("Setting dont_modify == True to prevent overwrite of user specified {} file '{}'".format(self.output_file_type, existing_file))
             
             # Check
             if not existing_file.exists():
@@ -191,7 +191,7 @@ class File_maker(File_maker_ABC):
                 # There is obviously a race condition here, but we're not making any guarantee to the calling function that the file really exists (or even what it is), we're only checking to see if we need to create a new file or not.
                 if self.file_path[name].exists():
                     # File exists, return its path.
-                    #silico.log.get_logger().debug("Using existing {} file '{}'".format(self.output_file_type, self.file_path[name]))
+                    #digichem.log.get_logger().debug("Using existing {} file '{}'".format(self.output_file_type, self.file_path[name]))
                     return self.file_path[name]
             
             # There are no files we can use. If we're allowed, write new files.
@@ -246,7 +246,7 @@ class File_maker(File_maker_ABC):
         self.check_can_make()
 
         # Print a debug message (because lots can go wrong next and this step an be quite slow).    
-        silico.log.get_logger().info(self.creation_message)
+        digichem.log.get_logger().info(self.creation_message)
         
         start_timer = timer()
         
@@ -266,7 +266,7 @@ class File_maker(File_maker_ABC):
         
         # Print timing info.
         self.duration = datetime.timedelta(seconds = timer() - start_timer)
-        silico.log.get_logger().info("File generation duration: {} ({} total seconds)".format(misc.timedelta_to_string(self.duration), self.duration.total_seconds()))
+        digichem.log.get_logger().info("File generation duration: {} ({} total seconds)".format(misc.timedelta_to_string(self.duration), self.duration.total_seconds()))
         
     def delete(self, lazy = False):
         """

@@ -2,11 +2,11 @@
 
 import yaml
 
-from silico.config import Config
+from digichem.config import Config
 
 class Config_parser():
     """
-    Class for loading standard silico options (from a string).
+    Class for loading standard digichem options (from a string).
     """
     
     def __init__(self, config_string):

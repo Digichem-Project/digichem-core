@@ -4,23 +4,21 @@ import pwd
 import os
 
 from digichem.exception.base import Digichem_exception
-
-# Silico imports
-from silico.result.orbital import Molecular_orbital_list,\
+from digichem.result.orbital import Molecular_orbital_list,\
     Beta_orbital
-from silico.result.metadata import Metadata
-from silico.result.result import Result_set
-from silico.result.atom import Atom_list
-from silico.result.tdm import Transition_dipole_moment
-from silico.result.excited_state import Excited_state_list
-from silico.result.energy import Energies
-from silico.result.ground_state import Ground_state
-from silico.result.soc import SOC_list
-from silico.result.dipole_moment import Dipole_moment
-from silico.result.vibration import Vibrations_list
-from silico.result.emission import Relaxed_excited_state
-from silico.result.nmr import NMR_shielding, NMR_spin_couplings_list, NMR_list
-from silico.result.alignment.base import Minimal, Alignment
+from digichem.result.metadata import Metadata
+from digichem.result.result import Result_set
+from digichem.result.atom import Atom_list
+from digichem.result.tdm import Transition_dipole_moment
+from digichem.result.excited_state import Excited_state_list
+from digichem.result.energy import Energies
+from digichem.result.ground_state import Ground_state
+from digichem.result.soc import SOC_list
+from digichem.result.dipole_moment import Dipole_moment
+from digichem.result.vibration import Vibrations_list
+from digichem.result.emission import Relaxed_excited_state
+from digichem.result.nmr import NMR_shielding, NMR_spin_couplings_list, NMR_list
+from digichem.result.alignment.base import Minimal, Alignment
 
 
 # NOTE: This is a repeat of the list in util to avoid circular import nonsense.
@@ -151,7 +149,7 @@ class Parser_abc():
         """
         Get all the Result set objects produced by this parser.
         
-        :param options: A Silico options nested dictionary containing options to control parsing.
+        :param options: A Digichem options nested dictionary containing options to control parsing.
         :return: A list of the populated result sets.
         """
         self.process(options)
@@ -161,7 +159,7 @@ class Parser_abc():
         """
         Get a Result set object from this parser.
         
-        :param options: A Silico options nested dictionary containing options to control parsing.
+        :param options: A Digichem options nested dictionary containing options to control parsing.
         :return: The populated result set.
         """
         self.options = options

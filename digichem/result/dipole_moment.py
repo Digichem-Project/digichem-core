@@ -1,9 +1,9 @@
 # General imports
 import math
 
-# Silico imports
-from silico.result import Result_object
-from silico.result.angle import Angle
+# Digichem imports
+from digichem.result import Result_object
+from digichem.result.angle import Angle
 
 
 class Dipole_moment_ABC(Result_object):
@@ -182,7 +182,7 @@ class Dipole_moment_ABC(Result_object):
         except (FloatingPointError, ZeroDivisionError):
             return 0
         
-    def dump(self, silico_options):
+    def dump(self, digichem_options):
         """
         Get a representation of this result object in primitive format.
         """

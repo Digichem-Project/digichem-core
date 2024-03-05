@@ -6,8 +6,7 @@ import os
 import sys
 
 import digichem.log
-
-from silico.datas import get_resource
+from digichem.datas import get_resource
 
 # Decide on whether we are frozen or not.
 # The sys attribute 'frozen' is our flag, '_MEIPASS' is the dir location.

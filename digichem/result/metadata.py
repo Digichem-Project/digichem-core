@@ -13,10 +13,9 @@ from digichem.misc.time import latest_datetime, total_timedelta, date_to_string,
     timedelta_to_string
 from digichem.misc.text import andjoin
 from digichem.exception import Result_unavailable_error
+from digichem.result import Result_object
+import digichem
 
-# Silico imports.
-from silico.result import Result_object
-import silico
 from silico.submit import translate
 from silico.submit.memory import Memory
 
@@ -79,7 +78,7 @@ class Solvent(Result_object):
         else:
             return "Unknown"
         
-    def dump(self, silico_options):
+    def dump(self, digichem_options):
         return {
             "model": self.model,
             "name": self.name,
@@ -163,7 +162,7 @@ class Metadata(Result_object):
             temperature = None,
             pressure = None,
             orbital_spin_type = None,
-            silico_version = None,
+            digichem_version = None,
             solvent = None,
             num_cpu = None,
             memory_available = None,
@@ -223,7 +222,7 @@ class Metadata(Result_object):
         self.pressure = pressure
         self.orbital_spin_type = orbital_spin_type
         # TOOD: Ideally this would be parsed from the calculation output somehow, but this is fine for now.
-        self.silico_version = silico.version if silico_version is None else silico_version
+        self.digichem_version = digichem.version if digichem_version is None else digichem_version
         self.solvent = solvent
         self.num_cpu = num_cpu
         self.memory_available = memory_available
@@ -477,7 +476,7 @@ class Metadata(Result_object):
             # There is no metadata available, give up.
             raise Result_unavailable_error("Metadata", "no metadata is available")
         
-    def dump(self, silico_options):
+    def dump(self, digichem_options):
         """
         Get a representation of this result object in primitive format.
         """
@@ -495,7 +494,7 @@ class Metadata(Result_object):
             "user",
             "package",
             "package_version",
-            "silico_version",
+            "digichem_version",
             "calculations",
             "methods",
             "functional",
@@ -525,7 +524,7 @@ class Metadata(Result_object):
             "value": self.pressure,
             "units": "atm"
         }
-        attr_dict["solvent"] = self.solvent.dump(silico_options)
+        attr_dict["solvent"] = self.solvent.dump(digichem_options)
         
         attr_dict['num_cpu'] = self.num_cpu
         for attr_name in ("memory_used", "memory_available"):

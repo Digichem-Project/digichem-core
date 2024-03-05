@@ -5,15 +5,15 @@ import packaging.version
 import dill
 import periodictable
 
-# Silico imports.
-from silico.exception.base import Silico_exception
-from silico.file.gaussian import Gaussian_input_parser
-from silico.file.babel import Openbabel_converter, Obabel_formats
-import silico.log
-from silico.input import Input_file
-from silico.parse.util import parse_calculation, open_for_parsing
-import silico.config
-from silico.result.atom import Molecule_mixin
+# Digichem imports.
+from digichem.exception.base import Digichem_exception
+from digichem.file.gaussian import Gaussian_input_parser
+from digichem.file.babel import Openbabel_converter, Obabel_formats
+import digichem.log
+from digichem.input import Input_file
+from digichem.parse.util import parse_calculation, open_for_parsing
+import digichem.config
+from digichem.result.atom import Molecule_mixin
 
 # Custom formats to allow literal strings in yaml output.
 # Adapted from https://stackoverflow.com/questions/6432605/any-yaml-libraries-in-python-that-support-dumping-of-long-strings-as-block-liter
@@ -36,15 +36,15 @@ yaml.add_representer(flow_mapping, flow_mapping_representer)
 # Classes #
 ###########
 
-class Silico_coords_ABC(Input_file, Molecule_mixin):
+class Digichem_coords_ABC(Input_file, Molecule_mixin):
     """
-    ABC for classes that represents an input file in the silico input (.si) format.
+    ABC for classes that represents an input file in the digichem input (.si) format.
     """
 
     @classmethod
     def from_xyz(self, geometry, **kwargs):
         """
-        Create a Silico_coords object from a molecule in xyz format.
+        Create a Digichem_coords object from a molecule in xyz format.
         
         :param geometry: The input geometry in xyz format.
         :param charge: The molecular charge.
@@ -142,7 +142,7 @@ class Silico_coords_ABC(Input_file, Molecule_mixin):
     @classmethod
     def from_com(self, geometry, *, charge = None, multiplicity = None, **kwargs):
         """
-        Create a Silico_coords object from a molecule in gaussian input format (.com, .gjf etc).
+        Create a Digichem_coords object from a molecule in gaussian input format (.com, .gjf etc).
         
         :param geometry: The input geometry in gaussian format.
         :param charge: The molecular charge.
@@ -164,7 +164,7 @@ class Silico_coords_ABC(Input_file, Molecule_mixin):
     @classmethod
     def from_yaml(self, yaml_dict, file_name = None, **kwargs):
         """
-        Create a Silico_coords object from a loaded/parsed .si file.
+        Create a Digichem_coords object from a loaded/parsed .si file.
         """
         yaml_dict = dict(yaml_dict)
         # Overwrite dictionary values if explicit ones have been given.
@@ -176,18 +176,18 @@ class Silico_coords_ABC(Input_file, Molecule_mixin):
         try:
             return self(**yaml_dict, file_name = file_name)
         except TypeError:
-            raise Silico_exception("Failed to load .si file '{}'; is the file formatted correctly?".format(file_name))
+            raise Digichem_exception("Failed to load .si file '{}'; is the file formatted correctly?".format(file_name))
     
     @classmethod
     def from_si(self, si_file, **kwargs):
         """
-        Create a Silico_coords object from a raw .si file.
+        Create a Digichem_coords object from a raw .si file.
         """
         return self.from_yaml(yaml.safe_load(si_file), **kwargs)
         
     def to_file(self, file):
         """
-        Write this silico input file to an open file object.
+        Write this digichem input file to an open file object.
         
         :param file: A file opened with open() (or similar).
         """
@@ -217,7 +217,7 @@ class Silico_coords_ABC(Input_file, Molecule_mixin):
         Each key is the short-code of the format (eg, si, com, xyz etc) while the value is a longer description.
         """
         formats = {
-            "si": "Silico Input Format",
+            "si": "Digichem Input Format",
             "com": "Gaussian Input",
             "gau": "Gaussian Input",
             "gjc": "Gaussian Input",
@@ -237,7 +237,7 @@ class Silico_coords_ABC(Input_file, Molecule_mixin):
         
         Each key is the short-code of the format (eg, si, com, xyz etc) while the value is a longer description.
         """
-        formats = {"si": "Silico Input Format"}
+        formats = {"si": "Digichem Input Format"}
         formats.update(Obabel_formats().write())
         
         # Some formats supported by obabel don't make sense for us to use.
@@ -268,9 +268,9 @@ class Silico_coords_ABC(Input_file, Molecule_mixin):
             return False
 
 
-class Silico_coords_v2(Silico_coords_ABC):
+class Digichem_coords_v2(Digichem_coords_ABC):
     """
-    Class that represents an input file in the silico input (.si) format (V2).
+    Class that represents an input file in the digichem input (.si) format (V2).
     
     The .si format is YAML based and stores atom positions in a dictionary format along with charge and multiplicity.
     """
@@ -293,7 +293,7 @@ class Silico_coords_v2(Silico_coords_ABC):
     @classmethod
     def from_xyz(self, geometry, **kwargs):
         """
-        Create a Silico_coords object from a molecule in xyz format.
+        Create a Digichem_coords object from a molecule in xyz format.
         
         :param geometry: The input geometry in xyz format.
         :param charge: The molecular charge.
@@ -330,9 +330,9 @@ class Silico_coords_v2(Silico_coords_ABC):
         return "\n".join(geometry)
 
 
-class Silico_coords_v1(Silico_coords_ABC):
+class Digichem_coords_v1(Digichem_coords_ABC):
     """
-    Class that represents an input file in the silico input (.si) format (V1).
+    Class that represents an input file in the digichem input (.si) format (V1).
      
     The .si format is yaml based, and stores the input geometry in a modified xyz format along with charge and multiplicity.
     """
@@ -354,7 +354,7 @@ class Silico_coords_v1(Silico_coords_ABC):
     @classmethod
     def from_xyz(self, geometry, **kwargs):
         """
-        Create a Silico_coords object from a molecule in xyz format.
+        Create a Digichem_coords object from a molecule in xyz format.
         
         :param geometry: The input geometry in xyz format.
         :param charge: The molecular charge.
@@ -372,14 +372,14 @@ class Silico_coords_v1(Silico_coords_ABC):
     
     @property
     def atoms(self):
-        return Silico_coords_v2.from_xyz(self.xyz, charge = self.charge, multiplicity = self.multiplicity, name = self.name, file_name = self.file_name).atoms
+        return Digichem_coords_v2.from_xyz(self.xyz, charge = self.charge, multiplicity = self.multiplicity, name = self.name, file_name = self.file_name).atoms
 
 
 ####################
 # Helper utilities #
 ####################
 
-Silico_coords = Silico_coords_v2
+Digichem_coords = Digichem_coords_v2
 
 def si_from_yaml(yaml_dict, file_name = None, **kwargs):
     """
@@ -390,40 +390,40 @@ def si_from_yaml(yaml_dict, file_name = None, **kwargs):
         
         if version < packaging.version.parse("2"):
             # V1.
-            cls = Silico_coords_v1
+            cls = Digichem_coords_v1
         
         elif version < packaging.version.parse("3"):
             # V2.
-            cls = Silico_coords_v2
+            cls = Digichem_coords_v2
         
         else:
-            raise Silico_exception("Unsupported .si file version '{}'".format(yaml_dict['version']))
+            raise Digichem_exception("Unsupported .si file version '{}'".format(yaml_dict['version']))
     
     else:
         # No explicit version.
         # If we have the old 'geometry' section, assume v1.
         if "geometry" in yaml_dict:
-            cls = Silico_coords_v1
+            cls = Digichem_coords_v1
             
         else:
             # Assume the latest format.
-            cls = Silico_coords    
+            cls = Digichem_coords    
             
     return cls.from_yaml(yaml_dict, file_name, **kwargs)
 
 
 def si_from_file(file_name, file_type = None, *, gen3D = None, **kwargs):
         """
-        Create a Silico_coords object from a file in arbitrary format.
+        Create a Digichem_coords object from a file in arbitrary format.
         
         :param file_name: Name/path of the input file to read from.
-        :param file_type: The format of the file; a string recognised by Silico_coords.input_formats(). If not given, an attempt will be made to guess from the file name (see Openbabel_converter.type_from_file_name()).
+        :param file_type: The format of the file; a string recognised by Digichem_coords.input_formats(). If not given, an attempt will be made to guess from the file name (see Openbabel_converter.type_from_file_name()).
         :param charge: The molecular charge.
         :param multiplicity: The molecular multiplicity (as an integer).
         :param name: Name of the system/molecule.
         """
         file_name = Path(file_name)
-        silico.log.get_logger().info("Parsing coordinate file '{}'".format(file_name))
+        digichem.log.get_logger().info("Parsing coordinate file '{}'".format(file_name))
         auto_file_type = False
         
         try:
@@ -436,22 +436,22 @@ def si_from_file(file_name, file_type = None, *, gen3D = None, **kwargs):
             if file_type in ["com", "gau", "gjc", "gjf"]:
                 # Gaussian input format.
                 with open(file_name, "rt") as com_file:
-                    return Silico_coords.from_com(com_file.read(), file_name = file_name, **kwargs)
+                    return Digichem_coords.from_com(com_file.read(), file_name = file_name, **kwargs)
     
             elif file_type == "si":
-                # Silico input format.
+                # Digichem input format.
                 with open(file_name, "rt") as si_file:
                     return si_from_yaml(yaml.safe_load(si_file.read()), file_name = file_name, **kwargs)
                 
             elif file_type == "pickle":
-                # A silico resume file.
+                # A digichem resume file.
                 # The resume file (should be) a pickled destination object.
                 with open(file_name, "rb") as pickle_file:
                     try:
                         destination = dill.load(pickle_file)
                     
                     except Exception as e:
-                        raise Silico_exception("Failed to parse silico resume file") from e
+                        raise Digichem_exception("Failed to parse digichem resume file") from e
                     
                     return destination.program.calculation.input_coords
                 
@@ -460,14 +460,14 @@ def si_from_file(file_name, file_type = None, *, gen3D = None, **kwargs):
             elif file_type in ["dat", "log", "out", "output", None] \
                 or (auto_file_type and "".join(file_name.suffixes) in open_for_parsing.archive_formats()):
                 # Generic log-file (output) format.
-                # Most formats (.log, .dat etc) we can parse with either Obabel or Silico.
+                # Most formats (.log, .dat etc) we can parse with either Obabel or Digichem.
                 # Some broken log files (incomplete) we can parse only with Obabel.
-                # Some unusual formats (directories, archives) we can parse only with Silico.
+                # Some unusual formats (directories, archives) we can parse only with Digichem.
                 
-                # Try with Silico first.
+                # Try with Digichem first.
                 try:
-                    result = parse_calculation(file_name, options = silico.config.options, format_hint = "cclib")
-                    return Silico_coords.from_result(result, file_name = file_name, **kwargs)
+                    result = parse_calculation(file_name, options = digichem.config.options, format_hint = "cclib")
+                    return Digichem_coords.from_result(result, file_name = file_name, **kwargs)
                 
                 except Exception as e:
                     # No good, see if we can use obabel.
@@ -479,8 +479,8 @@ def si_from_file(file_name, file_type = None, *, gen3D = None, **kwargs):
                         raise
                     
                     # Worked with fallback, log a message.
-                    silico.log.get_logger().warning(f"Failed to parse calculation output file '{file_name}'; using Obabel fallback mechanism")
-                    return Silico_coords.from_com(com_file, file_name = file_name, **kwargs)
+                    digichem.log.get_logger().warning(f"Failed to parse calculation output file '{file_name}'; using Obabel fallback mechanism")
+                    return Digichem_coords.from_com(com_file, file_name = file_name, **kwargs)
                 
             else:
                 # Generic input format, use obabel.
@@ -489,7 +489,7 @@ def si_from_file(file_name, file_type = None, *, gen3D = None, **kwargs):
                 com_file = Openbabel_converter.from_file(file_name, file_type).convert("com", gen3D = gen3D)         
             
                 # Continue with other constructors.
-                return Silico_coords.from_com(com_file, file_name = file_name, **kwargs)
+                return Digichem_coords.from_com(com_file, file_name = file_name, **kwargs)
             
         except:
             raise ValueError("Could not parse input coordinates from '{}'".format(file_name))

@@ -6,11 +6,9 @@ import warnings
 import math
 
 from digichem.exception import Result_unavailable_error
-
-# Silico imports.
-from silico.result import Result_container
-from silico.result import Result_object
-from silico.result import Floatable_mixin
+from digichem.result import Result_container
+from digichem.result import Result_object
+from digichem.result import Floatable_mixin
 
 
 class Molecular_orbital_list(Result_container):
@@ -240,7 +238,7 @@ class Molecular_orbital_list(Result_container):
         
         return self(cls.list_from_dump(data['values'], result_set, options))
     
-    def dump(self, silico_options):
+    def dump(self, digichem_options):
         """
         Get a representation of this result object in primitive format.
         """
@@ -251,7 +249,7 @@ class Molecular_orbital_list(Result_container):
             },
             "num_occupied": len(self.occupied),
             "num_virtual": len(self.virtual),
-            "values": super().dump(silico_options),
+            "values": super().dump(digichem_options),
             "spin_type": self.safe_get("spin_type")
         }
 #         # Add HOMO and LUMO
@@ -500,7 +498,7 @@ class Molecular_orbital(Result_object, Floatable_mixin):
     # The index used to access data from cclib (which always has two lists, one for alpha one for beta).
     ccdata_index = 0
     
-    def dump(self, silico_options):
+    def dump(self, digichem_options):
         """
         Get a representation of this result object in primitive format.
         """

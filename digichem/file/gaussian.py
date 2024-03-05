@@ -1,4 +1,4 @@
-from silico.exception import Silico_exception
+from digichem.exception import Digichem_exception
 
 
 class Gaussian_input_parser():
@@ -99,7 +99,7 @@ class Gaussian_input_parser():
             geometry_section = sections[2].split("\n", 1)
         except IndexError:
             # No geometry available.
-            raise Silico_exception("Failed to read Gaussian geometry data from input file; is the file formatted correctly?") 
+            raise Digichem_exception("Failed to read Gaussian geometry data from input file; is the file formatted correctly?") 
         
         # We'll first try to split on comma (,) for charge,mult.
         charge_mult = geometry_section[0].split(",", 1)
@@ -112,11 +112,11 @@ class Gaussian_input_parser():
             self.charge = int(charge_mult[0])
             self.multiplicity = int(charge_mult[1])
         except Exception:
-            raise Silico_exception("Unable to determine charge and multiplicity from '{}'".format(charge_mult))
+            raise Digichem_exception("Unable to determine charge and multiplicity from '{}'".format(charge_mult))
         
         # The rest of the geometry section contains atoms.
         if len(geometry_section) != 2 or geometry_section[1] == "":
-            raise Silico_exception("Gaussian input file does not appear to contain any atoms")
+            raise Digichem_exception("Gaussian input file does not appear to contain any atoms")
         
         self.geometry = geometry_section[1]
         
@@ -125,7 +125,7 @@ class Gaussian_input_parser():
             num_columns = len(geometry_line.split())
             if num_columns > 4:
                 # We have too many columns?
-                raise Silico_exception("Gaussian input file has too many columns ({}) in its geometry section".format(num_columns))
+                raise Digichem_exception("Gaussian input file has too many columns ({}) in its geometry section".format(num_columns))
                 
         
         # And anything else.

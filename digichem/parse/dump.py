@@ -1,23 +1,23 @@
-"""Parser(s) for reading from dumped silico results sets"""
+"""Parser(s) for reading from dumped digichem results sets"""
 import yaml
 import json
 
-from silico.parse.base import Parser_abc
-from silico.result.tdm import Transition_dipole_moment
-from silico.result.result import Result_set
-from silico.result.metadata import Metadata
-from silico.result.orbital import Molecular_orbital_list
-from silico.result.atom import Atom_list
-from silico.result.excited_state import Excited_state_list
-from silico.result.energy import Energies
-from silico.result.ground_state import Ground_state
-from silico.result.soc import SOC_list
-from silico.result.dipole_moment import Dipole_moment
-from silico.result.vibration import Vibrations_list
-from silico.result.emission import Relaxed_excited_state
-import silico.log
-from silico.result.alignment.base import Alignment, Minimal
-from silico.result.nmr import NMR_list
+from digichem.parse.base import Parser_abc
+from digichem.result.tdm import Transition_dipole_moment
+from digichem.result.result import Result_set
+from digichem.result.metadata import Metadata
+from digichem.result.orbital import Molecular_orbital_list
+from digichem.result.atom import Atom_list
+from digichem.result.excited_state import Excited_state_list
+from digichem.result.energy import Energies
+from digichem.result.ground_state import Ground_state
+from digichem.result.soc import SOC_list
+from digichem.result.dipole_moment import Dipole_moment
+from digichem.result.vibration import Vibrations_list
+from digichem.result.emission import Relaxed_excited_state
+import digichem.log
+from digichem.result.alignment.base import Alignment, Minimal
+from digichem.result.nmr import NMR_list
 
 
 class Dump_multi_parser_abc(Parser_abc):
@@ -67,7 +67,7 @@ class Dump_multi_parser_abc(Parser_abc):
         """
         Get all the Result set objects produced by this parser.
         
-        :param options: A Silico options nested dictionary containing options to control parsing.
+        :param options: A Digichem options nested dictionary containing options to control parsing.
         :return: A list of the populated result sets.
         """
         # Unlike most other parsers, our data can actually contain lots of results.
@@ -79,7 +79,7 @@ class Dump_multi_parser_abc(Parser_abc):
         """
         Get a Result set object from this parser.
         
-        :param options: A Silico options nested dictionary containing options to control parsing.
+        :param options: A Digichem options nested dictionary containing options to control parsing.
         :return: The populated result set.
         """
         self.process_all(options)
@@ -99,7 +99,7 @@ class Yaml_multi_parser(Dump_multi_parser_abc):
         Extract results from our output files.
         """
         # Read that file.
-        silico.log.get_logger().info("Parsing calculation result '{}'".format(self.description))
+        digichem.log.get_logger().info("Parsing calculation result '{}'".format(self.description))
         with open(self.log_file_path, "rt") as yaml_file:
             self.data = list(yaml.safe_load_all(yaml_file))
     
@@ -117,7 +117,7 @@ class Json_multi_parser(Dump_multi_parser_abc):
         Extract results from our output files.
         """
         # Read that file.
-        silico.log.get_logger().info("Parsing calculation result '{}'".format(self.description))
+        digichem.log.get_logger().info("Parsing calculation result '{}'".format(self.description))
         with open(self.log_file_path, "rt") as json_file:
             self.data = json.load(json_file)
 
@@ -144,7 +144,7 @@ class Dump_parser_abc(Parser_abc):
         """
         Get all the Result set objects produced by this parser.
         
-        :param options: A Silico options nested dictionary containing options to control parsing.
+        :param options: A Digichem options nested dictionary containing options to control parsing.
         :return: A list of the populated result sets.
         """
         self.process(options)
@@ -154,7 +154,7 @@ class Dump_parser_abc(Parser_abc):
         """
         Get a Result set object from this parser.
         
-        :param options: A Silico options nested dictionary containing options to control parsing.
+        :param options: A Digichem options nested dictionary containing options to control parsing.
         :return: The populated result set.
         """
         
@@ -213,7 +213,7 @@ class Dump_parser_abc(Parser_abc):
             self.results.emission = self.results.emission.from_dump(self.data['emission'], self.results, options)
         
         except Exception:
-            silico.log.get_logger().warning("Failed to parse emission data", exc_info = True)
+            digichem.log.get_logger().warning("Failed to parse emission data", exc_info = True)
         
         # If we don't have explicit emission set, try and guess.
         #if len(self.results.emission.vertical) == 0 and len(self.results.emission.adiabatic) == 0:
@@ -233,7 +233,7 @@ class Yaml_parser(Dump_parser_abc):
         Extract results from our output files.
         """
         # Read that file.
-        silico.log.get_logger().info("Parsing calculation result '{}'".format(self.description))
+        digichem.log.get_logger().info("Parsing calculation result '{}'".format(self.description))
         with open(self.log_file_paths[0], "rt") as yaml_file:
             self.data = yaml.safe_load(yaml_file)
             

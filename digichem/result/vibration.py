@@ -2,13 +2,13 @@
 from itertools import zip_longest
 import warnings
 
-# Silico imports.
-from silico.result import Result_container
-from silico.result import Result_object
-from silico.result import Floatable_mixin, Unmergeable_container_mixin
+# Digichem imports.
+from digichem.result import Result_container
+from digichem.result import Result_object
+from digichem.result import Floatable_mixin, Unmergeable_container_mixin
 
 # Hidden.
-#from silico.result.spectroscopy import Spectroscopy_graph
+#from digichem.result.spectroscopy import Spectroscopy_graph
 
 
 class Vibrations_list(Result_container, Unmergeable_container_mixin):
@@ -49,23 +49,23 @@ class Vibrations_list(Result_container, Unmergeable_container_mixin):
         
         This functionality is useful for hiding expense properties from the normal dump process, while still exposing them when specifically requested.
         
-        Each key in the returned dicrt is the name of a dumpable item, each value is a function to call with silico_options as its only param.
+        Each key in the returned dict is the name of a dumpable item, each value is a function to call with digichem_options as its only param.
         """
         return {"spectrum": self.generate_spectrum}
     
-    def generate_spectrum(self, silico_options):
+    def generate_spectrum(self, digichem_options):
         """
         Abstract function that is called to generate an on-demand value for dumping.
         
         This functionality is useful for hiding expense properties from the normal dump process, while still exposing them when specifically requested.
         
         :param key: The key being requested.
-        :param silico_options: Silico options being used to dump.
+        :param digichem_options: Digichem options being used to dump.
         """
-        from silico.result.spectroscopy import Spectroscopy_graph
+        from digichem.result.spectroscopy import Spectroscopy_graph
         
         
-        spectrum = Spectroscopy_graph.from_vibrations(self, silico_options['IR_spectrum']['fwhm'], silico_options['IR_spectrum']['gaussian_resolution'], silico_options['IR_spectrum']['gaussian_cutoff'])
+        spectrum = Spectroscopy_graph.from_vibrations(self, digichem_options['IR_spectrum']['fwhm'], digichem_options['IR_spectrum']['gaussian_resolution'], digichem_options['IR_spectrum']['gaussian_cutoff'])
         
         try:
             spectrum_data = spectrum.plot_cumulative_gaussian()
@@ -82,11 +82,11 @@ class Vibrations_list(Result_container, Unmergeable_container_mixin):
             "peaks": spectrum_peaks
         }
     
-    def dump(self, silico_options):
+    def dump(self, digichem_options):
         dump_dict = {
             "num_vibrations": len(self),
             "num_negative": len(self.negative),
-            "values": super().dump(silico_options),
+            "values": super().dump(digichem_options),
         }
         return dump_dict
 
@@ -126,7 +126,7 @@ class Vibration(Result_object, Floatable_mixin):
         """
         return float(self.frequency)
     
-    def dump(self, silico_options):
+    def dump(self, digichem_options):
         """
         Get a representation of this result object in primitive format.
         """

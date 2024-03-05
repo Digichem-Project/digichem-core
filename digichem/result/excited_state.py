@@ -1,6 +1,6 @@
 # Hidden import for speed.
 #import colour
-# from silico.result.spectroscopy import Spectroscopy_graph,\
+# from digichem.result.spectroscopy import Spectroscopy_graph,\
 #     Absorption_emission_graph
 
 # General imports.
@@ -12,12 +12,10 @@ import itertools
 
 from digichem.misc.text import andjoin
 from digichem.exception.base import Result_unavailable_error
-
-# Silico imports.
-from silico.result import Result_container
-from silico.result import Result_object
-from silico.result.base import Floatable_mixin
-import silico.log
+from digichem.result import Result_container
+from digichem.result import Result_object
+from digichem.result.base import Floatable_mixin
+import digichem.log
 
 
 class Excited_state_list(Result_container):
@@ -238,20 +236,20 @@ class Excited_state_list(Result_container):
         
         This functionality is useful for hiding expense properties from the normal dump process, while still exposing them when specifically requested.
         
-        Each key in the returned dict is the name of a dumpable item, each value is a function to call with silico_options as its only param.
+        Each key in the returned dict is the name of a dumpable item, each value is a function to call with digichem_options as its only param.
         """
         return {"spectrum": self.generate_spectrum}
     
-    def generate_spectrum(self, silico_options):
+    def generate_spectrum(self, digichem_options):
         """
         Abstract function that is called to generate an on-demand value for dumping.
         
         This functionality is useful for hiding expensive properties from the normal dump process, while still exposing them when specifically requested.
         
         :param key: The key being requested.
-        :param silico_options: Silico options being used to dump.
+        :param digichem_options: Digichem options being used to dump.
         """
-        from silico.result.spectroscopy import Spectroscopy_graph, Absorption_emission_graph
+        from digichem.result.spectroscopy import Spectroscopy_graph, Absorption_emission_graph
         
         
         # Get spectrum data.
@@ -259,18 +257,18 @@ class Excited_state_list(Result_container):
         # TODO: It's weird that these spectra are only available in dumped format, there should be some property/function on the class that also returns them...
         spectrum_nm = Absorption_emission_graph.from_excited_states(
             self,
-            silico_options['absorption_spectrum']['fwhm'],
-            silico_options['absorption_spectrum']['gaussian_resolution'],
-            silico_options['absorption_spectrum']['gaussian_cutoff'],
-            use_jacobian = silico_options['absorption_spectrum']['use_jacobian']
+            digichem_options['absorption_spectrum']['fwhm'],
+            digichem_options['absorption_spectrum']['gaussian_resolution'],
+            digichem_options['absorption_spectrum']['gaussian_cutoff'],
+            use_jacobian = digichem_options['absorption_spectrum']['use_jacobian']
         )
         
         
-        spectrum_ev = Spectroscopy_graph([(excited_state.energy, excited_state.oscillator_strength) for excited_state in self], silico_options['absorption_spectrum']['fwhm'], silico_options['absorption_spectrum']['gaussian_resolution'], silico_options['absorption_spectrum']['gaussian_cutoff'])
+        spectrum_ev = Spectroscopy_graph([(excited_state.energy, excited_state.oscillator_strength) for excited_state in self], digichem_options['absorption_spectrum']['fwhm'], digichem_options['absorption_spectrum']['gaussian_resolution'], digichem_options['absorption_spectrum']['gaussian_cutoff'])
         
         try:
             spectrum_nm_data = spectrum_nm.plot_cumulative_gaussian()
-            y_units = "arb. unit" if silico_options['absorption_spectrum']['use_jacobian'] else "oscillator_strength"
+            y_units = "arb. unit" if digichem_options['absorption_spectrum']['use_jacobian'] else "oscillator_strength"
             
             spectrum_nm_data = [{"x":{"value": float(x), "units": "nm"}, "y": {"value":float(y), "units": y_units}} for x,y in spectrum_nm_data]
             spectrum_nm_peaks = [{"x":{"value": float(x), "units": "nm"}, "y": {"value":float(y), "units": y_units}} for x, y in spectrum_nm.peaks()]
@@ -300,9 +298,9 @@ class Excited_state_list(Result_container):
             }    
         }
     
-    def dump(self, silico_options):       
+    def dump(self, digichem_options):       
         dump_dict = {
-            "values": super().dump(silico_options),
+            "values": super().dump(digichem_options),
         }
         
         # Add extra properties.
@@ -360,7 +358,7 @@ class Excited_state_transition(Result_object):
         """
         return self.coefficient **2
     
-    def dump(self, silico_options):
+    def dump(self, digichem_options):
         """
         Get a representation of this result object in primitive format.
         """
@@ -554,7 +552,7 @@ class Energy_state(Result_object, Floatable_mixin):
         """
         return "{}({})".format(self.multiplicity_symbol, self.multiplicity_level)
     
-    def dump(self, silico_options):
+    def dump(self, digichem_options):
         """
         Get a representation of this result object in primitive format.
         """
@@ -704,11 +702,11 @@ class Excited_state(Energy_state):
         # Now convert to 0 -> 255 and return.
         return [int(clr * 255) for clr in rgb]    
     
-    def dump(self, silico_options):
+    def dump(self, digichem_options):
         """
         Get a representation of this result object in primitive format.
         """
-        dump_dict = super().dump(silico_options)
+        dump_dict = super().dump(digichem_options)
         dump_dict.update({
             "wavelength": {
                 "value": float(self.wavelength),
@@ -721,8 +719,8 @@ class Excited_state(Energy_state):
             },
             "symmetry": self.symmetry,
             "oscillator_strength": float(self.oscillator_strength) if self.oscillator_strength is not None else None,
-            "tdm": self.transition_dipole_moment.dump(silico_options) if self.transition_dipole_moment is not None else None,
-            "transitions": [tran.dump(silico_options) for tran in self.transitions],
+            "tdm": self.transition_dipole_moment.dump(digichem_options) if self.transition_dipole_moment is not None else None,
+            "transitions": [tran.dump(digichem_options) for tran in self.transitions],
         })
         return dump_dict
         
@@ -749,11 +747,11 @@ class Excited_state(Energy_state):
                 return []
             
             elif not hasattr(parser.data, "etsyms"):
-                silico.log.get_logger().warning("Unable to fully parse excited states because only energies are available, missing symmetries")
+                digichem.log.get_logger().warning("Unable to fully parse excited states because only energies are available, missing symmetries")
                 return []
             
             elif not hasattr(parser.data, "etenergies"):
-                silico.log.get_logger().warning("Unable to fully parse excited states because only symmetries are available, missing energies")
+                digichem.log.get_logger().warning("Unable to fully parse excited states because only symmetries are available, missing energies")
                 return []
             
             else:

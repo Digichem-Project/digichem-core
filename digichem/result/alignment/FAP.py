@@ -2,7 +2,7 @@
 import math
 
 from statistics import pstdev
-from silico.result.alignment import Alignment
+from digichem.result.alignment import Alignment
 
 class Furthest_atom_pair(Alignment):
     """

@@ -4,8 +4,8 @@ from datetime import timedelta, datetime
 import glob, pathlib
 import warnings
 
-# Silico imports.
-from silico.parse.cclib import Cclib_parser
+# Digichem imports.
+from digichem.parse.cclib import Cclib_parser
 
 # Hidden imports.
 #from cclib.io.ccio import sort_turbomole_outputs
@@ -102,7 +102,7 @@ class Turbomole_parser(Cclib_parser):
         """
         Get a Result set object from this parser.
         
-        :param options: A Silico options nested dictionary containing options to control parsing.
+        :param options: A Digichem options nested dictionary containing options to control parsing.
         :return: The populated result set.
         """
         super().process(options)

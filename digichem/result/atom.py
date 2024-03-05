@@ -2,17 +2,15 @@
 import math
 import periodictable
 from itertools import zip_longest
-import silico.log
 import re
 
+import digichem.log
 from digichem.misc.base import dict_list_index
 from digichem.exception.base import Result_unavailable_error, Digichem_exception
-
-# Silico imports
-from silico.result import Result_container
-from silico.result import Result_object
-from silico.result import Unmergeable_container_mixin
-from silico.file.babel import Openbabel_converter
+from digichem.result import Result_container
+from digichem.result import Result_object
+from digichem.result import Unmergeable_container_mixin
+from digichem.file.babel import Openbabel_converter
 
 # Hidden import.
 
@@ -133,7 +131,7 @@ class Nucleus():
             return self.element.symbol
         
 
-# Molecule_mixin is used for silico.result.atom.Atom_list and silico.input.silico.Silico_coords_ABC 
+# Molecule_mixin is used for digichem.result.atom.Atom_list and digichem.input.digichem.Digichem_coords_ABC 
 class Molecule_mixin():
     """
     Mixin for classes that represent molecules, compounds, or other molecular-like collections of atoms.
@@ -429,13 +427,13 @@ class Atom_list(Result_container, Unmergeable_container_mixin, Molecule_mixin):
     @classmethod
     def from_coords(self, coords):
         """
-        Get an instance of this class from a Silico input coordinates object.
+        Get an instance of this class from a Digichem input coordinates object.
         
-        :param coords: Silico input coords.
+        :param coords: Digichem input coords.
         """
         return self(Atom.list_from_coords(coords), charge = coords.charge)
     
-    def dump(self, silico_options):
+    def dump(self, Digichem_options):
         """
         Get a representation of this result object in primitive format.
         """
@@ -466,7 +464,7 @@ class Atom_list(Result_container, Unmergeable_container_mixin, Molecule_mixin):
             },
             "linearity_ratio": float(self.get_linear_ratio()),
             "planarity_ratio": float(self.get_planar_ratio()),
-            "values": super().dump(silico_options),
+            "values": super().dump(Digichem_options),
         }
         return dump_dict
     
@@ -536,7 +534,7 @@ class Atom_list(Result_container, Unmergeable_container_mixin, Molecule_mixin):
         
         except Exception:
             # This function is not implemented for some atoms (eg, Se).
-            silico.log.get_logger().warning("Unable to determine bond ordering for molecule '{}'; all bonds will be represented as single bonds only".format(self.smiles), exc_info = True)
+            digichem.log.get_logger().warning("Unable to determine bond ordering for molecule '{}'; all bonds will be represented as single bonds only".format(self.smiles), exc_info = True)
         
         return mol
 
@@ -646,7 +644,7 @@ class Atom(Atom_ABC):
         """
         return math.sqrt( (self.coords[0] - foreign_atom.coords[0])**2 + (self.coords[1] - foreign_atom.coords[1])**2 + (self.coords[2] - foreign_atom.coords[2])**2)
     
-    def dump(self, silico_options):
+    def dump(self, Digichem_options):
         """
         Get a representation of this result object in primitive format.
         """
@@ -720,9 +718,9 @@ class Atom(Atom_ABC):
     @classmethod
     def list_from_coords(self, coords):
         """
-        Get a list of Atom objects from a Silico input coordinates object.
+        Get a list of Atom objects from a Digichem input coordinates object.
         
-        :param coords: Silico input coords.
+        :param coords: Digichem input coords.
         :result: A list of Atom objects. An empty list is returned if no atom data is available.
         """
         return [self(index+1, getattr(periodictable.elements, atom['atom']).number, (atom["x"], atom["y"], atom["z"])) for index, atom in enumerate(coords.atoms)]

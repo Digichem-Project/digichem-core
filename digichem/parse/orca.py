@@ -1,6 +1,6 @@
-from silico.parse.cclib import Cclib_parser
-import silico.file.types as file_types
-import silico.log
+from digichem.parse.cclib import Cclib_parser
+import digichem.file.types as file_types
+import digichem.log
 
 
 class Orca_parser(Cclib_parser):
@@ -43,7 +43,7 @@ class Orca_parser(Cclib_parser):
             
             else:
                 pass
-                silico.log.get_logger().debug("Unrecognised SOC section started by line '{}'".format(line))
+                digichem.log.get_logger().debug("Unrecognised SOC section started by line '{}'".format(line))
             
             if soc_type is not None:
                 # Reset our attributes.

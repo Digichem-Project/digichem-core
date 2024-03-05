@@ -1,8 +1,8 @@
-from silico.result.alignment.FAP import Furthest_atom_pair
+from digichem.result.alignment.FAP import Furthest_atom_pair
 from statistics import  mean
 import math
 import statistics as stats
-from silico.result.alignment import Axis_swapper_mix
+from digichem.result.alignment import Axis_swapper_mix
 
 class Average_angle(Furthest_atom_pair, Axis_swapper_mix):
     """

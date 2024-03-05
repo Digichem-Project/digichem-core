@@ -6,9 +6,9 @@ import warnings
 
 from digichem.exception import Result_unavailable_error
 
-from silico.result import Result_object
-import silico.result.excited_state
-from silico.result.emission import Emissions
+from digichem.result import Result_object
+import digichem.result.excited_state
+from digichem.result.emission import Emissions
 
 
 class Result_set(Result_object):
@@ -158,7 +158,7 @@ class Result_set(Result_object):
         if "Excited States" in self.metadata.calculations:
             # Add multiplicity based on ES.
             mult = self.excited_states.group()
-            mult_strings = [silico.result.excited_state.Energy_state.multiplicity_number_to_string(multiplicity).capitalize() for multiplicity in mult]
+            mult_strings = [digichem.result.excited_state.Energy_state.multiplicity_number_to_string(multiplicity).capitalize() for multiplicity in mult]
             if len(mult_strings) <= 2:
                 # Add the strings.
                 title += " ({})".format(", ".join(mult_strings))
@@ -166,7 +166,7 @@ class Result_set(Result_object):
                 # Add something non-specific.
                 title += " (Various Multiplicities)"
         else:
-            title += " ({})".format(silico.result.excited_state.Energy_state.multiplicity_number_to_string(self.metadata.multiplicity).capitalize())
+            title += " ({})".format(digichem.result.excited_state.Energy_state.multiplicity_number_to_string(self.metadata.multiplicity).capitalize())
         return title
     
     @property
@@ -218,7 +218,7 @@ class Result_set(Result_object):
             # No S1 available.
             return None
         
-    def dump(self, silico_options):
+    def dump(self, digichem_options):
         "Dump the data contained in this result set, serialising it to a hierarchy of dicts that can be saved in various formats."
         # Start with our DB ID if we have one.
         dump_dic = {}
@@ -226,19 +226,19 @@ class Result_set(Result_object):
             dump_dic['_id'] = self._id
             
         dump_dic.update({
-            "metadata": self.metadata.dump(silico_options),
-            "ground_state": self.ground_state.dump(silico_options) if self.ground_state is not None else None,
-            "energies": self.energies.dump(silico_options),
-            "atoms": self.atoms.dump(silico_options),
-            "raw_atoms": self.raw_atoms.dump(silico_options),
-            "orbitals": self.orbitals.dump(silico_options),
-            "beta_orbitals": self.beta_orbitals.dump(silico_options),
-            "pdm": self.pdm.dump(silico_options) if self.pdm is not None else None,
-            "excited_states": self.excited_states.dump(silico_options),
-            "soc": self.soc.dump(silico_options),
-            "vibrations": self.vibrations.dump(silico_options),
-            "nmr": self.nmr.dump(silico_options),
-            "emission": self.emission.dump(silico_options)
+            "metadata": self.metadata.dump(digichem_options),
+            "ground_state": self.ground_state.dump(digichem_options) if self.ground_state is not None else None,
+            "energies": self.energies.dump(digichem_options),
+            "atoms": self.atoms.dump(digichem_options),
+            "raw_atoms": self.raw_atoms.dump(digichem_options),
+            "orbitals": self.orbitals.dump(digichem_options),
+            "beta_orbitals": self.beta_orbitals.dump(digichem_options),
+            "pdm": self.pdm.dump(digichem_options) if self.pdm is not None else None,
+            "excited_states": self.excited_states.dump(digichem_options),
+            "soc": self.soc.dump(digichem_options),
+            "vibrations": self.vibrations.dump(digichem_options),
+            "nmr": self.nmr.dump(digichem_options),
+            "emission": self.emission.dump(digichem_options)
         })
         
         return dump_dic
