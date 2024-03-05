@@ -1,6 +1,6 @@
-"""Unit tests for silico"""
+"""Unit tests for digichem"""
 
 from pathlib import Path
 
-import silico.log
-silico.log.set_logging_level("DEBUG")
+import digichem.log
+digichem.log.set_logging_level("DEBUG")

@@ -3,8 +3,8 @@
 import pytest
 from pathlib import Path
 
-import silico.config
-from silico.datas import get_resource
+import digichem.config
+from digichem.datas import get_resource
 
 
 def data_directory():
@@ -49,8 +49,8 @@ result_files = {
 }
 
 @pytest.fixture(scope="package")
-def silico_options(tmpdir_factory):
-    config = silico.config.get_config()
+def digichem_options(tmpdir_factory):
+    config = digichem.config.get_config()
     
     # Change the default DB locations to prevent SPAM.
     config['databases'] = [

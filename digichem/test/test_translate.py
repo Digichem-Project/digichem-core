@@ -1,7 +1,8 @@
 """Tests for translation classes."""
-from silico.submit.translate import Solvent, Basis_set, Multiplicity, Functional,\
-    Cube_grid_points
 import pytest
+
+from digichem.translate import Solvent, Basis_set, Multiplicity, Functional,\
+    Cube_grid_points
 
 
 def test_solvent():

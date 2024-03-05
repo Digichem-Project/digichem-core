@@ -4,139 +4,139 @@ import pytest
 from pathlib import Path
 import scipy.constants
 
-from silico.parse import parse_calculation
-from silico.test.util import data_directory, silico_options
-from silico.test.util import check_float_list, check_dipole, check_orbitals
-from silico.parse.util import parse_and_merge_calculations
+from digichem.parse import parse_calculation
+from digichem.parse.util import parse_and_merge_calculations
+from digichem.test.util import data_directory, digichem_options
+from digichem.test.util import check_float_list, check_dipole, check_orbitals
 
 
 @pytest.fixture(scope="module")
-def gaussian_SP_result(silico_options):
-    return parse_calculation(Path(data_directory(), "Naphthalene/Gaussian 16 Single Point (Singlet) PBE1PBE (GD3BJ) Toluene 6-31G(d,p).tar.gz"), options = silico_options)
+def gaussian_SP_result(digichem_options):
+    return parse_calculation(Path(data_directory(), "Naphthalene/Gaussian 16 Single Point (Singlet) PBE1PBE (GD3BJ) Toluene 6-31G(d,p).tar.gz"), options = digichem_options)
 
 @pytest.fixture(scope="module")
-def gaussian_opt_result(silico_options):
-    return parse_calculation(Path(data_directory(), "Naphthalene/Gaussian 16 Optimisation Frequencies PBE1PBE (GD3BJ) Toluene 6-31G(d,p)"), options = silico_options)
+def gaussian_opt_result(digichem_options):
+    return parse_calculation(Path(data_directory(), "Naphthalene/Gaussian 16 Optimisation Frequencies PBE1PBE (GD3BJ) Toluene 6-31G(d,p)"), options = digichem_options)
 
 @pytest.fixture(scope="module")
-def gaussian_radical_anion_result(silico_options):
-    return parse_calculation(Path(data_directory(), "Benzene Anion/Gaussian 16 Optimisation Frequencies PBE1PBE (GD3BJ) Gas Phase 6-31G(d,p).tar.gz"), options = silico_options)
+def gaussian_radical_anion_result(digichem_options):
+    return parse_calculation(Path(data_directory(), "Benzene Anion/Gaussian 16 Optimisation Frequencies PBE1PBE (GD3BJ) Gas Phase 6-31G(d,p).tar.gz"), options = digichem_options)
 
 @pytest.fixture(scope="module")
-def gaussian_ES_result(silico_options):
-    return parse_calculation(Path(data_directory(), "Naphthalene/Gaussian 16 Excited States TDA 10 Singlets 10 Triplets PBE1PBE (GD3BJ) Toluene 6-31G(d,p).tar.gz"), options = silico_options)
+def gaussian_ES_result(digichem_options):
+    return parse_calculation(Path(data_directory(), "Naphthalene/Gaussian 16 Excited States TDA 10 Singlets 10 Triplets PBE1PBE (GD3BJ) Toluene 6-31G(d,p).tar.gz"), options = digichem_options)
 
 @pytest.fixture(scope="module")
-def gaussian_emission_result(silico_options):
+def gaussian_emission_result(digichem_options):
     return parse_and_merge_calculations(
         Path(data_directory(), "Naphthalene/Gaussian 16 Optimisation Frequencies PBE1PBE (GD3BJ) Toluene 6-31G(d,p)"),
         Path(data_directory(), "Naphthalene/Gaussian 16 Excited States TDA Optimised S(1) PBE1PBE (GD3BJ) Toluene 6-31G(d,p).tar.gz"),
-        options = silico_options
+        options = digichem_options
     )
 
 @pytest.fixture(scope="module")
-def gaussian_opt_ES_result(silico_options):
-    return parse_calculation(Path(data_directory(), "Naphthalene/Gaussian 16 Excited States TDA Optimised S(1) PBE1PBE (GD3BJ) Toluene 6-31G(d,p).tar.gz"), options = silico_options)
+def gaussian_opt_ES_result(digichem_options):
+    return parse_calculation(Path(data_directory(), "Naphthalene/Gaussian 16 Excited States TDA Optimised S(1) PBE1PBE (GD3BJ) Toluene 6-31G(d,p).tar.gz"), options = digichem_options)
 
 @pytest.fixture(scope="module")
-def gaussian_PDM_result(silico_options):
-    return parse_calculation(Path(data_directory(), "Pyridine/Gaussian 16 Optimisation Frequencies PBE1PBE (GD3BJ) Toluene 6-31G(d,p).tar.gz"), options = silico_options)
+def gaussian_PDM_result(digichem_options):
+    return parse_calculation(Path(data_directory(), "Pyridine/Gaussian 16 Optimisation Frequencies PBE1PBE (GD3BJ) Toluene 6-31G(d,p).tar.gz"), options = digichem_options)
 
 @pytest.fixture(scope="module")
-def gaussian_TDM_result(silico_options):
-    return parse_calculation(Path(data_directory(), "Pyridine/Gaussian 16 Excited States TDA 10 Singlets 10 Triplets PBE1PBE (GD3BJ) Toluene 6-31G(d,p).tar.gz"), options = silico_options)
+def gaussian_TDM_result(digichem_options):
+    return parse_calculation(Path(data_directory(), "Pyridine/Gaussian 16 Excited States TDA 10 Singlets 10 Triplets PBE1PBE (GD3BJ) Toluene 6-31G(d,p).tar.gz"), options = digichem_options)
 
 @pytest.fixture(scope="module")
-def gaussian_PDM_ES_result(silico_options):
-    return parse_calculation(Path(data_directory(), "Pyridine/Gaussian 16 Excited States TDA Optimised S(1) PBE1PBE (GD3BJ) Toluene 6-31G(d,p).tar.gz"), options = silico_options)
+def gaussian_PDM_ES_result(digichem_options):
+    return parse_calculation(Path(data_directory(), "Pyridine/Gaussian 16 Excited States TDA Optimised S(1) PBE1PBE (GD3BJ) Toluene 6-31G(d,p).tar.gz"), options = digichem_options)
 
 #############
 # Turbomole #
 #############
 
 @pytest.fixture(scope="module")
-def turbomole_sp_result(silico_options):
-    return parse_calculation(Path(data_directory(), "Pyridine/Turbomole Single Point DFT PBE0 (GD3BJ) Toluene Pople Basis Sets STO-3G.tar.gz"), options = silico_options)
+def turbomole_sp_result(digichem_options):
+    return parse_calculation(Path(data_directory(), "Pyridine/Turbomole Single Point DFT PBE0 (GD3BJ) Toluene Pople Basis Sets STO-3G.tar.gz"), options = digichem_options)
 
 @pytest.fixture(scope="module")
-def turbomole_opt_result(silico_options):
-    return parse_calculation(Path(data_directory(), "Naphthalene/Turbomole Optimisation Frequency PBE0 (GD3BJ) 6-31G**.tar.gz"), options = silico_options)
+def turbomole_opt_result(digichem_options):
+    return parse_calculation(Path(data_directory(), "Naphthalene/Turbomole Optimisation Frequency PBE0 (GD3BJ) 6-31G**.tar.gz"), options = digichem_options)
 
 @pytest.fixture(scope="module")
-def turbomole_ES_singlets_result(silico_options):
-    return parse_calculation(Path(data_directory(), "Naphthalene/Turbomole Excited States TDA 10 Singlets PBE0 (GD3BJ) 6-31G**.tar.gz"), options = silico_options)
+def turbomole_ES_singlets_result(digichem_options):
+    return parse_calculation(Path(data_directory(), "Naphthalene/Turbomole Excited States TDA 10 Singlets PBE0 (GD3BJ) 6-31G**.tar.gz"), options = digichem_options)
 
 @pytest.fixture(scope="module")
-def turbomole_ES_triplets_result(silico_options):
-    return parse_calculation(Path(data_directory(), "Naphthalene/Turbomole Excited States TDA 10 Triplets PBE0 (GD3BJ) 6-31G**.tar.gz"), options = silico_options)
+def turbomole_ES_triplets_result(digichem_options):
+    return parse_calculation(Path(data_directory(), "Naphthalene/Turbomole Excited States TDA 10 Triplets PBE0 (GD3BJ) 6-31G**.tar.gz"), options = digichem_options)
 
 @pytest.fixture(scope="module")
-def turbomole_ES_result(silico_options):
+def turbomole_ES_result(digichem_options):
     return parse_and_merge_calculations(
         Path(data_directory(), "Naphthalene/Turbomole Excited States TDA 10 Singlets PBE0 (GD3BJ) 6-31G**.tar.gz"),
         Path(data_directory(), "Naphthalene/Turbomole Excited States TDA 10 Triplets PBE0 (GD3BJ) 6-31G**.tar.gz"),
-        options = silico_options
+        options = digichem_options
     )
 
 @pytest.fixture(scope="module")
-def turbomole_PDM_result(silico_options):
-    return parse_calculation(Path(data_directory(), "Pyridine/Turbomole Optimisation Frequency PBE0 (GD3BJ) 6-31G**.tar.gz"), options = silico_options)
+def turbomole_PDM_result(digichem_options):
+    return parse_calculation(Path(data_directory(), "Pyridine/Turbomole Optimisation Frequency PBE0 (GD3BJ) 6-31G**.tar.gz"), options = digichem_options)
 
 @pytest.fixture(scope="module")
-def turbomole_TDM_result(silico_options):
-    return parse_calculation(Path(data_directory(), "Pyridine/Turbomole Excited States TDA 10 Singlets PBE0 (GD3BJ) 6-31G**.tar.gz"), options = silico_options)
+def turbomole_TDM_result(digichem_options):
+    return parse_calculation(Path(data_directory(), "Pyridine/Turbomole Excited States TDA 10 Singlets PBE0 (GD3BJ) 6-31G**.tar.gz"), options = digichem_options)
 
 @pytest.fixture(scope="module")
-def turbomole_radical_anion_result(silico_options):
-    return parse_calculation(Path(data_directory(), "Benzene Anion/Turbomole Optimisation Frequency PBE0 (GD3BJ) 6-31G**.tar.gz"), options = silico_options)
+def turbomole_radical_anion_result(digichem_options):
+    return parse_calculation(Path(data_directory(), "Benzene Anion/Turbomole Optimisation Frequency PBE0 (GD3BJ) 6-31G**.tar.gz"), options = digichem_options)
 
 @pytest.fixture(scope="module")
-def turbomole_ADC2_opt_result(silico_options):
-    return parse_calculation(Path(data_directory(), "Naphthalene/Turbomole Optimisation ADC(2) cc-pVDZ.tar.gz"), options = silico_options)
+def turbomole_ADC2_opt_result(digichem_options):
+    return parse_calculation(Path(data_directory(), "Naphthalene/Turbomole Optimisation ADC(2) cc-pVDZ.tar.gz"), options = digichem_options)
 
 @pytest.fixture(scope="module")
-def turbomole_ADC2_singlets_result(silico_options):
-    return parse_calculation(Path(data_directory(), "Naphthalene/Turbomole Excited States ADC(2) S(1) and S(2) cc-pVDZ.tar.gz"), options = silico_options)
+def turbomole_ADC2_singlets_result(digichem_options):
+    return parse_calculation(Path(data_directory(), "Naphthalene/Turbomole Excited States ADC(2) S(1) and S(2) cc-pVDZ.tar.gz"), options = digichem_options)
 
 @pytest.fixture(scope="module")
-def turbomole_ADC2_triplets_result(silico_options):
-    return parse_calculation(Path(data_directory(), "Naphthalene/Turbomole Excited States ADC(2) T(1) and T(2) cc-pVDZ.tar.gz"), options = silico_options)
+def turbomole_ADC2_triplets_result(digichem_options):
+    return parse_calculation(Path(data_directory(), "Naphthalene/Turbomole Excited States ADC(2) T(1) and T(2) cc-pVDZ.tar.gz"), options = digichem_options)
 
 ########
 # ORCA #
 ########
 
 @pytest.fixture(scope="module")
-def orca_SP_result(silico_options):
-    return parse_calculation(Path(data_directory(), "Pyridine/Orca Single Point PBE0 (GD3BJ) Gas Phase Pople Basis Sets STO-3G.tar.gz"), options = silico_options)
+def orca_SP_result(digichem_options):
+    return parse_calculation(Path(data_directory(), "Pyridine/Orca Single Point PBE0 (GD3BJ) Gas Phase Pople Basis Sets STO-3G.tar.gz"), options = digichem_options)
 
 @pytest.fixture(scope="module")
-def orca_solvent_SP_result(silico_options):
-    return parse_calculation(Path(data_directory(), "Pyridine/Orca Single Point PBE0 (GD3BJ) Toluene Pople Basis Sets STO-3G.tar.gz"), options = silico_options)
+def orca_solvent_SP_result(digichem_options):
+    return parse_calculation(Path(data_directory(), "Pyridine/Orca Single Point PBE0 (GD3BJ) Toluene Pople Basis Sets STO-3G.tar.gz"), options = digichem_options)
 
 @pytest.fixture(scope="module")
-def orca_grad_result(silico_options):
-    return parse_calculation(Path(data_directory(), "Pyridine/Orca Gradient PBE0 (GD3BJ) Gas Phase Pople Basis Sets STO-3G.tar.gz"), options = silico_options)
+def orca_grad_result(digichem_options):
+    return parse_calculation(Path(data_directory(), "Pyridine/Orca Gradient PBE0 (GD3BJ) Gas Phase Pople Basis Sets STO-3G.tar.gz"), options = digichem_options)
 
 @pytest.fixture(scope="module")
-def orca_opt_result(silico_options):
-    return parse_calculation(Path(data_directory(), "Pyridine/Orca Optimisation PBE0 (GD3BJ) Gas Phase Pople Basis Sets STO-3G.tar.gz"), options = silico_options)
+def orca_opt_result(digichem_options):
+    return parse_calculation(Path(data_directory(), "Pyridine/Orca Optimisation PBE0 (GD3BJ) Gas Phase Pople Basis Sets STO-3G.tar.gz"), options = digichem_options)
 
 @pytest.fixture(scope="module")
-def orca_opt_freq_result(silico_options):
-    return parse_calculation(Path(data_directory(), "Pyridine/Orca Optimisation Frequencies PBE0 (GD3BJ) Gas Phase Pople Basis Sets STO-3G.tar.gz"), options = silico_options)
+def orca_opt_freq_result(digichem_options):
+    return parse_calculation(Path(data_directory(), "Pyridine/Orca Optimisation Frequencies PBE0 (GD3BJ) Gas Phase Pople Basis Sets STO-3G.tar.gz"), options = digichem_options)
 
 @pytest.fixture(scope="module")
-def orca_freq_result(silico_options):
-    return parse_calculation(Path(data_directory(), "Pyridine/Orca Frequencies PBE0 (GD3BJ) Gas Phase Pople Basis Sets STO-3G.tar.gz"), options = silico_options)
+def orca_freq_result(digichem_options):
+    return parse_calculation(Path(data_directory(), "Pyridine/Orca Frequencies PBE0 (GD3BJ) Gas Phase Pople Basis Sets STO-3G.tar.gz"), options = digichem_options)
 
 @pytest.fixture(scope="module")
-def orca_nmr_result(silico_options):
-    return parse_calculation(Path(data_directory(), "Pyridine/Orca NMR PBE0 (GD3BJ) Gas Phase Pople Basis Sets STO-3G.tar.gz"), options = silico_options)
+def orca_nmr_result(digichem_options):
+    return parse_calculation(Path(data_directory(), "Pyridine/Orca NMR PBE0 (GD3BJ) Gas Phase Pople Basis Sets STO-3G.tar.gz"), options = digichem_options)
 
 @pytest.fixture(scope="module")
-def orca_ES_result(silico_options):
-    return parse_calculation(Path(data_directory(), "Pyridine/Orca Excited States TDA 10 Singlets 10 Triplets PBE0 (GD3BJ) Gas Phase Pople Basis Sets STO-3G.tar.gz"), options = silico_options)
+def orca_ES_result(digichem_options):
+    return parse_calculation(Path(data_directory(), "Pyridine/Orca Excited States TDA 10 Singlets 10 Triplets PBE0 (GD3BJ) Gas Phase Pople Basis Sets STO-3G.tar.gz"), options = digichem_options)
 
 
 @pytest.mark.parametrize("result_set, num, final", [

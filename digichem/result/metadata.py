@@ -15,9 +15,8 @@ from digichem.misc.text import andjoin
 from digichem.exception import Result_unavailable_error
 from digichem.result import Result_object
 import digichem
-
-# from silico.submit import translate
-# from silico.submit.memory import Memory
+from digichem import translate
+from digichem.memory import Memory
 
 
 class Solvent(Result_object):

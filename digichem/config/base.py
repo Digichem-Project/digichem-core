@@ -7,9 +7,8 @@ from configurables.option import Nested_dict_type
 
 from digichem.config.locations import user_config_location
 from digichem.misc.io import atomic_write
+from digichem.translate import Cube_grid_points
 
-#from silico.submit.translate import Cube_grid_points
-Cube_grid_points = str
 
 class Config(dict):
     """
