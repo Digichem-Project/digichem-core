@@ -1,7 +1,7 @@
 from pathlib import Path
 
 import digichem
-from silico.datas import get_resource
+from digichem.datas import get_resource
 
 
 # A config file included in the digichem install directory.

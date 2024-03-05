@@ -7,10 +7,10 @@ import periodictable
 
 # Digichem imports.
 from digichem.exception.base import Digichem_exception
-from digichem.file.gaussian import Gaussian_input_parser
+from digichem.input import Gaussian_input_parser
 from digichem.file.babel import Openbabel_converter, Obabel_formats
 import digichem.log
-from digichem.input import Input_file
+from digichem.input.base import Input_file
 from digichem.parse.util import parse_calculation, open_for_parsing
 import digichem.config
 from digichem.result.atom import Molecule_mixin
@@ -133,7 +133,7 @@ class Digichem_coords_ABC(Input_file, Molecule_mixin):
         """
         A unique list of the elements in this input file.
         
-        The elemets are returned as a list of integers (atomic numbers)
+        The elements are returned as a list of integers (atomic numbers)
         """
         return list(set(
             periodictable.elements.symbol(coord['atom']).number for coord in self.atoms

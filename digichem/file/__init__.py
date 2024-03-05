@@ -1,2 +1,1 @@
-from .base import File_maker
-from .base import File_converter
+from .base import File_maker, File_converter, Dummy_file_maker

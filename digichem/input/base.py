@@ -1,6 +1,5 @@
 from pathlib import Path
 
-
 class Input_file():
     """
     ABC for classes that support various input format types.

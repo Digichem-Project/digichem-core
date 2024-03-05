@@ -10,5 +10,5 @@ def get_resource(name):
     """
     file_manager = ExitStack()
     atexit.register(file_manager.close)
-    ref = importlib_resources.files('silico') / name
+    ref = importlib_resources.files('digichem') / name
     return file_manager.enter_context(importlib_resources.as_file(ref))

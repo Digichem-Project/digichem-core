@@ -2,15 +2,14 @@ import yaml
 from deepmerge import Merger
 from pathlib import Path
 
-from configurables import Configurable, Options
+from configurables import Configurable, Options, Option
 from configurables.option import Nested_dict_type
-from configurables.exception import Configurable_exception
 
-from digichem.config import Auto_type
-from digichem.config import user_config_location
+from digichem.config.locations import user_config_location
 from digichem.misc.io import atomic_write
 
-from silico.submit.translate import Cube_grid_points
+#from silico.submit.translate import Cube_grid_points
+Cube_grid_points = str
 
 class Config(dict):
     """
@@ -333,19 +332,7 @@ To disable the maximum width, set to null.""", type = int, default = 1500),
             "31P": {"frequency": 162.0}
         }))
     )
-    
-    def __init__(self, validate_now = True, palette = None, **kwargs):
-        """
-        Constructor for Digichem_options objects.
-        """
-        # The palette to use for urwid.
-        # A palette is a list of tuples, where the first item of each tuple identifies the name of an attribute, and the remaining specify how that attribute should appear.
-        # However, we instead store the palette as a dictionary, as this would appear to fit the format better.
-        # The palette can be accessed in the urwid format at 'urwid_palette'.
-        self.palette = palette if palette is not None else []
-        
-        super().__init__(validate_now=validate_now, **kwargs)
-        
+            
     @classmethod
     def _from_reduce(self, kwargs):
         """
@@ -372,13 +359,6 @@ To disable the maximum width, set to null.""", type = int, default = 1500),
         # Instead it reverts that option to its default.
         delattr(self, key)
     
-    @property
-    def urwid_palette(self):
-        """
-        A shortcut for accessing the urwid palette (in a format that can be passed directly to urwid).
-        """
-        return self.yaml_to_palette(self.palette)
-    
     def save(self):
         """
         Save the current value of these options to file, so that they will be reloaded on next program start.
@@ -394,23 +374,4 @@ To disable the maximum width, set to null.""", type = int, default = 1500),
         except FileNotFoundError as e:
             # We lost the race, give up.
             raise Exception("Failed to write settings to file '{}'; one of the parent directories does not exist".format(user_config_location)) from e
-            
-    @classmethod
-    def yaml_to_palette(self, yaml_palette):
-        """
-        Convert a palette loaded from a YAML config file to a format understood by urwid.
-        """
-        # The palette (a list of tuples)
-        palette = []
-        
-        # Go through each item in the yaml_palette (a dict).
-        for name, values in yaml_palette.items():
-            # Add the name to the start of values.
-            values.insert(0, name)
-            
-            # Add as a tuple.
-            palette.append(tuple(values))
-        
-        # Done.
-        return palette
     
