@@ -10,7 +10,7 @@ from digichem.exception.base import Result_unavailable_error, Digichem_exception
 from digichem.result import Result_container
 from digichem.result import Result_object
 from digichem.result import Unmergeable_container_mixin
-from digichem.file.babel import Openbabel_converter
+from digichem.file.prattle import Openprattle_converter
 
 # Hidden import.
 
@@ -308,7 +308,7 @@ class Atom_list(Result_container, Unmergeable_container_mixin, Molecule_mixin):
             # Cache miss, go do some work.
             
             # TODO: Handle cases where obabel isn't available
-            conv = Openbabel_converter.get_cls("xyz")(input_file = self.to_xyz(), input_file_type = "xyz")
+            conv = Openprattle_converter.get_cls("xyz")(input_file = self.to_xyz(), input_file_type = "xyz")
             # Cache the result in case we need it again.
             self._smiles = conv.convert("can").strip()
             return self._smiles
@@ -496,7 +496,7 @@ class Atom_list(Result_container, Unmergeable_container_mixin, Molecule_mixin):
         """
         Convert this list of atoms to mol format (useful for reading with rdkit).
         """
-        return Openbabel_converter.get_cls("xyz")(input_file = self.to_xyz(), input_file_path = "internal atoms object", input_file_type = "xyz").convert("mol", charge = self.charge)
+        return Openprattle_converter.get_cls("xyz")(input_file = self.to_xyz(), input_file_path = "internal atoms object", input_file_type = "xyz").convert("mol", charge = self.charge)
     
     def to_rdkit_molecule(self):
         """

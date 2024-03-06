@@ -8,7 +8,7 @@ import periodictable
 # Digichem imports.
 from digichem.exception.base import Digichem_exception
 from digichem.input import Gaussian_input_parser
-from digichem.file.babel import Openbabel_converter, Obabel_formats
+from digichem.file.prattle import Openprattle_converter, Oprattle_formats
 import digichem.log
 from digichem.input.base import Input_file
 from digichem.parse.util import parse_calculation, open_for_parsing
@@ -207,7 +207,7 @@ class Digichem_coords_ABC(Input_file, Molecule_mixin):
             # Convert.
             charge = self.charge if self.charge is not None else None
             multiplicity = self.multiplicity if self.multiplicity is not None else None
-            return Openbabel_converter.get_cls("xyz")(input_file = self.xyz, input_file_path = self.implicit_name, input_file_type = "xyz").convert(file_type, file, charge = charge, multiplicity = multiplicity)
+            return Openprattle_converter(input_file = self.xyz, input_file_path = self.implicit_name, input_file_type = "xyz").convert(file_type, file, charge = charge, multiplicity = multiplicity)
 
     @classmethod
     def input_formats(self):
@@ -223,7 +223,7 @@ class Digichem_coords_ABC(Input_file, Molecule_mixin):
             "gjc": "Gaussian Input",
             "gjf": "Gaussian Input"
         }
-        formats.update(Obabel_formats().read())
+        formats.update(Oprattle_formats().read())
         
         # Some formats supported by obabel don't make sense for us to use.
         formats.pop('text', None)
@@ -238,7 +238,7 @@ class Digichem_coords_ABC(Input_file, Molecule_mixin):
         Each key is the short-code of the format (eg, si, com, xyz etc) while the value is a longer description.
         """
         formats = {"si": "Digichem Input Format"}
-        formats.update(Obabel_formats().write())
+        formats.update(Oprattle_formats().write())
         
         # Some formats supported by obabel don't make sense for us to use.
         formats.pop('copy', None)
@@ -417,7 +417,7 @@ def si_from_file(file_name, file_type = None, *, gen3D = None, **kwargs):
         Create a Digichem_coords object from a file in arbitrary format.
         
         :param file_name: Name/path of the input file to read from.
-        :param file_type: The format of the file; a string recognised by Digichem_coords.input_formats(). If not given, an attempt will be made to guess from the file name (see Openbabel_converter.type_from_file_name()).
+        :param file_type: The format of the file; a string recognised by Digichem_coords.input_formats(). If not given, an attempt will be made to guess from the file name.
         :param charge: The molecular charge.
         :param multiplicity: The molecular multiplicity (as an integer).
         :param name: Name of the system/molecule.
@@ -430,7 +430,7 @@ def si_from_file(file_name, file_type = None, *, gen3D = None, **kwargs):
             # Get the file format.
             if file_type is None:
                 auto_file_type = True
-                file_type = Openbabel_converter.type_from_file_name(file_name, allow_none = True)
+                file_type = Openprattle_converter.type_from_file_name(file_name, allow_none = True)
                     
             # Certain formats we support natively; others we convert to an intermediate format.
             if file_type in ["com", "gau", "gjc", "gjf"]:
@@ -472,7 +472,7 @@ def si_from_file(file_name, file_type = None, *, gen3D = None, **kwargs):
                 except Exception as e:
                     # No good, see if we can use obabel.
                     try:
-                        com_file = Openbabel_converter.from_file(file_name, file_type).convert("com", gen3D = gen3D)
+                        com_file = Openprattle_converter.from_file(file_name, file_type).convert("com", gen3D = gen3D)
                     
                     except Exception:
                         # Also no good, re-raise original exception.
@@ -486,7 +486,7 @@ def si_from_file(file_name, file_type = None, *, gen3D = None, **kwargs):
                 # Generic input format, use obabel.
                 
                 # We convert all formats to gaussian input formats (because this format contains charge and multiplicity, which we can extract).
-                com_file = Openbabel_converter.from_file(file_name, file_type).convert("com", gen3D = gen3D)         
+                com_file = Openprattle_converter.from_file(file_name, file_type).convert("com", gen3D = gen3D)         
             
                 # Continue with other constructors.
                 return Digichem_coords.from_com(com_file, file_name = file_name, **kwargs)
