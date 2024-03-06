@@ -466,7 +466,7 @@ def si_from_file(file_name, file_type = None, *, gen3D = None, **kwargs):
                 
                 # Try with Digichem first.
                 try:
-                    result = parse_calculation(file_name, options = digichem.config.options, format_hint = "cclib")
+                    result = parse_calculation(file_name, options = digichem.config.get_config(), format_hint = "cclib")
                     return Digichem_coords.from_result(result, file_name = file_name, **kwargs)
                 
                 except Exception as e:
