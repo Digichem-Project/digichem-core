@@ -4,6 +4,7 @@ from pathlib import Path
 import itertools
 import numpy
 import pytest
+import yaml
 
 from digichem.parse import parse_calculation, parse_multiple_calculations, parse_and_merge_calculations
 from digichem.test.util import data_directory, result_files, digichem_options
@@ -58,7 +59,7 @@ def test_dump_and_parse(result_files, tmp_path, digichem_options):
     
     # Instead of just dumping to memory we'll dump to a file to test the full mechanism.
     with open(Path(tmp_path, "dump.sir"), "wt") as dump_file:
-        dump_file.write(Yaml_dumper(digichem_options = digichem_options).dump(raw))
+        dump_file.write(yaml.safe_dump(raw.dump(digichem_options = digichem_options)))
     
     # Now load the result back again.
     parsed = parse_calculation(Path(tmp_path, "dump.sir"), options = digichem_options)
