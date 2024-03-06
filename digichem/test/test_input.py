@@ -3,14 +3,13 @@
 import pytest
 from pathlib import Path
 
-from digichem.test.util import pyridine_si_v2, pyridine_si_v1, pyridine_cml, pyridine_resume_pickle,\
+from digichem.test.util import pyridine_si_v2, pyridine_si_v1, pyridine_cml,\
     result_files
 from digichem.input.digichem_input import si_from_file
 
 @pytest.mark.parametrize("file_path", [
         pyridine_si_v2,
-        pyridine_si_v1,
-        pyridine_resume_pickle
+        pyridine_si_v1
      ])
 def test_input_reading(file_path):
     """

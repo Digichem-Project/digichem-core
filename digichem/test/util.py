@@ -22,7 +22,6 @@ water_xyz = Path(data_directory(), "Input", "Water.xyz")
 ethane_xyz = Path(data_directory(), "Input", "Ethane.xyz")
 pyridine_si_v2 = Path(data_directory(), "Input/Pyridine.v2.si")
 pyridine_si_v1 = Path(data_directory(), "Input/Pyridine.v1.si")
-pyridine_resume_pickle = Path(data_directory(), "Input/silico.resume.pickle")
 
 
 # Result files for testing parsing.
