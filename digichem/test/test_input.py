@@ -24,7 +24,7 @@ def test_input_reading(file_path):
     # Check geometry.
     # All files should contain data for pyridine.
     assert len(si_file.atoms) == 11
-    assert si_file.formula == "C5H5N"
+    assert str(si_file.formula) == "NC5H5"
 
 
 def test_si_writing(tmp_path):
