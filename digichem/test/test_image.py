@@ -4,10 +4,12 @@ from pathlib import Path
 from digichem.image.excited_states import Excited_states_diagram_maker
 from digichem.image.graph import Convergence_graph_maker
 from digichem.image.orbitals import Orbital_diagram_maker
+from digichem.image.spectroscopy import Absorption_graph_maker, Emission_graph_maker
 
 from digichem.test.util import digichem_options
 from digichem.test.test_result import gaussian_ES_result, turbomole_ES_result, orca_ES_result, \
     gaussian_opt_result, turbomole_opt_result, orca_opt_result
+
 
 @pytest.mark.parametrize("result_set", [
     pytest.lazy_fixture("gaussian_ES_result"),
@@ -56,3 +58,19 @@ def test_orbital_diagram(result_set, tmp_path, digichem_options):
     maker.get_image()
     assert Path(tmp_path, "tmp.png").exists()
 
+
+@pytest.mark.parametrize("result_set", [
+    pytest.lazy_fixture("gaussian_ES_result"),
+    pytest.lazy_fixture("turbomole_ES_result"),
+    pytest.lazy_fixture("orca_ES_result")
+])
+def test_abs_diagram(result_set, tmp_path, digichem_options):
+    """Can we make an absorption spectrum?"""
+    maker = Absorption_graph_maker.from_options(
+        tmp_path / "tmp.png",
+        excited_states = result_set.excited_states,
+        options = digichem_options
+    )
+
+    maker.get_image()
+    assert Path(tmp_path, "tmp.png").exists()
