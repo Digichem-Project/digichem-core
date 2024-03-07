@@ -26,8 +26,8 @@ def test_es_diagram(result_set, tmp_path, digichem_options):
     )
 
     maker.get_image()
-
     assert Path(tmp_path, "tmp.png").exists()
+
 
 @pytest.mark.parametrize("result_set", [
     pytest.lazy_fixture("gaussian_opt_result"),
