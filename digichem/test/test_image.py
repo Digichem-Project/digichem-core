@@ -3,6 +3,7 @@ from pathlib import Path
 
 from digichem.image.excited_states import Excited_states_diagram_maker
 from digichem.image.graph import Convergence_graph_maker
+from digichem.image.orbitals import Orbital_diagram_maker
 
 from digichem.test.util import digichem_options
 from digichem.test.test_result import gaussian_ES_result, turbomole_ES_result, orca_ES_result, \
@@ -37,4 +38,21 @@ def test_convergence_diagram(result_set, tmp_path, digichem_options):
         tmp_path / "tmp.png",
         energies = result_set.energies.scf,
         options = digichem_options
+
+
+@pytest.mark.parametrize("result_set", [
+    pytest.lazy_fixture("gaussian_opt_result"),
+    pytest.lazy_fixture("turbomole_opt_result"),
+    pytest.lazy_fixture("orca_opt_result")
+])
+def test_orbital_diagram(result_set, tmp_path, digichem_options):
+    """Can we make an orbital diagram?"""
+    maker = Orbital_diagram_maker.from_options(
+        tmp_path / "tmp.png",
+        orbitals = result_set.orbitals,
+        options = digichem_options
     )
+
+    maker.get_image()
+    assert Path(tmp_path, "tmp.png").exists()
+
