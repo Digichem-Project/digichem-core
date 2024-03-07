@@ -40,6 +40,10 @@ def test_convergence_diagram(result_set, tmp_path, digichem_options):
         tmp_path / "tmp.png",
         energies = result_set.energies.scf,
         options = digichem_options
+    )
+
+    maker.get_image()
+    assert Path(tmp_path, "tmp.png").exists()
 
 
 @pytest.mark.parametrize("result_set", [
