@@ -57,11 +57,15 @@ class BSE_basis_set(dict):
         """
         Convert the basis set information represented by this object to a basis set dict.
         
-        :param elements_filter: A list of elements to filter by. Only elements given here will be printed in the final format. Each item can be an int or str representing a single element (1, '1', 'H' etc), or a range of elements ('1-5' etc).
+        :param elements_filter: A list/string of elements to filter by. Only elements given here will be printed in the final format. Each item can be an int or str representing a single element (1, '1', 'H' etc), or a range of elements ('1-5' etc).
         """
         import basis_set_exchange.misc
         
-        elements_filter = basis_set_exchange.misc.expand_elements(elements_filter) if elements_filter is not None else None
+        if elements_filter is not None and not isinstance(elements_filter, str):
+            elements_filter = ",".join(elements_filter)
+
+        if elements_filter is not None:
+            elements_filter = basis_set_exchange.misc.expand_elements(elements_filter)
         
         basis_sets = {}
         
@@ -78,10 +82,10 @@ class BSE_basis_set(dict):
                     elements = basis_set_elements
             
             else:
-                # Use all elements.
+                # We are using all elements from this basis set.
                 elements = elements_filter
             
-            if len(elements) > 0:
+            if elements is None or len(elements) > 0:
                 # Get the basis set.
                 basis_set = basis_set_exchange.get_basis(basis_set_name, elements)
                 
