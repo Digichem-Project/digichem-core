@@ -4,6 +4,8 @@ import sys
 import textwrap
 from subprocess import CalledProcessError
 
+from digichem.exception import Digichem_exception
+
 # The handler object digichem uses for logging.
 LOGGING_HANDLER = None
 
@@ -137,7 +139,7 @@ class Variable_formatter(logging.Formatter):
         
         :return: The formatted exception.
         """
-        if self.logger.getEffectiveLevel() > logging.DEBUG:
+        if isinstance(exc_info[1], Digichem_exception) and self.logger.getEffectiveLevel() > logging.DEBUG:
             return self.exception_to_str(exc_info[1])
         else:
             return textwrap.indent(super().formatException(exc_info), "  ")
