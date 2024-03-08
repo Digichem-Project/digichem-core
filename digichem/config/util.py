@@ -7,9 +7,19 @@ from digichem.log import get_logger
 
 # The main digichem options object.
 # When running as a program, this will be merged with run-time options.
-options = None
+_options = None
 
-def get_config(extra_config_files = None, extra_config_strings = None, cls = Digichem_options):
+def get_config(
+        extra_config_files = None,
+        extra_config_strings = None,
+        cls = Digichem_options,
+        clear_cache = False,
+        sources = (
+            master_config_path,
+            system_config_location,
+            user_config_location
+        )
+    ):
         """
         Get a Digichem options object.
         
@@ -21,50 +31,56 @@ def get_config(extra_config_files = None, extra_config_strings = None, cls = Dig
         IMPORTANT: The returned options object will be merged with any additional options without prior copying.
         Hence the object returned by this function will be the same as the options attribute of this module.
         
+        :param extra_config_files: An iterable of additional file paths to read from.
+        :param extra_config_strings: An iterable of additional config options to parse.
+        :param cls: The type of object to return.
+        :param clear_cache: If True, and previously cached options will be discarded.
+        :param sources: An iterable of file locations to read from.
         :return: A Digichem_options object (a fancy dict).
         """
+        if clear_cache:
+             globals()['_options'] = None
+
+        if _options is not None and extra_config_files is None and extra_config_strings is None:
+            # Config has already been loaded (and we have nothing new to add).
+            # Return the config object.
+            return _options
+
+        # Either this is the first time we've loaded the config (cache miss)
+        # or we've been given extra options to add in.
         log_level = get_logger().level
         get_logger().setLevel("DEBUG")
         
-        try:
-            # First, load options if not already done so.
-            if options is None:
-                # Load config options from file.
-                # These objects are simple dicts.
-                config = Config_file_parser(master_config_path).load(True)
-                config.merge(Config_file_parser(system_config_location).load(True))
-                config.merge(Config_file_parser(user_config_location).load(True))
-                
-                # No need to validate here, we're going to do it later anyway.
-                globals()['options'] = cls(validate_now = False, **config)
+        # First, load options if not already done so.
+        if _options is None:
+            # Load config options from given sources.
+            # These objects are simple dicts.
+            config = Config_file_parser(sources[0]).load(True)
+            for source in sources[1:]:
+                 config.merge(Config_file_parser(source).load(True))
             
-            if extra_config_files is None:
-                extra_config_files = []
-                
-            if extra_config_strings is None:
-                extra_config_strings = []
-                
-    #         if len(extra_config_files) == 0 and len(extra_config_strings) == 0:
-    #             # Do nothing.
-    #             return options
-            
-            # Load any additional config files.
-            for extra_config_file in extra_config_files:
-                options.deep_merge(Config_file_parser(extra_config_file).load())
-                
-            # Then load any additional config strings.
-            for extra_config_string in extra_config_strings:
-                options.deep_merge(Config_parser(extra_config_string).load())
-            
-            # Check everything is valid.
-            options.validate()
-            
-            # And return.
-            return options
+            # No need to validate here, we're going to do it later anyway.
+            globals()['_options'] = cls(validate_now = False, **config)
         
-        except Exception:
-            raise
+        if extra_config_files is None:
+            extra_config_files = []
+            
+        if extra_config_strings is None:
+            extra_config_strings = []
         
-        else:
-            # Only restore log level if there was no problem.
-            get_logger().setLevel(log_level)
+        # Load any additional config files.
+        for extra_config_file in extra_config_files:
+            _options.deep_merge(Config_file_parser(extra_config_file).load())
+            
+        # Then load any additional config strings.
+        for extra_config_string in extra_config_strings:
+            _options.deep_merge(Config_parser(extra_config_string).load())
+        
+        # Check everything is valid.
+        _options.validate()
+        
+        # Only restore log level if there was no problem.
+        get_logger().setLevel(log_level)
+
+        # And return.
+        return _options
