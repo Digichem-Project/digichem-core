@@ -9,7 +9,7 @@ from digichem.exception.base import File_maker_exception
 from digichem.file import File_converter
 import digichem.file.types as file_types
 import digichem.log
-from digichem.submit.memory import Memory
+from digichem.memory import Memory
 
 class Chk_to_fchk(File_converter):
     """
