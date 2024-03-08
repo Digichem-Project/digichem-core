@@ -1,5 +1,5 @@
 from digichem.config.base import Digichem_options
-from digichem.config.parse import Config_file_parser
+from digichem.config.parse import Config_file_parser, Config_parser
 from digichem.config.locations import master_config_path, system_config_location, user_config_location
 
 from digichem.log import get_logger
