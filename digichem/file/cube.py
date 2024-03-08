@@ -156,7 +156,12 @@ class Fchk_to_cube(File_converter):
         # If something went wrong, dump output.
         if cubegen_proc.returncode != 0:
             # An error occured.
-            raise File_maker_exception(self, "Cubegen did not exit successfully:\n{}".format(cubegen_proc.stdout))
+            # Check if the input file exists, if not this is probably what went wrong.
+            message = "Cubegen did not exit successfully"
+            if not Path(str(self.input_file)).exists():
+                message += " (probably because the input file '{}' could not be found)".format(self.input_file)
+            message += ":\n{}".format(cubegen_proc.stdout)
+            raise File_maker_exception(self, message)
         else:
             # Everything appeared to go ok.
             # Dump cubegen output if we're in debug.
