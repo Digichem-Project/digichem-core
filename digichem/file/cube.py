@@ -12,11 +12,8 @@ from digichem.exception.base import File_maker_exception
 from digichem.file import File_converter
 import digichem.file.types as file_types
 import digichem.log
-from digichem.submit.destination.local import Series
-from digichem.submit.calculation.turbomole import make_orbital_calc, Turbomole_memory,\
-    make_anadens_calc
 from digichem.file.base import File_maker, Dummy_file_maker
-from digichem.submit.memory import Memory
+from digichem.memory import Memory
 
 
 def sanitize_modern_cubes(cube_file_path):
