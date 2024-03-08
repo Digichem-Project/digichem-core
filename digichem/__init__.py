@@ -22,7 +22,7 @@ import silico.logging
 
 
 # Version information.
-major_version = 6
+major_version = 1
 minor_version = 0
 revision = 0
 prerelease = 1
