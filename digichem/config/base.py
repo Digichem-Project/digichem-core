@@ -331,6 +331,9 @@ To disable the maximum width, set to null.""", type = int, default = 1500),
             "31P": {"frequency": 162.0}
         }))
     )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, allow_unrecognised_options = True, **kwargs)
             
     @classmethod
     def _from_reduce(self, kwargs):
