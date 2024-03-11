@@ -112,7 +112,7 @@ class Variable_formatter(logging.Formatter):
     
     def __init__(self, logger, show_time = False, *, default_warning_formatter):
         super().__init__(
-            fmt = "digichem: " + self.WHEN_FORMATTER if show_time else self.DEFAULT_FORMATTER,
+            fmt = "digichem: " + (self.WHEN_FORMATTER if show_time else self.DEFAULT_FORMATTER),
             datefmt = '%Y-%m-%d %H:%M:%S',
             style = '%'
         )
