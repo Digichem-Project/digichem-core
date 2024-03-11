@@ -121,7 +121,7 @@ class Openprattle_converter():
         """
         output_file = str(output_file) if output_file is not None else None
         
-        # The signature we'll use to run obabel.
+        # The signature we'll use to run oprattle.
         sig = [
             str(self.executable),
             "--json"
@@ -171,7 +171,6 @@ class Openprattle_converter():
             raise
 
         self.handle_logging(done_process.stderr)
-
         
         # Return our output.
         return done_process.stdout if output_file is None else None
