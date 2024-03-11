@@ -179,6 +179,10 @@ class Openprattle_converter():
         """
         """
         for raw_message in raw_output.split("\n"):
+            if raw_message == "":
+                # Nothing returned, nothing to do.
+                return
+            
             # Each message should be in JSON, but check.
             try:
                 message = json.loads(raw_message)
@@ -191,7 +195,7 @@ class Openprattle_converter():
                 )
 
             except Exception:
-                print(raw_message)
+                digichem.log.get_logger().error("Unexpected output from oprattle: '{}'".format(raw_message), exc_info=False)
     
 
 
