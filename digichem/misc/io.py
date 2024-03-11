@@ -5,7 +5,21 @@ import tempfile
 import os
 import shutil
 import sys
+from digichem.datas import get_resource
 
+def expand_path(pth):
+    """
+    Expand variables (both $VAR and '~') in a string.
+    
+    This function is similar to calling both os.path.expanduser() and os.path.expandvar(),
+    but with some additional functionality for relative paths (which are interpreted relative
+    to the silico data dir).
+    """
+    pth = str(pth)
+    pth = pth.replace("$SILICO", str(get_resource("data")))
+    pth = os.path.expanduser(pth)
+    pth = os.path.expandvars(pth)
+    return pth
 
 def tail(file, num_lines = 20):
     """
