@@ -14,6 +14,7 @@ import digichem.file.types as file_types
 import digichem.log
 from digichem.file.base import File_maker, Dummy_file_maker
 from digichem.memory import Memory
+from digichem.misc.io import expand_path
 
 
 def sanitize_modern_cubes(cube_file_path):
@@ -105,7 +106,7 @@ class Fchk_to_cube(File_converter):
         self.memory = Memory(memory)
         # Default to number of CPUs of the system.
         self.num_cpu = int(num_cpu) if num_cpu is not None else os.cpu_count()
-        self.cubegen_executable = cubegen_executable
+        self.cubegen_executable = expand_path(cubegen_executable)
         self.sanitize = sanitize
         
     @classmethod

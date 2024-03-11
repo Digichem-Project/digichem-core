@@ -10,6 +10,7 @@ from digichem.file import File_converter
 import digichem.file.types as file_types
 import digichem.log
 from digichem.memory import Memory
+from digichem.misc.io import expand_path
 
 class Chk_to_fchk(File_converter):
     """
@@ -38,7 +39,7 @@ class Chk_to_fchk(File_converter):
         super().__init__(*args, input_file = chk_file, existing_file = fchk_file, **kwargs)
         memory = memory if memory is not None else "3 GB"
         self.memory = Memory(memory)
-        self.formchk_executable = formchk_executable
+        self.formchk_executable = expand_path(formchk_executable)
         
     def make_files(self):
         """
