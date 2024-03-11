@@ -306,12 +306,20 @@ class Atom_list(Result_container, Unmergeable_container_mixin, Molecule_mixin):
         
         except AttributeError:
             # Cache miss, go do some work.
+
+            from rdkit.Chem import MolToSmiles
+            from rdkit.Chem.rdmolops import RemoveHs
             
-            # TODO: Handle cases where obabel isn't available
-            conv = Openprattle_converter.get_cls("xyz")(input_file = self.to_xyz(), input_file_type = "xyz")
-            # Cache the result in case we need it again.
-            self._smiles = conv.convert("can").strip()
+            mol = self.to_rdkit_molecule()
+            mol = RemoveHs(mol)
+            self._smiles = MolToSmiles(mol)
             return self._smiles
+            
+            # # TODO: Handle cases where obabel isn't available
+            # conv = Openprattle_converter.get_cls("xyz")(input_file = self.to_xyz(), input_file_type = "xyz")
+            # # Cache the result in case we need it again.
+            # self._smiles = conv.convert("can").strip()
+            # return self._smiles
         
     @property
     def X_length(self):
