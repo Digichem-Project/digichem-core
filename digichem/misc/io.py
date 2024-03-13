@@ -5,6 +5,8 @@ import tempfile
 import os
 import shutil
 import sys
+import warnings
+
 from digichem.datas import get_resource
 
 def expand_path(pth):
@@ -16,7 +18,13 @@ def expand_path(pth):
     to the silico data dir).
     """
     pth = str(pth)
-    pth = pth.replace("$SILICO", str(get_resource("data")))
+    
+    new_pth = pth.replace("$SILICO", str(get_resource("data")))
+    if new_pth != pth:
+        warnings.warn("the '$SILICO' magic variable is deprecated, use '$DIGICHEM' instead", DeprecationWarning)
+
+    pth = new_pth
+    pth = pth.replace("$DIGICHEM", str(get_resource("data")))
     pth = os.path.expanduser(pth)
     pth = os.path.expandvars(pth)
     return pth
