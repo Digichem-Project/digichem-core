@@ -235,7 +235,7 @@ class Batoms_renderer(Render_maker):
     
     def run_blender(self, output, resolution, samples, orientation):
         # Render with batoms.
-        env = copy.copy(os.environ)
+        env = dict(os.environ)
         
         # Disabling the user dir helps prevent conflicting installs of certain packages
         env["PYTHONNOUSERSITE"] = "1"
@@ -249,7 +249,8 @@ class Batoms_renderer(Render_maker):
                 stdout = subprocess.DEVNULL if not self.logging else None,
                 stderr = subprocess.STDOUT,
                 universal_newlines = True,
-                check = True
+                check = True,
+                env = env,
             )
         except FileNotFoundError:
             raise File_maker_exception(self, "Could not locate blender executable '{}'".format(self.blender_executable))
