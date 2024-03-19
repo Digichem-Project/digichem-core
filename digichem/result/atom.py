@@ -542,7 +542,10 @@ class Atom_list(Result_container, Unmergeable_container_mixin, Molecule_mixin):
         
         except Exception:
             # This function is not implemented for some atoms (eg, Se).
-            digichem.log.get_logger().warning("Unable to determine bond ordering for molecule '{}'; all bonds will be represented as single bonds only".format(self.smiles), exc_info = True)
+            digichem.log.get_logger().warning(
+                "Unable to determine bond ordering for molecule; all bonds will be represented as single bonds only".format(self.formula_string)
+                , exc_info = True
+            )
         
         return mol
 
