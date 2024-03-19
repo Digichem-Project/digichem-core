@@ -39,7 +39,7 @@ def get_config(
         :return: A Digichem_options object (a fancy dict).
         """
         if clear_cache:
-             globals()['_options'] = None
+            globals()['_options'] = None
 
         if _options is not None and extra_config_files is None and extra_config_strings is None:
             # Config has already been loaded (and we have nothing new to add).
