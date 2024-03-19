@@ -28,6 +28,18 @@ class Input_file():
         # TOOD: This should be called file_path
         self.file_name = Path(file_name) if file_name is not None else None
         self.history = history
+
+    @property
+    def dump(self):
+        """
+        Get this input file as a dict.
+        """
+        return {
+            'name': self.name,
+            'charge': self.charge,
+            'multiplicity': self.multiplicity,
+            'history': self.history,
+        }
     
     @property
     def implicit_name(self):

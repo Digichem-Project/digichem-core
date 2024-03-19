@@ -75,20 +75,23 @@ class Digichem_coords_ABC(Input_file, Molecule_mixin):
             result.atoms.to_xyz(),
             **kwargs
         )
+    
+    def dump(self):
+        """
+        Get this input file as a dict.
+        """
+        dic = {
+            'version': "2.1.0",
+        }
+        dic.update(super().dump())
+        dic['atoms'] = self.atoms
         
     @property
     def dict(self):
         """
         Get this input file as a dict.
         """
-        return {
-            'version': "2.1.0",
-            'name': self.name,
-            'charge': self.charge,
-            'multiplicity': self.multiplicity,
-            'atoms': self.atoms,
-            'history': self.history,
-        }
+        return self.dump()
         
     @property
     def element_dict(self):
