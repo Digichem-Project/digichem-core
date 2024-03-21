@@ -29,7 +29,6 @@ class Input_file():
         self.file_name = Path(file_name) if file_name is not None else None
         self.history = history
 
-    @property
     def dump(self):
         """
         Get this input file as a dict.

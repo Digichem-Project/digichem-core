@@ -85,6 +85,7 @@ class Digichem_coords_ABC(Input_file, Molecule_mixin):
         }
         dic.update(super().dump())
         dic['atoms'] = self.atoms
+        return dic
         
     @property
     def dict(self):
