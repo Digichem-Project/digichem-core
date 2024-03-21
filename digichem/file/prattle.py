@@ -143,9 +143,9 @@ class Openprattle_converter():
         
         # Add gen3D command if we've been asked to.
         if gen3D is True:
-            sig.append("--gen3D True")
+            sig.extend(["--gen3D", "True"])
         elif gen3D is False:
-            sig.append("--gen3D False")
+            sig.extend(["--gen3D", "False"])
             
         # If a file to write to has been given, set it.
         if output_file is not None:
