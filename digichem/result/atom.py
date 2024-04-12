@@ -166,7 +166,12 @@ class Molecule_mixin():
         Get a formula representation of this atom list as a string, including optional charge.
         """
         # Get the base formula
-        formula_string = str(self.formula)
+        #formula_string = str(self.formula)
+        atoms = self.element_dict
+        # Build a string rep.
+        formula_string = ""
+        for atom in atoms:
+            formula_string += "{}{}".format(atom, atoms[atom])
         
         # Add charge, if we have one.
         if self.charge == 1:
