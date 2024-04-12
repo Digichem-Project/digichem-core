@@ -2,6 +2,7 @@ from PIL import Image
 import numpy as np
 
 from digichem.file import File_maker
+from digichem.exception import File_maker_exception
 
 class Cropable_mixin():
     """Mixin class for those that can crop their images."""
@@ -34,8 +35,10 @@ class Cropable_mixin():
             # Now we just check which rows and columns are not pure white.
             non_empty_columns = np.where(image_data_bw.min(axis = 0) != 255)[0]
             non_empty_rows = np.where(image_data_bw.min(axis = 1) != 255)[0]
-        
-        
+
+        if len(non_empty_rows) == 0 or len(non_empty_columns) == 0:
+            raise ValueError("The image is empty!")
+
         # Get the bounding box of non-white stuff.
         cropBox = (min(non_empty_rows), max(non_empty_rows), min(non_empty_columns), max(non_empty_columns))
         

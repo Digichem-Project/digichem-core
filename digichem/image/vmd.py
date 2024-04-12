@@ -188,8 +188,8 @@ class VMD_image_maker(Render_maker):
                 
                 # Delete the now unneeded scene file.
                 os.remove(image_path.with_name(self.safe_name(image_path.with_suffix(self.scene_file_extension).name)))
-            except Exception:
-                raise File_maker_exception(self, "Error in tachyon rendering")
+            except Exception as e:
+                raise File_maker_exception(self, "Error in tachyon rendering") from e
             
             # Convert to a better set of formats.
             # Open the file we just rendered.
