@@ -361,19 +361,21 @@ To disable the maximum width, set to null.""", type = int, default = 1500),
         # Instead it reverts that option to its default.
         delattr(self, key)
     
-    def save(self):
+    def save(self, path = user_config_location):
         """
         Save the current value of these options to file, so that they will be reloaded on next program start.
         
-        Changed settings are always saved to the user's config file.
+        :param path: Where to save to (the user's config file by default).
         """
         data = yaml.dump(self.dump())
+
+        path = Path(path)
         
         try:
-            user_config_location.parent.mkdir(exist_ok = True)
-            atomic_write(user_config_location, data)
+            path.parent.mkdir(exist_ok = True)
+            atomic_write(path, data)
         
         except FileNotFoundError as e:
             # We lost the race, give up.
-            raise Exception("Failed to write settings to file '{}'; one of the parent directories does not exist".format(user_config_location)) from e
+            raise Exception("Failed to write settings to file '{}'; one of the parent directories does not exist".format(path)) from e
     
