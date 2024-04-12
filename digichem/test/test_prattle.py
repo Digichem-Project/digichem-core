@@ -4,7 +4,7 @@ import pytest
 
 from digichem.file.prattle import Oprattle_formats, Openprattle_converter
 
-from digichem.test.util import pyridine_cml, benzene_cdx
+from digichem.test.util import ethane_xyz, benzene_cdx
 
 @pytest.mark.parametrize("readwrite", ["read", "write"])
 def test_formats(readwrite):
@@ -15,7 +15,7 @@ def test_formats(readwrite):
         assert len(Oprattle_formats().write()) > 0
 
 @pytest.mark.parametrize("file_path", [
-    pyridine_cml,
+    ethane_xyz,
     benzene_cdx
 ])
 def test_convert(file_path):
@@ -23,7 +23,7 @@ def test_convert(file_path):
 
 
 @pytest.mark.parametrize("file_path", [
-    pyridine_cml,
+    ethane_xyz,
     benzene_cdx
 ])
 def test_gen3d(file_path):
