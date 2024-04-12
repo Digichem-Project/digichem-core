@@ -254,7 +254,7 @@ class VMD_image_maker(Render_maker):
         return {
             Path(working_directory, self.vmd_script_path.name): self.vmd_script_path,
             Path(working_directory, self.tcl_common_path.name): self.tcl_common_path,
-            Path(working_directory, self.safe_name(Path(str(self.input_file)).name)): Path(str(self.input_file))
+            Path(working_directory, self.safe_name(Path(str(self.input_file)).name)): Path(str(self.input_file)).absolute()
         }
     
     def run_VMD_script(self):
@@ -608,8 +608,8 @@ class Combined_orbital_image_maker(VMD_image_maker):
         return {
             Path(working_directory, self.vmd_script_path.name): self.vmd_script_path,
             Path(working_directory, self.tcl_common_path.name): self.tcl_common_path,
-            Path(working_directory, self.safe_name(Path(str(self.HOMO_cube_file)).name)): Path(str(self.HOMO_cube_file)),
-            Path(working_directory, self.safe_name(Path(str(self.LUMO_cube_file)).name)): Path(str(self.LUMO_cube_file))
+            Path(working_directory, self.safe_name(Path(str(self.HOMO_cube_file)).name)): Path(str(self.HOMO_cube_file)).absolute(),
+            Path(working_directory, self.safe_name(Path(str(self.LUMO_cube_file)).name)): Path(str(self.LUMO_cube_file)).absolute()
         }
     
     @property
