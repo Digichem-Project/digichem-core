@@ -1,6 +1,7 @@
 import pytest
 from pathlib import Path
 
+from digichem.file.fchk import Chk_to_fchk
 from digichem.file.cube import Fchk_to_cube
 from digichem.parse.util import open_for_parsing, parse_calculation
 from digichem.exception import File_maker_exception
@@ -58,6 +59,41 @@ def test_no_fchk_error(digichem_options, tmp_path):
         tmp_path / "tmp.cube",
         fchk_file = "foobar",
         options = digichem_options,
+    )
+
+    with pytest.raises(File_maker_exception):
+        maker.get_file()
+
+
+def test_chk_to_fchk(digichem_options, tmp_path):
+    """Can we convert a chk to an fchk file?"""
+    maker = Chk_to_fchk.from_options(
+        tmp_path / "tmp.fchk",
+        chk_file = Path(data_directory(), "Input/Benzene.chk"),
+        options = digichem_options
+    )
+    assert maker.get_file().exists()
+
+
+def test_no_formchk_error(digichem_options, tmp_path):
+    """Do we throw the right exception if formchk doesn't exist?"""
+    maker = Chk_to_fchk.from_options(
+        tmp_path / "tmp.fchk",
+        chk_file = Path(data_directory(), "Input/Benzene.chk"),
+        options = digichem_options
+    )
+    maker.formchk_executable = "NOTREAL"
+
+    with pytest.raises(File_maker_exception):
+        maker.get_file()
+
+
+def test_no_chk_error(digichem_options, tmp_path):
+    """Do we throw the right exception if we don't give a chk file?"""
+    maker = Chk_to_fchk.from_options(
+        tmp_path / "tmp.fchk",
+        chk_file = "foobar",
+        options = digichem_options
     )
 
     with pytest.raises(File_maker_exception):
