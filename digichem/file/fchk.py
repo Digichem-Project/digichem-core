@@ -40,6 +40,19 @@ class Chk_to_fchk(File_converter):
         memory = memory if memory is not None else "3 GB"
         self.memory = Memory(memory)
         self.formchk_executable = expand_path(formchk_executable)
+    
+    @classmethod
+    def from_options(self, output, *, chk_file = None, memory = None, options, **kwargs):
+        """
+        Constructor that takes a dictionary of config like options.
+        """        
+        return self(
+            output,
+            chk_file = chk_file,
+            memory = memory,
+            formchk_executable = options['external']['formchk'],
+            **kwargs
+        )
         
     def make_files(self):
         """
