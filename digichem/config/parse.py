@@ -2,8 +2,6 @@
 
 import yaml
 
-from digichem.config import Config
-
 class Config_parser():
     """
     Class for loading standard digichem options (from a string).
@@ -55,7 +53,8 @@ class Config_parser():
         
         :param config: Dictionary of config options.
         """
-        return Config(config, FILE_NAME = self.config_path)
+        return config
+        # return Config(config, FILE_NAME = self.config_path)
 
 
 class Config_file_parser(Config_parser):

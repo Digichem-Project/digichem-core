@@ -1,3 +1,5 @@
+from deepmerge import Merger
+
 from digichem.config.base import Digichem_options
 from digichem.config.parse import Config_file_parser, Config_parser
 from digichem.config.locations import master_config_path, system_config_location, user_config_location
@@ -57,7 +59,8 @@ def get_config(
             # These objects are simple dicts.
             config = Config_file_parser(sources[0]).load(True)
             for source in sources[1:]:
-                 config.merge(Config_file_parser(source).load(True))
+                merge_dict(Config_file_parser(source).load(True), config)
+                #  config.merge(Config_file_parser(source).load(True))
             
             # No need to validate here, we're going to do it later anyway.
             globals()['_options'] = cls(validate_now = False, **config)
@@ -84,3 +87,31 @@ def get_config(
 
         # And return.
         return _options
+
+def merge_dict(new, old):
+        """
+        Recursively merge two dictionaries
+         
+        Any keys specified in new will overwrite those specified in old.
+         
+        :param new: A new dictionary to merge into the old.
+        :param old: An old dictionary to be overwritten by new.
+        """
+        # Taken from deepmerge docs: https://deepmerge.readthedocs.io/en/latest/
+        merger = Merger(
+            # pass in a list of tuple, with the
+            # strategies you are looking to apply
+            # to each type.
+            [
+                (list, ["override"]),
+                (dict, ["merge"]),
+                (set, ["union"])
+            ],
+            # next, choose the fallback strategies,
+            # applied to all other types:
+            ["override"],
+            # finally, choose the strategies in
+            # the case where the types conflict:
+            ["override"]
+        )
+        return merger.merge(old, new)
