@@ -53,7 +53,6 @@ if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
         freeze_dir = freeze_dir.parent
     
     os.environ['PATH'] = os.environ.get("PATH", "") + ":" + str(freeze_dir)
-    print(os.environ['PATH'])
 
 else:
     frozen = False
