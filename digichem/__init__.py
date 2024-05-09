@@ -44,6 +44,17 @@ last_updated = datetime.strptime(_last_updated_string, "%d/%m/%Y")
 # https://pyinstaller.readthedocs.io/en/stable/runtime-information.html#run-time-information
 if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
     frozen = True
+
+    # We are frozen, expand PATH to include the possibly bundled oprattle.
+    from pathlib import Path
+    import os
+    freeze_dir = Path(sys._MEIPASS)
+    if freeze_dir.name == "_internal":
+        freeze_dir = freeze_dir.parent
+    
+    os.environ['PATH'] = os.environ.get("PATH", "") + ":" + str(freeze_dir)
+    print(os.environ['PATH'])
+
 else:
     frozen = False
 
