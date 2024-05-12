@@ -6,19 +6,9 @@ import sys
 import digichem.log
 from digichem.datas import get_resource
 
-# Decide on whether we are frozen or not.
-# The sys attribute 'frozen' is our flag, '_MEIPASS' is the dir location.
-# https://pyinstaller.readthedocs.io/en/stable/runtime-information.html#run-time-information
-if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
-    frozen = True
-else:
-    frozen = False
-
-# Setup openbabel library location.
-init_obabel(frozen)
-
-# Silico imports.
-import silico.logging
+####################
+# Package metadata.#
+####################
 
 
 # Version information.

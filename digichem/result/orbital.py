@@ -546,8 +546,10 @@ class Molecular_orbital(Result_object, Floatable_mixin):
             
             # Check we don't have more symmetries than we do energies.
             if len(energy) < len(symmetry):
-                warnings.warn("Parsed more MO symmetries than MO energies; cannot continue parsing orbitals ('{}' symmetries, '{}' energies)".format(len(symmetry), len(energy)))
-                return []
+                diff = len(symmetry) - len(energy)
+                warnings.warn("Parsed more MO symmetries than MO energies; excess symmetries will be discarded ('{}' symmetries, '{}' energies)".format(len(symmetry), len(energy)))
+                # Dump the excess symmetry.
+                symmetry = symmetry[:-diff]
             
             # Keep a track of all the symmetries we've seen.
             symmetries = {}
