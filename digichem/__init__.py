@@ -15,7 +15,7 @@ from digichem.datas import get_resource
 major_version = 1
 minor_version = 0
 revision = 0
-prerelease = 1
+prerelease = 2
 # Whether this is a development version.
 development = prerelease is not None
 # The full version number of this package.
