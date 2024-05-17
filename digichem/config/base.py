@@ -53,7 +53,7 @@ class Digichem_options(Configurable):
     render = Options(
         help = "Options for controlling the appearance of 3D molecule images.",
         enable_rendering = Option(help = "Set to False to disable image rendering.", type = bool, default = True),
-        engine = Option(help = "The rendering engine to use", choices = ["vmd", "batoms"], default = "batoms"),
+        engine = Option(help = "The rendering engine to use", choices = ["vmd", "batoms"], default = "vmd"),
         vmd = Options(help = "VMD specific options (only applies if engine == 'vmd'",
             executable = Option(help = "Path to the VMD (Visual Molecular Dynamics) executable", default = "vmd"),
             tachyon = Option(help = "The tachyon ray-tracing library, performs the actual rendering. Tachyon is typically packaged with VMD, but often isn't added to the path automatically", default = "tachyon"),
