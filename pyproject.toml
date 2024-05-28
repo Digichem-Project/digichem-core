@@ -14,6 +14,7 @@ dependencies = [
     "basis_set_exchange",
     "cclib",
     "colour-science",
+    "configurables",
     "deepmerge",
     "dill",
     "matplotlib",
