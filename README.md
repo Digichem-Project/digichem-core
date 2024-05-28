@@ -41,6 +41,10 @@ Or, on some platforms:
 pip3 install digichem-core
 ```
 
+## Usage
+
+Documentation coming soon.
+
 ## License
 
 Digichem-core is licensed under the BSD-3-Clause license, but some files are licensed separately. See [COPYING.md](COPYING.md) for full details.
