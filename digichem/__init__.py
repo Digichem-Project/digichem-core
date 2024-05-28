@@ -11,15 +11,17 @@ from digichem.datas import get_resource
 ####################
 
 
-# Version information.
-major_version = 1
-minor_version = 0
-revision = 0
-prerelease = 2
-# Whether this is a development version.
-development = prerelease is not None
-# The full version number of this package.
-__version__ = "{}.{}.{}{}".format(major_version, minor_version, revision, "-pre.{}".format(prerelease) if development else "")
+# # Version information.
+# major_version = 6
+# minor_version = 0
+# revision = 0
+# prerelease = 1
+# # Whether this is a development version.
+# development = prerelease is not None
+# # The full version number of this package.
+# __version__ = "{}.{}.{}{}".format(major_version, minor_version, revision, "-pre.{}".format(prerelease) if development else "")
+__version__ = "6.0.0-pre.1"
+development = "pre" in __version__
 
 # Those who wrote this.
 __author__ = [
