@@ -48,3 +48,5 @@ Documentation coming soon.
 ## License
 
 Digichem-core is licensed under the BSD-3-Clause license, but some files are licensed separately. See [COPYING.md](COPYING.md) for full details.
+
+The Digichem logo and branding is Copyright Digichem 2024, you may not use them in any way (although you are welcome to look at them).
