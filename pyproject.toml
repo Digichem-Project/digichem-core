@@ -1,0 +1,48 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "digichem-core"
+dynamic = ["version"]
+authors = [
+    {name = "Oliver S. Lee", email = "osl@digi-chem.ac.uk"},
+]
+description = "Open-source library for Digichem core components"
+dependencies = [
+    "adjustText",
+    "basis_set_exchange",
+    "cclib",
+    "colour-science",
+    "deepmerge",
+    "dill",
+    "matplotlib",
+    "openprattle",
+    "periodictable",
+    "pillow",
+    "pyyaml",
+    "rdkit",
+    "scipy"
+]
+readme = "README.md"
+license = {file = "LICENSE"}
+requires-python = ">=3.9"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: BSD License",
+    "Operating System :: Unix",
+]
+
+[project.optional-dependencies]
+test = ["pytest"]
+
+[project.urls]
+Homepage = "https://github.com/Digichem-Project/digichem-core"
+Documentation = "https://doc.digi-chem.co.uk"
+Issues = "https://github.com/Digichem-Project/digichem-core/issues"
+
+[tool.hatch.version]
+path = "digichem/__init__.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["digichem"]
