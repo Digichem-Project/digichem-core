@@ -5,7 +5,6 @@ import subprocess
 import tempfile
 import shutil
 import os
-from mako.lookup import TemplateLookup
 
 from digichem.exception.base import File_maker_exception
 
