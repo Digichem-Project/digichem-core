@@ -27,17 +27,9 @@ This is Digichem-core, the open-source library for Digichem. If you are looking 
 
 ## Installation
 
-### Conda
-
-Because rdkit is most easily installed using conda, this is the recommended way to install digichem-core too.
-
-```Shell
-conda install -c conda-forge digichem-core
-```
-
 ### Pip
 
-Digichem-core can be installed using pip, but the rdkit dependency will not be satisfied. Make sure to install rdkit separately if you use pip.
+Digichem-core can be installed using pip. Simply run the following command:
 
 ```Shell
 pip install digichem-core
