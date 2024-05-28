@@ -21,7 +21,17 @@ from digichem.datas import get_resource
 # # The full version number of this package.
 # __version__ = "{}.{}.{}{}".format(major_version, minor_version, revision, "-pre.{}".format(prerelease) if development else "")
 __version__ = "6.0.0-pre.1"
-development = "pre" in __version__
+_v_parts = __version__.split("-")[0].split(".")
+major_version = int(_v_parts[0])
+minor_version = int(_v_parts[1])
+revision = int(_v_parts[2])
+if "-pre" in __version__:
+    development = True
+    prerelease = int(__version__.split(".")[3])
+else:
+    development = False
+    prerelease = None
+
 
 # Those who wrote this.
 __author__ = [
