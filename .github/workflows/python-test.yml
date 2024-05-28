@@ -36,7 +36,7 @@ jobs:
         python-version: "3.9"
     - name: Install Conda dependencies
       run: |
-        conda install openbabel
+        conda install -c conda-forge openbabel
     - name: Install PIP dependencies
       run: |
         python -m pip install --upgrade pip
