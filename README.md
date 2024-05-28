@@ -8,3 +8,33 @@ This is Digichem-core, the open-source library for Digichem. If you are looking 
 
  - Alternatively, if you are looking for the full Digichem program, try [Build-boy](https://github.com/Digichem-Project/build-boy)
  - If you'd like more information on the Digichem project, try the [website](https://www.digi-chem.co.uk)
+
+## Dependencies
+
+ - adjustText
+ - basis_set_exchange
+ - cclib
+ - colour-science
+ - deepmerge
+ - dill
+ - matplotlib
+ - openprattle
+ - periodictable
+ - pillow
+ - pyyaml
+ - rdkit
+ - scipy
+
+## Installation
+
+### Conda
+
+Because rdkit is most easily installed using conda, this is the recommended way to install digichem-core too.
+
+```bash
+conda install -c conda-forge digichem-core
+```
+
+## License
+
+Digichem-core is licensed under the BSD-3-Clause license, but some files are licensed separately. See [COPYING.md](COPYING.md) for full details.
