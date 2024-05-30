@@ -48,6 +48,7 @@ jobs:
         git clone https://github.com/Digichem-Project/pysoc.git
         export PYTHONPATH="$PYTHONPATH:$HOME/pysoc"
         export PATH="$PATH:$HOME/pysoc/bin"
+        pip install -r pysoc/requirements.txt
         pysoc --help
     - name: Lint with flake8
       run: |
