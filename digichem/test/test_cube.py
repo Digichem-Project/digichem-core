@@ -9,6 +9,7 @@ from digichem.image.spectroscopy import Absorption_graph_maker, Emission_graph_m
 from digichem.image.structure import Skeletal_image_maker
 from digichem.image.vmd import Structure_image_maker, Orbital_image_maker, Density_image_maker, \
     Combined_orbital_image_maker, Permanent_dipole_image_maker, Transition_dipole_image_maker
+from digichem.file.cube import Fchk_to_cube, Fchk_to_density_cube, Fchk_to_nto_cube, Fchk_to_spin_cube
 from digichem.parse.util import open_for_parsing, parse_calculation
 
 from digichem.test.util import digichem_options, data_directory
@@ -174,23 +175,29 @@ def test_2d_diagram(result_set, tmp_path, digichem_options):
     assert Path(tmp_path, "tmp.png").exists()
 
 
-@pytest.mark.parametrize("cube_file", [
-    Path(data_directory(), "Cubes/Pyridine.HOMO.cube")
+@pytest.mark.parametrize("result_path", [
+    Path(data_directory(), "Pyridine/Gaussian 16 Optimisation Frequencies PBE1PBE (GD3BJ) Toluene 6-31G(d,p).tar.gz")
 ], ids = ["Gaussian"])
 @pytest.mark.parametrize("maker_cls", [
     Structure_image_maker,
     Orbital_image_maker,
 ])
-def test_3d_image(cube_file, maker_cls, tmp_path, digichem_options):
+def test_3d_image(result_path, maker_cls, tmp_path, digichem_options):
     """Can we make a 3D structure image?"""
-    maker = maker_cls.from_options(
-        tmp_path / "tmp.png",
-        cube_file = cube_file,
-        options = digichem_options
-    )
+    with open_for_parsing(result_path) as open_files:
+        result_set = parse_calculation(*open_files, options = digichem_options)
+        maker = maker_cls.from_options(
+            tmp_path / "tmp.png",
+            cube_file = Fchk_to_cube.from_options(
+                tmp_path / "tmp.cube",
+                fchk_file = result_set.metadata.auxiliary_files['fchk_file'],
+                options = digichem_options
+            ),
+            options = digichem_options
+        )
 
-    maker.get_file('x0y0z0')
-    assert Path(tmp_path, "tmp.x0y0z0.png").exists()
+        maker.get_file('x0y0z0')
+        assert Path(tmp_path, "tmp.x0y0z0.png").exists()
 
 
 # @pytest.mark.parametrize("result_path", [
@@ -200,80 +207,115 @@ def test_3d_image(cube_file, maker_cls, tmp_path, digichem_options):
 #     "SCF"
 # ])
 
-@pytest.mark.parametrize("cube_file", [
-    Path(data_directory(), "Cubes/Pyridine.SCF.cube")
+@pytest.mark.parametrize("result_path, density", [
+    [Path(data_directory(), "Pyridine/Gaussian 16 Optimisation Frequencies PBE1PBE (GD3BJ) Toluene 6-31G(d,p).tar.gz"), "SCF"]
 ], ids = ["Gaussian"])
-def test_density_image(cube_file, tmp_path, digichem_options):
+def test_density_image(result_path, density, tmp_path, digichem_options):
     """Can we make a 3D structure image?"""
-    maker = Density_image_maker.from_options(
-        tmp_path / "tmp.png",
-        cube_file = cube_file,
-        options = digichem_options
-    )
+    with open_for_parsing(result_path) as open_files:
+        result_set = parse_calculation(*open_files, options = digichem_options)
+        maker = Density_image_maker.from_options(
+            tmp_path / "tmp.png",
+            cube_file = Fchk_to_density_cube.from_options(
+                tmp_path / "tmp.SCF.cube",
+                fchk_file = result_set.metadata.auxiliary_files['fchk_file'],
+                density_type = density,
+                options = digichem_options
+            ),
+            options = digichem_options
+        )
 
-    maker.get_file('x0y0z0')
-    assert Path(tmp_path, "tmp.x0y0z0.png").exists()
+        maker.get_file('x0y0z0')
+        assert Path(tmp_path, "tmp.x0y0z0.png").exists()
 
 
-@pytest.mark.parametrize("cube_file", [
-    Path(data_directory(), "Cubes/Benzene.anion.spin.cube")
+@pytest.mark.parametrize("result_path, density", [
+    [Path(data_directory(), "Pyridine/Gaussian 16 Optimisation Frequencies PBE1PBE (GD3BJ) Toluene 6-31G(d,p).tar.gz"), "SCF"]
 ], ids = ["Gaussian"])
-def test_spin_density_image(cube_file, tmp_path, digichem_options):
+def test_spin_density_image(result_path, density, tmp_path, digichem_options):
     """Can we make a 3D structure image?"""
-    maker = Density_image_maker.from_options(
-        tmp_path / "tmp.png",
-        cube_file = cube_file,
-        options = digichem_options
-    )
+    with open_for_parsing(result_path) as open_files:
+        result_set = parse_calculation(*open_files, options = digichem_options)
+        maker = Density_image_maker.from_options(
+            tmp_path / "tmp.png",
+            cube_file = Fchk_to_spin_cube.from_options(
+                tmp_path / "tmp.Spin.cube",
+                fchk_file = result_set.metadata.auxiliary_files['fchk_file'],
+                spin_density = density,
+                options = digichem_options
+            ),
+            options = digichem_options
+        )
 
-    maker.get_file('x0y0z0')
-    assert Path(tmp_path, "tmp.x0y0z0.png").exists()
+        maker.get_file('x0y0z0')
+        assert Path(tmp_path, "tmp.x0y0z0.png").exists()
 
 
-@pytest.mark.parametrize("homo_cube, lumo_cube", [
-    [Path(data_directory(), "Cubes/Pyridine.HOMO.cube"), Path(data_directory(), "Cubes/Pyridine.LUMO.cube")]
+@pytest.mark.parametrize("result_path", [
+    Path(data_directory(), "Pyridine/Gaussian 16 Optimisation Frequencies PBE1PBE (GD3BJ) Toluene 6-31G(d,p).tar.gz")
 ], ids = ["Gaussian"])
-def test_combined_orbital_image(homo_cube, lumo_cube, tmp_path, digichem_options):
+def test_combined_orbital_image(result_path, tmp_path, digichem_options):
     """Can we make a 3D structure image?"""
-    maker = Combined_orbital_image_maker.from_options(
-        tmp_path / "tmp.png",
-        HOMO_cube_file = homo_cube,
-        LUMO_cube_file = lumo_cube,
-        options = digichem_options
-    )
+    with open_for_parsing(result_path) as open_files:
+        result_set = parse_calculation(*open_files, options = digichem_options)
+        maker = Combined_orbital_image_maker.from_options(
+            tmp_path / "tmp.png",
+            HOMO_cube_file = Fchk_to_cube.from_options(
+                tmp_path / "tmp.HOMO.cube",
+                fchk_file = result_set.metadata.auxiliary_files['fchk_file'],
+                orbital = "LUMO",
+                options = digichem_options
+            ),
+            LUMO_cube_file = Fchk_to_cube.from_options(
+                tmp_path / "tmp.LUMO.cube",
+                fchk_file = result_set.metadata.auxiliary_files['fchk_file'],
+                orbital = "LUMO",
+                options = digichem_options
+            ),
+            options = digichem_options
+        )
 
-    maker.get_file('x0y0z0')
-    assert Path(tmp_path, "tmp.x0y0z0.png").exists()
+        maker.get_file('x0y0z0')
+        assert Path(tmp_path, "tmp.x0y0z0.png").exists()
 
 
-@pytest.mark.parametrize("cube_file", [
-    Path(data_directory(), "Cubes/Benzene.anion.AHOMO.cube")
+@pytest.mark.parametrize("result_path", [
+    Path(data_directory(), "Benzene Anion/Gaussian 16 Optimisation Frequencies PBE1PBE (GD3BJ) Gas Phase 6-31G(d,p).tar.gz")
 ], ids = ["Gaussian"])
-def test_unrestricted_orbital_image(cube_file, tmp_path, digichem_options):
+def test_unrestricted_orbital_image(result_path, tmp_path, digichem_options):
     """Can we make a 3D structure image?"""
-    maker = Orbital_image_maker.from_options(
-        tmp_path / "tmp.png",
-        cube_file = cube_file,
-        options = digichem_options
-    )
+    with open_for_parsing(result_path) as open_files:
+        result_set = parse_calculation(*open_files, options = digichem_options)
+        maker = Orbital_image_maker.from_options(
+            tmp_path / "tmp.png",
+            cube_file = Fchk_to_cube.from_options(
+                tmp_path / "tmp.cube",
+                fchk_file = result_set.metadata.auxiliary_files['fchk_file'],
+                cubegen_type = "AMO",
+                orbital = "HOMO",
+                options = digichem_options
+            ),
+            options = digichem_options
+        )
 
-    maker.get_file('x0y0z0')
-    assert Path(tmp_path, "tmp.x0y0z0.png").exists()
+        maker.get_file('x0y0z0')
+        assert Path(tmp_path, "tmp.x0y0z0.png").exists()
 
 
-@pytest.mark.parametrize("result_path, cube_file", [
-    [  
-        Path(data_directory(), "Pyridine/Gaussian 16 Optimisation Frequencies PBE1PBE (GD3BJ) Toluene 6-31G(d,p).tar.gz"),
-        Path(data_directory(), "Cubes/Pyridine.HOMO.cube"),
-    ]
+@pytest.mark.parametrize("result_path", [
+    Path(data_directory(), "Pyridine/Gaussian 16 Optimisation Frequencies PBE1PBE (GD3BJ) Toluene 6-31G(d,p).tar.gz")
 ])
-def test_pdm_image(result_path, cube_file, tmp_path, digichem_options):
+def test_pdm_image(result_path, tmp_path, digichem_options):
     """Can we make a 3D structure image?"""
     with open_for_parsing(result_path) as open_files:
         result_set = parse_calculation(*open_files, options = digichem_options)
         maker = Permanent_dipole_image_maker.from_options(
             tmp_path / "tmp.png",
-            cube_file = cube_file,
+            cube_file = Fchk_to_cube.from_options(
+                tmp_path / "tmp.cube",
+                fchk_file = result_set.metadata.auxiliary_files['fchk_file'],
+                options = digichem_options
+            ),
             dipole_moment = result_set.dipole_moment,
             options = digichem_options
         )
@@ -282,19 +324,20 @@ def test_pdm_image(result_path, cube_file, tmp_path, digichem_options):
         assert Path(tmp_path, "tmp.x0y0z0.png").exists()
 
 
-@pytest.mark.parametrize("result_path, cube_file", [
-    [
-        Path(data_directory(), "Pyridine/Gaussian 16 Excited States TDA Optimised S(1) PBE1PBE (GD3BJ) Toluene 6-31G(d,p).tar.gz"),
-        Path(data_directory(), "Cubes/Pyridine.HOMO.cube"),
-    ]
+@pytest.mark.parametrize("result_path", [
+    Path(data_directory(), "Pyridine/Gaussian 16 Excited States TDA Optimised S(1) PBE1PBE (GD3BJ) Toluene 6-31G(d,p).tar.gz"),
 ])
-def test_tdm_image(result_path, cube_file, tmp_path, digichem_options):
+def test_tdm_image(result_path, tmp_path, digichem_options):
     """Can we make a 3D structure image?"""
     with open_for_parsing(result_path) as open_files:
         result_set = parse_calculation(*open_files, options = digichem_options)
         maker = Transition_dipole_image_maker.from_options(
             tmp_path / "tmp.png",
-            cube_file = cube_file,
+            cube_file = Fchk_to_cube.from_options(
+                tmp_path / "tmp.cube",
+                fchk_file = result_set.metadata.auxiliary_files['fchk_file'],
+                options = digichem_options
+            ),
             dipole_moment = result_set.excited_states.find("S(1)").transition_dipole_moment.electric,
             magnetic_dipole_moment = result_set.excited_states.find("S(1)").transition_dipole_moment.magnetic,
             options = digichem_options
@@ -304,16 +347,22 @@ def test_tdm_image(result_path, cube_file, tmp_path, digichem_options):
         assert Path(tmp_path, "tmp.x0y0z0.png").exists()
 
 
-@pytest.mark.parametrize("cube_file", [
-    Path(data_directory(), "Cubes/Pyridine.HOMO.cube"),
+@pytest.mark.parametrize("result_path", [
+    Path(data_directory(), "Pyridine/Gaussian 16 Excited States TDA Optimised S(1) PBE1PBE (GD3BJ) Toluene 6-31G(d,p).tar.gz"),
 ])
-def test_nto_image(cube_file, tmp_path, digichem_options):
+def test_nto_image(result_path, tmp_path, digichem_options):
     """Can we make a 3D structure image?"""
-    maker = Orbital_image_maker.from_options(
-        tmp_path / "tmp.png",
-        cube_file = cube_file,
-        options = digichem_options
-    )
+    with open_for_parsing(result_path) as open_files:
+        result_set = parse_calculation(*open_files, options = digichem_options)
+        maker = Orbital_image_maker.from_options(
+            tmp_path / "tmp.png",
+            cube_file = Fchk_to_nto_cube.from_options(
+                tmp_path / "tmp.cube",
+                fchk_file = result_set.metadata.auxiliary_files['fchk_file'],
+                options = digichem_options
+            ),
+            options = digichem_options
+        )
 
-    maker.get_file('x0y0z0')
-    assert Path(tmp_path, "tmp.x0y0z0.png").exists()
+        maker.get_file('x0y0z0')
+        assert Path(tmp_path, "tmp.x0y0z0.png").exists()
