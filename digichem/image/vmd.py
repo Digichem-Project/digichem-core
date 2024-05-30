@@ -591,10 +591,28 @@ class Combined_orbital_image_maker(VMD_image_maker):
         
         This method returns nothing, but will raise a File_maker_exception exception if the rendering is not possible.
         """
-        if self.HOMO_cube_file is None or self.HOMO_cube_file.safe_get_file() is None:
-            raise File_maker_exception(self, "No HOMO cube file is available")
-        if self.LUMO_cube_file is None  or self.LUMO_cube_file.safe_get_file() is None:
-            raise File_maker_exception(self, "No LUMO cube file is available")
+        try:
+            if self.HOMO_cube_file is None or self.HOMO_cube_file.safe_get_file() is None:
+                raise File_maker_exception(self, "No HOMO cube file is available")
+        except AttributeError:
+            if not hasattr(self.HOMO_cube_file, 'safe_get_file'):
+            # Input file does not have a safe_get_file() method.
+                pass
+
+            else:
+                raise
+
+        try:
+            if self.LUMO_cube_file is None  or self.LUMO_cube_file.safe_get_file() is None:
+                raise File_maker_exception(self, "No LUMO cube file is available")
+        
+        except AttributeError:
+            if not hasattr(self.LUMO_cube_file, 'safe_get_file'):
+            # Input file does not have a safe_get_file() method.
+                pass
+
+            else:
+                raise
     
     @property
     def inputs(self):
