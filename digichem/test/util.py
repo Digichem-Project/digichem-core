@@ -63,7 +63,7 @@ def digichem_options(tmpdir_factory):
             Path(tmpdir_factory.mktemp("silico_database3"), "tmp.db")
         ),
     ]
-    
+    config.logging['render_logging'] = True
     config.validate()
     return config
 
