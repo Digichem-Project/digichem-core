@@ -1,5 +1,6 @@
 import pytest
 from pathlib import Path
+import shutil
 
 from digichem.file.fchk import Chk_to_fchk
 from digichem.file.cube import Fchk_to_cube
@@ -11,6 +12,8 @@ from digichem.test.test_result import gaussian_ES_result, turbomole_ES_result, o
     gaussian_opt_result, turbomole_opt_result, orca_opt_result, orca_opt_freq_result, \
     orca_nmr_result
 
+@pytest.mark.skipif(not shutil.which("cubegen"),
+                    reason="No cubegen available")
 @pytest.mark.parametrize("result_path", [
     Path(data_directory(), "Pyridine/Gaussian 16 Excited States TDA Optimised S(1) PBE1PBE (GD3BJ) Toluene 6-31G(d,p).tar.gz"),
 ], ids=["Pyridine"])
@@ -64,7 +67,8 @@ def test_no_fchk_error(digichem_options, tmp_path):
     with pytest.raises(File_maker_exception):
         maker.get_file()
 
-
+@pytest.mark.skipif(not shutil.which("formchk"),
+                    reason="No formchk available")
 def test_chk_to_fchk(digichem_options, tmp_path):
     """Can we convert a chk to an fchk file?"""
     maker = Chk_to_fchk.from_options(
