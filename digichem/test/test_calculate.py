@@ -12,7 +12,7 @@ from digichem.parse.util import parse_calculation
 def formaldehyde_SOC_result(digichem_options):
     return parse_calculation(Path(data_directory(), "Formaldehyde/Gaussian 09 Excited States TD-DFT 4 Singlets 4 Triplets B3LYP Gas Phase TZVP.tar.gz"), options = digichem_options)
 
-@pytest.mark.skipif(not shutil.which("rwfdump"), "No rwfdump available")
+@pytest.mark.skipif(not shutil.which("rwfdump"), reason="No rwfdump available")
 @pytest.mark.parametrize("result_set, singlet, triplet, SOC", [
     # These SOC values are taken from the original paper J. Chem. Theory Comput. 2017, 13, 515−524 for PySOC,
     # the program Silioc uses to calculate SOC. We are limited in terms of accuracy by the number of decimals
