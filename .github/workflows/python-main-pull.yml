@@ -4,7 +4,7 @@
 name: Python tests and lint
 
 on:
-  push:
+  pull_request:
     branches: [ "main" ]
 
 permissions:
@@ -53,19 +53,8 @@ jobs:
         flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
         # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
-    - name: Set last modified
-      run: |
-        new_date=$(date '+%d\/%m\/%Y')
-        sed -E "s/_last_updated_string = \"[0-9]{2}\/[0-9]{2}\/[0-9]{4}\"/_last_updated_string = \"$new_date\"/g" -i digichem/__init__.py
     - name: Test with pytest
       run: |
         export PYTHONPATH="./:$PYTHONPATH"
         pytest
-    - name: Commit changes
-      run: |
-        git config --global user.email "osl@st-andrews.ac.uk"
-        git config --global user.name "Oliver Lee"
-        git add digichem/__init__.py
-        git commit -m "chore: update last modified"
-        git push
 
