@@ -306,7 +306,7 @@ def main():
     bpy.context.scene.render.image_settings.compression = 1000
     
     # Change light intensity.
-    bpy.data.lights["batoms_light_Default"].node_tree.nodes["Emission"].inputs[1].default_value = 0.3
+    bpy.data.lights["batoms_light_Default"].node_tree.nodes["Emission"].inputs[1].default_value = 0.5 #0.3
     #mol.render.lights["Default"].energy=10
     
     # Change view mode.
