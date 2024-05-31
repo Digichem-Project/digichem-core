@@ -212,6 +212,7 @@ def main():
     parser.add_argument("--primary-color", help = "RGBA for one of the colors to use for isosurfaces", type = float, nargs = 4, default = [0.1, 0.1, 0.9, 0.7])
     parser.add_argument("--secondary-color", help = "RGBA for the other color to use for isosurfaces", type = float, nargs = 4, default = [1, 0.058, 0.0, 0.7])
     parser.add_argument("--cpus", help = "Number of parallel CPUs to use for rendering", type = int, default = 1)
+    parser.add_argument("--use-gpu", help = "Whether to enable GPU rendering", action = "store_true")
     parser.add_argument("--orientation", help = "The orientation to render from, as x, y, z values", nargs = 3, type = float, default = [0, 0, 1])
     parser.add_argument("--resolution", help = "The output resolution in px", type = int, default = 1024)
     parser.add_argument("--render-samples", help = "The maximum number of render samples, more generally results in higher quality but longer render times", type = int, default = 256)
@@ -301,6 +302,8 @@ def main():
     # Ray-tracing options
     bpy.context.scene.cycles.max_bounces = 48
     bpy.context.scene.cycles.transparent_max_bounces = 24
+    if args.use_gpu:
+        bpy.context.scene.cycles.device = "GPU"
     
     # Use maximum compression.
     bpy.context.scene.render.image_settings.compression = 1000
