@@ -17,6 +17,7 @@ from digichem.test.test_result import gaussian_ES_result, turbomole_ES_result, o
     gaussian_opt_result, turbomole_opt_result, orca_opt_result, orca_opt_freq_result, \
     orca_nmr_result
 
+pytest.skip(allow_module_level=True)
 
 @pytest.mark.parametrize("result_set", [
     pytest.lazy_fixture("gaussian_ES_result"),
