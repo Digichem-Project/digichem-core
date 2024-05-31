@@ -46,10 +46,9 @@ jobs:
       run: |
         cd ~/
         git clone https://github.com/Digichem-Project/pysoc.git
-        export PYTHONPATH="$PYTHONPATH:$HOME/pysoc"
-        export PATH="$PATH:$HOME/pysoc/bin"
         pip install -r pysoc/requirements.txt
-        pysoc --help
+        echo "PYTHONPATH=$PYTHONPATH:$HOME/pysoc" >> $GITHUB_ENV
+        echo "$HOME/pysoc/bin" >> $GITHUB_PATH
     - name: Lint with flake8
       run: |
         # stop the build if there are Python syntax errors or undefined names
