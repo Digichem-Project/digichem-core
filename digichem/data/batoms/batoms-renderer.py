@@ -29,6 +29,7 @@ def add_molecule(
         isotype = "both",
         primary_color = [1, 0.058, 0.0, 0.55],
         secondary_color = [0.1, 0.1, 0.9, 0.55],
+        style = "default"
         ):
     """
     """
@@ -38,10 +39,10 @@ def add_molecule(
     surface_settings = []
     for isovalue in isovalues:
         if isotype in ["both", "positive"]:
-            surface_settings.append({'level': isovalue, 'color': primary_color})
+            surface_settings.append({'level': isovalue, 'color': primary_color, 'material_style': style})
         
         if isotype in ["both", "negative"]:
-            surface_settings.append({'level': -isovalue, 'color': secondary_color})
+            surface_settings.append({'level': -isovalue, 'color': secondary_color, 'material_style': style})
     
     
     # Load the input data.
@@ -211,6 +212,7 @@ def main():
     parser.add_argument("--isocolor", help = "The colouring method to use for isosurfaces", choices = ["sign", "cube"], default = "sign")
     parser.add_argument("--primary-color", help = "RGBA for one of the colors to use for isosurfaces", type = float, nargs = 4, default = [0.1, 0.1, 0.9, 0.7])
     parser.add_argument("--secondary-color", help = "RGBA for the other color to use for isosurfaces", type = float, nargs = 4, default = [1, 0.058, 0.0, 0.7])
+    parser.add_argument("--style", help = "Material style for isosurfaces", choices = ('default', 'metallic', 'plastic', 'ceramic', 'mirror'), default = "default")
     parser.add_argument("--cpus", help = "Number of parallel CPUs to use for rendering", type = int, default = 1)
     parser.add_argument("--use-gpu", help = "Whether to enable GPU rendering", action = "store_true")
     parser.add_argument("--orientation", help = "The orientation to render from, as x, y, z values", nargs = 3, type = float, default = [0, 0, 1])
@@ -250,7 +252,8 @@ def main():
         isovalues = args.isovalues,
         isotype = args.isotype,
         primary_color = args.primary_color,
-        secondary_color = args.secondary_color if args.isocolor == "sign" else args.primary_color
+        secondary_color = args.secondary_color if args.isocolor == "sign" else args.primary_color,
+        style = args.style
     )
     
     # Uncomment to show atom labels.
@@ -267,7 +270,8 @@ def main():
             isovalues = args.isovalues,
             isotype = args.isotype,
             primary_color = args.primary_color if args.isocolor == "sign" else args.secondary_color,
-            secondary_color = args.secondary_color
+            secondary_color = args.secondary_color,
+            style = args.style
         )
     
     if args.alpha:
