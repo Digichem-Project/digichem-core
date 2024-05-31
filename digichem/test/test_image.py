@@ -1,5 +1,6 @@
 import pytest
 from pathlib import Path
+import shutil
 
 from digichem.image.excited_states import Excited_states_diagram_maker
 from digichem.image.graph import Convergence_graph_maker
@@ -16,6 +17,7 @@ from digichem.test.test_result import gaussian_ES_result, turbomole_ES_result, o
     gaussian_opt_result, turbomole_opt_result, orca_opt_result, orca_opt_freq_result, \
     orca_nmr_result
 
+HAS_VMD = shutil.which("vmd")
 
 @pytest.mark.parametrize("result_set", [
     pytest.lazy_fixture("gaussian_ES_result"),
@@ -174,6 +176,8 @@ def test_2d_diagram(result_set, tmp_path, digichem_options):
     assert Path(tmp_path, "tmp.png").exists()
 
 
+@pytest.mark.skipif(not HAS_VMD,
+                    reason="No VMD available")
 @pytest.mark.parametrize("cube_file", [
     Path(data_directory(), "Cubes/Pyridine.HOMO.cube")
 ], ids = ["Gaussian"])
@@ -200,6 +204,8 @@ def test_3d_image(cube_file, maker_cls, tmp_path, digichem_options):
 #     "SCF"
 # ])
 
+@pytest.mark.skipif(not HAS_VMD,
+                    reason="No VMD available")
 @pytest.mark.parametrize("cube_file", [
     Path(data_directory(), "Cubes/Pyridine.SCF.cube")
 ], ids = ["Gaussian"])
@@ -215,6 +221,8 @@ def test_density_image(cube_file, tmp_path, digichem_options):
     assert Path(tmp_path, "tmp.x0y0z0.png").exists()
 
 
+@pytest.mark.skipif(not HAS_VMD,
+                    reason="No VMD available")
 @pytest.mark.parametrize("cube_file", [
     Path(data_directory(), "Cubes/Benzene.anion.spin.cube")
 ], ids = ["Gaussian"])
@@ -230,6 +238,8 @@ def test_spin_density_image(cube_file, tmp_path, digichem_options):
     assert Path(tmp_path, "tmp.x0y0z0.png").exists()
 
 
+@pytest.mark.skipif(not HAS_VMD,
+                    reason="No VMD available")
 @pytest.mark.parametrize("homo_cube, lumo_cube", [
     [Path(data_directory(), "Cubes/Pyridine.HOMO.cube"), Path(data_directory(), "Cubes/Pyridine.LUMO.cube")]
 ], ids = ["Gaussian"])
@@ -246,6 +256,8 @@ def test_combined_orbital_image(homo_cube, lumo_cube, tmp_path, digichem_options
     assert Path(tmp_path, "tmp.x0y0z0.png").exists()
 
 
+@pytest.mark.skipif(not HAS_VMD,
+                    reason="No VMD available")
 @pytest.mark.parametrize("cube_file", [
     Path(data_directory(), "Cubes/Benzene.anion.AHOMO.cube")
 ], ids = ["Gaussian"])
@@ -261,6 +273,8 @@ def test_unrestricted_orbital_image(cube_file, tmp_path, digichem_options):
     assert Path(tmp_path, "tmp.x0y0z0.png").exists()
 
 
+@pytest.mark.skipif(not HAS_VMD,
+                    reason="No VMD available")
 @pytest.mark.parametrize("result_path, cube_file", [
     [  
         Path(data_directory(), "Pyridine/Gaussian 16 Optimisation Frequencies PBE1PBE (GD3BJ) Toluene 6-31G(d,p).tar.gz"),
@@ -282,6 +296,8 @@ def test_pdm_image(result_path, cube_file, tmp_path, digichem_options):
         assert Path(tmp_path, "tmp.x0y0z0.png").exists()
 
 
+@pytest.mark.skipif(not HAS_VMD,
+                    reason="No VMD available")
 @pytest.mark.parametrize("result_path, cube_file", [
     [
         Path(data_directory(), "Pyridine/Gaussian 16 Excited States TDA Optimised S(1) PBE1PBE (GD3BJ) Toluene 6-31G(d,p).tar.gz"),
@@ -304,6 +320,8 @@ def test_tdm_image(result_path, cube_file, tmp_path, digichem_options):
         assert Path(tmp_path, "tmp.x0y0z0.png").exists()
 
 
+@pytest.mark.skipif(not HAS_VMD,
+                    reason="No VMD available")
 @pytest.mark.parametrize("cube_file", [
     Path(data_directory(), "Cubes/Pyridine.HOMO.cube"),
 ])
