@@ -3,6 +3,10 @@
 from datetime import datetime
 import sys
 
+# Prevent cclib and other modules from trying to import openbabel.
+sys.modules['openbabel'] = None
+sys.modules['pybel'] = None
+
 import digichem.log
 from digichem.datas import get_resource
 
