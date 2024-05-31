@@ -73,7 +73,7 @@ def test_chk_to_fchk(digichem_options, tmp_path):
     """Can we convert a chk to an fchk file?"""
     maker = Chk_to_fchk.from_options(
         tmp_path / "tmp.fchk",
-        chk_file = Path(data_directory(), "Input/Benzene.chk"),
+        chk_file = Path(data_directory(), "Chk/Pyridine.opt.chk"),
         options = digichem_options
     )
     assert maker.get_file().exists()
