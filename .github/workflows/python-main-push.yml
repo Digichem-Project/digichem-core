@@ -65,7 +65,9 @@ jobs:
         pytest
     - name: Commit changes
       run: |
+        git config --global user.email "osl@st-andrews.ac.uk"
+        git config --global user.name "Oliver Lee"
         git add digichem/__init__.py
         git commit -m "chore: update last modified"
-        git push origin
+        git push
 
