@@ -54,6 +54,7 @@ class Digichem_options(Configurable):
         help = "Options for controlling the appearance of 3D molecule images.",
         enable_rendering = Option(help = "Set to False to disable image rendering.", type = bool, default = True),
         engine = Option(help = "The rendering engine to use", choices = ["vmd", "batoms"], default = "vmd"),
+        cpus = Option(help = "The number of CPUs/threads to use. This option is overridden if running in a calculation environment (where it uses the same number of CPUs as the calculation did)", type = int, default = 1),
         vmd = Options(help = "VMD specific options (only applies if engine == 'vmd'",
             executable = Option(help = "Path to the VMD (Visual Molecular Dynamics) executable", default = "vmd"),
             tachyon = Option(help = "The tachyon ray-tracing library, performs the actual rendering. Tachyon is typically packaged with VMD, but often isn't added to the path automatically", default = "tachyon"),
@@ -71,7 +72,6 @@ Possible options are:
         ),
         batoms = Options(help = "Beautiful Atoms/Blender specific options (only applies if engine == 'batoms'",
             blender = Option(help = "Path to the blender executable, in which beautiful atoms should be installed", default = None),
-            cpus = Option(help = "The number of CPUs/threads to use. This option is overridden if running in a calculation environemnt (where it uses the same number of CPUs as the calculation did)", type = int, default = 1),
             render_samples = Option(help = "The number of render samples (or passes) to use. Higher values result in higher image quality and greater render times", type = int, default = 256),
             perspective = Option(help = "The perspective mode", choices = ["orthographic", "perspective"], default = "orthographic")
             # TODO: Colour options.

@@ -35,6 +35,7 @@ class Render_maker(File_converter, Cropable_mixin):
             resolution = 1024,
             also_make_png = True,
             isovalue = 0.2,
+            cpus = 1,
             **kwargs):
         """
         Constructor for Image_maker objects.
@@ -46,6 +47,7 @@ class Render_maker(File_converter, Cropable_mixin):
         :param resolution: The max width or height of the rendered images in pixels.
         :param also_make_png: If True, additional images will be rendered in PNG format. This option is useful to generate higher quality images alongside more portable formats.
         :param isovalue: The isovalue to use for rendering isosurfaces. Has no effect when rendering only atoms.
+        :param cpu: Number of CPUs to use in parallel.
         :param blender_executable:
         """
         super().__init__(*args, input_file = cube_file, **kwargs)
@@ -61,6 +63,7 @@ class Render_maker(File_converter, Cropable_mixin):
         self.target_resolution = resolution
         self.also_make_png = also_make_png
         self.isovalue = isovalue
+        self.cpus = cpus
         
         # TODO: These.
         self.primary_colour = "red"
@@ -163,12 +166,12 @@ class Batoms_renderer(Render_maker):
             resolution = resolution,
             also_make_png = also_make_png,
             isovalue = math.fabs(isovalue),
+            cpus = cpus,
             **kwargs
         )
         
         # Blender specific options.
         self.render_samples = render_samples
-        self.cpus = cpus
         self.perspective = perspective
         
         self.logging = logging
@@ -197,7 +200,7 @@ class Batoms_renderer(Render_maker):
             use_existing = options['render']['use_existing'],
             dont_modify = not options['render']['enable_rendering'],
             blender_executable = options['render']['batoms']['blender'],
-            cpus = cpus if cpus is not None else options['render']['batoms']['cpus'],
+            cpus = cpus if cpus is not None else options['render']['cpus'],
             perspective = options['render']['batoms']['perspective'],
             logging = options['logging']['render_logging'],
             **kwargs

@@ -35,7 +35,7 @@ class VMD_image_maker(Render_maker):
     options_name = "orbital"
     
     def __init__(self, *args, cube_file = None, rotations = None, auto_crop = True, rendering_style = "pastel", resolution = 1024, also_make_png = True, isovalue = 0.2, 
-                 vmd_executable = "vmd", tachyon_executable = "tachyon", vmd_logging = False,
+                 vmd_executable = "vmd", tachyon_executable = "tachyon", vmd_logging = False, cpus = 1,
                  **kwargs):
         """
         Constructor for Image_maker objects.
@@ -60,6 +60,7 @@ class VMD_image_maker(Render_maker):
             resolution = resolution,
             also_make_png = also_make_png,
             isovalue = isovalue,
+            cpus = cpus,
             **kwargs
         )
         
@@ -95,7 +96,7 @@ class VMD_image_maker(Render_maker):
         return [(axis, math.degrees(-theta)) for axis, theta in self._rotations]
     
     @classmethod
-    def from_options(self, output, *, cube_file = None, rotations = None, options, **kwargs):
+    def from_options(self, output, *, cube_file = None, rotations = None, cpus = None, options, **kwargs):
         """
         Constructor that takes a dictionary of config like options.
         """        
@@ -112,6 +113,7 @@ class VMD_image_maker(Render_maker):
             vmd_executable = options['render']['vmd']['executable'],
             tachyon_executable = options['render']['vmd']['tachyon'],
             vmd_logging = options['logging']['render_logging'],
+            cpus = cpus if cpus is not None else options['render']['cpus'],
             **kwargs
         )
     
@@ -345,6 +347,7 @@ class VMD_image_maker(Render_maker):
                         scene_file.relative_to(working_directory),
                         "-aasamples", "12",
                         "-res", "{}".format(resolution), "{}".format(resolution),
+                        "-numthreads", "{}".format(self.cpus),
                         "-o", tmpfile_name
                     ],
                     stdout = subprocess.PIPE if not self.vmd_logging else None,
@@ -562,7 +565,7 @@ class Combined_orbital_image_maker(VMD_image_maker):
         self.LUMO_cube_file = LUMO_cube_file
         
     @classmethod
-    def from_options(self, output, *, HOMO_cube_file = None, LUMO_cube_file = None, rotations = None, options, **kwargs):
+    def from_options(self, output, *, HOMO_cube_file = None, LUMO_cube_file = None, rotations = None, cpus = None, options, **kwargs):
         """
         Constructor that takes a dictionary of config like options.
         """        
@@ -580,6 +583,7 @@ class Combined_orbital_image_maker(VMD_image_maker):
             vmd_executable = options['render']['vmd']['executable'],
             tachyon_executable = options['render']['vmd']['tachyon'],
             vmd_logging = options['logging']['render_logging'],
+            cpus = cpus if cpus is not None else options['render']['cpus'],
             **kwargs
         )
     
@@ -743,7 +747,7 @@ class Permanent_dipole_image_maker(Dipole_image_maker):
         super().__init__(*args, dipole_moment = dipole_moment, scaling = scaling, **kwargs)
         
     @classmethod
-    def from_options(self, output, *, dipole_moment = None, cube_file = None, rotations = None, options, **kwargs):
+    def from_options(self, output, *, dipole_moment = None, cube_file = None, rotations = None, cpus = None, options, **kwargs):
         """
         Constructor that takes a dictionary of config like options.
         """        
@@ -762,6 +766,7 @@ class Permanent_dipole_image_maker(Dipole_image_maker):
             tachyon_executable = options['render']['vmd']['tachyon'],
             vmd_logging = options['logging']['render_logging'],
             scaling = options['render']['dipole_moment']['scaling'],
+            cpus = cpus if cpus is not None else options['render']['cpus'],
             **kwargs
         )
     
@@ -800,7 +805,7 @@ class Transition_dipole_image_maker(Dipole_image_maker):
             raise File_maker_exception(self, "No dipole moment is available.")
         
     @classmethod
-    def from_options(self, output, *, dipole_moment = None, magnetic_dipole_moment, cube_file = None, rotations = None, options, **kwargs):
+    def from_options(self, output, *, dipole_moment = None, magnetic_dipole_moment, cube_file = None, rotations = None, cpus = None, options, **kwargs):
         """
         Constructor that takes a dictionary of config like options.
         """        
@@ -819,6 +824,7 @@ class Transition_dipole_image_maker(Dipole_image_maker):
             vmd_executable = options['render']['vmd']['executable'],
             tachyon_executable = options['render']['vmd']['tachyon'],
             vmd_logging = options['logging']['render_logging'],
+            cpus = cpus if cpus is not None else options['render']['cpus'],
             scaling = options['render']['transition_dipole_moment']['electric_scaling'],
             magnetic_scaling = options['render']['transition_dipole_moment']['magnetic_scaling'],
             **kwargs
