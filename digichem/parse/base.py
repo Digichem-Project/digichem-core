@@ -31,20 +31,11 @@ custom_parsing_formats = [
 
 class Parser_abc():
     """ABC for all parsers."""
-    
-    def __init__(self, *log_files, raw_data = None, **kwargs):
+
+    def __init__(self, *, raw_data = None, **kwargs):
         """
         Top level constructor for calculation parsers.
-        
-        :param log_files: A list of output file to analyse/parse. The first log_file given will be used for naming purposes.
         """
-        # Set our name.
-        self.log_file_paths = self.sort_log_files([Path(log_file) for log_file in log_files if log_file is not None])
-        
-        # Panic if we have no logs.
-        if len(self.log_file_paths) == 0:
-            raise Digichem_exception("Cannot parse calculation output; no available log files. Are you sure the given path is a log file or directory containing log files?")
-        
         # An object that we will populate with raw results.
         self.data = raw_data
         
@@ -57,49 +48,21 @@ class Parser_abc():
                 self.parse()
         except Exception:
             raise Digichem_exception("Error parsing calculation result '{}'".format(self.description))
-
-    @classmethod
-    def from_logs(self, *log_files, **kwargs):
-        """
-        Intelligent constructor that will attempt to guess the location of aux files from a given log file(s).
-        
-        :param log_files: Output file(s) to parse or a directory of output files to parse.
-        """
-        # This default implementation does nothing smart.
-        return self(*log_files, **kwargs)
     
-    @classmethod
-    def sort_log_files(self, log_files):
-        """
-        Sort a list of log files into a particular order, if required for this parser.
-        """
-        return log_files
-    
-    @property
-    def log_file_path(self):
-        """
-        The main log file.
-        """
-        for log_file in self.log_file_paths:
-            if log_file.suffix.lower() == ".log":
-                return log_file
-            
-        return self.log_file_paths[0]
-            
     @property
     def name(self):
         """
         Short name to describe this calculation result.
         """
-        return self.log_file_path.with_suffix("").name
+        return "Parser"
     
     @property
     def description(self):
         """
         A name/path that describes the file(s) being parsed, used for error messages etc.
         """
-        return self.log_file_path
-    
+        return "Parser"
+
     def parse(self):
         """
         Extract results from our output files.
@@ -128,22 +91,14 @@ class Parser_abc():
         
         except Exception as e:
             return None
-        
+    
     def post_parse(self):
         """
         Perform any required operations after line-by-line parsing.
-        """
-        # Add our name.
-        if self.name is not None:
-            self.data.metadata['name'] = self.name
-            
+        """ 
         # Add current username.
         # TODO: It would probably be better if we used the name of the user who owns the output file, rather than the current user...
         self.data.metadata['user'] = self.get_current_username()
-        
-        # Set our file paths.
-        self.data.metadata['log_files'] = self.log_file_paths
-        self.data.metadata['auxiliary_files'] = self.auxiliary_files
             
     def process_all(self, options):
         """
@@ -154,7 +109,7 @@ class Parser_abc():
         """
         self.process(options)
         return [self.results]
-
+    
     def process(self, options):
         """
         Get a Result set object from this parser.
@@ -218,3 +173,78 @@ class Parser_abc():
         
         # Return the populated result set for convenience.
         return self.results
+
+
+class File_parser_abc(Parser_abc):
+    """ABC for all parsers."""
+    
+    def __init__(self, *log_files, raw_data = None, **kwargs):
+        """
+        Top level constructor for calculation parsers.
+        
+        :param log_files: A list of output file to analyse/parse. The first log_file given will be used for naming purposes.
+        """
+        # Set our name.
+        self.log_file_paths = self.sort_log_files([Path(log_file) for log_file in log_files if log_file is not None])
+        
+        # Panic if we have no logs.
+        if len(self.log_file_paths) == 0:
+            raise Digichem_exception("Cannot parse calculation output; no available log files. Are you sure the given path is a log file or directory containing log files?")
+        
+        super().__init__(raw_data=raw_data, **kwargs)
+
+    @classmethod
+    def from_logs(self, *log_files, **kwargs):
+        """
+        Intelligent constructor that will attempt to guess the location of aux files from a given log file(s).
+        
+        :param log_files: Output file(s) to parse or a directory of output files to parse.
+        """
+        # This default implementation does nothing smart.
+        return self(*log_files, **kwargs)
+    
+    @classmethod
+    def sort_log_files(self, log_files):
+        """
+        Sort a list of log files into a particular order, if required for this parser.
+        """
+        return log_files
+    
+    @property
+    def log_file_path(self):
+        """
+        The main log file.
+        """
+        for log_file in self.log_file_paths:
+            if log_file.suffix.lower() == ".log":
+                return log_file
+            
+        return self.log_file_paths[0]
+            
+    @property
+    def name(self):
+        """
+        Short name to describe this calculation result.
+        """
+        return self.log_file_path.with_suffix("").name
+    
+    @property
+    def description(self):
+        """
+        A name/path that describes the file(s) being parsed, used for error messages etc.
+        """
+        return self.log_file_path
+        
+    def post_parse(self):
+        """
+        Perform any required operations after line-by-line parsing.
+        """
+        super().post_parse()
+
+        # Add our name.
+        if self.name is not None:
+            self.data.metadata['name'] = self.name
+        
+        # Set our file paths.
+        self.data.metadata['log_files'] = self.log_file_paths
+        self.data.metadata['auxiliary_files'] = self.auxiliary_files
