@@ -2,7 +2,7 @@
 import yaml
 import json
 
-from digichem.parse.base import Parser_abc
+from digichem.parse.base import File_parser_abc
 from digichem.result.tdm import Transition_dipole_moment
 from digichem.result.result import Result_set
 from digichem.result.metadata import Metadata
@@ -20,7 +20,7 @@ from digichem.result.alignment.base import Alignment, Minimal
 from digichem.result.nmr import NMR_list
 
 
-class Dump_multi_parser_abc(Parser_abc):
+class Dump_multi_parser_abc(File_parser_abc):
     """
     ABC for classes that can read multiple result sets from dumped data.
     """
@@ -122,7 +122,7 @@ class Json_multi_parser(Dump_multi_parser_abc):
             self.data = json.load(json_file)
 
 
-class Dump_parser_abc(Parser_abc):
+class Dump_parser_abc(File_parser_abc):
     """
     ABC for parsers that read dumped data.
     """
