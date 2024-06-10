@@ -65,7 +65,7 @@ class Digichem_coords_ABC(Input_file, Molecule_mixin):
             # Note it's not the history of the old calc we want here, this old calc IS our new history.
             kwargs['history'] = result._id
             
-        if not kwargs.get('file_name'):
+        if not kwargs.get('file_name') and len(result.metadata.log_files):
             kwargs['file_name'] = result.metadata.log_files[0]
         
         if not kwargs.get('name'):
