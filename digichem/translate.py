@@ -146,7 +146,7 @@ class Basis_set(Translate):
                 basis_set["turbomole"] = basis_set['name'][:-5] + "**"
                 
             # Gaussian has a strange, contracted style naming scheme for Karlsruhe,
-            # and a misleading/incorrect name for def2-SVP(P).
+            # and a misleading/incorrect name for def2-SV(P).
             #print(basis_set['name'])
             if basis_set['name'] == "def2-SV(P)":
                 basis_set['gaussian'] = "def2SVPP"
