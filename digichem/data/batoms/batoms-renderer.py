@@ -330,6 +330,11 @@ def main():
     # Enable to add an outline.
     #bpy.context.scene.render.use_freestyle = True
     
+    # We have plenty of memory to play with, use one tile.
+    bpy.context.scene.cycles.tile_x = args.resolution
+    bpy.context.scene.cycles.tile_y = args.resolution
+    bpy.context.scene.cycles.tile_size = args.resolution
+
     # Performance options.
     bpy.context.scene.render.threads_mode = 'FIXED'
     bpy.context.scene.render.threads = args.cpus
