@@ -72,7 +72,7 @@ Possible options are:
         batoms = Options(help = "Beautiful Atoms/Blender specific options (only applies if engine == 'batoms'",
             blender = Option(help = "Path to the blender executable, in which beautiful atoms should be installed", default = None),
             cpus = Option(help = "The number of CPUs/threads to use. This option is overridden if running in a calculation environemnt (where it uses the same number of CPUs as the calculation did)", type = int, default = 1),
-            render_samples = Option(help = "The number of render samples (or passes) to use. Higher values result in higher image quality and greater render times", type = int, default = 100),
+            render_samples = Option(help = "The number of render samples (or passes) to use. Higher values result in higher image quality and greater render times", type = int, default = 64),
             perspective = Option(help = "The perspective mode", choices = ["orthographic", "perspective"], default = "orthographic")
             # TODO: Colour options.
         ),
