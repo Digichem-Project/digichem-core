@@ -210,8 +210,8 @@ def main():
     parser.add_argument("--isovalues", help = "List of isovalues to render", nargs = "*", type = float, default = [])
     parser.add_argument("--isotype", help = "Whether to render positive, negative or both isosurfaces for each isovalue", choices = ["positive", "negative", "both"], default = "both")
     parser.add_argument("--isocolor", help = "The colouring method to use for isosurfaces", choices = ["sign", "cube"], default = "sign")
-    parser.add_argument("--primary-color", help = "RGBA for one of the colors to use for isosurfaces", type = float, nargs = 4, default = [0.1, 0.1, 0.9, 0.7])
-    parser.add_argument("--secondary-color", help = "RGBA for the other color to use for isosurfaces", type = float, nargs = 4, default = [1, 0.058, 0.0, 0.7])
+    parser.add_argument("--primary-color", help = "RGBA for one of the colors to use for isosurfaces", type = float, nargs = 4, default = [0.1, 0.1, 0.9, 0.65])
+    parser.add_argument("--secondary-color", help = "RGBA for the other color to use for isosurfaces", type = float, nargs = 4, default = [1, 0.058, 0.0, 0.65])
     parser.add_argument("--style", help = "Material style for isosurfaces", choices = ('default', 'metallic', 'plastic', 'ceramic', 'mirror'), default = "default")
     parser.add_argument("--cpus", help = "Number of parallel CPUs to use for rendering", type = int, default = 1)
     parser.add_argument("--use-gpu", help = "Whether to enable GPU rendering", action = "store_true")
@@ -243,6 +243,10 @@ def main():
     if args.rotations is not None:
         rotations = [yaml.safe_load(rotation) for rotation in args.rotations]
     
+    # Remove the starting cube object.
+    bpy.ops.object.select_all(action='SELECT')
+    bpy.ops.object.delete()
+
     # Load the input data.
     mol = add_molecule(
         args.cube_file,
@@ -326,6 +330,11 @@ def main():
     # Enable to add an outline.
     #bpy.context.scene.render.use_freestyle = True
     
+    # We have plenty of memory to play with, use one tile.
+    bpy.context.scene.cycles.tile_x = args.resolution
+    bpy.context.scene.cycles.tile_y = args.resolution
+    bpy.context.scene.cycles.tile_size = args.resolution
+
     # Performance options.
     bpy.context.scene.render.threads_mode = 'FIXED'
     bpy.context.scene.render.threads = args.cpus

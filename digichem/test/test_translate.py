@@ -99,7 +99,7 @@ def test_grid_points():
     
     assert default.translate("gaussian")    == 0
     assert default.translate("orca")        == 100
-    assert default.translate("turbomole")   == 100
+    assert default.translate("turbomole")   == "m3"
     
     # Check the named values.
     for name, value in [("Tiny", 25), ("Small", 50), ("Medium", 100), ("Large", 200), ("Huge", 500)]:

@@ -155,22 +155,20 @@ class Openprattle_converter():
         inputs = self.input_file        
         
         # GO.
-        try:
-            done_process = subprocess.run(
-                sig,
-                input = inputs,
-                stdout = subprocess.PIPE,
-                stderr = subprocess.PIPE,
-                # TODO: Using universal newlines is probably not safe here; some formats are binary (.cdx etc...)
-                universal_newlines = True,
-                check = True,
-            )
+        done_process = subprocess.run(
+            sig,
+            input = inputs,
+            stdout = subprocess.PIPE,
+            stderr = subprocess.PIPE,
+            # TODO: Using universal newlines is probably not safe here; some formats are binary (.cdx etc...)
+            universal_newlines = True,
+        )
 
-        except CalledProcessError as e:
-            self.handle_logging(e.stderr)
-            raise
-
+        # This can throw exceptions.
         self.handle_logging(done_process.stderr)
+
+        if done_process.returncode != 0:
+            raise Digichem_exception("prattle subprocess returned code {}".format(done_process.returncode))
         
         # Return our output.
         return done_process.stdout if output_file is None else None
@@ -178,17 +176,20 @@ class Openprattle_converter():
     def handle_logging(self, raw_output):
         """
         """
+        exceptions = []
         for raw_message in raw_output.split("\n"):
             if raw_message == "":
                 # Nothing returned, nothing to do.
-                return
+                continue
             
             # Each message should be in JSON, but check.
             try:
                 message = json.loads(raw_message)
                 message_text = message['message']
                 if message['exception']:
-                    message_text += "\n" + message['exception']
+                    exceptions.append(Exception(message['exception']))
+                    continue
+                    #message_text += "\n" + message['exception']
                 digichem.log.get_logger().log(
                     message['levelno'],
                     message_text
@@ -196,6 +197,9 @@ class Openprattle_converter():
 
             except Exception:
                 digichem.log.get_logger().error("Unexpected output from oprattle: '{}'".format(raw_message), exc_info=False)
+
+        if len(exceptions) > 0:
+            raise exceptions[0]
     
 
 

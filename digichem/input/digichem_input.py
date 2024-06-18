@@ -496,5 +496,5 @@ def si_from_file(file_name, file_type = None, *, gen3D = None, **kwargs):
                 return Digichem_coords.from_com(com_file, file_name = file_name, **kwargs)
             
         except:
-            raise ValueError("Could not parse input coordinates from '{}'".format(file_name))
+            raise ValueError("Could not parse coordinates from '{}'".format(file_name))
     

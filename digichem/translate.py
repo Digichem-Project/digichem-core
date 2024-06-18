@@ -146,7 +146,7 @@ class Basis_set(Translate):
                 basis_set["turbomole"] = basis_set['name'][:-5] + "**"
                 
             # Gaussian has a strange, contracted style naming scheme for Karlsruhe,
-            # and a misleading/incorrect name for def2-SVP(P).
+            # and a misleading/incorrect name for def2-SV(P).
             #print(basis_set['name'])
             if basis_set['name'] == "def2-SV(P)":
                 basis_set['gaussian'] = "def2SVPP"
@@ -452,12 +452,12 @@ class Cube_grid_points(Translate):
     """A class for converting between cube grid sizes."""
     
     table = [
-        {"name": "Default",     "points": 100,      "gaussian": 0,       "turbomole": 100,      "orca": 100},   # Default depends on the calc program. Gaussian uses a special value of 'zero' to select a default algorithm.
-        {"name": "Tiny",        "points": 25},
-        {"name": "Small",       "points": 50},
-        {"name": "Medium",      "points": 100},
-        {"name": "Large",       "points": 200},
-        {"name": "Huge",        "points": 500},
+        {"name": "Default",     "points": 100,      "gaussian": 0,       "turbomole": "m3",      "orca": 100},   # Default depends on the calc program. Gaussian uses a special value of 'zero' to select a default algorithm.
+        {"name": "Tiny",        "points": 25,                            "turbomole": "1",                  },
+        {"name": "Small",       "points": 50,                            "turbomole": "2",                  },
+        {"name": "Medium",      "points": 100,                           "turbomole": "3",                  },
+        {"name": "Large",       "points": 200,                           "turbomole": "4",                  },
+        {"name": "Huge",        "points": 500,                           "turbomole": "5",                  },
         
     ]
 
