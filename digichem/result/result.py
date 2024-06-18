@@ -34,6 +34,9 @@ class Result_set(Result_object):
         
         self.results = (self,)
         self.emission = attributes.pop('emission', Emissions())
+
+        # Any ancillary data.
+        self._aux = attributes.pop('aux', {})
         
         for attr_name, attribute in attributes.items():
             setattr(self, attr_name, attribute)
