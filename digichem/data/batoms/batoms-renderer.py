@@ -243,6 +243,10 @@ def main():
     if args.rotations is not None:
         rotations = [yaml.safe_load(rotation) for rotation in args.rotations]
     
+    # Remove the starting cube object.
+    bpy.ops.object.select_all(action='SELECT')
+    bpy.ops.object.delete()
+
     # Load the input data.
     mol = add_molecule(
         args.cube_file,
