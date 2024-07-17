@@ -9,6 +9,10 @@ This is Digichem-core, the open-source library for Digichem. If you are looking 
  - Alternatively, if you are looking for the full Digichem program, try [Build-boy](https://github.com/Digichem-Project/build-boy)
  - If you'd like more information on the Digichem project, check out the [website](https://www.digi-chem.co.uk)
 
+## Documentation
+
+Please refer to the main Digichem [documentation](https://doc.digi-chem.co.uk) for further reading.
+
 ## Dependencies
 
  - adjustText
