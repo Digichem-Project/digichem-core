@@ -501,7 +501,7 @@ class Atom_list(Result_container, Unmergeable_container_mixin, Molecule_mixin):
         # Then coordinates.
         # No effort is made here to truncate coordinates to a certain precision.
         for atom in self:
-            xyz += "{}    {:f}    {:f}    {:f}\n".format(atom.element.symbol, atom.coords[0], atom.coords[1], atom.coords[2])
+            xyz += "{}    {:f}    {:f}    {:f}\n".format(atom.element.symbol, float(atom.coords[0]), float(atom.coords[1]), float(atom.coords[2]))
         
         return xyz
     
@@ -698,7 +698,7 @@ class Atom(Atom_ABC):
         :param data: The data to parse.
         :param result_set: The partially constructed result set which is being populated.
         """
-        return [self(atom_dict.get('index', index +1), atom_dict['element'], (atom_dict['coords']['x']['value'], atom_dict['coords']['y']['value'], atom_dict['coords']['z']['value']), atom_dict['mass']['value']) for index, atom_dict in enumerate(data)]
+        return [self(atom_dict.get('index', index +1), atom_dict['element'], (float(atom_dict['coords']['x']['value']), float(atom_dict['coords']['y']['value']), float(atom_dict['coords']['z']['value'])), atom_dict['mass']['value']) for index, atom_dict in enumerate(data)]
     
     @classmethod
     def list_from_parser(self, parser):
@@ -729,7 +729,7 @@ class Atom(Atom_ABC):
         zip_data = zip_longest(atomnos, atomcoords, atommasses, fillvalue = None)
         
         # Loop through and rebuild our objects.
-        return [self(index+1, atomic_number, tuple(coords), mass) for index, (atomic_number, coords, mass) in enumerate(zip_data)]
+        return [self(index+1, atomic_number, (float(coords[0]), float(coords[1]), float(coords[2])), mass) for index, (atomic_number, coords, mass) in enumerate(zip_data)]
     
     @classmethod
     def list_from_coords(self, coords):
