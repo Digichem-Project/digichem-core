@@ -162,6 +162,7 @@ class Metadata(Result_object):
             pressure = None,
             orbital_spin_type = None,
             digichem_version = None,
+            silico_version = None,
             solvent = None,
             num_cpu = None,
             memory_available = None,
@@ -221,6 +222,8 @@ class Metadata(Result_object):
         self.pressure = pressure
         self.orbital_spin_type = orbital_spin_type
         # TOOD: Ideally this would be parsed from the calculation output somehow, but this is fine for now.
+        if silico_version:
+            self.digichem_version = silico_version
         self.digichem_version = digichem.__version__ if digichem_version is None else digichem_version
         self.solvent = solvent
         self.num_cpu = num_cpu
