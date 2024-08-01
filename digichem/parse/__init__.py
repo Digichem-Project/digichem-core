@@ -5,6 +5,7 @@ Most of the heavy lifting is done by cclib, we just extract additional data not 
 """
 
 # These alignment classes are needed to parse correctly.
+from digichem.result.alignment.brute import Brute_force
 from digichem.result.alignment.AAA import Adjusted_average_angle
 from digichem.result.alignment.AA import Average_angle
 from digichem.result.alignment.FAP import Furthest_atom_pair
