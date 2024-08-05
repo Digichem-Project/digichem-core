@@ -26,7 +26,7 @@ class Digichem_options(Configurable):
     Class for holding main digichem options from various sources.
     """
     
-    alignment = Option(help = "The default alignment method to use, MIN: minimal, FAP: furthest atom pair, AA: average angle, AAA: advanced average angle.", choices = ["MIN", "FAP", "AA", "AAA", "Brute", "Grid", "Bay"], default = "Brute")
+    alignment = Option(help = "The default alignment method to use, MIN: minimal, FAP: furthest atom pair, AA: average angle, AAA: advanced average angle.", choices = ["MIN", "FAP", "AA", "AAA", "GRID", "DGRID", "BAY"], default = "GRID")
     angle_units = Option(help = "The default angle units to use, deg: degrees, rad: radians.", choices = ["deg", "rad"], default = "deg")
     
     external = Options(
