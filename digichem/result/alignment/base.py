@@ -131,7 +131,8 @@ class Alignment(Atom_list, Dynamic_parent):
             return 2
         else:
             raise ValueError("Axis '{}' is out of bounds. Possible  values are 0 (X), 1 (Y) or 2 (Z)")
-        
+
+    @classmethod 
     def rotate_coords(self, coords, axis, theta):
         """
         Rotate a set of coordinates around an axis.
