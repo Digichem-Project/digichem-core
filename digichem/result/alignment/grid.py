@@ -6,13 +6,13 @@ from bayes_opt import BayesianOptimization, UtilityFunction
 
 from digichem.result.alignment import Alignment
 
-class Brute_force(Alignment):
+class Grid_search(Alignment):
     """
     The brute force method for determining molecule alignment. 
     """
 
     # Names that uniquely describe this alignment protocol.
-    CLASS_HANDLE = ["Brute force", "Brute"]
+    CLASS_HANDLE = ["Grid Search", "GRID"]
 
     def __init__(self, atoms, *args, charge = None, steps = 180, **kwargs):
         """
@@ -121,24 +121,24 @@ class Brute_force(Alignment):
         return x_theta, y_theta, z_theta
 
     
-class Descending_grid(Brute_force):
+class Descending_grid(Grid_search):
     """
     The descending grid search algorithm for determining molecule alignment. 
     """
 
     # Names that uniquely describe this alignment protocol.
-    CLASS_HANDLE = ["Descending grid", "Grid"]
+    CLASS_HANDLE = ["Descending grid", "DGRID", "GRID+"]
 
-    def __init__(self, atoms, *args, charge = None, steps = 20, tiers = 4, **kwargs):
+    def __init__(self, atoms, *args, charge = None, grids = (20, 10, 10, 10, 10, 10), **kwargs):
         """
-        Constructor for Brute_force.
+        Constructor for Descending_grid.
 
         :param atoms: List of atom objects to orientate.
         :param charge: Optional overall electronic charge of the molecule.
         :param steps: The number of steps to search over for each axis. The total number of iterations will be steps*steps*steps.
         """
-        self.tiers = tiers
-        super().__init__(atoms, *args, charge=charge, steps = steps, **kwargs)
+        self.grids = grids
+        super().__init__(atoms, *args, charge=charge, steps = 0, **kwargs)
 
     def align_axes(self):
         """
@@ -158,9 +158,7 @@ class Descending_grid(Brute_force):
         z_start = 0
         z_stop = 0.5*math.pi
 
-        steps = self.steps
-
-        for iteration in range(self.tiers):
+        for steps in self.grids:
             x_theta, y_theta, z_theta = self.grid_search(
                 steps,
                 x_start = x_start,
@@ -190,14 +188,14 @@ class Descending_grid(Brute_force):
         self.rotate_XY(z_theta)
 
 
-class Bayesian_grid(Brute_force):
+class Bayesian_grid(Grid_search):
     """
     The bayesian grid search algorithm for determining molecule alignment. 
     """
 
-    def __init__(self, atoms, *args, charge = None, initial_steps = 20, opt_steps = 50, **kwargs):
+    def __init__(self, atoms, *args, charge = None, initial_steps = 10, opt_steps = 50, **kwargs):
         """
-        Constructor for Brute_force.
+        Constructor for Bayesian_grid.
 
         :param atoms: List of atom objects to orientate.
         :param charge: Optional overall electronic charge of the molecule.
@@ -207,7 +205,7 @@ class Bayesian_grid(Brute_force):
         super().__init__(atoms, *args, charge=charge, steps = initial_steps, **kwargs)
 
     # Names that uniquely describe this alignment protocol.
-    CLASS_HANDLE = ["Bayesian grid", "Bay"]
+    CLASS_HANDLE = ["Bayesian grid", "BAY"]
 
     def align_axes(self):
         """
