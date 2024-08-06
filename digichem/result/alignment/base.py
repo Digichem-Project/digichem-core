@@ -199,7 +199,7 @@ class Alignment(Atom_list, Dynamic_parent):
         Determine the angle needed (theta) to rotate a point.
         
         This function does atan(opposite / adjacent), watching out for div by 0.
-        :param opposite: the coordinate of the point along the axis opposite to the angle to calculate.. After rotation, the point will have this coord == 0.
+        :param opposite: the coordinate of the point along the axis opposite to the angle to calculate. After rotation, the point will have this coord == 0.
         :param adjacent: The coordinate of the point along the axis adjacent to the angle to calculate. After rotation, the point will be on this axis.
         :return: The angle (in radians).
         """
