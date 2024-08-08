@@ -14,7 +14,7 @@ class Grid_search(Alignment):
     # Names that uniquely describe this alignment protocol.
     CLASS_HANDLE = ["Grid Search", "GRID"]
 
-    def __init__(self, atoms, *args, charge = None, steps = 180, **kwargs):
+    def __init__(self, atoms, steps = 180, *args, charge = None, **kwargs):
         """
         Constructor for Brute_force.
 
@@ -117,7 +117,7 @@ class Grid_search(Alignment):
                         y_theta = y_angle
                         z_theta = z_angle
 
-        print("Smallest: {}".format(smallest))
+        # print("Smallest: {}".format(smallest))
         return x_theta, y_theta, z_theta
 
     
@@ -129,7 +129,7 @@ class Descending_grid(Grid_search):
     # Names that uniquely describe this alignment protocol.
     CLASS_HANDLE = ["Descending grid", "DGRID", "GRID+"]
 
-    def __init__(self, atoms, *args, charge = None, grids = (20, 10, 10, 10, 10, 10), **kwargs):
+    def __init__(self, atoms, *grids, charge = None, **kwargs):
         """
         Constructor for Descending_grid.
 
@@ -137,8 +137,10 @@ class Descending_grid(Grid_search):
         :param charge: Optional overall electronic charge of the molecule.
         :param steps: The number of steps to search over for each axis. The total number of iterations will be steps*steps*steps.
         """
+        if len(grids) == 0:
+            grids = (20, 10, 10, 10, 10, 10)
         self.grids = grids
-        super().__init__(atoms, *args, charge=charge, steps = 0, **kwargs)
+        super().__init__(atoms, charge=charge, steps = 0, **kwargs)
 
     def align_axes(self):
         """
@@ -193,7 +195,7 @@ class Bayesian_grid(Grid_search):
     The bayesian grid search algorithm for determining molecule alignment. 
     """
 
-    def __init__(self, atoms, *args, charge = None, initial_steps = 10, opt_steps = 50, **kwargs):
+    def __init__(self, atoms, initial_steps = 10, opt_steps = 50, *args, charge = None, **kwargs):
         """
         Constructor for Bayesian_grid.
 

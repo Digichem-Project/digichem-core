@@ -145,17 +145,17 @@ class Parser_abc():
         self.data.metadata['log_files'] = self.log_file_paths
         self.data.metadata['auxiliary_files'] = self.auxiliary_files
             
-    def process_all(self, options):
+    def process_all(self, options, ornt = None, ornt_args = ()):
         """
         Get all the Result set objects produced by this parser.
         
         :param options: A Digichem options nested dictionary containing options to control parsing.
         :return: A list of the populated result sets.
         """
-        self.process(options)
+        self.process(options, ornt = ornt, ornt_args = ornt_args)
         return [self.results]
 
-    def process(self, options):
+    def process(self, options, ornt = None, ornt_args = ()):
         """
         Get a Result set object from this parser.
         
@@ -169,7 +169,10 @@ class Parser_abc():
             metadata = Metadata.from_parser(self)
             )
         
-        alignment_class = Alignment.from_class_handle(options['alignment']) if options['alignment'] is not None else Minimal
+        if ornt is not None:
+            alignment_class = Alignment.from_class_handle(ornt)
+        else:
+            alignment_class = Alignment.from_class_handle(options['alignment']) if options['alignment'] is not None else Minimal
         
         # First get our list of MOs (because we need them for excited states too.)
         self.results.orbitals = Molecular_orbital_list.from_parser(self)
@@ -179,7 +182,7 @@ class Parser_abc():
         self.results.orbitals.assign_total_level(self.results.beta_orbitals)
         
         # Our alignment orientation data.
-        self.results.atoms = alignment_class.from_parser(self)
+        self.results.atoms = alignment_class.from_parser(self, *(ornt_args if ornt else ()))
         self.results.raw_atoms = Atom_list.from_parser(self)
         
         # TEDM and TMDM.
