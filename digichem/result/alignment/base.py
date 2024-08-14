@@ -1,4 +1,6 @@
 import math
+from timeit import default_timer as timer
+import datetime
 
 from configurables.parent import Dynamic_parent
 
@@ -24,10 +26,13 @@ class Alignment(Atom_list, Dynamic_parent):
         self.translations = (0, 0, 0)
         # The rotations in radians applied to all atoms. This is a list of tuples, of the form (axis, angle), where axis is 0 = X, 1 = Y, 2 = Z.
         self.rotations = []
-        
         # And transform (if we have some atoms).
+        self.duration = None
         if len(self) > 0:
+            start_timer = timer()
             self.align_axes()
+            end_timer = timer()
+            self.duration = datetime.timedelta(seconds = end_timer - start_timer)
             
         #self.debug_print()
         #exit()
@@ -247,6 +252,10 @@ class Alignment(Atom_list, Dynamic_parent):
         """
         dump_dict = super().dump(digichem_options)
         dump_dict['alignment_method'] = self.human_method_type
+        dump_dict['alignment_duration'] = {
+            "value": self.duration.total_seconds(),
+            "units": "s"
+        }
         return dump_dict
     
     
