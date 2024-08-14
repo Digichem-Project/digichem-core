@@ -63,7 +63,7 @@ class Dump_multi_parser_abc(File_parser_abc):
     def get_sub_parser(self):
         raise NotImplementedError("Implement in subclass")
             
-    def process_all(self, options):
+    def process_all(self, options, ornt = None, ornt_args = ()):
         """
         Get all the Result set objects produced by this parser.
         
@@ -71,18 +71,18 @@ class Dump_multi_parser_abc(File_parser_abc):
         :return: A list of the populated result sets.
         """
         # Unlike most other parsers, our data can actually contain lots of results.
-        self.all_results = [self.get_sub_parser()(self.log_file_path, raw_data = data).process(options) for data in self.data]
+        self.all_results = [self.get_sub_parser()(self.log_file_path, raw_data = data).process(options, ornt = ornt, ornt_args = ornt_args) for data in self.data]
         
         return self.all_results
     
-    def process(self, options):
+    def process(self, options, ornt = None, ornt_args = ()):
         """
         Get a Result set object from this parser.
         
         :param options: A Digichem options nested dictionary containing options to control parsing.
         :return: The populated result set.
         """
-        self.process_all(options)
+        self.process_all(options, ornt = ornt, ornt_args = ornt_args)
         return self.results
     
     
@@ -140,17 +140,17 @@ class Dump_parser_abc(File_parser_abc):
     def from_data(self, input_file, data):
         return self(input_file, raw_data = data)
     
-    def process_all(self, options):
+    def process_all(self, options, ornt = None, ornt_args = ()):
         """
         Get all the Result set objects produced by this parser.
         
         :param options: A Digichem options nested dictionary containing options to control parsing.
         :return: A list of the populated result sets.
         """
-        self.process(options)
+        self.process(options, ornt = ornt, ornt_args = ornt_args)
         return [self.results]
             
-    def process(self, options):
+    def process(self, options, ornt = None, ornt_args = ()):
         """
         Get a Result set object from this parser.
         
@@ -168,11 +168,14 @@ class Dump_parser_abc(File_parser_abc):
         self.results.orbitals = Molecular_orbital_list.from_dump(self.data['orbitals'], self.results, options)
         self.results.beta_orbitals = Molecular_orbital_list.from_dump(self.data['beta_orbitals'], self.results, options)
         
-        alignment_class = Alignment.from_class_handle(options['alignment']) if options['alignment'] is not None else Minimal
+        if ornt is not None:
+            alignment_class = Alignment.from_class_handle(ornt)
+        else:
+            alignment_class = Alignment.from_class_handle(options['alignment']) if options['alignment'] is not None else Minimal
         
         # Our alignment orientation data.
         # The constructor for each alignment class automatically performs realignment.
-        self.results.atoms = alignment_class.from_dump(self.data['atoms'], self.results, options)
+        self.results.atoms = alignment_class.from_dump(self.data['atoms'], self.results, options, *(ornt_args if ornt is not None else ()))
         self.results.raw_atoms = Atom_list.from_dump(self.data['raw_atoms'], self.results, options)
         
         # TEDM and TMDM.
