@@ -98,14 +98,14 @@ class Turbomole_parser(Cclib_parser):
         if len(self.data.metadata['cpu_time']) == 0:
             del(self.data.metadata['cpu_time'])
 
-    def process(self, options):
+    def process(self, options, ornt = None, ornt_args = ()):
         """
         Get a Result set object from this parser.
         
         :param options: A Digichem options nested dictionary containing options to control parsing.
         :return: The populated result set.
         """
-        super().process(options)
+        super().process(options, ornt = ornt, ornt_args = ornt_args)
         
         # After processing is complete, have a look for excited state density files.
         # These have the general file name:
