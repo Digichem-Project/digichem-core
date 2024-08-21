@@ -28,6 +28,10 @@ class Gaussian_parser(Cclib_parser):
     ELAPSED_TIME_HEADER = "Elapsed time:"
     CPU_TIME_HEADER = "Job cpu time:"
     CPU_HEADER = "Will use up to"
+
+    def __init__(self, *log_files, rwfdump = "rwfdump", **auxiliary_files):
+        self.rwfdump = rwfdump
+        super().__init__(*log_files, **auxiliary_files)
     
     def parse_metadata(self):
         """
@@ -108,7 +112,7 @@ class Gaussian_parser(Cclib_parser):
             raise Result_unavailable_error("Spin-orbit coupling", "There are no excited states available")
         
         # Get a PySOC parser.
-        soc_calculator = pysoc.io.SOC.Calculator(self.log_file_path, rwf_file_name = self.auxiliary_files['rwf_file'])
+        soc_calculator = pysoc.io.SOC.Calculator(self.log_file_path, rwfdump = self.rwfdump, rwf_file_name = self.auxiliary_files['rwf_file'])
         soc_calculator.calculate()
         SOC_table = soc_calculator.soc_td.SOC
         
