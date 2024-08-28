@@ -122,7 +122,7 @@ class Parser_abc():
         self.results = Result_set(
             _id = self.data._id,
             metadata = Metadata.from_parser(self),
-            aux = self.data._aux
+            aux = self.data._aux if hasattr(self.data, '_aux') else None
             )
         
         alignment_class = Alignment.from_class_handle(options['alignment']) if options['alignment'] is not None else Minimal
