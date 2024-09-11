@@ -141,7 +141,7 @@ class Nested_grid(Grid_search, Axis_swapper_mix):
         :param charge: Optional overall electronic charge of the molecule.
         """
         if len(grids) == 0:
-            grids = (20, 10, 10, 10, 10, 10)
+            grids = (30, 10, 10, 10, 10)
         self.grids = grids
         super().__init__(atoms, charge=charge, steps = 0, **kwargs)
 
