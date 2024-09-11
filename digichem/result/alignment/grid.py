@@ -4,9 +4,9 @@ import numpy
 from statistics import  mean
 from bayes_opt import BayesianOptimization, UtilityFunction
 
-from digichem.result.alignment import Alignment
+from digichem.result.alignment import Alignment, Axis_swapper_mix
 
-class Grid_search(Alignment):
+class Grid_search(Alignment, Axis_swapper_mix):
     """
     The brute force method for determining molecule alignment. 
     """
@@ -42,6 +42,9 @@ class Grid_search(Alignment):
         self.rotate_YZ(x_theta)
         self.rotate_XZ(y_theta)
         self.rotate_XY(z_theta)
+
+        # Swap the axes 
+        self.reassign_axes()
 
     def kernel(self, x_angle, y_angle, z_angle, points):
         new_points = [
@@ -121,21 +124,21 @@ class Grid_search(Alignment):
         return x_theta, y_theta, z_theta
 
     
-class Descending_grid(Grid_search):
+class Nested_grid(Grid_search, Axis_swapper_mix):
     """
-    The descending grid search algorithm for determining molecule alignment. 
+    The nested grid search algorithm for determining molecule alignment. 
     """
 
     # Names that uniquely describe this alignment protocol.
-    CLASS_HANDLE = ["Descending grid", "DGRID", "GRID+"]
+    CLASS_HANDLE = ["Nested grid", "NEST", "GRID+"]
 
     def __init__(self, atoms, *grids, charge = None, **kwargs):
         """
-        Constructor for Descending_grid.
+        Constructor for Nested_grid.
 
         :param atoms: List of atom objects to orientate.
+        :param grids: The number of grids to optimise over (and the number of steps in each grid).
         :param charge: Optional overall electronic charge of the molecule.
-        :param steps: The number of steps to search over for each axis. The total number of iterations will be steps*steps*steps.
         """
         if len(grids) == 0:
             grids = (20, 10, 10, 10, 10, 10)
@@ -152,7 +155,7 @@ class Descending_grid(Grid_search):
         coords = self.get_coordinate_list()
         self.translate((-mean(coords[0]) , -mean(coords[1]), -mean(coords[2])))
 
-        # Perform the descending grid search.
+        # Perform the nested grid search.
         x_start = 0
         x_stop = 0.5*math.pi
         y_start = 0
@@ -189,8 +192,11 @@ class Descending_grid(Grid_search):
         self.rotate_XZ(y_theta)
         self.rotate_XY(z_theta)
 
+        # Swap the axes 
+        self.reassign_axes()
 
-class Bayesian_grid(Grid_search):
+
+class Bayesian_grid(Grid_search, Axis_swapper_mix):
     """
     The bayesian grid search algorithm for determining molecule alignment. 
     """
@@ -265,3 +271,6 @@ class Bayesian_grid(Grid_search):
         self.rotate_YZ(optimizer.max["params"]['x_angle'])
         self.rotate_XZ(optimizer.max["params"]['y_angle'])
         self.rotate_XY(optimizer.max["params"]['z_angle'])
+
+        # Swap the axes 
+        self.reassign_axes()
