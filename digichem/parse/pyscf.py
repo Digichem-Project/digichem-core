@@ -1,3 +1,5 @@
+import hashlib
+import json
 
 from cclib.bridge.cclib2pyscf import cclibfrommethods
 
@@ -17,7 +19,8 @@ class Pyscf_parser(Parser_abc):
 
     def _parse(self):
         self.data = cclibfrommethods(**self.methods)
-        self.data._id = "pass"
+        # TODO: We need some way of generating a checksum
+        self.data._id = hashlib.sha1(json.dumps(dir(self.data), sort_keys = True).encode('utf-8')).hexdigest()
         self.data.metadata['name'] = self.mol_name
         self.data._aux = {'methods': self.methods}
             
