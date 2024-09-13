@@ -1,4 +1,5 @@
-from cclib.bridge.cclib2pyscf import _makecclib
+
+from cclib.bridge.cclib2pyscf import cclibfrommethods
 
 from digichem.parse.base import Parser_abc
 import digichem.log
@@ -15,7 +16,7 @@ class Pyscf_parser(Parser_abc):
         super().__init__(**kwargs)
 
     def _parse(self):
-        self.data = _makecclib(**self.methods)
+        self.data = cclibfrommethods(**self.methods)
         self.data._id = "pass"
         self.data.metadata['name'] = self.mol_name
         self.data._aux = {'methods': self.methods}
