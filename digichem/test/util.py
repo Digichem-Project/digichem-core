@@ -67,6 +67,7 @@ def digichem_options(tmpdir_factory):
     config.logging['render_logging'] = True
     # Set blender quality as low as feasible to shorten test time.
     config.render['batoms']['render_samples'] = 1
+    config.alignment = "MIN"
     config.validate()
     return config
 
