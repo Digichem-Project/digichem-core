@@ -64,6 +64,7 @@ def digichem_options(tmpdir_factory):
         ),
     ]
     config.logging['render_logging'] = True
+    config.alignment = "MIN"
     config.validate()
     return config
 
