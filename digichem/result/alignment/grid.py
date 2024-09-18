@@ -14,7 +14,7 @@ class Grid_search(Alignment, Axis_swapper_mix):
     # Names that uniquely describe this alignment protocol.
     CLASS_HANDLE = ["Grid Search", "GRID"]
 
-    def __init__(self, atoms, steps = 180, *args, charge = None, **kwargs):
+    def __init__(self, atoms, steps = 90, *args, charge = None, **kwargs):
         """
         Constructor for Brute_force.
 
