@@ -5,7 +5,6 @@ Most of the heavy lifting is done by cclib, we just extract additional data not 
 """
 
 # These alignment classes are needed to parse correctly.
-from digichem.result.alignment.force import Pivot
 from digichem.result.alignment.grid import Grid_search, Nested_grid, Bayesian_grid
 from digichem.result.alignment.AAA import Adjusted_average_angle
 from digichem.result.alignment.AA import Average_angle
