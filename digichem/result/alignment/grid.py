@@ -24,6 +24,14 @@ class Grid_search(Alignment, Axis_swapper_mix):
         """
         self.steps = steps
         super().__init__(atoms, *args, charge=charge, **kwargs)
+
+    @property
+    def human_method_type(self):
+        return "{} ({})".format(self.CLASS_HANDLE[0], self.steps)
+    
+    @property
+    def method_type(self):
+        return "{}{}".format(self.CLASS_HANDLE[1], self.steps)
         
     def align_axes(self):
         """
@@ -144,6 +152,14 @@ class Nested_grid(Grid_search, Axis_swapper_mix):
             grids = (30, 10, 10, 10, 10)
         self.grids = grids
         super().__init__(atoms, charge=charge, steps = 0, **kwargs)
+
+    @property
+    def human_method_type(self):
+        return "{} ({})".format(self.CLASS_HANDLE[0], ":".join((str(ele) for ele in self.grids)))
+    
+    @property
+    def method_type(self):
+        return "{}{}".format(self.CLASS_HANDLE[1], ":".join((str(ele) for ele in self.grids)))
 
     def align_axes(self):
         """
