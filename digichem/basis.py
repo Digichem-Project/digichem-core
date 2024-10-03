@@ -62,7 +62,7 @@ class BSE_basis_set(dict):
         import basis_set_exchange.misc
         
         if elements_filter is not None and not isinstance(elements_filter, str):
-            elements_filter = ",".join(elements_filter)
+            elements_filter = ",".join((str(item) for item in elements_filter))
 
         if elements_filter is not None:
             elements_filter = basis_set_exchange.misc.expand_elements(elements_filter)

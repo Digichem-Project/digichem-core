@@ -315,11 +315,18 @@ class Atom_list(Result_container, Unmergeable_container_mixin, Molecule_mixin):
             from rdkit.Chem import MolToSmiles
             from rdkit.Chem.rdmolops import RemoveHs
             
+            # TODO: Find some other way of generating SMILES.
+
             mol = self.to_rdkit_molecule()
-            mol = RemoveHs(mol)
+            try:
+                # TODO: rdkit is unreliable, this method can fail for lots of reasons...
+                mol = RemoveHs(mol)
+            except Exception:
+                pass
+                
             self._smiles = MolToSmiles(mol)
             return self._smiles
-            
+
             # # TODO: Handle cases where obabel isn't available
             # conv = Openprattle_converter.get_cls("xyz")(input_file = self.to_xyz(), input_file_type = "xyz")
             # # Cache the result in case we need it again.
@@ -450,10 +457,16 @@ class Atom_list(Result_container, Unmergeable_container_mixin, Molecule_mixin):
         """
         Get a representation of this result object in primitive format.
         """
+        try:
+            smiles = self.smiles
+        
+        except Exception:
+            smiles = None
+        
         dump_dict = {
             "formula": self.formula_string,
             "charge": self.charge,
-            "smiles": self.smiles,
+            "smiles": smiles,
             "exact_mass": {
                 "value": float(self.mass) if self.safe_get("mass") is not None else None,
                 "units": "g mol^-1" 
