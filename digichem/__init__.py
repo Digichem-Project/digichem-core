@@ -39,7 +39,7 @@ __author__ = [
 ]
 
 # Program date (when we were last updated). This is changed automatically.
-_last_updated_string = "21/08/2024"
+_last_updated_string = "03/10/2024"
 last_updated = datetime.strptime(_last_updated_string, "%d/%m/%Y")
 
 # The sys attribute 'frozen' is our flag, '_MEIPASS' is the dir location.
