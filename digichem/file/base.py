@@ -29,6 +29,9 @@ class File_maker_ABC():
         """
         self.output = output
         self.file_path = {'file': self.output}
+        
+        # A flag of whether we have already created our output file.
+        self.done_file_creation = False
     
     def get_file(self, name = 'file'):
         """
@@ -159,9 +162,6 @@ class File_maker(File_maker_ABC):
         
         self.dont_modify = dont_modify
         self.use_existing = use_existing
-        
-        # A flag of whether we have already created our output file.
-        self.done_file_creation = False
         
         self.failed_file_creation = False
         
