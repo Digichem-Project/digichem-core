@@ -25,9 +25,9 @@ class Turbomole_parser(Cclib_parser):
         """
         Sort a list of log files into a particular order, if required for this parser.
         """
-        from cclib.io.ccio import sort_turbomole_outputs
+        from cclib.parser.turbomoleparser import Turbomole
         
-        return sort_turbomole_outputs(log_files)
+        return Turbomole.sort_input(log_files)
     
     def duration_to_timedelta(self, duration_str):
         """
