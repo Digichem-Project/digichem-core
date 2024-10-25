@@ -3,6 +3,7 @@ import hashlib
 
 import digichem.log
 from digichem.parse.base import Parser_abc
+from digichem.exception import Digichem_exception
 
 # Hidden imports.
 #import cclib.io
@@ -86,6 +87,8 @@ class Cclib_parser(Parser_abc):
         
         # Get data from cclib.
         self.data = cclib.io.ccread(file_paths if len(file_paths) > 1 else file_paths[0])
+        if self.data is None:
+            raise Digichem_exception("Could not parse any data at all!")
         
         # Get a unique ID (checksum) from the given log files.
         # First, order the list of filenames so we also process in the same order.
