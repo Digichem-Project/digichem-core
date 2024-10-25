@@ -166,8 +166,6 @@ def from_log_files(*log_files, format_hint = "auto", parser_options = {}, **auxi
     :param format_hint: A hint as to the format of the given log files. Either 'auto' (to guess), 'log' (calc log file), 'sir' (digichem result file) or 'sid' (digichem database file).
     """
     found_log_files = find_log_files(*log_files)
-    
-    #return class_from_log_files(*found_log_files, format_hint = format_hint).from_logs(*found_log_files, **auxiliary_files)
 
     try:
         return class_from_log_files(*found_log_files, format_hint = format_hint).from_logs(*found_log_files, **parser_options, **auxiliary_files)
@@ -429,6 +427,9 @@ class open_for_parsing():
         
         # A list of tempfile.TemporaryDirectory objects that should be closed when we are finished.
         self.temp_dirs = []
+
+        # Keep track of past work to prevent unpacking duplicates.
+        self.done_archives = []
     
     @classmethod
     def archive_formats(self):
@@ -442,6 +443,42 @@ class open_for_parsing():
         'Open' files for reading.
         """
         return self.open()
+    
+    def find(self, log_file, found = None):
+        formats = self.archive_formats()
+        new_log_files = found if found is not None else []
+
+        found_child_archive = None
+            
+        # If 'log_file' is a directory, check for an archive inside called 'Output.xxx'.
+        for archive_format in formats:
+            child_archive = Path(log_file, "Output" + archive_format)
+            if child_archive.exists():
+                if not found_child_archive:
+                    # Found an Output dir archive, use this instead.
+                    new_log_files.extend(self.extract(child_archive))
+                    found_child_archive = child_archive
+                
+                else:
+                    # For now, only care about the first.
+                    warnings.warn("Ignoring subsequent Output archive '{}'; already found '{}'".format(child_archive, found_child_archive))
+        
+        # No need to check 'found_child_archive' here; a file cannot simultaneously be a directory containing an archive and also an archive itself.
+        # Check if ANY of the files extensions could be an archive format.
+        # We can't simply join all the extensions together, what if the file is named something like "Benzene.log.zip"
+        # Also be careful for files like Benzene.tar.gz, this is .tar.gz not .gz
+        found_archive = False
+        for pos in range(0, len(log_file.suffixes)):
+            if "".join(log_file.suffixes[pos:]) in formats:
+                # This is an archive format.                
+                # Add any files/directories that were unpacked.
+                new_log_files.extend(self.extract(log_file))
+                found_archive = True
+                break;
+            
+        if not found_child_archive and not found_archive:
+            # Non-archive file, add normally.
+            new_log_files.append(log_file)
         
     def open(self):
         """
@@ -452,38 +489,20 @@ class open_for_parsing():
         formats = self.archive_formats()
         
         for log_file in self.log_files:
-            
-            found_child_archive = None
-            
-            # If 'log_file' is a directory, check for an archive inside called 'Output.xxx'.
-            for archive_format in formats:
-                child_archive = Path(log_file, "Output" + archive_format)
-                if child_archive.exists():
-                    if not found_child_archive:
-                        # Found an Output dir archive, use this instead.
-                        new_log_files.extend(self.extract(child_archive))
-                        found_child_archive = child_archive
-                    
-                    else:
-                        # For now, only care about the first.
-                        warnings.warn("Ignoring subsequent Output archive '{}'; already found '{}'".format(child_archive, found_child_archive))
-            
-            # No need to check 'found_child_archive' here; a file cannot simultaneously be a directory containing an archive and also an archive itself.
-            # Check if ANY of the files extensions could be an archive format.
-            # We can't simply join all the extensions together, what if the file is named something like "Benzene.log.zip"
-            # Also be careful for files like Benzene.tar.gz, this is .tar.gz not .gz
-            found_archive = False
-            for pos in range(0, len(log_file.suffixes)):
-                if "".join(log_file.suffixes[pos:]) in formats:
-                    # This is an archive format.                
-                    # Add any files/directories that were unpacked.
-                    new_log_files.extend(self.extract(log_file))
-                    found_archive = True
-                    break;
+            self.find(log_file, found = new_log_files)
+
+            if log_file.is_dir():
+                dir_found = []
+                # This 'file' is actually a directory, also unpack it.
+                for sub_log_file in log_file.iterdir():
+                    # We've already handled Output folders.
+                    if not sub_log_file.name.startswith("Output."):
+                        self.find(sub_log_file, found = dir_found)
                 
-            if not found_child_archive and not found_archive:
-                # Non-archive file, add normally.
-                new_log_files.append(log_file)
+                # We pass the directory back, rather than the file.
+                # If we pass the file, this will force using it as a log file, 
+                # and we have no proof it contains calc data.
+                new_log_files.extend([path.parent for path in dir_found])
             
         return new_log_files
     
@@ -491,6 +510,13 @@ class open_for_parsing():
         """
         Extract an archive and return the contained log files.
         """
+        if file_name.resolve() in self.done_archives:
+            digichem.log.get_logger().debug("Skipping duplicate archive '{}'".format(file_name))
+            return []
+
+        else:
+            self.done_archives.append(file_name.resolve())
+        
         # Get a temp dir to extact to.
         # We can't use TemporaryDirectory here, because these are auto deleted on program exit. This is not compatible with multi-processing.
         #tempdir = tempfile.TemporaryDirectory()
