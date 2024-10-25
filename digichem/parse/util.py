@@ -245,15 +245,7 @@ def parse_calculation(*log_files, options, parse_all = False, format_hint = "aut
     else:
         # The caller isn't interested in the archive.
         return results
-        
-        
-#     with open_for_parsing(*log_files) as open_log_files:
-#         
-#         if parse_all:
-#             return from_log_files(*open_log_files, format_hint = format_hint, **auxiliary_files).process_all(options)
-#         
-#         else:       
-#             return from_log_files(*open_log_files, format_hint = format_hint, **auxiliary_files).process(options)
+
 
 def multi_parser(log_files, auxiliary_files, *, options, format_hint = "auto", keep_archive = False, parser_options = {},):
         """
@@ -477,12 +469,19 @@ class open_for_parsing():
                         warnings.warn("Ignoring subsequent Output archive '{}'; already found '{}'".format(child_archive, found_child_archive))
             
             # No need to check 'found_child_archive' here; a file cannot simultaneously be a directory containing an archive and also an archive itself.
-            if "".join(log_file.suffixes) in formats:
-                # This is an archive format.                
-                # Add any files/directories that were unpacked.
-                new_log_files.extend(self.extract(log_file))
+            # Check if ANY of the files extensions could be an archive format.
+            # We can't simply join all the extensions together, what if the file is named something like "Benzene.log.zip"
+            # Also be careful for files like Benzene.tar.gz, this is .tar.gz not .gz
+            found_archive = False
+            for pos in range(0, len(log_file.suffixes)):
+                if "".join(log_file.suffixes[pos:]) in formats:
+                    # This is an archive format.                
+                    # Add any files/directories that were unpacked.
+                    new_log_files.extend(self.extract(log_file))
+                    found_archive = True
+                    break;
                 
-            elif not found_child_archive:
+            if not found_child_archive and not found_archive:
                 # Non-archive file, add normally.
                 new_log_files.append(log_file)
             
