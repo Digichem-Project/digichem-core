@@ -474,7 +474,7 @@ class Energy_state(Result_object, Floatable_mixin):
         :param energy: The energy of this state in eV. Whether this value is absolute or relative to another state depends on the implementing class.
         """
         self.level = level
-        self.multiplicity = round(multiplicity)
+        self.multiplicity = round(multiplicity) if multiplicity is not None else None
         # 'True' multiplicity is unrounded (do something smarter)
         self.true_multiplicity = multiplicity
         self.multiplicity_level = multiplicity_level
