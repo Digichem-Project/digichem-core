@@ -250,17 +250,18 @@ class Safe_path():
     The symbolic link will be created in the specified 'dir', which defaults to the CWD.
     """
 
-    def __init__(self, unsafe_path, dir = "./"):
+    def __init__(self, unsafe_path, dir = "./", suffix = ""):
         self.unsafe_path = unsafe_path
         self.dir = dir
         self.link = None
+        self.suffix = suffix
 
 
     def enter(self):
         """
         Create the symlink.
         """
-        self.link = Path(self.dir, ".{}".format(uuid4().hex))
+        self.link = Path(self.dir, ".{}".format(uuid4().hex) + self.suffix)
         os.symlink(self.unsafe_path, self.link)
 
     def close(self):
