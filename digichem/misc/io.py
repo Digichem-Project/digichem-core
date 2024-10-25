@@ -6,8 +6,10 @@ import os
 import shutil
 import sys
 import warnings
+from uuid import uuid4
 
 from digichem.datas import get_resource
+import digichem.log
 
 def expand_path(pth):
     """
@@ -236,4 +238,51 @@ class Multi_file_wrapper():
         """
         # Close our file.
         self.close()
+
+class Safe_path():
+    """
+    Get a 'safe' path to a file.
+
+    A safe path is made up of only alphanumeric characters, and is short. This function is useful for dealing
+    with antiquated programs that struggle with whitespace/non-alpha characters or have a max file name requirement.
+
+    This class should be used as a context manager. The returned path is a temporary symbolic link link to the true file.
+    The symbolic link will be created in the specified 'dir', which defaults to the CWD.
+    """
+
+    def __init__(self, unsafe_path, dir = "./"):
+        self.unsafe_path = unsafe_path
+        self.dir = dir
+        self.link = None
+
+
+    def enter(self):
+        """
+        Create the symlink.
+        """
+        self.link = Path(self.dir, ".{}".format(uuid4().hex))
+        os.symlink(self.unsafe_path, self.link)
+
+    def close(self):
+        """
+        Remove the symlink.
+        """
+        try:
+            os.unlink(self.link)
         
+        except FileExistsError:
+            digichem.log.get_logger().warning("Failed to remove temporary symbolic link '{}' -> '{}'; the file has already disappeared?".format(self.link, self.unsafe_path))
+            
+    def __enter__(self):
+        """
+        Magic function for the 'with' keyword.
+        """
+        self.enter()
+        return self
+        
+    def __exit__(self, etype, value, traceback):
+        """
+        Magic function for the 'with' keyword, called at the end of the block.
+        """
+        # Close our file.
+        self.close()
