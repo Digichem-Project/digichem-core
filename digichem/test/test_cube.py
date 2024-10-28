@@ -185,7 +185,7 @@ def test_2d_diagram(result_set, tmp_path, digichem_options):
 ])
 def test_3d_image(result_path, maker_cls, tmp_path, digichem_options):
     """Can we make a 3D structure image?"""
-    with open_for_parsing(result_path) as open_files:
+    with open_for_parsing(result_path) as (open_files, aux_files):
         result_set = parse_calculation(*open_files, options = digichem_options)
         maker = maker_cls.from_options(
             tmp_path / "tmp.png",
@@ -213,7 +213,7 @@ def test_3d_image(result_path, maker_cls, tmp_path, digichem_options):
 ], ids = ["Gaussian"])
 def test_density_image(result_path, density, tmp_path, digichem_options):
     """Can we make a 3D structure image?"""
-    with open_for_parsing(result_path) as open_files:
+    with open_for_parsing(result_path) as (open_files, aux_files):
         result_set = parse_calculation(*open_files, options = digichem_options)
         maker = Density_image_maker.from_options(
             tmp_path / "tmp.png",
@@ -235,7 +235,7 @@ def test_density_image(result_path, density, tmp_path, digichem_options):
 ], ids = ["Gaussian"])
 def test_spin_density_image(result_path, density, tmp_path, digichem_options):
     """Can we make a 3D structure image?"""
-    with open_for_parsing(result_path) as open_files:
+    with open_for_parsing(result_path) as (open_files, aux_files):
         result_set = parse_calculation(*open_files, options = digichem_options)
         maker = Density_image_maker.from_options(
             tmp_path / "tmp.png",
@@ -257,7 +257,7 @@ def test_spin_density_image(result_path, density, tmp_path, digichem_options):
 ], ids = ["Gaussian"])
 def test_combined_orbital_image(result_path, tmp_path, digichem_options):
     """Can we make a 3D structure image?"""
-    with open_for_parsing(result_path) as open_files:
+    with open_for_parsing(result_path) as (open_files, aux_files):
         result_set = parse_calculation(*open_files, options = digichem_options)
         maker = Combined_orbital_image_maker.from_options(
             tmp_path / "tmp.png",
@@ -285,7 +285,7 @@ def test_combined_orbital_image(result_path, tmp_path, digichem_options):
 ], ids = ["Gaussian"])
 def test_unrestricted_orbital_image(result_path, tmp_path, digichem_options):
     """Can we make a 3D structure image?"""
-    with open_for_parsing(result_path) as open_files:
+    with open_for_parsing(result_path) as (open_files, aux_files):
         result_set = parse_calculation(*open_files, options = digichem_options)
         maker = Orbital_image_maker.from_options(
             tmp_path / "tmp.png",
@@ -308,7 +308,7 @@ def test_unrestricted_orbital_image(result_path, tmp_path, digichem_options):
 ])
 def test_pdm_image(result_path, tmp_path, digichem_options):
     """Can we make a 3D structure image?"""
-    with open_for_parsing(result_path) as open_files:
+    with open_for_parsing(result_path) as (open_files, aux_files):
         result_set = parse_calculation(*open_files, options = digichem_options)
         maker = Permanent_dipole_image_maker.from_options(
             tmp_path / "tmp.png",
@@ -330,7 +330,7 @@ def test_pdm_image(result_path, tmp_path, digichem_options):
 ])
 def test_tdm_image(result_path, tmp_path, digichem_options):
     """Can we make a 3D structure image?"""
-    with open_for_parsing(result_path) as open_files:
+    with open_for_parsing(result_path) as (open_files, aux_files):
         result_set = parse_calculation(*open_files, options = digichem_options)
         maker = Transition_dipole_image_maker.from_options(
             tmp_path / "tmp.png",
@@ -353,7 +353,7 @@ def test_tdm_image(result_path, tmp_path, digichem_options):
 ])
 def test_nto_image(result_path, tmp_path, digichem_options):
     """Can we make a 3D structure image?"""
-    with open_for_parsing(result_path) as open_files:
+    with open_for_parsing(result_path) as (open_files, aux_files):
         result_set = parse_calculation(*open_files, options = digichem_options)
         maker = Orbital_image_maker.from_options(
             tmp_path / "tmp.png",

@@ -76,4 +76,55 @@ def test_dump_and_parse(result_files, tmp_path, digichem_options):
     
     
     assert raw_dump == parsed_dump
-        
+
+@pytest.mark.parametrize(
+    "result_files",
+    [
+        (Path(data_directory(), "Archives/1/Benzene.log"),),
+        (Path(data_directory(), "Archives/1/Benzene.log"), "fchk:" + str(Path(data_directory(), "Archives/1/Benzene.fchk.zip"))),
+        (Path(data_directory(), "Archives/1/"),),
+        (Path(data_directory(), "Archives/1/"), "fchk:" + str(Path(data_directory(), "Archives/1/Benzene.fchk.zip"))),
+        (Path(data_directory(), "Archives/2/Benzene.log.zip"),),
+        (Path(data_directory(), "Archives/2/Benzene.log.zip"), "fchk:" + str(Path(data_directory(), "Archives/2/Benzene.fchk"))),
+        (Path(data_directory(), "Archives/2"),),
+        (Path(data_directory(), "Archives/2/Benzene.log.zip"), "fchk:" + str(Path(data_directory(), "Archives/2/Benzene.fchk"))),
+        (Path(data_directory(), "Archives/3/Benzene.log.zip"),),
+        (Path(data_directory(), "Archives/3/Benzene.log.zip"), "fchk:" + str(Path(data_directory(), "Archives/3/Benzene.fchk.zip"))),
+        (Path(data_directory(), "Archives/3"),),
+        (Path(data_directory(), "Archives/3/Benzene.log.zip"), "fchk:" + str(Path(data_directory(), "Archives/3/Benzene.fchk.zip"))),
+        (Path(data_directory(), "Archives/4.zip"),),
+    ]
+)
+def test_gaussian_archives(result_files, digichem_options):
+    """
+    Can we parse from various archives?
+    """
+    result = parse_calculation(*result_files, options = digichem_options)
+    assert isinstance(result, Result_set)
+
+    # Check we have found the fchk.
+    assert "fchk_file" in result.metadata.auxiliary_files
+    assert len(result.metadata.log_files) == 1
+
+
+@pytest.mark.parametrize(
+    "result_files",
+    [
+        (Path(data_directory(), "Archives/5"),),
+        (Path(data_directory(), "Archives/5/Naphthalene.log"),),
+        (Path(data_directory(), "Archives/6"),),
+        (Path(data_directory(), "Archives/6/Naphthalene.log.zip"),),
+        (Path(data_directory(), "Archives/7"),),
+        (Path(data_directory(), "Archives/7/Naphthalene.log.zip"),),
+    ]
+)
+def test_turbomole_archives(result_files, digichem_options):
+    """
+    Can we parse from various archives?
+    """
+    result = parse_calculation(*result_files, options = digichem_options)
+    assert isinstance(result, Result_set)
+
+    # Check we have found the fchk.
+    assert "ground_state_cao_file" in result.metadata.auxiliary_files
+    assert len(result.metadata.log_files) == 13

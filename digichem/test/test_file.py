@@ -20,7 +20,7 @@ from digichem.test.test_result import gaussian_ES_result, turbomole_ES_result, o
 @pytest.mark.parametrize("sanity", [False, True], ids=["Normal", "Sanitize"])
 def test_cube_from_fchk(result_path, sanity, tmp_path, digichem_options):
     """Can we make a cube file from an fchk file?"""
-    with open_for_parsing(result_path) as open_files:
+    with open_for_parsing(result_path) as (open_files, aux_files):
         result_set = parse_calculation(*open_files, options = digichem_options)
         maker = Fchk_to_cube.from_options(
             tmp_path / "tmp.cube",
