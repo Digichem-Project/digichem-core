@@ -161,16 +161,16 @@ class Turbomole_parser(Cclib_parser):
         return self.results
             
     @classmethod
-    def find_auxiliary_files(self, hint):
+    def find_auxiliary_files(self, hint, basename):
         """
         Find auxiliary files from a given hint.
         
         :param hint: A path to a file to use as a hint to find additional files.
         :returns: A dictionary of found aux files.
         """
-        auxiliary_files = super().find_auxiliary_files(hint)
+        auxiliary_files = super().find_auxiliary_files(hint, basename)
         
-        parent = pathlib.Path(hint).parent
+        parent = pathlib.Path(hint).parent if not hint.is_dir() else hint
             
         # Find .cao density files.
         # First look for ground state density files.

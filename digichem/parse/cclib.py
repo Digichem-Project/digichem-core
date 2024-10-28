@@ -1,5 +1,6 @@
 from pathlib import Path
 import hashlib
+import itertools
 
 import digichem.log
 from digichem.parse.base import Parser_abc
@@ -30,7 +31,7 @@ class Cclib_parser(Parser_abc):
         super().__init__(*log_files)
         
     @classmethod
-    def from_logs(self, *log_files, **kwargs):
+    def from_logs(self, *log_files, hints = None, **kwargs):
         """
         Intelligent constructor that will attempt to guess the location of files from a given log file(s).
         
@@ -38,9 +39,11 @@ class Cclib_parser(Parser_abc):
         """
         # Have a look for aux. files.
         auxiliary_files = {}
+
+        basename = log_files[0].name if len(log_files) > 0 else ""
         
-        for found_log_file in log_files:
-            auxiliary_files.update(self.find_auxiliary_files(found_log_file))
+        for hint in itertools.chain(log_files, hints if hints is not None else []):
+            auxiliary_files.update(self.find_auxiliary_files(hint, basename))
             
         # Finally, update our auxiliary_files with kwargs, so any user specified aux files take precedence.
         auxiliary_files.update(kwargs)
@@ -48,7 +51,7 @@ class Cclib_parser(Parser_abc):
         return self(*log_files, **auxiliary_files)
     
     @classmethod
-    def find_auxiliary_files(self, hint):
+    def find_auxiliary_files(self, hint, basename):
         """
         Find auxiliary files from a given hint.
         
@@ -61,6 +64,11 @@ class Cclib_parser(Parser_abc):
         auxiliary_files = {}
         for file_type in self.INPUT_FILE_TYPES:
             for extension in file_type.extensions:
+                if hint.is_dir():
+                    # Peak inside.
+                    if Path(hint, basename).with_suffix(extension).exists():
+                        auxiliary_files[self.INPUT_FILE_TYPES[file_type]] = Path(hint, basename).with_suffix(extension)
+
                 if hint.with_suffix(extension).exists():
                     auxiliary_files[self.INPUT_FILE_TYPES[file_type]] = hint.with_suffix(extension)
         
