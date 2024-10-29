@@ -574,10 +574,10 @@ class open_for_parsing():
         else:
             self.done_archives.append(file_name)
         
-        # Get a temp dir to extact to.
+        # Get a temp dir to extract to.
         # We can't use TemporaryDirectory here, because these are auto deleted on program exit. This is not compatible with multi-processing.
         tempdir = mkdtemp()
-        self.archive_dirs[file_name.parent] = tempdir
+        self.archive_dirs[file_name] = tempdir
         
         # Extract to it.
         digichem.log.get_logger().info("Extracting archive '{}'...".format(file_name))
