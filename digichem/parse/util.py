@@ -141,6 +141,9 @@ def class_from_log_files(*log_files, format_hint = "auto"):
         log_file_type = type(cclib.io.ccopen([str(found_log_file) for found_log_file in log_files]))
         
     except Exception as e:
+        if isinstance(e, FileNotFoundError):
+            raise
+
         # cclib couldn't figure out the file type, it probably wasn't a .log file.
         raise Digichem_exception("Could not determine file type of file(s): '{}'; are you sure these are computational log files?".format(", ".join((str(log_file) for log_file in log_files)))) from e
     
@@ -266,7 +269,7 @@ def multi_parser(log_files, auxiliary_files, *, options, format_hint = "auto", k
             return parse_calculation(*logs, options = options, parse_all = True, format_hint = format_hint, keep_archive = keep_archive, parser_options = parser_options, **auxiliary_files)
             
         except Exception:
-            digichem.log.get_logger().warning("Unable to parse calculation result file '{}'; skipping".format(logs[0]), exc_info = True)
+            digichem.log.get_logger().warning("Unable to parse calculation result file '{}'; skipping".format(logs[0] if len(logs) == 1 else logs), exc_info = True)
             return None
 
 def parse_multiple_calculations(*log_files, auxiliary_files = None, options, parser_options = {}, pool = None, init_func = None, init_args = None, format_hint = "auto", processes = 1, keep_archive = False):
@@ -471,7 +474,7 @@ class open_for_parsing():
         # First, open the file if it is an archive.
         open_files = []
 
-        if self.is_archive(hint):
+        if hint.exists() and self.is_archive(hint):
             open_files = self.extract(hint)
         
         else:
