@@ -283,7 +283,7 @@ def test_unrestricted_orbital_image(cube_file, tmp_path, digichem_options):
 ])
 def test_pdm_image(result_path, cube_file, tmp_path, digichem_options):
     """Can we make a 3D structure image?"""
-    with open_for_parsing(result_path) as (open_files, aux_files):
+    with open_for_parsing(result_path) as open_files:
         result_set = parse_calculation(*open_files, options = digichem_options)
         maker = Permanent_dipole_image_maker.from_options(
             tmp_path / "tmp.png",
@@ -306,7 +306,7 @@ def test_pdm_image(result_path, cube_file, tmp_path, digichem_options):
 ])
 def test_tdm_image(result_path, cube_file, tmp_path, digichem_options):
     """Can we make a 3D structure image?"""
-    with open_for_parsing(result_path) as (open_files, aux_files):
+    with open_for_parsing(result_path) as open_files:
         result_set = parse_calculation(*open_files, options = digichem_options)
         maker = Transition_dipole_image_maker.from_options(
             tmp_path / "tmp.png",

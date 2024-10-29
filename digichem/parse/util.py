@@ -13,6 +13,7 @@ import warnings
 import multiprocessing
 
 from configurables.misc import is_iter, is_int
+from configurables.defres import Default, defres
 
 # Digichem imports.
 from digichem.exception.base import Digichem_exception
@@ -408,7 +409,7 @@ class open_for_parsing():
     Currently, the main purpose of this context manager is to intelligently handle unpacking of archives (.zip, .tar etc) for parsing.
     """
     
-    def __init__(self, *log_files, auxiliary_files = None):
+    def __init__(self, *log_files, auxiliary_files = Default(None)):
         log_files = [Path(log_file).resolve() for log_file in log_files]
         
         # Check we haven't been given any duplicate log files.
@@ -422,7 +423,8 @@ class open_for_parsing():
         self.log_files = list(dict.fromkeys(log_files).keys())
 
         # Should we worry about duplicate aux files?
-        self.auxiliary_files = {aux_type: Path(auxiliary_file).resolve() for aux_type, auxiliary_file in auxiliary_files.items()} if auxiliary_files is not None else {}
+        self.has_aux_files = not isinstance(auxiliary_files, Default)
+        self.auxiliary_files = {aux_type: Path(auxiliary_file).resolve() for aux_type, auxiliary_file in auxiliary_files.items()} if defres(auxiliary_files) is not None else {}
         
         # A list of tempfile.TemporaryDirectory objects that should be closed when we are finished.
         #self.temp_dirs = []
@@ -538,7 +540,11 @@ class open_for_parsing():
                         
                 new_log_files.extend(self.find(log_file))
         
-        return new_log_files, new_aux_files
+        if self.has_aux_files:
+            return new_log_files, new_aux_files
+        
+        else:
+            return new_log_files
     
     def extract(self, file_name):
         """
