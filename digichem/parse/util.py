@@ -12,7 +12,8 @@ import warnings
 # IMPORTANT: Do not replace multiprocessing pools with pathos, the latter is too buggy for production ATM (26-05-2023).
 import multiprocessing
 
-from configurables.misc import is_iter
+from configurables.misc import is_iter, is_int
+from configurables.defres import Default, defres
 
 # Digichem imports.
 from digichem.exception.base import Digichem_exception
@@ -36,6 +37,8 @@ custom_parsing_formats = {
     "json": Json_multi_parser,
 }
 
+archive_formats = list(itertools.chain(*[extensions for name, extensions, desc in shutil.get_unpack_formats()]))
+
 def find_log_files_from_hint(hint):
     """
     Find output (log) files from a given hint.
@@ -57,7 +60,7 @@ def find_log_files_from_hint(hint):
         # Remove any 'digichem.log' files as we know these are not calc log files.
         # We don't actually write 'digichem.log' files anymore either (we use digichem.out instead),
         # but older versions did...
-        log_files = [log_file for log_file in log_files if log_file.name not in ["digichem.log", "digichem.out"]]
+        log_files = [log_file for log_file in log_files if log_file.name not in ["digichem.log", "digichem.out", "silico.log", "silico.out"]]
     else:
         parent = hint.parent
         log_files = [hint]
@@ -66,18 +69,12 @@ def find_log_files_from_hint(hint):
     if hint.suffix not in ["." + custom_format for custom_format in custom_parsing_formats]:
         # Try and find job files.
         # These files have names like 'job.0', 'job.1' etc, ending in 'job.last'.
-        for number in itertools.count():
-            # Get the theoretical file name.
-            job_file_path = Path(parent, "job.{}".format(number))
-            
-            # See if it exists (and isn't the log_file given to us).
-            if job_file_path.exists():
-                # Add to list.
-                log_files.append(job_file_path)
-            else:
-                # We've found all the numbered files.
-                break
-                    
+        for maybe_job_file in parent.glob("job.*"):
+            # We only want the numbered files.
+            if is_int(".".join(maybe_job_file.name.split(".")[1:])):
+                # Looks good.
+                log_files.append(maybe_job_file)
+        
         # Look for other files.
         for maybe_file_name in ("basis", "control", "mos", "alpha", "beta", "coord", "gradient", "aoforce", "job.last", "numforce/aoforce.out"):
             maybe_file_path = Path(parent, maybe_file_name)
@@ -144,6 +141,9 @@ def class_from_log_files(*log_files, format_hint = "auto"):
         log_file_type = type(cclib.io.ccopen([str(found_log_file) for found_log_file in log_files]))
         
     except Exception as e:
+        if isinstance(e, FileNotFoundError):
+            raise
+
         # cclib couldn't figure out the file type, it probably wasn't a .log file.
         raise Digichem_exception("Could not determine file type of file(s): '{}'; are you sure these are computational log files?".format(", ".join((str(log_file) for log_file in log_files)))) from e
     
@@ -166,11 +166,9 @@ def from_log_files(*log_files, format_hint = "auto", parser_options = {}, **auxi
     :param format_hint: A hint as to the format of the given log files. Either 'auto' (to guess), 'log' (calc log file), 'sir' (digichem result file) or 'sid' (digichem database file).
     """
     found_log_files = find_log_files(*log_files)
-    
-    #return class_from_log_files(*found_log_files, format_hint = format_hint).from_logs(*found_log_files, **auxiliary_files)
 
     try:
-        return class_from_log_files(*found_log_files, format_hint = format_hint).from_logs(*found_log_files, **parser_options, **auxiliary_files)
+        return class_from_log_files(*found_log_files, format_hint = format_hint).from_logs(*found_log_files, hints = log_files, **parser_options, **auxiliary_files)
      
     except Exception:
         if len(found_log_files) == 0:
@@ -223,16 +221,16 @@ def parse_calculation(*log_files, options, parse_all = False, format_hint = "aut
     log_files = real_log_files
         
     # Open files for reading (handles archives for us).
-    archive = open_for_parsing(*log_files)
+    archive = open_for_parsing(*log_files, auxiliary_files = auxiliary_files)
     
     try:
-        open_log_files = archive.open()
+        open_log_files, open_aux_files = archive.open()
         
         if parse_all:
-            results = from_log_files(*open_log_files, format_hint = format_hint, parser_options = parser_options, **auxiliary_files).process_all(options)
+            results = from_log_files(*open_log_files, format_hint = format_hint, parser_options = parser_options, **open_aux_files).process_all(options)
         
         else:       
-            results = from_log_files(*open_log_files, format_hint = format_hint, parser_options = parser_options, **auxiliary_files).process(options)
+            results = from_log_files(*open_log_files, format_hint = format_hint, parser_options = parser_options, **open_aux_files).process(options)
         
     finally:
         if not keep_archive:
@@ -245,15 +243,7 @@ def parse_calculation(*log_files, options, parse_all = False, format_hint = "aut
     else:
         # The caller isn't interested in the archive.
         return results
-        
-        
-#     with open_for_parsing(*log_files) as open_log_files:
-#         
-#         if parse_all:
-#             return from_log_files(*open_log_files, format_hint = format_hint, **auxiliary_files).process_all(options)
-#         
-#         else:       
-#             return from_log_files(*open_log_files, format_hint = format_hint, **auxiliary_files).process(options)
+
 
 def multi_parser(log_files, auxiliary_files, *, options, format_hint = "auto", keep_archive = False, parser_options = {},):
         """
@@ -279,7 +269,7 @@ def multi_parser(log_files, auxiliary_files, *, options, format_hint = "auto", k
             return parse_calculation(*logs, options = options, parse_all = True, format_hint = format_hint, keep_archive = keep_archive, parser_options = parser_options, **auxiliary_files)
             
         except Exception:
-            digichem.log.get_logger().warning("Unable to parse calculation result file '{}'; skipping".format(logs[0]), exc_info = True)
+            digichem.log.get_logger().warning("Unable to parse calculation result file '{}'; skipping".format(logs[0] if len(logs) == 1 else logs), exc_info = True)
             return None
 
 def parse_multiple_calculations(*log_files, auxiliary_files = None, options, parser_options = {}, pool = None, init_func = None, init_args = None, format_hint = "auto", processes = 1, keep_archive = False):
@@ -422,7 +412,7 @@ class open_for_parsing():
     Currently, the main purpose of this context manager is to intelligently handle unpacking of archives (.zip, .tar etc) for parsing.
     """
     
-    def __init__(self, *log_files):
+    def __init__(self, *log_files, auxiliary_files = Default(None)):
         log_files = [Path(log_file).resolve() for log_file in log_files]
         
         # Check we haven't been given any duplicate log files.
@@ -434,22 +424,63 @@ class open_for_parsing():
         
         # Remove duplicates but retain order.
         self.log_files = list(dict.fromkeys(log_files).keys())
+
+        # Should we worry about duplicate aux files?
+        self.has_aux_files = not isinstance(auxiliary_files, Default)
+        self.auxiliary_files = {aux_type: Path(auxiliary_file).resolve() for aux_type, auxiliary_file in auxiliary_files.items()} if defres(auxiliary_files) is not None else {}
         
         # A list of tempfile.TemporaryDirectory objects that should be closed when we are finished.
-        self.temp_dirs = []
+        #self.temp_dirs = []
+
+        self.archive_dirs = {}
+
+        # Keep track of past work to prevent unpacking duplicates.
+        self.done_archives = []
     
     @classmethod
-    def archive_formats(self):
+    def get_archive_formats(self):
         """
         Get a list of supported archive formats.
         """
-        return list(itertools.chain(*[extensions for name, extensions, desc in shutil.get_unpack_formats()]))
+        return archive_formats
+    
+    @property
+    def archive_formats(self):
+        return archive_formats
         
     def __enter__(self):
         """
         'Open' files for reading.
         """
         return self.open()
+    
+    @classmethod
+    def is_archive(self, path):
+        """
+        Determine (based on a given file extensions) whether a path points to an archive.
+        """
+        # We can't simply join all the extensions together, what if the file is named something like "Benzene.log.zip"
+        # Also be careful for files like Benzene.tar.gz, this is .tar.gz not .gz
+        for pos in range(0, len(path.suffixes)):
+            if "".join(path.suffixes[pos:]) in self.get_archive_formats():
+                # This is an archive format.                
+                return True
+        
+        return False
+    
+    def find(self, hint):
+        """
+        """
+        # First, open the file if it is an archive.
+        open_files = []
+
+        if hint.exists() and self.is_archive(hint):
+            open_files = self.extract(hint)
+        
+        else:
+            open_files = [hint]
+
+        return open_files
         
     def open(self):
         """
@@ -457,46 +488,96 @@ class open_for_parsing():
         """
         new_log_files = []
         
-        formats = self.archive_formats()
+        # First, unpack any explicitly specified aux files.
+        # We do this first because we won't extract the same file twice, and we want to make sure
+        # we definitely capture the file here.
+        new_aux_files = {}
+        for aux_type, path in self.auxiliary_files.items():
+            if self.is_archive(path):
+                files = list(self.extract(path))
+
+                # If the archive contains multiple files, complain (because we don't know which one the user wants).
+                if len(files) == 0:
+                    raise Digichem_exception("Cannot extract auxiliary file archive '{}'; this archive is empty".format(path))
+
+                elif len(files) > 1:
+                    raise Digichem_exception("Cannot extract auxiliary file archive '{}'; this archive contains multiple files".format(path))
+
+                new_aux_files[aux_type] = files[0]
+            
+            else:
+                new_aux_files[aux_type] = path
         
+        # Next, build a list of files and folders to check.
         for log_file in self.log_files:
+            found_child_archive = False
             
-            found_child_archive = None
-            
-            # If 'log_file' is a directory, check for an archive inside called 'Output.xxx'.
-            for archive_format in formats:
-                child_archive = Path(log_file, "Output" + archive_format)
-                if child_archive.exists():
-                    if not found_child_archive:
-                        # Found an Output dir archive, use this instead.
-                        new_log_files.extend(self.extract(child_archive))
-                        found_child_archive = child_archive
-                    
-                    else:
-                        # For now, only care about the first.
-                        warnings.warn("Ignoring subsequent Output archive '{}'; already found '{}'".format(child_archive, found_child_archive))
-            
-            # No need to check 'found_child_archive' here; a file cannot simultaneously be a directory containing an archive and also an archive itself.
-            if "".join(log_file.suffixes) in formats:
-                # This is an archive format.                
-                # Add any files/directories that were unpacked.
-                new_log_files.extend(self.extract(log_file))
+            if log_file.is_dir():
+                parent_dir = log_file
                 
-            elif not found_child_archive:
-                # Non-archive file, add normally.
-                new_log_files.append(log_file)
-            
-        return new_log_files
+                # If 'log_file' is a directory, check for an archive inside called 'Output.xxx'.
+                for archive_format in self.archive_formats:
+                    child_archive = Path(log_file, "Output" + archive_format)
+                    if child_archive.exists():
+                        if not found_child_archive:
+                            # Found an Output dir archive, use this instead.
+                            new_log_files.extend(self.find(child_archive))
+                            found_child_archive = child_archive
+                        
+                        else:
+                            # For now, only care about the first.
+                            warnings.warn("Ignoring subsequent Output archive '{}'; already found '{}'".format(child_archive, found_child_archive))
+                
+            else:
+                # The hint is not a directory, either it is a normal log file, or an archive.
+                # If it is an archive, it could either be:
+                #  - An archive of a single file (eg, Output.log.zip).
+                #  - An archive of an Output dir.
+                #  - An archive of a calculation dir (inside of which is Output).
+                new_files = list(self.find(log_file))
+                new_log_files.extend(new_files)
+                parent_dir = log_file.parent
+                
+                if not all([file.is_file() for file in new_files]):
+
+                #if "Output" in [file.name for file in new_files] or len(list(itertools.chain(*[file.glob("Output") for file in new_files]))) > 0:
+                    found_child_archive = True
+                
+                elif self.is_archive(log_file):
+                    # If the hint is a single file archive, also add the parent dir (incase not all of the files are archives).
+                    new_log_files.append(log_file.parent)
+
+
+            if not found_child_archive:
+                # If there's not an Output.zip type file, also look for individually zipped output files.
+                for sub_file in parent_dir.iterdir():
+                    if self.is_archive(sub_file):
+                        new_log_files.extend([found.parent for found in self.find(sub_file)])
+                        
+                new_log_files.extend(self.find(log_file))
+        
+        if self.has_aux_files:
+            return new_log_files, new_aux_files
+        
+        else:
+            return new_log_files
     
     def extract(self, file_name):
         """
         Extract an archive and return the contained log files.
         """
-        # Get a temp dir to extact to.
+        file_name = file_name.resolve()
+        if file_name in self.done_archives:
+            digichem.log.get_logger().debug("Skipping duplicate archive '{}'".format(file_name))
+            return []
+
+        else:
+            self.done_archives.append(file_name)
+        
+        # Get a temp dir to extract to.
         # We can't use TemporaryDirectory here, because these are auto deleted on program exit. This is not compatible with multi-processing.
-        #tempdir = tempfile.TemporaryDirectory()
         tempdir = mkdtemp()
-        self.temp_dirs.append(tempdir)
+        self.archive_dirs[file_name] = tempdir
         
         # Extract to it.
         digichem.log.get_logger().info("Extracting archive '{}'...".format(file_name))
@@ -517,7 +598,7 @@ class open_for_parsing():
         """
         'Close' any open files.
         """
-        for tempdir in self.temp_dirs:
+        for tempdir in self.archive_dirs.values():
             shutil.rmtree(tempdir, ignore_errors = True)
         
         

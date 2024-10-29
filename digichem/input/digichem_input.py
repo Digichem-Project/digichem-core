@@ -462,7 +462,7 @@ def si_from_file(file_name, file_type = None, *, gen3D = None, **kwargs):
             # NOTE: Here we assume files without an extension are log files.
             # This works fine for directories, but might change in future.
             elif file_type in ["dat", "log", "out", "output", None] \
-                or (auto_file_type and "".join(file_name.suffixes) in open_for_parsing.archive_formats()):
+                or (auto_file_type and "".join(file_name.suffixes) in open_for_parsing.get_archive_formats()):
                 # Generic log-file (output) format.
                 # Most formats (.log, .dat etc) we can parse with either Obabel or Digichem.
                 # Some broken log files (incomplete) we can parse only with Obabel.

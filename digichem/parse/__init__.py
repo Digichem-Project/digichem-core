@@ -10,4 +10,4 @@ from digichem.result.alignment.AA import Average_angle
 from digichem.result.alignment.FAP import Furthest_atom_pair
 from digichem.result.alignment import Minimal
 
-from digichem.parse.util import from_log_files, parse_calculation, parse_and_merge_calculations, parse_multiple_calculations, parse_and_merge_multiple_calculations
+from digichem.parse.util import from_log_files, parse_calculation, parse_and_merge_calculations, parse_multiple_calculations, parse_and_merge_multiple_calculations, open_for_parsing
