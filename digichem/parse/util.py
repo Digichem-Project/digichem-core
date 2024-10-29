@@ -529,11 +529,24 @@ class open_for_parsing():
                             warnings.warn("Ignoring subsequent Output archive '{}'; already found '{}'".format(child_archive, found_child_archive))
                 
             else:
-                new_log_files.extend(self.find(log_file))
+                # The hint is not a directory, either it is a normal log file, or an archive.
+                # If it is an archive, it could either be:
+                #  - An archive of a single file (eg, Output.log.zip).
+                #  - An archive of an Output dir.
+                #  - An archive of a calculation dir (inside of which is Output).
+                new_files = list(self.find(log_file))
+                new_log_files.extend(new_files)
                 parent_dir = log_file.parent
                 
-                if self.is_archive(log_file):
+                if not all([file.is_file() for file in new_files]):
+
+                #if "Output" in [file.name for file in new_files] or len(list(itertools.chain(*[file.glob("Output") for file in new_files]))) > 0:
+                    found_child_archive = True
+                
+                elif self.is_archive(log_file):
+                    # If the hint is a single file archive, also add the parent dir (incase not all of the files are archives).
                     new_log_files.append(log_file.parent)
+
 
             if not found_child_archive:
                 # If there's not an Output.zip type file, also look for individually zipped output files.
