@@ -7,9 +7,42 @@ import shutil
 import sys
 import warnings
 from uuid import uuid4
+import hashlib
 
 from digichem.datas import get_resource
 import digichem.log
+
+def checksum(*paths, hash_func = "sha1", buf_size = 1024 * 1024, ret_size = False):
+    """
+    Calculate the checksum of a file.
+
+    This function avoids reading the entire file into memory at once.
+
+    :param paths: The file(s) to calculate.
+    :param hash_func: The name of a hashlib function to pass to haslib.new.
+    :param buf_size: How much to read in a single pass. The default is 1MB.
+    :param ret_size: If True, this function will return a tuple of (checksum, file_size). Otherwise, only the checksum is returned.
+    """
+    hasher = hashlib.new(hash_func)
+    tot_size = 0
+
+    for pth in paths:
+        with open(pth, "rb") as file:
+            while True:
+                data = file.read(buf_size)
+
+                if len(data) == 0:
+                    # End of file
+                    break
+
+                tot_size += len(data)
+                hasher.update(data)
+    
+    if ret_size:
+        return (hasher.hexdigest(), tot_size)
+
+    else:
+        return hasher.hexdigest()
 
 def expand_path(pth):
     """
