@@ -1,10 +1,10 @@
 from pathlib import Path
-import hashlib
 import itertools
 
 import digichem.log
 from digichem.parse.base import Parser_abc
 from digichem.exception import Digichem_exception
+from digichem.misc.io import checksum
 
 # Hidden imports.
 #import cclib.io
@@ -103,12 +103,7 @@ class Cclib_parser(Parser_abc):
         # We do this because not all parsers define a custom sort.
         
         file_paths.sort()
-        hasher = hashlib.sha1()
-        
-        for file_path in file_paths:
-            hasher.update(Path(file_path).read_bytes())
-            
-        self.data._id = hasher.hexdigest()
+        self.data._id = checksum(*file_paths, hash_func = "sha1")
         
         # Do some setup.
         self.pre_parse()

@@ -155,6 +155,16 @@ class Memory():
     
     def __eq__(self, other):
         return int(self) == other
+    
+    @classmethod
+    def is_memory(self, value):
+        """Convenience method to determine whether a value is a valid memory amount."""
+        try:
+            self(value)
+            return True
+        
+        except Exception:
+            return False
 
 
 class Turbomole_memory(Memory):
