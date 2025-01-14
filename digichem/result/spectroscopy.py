@@ -333,6 +333,48 @@ class Absorption_emission_graph(Spectroscopy_graph):
         """
         return ((E * scipy.constants.electron_volt)**2  * f_E) / (scipy.constants.Planck * scipy.constants.c)
     
+    @classmethod
+    def inverse_jacobian(self, E, f_nm):
+        """
+        An implementation of the jacobian transform that scales intensity in wavelength units to intensity in energy units.
+        
+        See J. Phys. Chem. Lett. 2014, 5, 20, 3497 for why this is necessary.
+        
+        Note that the jacobian transform will maintain the area under the curve regardless of x units (nm or x).
+        Sadly, this has the consequence of mangling the intensity units (it becomes tiny; an oscillator strength of 1 at 3 eV becomes 1.163e-12).
+        """
+        # TODO: Might be better to rearrange this to accept nm rather than eV?
+        return (
+            (f_nm * scipy.constants.Planck * scipy.constants.c) / (E * scipy.constants.electron_volt) **2
+        )
+    
+    @classmethod
+    def shift_coord(self, coord, delta_eV):
+        """
+        Shift a coordinate (in nm) by a given energy value.
+
+        :param delta_eV: The energy (in eV) to shift by. A positive value will blueshift (higher energy).
+        """
+        old_x_nm, old_y_nm = coord
+        # Convert x to energy.
+        old_x_ev = digichem.result.excited_state.Excited_state.wavelength_to_energy(old_x_nm)
+        # Transform y.
+        old_y_ev = self.inverse_jacobian(old_x_ev, old_y_nm)
+
+        # Shift by given amount.
+        new_x_ev = old_x_ev + delta_eV
+
+        # Convert back to nm.
+        new_x_nm, new_f_nm = self.energy_to_wavelength((new_x_ev, old_y_ev), True)
+
+        return (new_x_nm, new_f_nm)
+    
+    def shift(self, delta_eV):
+        """
+        """
+        return map(lambda coord: self.shift_coord(coord, delta_eV), self.coordinates)
+
+    
     def plot_gaussian(self):
         """
         Plot a gaussian distribution around our excited state energies.
