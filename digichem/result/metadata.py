@@ -208,7 +208,7 @@ class Metadata(Result_object):
         self.auxiliary_files = auxiliary_files if auxiliary_files is not None and len(auxiliary_files) != 0 else {}
         self.history = history
         self.date = date
-        self.insert_date = date
+        self.insert_date = insert_date
         self.duration = duration
         self.package = package
         self.package_version = package_version
