@@ -516,6 +516,11 @@ class Metadata(Result_object):
             "units": "s",
             "string": date_to_string(self.date) if self.date is not None else None
         }
+        attr_dict['insert_date'] = {
+            "value": self.insert_date.timestamp() if self.insert_date is not None else None,
+            "units": "s",
+            "string": date_to_string(self.insert_date) if self.insert_date is not None else None
+        }
         attr_dict['duration'] = {
             "value": self.duration.total_seconds() if self.duration is not None else None,
             "units": "s",
@@ -560,9 +565,14 @@ class Metadata(Result_object):
         kwargs = copy.deepcopy(data)
         
         # For more complex fields, use the data item.
-        for attr in ['date', 'duration', 'temperature', "pressure"]:
-            kwargs[attr] = data[attr]['value']
+        for attr in ['insert_date', 'date', 'duration', 'temperature', "pressure"]:
+            if attr in data:
+                kwargs[attr] = data[attr]['value']
+            
+            else:
+                kwargs[attr] = None
         
+        kwargs['insert_date'] = datetime.fromtimestamp(kwargs['insert_date']) if kwargs['insert_date'] is not None else None
         kwargs['date'] = datetime.fromtimestamp(kwargs['date']) if kwargs['date'] is not None else None
         kwargs['duration'] = timedelta(seconds = kwargs['duration'])  if kwargs['duration'] is not None else None
         
