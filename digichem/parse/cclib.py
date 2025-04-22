@@ -1,5 +1,9 @@
 from pathlib import Path
 import itertools
+import csv
+import numpy
+import math
+from scipy import signal
 
 import digichem.log
 from digichem.parse.base import File_parser_abc
@@ -27,6 +31,10 @@ class Cclib_parser(File_parser_abc):
         """
         # Also save our aux files, stripping None.
         self.auxiliary_files = {name: aux_file for name,aux_file in auxiliary_files.items() if aux_file is not None}
+
+        # TODO: Does this belong here?
+        # Also have a look for a profile.csv file that we can us for performance metrics.
+        self.profile_file = Path(log_files[0].parent, "../Logs/profile.csv")
         
         super().__init__(*log_files)
         
@@ -113,6 +121,66 @@ class Cclib_parser(File_parser_abc):
             with open(log_file_path, "rt") as log_file:
                 for line in log_file:
                     self.parse_output_line(log_file, line)
+
+        # Add profiling data.
+        try:
+            self.parse_profile_file()
+        
+        except Exception:
+            digichem.log.get_logger().warning("Could not parse profile.csv file; profiling data will be unavailable", exc_info=True)
+
+    def parse_profile_file(self):
+        """
+        """
+        # Real calculations can end up with millions of rows, which is far too much data to handle.
+        # We will need to downsample if we have too many data points.
+        # First work out how many rows there are.
+        with open(self.profile_file, "rb") as profile_file:
+            lines = sum(1 for _ in profile_file) -1 # Remove 1 line for the header.
+
+        max_lines  = 1000
+        factor = math.ceil(lines / max_lines)
+        
+        with open(self.profile_file) as profile_file:
+            reader = csv.reader(profile_file)
+
+            # Get the header.
+            headers = next(reader)
+
+            # Check headers match.
+            if (headers[0] != "Duration / s" or 
+               headers[1] != "Memory Used (Real) / bytes" or
+               headers[2] != "Memory Used (Real) / %" or
+               headers[3] != "Memory Available  (Real) / bytes" or
+               headers[4] != "Memory Available (Real) / %" or
+               headers[9] != "CPU Usage / %" or
+               headers[15] != "Output Directory Available / bytes" or
+               headers[17] != "Scratch Directory Available / bytes"
+            ):
+                raise Digichem_exception("wrong headers found in profile.csv file")
+            
+            # Then the body.
+            # TODO: Reading the entire file is not ideal...
+            data = numpy.genfromtxt(profile_file, delimiter=',')
+
+        # We'll keep:
+        # - duration
+        # - memory used
+        # - memory used %
+        # - memory available
+        # - memory available %
+        # - cpu used
+        # - output space
+        # - scratch space
+        new_data = numpy.zeros((math.ceil(lines / factor), 8))
+
+        # Now decimate.
+        if factor > 1:
+            for i, k in enumerate([0,1,2,3,4,9,15,17]):
+                new_data[:, i] = signal.decimate(data[:, k], factor)
+        
+        self.data.metadata['performance'] = new_data
+        
         
     def parse_output_line(self, log_file, line):
         """
