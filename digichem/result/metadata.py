@@ -147,6 +147,7 @@ class Metadata(Result_object):
             auxiliary_files = None,
             history = None,
             date = None,
+            insert_date = None,
             duration = None,
             package = None,
             package_version = None,
@@ -181,6 +182,7 @@ class Metadata(Result_object):
         :param history: Optional SHA of the calculation from which the coordinates of this calculation were generated.
         :param num_calculations: Optional number of individual calculations this metadata represents.
         :param date: Optional date (datetime object) of this calculation result.
+        :param insert_date: Optional date (datetime object) of when this calculation result was stored (normally in a DB).
         :param duration: Optional duration (timedelta object) of this calculation.
         :param package: Optional string identifying the computational chem program that performed the calculation.
         :param package_version: Optional string identifying the version of the computational chem program that performed the calculation.
@@ -206,6 +208,7 @@ class Metadata(Result_object):
         self.auxiliary_files = auxiliary_files if auxiliary_files is not None and len(auxiliary_files) != 0 else {}
         self.history = history
         self.date = date
+        self.insert_date = insert_date
         self.duration = duration
         self.package = package
         self.package_version = package_version
@@ -513,6 +516,11 @@ class Metadata(Result_object):
             "units": "s",
             "string": date_to_string(self.date) if self.date is not None else None
         }
+        attr_dict['insert_date'] = {
+            "value": self.insert_date.timestamp() if self.insert_date is not None else None,
+            "units": "s",
+            "string": date_to_string(self.insert_date) if self.insert_date is not None else None
+        }
         attr_dict['duration'] = {
             "value": self.duration.total_seconds() if self.duration is not None else None,
             "units": "s",
@@ -557,9 +565,14 @@ class Metadata(Result_object):
         kwargs = copy.deepcopy(data)
         
         # For more complex fields, use the data item.
-        for attr in ['date', 'duration', 'temperature', "pressure"]:
-            kwargs[attr] = data[attr]['value']
+        for attr in ['insert_date', 'date', 'duration', 'temperature', "pressure"]:
+            if attr in data:
+                kwargs[attr] = data[attr]['value']
+            
+            else:
+                kwargs[attr] = None
         
+        kwargs['insert_date'] = datetime.fromtimestamp(kwargs['insert_date']) if kwargs['insert_date'] is not None else None
         kwargs['date'] = datetime.fromtimestamp(kwargs['date']) if kwargs['date'] is not None else None
         kwargs['duration'] = timedelta(seconds = kwargs['duration'])  if kwargs['duration'] is not None else None
         
