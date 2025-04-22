@@ -8,6 +8,7 @@ from deepmerge import conservative_merger
 from pathlib import Path
 import copy
 import warnings
+from scipy import integrate
 
 from digichem.misc.time import latest_datetime, total_timedelta, date_to_string,\
     timedelta_to_string
@@ -168,6 +169,7 @@ class Metadata(Result_object):
             num_cpu = None,
             memory_available = None,
             memory_used = None,
+            performance = None,
             
             # Deprecated.
             solvent_model = None,
@@ -232,6 +234,7 @@ class Metadata(Result_object):
         self.num_cpu = num_cpu
         self.memory_available = memory_available
         self.memory_used = memory_used
+        self.performance = performance
         
         # Deprecated solvent system.
         if solvent_model is not None:
@@ -476,6 +479,7 @@ class Metadata(Result_object):
                 num_cpu = parser.data.metadata.get('num_cpu', None),
                 memory_available = memory_available,
                 memory_used = memory_used,
+                performance = Performance.from_parser(parser)
             )
         except AttributeError:
             # There is no metadata available, give up.
@@ -550,6 +554,8 @@ class Metadata(Result_object):
                     "units": None
                 }
         
+        attr_dict['performance'] = self.performance.dump(digichem_options)
+
         return attr_dict
     
     @classmethod
@@ -657,4 +663,204 @@ class Merged_metadata(Metadata):
             merged_metadata.auxiliary_files = conservative_merger.merge(merged_metadata.auxiliary_files, metadata.auxiliary_files)
         
         return merged_metadata
+
+class Performance(Result_object):
+    """
+    Performance metrics and profiling data for the calculation.
+    """
+
+    def __init__(
+        self,
+        duration: float,
+        memory_used: float,
+        memory_allocated: float,
+        memory_used_percent: float,
+        memory_available: float,
+        memory_available_percent: float,
+        cpu_used: float,
+        cpu_allocated: float,
+        output_space: float,
+        scratch_space: float,
+    ):
+        self.duration = duration
+        self.memory_used = memory_used
+        self.memory_used_percent = memory_used_percent
+        self.memory_available = memory_available
+        self.memory_available_percent = memory_available_percent
+        self.cpu_used = cpu_used
+        self.output_space = output_space
+        self.scratch_space = scratch_space
+
+        self.memory_allocated = memory_allocated if memory_allocated is not None else self.max_mem
+        self.cpu_allocated = cpu_allocated if cpu_allocated is not None else math.ceil(max(cpu_used) / 100)
     
+
+    @classmethod
+    def from_parser(self, parser):
+        """
+        Construct a Performance object from an output file parser.
+        
+        :param parser: Output data parser.
+        :return: A populated Performance object.
+        """
+        return self(
+            duration = parser.data.metadata['performance'][:, 0],
+            memory_used = parser.data.metadata['performance'][:, 1],
+            memory_allocated = Memory(parser.data.metadata['memory_available']) if "memory_available" in parser.data.metadata else None,
+            memory_used_percent = parser.data.metadata['performance'][:, 2],
+            memory_available = parser.data.metadata['performance'][:, 3],
+            memory_available_percent = parser.data.metadata['performance'][:, 4],
+            cpu_used = parser.data.metadata['performance'][:, 5],
+            cpu_allocated = parser.data.metadata.get('num_cpu', None),
+            output_space = parser.data.metadata['performance'][:, 6],
+            scratch_space = parser.data.metadata['performance'][:, 7]
+        )
+    
+    @property
+    def max_mem(self):
+        """
+        The maximum amount of memory used in the calculation (in bytes)
+        """
+        return max(self.memory_used)
+    
+    @property
+    def memory_margin(self):
+        max_memory = float(self.memory_allocated) if self.memory_allocated is not None else self.max_mem
+        
+        return max_memory - self.max_mem
+    
+    @property
+    def memory_efficiency(self):
+        """
+        Calculate the memory efficiency of this calculation.
+
+        :param max_memory: The amount of allocated memory (in bytes), this will be guestimated automatically if not available.
+        """
+        max_memory = float(self.memory_allocated) if self.memory_allocated is not None else self.max_mem
+
+        # Integrate to find the number of byte seconds used.
+        area = integrate.trapezoid(self.memory_used, self.duration)
+
+        # How much we should/could have used.
+        total_area = (self.duration[-1] - self.duration[0]) * max_memory
+
+        # Return as %.
+        return area / total_area * 100
+    
+    def get_cpu_efficiency(self, max_cpu = None):
+        """
+        Calculate the CPU efficiency of this calculation.
+
+        :param max_cpu: The number of allocated CPUs, this will be guestimated automatically if not available.
+        """
+        if max_cpu is None:
+            max_cpu = self.cpu_allocated
+
+        # Integrate to find the number of CPU seconds used.
+        area = integrate.trapezoid(self.cpu_used, self.duration)
+
+        # How much we should/could have used.
+        total_area = (self.duration[-1] - self.duration[0]) * max_cpu * 100
+
+        # Return as %.
+        return area / total_area * 100
+    
+    def dump(self, digichem_options):
+        """
+        Get a representation of this result object in primitive format.
+        """
+        return {
+            "cpu_allocated": self.cpu_allocated,
+            "cpu_efficiency": {
+                "units": "%",
+                "value": self.get_cpu_efficiency(),
+            },
+            "memory_allocated": {
+                "units": "bytes",
+                "value": self.memory_allocated
+            },
+            "maximum_memory": {
+                "units": "bytes",
+                "value": self.max_mem,
+            },
+            "memory_margin": {
+                "units": "bytes",
+                "value": self.memory_margin
+            },
+            "memory_efficiency": {
+                "units": "%",
+                "value": self.memory_efficiency
+            },
+            "values":[
+                {
+                    'duration': {
+                        "units": "s",
+                        "value": self.duration[i]
+                    },
+                    'memory_used': {
+                        "units": "bytes",
+                        "value": self.memory_used[i]
+                    },
+                    'memory_used_percent': {
+                        "units": "%",
+                        "value": self.memory_used_percent[i]
+                    },
+                    'memory_available': {
+                        "units": "bytes",
+                        "value": self.memory_available[i]
+                    },
+                    'memory_available_percent': {
+                        "units": "bytes",
+                        "value": self.memory_available_percent[i]
+                    },
+                    'cpu_used': {
+                        "units": "%",
+                        "value": self.cpu_used[i]
+                    },
+                    'output_space': {
+                        "units": "bytes",
+                        "value": self.output_space[i]
+                    },
+                    'scratch_space': {
+                        "units": "bytes",
+                        "value": self.scratch_space[i]
+                    }
+                } for i in range(len(self.duration))
+            ]
+        }
+
+        return {
+            'duration': {
+                "units": "s",
+                "values": self.duration.tolist()
+            },
+            'memory_used': {
+                "units": "bytes",
+                "values": self.memory_used.tolist()
+            },
+            'memory_used_percent': {
+                "units": "%",
+                "values": self.memory_used_percent.tolist()
+            },
+            'memory_available': {
+                "units": "bytes",
+                "values": self.memory_available.tolist()
+            },
+            'memory_available_percent': {
+                "units": "bytes",
+                "values": self.memory_available_percent.tolist()
+            },
+            'cpu_used': {
+                "units": "%",
+                "values": self.cpu_used.tolist()
+            },
+            'output_space': {
+                "units": "bytes",
+                "values": self.output_space.tolist()
+            },
+            'scratch_space': {
+                "units": "bytes",
+                "values": self.scratch_space.tolist()
+            }
+        }
+
