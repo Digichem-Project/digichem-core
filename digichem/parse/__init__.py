@@ -4,6 +4,11 @@ Classes for parsing calculation result data.
 Most of the heavy lifting is done by cclib, we just extract additional data not currently handed by cclib.
 """
 
+# We're not bothered about these warnings.
+import warnings
+warnings.filterwarnings("ignore", "Module .* is under testing", category = UserWarning)
+warnings.filterwarnings("ignore", "Module .* is not fully tested", category = UserWarning)
+
 # These alignment classes are needed to parse correctly.
 from digichem.result.alignment.AAA import Adjusted_average_angle
 from digichem.result.alignment.AA import Average_angle
