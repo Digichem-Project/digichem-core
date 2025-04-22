@@ -4,8 +4,6 @@ import json
 from cclib.bridge.cclib2pyscf import cclibfrommethods
 
 from digichem.parse.base import Parser_abc
-import digichem.log
-import digichem.file.types as file_types
 
 class Pyscf_parser(Parser_abc):
     """
