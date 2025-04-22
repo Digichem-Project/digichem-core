@@ -6,8 +6,14 @@ import tempfile
 import shutil
 import os
 
-from digichem.exception.base import File_maker_exception
+try:
+    from pyscf.tools import cubegen
 
+except ModuleNotFoundError:
+    # No PySCF.
+    cubegen = None
+
+from digichem.exception.base import File_maker_exception
 from digichem.file import File_converter
 import digichem.file.types as file_types
 import digichem.log
@@ -282,3 +288,72 @@ class Fchk_to_nto_cube(Fchk_to_cube):
             sanitize = options['render']['safe_cubes'],
             **kwargs
         )
+
+class PySCF_to_cube(File_maker):
+    """
+    Generate cubes from a completed PySCF calculation result object.
+    """
+
+    def __init__(
+            self,
+            *args,
+            mol,
+            target,
+            target_type = "density",
+            npts = 80,
+            cube_file = None,
+            sanitize = False,
+            **kwargs):
+        """
+        Constructor for Fchk_to_cube objects.
+        
+        See Image_maker for a full signature.
+        
+        :param output: The filename/path to the cube file (this path doesn't need to point to a real file yet; we will use this path to write to).
+        :param npts: The number of points per side of the cube.
+        :param cube_file: An optional file path to an existing cube file to use. If this is given (and points to an actual file), then a new cube will not be made and this file will be used instead.
+        :param sanitize: Whether to modify the cube file to make it compatible with older software.
+        """
+        super().__init__(*args, existing_file = cube_file, **kwargs)
+        self.npts = npts
+        self.sanitize = sanitize
+        self.target_type = target_type
+        self.target = target
+        self.mol = mol
+        # TODO: Add some intelligence to this...
+        self.type = "SCF"
+        
+    @classmethod
+    def from_options(self, output, *, options, **kwargs):
+        """
+        Constructor that takes a dictionary of config like options.
+        """        
+        return self(
+            output,
+            npts = options['render']['orbital']['cube_grid_size'].translate("points"),
+            dont_modify = not options['render']['enable_rendering'],
+            sanitize = options['render']['safe_cubes'],
+            **kwargs
+        )
+    
+    def check_can_make(self):
+        super().check_can_make()
+
+        if cubegen is None:
+            raise File_maker_exception(self, "PySCF is not available")
+    
+    def make_files(self):
+        """
+        Make the files referenced by this object.
+        """
+        if self.target_type == "density":
+            cubegen.density(self.mol, self.output, self.target.make_rdm1(), nx=self.npts, ny=self.npts, nz=self.npts)
+
+        elif self.target_type == "orbital":
+            cubegen.orbital(self.mol, self.output, self.target, nx=self.npts, ny=self.npts, nz=self.npts)
+        
+        else:
+            raise ValueError("Unrecognised 'target_type': {}".format(self.target_type))
+        
+        if self.sanitize:
+            sanitize_modern_cubes(self.output)

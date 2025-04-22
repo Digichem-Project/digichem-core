@@ -2,7 +2,7 @@ from pathlib import Path
 import itertools
 
 import digichem.log
-from digichem.parse.base import Parser_abc
+from digichem.parse.base import File_parser_abc
 from digichem.exception import Digichem_exception
 from digichem.misc.io import checksum
 
@@ -10,7 +10,7 @@ from digichem.misc.io import checksum
 #import cclib.io
 
 
-class Cclib_parser(Parser_abc):
+class Cclib_parser(File_parser_abc):
     """
     ABC for parsers that use cclib to do most of their work for them.
     """
