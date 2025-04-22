@@ -35,7 +35,7 @@ classifiers = [
 ]
 
 [project.optional-dependencies]
-test = ["pytest", "pytest-lazy-fixture"]
+test = ["pytest", "pytest-lazy-fixture", "pyscf"]
 
 [project.urls]
 Homepage = "https://github.com/Digichem-Project/digichem-core"
