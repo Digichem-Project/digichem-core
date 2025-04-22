@@ -6,7 +6,12 @@ import tempfile
 import shutil
 import os
 
-from pyscf.tools import cubegen
+try:
+    from pyscf.tools import cubegen
+
+except ModuleNotFoundError:
+    # No PySCF.
+    cubegen = None
 
 from digichem.exception.base import File_maker_exception
 from digichem.file import File_converter
@@ -330,6 +335,12 @@ class PySCF_to_cube(File_maker):
             sanitize = options['render']['safe_cubes'],
             **kwargs
         )
+    
+    def check_can_make(self):
+        super().check_can_make()
+
+        if cubegen is None:
+            raise File_maker_exception(self, "PySCF is not available")
     
     def make_files(self):
         """
