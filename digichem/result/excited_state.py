@@ -298,7 +298,7 @@ class Excited_state_list(Result_container):
             }    
         }
     
-    def dump(self, digichem_options):       
+    def dump(self, digichem_options):
         dump_dict = {
             "values": super().dump(digichem_options),
         }
