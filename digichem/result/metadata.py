@@ -479,7 +479,7 @@ class Metadata(Result_object):
                 num_cpu = parser.data.metadata.get('num_cpu', None),
                 memory_available = memory_available,
                 memory_used = memory_used,
-                performance = Performance.from_parser(parser)
+                performance = Performance.from_parser(parser) if "performance" in parser.data.metadata else None
             )
         except AttributeError:
             # There is no metadata available, give up.
@@ -554,7 +554,7 @@ class Metadata(Result_object):
                     "units": None
                 }
         
-        attr_dict['performance'] = self.performance.dump(digichem_options)
+        attr_dict['performance'] = self.performance.dump(digichem_options) if self.performance else None
 
         return attr_dict
     
@@ -590,6 +590,8 @@ class Metadata(Result_object):
             
             else:
                 kwargs[attr_name] = None
+
+        kwargs['performance'] = Performance.from_dump(data['performance'], result_set, options) if "performance" in data and data['performance'] is not None else None
         
         return self(**kwargs)
 
@@ -671,16 +673,16 @@ class Performance(Result_object):
 
     def __init__(
         self,
-        duration: float,
-        memory_used: float,
-        memory_allocated: float,
-        memory_used_percent: float,
-        memory_available: float,
-        memory_available_percent: float,
-        cpu_used: float,
-        cpu_allocated: float,
-        output_space: float,
-        scratch_space: float,
+        duration = [],
+        memory_used = [],
+        memory_used_percent = [],
+        memory_available = [],
+        memory_available_percent = [],
+        cpu_used = [],
+        output_space = [],
+        scratch_space = [],
+        memory_allocated = None,
+        cpu_allocated = None,
     ):
         self.duration = duration
         self.memory_used = memory_used
@@ -704,16 +706,16 @@ class Performance(Result_object):
         :return: A populated Performance object.
         """
         return self(
-            duration = parser.data.metadata['performance'][:, 0],
-            memory_used = parser.data.metadata['performance'][:, 1],
+            duration = parser.data.metadata['performance'][:, 0].tolist(),
+            memory_used = parser.data.metadata['performance'][:, 1].tolist(),
             memory_allocated = Memory(parser.data.metadata['memory_available']) if "memory_available" in parser.data.metadata else None,
-            memory_used_percent = parser.data.metadata['performance'][:, 2],
-            memory_available = parser.data.metadata['performance'][:, 3],
-            memory_available_percent = parser.data.metadata['performance'][:, 4],
-            cpu_used = parser.data.metadata['performance'][:, 5],
+            memory_used_percent = parser.data.metadata['performance'][:, 2].tolist(),
+            memory_available = parser.data.metadata['performance'][:, 3].tolist(),
+            memory_available_percent = parser.data.metadata['performance'][:, 4].tolist(),
+            cpu_used = parser.data.metadata['performance'][:, 5].tolist(),
             cpu_allocated = parser.data.metadata.get('num_cpu', None),
-            output_space = parser.data.metadata['performance'][:, 6],
-            scratch_space = parser.data.metadata['performance'][:, 7]
+            output_space = parser.data.metadata['performance'][:, 6].tolist(),
+            scratch_space = parser.data.metadata['performance'][:, 7].tolist()
         )
     
     @property
@@ -736,34 +738,82 @@ class Performance(Result_object):
 
         :param max_memory: The amount of allocated memory (in bytes), this will be guestimated automatically if not available.
         """
-        max_memory = float(self.memory_allocated) if self.memory_allocated is not None else self.max_mem
-
         # Integrate to find the number of byte seconds used.
         area = integrate.trapezoid(self.memory_used, self.duration)
 
         # How much we should/could have used.
-        total_area = (self.duration[-1] - self.duration[0]) * max_memory
+        total_area = (self.duration[-1] - self.duration[0]) * float(self.memory_allocated)
 
         # Return as %.
-        return area / total_area * 100
+        try:
+            return area / total_area * 100
+        
+        except Exception:
+            return 0
     
-    def get_cpu_efficiency(self, max_cpu = None):
+    @property
+    def cpu_efficiency(self):
         """
         Calculate the CPU efficiency of this calculation.
 
         :param max_cpu: The number of allocated CPUs, this will be guestimated automatically if not available.
         """
-        if max_cpu is None:
-            max_cpu = self.cpu_allocated
-
         # Integrate to find the number of CPU seconds used.
         area = integrate.trapezoid(self.cpu_used, self.duration)
 
         # How much we should/could have used.
-        total_area = (self.duration[-1] - self.duration[0]) * max_cpu * 100
+        total_area = (self.duration[-1] - self.duration[0]) * self.cpu_allocated * 100
 
         # Return as %.
-        return area / total_area * 100
+        try:
+            return area / total_area * 100
+
+        except Exception:
+            # Div zero
+            return 0
+    
+    @classmethod
+    def from_dump(self, data, result_set, options):
+        """
+        Get an instance of this class from its dumped representation.
+        
+        :param data: The data to parse.
+        :param result_set: The partially constructed result set which is being populated.
+        """
+        duration = [0.0] * len(data['values'])
+        memory_used = [0.0] * len(data['values'])
+        memory_allocated = Memory(data['memory_allocated']['value'])
+        memory_used_percent = [0.0] * len(data['values'])
+        memory_available = [0.0] * len(data['values'])
+        memory_available_percent = [0.0] * len(data['values'])
+        cpu_used = [0.0] * len(data['values'])
+        cpu_allocated = data['cpu_allocated']
+        output_space = [0.0] * len(data['values'])
+        scratch_space = [0.0] * len(data['values'])
+
+        for i, value in enumerate(data['values']):
+            duration[i] = value['duration']['value']
+            memory_used[i] = value['memory_used']['value']
+            memory_used_percent[i] = value['memory_used_percent']['value']
+            memory_available[i] = value['memory_available']['value']
+            memory_available_percent[i] = value['memory_available_percent']['value']
+            cpu_used[i] = value['cpu_used']['value']
+            output_space[i] = value['output_space']['value']
+            scratch_space[i] = value['scratch_space']['value']
+        
+        return self(
+            duration = duration,
+            memory_used = memory_used,
+            memory_allocated = memory_allocated,
+            memory_used_percent = memory_used_percent,
+            memory_available = memory_available,
+            memory_available_percent = memory_available_percent,
+            cpu_used = cpu_used,
+            cpu_allocated = cpu_allocated,
+            output_space = output_space,
+            scratch_space = scratch_space
+        )
+
     
     def dump(self, digichem_options):
         """
@@ -773,11 +823,11 @@ class Performance(Result_object):
             "cpu_allocated": self.cpu_allocated,
             "cpu_efficiency": {
                 "units": "%",
-                "value": self.get_cpu_efficiency(),
+                "value": float(self.cpu_efficiency),
             },
             "memory_allocated": {
                 "units": "bytes",
-                "value": self.memory_allocated
+                "value": float(self.memory_allocated)
             },
             "maximum_memory": {
                 "units": "bytes",
@@ -789,7 +839,7 @@ class Performance(Result_object):
             },
             "memory_efficiency": {
                 "units": "%",
-                "value": self.memory_efficiency
+                "value": float(self.memory_efficiency)
             },
             "values":[
                 {
