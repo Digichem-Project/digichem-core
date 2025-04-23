@@ -180,9 +180,11 @@ class Cclib_parser(File_parser_abc):
         new_data = numpy.zeros((math.ceil(lines / factor), 8))
 
         # Now decimate.
-        if factor > 1:
-            for i, k in enumerate([0,1,2,3,4,9,15,17]):
+        for i, k in enumerate([0,1,2,3,4,9,15,17]):
+            if factor > 1:
                 new_data[:, i] = signal.decimate(data[:, k], factor)
+            else:
+                new_data[:, i] = data[:, k]
         
         self.data.metadata['performance'] = new_data
         
