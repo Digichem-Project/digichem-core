@@ -161,7 +161,12 @@ class Cclib_parser(File_parser_abc):
             
             # Then the body.
             # TODO: Reading the entire file is not ideal...
-            data = numpy.genfromtxt(profile_file, delimiter=',')
+            data = numpy.genfromtxt(
+                profile_file,
+                delimiter=',',
+                # TODO: use something better.
+                filling_values = "0"
+            )
 
         # We'll keep:
         # - duration
