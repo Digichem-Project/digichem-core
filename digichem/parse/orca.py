@@ -12,6 +12,7 @@ class Orca_parser(Cclib_parser):
     INPUT_FILE_TYPES = {
             file_types.orca_gbw_file: "gbw_file",
             file_types.orca_density_file: "density_file",
+            file_types.orca_density_info_file: "density_info_file"
         }
     
     def parse_output_line(self, log_file, line):

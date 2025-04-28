@@ -74,6 +74,7 @@ gaussian_cube_file = File_type("cube", "gaussian", [".cub", ".cube"])
 
 orca_gbw_file = File_type("gbw", "orca", [".gbw"])
 orca_density_file = File_type("density", "orca", [".densities"])
+orca_density_info_file = File_type("density-info", "orca", [".densitiesinfo"])
 
 # A list of all our known types.
 known_types = [log_file, gaussian_chk_file, gaussian_fchk_file, gaussian_rwf_file, gaussian_cube_file, orca_gbw_file]
