@@ -93,13 +93,38 @@ class Result_object():
             
         return multiple_objects[0]
     
+    def calculate(self, item, digichem_options):
+        """
+        Retrieve/calculate an on-demand value, caching the value if it has not already been retrieved.
+
+        This function is a wrapper around generate_for_dump(), caching the calculation result to avoid
+        expensive recalculation.
+
+        :param item: The key corresponding to an item in this object's generate_for_dump() dict.
+        :param digichem_options: Digichem options that will be passed to generate_for_dump() (unused on a cache hit).
+        """
+        if not hasattr(self, "_dump_cache"):
+            self._dump_cache = {}
+
+        if item in self._dump_cache:
+            # Cache hit.
+            return self._dump_cache[item]
+
+        else:
+            # Cache miss.
+            # Generate (and cache) the data.
+            self._dump_cache[item] = self.generate_for_dump()[item](digichem_options)
+
+            # And return of course.
+            return self._dump_cache[item]
+    
     def generate_for_dump(self):
         """
         Method used to get a dictionary used to generate on-demand values for dumping.
         
         This functionality is useful for hiding expense properties from the normal dump process, while still exposing them when specifically requested.
         
-        Each key in the returned dicrt is the name of a dumpable item, each value is a function to call with digichem_options as its only param.
+        Each key in the returned dict is the name of a dumpable item, each value is a function to call with digichem_options as its only param.
         """
         return {}
     
