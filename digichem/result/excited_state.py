@@ -398,11 +398,20 @@ class Excited_state_transition(Result_object):
             for excited_state_transitions in parser.data.etsecs:
     
                 # We'll first create an intermediate list of keyword dicts which we'll then sort.
-                data_list = [ 
-                    {'starting_mo': MOs[starting_mo_AB][starting_mo_index], 'ending_mo': MOs[ending_mo_AB][ending_mo_index], 'coefficient': coefficient}
-                    for (starting_mo_index, starting_mo_AB), (ending_mo_index, ending_mo_AB), coefficient
-                    in excited_state_transitions
-                ]
+                data_list = []
+
+                for (starting_mo_index, starting_mo_AB), (ending_mo_index, ending_mo_AB), coefficient in excited_state_transitions:
+                    try:
+                        data_list.append({
+                            'starting_mo': MOs[starting_mo_AB][starting_mo_index],
+                            'ending_mo': MOs[ending_mo_AB][ending_mo_index],
+                            'coefficient': coefficient
+                        })
+                    
+                    except IndexError:
+                        # This is fairly common in Orca 6, where only a subset of virtual orbitals are printed by default.
+                        digichem.log.get_logger() \
+                            .warning("Unable to construct excited state transition; transition is to/from an orbital that is not available ({} and {})".format(starting_mo_index, ending_mo_index))
                 
                 # Sort by probability/coefficient.
                 data_list.sort(key=lambda keywords: math.fabs(keywords['coefficient']), reverse=True)
@@ -414,10 +423,7 @@ class Excited_state_transition(Result_object):
                 
             # All done.
             return transitions_list
-            
-        except IndexError:
-            # Probably because one (or both) of our given mo_lists is empty (or too short).
-            raise TypeError("Unable to construct excited state transition; transition is to/from an orbital that is not available")
+        
         except AttributeError:
             # No data.
             return []
