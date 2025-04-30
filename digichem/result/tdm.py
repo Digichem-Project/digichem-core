@@ -42,12 +42,12 @@ class Transition_dipole_moment_ABC(Dipole_moment_ABC):
             atoms = result_set.atoms
             )
         
-    def dump(self, digichem_options):
+    def _dump_(self, digichem_options, all):
         """
         Get a representation of this result object in primitive format.
         """
         data = {'state_level': self.state_level}
-        data.update(super().dump(digichem_options))
+        data.update(super()._dump_(digichem_options, all))
         return data
     
     @property
@@ -221,13 +221,13 @@ class Transition_dipole_moment(Result_object):
         
         return self(electric = electric, magnetic = magnetic)
         
-    def dump(self, digichem_options):
+    def _dump_(self, digichem_options, all):
         """
         Get a representation of this result object in primitive format.
         """
         return {
-            "electric": self.electric.dump(digichem_options) if self.electric is not None else None,
-            "magnetic": self.magnetic.dump(digichem_options) if self.magnetic is not None else None,
+            "electric": self.electric.dump(digichem_options, all) if self.electric is not None else None,
+            "magnetic": self.magnetic.dump(digichem_options, all) if self.magnetic is not None else None,
             "angle": {
                 "value": float(self.angle().angle) if self.electric is not None and self.magnetic is not None else None,
                 "units": self.angle().units if self.electric is not None and self.magnetic is not None else None,

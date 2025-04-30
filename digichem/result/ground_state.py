@@ -35,11 +35,11 @@ class Ground_state(Energy_state):
         """
         return self.charge == other.charge and self.multiplicity == other.multiplicity and self.energy == other.energy
         
-    def dump(self, digichem_options):
+    def _dump_(self, digichem_options, all):
         """
         Get a representation of this result object in primitive format.
         """
-        parent_dict = super().dump(digichem_options)
+        parent_dict = super()._dump_(digichem_options, all)
         return {
             "index": parent_dict['index'],
             "symbol": parent_dict['symbol'],

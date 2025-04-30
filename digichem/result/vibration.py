@@ -43,7 +43,7 @@ class Vibrations_list(Result_container, Unmergeable_container_mixin):
         """
         return self(Vibration.list_from_parser(parser))
     
-    def generate_for_dump(self):
+    def _get_dump_(self):
         """
         Method used to get a dictionary used to generate on-demand values for dumping.
         
@@ -51,7 +51,9 @@ class Vibrations_list(Result_container, Unmergeable_container_mixin):
         
         Each key in the returned dict is the name of a dumpable item, each value is a function to call with digichem_options as its only param.
         """
-        return {"spectrum": self.generate_spectrum}
+        return {
+            "spectrum": self.generate_spectrum,
+        }
     
     def generate_spectrum(self, digichem_options):
         """
@@ -82,11 +84,11 @@ class Vibrations_list(Result_container, Unmergeable_container_mixin):
             "peaks": spectrum_peaks
         }
     
-    def dump(self, digichem_options):
+    def _dump_(self, digichem_options, all):
         dump_dict = {
             "num_vibrations": len(self),
             "num_negative": len(self.negative),
-            "values": super().dump(digichem_options),
+            "values": super()._dump_(digichem_options, all),
         }
         return dump_dict
 
@@ -126,7 +128,7 @@ class Vibration(Result_object, Floatable_mixin):
         """
         return float(self.frequency)
     
-    def dump(self, digichem_options):
+    def _dump_(self, digichem_options, all):
         """
         Get a representation of this result object in primitive format.
         """

@@ -240,11 +240,11 @@ class Alignment(Atom_list, Dynamic_parent):
         for atom in self:
             print("{}, {}, {}, {}".format(atom.element, atom.coords[0], atom.coords[1], atom.coords[2]))
             
-    def dump(self, digichem_options):
+    def _dump_(self, digichem_options, all):
         """
         Get a representation of this result object in primitive format.
         """
-        dump_dict = super().dump(digichem_options)
+        dump_dict = super()._dump_(digichem_options, all)
         dump_dict['alignment_method'] = self.human_method_type
         return dump_dict
     

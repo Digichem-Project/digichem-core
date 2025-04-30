@@ -97,11 +97,11 @@ class Result_object():
         """
         Retrieve/calculate an on-demand value, caching the value if it has not already been retrieved.
 
-        This function is a wrapper around generate_for_dump(), caching the calculation result to avoid
+        This function is a wrapper around _get_dump_(), caching the calculation result to avoid
         expensive recalculation.
 
-        :param item: The key corresponding to an item in this object's generate_for_dump() dict.
-        :param digichem_options: Digichem options that will be passed to generate_for_dump() (unused on a cache hit).
+        :param item: The key corresponding to an item in this object's _get_dump_() dict.
+        :param digichem_options: Digichem options that will be passed to _get_dump_() (unused on a cache hit).
         """
         if not hasattr(self, "_dump_cache"):
             self._dump_cache = {}
@@ -126,9 +126,22 @@ class Result_object():
         
         Each key in the returned dict is the name of a dumpable item, each value is a function to call with digichem_options as its only param.
         """
-        return {}
+        warnings.warn("generate_for_dump() is deprecated, use calculate() or _get_dump_() instead", DeprecationWarning)
+        return self._get_dump_()
     
-    def dump(self, digichem_options):
+    def dump(self, digichem_options, all = False):
+        # First, get simple key:value pairs.
+        base_dict = self._dump_(digichem_options, all)
+
+        # Then extend with generator ones if we have any.
+        if all:
+            generators = self._get_dump_()
+            for key in generators:
+                base_dict[key] = generators[key](digichem_options)
+        
+        return base_dict
+    
+    def _dump_(self, digichem_options, all):
         """
         Abstract function that is called to dump the value of the result object to a primitive type, suitable for serializing with yaml.
         
@@ -137,6 +150,16 @@ class Result_object():
          - 'units': The units of the result (for example, k m^-s).
         """
         raise NotImplementedError("Implement in subclass")
+    
+    def _get_dump_(self):
+        """
+        Method used to get a dictionary used to generate on-demand values for dumping.
+        
+        This functionality is useful for hiding expense properties from the normal dump process, while still exposing them when specifically requested.
+        
+        Each key in the returned dict is the name of a dumpable item, each value is a function to call with digichem_options as its only param.
+        """
+        return {}
 
 
 class Floatable_mixin():
@@ -278,6 +301,6 @@ class Result_container(list, Result_object):
         else:
             return self.merge_default(*multiple_lists, **kwargs)
         
-    def dump(self, digichem_options):
-        return [item.dump(digichem_options) for item in self]
+    def _dump_(self, digichem_options, all):
+        return [item.dump(digichem_options, all) for item in self]
     
