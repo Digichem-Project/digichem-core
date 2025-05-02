@@ -34,6 +34,11 @@ class Digichem_options(Configurable):
         formchk = Option(help = "Gaussian's formchk utility https://gaussian.com/formchk/", default = "formchk"),
         cubegen = Option(help = "Gaussian's cubegen utility https://gaussian.com/cubegen/", default = "cubegen"),
     )
+
+    parse = Options(
+        help = "Options for controlling parsing of config files",
+        profiling_rows = Option(help = "The maximum number of rows to parse from the calculation profile file (if available); if more rows than this are available then the data will be downsampled to at most this number of data points", type = int, default = 1000)
+    )
     
     skeletal_image = Options(
         help = "Options for controlling the rendering of 2D skeletal images.",

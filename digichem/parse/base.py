@@ -32,7 +32,7 @@ custom_parsing_formats = [
 class Parser_abc():
     """ABC for all parsers."""
 
-    def __init__(self, *, raw_data = None, **kwargs):
+    def __init__(self, *, raw_data = None, options, **kwargs):
         """
         Top level constructor for calculation parsers.
         """
@@ -41,6 +41,9 @@ class Parser_abc():
         
         # A result set object that we'll populate with results.
         self.results = None
+
+        # Config options.
+        self.options = options
         
         # Parse (if we haven't already).
         try:
@@ -100,24 +103,23 @@ class Parser_abc():
         # TODO: It would probably be better if we used the name of the user who owns the output file, rather than the current user...
         self.data.metadata['user'] = self.get_current_username()
             
-    def process_all(self, options):
+    def process_all(self):
         """
         Get all the Result set objects produced by this parser.
         
         :param options: A Digichem options nested dictionary containing options to control parsing.
         :return: A list of the populated result sets.
         """
-        self.process(options)
+        self.process()
         return [self.results]
     
-    def process(self, options):
+    def process(self):
         """
         Get a Result set object from this parser.
         
         :param options: A Digichem options nested dictionary containing options to control parsing.
         :return: The populated result set.
         """
-        self.options = options
         # Get our result set.
         self.results = Result_set(
             _id = self.data._id,
@@ -125,7 +127,7 @@ class Parser_abc():
             aux = self.data._aux if hasattr(self.data, '_aux') else None
             )
         
-        alignment_class = Alignment.from_class_handle(options['alignment']) if options['alignment'] is not None else Minimal
+        alignment_class = Alignment.from_class_handle(self.options['alignment']) if self.options['alignment'] is not None else Minimal
         
         # First get our list of MOs (because we need them for excited states too.)
         self.results.orbitals = Molecular_orbital_list.from_parser(self)

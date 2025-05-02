@@ -227,10 +227,10 @@ def parse_calculation(*log_files, options, parse_all = False, format_hint = "aut
         open_log_files, open_aux_files = archive.open()
         
         if parse_all:
-            results = from_log_files(*open_log_files, format_hint = format_hint, parser_options = parser_options, **open_aux_files).process_all(options)
+            results = from_log_files(*open_log_files, format_hint = format_hint, parser_options = parser_options, options = options, **open_aux_files).process_all()
         
         else:       
-            results = from_log_files(*open_log_files, format_hint = format_hint, parser_options = parser_options, **open_aux_files).process(options)
+            results = from_log_files(*open_log_files, format_hint = format_hint, parser_options = parser_options, options = options, **open_aux_files).process()
         
     finally:
         if not keep_archive:

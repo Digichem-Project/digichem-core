@@ -344,7 +344,7 @@ class Frequency_graph_maker(Spectroscopy_graph_maker):
                 options['IR_spectrum']['fwhm'],
                 options['IR_spectrum']['gaussian_resolution'],
                 options['IR_spectrum']['gaussian_cutoff'],
-                filter = options[self.options_name]['y_filter']
+                filter = options['IR_spectrum']['y_filter']
             ),
             **{key: value for key, value in options['IR_spectrum'].items() if key not in ["gaussian_cutoff", "gaussian_resolution", "fwhm", "y_filter"]},
             **kwargs
