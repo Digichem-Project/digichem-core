@@ -22,7 +22,7 @@ class NMR_spectrometer(Result_object):
     A class for generating NMR spectra on-demand.
     """
     
-    def __init__(self, nmr_results, frequency = 300, fwhm = 0.001, resolution = 0.001, cutoff = 0.01, coupling_filter = 0.1, pre_merge = 0.01, post_merge = None, isotope_options = None):
+    def __init__(self, nmr_results, frequency = 300, fwhm = 0.001, resolution = 0.001, cutoff = 0.01, y_filter = 1e-6, coupling_filter = 0.1, pre_merge = 0.01, post_merge = None, isotope_options = None):
         """
         Constructor for NMR_spectrometer.
         
@@ -39,6 +39,7 @@ class NMR_spectrometer(Result_object):
         self.fwhm = fwhm
         self.gaussian_resolution = resolution
         self.gaussian_cutoff = cutoff
+        self.y_filter = y_filter
         self.coupling_filter = coupling_filter
         self._isotope_options = isotope_options if isotope_options is not None else {}
         
@@ -48,6 +49,7 @@ class NMR_spectrometer(Result_object):
             "pre_merge": self.pre_merge,
             "post_merge": self.post_merge,
             "fwhm": self.fwhm,
+            "y_filter": self.y_filter,
             "gaussian_resolution": self.gaussian_resolution,
             "coupling_filter": self.coupling_filter,
             "gaussian_cutoff": self.gaussian_cutoff,
@@ -66,6 +68,7 @@ class NMR_spectrometer(Result_object):
             fwhm = options['nmr']['fwhm'],
             resolution = options['nmr']['gaussian_resolution'],
             cutoff = options['nmr']['gaussian_cutoff'],
+            y_filter = options['nmr']['y_filter'],
             coupling_filter = options['nmr']['coupling_filter'],
             pre_merge = options['nmr']['pre_merge'],
             post_merge = options['nmr']['post_merge'],
@@ -211,7 +214,7 @@ class NMR_spectrometer(Result_object):
         
         # The total spectrum takes all simulated peaks.
         # These are grouped by atom_group, flatten this list before passing to spectroscopy.
-        graph = Combined_graph.from_nmr(grouped_peaks, isotope_options['fwhm'], isotope_options['gaussian_resolution'], isotope_options['gaussian_cutoff'])
+        graph = Combined_graph.from_nmr(grouped_peaks, isotope_options['fwhm'], isotope_options['gaussian_resolution'], isotope_options['gaussian_cutoff'], filter = isotope_options['y_filter'])
         
         return graph
     

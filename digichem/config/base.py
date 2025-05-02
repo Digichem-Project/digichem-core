@@ -170,6 +170,7 @@ To disable the maximum width, set to null.""", type = int, default = 1200
 Set to 0 for no cutoff (all peaks shown), which may results in the graph being extended well beyond the drawn peaks (because many peaks are too small to see).
 This option has no effect when using manual x limits.""", type = float, default = 0.01
         ),
+        y_filter = Option(help = "The minimum y value to simulate using the Gaussian function (y values below this are discarded)", type = float, default = 1e-6),
         x_padding = Option(help = "The amount (in nm) to extend the x axis past the highest/lowest energy peak.", type = int, default = 40),
         fwhm = Option(help = "The full-width at half-maximum; changes how wide the drawn peaks are. Note that the choice of peak width is essentially arbitrary; only the peak height is given by calculation. Units are eV.", type = float, default = 0.4),
         gaussian_cutoff = Option(help = "The minimum y value to plot using the Gaussian function (controls how close to the x axis we draw the gaussian) as a fraction of the max peak height.", type = float, default = 0.001),
@@ -200,10 +201,11 @@ Absorption graphs will grow/shrink their width to fit available data, keeping a 
 To disable the maximum width, set to null.""", type = int, default = 1200
         ),
         peak_cutoff = Option(help =\
-"""The minimum oscillator strength that a peak must have to be shown in the graph, as a fraction ofthe highest peak.
+"""The minimum oscillator strength that a peak must have to be shown in the graph, as a fraction of the highest peak.
 Set to 0 for no cutoff (all peaks shown), which may results in the graph being extended well beyond the drawn peaks (because many peaks are too small to see).
 This option has no effect when using manual x limits.""", type = float, default = 0.01
         ),
+        y_filter = Option(help = "The minimum y value to simulate using the Gaussian function (y values below this are discarded)", type = float, default = 1e-6),
         x_padding = Option(help = "The amount (in nm) to extend the x axis past the highest/lowest energy peak.", type = int, default = 40),
         fwhm = Option(help = "The full-width at half-maximum; changes how wide the drawn peaks are. Note that the choice of peak width is essentially arbitrary; only the peak height is given by calculation. Units are eV.", type = float, default = 0.4),
         gaussian_cutoff = Option(help = "The minimum y value to plot using the Gaussian function (controls how close to the x axis we draw the gaussian) as a fraction of the max peak height.", type = float, default = 0.001),
@@ -233,6 +235,7 @@ Possible options are:
 """The maximum image width in pixels.
 IR spectra will grow/shrink their width to fit available data, keeping a constant scale (constant pixels to nm ratio) but only up to this maximum.
 To disable the maximum width, set to null.""", type = int, default = 1500),
+        y_filter = Option(help = "The minimum y value to simulate using the Gaussian function (y values below this are discarded)", type = float, default = 1e-6),
         gaussian_cutoff = Option(help = "The minimum y value to plot using the Gaussian function (controls how close to the x axis we draw the gaussian) as a fraction of the max peak height.", type = float, default = 0.001),
         gaussian_resolution = Option(help = "The spacing between x values to plot using the Gaussian function, in eV. Values that are too large will result in 'curves' made up of a series of straight edges.", type = float, default = 1.0)
     )
@@ -241,6 +244,7 @@ To disable the maximum width, set to null.""", type = int, default = 1500),
         enable_rendering = Option(help = "Set to False to disable image rendering.", type = bool, default = True),
         coupling_filter = Option(help = "Discard J coupling that is below this threshold (in Hz)", type = float, default = 1),
         fwhm = Option(help = "The full-width at half-maximum; changes how wide the drawn peaks are. Note that the choice of peak width is essentially arbitrary; only the peak height is given by calculation. Units are ppm.", type = float, default = 0.01),
+        y_filter = Option(help = "The minimum y value to simulate using the Gaussian function (y values below this are discarded)", type = float, default = 1e-6),
         gaussian_cutoff = Option(help = "The minimum y value to plot using the Gaussian function (controls how close to the x axis we draw the gaussian) as a fraction of the max peak height.", type = float, default = 0.001),
         gaussian_resolution = Option(help = "The spacing between x values to plot using the Gaussian function, in ppm. Values that are too large will result in 'curves' made up of a series of straight edges.", type = float, default = 0.001),
         frequency = Option(help = "The frequency to run the simulated spectrometer at. Larger values will result in narrower coupling. Units are MHz", type = float, default = 100),

@@ -257,14 +257,21 @@ class Excited_state_list(Result_container):
         # TODO: It's weird that these spectra are only available in dumped format, there should be some property/function on the class that also returns them...
         spectrum_nm = Absorption_emission_graph.from_excited_states(
             self,
-            digichem_options['absorption_spectrum']['fwhm'],
-            digichem_options['absorption_spectrum']['gaussian_resolution'],
-            digichem_options['absorption_spectrum']['gaussian_cutoff'],
+            fwhm = digichem_options['absorption_spectrum']['fwhm'],
+            resolution = digichem_options['absorption_spectrum']['gaussian_resolution'],
+            cutoff = digichem_options['absorption_spectrum']['gaussian_cutoff'],
+            filter = digichem_options['absorption_spectrum']['y_filter'],
             use_jacobian = digichem_options['absorption_spectrum']['use_jacobian']
         )
         
         
-        spectrum_ev = Spectroscopy_graph([(excited_state.energy, excited_state.oscillator_strength) for excited_state in self], digichem_options['absorption_spectrum']['fwhm'], digichem_options['absorption_spectrum']['gaussian_resolution'], digichem_options['absorption_spectrum']['gaussian_cutoff'])
+        spectrum_ev = Spectroscopy_graph(
+            [(excited_state.energy, excited_state.oscillator_strength) for excited_state in self],
+            fwhm = digichem_options['absorption_spectrum']['fwhm'],
+            resolution = digichem_options['absorption_spectrum']['gaussian_resolution'],
+            cutoff = digichem_options['absorption_spectrum']['gaussian_cutoff'],
+            filter = digichem_options['absorption_spectrum']['y_filter']
+        )
         
         try:
             spectrum_nm_data = spectrum_nm.plot_cumulative_gaussian()

@@ -67,7 +67,14 @@ class Vibrations_list(Result_container, Unmergeable_container_mixin):
         from digichem.result.spectroscopy import Spectroscopy_graph
         
         
-        spectrum = Spectroscopy_graph.from_vibrations(self, digichem_options['IR_spectrum']['fwhm'], digichem_options['IR_spectrum']['gaussian_resolution'], digichem_options['IR_spectrum']['gaussian_cutoff'])
+        spectrum = Spectroscopy_graph.from_vibrations(
+            self,
+            fwhm = digichem_options['IR_spectrum']['fwhm'],
+            resolution = digichem_options['IR_spectrum']['gaussian_resolution'],
+            cutoff = digichem_options['IR_spectrum']['gaussian_cutoff'],
+            filter = digichem_options['IR_spectrum']['y_filter'],
+        )
+        
         
         try:
             spectrum_data = spectrum.plot_cumulative_gaussian()
