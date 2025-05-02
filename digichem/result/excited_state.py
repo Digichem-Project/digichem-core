@@ -230,7 +230,7 @@ class Excited_state_list(Result_container):
         merged.assign_levels()
         return merged
     
-    def generate_for_dump(self):
+    def _get_dump_(self):
         """
         Method used to get a dictionary used to generate on-demand values for dumping.
         
@@ -257,14 +257,21 @@ class Excited_state_list(Result_container):
         # TODO: It's weird that these spectra are only available in dumped format, there should be some property/function on the class that also returns them...
         spectrum_nm = Absorption_emission_graph.from_excited_states(
             self,
-            digichem_options['absorption_spectrum']['fwhm'],
-            digichem_options['absorption_spectrum']['gaussian_resolution'],
-            digichem_options['absorption_spectrum']['gaussian_cutoff'],
+            fwhm = digichem_options['absorption_spectrum']['fwhm'],
+            resolution = digichem_options['absorption_spectrum']['gaussian_resolution'],
+            cutoff = digichem_options['absorption_spectrum']['gaussian_cutoff'],
+            filter = digichem_options['absorption_spectrum']['y_filter'],
             use_jacobian = digichem_options['absorption_spectrum']['use_jacobian']
         )
         
         
-        spectrum_ev = Spectroscopy_graph([(excited_state.energy, excited_state.oscillator_strength) for excited_state in self], digichem_options['absorption_spectrum']['fwhm'], digichem_options['absorption_spectrum']['gaussian_resolution'], digichem_options['absorption_spectrum']['gaussian_cutoff'])
+        spectrum_ev = Spectroscopy_graph(
+            [(excited_state.energy, excited_state.oscillator_strength) for excited_state in self],
+            fwhm = digichem_options['absorption_spectrum']['fwhm'],
+            resolution = digichem_options['absorption_spectrum']['gaussian_resolution'],
+            cutoff = digichem_options['absorption_spectrum']['gaussian_cutoff'],
+            filter = digichem_options['absorption_spectrum']['y_filter']
+        )
         
         try:
             spectrum_nm_data = spectrum_nm.plot_cumulative_gaussian()
@@ -298,9 +305,9 @@ class Excited_state_list(Result_container):
             }    
         }
     
-    def dump(self, digichem_options):
+    def _dump_(self, digichem_options, all):
         dump_dict = {
-            "values": super().dump(digichem_options),
+            "values": super()._dump_(digichem_options, all),
         }
         
         # Add extra properties.
@@ -358,7 +365,7 @@ class Excited_state_transition(Result_object):
         """
         return self.coefficient **2
     
-    def dump(self, digichem_options):
+    def _dump_(self, digichem_options, all):
         """
         Get a representation of this result object in primitive format.
         """
@@ -558,7 +565,7 @@ class Energy_state(Result_object, Floatable_mixin):
         """
         return "{}({})".format(self.multiplicity_symbol, self.multiplicity_level)
     
-    def dump(self, digichem_options):
+    def _dump_(self, digichem_options, all):
         """
         Get a representation of this result object in primitive format.
         """
@@ -708,11 +715,11 @@ class Excited_state(Energy_state):
         # Now convert to 0 -> 255 and return.
         return [int(clr * 255) for clr in rgb]    
     
-    def dump(self, digichem_options):
+    def _dump_(self, digichem_options, all):
         """
         Get a representation of this result object in primitive format.
         """
-        dump_dict = super().dump(digichem_options)
+        dump_dict = super()._dump_(digichem_options, all)
         dump_dict.update({
             "wavelength": {
                 "value": float(self.wavelength),
@@ -725,8 +732,8 @@ class Excited_state(Energy_state):
             },
             "symmetry": self.symmetry,
             "oscillator_strength": float(self.oscillator_strength) if self.oscillator_strength is not None else None,
-            "tdm": self.transition_dipole_moment.dump(digichem_options) if self.transition_dipole_moment is not None else None,
-            "transitions": [tran.dump(digichem_options) for tran in self.transitions],
+            "tdm": self.transition_dipole_moment.dump(digichem_options, all) if self.transition_dipole_moment is not None else None,
+            "transitions": [tran.dump(digichem_options, all) for tran in self.transitions],
         })
         return dump_dict
         

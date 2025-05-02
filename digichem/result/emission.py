@@ -27,11 +27,11 @@ class Emissions(Result_object):
         self.adiabatic = adiabatic if adiabatic is not None else {}
         self.vertical = vertical if vertical is not None else {}
         
-    def dump(self, digichem_options):
+    def _dump_(self, digichem_options, all):
         # Several dumpers (JSON, DB backends based on JSON etc) don't support non-string keys...
         return {
-            "adiabatic": {str(key):value.dump(digichem_options) for key,value in self.adiabatic.items()},
-            "vertical": {str(key):value.dump(digichem_options) for key,value in self.vertical.items()}
+            "adiabatic": {str(key):value.dump(digichem_options, all) for key,value in self.adiabatic.items()},
+            "vertical": {str(key):value.dump(digichem_options, all) for key,value in self.vertical.items()}
         }
         
     @classmethod
@@ -343,12 +343,12 @@ class Relaxed_excited_state(Excited_state):
             else:
                 raise
     
-    def dump(self, digichem_options):
+    def _dump_(self, digichem_options, all):
         """
         Get a representation of this result object in primitive format.
         """
         
-        dump_dict = super().dump(digichem_options)
+        dump_dict = super()._dump_(digichem_options, all)
         dump_dict['emission_type'] = self.emission_type
         dump_dict['ground_multiplicity'] = self.ground_multiplicity
         dump_dict['excited_energy'] = {

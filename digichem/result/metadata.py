@@ -78,7 +78,7 @@ class Solvent(Result_object):
         else:
             return "Unknown"
         
-    def dump(self, digichem_options):
+    def _dump_(self, digichem_options, all):
         return {
             "model": self.model,
             "name": self.name,
@@ -485,7 +485,7 @@ class Metadata(Result_object):
             # There is no metadata available, give up.
             raise Result_unavailable_error("Metadata", "no metadata is available")
         
-    def dump(self, digichem_options):
+    def _dump_(self, digichem_options, all):
         """
         Get a representation of this result object in primitive format.
         """
@@ -538,7 +538,7 @@ class Metadata(Result_object):
             "value": self.pressure,
             "units": "atm"
         }
-        attr_dict["solvent"] = self.solvent.dump(digichem_options)
+        attr_dict["solvent"] = self.solvent.dump(digichem_options, all)
         
         attr_dict['num_cpu'] = self.num_cpu
         for attr_name in ("memory_used", "memory_available"):
@@ -554,7 +554,7 @@ class Metadata(Result_object):
                     "units": None
                 }
         
-        attr_dict['performance'] = self.performance.dump(digichem_options) if self.performance else None
+        attr_dict['performance'] = self.performance.dump(digichem_options, all) if self.performance else None
 
         return attr_dict
     
@@ -815,7 +815,7 @@ class Performance(Result_object):
         )
 
     
-    def dump(self, digichem_options):
+    def _dump_(self, digichem_options, all):
         """
         Get a representation of this result object in primitive format.
         """

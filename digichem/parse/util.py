@@ -227,10 +227,10 @@ def parse_calculation(*log_files, options, parse_all = False, format_hint = "aut
         open_log_files, open_aux_files = archive.open()
         
         if parse_all:
-            results = from_log_files(*open_log_files, format_hint = format_hint, parser_options = parser_options, **open_aux_files).process_all(options)
+            results = from_log_files(*open_log_files, format_hint = format_hint, parser_options = parser_options, options = options, **open_aux_files).process_all()
         
         else:       
-            results = from_log_files(*open_log_files, format_hint = format_hint, parser_options = parser_options, **open_aux_files).process(options)
+            results = from_log_files(*open_log_files, format_hint = format_hint, parser_options = parser_options, options = options, **open_aux_files).process()
         
     finally:
         if not keep_archive:
@@ -379,7 +379,6 @@ def parse_and_merge_multiple_calculations(*multiple_results, options, parser_opt
     :param multiple_results: A list of two dimensions, where the first dimension is a list of separate results to process, and the second dimension is a list of results that should be merged together.
     :param options: A Digichem options nested dictionary containing options to control parsing.
     :param format_hint: A hint as to the format of the given log files. Either 'auto' (to guess), 'log' (calc log file), 'sir' (digichem result file) or 'sid' (digichem database file).
-    :param pool: An optional subprocessing.pool object to use for parallel parsing.
     :param init_func: An optional function to call to init each newly created process.
     :param processes: The max number of processes to create the new pool object with.
     :param auxiliary_files: An optional list of lists of dicts of auxiliary files. Each item in auxiliary_files should match the corresponding log file in multiple_results.
@@ -388,6 +387,7 @@ def parse_and_merge_multiple_calculations(*multiple_results, options, parser_opt
     if auxiliary_files is None:
         auxiliary_files = [None] * len(multiple_results)
     
+    pool = None
     # Do some parsing.
     # TODO: This parallelization isn't ideal, currently we process each group of to-be merged calcs separately, meaning processes can be wasted.
     try:
@@ -402,7 +402,8 @@ def parse_and_merge_multiple_calculations(*multiple_results, options, parser_opt
         return result_lists
     
     finally:
-        pool.__exit__(None, None, None)
+        if pool:
+            pool.__exit__(None, None, None)
     
 
 class open_for_parsing():

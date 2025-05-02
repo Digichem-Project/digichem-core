@@ -22,7 +22,7 @@ class NMR_spectrometer(Result_object):
     A class for generating NMR spectra on-demand.
     """
     
-    def __init__(self, nmr_results, frequency = 300, fwhm = 0.001, resolution = 0.001, cutoff = 0.01, coupling_filter = 0.1, pre_merge = 0.01, post_merge = None, isotope_options = None):
+    def __init__(self, nmr_results, frequency = 300, fwhm = 0.001, resolution = 0.001, cutoff = 0.01, y_filter = 1e-6, coupling_filter = 0.1, pre_merge = 0.01, post_merge = None, isotope_options = None):
         """
         Constructor for NMR_spectrometer.
         
@@ -39,6 +39,7 @@ class NMR_spectrometer(Result_object):
         self.fwhm = fwhm
         self.gaussian_resolution = resolution
         self.gaussian_cutoff = cutoff
+        self.y_filter = y_filter
         self.coupling_filter = coupling_filter
         self._isotope_options = isotope_options if isotope_options is not None else {}
         
@@ -48,6 +49,7 @@ class NMR_spectrometer(Result_object):
             "pre_merge": self.pre_merge,
             "post_merge": self.post_merge,
             "fwhm": self.fwhm,
+            "y_filter": self.y_filter,
             "gaussian_resolution": self.gaussian_resolution,
             "coupling_filter": self.coupling_filter,
             "gaussian_cutoff": self.gaussian_cutoff,
@@ -66,6 +68,7 @@ class NMR_spectrometer(Result_object):
             fwhm = options['nmr']['fwhm'],
             resolution = options['nmr']['gaussian_resolution'],
             cutoff = options['nmr']['gaussian_cutoff'],
+            y_filter = options['nmr']['y_filter'],
             coupling_filter = options['nmr']['coupling_filter'],
             pre_merge = options['nmr']['pre_merge'],
             post_merge = options['nmr']['post_merge'],
@@ -160,6 +163,9 @@ class NMR_spectrometer(Result_object):
         
         return False
     
+    def __iter__(self):
+        return iter(self.available.keys())
+    
     def __getitem__(self, item):
         """
         Generate a spectrum for a given shortcode.
@@ -170,7 +176,7 @@ class NMR_spectrometer(Result_object):
         # match the interface.
         return lambda digichem_options: self.spectrum(*self.parse_shortcode(item))
     
-    def generate_for_dump(self):
+    def _get_dump_(self):
         """
         Method used to get a dictionary used to generate on-demand values for dumping.
         
@@ -180,7 +186,7 @@ class NMR_spectrometer(Result_object):
         """
         return self
     
-    def dump(self, digichem_options):
+    def _dump_(self, digichem_options, all):
         # Return a list of possible spectra we can generate.
         return {
             "codes": list(self.available.keys()),
@@ -208,7 +214,7 @@ class NMR_spectrometer(Result_object):
         
         # The total spectrum takes all simulated peaks.
         # These are grouped by atom_group, flatten this list before passing to spectroscopy.
-        graph = Combined_graph.from_nmr(grouped_peaks, isotope_options['fwhm'], isotope_options['gaussian_resolution'], isotope_options['gaussian_cutoff'])
+        graph = Combined_graph.from_nmr(grouped_peaks, isotope_options['fwhm'], isotope_options['gaussian_resolution'], isotope_options['gaussian_cutoff'], filter = isotope_options['y_filter'])
         
         return graph
     
@@ -489,6 +495,8 @@ class NMR_list(Result_container):
         self.options = options
         self.groups = self.group()
         self.spectrometer = NMR_spectrometer.from_options(self.groups, options = options)
+        # This is used as part of the dump mechanic.
+        self.spectrum = self.spectrometer
     
     @classmethod
     def from_parser(self, parser):
@@ -599,14 +607,15 @@ class NMR_list(Result_container):
         
         return nmr_object_groups
     
-    def dump(self, digichem_options):
+    def _dump_(self, digichem_options, all):
         """
         Dump this list of NMR results to a list of primitive types.
         """
         grouping = self.groups
         dump_dict = {
-            "values": super().dump(digichem_options),
-            "groups": {group_id.label: group.dump(digichem_options) for group_id, group in grouping.items()},
+            "values": super()._dump_(digichem_options, all),
+            "groups": {group_id.label: group.dump(digichem_options, all) for group_id, group in grouping.items()},
+            "spectrum": self.spectrometer.dump(digichem_options, all)
         }
         return dump_dict
     
@@ -620,17 +629,17 @@ class NMR_list(Result_container):
         """
         return self(NMR.list_from_dump(data['values'], result_set, options), atoms = result_set.atoms, options = options)
     
-    def generate_for_dump(self):
-        """
-        Method used to get a dictionary used to generate on-demand values for dumping.
+    # def _get_dump_(self):
+    #     """
+    #     Method used to get a dictionary used to generate on-demand values for dumping.
          
-        This functionality is useful for hiding expense properties from the normal dump process, while still exposing them when specifically requested.
+    #     This functionality is useful for hiding expense properties from the normal dump process, while still exposing them when specifically requested.
          
-        Each key in the returned dict is the name of a dumpable item, each value is a function to call with digichem_options as its only param.
-        """
-        return {
-            "spectrum": lambda digichem_options: self.spectrometer
-        }
+    #     Each key in the returned dict is the name of a dumpable item, each value is a function to call with digichem_options as its only param.
+    #     """
+    #     return {
+    #         "spectrum": lambda digichem_options: self.spectrometer
+    #     }
 
 
 class NMR_group(Result_object, Floatable_mixin):
@@ -649,7 +658,7 @@ class NMR_group(Result_object, Floatable_mixin):
     def __float__(self):
         return float(self.shielding)
     
-    def dump(self, digichem_options):
+    def _dump_(self, digichem_options, all):
         """
         Get a representation of this result object in primitive format.
         """
@@ -661,7 +670,7 @@ class NMR_group(Result_object, Floatable_mixin):
                 "value": self.shielding
             },
             #"couplings": [{"groups": [group.label for group in coupling['groups']], "isotopes": list(coupling["isotopes"]), "total": coupling["total"]} for coupling in self.couplings],
-            "couplings": [coupling.dump(digichem_options) for coupling in self.couplings]
+            "couplings": [coupling.dump(digichem_options, all) for coupling in self.couplings]
         }
         
 class NMR_group_spin_coupling(Result_object):
@@ -686,7 +695,7 @@ class NMR_group_spin_coupling(Result_object):
         """
         return sum([coupling.isotropic('total') for coupling in self.couplings]) / len(self.couplings)
     
-    def dump(self, digichem_options):
+    def _dump_(self, digichem_options, all):
         """
         Get a representation of this result object in primitive format.
         """
@@ -697,7 +706,7 @@ class NMR_group_spin_coupling(Result_object):
                 "units": "Hz",
                 "value": float(self.total),
             }
-            #"couplings": [coupling.dump(digichem_options) for coupling in self.couplings]
+            #"couplings": [coupling.dump(digichem_options, all) for coupling in self.couplings]
         }
         
     def other(self, atom_group):
@@ -819,14 +828,14 @@ class NMR(Result_object, Floatable_mixin):
         ]
         
     
-    def dump(self, digichem_options):
+    def _dump_(self, digichem_options, all):
         """
         Get a representation of this result object in primitive format.
         """
         return {
             "atom": self.atom.label,
-            "shielding": self.shielding.dump(digichem_options),
-            "couplings": self.couplings.dump(digichem_options)
+            "shielding": self.shielding.dump(digichem_options, all),
+            "couplings": self.couplings.dump(digichem_options, all)
         }
         
 
@@ -867,7 +876,7 @@ class NMR_tensor_ABC(Result_object):
         eigenvalues = self.eigenvalues(tensor)
         return sum(eigenvalues) / len(eigenvalues)
     
-    def dump(self, digichem_options):
+    def _dump_(self, digichem_options, all):
         """
         Get a representation of this result object in primitive format.
         """
@@ -931,7 +940,7 @@ class NMR_shielding(NMR_tensor_ABC):
         
         return shieldings
     
-    def dump(self, digichem_options):
+    def _dump_(self, digichem_options, all):
         """
         Get a representation of this result object in primitive format.
         """
@@ -939,7 +948,7 @@ class NMR_shielding(NMR_tensor_ABC):
             "reference": self.reference,
         }
         
-        dump_dic.update(super().dump(digichem_options))
+        dump_dic.update(super()._dump_(digichem_options, all))
         return dump_dic
     
     @classmethod
@@ -1073,7 +1082,7 @@ class NMR_spin_coupling(NMR_tensor_ABC):
             in data
         ]
     
-    def dump(self, digichem_options):
+    def _dump_(self, digichem_options, all):
         """
         Get a representation of this result object in primitive format.
         """
@@ -1082,5 +1091,5 @@ class NMR_spin_coupling(NMR_tensor_ABC):
             "isotopes": (self.isotopes[0], self.isotopes[1]),
         }
         
-        dump_dic.update(super().dump(digichem_options))
+        dump_dic.update(super()._dump_(digichem_options, all))
         return dump_dic

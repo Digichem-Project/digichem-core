@@ -453,7 +453,7 @@ class Atom_list(Result_container, Unmergeable_container_mixin, Molecule_mixin):
         """
         return self(Atom.list_from_coords(coords), charge = coords.charge)
     
-    def dump(self, Digichem_options):
+    def _dump_(self, digichem_options, all):
         """
         Get a representation of this result object in primitive format.
         """
@@ -490,7 +490,7 @@ class Atom_list(Result_container, Unmergeable_container_mixin, Molecule_mixin):
             },
             "linearity_ratio": float(self.get_linear_ratio()),
             "planarity_ratio": float(self.get_planar_ratio()),
-            "values": super().dump(Digichem_options),
+            "values": super()._dump_(digichem_options, all),
         }
         return dump_dict
     
@@ -673,7 +673,7 @@ class Atom(Atom_ABC):
         """
         return math.sqrt( (self.coords[0] - foreign_atom.coords[0])**2 + (self.coords[1] - foreign_atom.coords[1])**2 + (self.coords[2] - foreign_atom.coords[2])**2)
     
-    def dump(self, Digichem_options):
+    def _dump_(self, digichem_options, all):
         """
         Get a representation of this result object in primitive format.
         """
