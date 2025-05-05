@@ -142,7 +142,7 @@ class Cclib_parser(File_parser_abc):
         with open(self.profile_file, "rb") as profile_file:
             lines = sum(1 for _ in profile_file) -1 # Remove 1 line for the header.
 
-        max_lines  = self.config.parse['profiling_rows']
+        max_lines  = self.options.parse['profiling_rows']
         factor = math.ceil(lines / max_lines)
         
         with open(self.profile_file) as profile_file:
