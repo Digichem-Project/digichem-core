@@ -36,8 +36,8 @@ class Dump_multi_parser_abc(File_parser_abc):
         self.all_results = []
         
     @classmethod
-    def from_data(self, input_file, data):
-        return self(input_file, raw_data = data)
+    def from_data(self, input_file, data, options):
+        return self(input_file, raw_data = data, options = options)
             
     @property
     def results(self):
@@ -135,8 +135,8 @@ class Dump_parser_abc(File_parser_abc):
         super().__init__(input_file, raw_data = raw_data, options = options)
         
     @classmethod
-    def from_data(self, input_file, data):
-        return self(input_file, raw_data = data)
+    def from_data(self, input_file, data, options):
+        return self(input_file, raw_data = data, options = options)
     
     def process_all(self):
         """
