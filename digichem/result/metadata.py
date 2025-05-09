@@ -46,10 +46,10 @@ class Solvent(Result_object):
     @classmethod
     def from_parser(self, parser):
         """
-        Construct a Metadata object from an output file parser.
+        Construct a Solvent object from an output file parser.
         
         :param parser: Output data parser.
-        :return: A populated Metadata object.
+        :return: A populated Solvent object.
         """
         return self(
             name = parser.data.metadata.get('solvent_name', None),
@@ -142,6 +142,7 @@ class Metadata(Result_object):
     
     def __init__(
             self,
+            jobId = None,
             name = None,
             user = None,
             log_files = None,
@@ -177,6 +178,7 @@ class Metadata(Result_object):
         """
         Constructor for result Metadata objects.
         
+        :param jobId: If this result was generated from a digichem calculation, the relevant jobID.
         :param name: Optional name of this calculation result.
         :param user: The username of the user who parsed this result.
         :param log_files: An optional list of text-based calculation log files from which this result was parsed.
@@ -203,6 +205,7 @@ class Metadata(Result_object):
         :param memory_available: The maximum amount of memory available to this calculation (the amount requested by the user).
         :param memory_used: The maximum amount of memory used by the calculation (the amount requested by the user).
         """
+        self.jobId = jobId
         self.num_calculations = 1
         self.name = name
         self.user = user
@@ -453,6 +456,7 @@ class Metadata(Result_object):
             
             # TODO: This doesn't seem to make sense; the parser already contains a metadata object...
             return self(
+                jobId = parser.data.metadata.get('jobId', None),
                 name = parser.data.metadata.get('name', None),
                 user = parser.data.metadata.get('user', None),
                 log_files = parser.data.metadata.get('log_files', None),
@@ -497,6 +501,7 @@ class Metadata(Result_object):
         }
         
         attrs = [
+            "jobId",
             "history",
             "charge",
             "multiplicity",
