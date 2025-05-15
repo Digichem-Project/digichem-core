@@ -265,7 +265,7 @@ def main():
     parser.add_argument("--use-gpu", help = "Whether to enable GPU rendering", action = "store_true")
     parser.add_argument("--orientation", help = "The orientation to render from, as x, y, z values", nargs = 3, type = float, default = [0, 0, 1])
     parser.add_argument("--resolution", help = "The output resolution in px", type = int, default = 1024)
-    parser.add_argument("--render-samples", help = "The maximum number of render samples, more generally results in higher quality but longer render times", type = int, default = 256)
+    parser.add_argument("--render-samples", help = "The maximum number of render samples, more generally results in higher quality but longer render times", type = int, default = 64)# default = 256)
     parser.add_argument("--rotations", help = "A list of rotations (in JSON) to rotate the molecule to a given alignment. The first item in each list item is the axis to rotate about (0=x, 1=y, 2=z), the second is the angle to rotate by (in radians)", nargs = "*", default = [])
     parser.add_argument("--dipoles", help = "Draw dipoles from a list of the following data (in JSON): 0) start coord, 1) end coord, 2) RGBA color information", nargs = "*", default = [])
     parser.add_argument("--alpha", help = "Override the opacity value for all molecule objects (but not dipoles) to this value, useful for showing dipole arrows more clearly", default = None, type = float)
