@@ -7,6 +7,11 @@
 #
 # Where 'blender' is the path to the Beautiful Atoms Blender executable.
 
+import addon_utils
+def handle_error(exception):
+    raise exception
+addon_utils.enable("batoms", handle_error = handle_error, default_set=True)
+
 import sys
 import argparse
 import itertools
