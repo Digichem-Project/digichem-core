@@ -24,6 +24,44 @@ import logging
 import ase.io
 from batoms import Batoms
 from batoms.utils.butils import object_mode
+from batoms.render import Render
+
+class Digichem_render(Render):
+    def set_viewport_distance_center(self, center=None, padding=None, canvas=None):
+        """
+        Calculate canvas and direction
+        """
+        batoms = self.batoms
+        if padding is None:
+            padding = max(batoms.size) + 0.5
+        if center is None:
+            center = batoms.get_center_of_geometry()
+        self.center = center
+        if canvas is None:
+            width, height, depth = batoms.get_canvas_box(
+                direction=self.viewport, padding=padding
+            )
+        else:
+            width = canvas[0]
+            height = canvas[1]
+            depth = canvas[2]
+        if self.distance < 0:
+            self.distance = max(10, depth)
+
+        self.update_camera(width, height, depth / 2)
+
+        # To auto centre the camera, we need to select the molecule as well as all isosurfaces that might be present.
+        # Select the molecule.
+        self.batoms.obj.select_set(True)
+
+        # Isosurfaces.
+        for obj in self.batoms.coll.all_objects:
+            if obj.batoms.type == "ISOSURFACE":
+                obj.select_set(True)
+
+        bpy.context.scene.camera = self.camera.obj
+        bpy.ops.view3d.camera_to_view_selected()
+        self.update_light()
 
 def add_molecule(
         cube_file,
@@ -349,6 +387,8 @@ def main():
     bpy.context.scene.render.threads_mode = 'FIXED'
     bpy.context.scene.render.threads = args.cpus
     
+    # Set our custom renderer so we can modify zoom etc.
+    mol.render = Digichem_render()
     mol.get_image(viewport = args.orientation, output = args.output, padding = args.padding)
 #     # Move the camera.
 #     mol.render.camera.location = (100,0,0)
