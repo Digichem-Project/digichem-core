@@ -90,7 +90,12 @@ def add_molecule(
         mol.isosurface.draw()
     
     # Now move the entire molecule (isosurface and all) back to the origin.
-    mol.translate(cube["origin"][0:3])
+    mol.obj.select_set(True)
+    bpy.ops.object.origin_set(type="ORIGIN_GEOMETRY", center='MEDIAN')
+    bpy.context.object.location = [0,0,0]
+
+
+    # mol.translate(cube["origin"][0:3])
     
     # Fix the origin point so we can still rotate properly.
     # For some reason, this code moves the bond objects to a new location?
