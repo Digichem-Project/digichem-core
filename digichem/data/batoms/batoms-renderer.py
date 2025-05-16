@@ -59,8 +59,14 @@ class Digichem_render(Render):
             if obj.batoms.type == "ISOSURFACE":
                 obj.select_set(True)
 
+        # Set camera as active.
         bpy.context.scene.camera = self.camera.obj
+
+        # Manually set a focal point.
+        self.camera.lens = 50
+        # Auto centre.
         bpy.ops.view3d.camera_to_view_selected()
+
         self.update_light()
 
 def add_molecule(
@@ -260,7 +266,7 @@ def main():
     parser.add_argument("--isocolor", help = "The colouring method to use for isosurfaces", choices = ["sign", "cube"], default = "sign")
     parser.add_argument("--primary-color", help = "RGBA for one of the colors to use for isosurfaces", type = float, nargs = 4, default = [0.1, 0.1, 0.9, 0.65])
     parser.add_argument("--secondary-color", help = "RGBA for the other color to use for isosurfaces", type = float, nargs = 4, default = [1, 0.058, 0.0, 0.65])
-    parser.add_argument("--style", help = "Material style for isosurfaces", choices = ('default', 'metallic', 'plastic', 'ceramic', 'mirror'), default = "default")
+    parser.add_argument("--style", help = "Material style for isosurfaces", choices = ('default', 'metallic', 'plastic', 'ceramic', 'mirror'), default = "ceramic")
     parser.add_argument("--cpus", help = "Number of parallel CPUs to use for rendering", type = int, default = 1)
     parser.add_argument("--use-gpu", help = "Whether to enable GPU rendering", action = "store_true")
     parser.add_argument("--orientation", help = "The orientation to render from, as x, y, z values", nargs = 3, type = float, default = [0, 0, 1])
@@ -365,7 +371,7 @@ def main():
     bpy.context.scene.render.image_settings.compression = 1000
     
     # Change light intensity.
-    bpy.data.lights["batoms_light_Default"].node_tree.nodes["Emission"].inputs[1].default_value = 0.5 #0.3
+    bpy.data.lights["batoms_light_Default"].node_tree.nodes["Emission"].inputs[1].default_value = 0.4
     #mol.render.lights["Default"].energy=10
     
     # Change view mode.
