@@ -104,22 +104,41 @@ def add_molecule(
     mol = Batoms(name, from_ase = cube["atoms"])
     
     # Set some look and feel options.    
-    # Change molecule style.
-    mol.model_style = 1
     
     # Hide cell boundaries.
     mol.cell.hide = True
     
     # Colour tuning.
     # Carbon to 'black'.
-    try:
-        mol["C"].color = (0.095, 0.095, 0.095, 1)
-    except AttributeError:
-        pass
-    try:
-        mol["B"].color = (1.0, 0.396, 0.468, 1)
-    except AttributeError:
-        pass
+    new_colors = {
+        "C": (0.095, 0.095, 0.095, 1),
+        "B": (1.0, 0.396, 0.468, 1)
+    }
+
+    for atom, color in new_colors.items():
+        try:
+            mol[atom].color = color
+        except AttributeError:
+            pass
+
+    # And bonds.
+    for key, value in mol.bond.settings.items():
+        for atom, color in new_colors.items():
+            if key[0] == atom:
+                value['color1'] = color
+
+            if key[1] == "C":
+                value['color2'] = color
+    
+    # Change molecule style.
+    mol.model_style = 1
+
+    # Slightly increase volume of all atoms.
+    for atom in mol.species.keys():
+        mol[atom].scale *= 1.25
+    
+    # Increase volume of H atoms
+    mol['H'].scale = 0.75
     
     if not visible:
         mol.hide = True
@@ -137,17 +156,6 @@ def add_molecule(
     mol.obj.select_set(True)
     bpy.ops.object.origin_set(type="ORIGIN_GEOMETRY", center='MEDIAN')
     bpy.context.object.location = [0,0,0]
-
-
-    # mol.translate(cube["origin"][0:3])
-    
-    # Fix the origin point so we can still rotate properly.
-    # For some reason, this code moves the bond objects to a new location?
-#     object_mode()
-#     bpy.ops.object.select_all(action='DESELECT')
-#     mol.obj.select_set(True)
-#     bpy.context.view_layer.objects.active = mol.obj
-#     bpy.ops.object.origin_set(type='ORIGIN_CURSOR')
     
     # If we have any rotations, apply those.
     for axis, angle in rotations:
@@ -275,7 +283,7 @@ def main():
     parser.add_argument("--style", help = "Material style for isosurfaces", choices = ('default', 'metallic', 'plastic', 'ceramic', 'mirror'), default = "ceramic")
     parser.add_argument("--cpus", help = "Number of parallel CPUs to use for rendering", type = int, default = 1)
     parser.add_argument("--use-gpu", help = "Whether to enable GPU rendering", action = "store_true")
-    parser.add_argument("--orientation", help = "The orientation to render from, as x, y, z values", nargs = 3, type = float, default = [0, 0, 1])
+    parser.add_argument("--orientation", help = "The orientation to render from, as x, y, z values", nargs = 3, type = float, default = [0, 0, 0])
     parser.add_argument("--resolution", help = "The output resolution in px", type = int, default = 1024)
     parser.add_argument("--render-samples", help = "The maximum number of render samples, more generally results in higher quality but longer render times", type = int, default = 64)# default = 256)
     parser.add_argument("--rotations", help = "A list of rotations (in JSON) to rotate the molecule to a given alignment. The first item in each list item is the axis to rotate about (0=x, 1=y, 2=z), the second is the angle to rotate by (in radians)", nargs = "*", default = [])
@@ -401,14 +409,17 @@ def main():
     
     # Set our custom renderer so we can modify zoom etc.
     mol.render = Digichem_render()
-    mol.get_image(viewport = args.orientation, output = args.output, padding = args.padding)
-#     # Move the camera.
-#     mol.render.camera.location = (100,0,0)
-#     mol.render.camera.look_at = mol.get_center_of_geometry()
-#     bpy.ops.object.select_all(action='DESELECT')
-#     for obj in mol.coll.objects[:]:
-#         obj.select_set(True)
-#     #bpy.ops.view3d.camera_to_view_selected()
+
+    # We have two ways we can change which angle we render from.
+    # 1) the viewport keyword arg (which places the camera in a certain location).
+    # 2) rotate the molecule.
+    #
+    # We use option 2, because this gives us more control.
+    bpy.ops.object.select_all(action='DESELECT')
+    mol.obj.select_set(True)
+    bpy.context.object.delta_rotation_euler = args.orientation
+
+    mol.get_image(viewport = [0,0,1], output = args.output, padding = args.padding)
     
     return 0
     
