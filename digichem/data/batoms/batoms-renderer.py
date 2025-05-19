@@ -227,7 +227,13 @@ def draw_primitive(start, end, radius, mesh_type, color, collection = None):
     bsdf = nodes["Principled BSDF"]
     bsdf.inputs["Base Color"].default_value = color
     bsdf.inputs["Metallic"].default_value = 0.1
-    bsdf.inputs["Specular"].default_value = 0.2
+    try:
+        # Blener 3.x
+        bsdf.inputs["Specular"].default_value = 0.2
+    except KeyError:
+        # Blender 4.x
+        bsdf.inputs["Specular IOR Level"].default_value = 0.2
+    
     bsdf.inputs["Roughness"].default_value = 0.2
     mat.diffuse_color = color
     
