@@ -10,6 +10,7 @@ import subprocess
 import yaml
 from PIL import Image
 import math
+import numpy
 
 from digichem.exception.base import File_maker_exception
 from digichem.file.base import File_converter
@@ -132,7 +133,8 @@ class Batoms_renderer(Render_maker):
             rotations = None,
             auto_crop = True,
             resolution = 1024,
-            render_samples = 256,
+            render_samples = 32,
+            stack = 3,
             also_make_png = True,
             isovalue = 0.02,
             blender_executable = None,
@@ -149,6 +151,7 @@ class Batoms_renderer(Render_maker):
         :param auto_crop: If False, images will not have excess white space cropped.
         :param resolution: The max width or height of the rendered images in pixels.
         :param render_samples: The number of render samples, more results in longer render times but higher quality image.
+        :param stack: The number of copies of the image to composite together to avoid transparency artifacts.
         :param also_make_png: If True, additional images will be rendered in PNG format. This option is useful to generate higher quality images alongside more portable formats.
         :param isovalue: The isovalue to use for rendering isosurfaces. Has no effect when rendering only atoms.
         :param blender_executable: Bath to the blender executable (can be None to use a default).
@@ -170,7 +173,8 @@ class Batoms_renderer(Render_maker):
         self.render_samples = render_samples
         self.cpus = cpus
         self.perspective = perspective
-        
+        self.stack = stack
+
         self.logging = logging
         
         # Use explicit blender location if given.
@@ -193,6 +197,7 @@ class Batoms_renderer(Render_maker):
             auto_crop = options['render']['auto_crop'],
             resolution = options['render']['resolution'],
             render_samples = options['render']['batoms']['render_samples'],
+            stack = options['render']['batoms']['stacking'],
             isovalue = options['render'][self.options_name]['isovalue'],
             use_existing = options['render']['use_existing'],
             dont_modify = not options['render']['enable_rendering'],
@@ -305,6 +310,17 @@ class Batoms_renderer(Render_maker):
                         raise File_maker_exception(self, "Error in post-rendering auto-crop")
                 else:
                     cropped_image = im
+
+                # Transparency stacking.
+                # This 'hack' takes several copies of the same transparent image and layers them atop each other.
+                # This avoids problems with isosurfaces being too transparent with respect to the background (and
+                # thus loosing definition).
+                stacked = cropped_image.copy()
+
+                for _ in range(self.stack):
+                    stacked.alpha_composite(cropped_image)
+
+                cropped_image = stacked
                 
                 # Save as a higher quality png if we've been asked to.
                 if self.also_make_png:
