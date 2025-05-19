@@ -11,6 +11,7 @@ import yaml
 from PIL import Image
 import math
 import numpy
+import json
 
 from digichem.exception.base import File_maker_exception
 from digichem.file.base import File_converter
@@ -556,7 +557,8 @@ class Dipole_image_maker(Structure_image_maker):
         sig = super().blender_signature(output, resolution, samples, orientation)
         sig.append("--dipoles")
         for dipole in self.get_dipoles():
-            sig.append(yaml.safe_dump(dipole))
+            #sig.append(yaml.safe_dump(dipole))
+            sig.append(json.dumps(dipole))
         sig.extend(["--alpha", "0.5"])
         return sig
 
