@@ -270,10 +270,10 @@ class Batoms_renderer(Render_maker):
         """
         # TODO: This mechanism is clunky and inefficient if only one image is needed because its based off the old VMD renderer. With batoms we can do much better.
         for image_name, orientation in [
-                ('x0y0z0', (0,0,1)),
-                ('x90y0z0', (1,0,0)),
-                ('x0y90z0', (0,1,0)),
-                ('x45y45z45',(1,1,1))
+                ('x0y0z0', (0,0,0)),
+                ('x90y0z0', (1.5708, 0, 0)),
+                ('x0y90z0', (0, 1.5708, 0)),
+                ('x45y45z45',(0.785398, 0.785398, 0.785398))
             ]:
             image_path = self.file_path[image_name]
             try:
