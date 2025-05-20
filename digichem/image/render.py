@@ -575,7 +575,7 @@ class Dipole_image_maker(Structure_image_maker):
         for dipole in self.get_dipoles():
             #sig.append(yaml.safe_dump(dipole))
             sig.append(json.dumps(dipole))
-        sig.extend(["--alpha", "0.5"])
+        sig.extend(["--alpha", "0.75"])
         return sig
 
     
