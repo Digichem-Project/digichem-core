@@ -7,6 +7,11 @@
 #
 # Where 'blender' is the path to the Beautiful Atoms Blender executable.
 
+
+# import debugpy
+# debugpy.listen(5678)
+# debugpy.wait_for_client()
+
 import addon_utils
 def handle_error(exception):
     raise exception
