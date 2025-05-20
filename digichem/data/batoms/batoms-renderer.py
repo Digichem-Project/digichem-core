@@ -310,7 +310,7 @@ def main():
     parser.add_argument("--render-samples", help = "The maximum number of render samples, more generally results in higher quality but longer render times", type = int, default = 64)# default = 256)
     parser.add_argument("--rotations", help = "A list of rotations (in JSON) to rotate the molecule to a given alignment. The first item in each list item is the axis to rotate about (0=x, 1=y, 2=z), the second is the angle to rotate by (in radians)", nargs = "*", default = [])
     parser.add_argument("--dipoles", help = "Draw dipoles from a list of the following data (in JSON): 0) start coord, 1) end coord, 2) RGBA color information", nargs = "*", default = [])
-    parser.add_argument("--alpha", help = "Override the opacity value for all molecule objects (but not dipoles) to this value, useful for showing dipole arrows more clearly", default = None, type = float)
+    parser.add_argument("--alpha", help = "Override the opacity value for all molecule objects (but not dipoles) to  1- this value, useful for showing dipole arrows more clearly", default = None, type = float)
     parser.add_argument("--perspective", help = "The perspective mode, either orthographic or perspective", default = "perspective", choices = ["perspective", "orthographic"])
     parser.add_argument("--padding", help = "Padding", type = float, default = 1.0)
     
@@ -372,7 +372,7 @@ def main():
         # Set all materials transparent.
         for material in bpy.data.materials:
             try:
-                material.node_tree.nodes['Principled BSDF'].inputs['Alpha'].default_value = args.alpha
+                material.node_tree.nodes['Principled BSDF'].inputs['Alpha'].default_value = (1 - args.alpha)
             except Exception as e:
                 pass
         
