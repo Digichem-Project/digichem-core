@@ -140,9 +140,6 @@ def add_molecule(
     # Increase volume of H atoms
     mol['H'].scale = 0.75
     
-    if not visible:
-        mol.hide = True
-    
     # Add volumes.
     if len(surface_settings) != 0:
         mol.volumetric_data['surface'] = cube['data']
@@ -184,6 +181,9 @@ def add_molecule(
         bpy.context.view_layer.objects.active = mol.obj
         bpy.ops.transform.rotate(value=angle, orient_axis=axis.upper(),
                                  center_override = (0,0,0))
+    
+    if not visible:
+        mol.hide = True
     
     return mol
 
