@@ -340,7 +340,7 @@ def main():
     # Load the input data.
     mol = add_molecule(
         args.cube_file,
-        name = "molecule",
+        name = "first_mol",
         visible = True,
         rotations = rotations,
         isovalues = args.isovalues,
@@ -353,13 +353,14 @@ def main():
     # Uncomment to show atom labels.
     # Needs some tweaking to appear in render (viewport only by default).
     #mol.show_label = 'species'
+    mol2 = None
     
     # If we have a second cube, add that too.
     if args.second_cube is not None:
         mol2 = add_molecule(
             args.second_cube,
-            name = "molecule2",
-            visible = True,
+            name = "second_mol",
+            visible = False,
             rotations = rotations,
             isovalues = args.isovalues,
             isotype = args.isotype,
