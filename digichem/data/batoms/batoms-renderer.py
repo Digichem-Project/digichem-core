@@ -254,6 +254,8 @@ def draw_primitive(start, end, radius, mesh_type, color, collection = None):
     # Link each object to the target collection
     collection.objects.link(obj)
 
+    return obj
+
     
 def draw_arrow(start, end, radius, color, split = 0.9, collection = None):
     # Decide what proportion of the total vector to dedicate to the arrow stem and head.
@@ -263,8 +265,23 @@ def draw_arrow(start, end, radius, color, split = 0.9, collection = None):
     dist = math.sqrt(dx**2 + dy**2 + dz**2)
     
     join = (dx * split + start[0], dy * split + start[1], dz * split + start[2])
-    draw_primitive(start, join, radius, "cylinder", color, collection = collection)
-    draw_primitive(join, end, radius*2, "cone", color, collection = collection)
+    cylinder = draw_primitive(start, join, radius, "cylinder", color, collection = collection)
+    cone = draw_primitive(join, end, radius*2, "cone", color, collection = collection)
+
+    # Select the two objects and join them together.
+    bpy.ops.object.select_all(action='DESELECT')
+    cylinder.select_set(True)
+    cone.select_set(True)
+    bpy.ops.object.join()
+
+    arrow = cone
+
+    # Set the origin of the new combined object to the origin of the arrow.
+    bpy.context.scene.cursor.location = start
+    bpy.ops.object.origin_set(type='ORIGIN_CURSOR')
+
+    return arrow
+
 
 
 def main():
@@ -356,11 +373,12 @@ def main():
         
     
     # Draw any dipoles.
+    arrows = []
     if args.dipoles is not None:
         
         dipoles = [yaml.safe_load(dipole) for dipole in args.dipoles]
         for start_coord, end_coord, rgba in dipoles:
-            draw_arrow(start_coord, end_coord, 0.08, rgba, collection = mol.coll)
+            arrows.append(draw_arrow(start_coord, end_coord, 0.1, rgba, collection = mol.coll))
         
     
     # Setup rendering settings.
