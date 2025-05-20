@@ -118,6 +118,9 @@ class Batoms_renderer(Render_maker):
     # Name of the section where we get some specific configs.
     options_name = "orbital"
     
+    test_resolution = 300
+    test_samples = 5
+    
     @property
     def batoms_script_path(self):
         """
@@ -290,8 +293,24 @@ class Batoms_renderer(Render_maker):
             ]:
             image_path = self.file_path[image_name]
             try:
-                # Run blender!
-                self.run_blender(image_path.with_suffix(".tmp.png"), self.target_resolution, self.render_samples, orientation)
+                # First we'll render a test image at a lower resolution. We'll then crop it, and use the decrease in final resolution to know how much bigger we need to render in our final image to hit our target resolution.
+                # Unless of course auto_crop is False, in which case we use our target resolution immediately.
+                resolution = self.test_resolution if self.auto_crop else self.target_resolution
+                samples = self.test_samples if self.auto_crop else self.render_samples
+                self.run_blender(image_path.with_suffix(".tmp.png"), resolution, samples, orientation)
+                
+                if self.auto_crop:
+                    # Load the test image and autocrop it.
+                    with Image.open(image_path.with_suffix(".tmp.png"), "r") as test_im:
+                        small_test_im = self.auto_crop_image(test_im)
+                        
+                    # Get the cropped size. We're interested in the largest dimension, as this is what we'll output as.
+                    cropped_resolution = max(small_test_im.size)
+                    
+                    # From this we can work out the ratio between our true resolution and the resolution we've been asked for.
+                    resolution_ratio = cropped_resolution / self.test_resolution
+                    
+                    self.run_blender(image_path.with_suffix(".tmp.png"), int(self.target_resolution / resolution_ratio), self.render_samples, orientation)
                 
             except Exception:
                 raise File_maker_exception(self, "Error in blender rendering")
