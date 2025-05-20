@@ -247,20 +247,35 @@ class Batoms_renderer(Render_maker):
         # Disabling the user dir helps prevent conflicting installs of certain packages
         env["PYTHONNOUSERSITE"] = "1"
         #env["PYTHONPATH"] = ":" + env["PYTHONPATH"]
+        blender_process = None
         
         # Run Blender, which renders our image for us.
         try:
-            subprocess.run(
+            blender_process = subprocess.run(
                 self.blender_signature(output, resolution, samples, orientation),
                 stdin = subprocess.DEVNULL,
-                stdout = subprocess.DEVNULL if not self.logging else None,
+                stdout = subprocess.PIPE if not self.logging else None,
                 stderr = subprocess.STDOUT,
                 universal_newlines = True,
                 check = True,
                 env = env,
             )
+            
+            if not output.exists():
+                raise File_maker_exception(self, "Could not find render file")
+
         except FileNotFoundError:
             raise File_maker_exception(self, "Could not locate blender executable '{}'".format(self.blender_executable))
+        
+        except subprocess.CalledProcessError as e:
+            if not self.logging:
+                digichem.log.get_logger().error("Blender did not exit successfully, dumping output:\n{}".format(e.stdout))
+
+        except Exception:
+            if not self.logging and blender_process is not None:
+                digichem.log.get_logger().error("Blender did not exit successfully, dumping output:\n{}".format(blender_process.stdout))
+            
+            raise
         
     
     def make_files(self):
