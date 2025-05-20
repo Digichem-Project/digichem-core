@@ -13,6 +13,7 @@ import math
 import numpy
 import json
 
+import digichem.log
 from digichem.exception.base import File_maker_exception
 from digichem.file.base import File_converter
 from digichem.image.base import Cropable_mixin
@@ -235,7 +236,7 @@ class Batoms_renderer(Render_maker):
         ]
         # Add rotations.
         for rotation in self.rotations:
-            args.append(yaml.safe_dump(rotation))
+            args.append(json.dumps(rotation))
         
         return args
     
