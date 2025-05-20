@@ -454,9 +454,13 @@ def main():
     # 2) rotate the molecule.
     #
     # We use option 2, because this gives us more control.
-    bpy.ops.object.select_all(action='DESELECT')
-    mol.obj.select_set(True)
-    bpy.context.object.delta_rotation_euler = args.orientation
+    mol.obj.delta_rotation_euler = args.orientation
+    
+    if mol2 is not None:
+        mol2.obj.delta_rotation_euler = args.orientation
+
+    for arrow in arrows:
+        arrow.delta_rotation_euler = args.orientation
 
     mol.get_image(viewport = [0,0,1], output = args.output, padding = args.padding)
     
