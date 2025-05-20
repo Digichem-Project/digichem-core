@@ -408,8 +408,23 @@ def main():
     # Use maximum compression.
     bpy.context.scene.render.image_settings.compression = 1000
     
+
     # Change light intensity.
-    bpy.data.lights["batoms_light_Default"].node_tree.nodes["Emission"].inputs[1].default_value = 0.4
+    mol.render.lights["Default"].direction = [0.1, 0.1, 1]
+    mol.render.lights["Default"].obj.data.node_tree.nodes["Emission"].inputs[1].default_value = 0.2
+    mol.render.lights["Default"].obj.data.angle = 0.174533
+
+    # Add a second light for depth.
+    mol.render.lights.add("Accent1", direction = [1,0.5,0.75])
+    mol.render.lights.add("Accent2", direction = [0.5,1,0.75])
+
+    mol.render.lights["Accent1"].obj.data.angle = 0.0872665
+    mol.render.lights["Accent1"].obj.data.node_tree.nodes["Emission"].inputs[1].default_value = 0.25
+    mol.render.lights["Accent2"].obj.data.angle = 0.0872665
+    mol.render.lights["Accent2"].obj.data.node_tree.nodes["Emission"].inputs[1].default_value = 0.25
+
+    # bpy.data.lights["batoms_light_Default"].node_tree.nodes["Emission"].inputs[1].default_value = 0.45
+    # bpy.data.lights["batoms_light_Default"].angle
     #mol.render.lights["Default"].energy=10
     
     # Change view mode.
