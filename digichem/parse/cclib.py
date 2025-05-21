@@ -135,8 +135,13 @@ class Cclib_parser(File_parser_abc):
         # Real calculations can end up with millions of rows, which is far too much data to handle.
         # We will need to downsample if we have too many data points.
         # First work out how many rows there are.
-        with open(self.profile_file, "rb") as profile_file:
-            lines = sum(1 for _ in profile_file) -1 # Remove 1 line for the header.
+        try:
+            with open(self.profile_file, "rb") as profile_file:
+                lines = sum(1 for _ in profile_file) -1 # Remove 1 line for the header.
+        
+        except FileNotFoundError:
+            # This is ok
+            return
 
         if lines < 2:
             return
