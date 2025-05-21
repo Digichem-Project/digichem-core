@@ -32,7 +32,7 @@ from batoms.utils.butils import object_mode
 from batoms.render import Render
 
 class Digichem_render(Render):
-    def set_viewport_distance_center(self, center=None, padding=None, canvas=None):
+    def set_viewport_distance_center(self, center=None, padding=0, canvas=None):
         """
         Calculate canvas and direction
         """
