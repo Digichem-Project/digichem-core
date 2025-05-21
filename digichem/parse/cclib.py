@@ -138,6 +138,9 @@ class Cclib_parser(File_parser_abc):
         with open(self.profile_file, "rb") as profile_file:
             lines = sum(1 for _ in profile_file) -1 # Remove 1 line for the header.
 
+        if lines < 2:
+            return
+
         max_lines  = 1000
         factor = math.ceil(lines / max_lines)
         
@@ -185,6 +188,7 @@ class Cclib_parser(File_parser_abc):
                 new_data[:, i] = signal.decimate(data[:, k], factor)
             else:
                 new_data[:, i] = data[:, k]
+        
         
         self.data.metadata['performance'] = new_data
         
