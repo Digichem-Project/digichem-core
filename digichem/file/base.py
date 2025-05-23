@@ -45,6 +45,20 @@ class File_maker_ABC():
         """
         raise NotImplementedError("delete() is not implemented in this ABC")
     
+    def get_parallel(self, name = 'file', cpus = 1):
+        """
+        Generate the file represented by this object in a parallel context.
+
+        get_parallel() will be called by a higher level function as an argument to ThreadPoolExecutor.map() or similar,
+        to generate many files simultaneously. This is useful for slow operations (such as cube generation) that are
+        difficult to parallelise individually, but easy to parallelise across multiple files.
+
+        :param name: The file to generate.
+        :param cpus: The number of CPUs this operation should use, nearly always 1.
+        """
+        # This default implementation does nothing.
+        pass
+    
     #################################
     # Implemented in this sub-class #
     #################################
