@@ -33,6 +33,7 @@ class Digichem_options(Configurable):
         help = "Options specifying paths to various external programs that digichem may use. If no path is given, then these programs will simply be executed by name (so relying on OS path resolution to find the necessary executables, which is normally fine.)",
         formchk = Option(help = "Gaussian's formchk utility https://gaussian.com/formchk/", default = "formchk"),
         cubegen = Option(help = "Gaussian's cubegen utility https://gaussian.com/cubegen/", default = "cubegen"),
+        cubegen_parallel = Option(help = "What type of parallelism to use with cubegen, multithreaded runs a single instance of cubegen across multiple CPUs, pool runs multiple instances of cubegen", choices = [None, "multithreaded", "pool"], default = None)
     )
     
     skeletal_image = Options(
