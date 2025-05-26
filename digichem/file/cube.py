@@ -3,7 +3,7 @@
 from pathlib import Path
 import subprocess
 import tempfile
-import shutil
+import asyncio
 import os
 
 try:
@@ -159,13 +159,13 @@ class Fchk_to_cube(File_converter):
             
         finally:
             self.num_cpu = old_cpus
-            
-    def make_files(self):
+
+    @property
+    def signature(self):
         """
-        Make the files referenced by this object.
+        Get the call signature to run cubegen (as can be passed to Popen etc)
         """
-        # The signature we'll use to call cubegen.
-        signature = [
+        return [
             "{}".format(self.cubegen_executable),
             # Some versions of cubegen respect this num_threads arg, some don't.
             "{}".format(self.num_cpu),
@@ -174,21 +174,75 @@ class Fchk_to_cube(File_converter):
             str(self.output),
             str(self.npts)
         ]
+
+    @property
+    def env(self):
+        """
+        Get the environmental variables require to run cubegen (as can be passed to Popen etc).
+        """
+        return dict(
+            os.environ,
+            GAUSS_MEMDEF = str(self.memory),
+            # Some versions of cubegen only respect this way of changing threads.
+            OMP_NUM_THREADS = str(self.num_cpu)
+        )
+
+    async def make_files_async(self):
+        """
+        Make the files referenced by this object.
+        """        
+        try:
+            cubegen_proc =  await asyncio.create_subprocess_exec(
+                # Unless subprocess.run(), create_subprocess_exec() takes and expanded list as first arg...
+                *self.signature,
+                # Capture both stdout and stderr.
+                # It appears that cubegen writes everything (including error messages) to stdout, but it does return meaningful exit codes.
+                stdout = subprocess.PIPE,
+                stderr = subprocess.STDOUT,
+                env = self.env
+            )
+        except FileNotFoundError:
+            raise File_maker_exception(self, "Could not locate cubegen executable '{}'".format(self.cubegen_executable))
         
+        stdout = ""
+        stderr = ""
+        # Wait for completion.
+        while cubegen_proc.returncode is None:
+            retval = await cubegen_proc.communicate()
+            stdout += retval[0].decode()
+            stderr += retval[1].decode()
+
+        # If something went wrong, dump output.
+        if cubegen_proc.returncode != 0:
+            # An error occured.
+            # Check if the input file exists, if not this is probably what went wrong.
+            message = "Cubegen did not exit successfully"
+            if not Path(str(self.input_file)).exists():
+                message += " (probably because the input file '{}' could not be found)".format(self.input_file)
+            message += ":\n{}".format(stdout)
+            raise File_maker_exception(self, message)
+        else:
+            # Everything appeared to go ok.
+            # Dump cubegen output if we're in debug.
+            digichem.log.get_logger().debug(stdout)
+        
+        if self.sanitize:
+            sanitize_modern_cubes(self.output)
+
+            
+    def make_files(self):
+        """
+        Make the files referenced by this object.
+        """
         try:
             cubegen_proc =  subprocess.run(
-                signature,
+                self.signature,
                 # Capture both stdout and stderr.
                 # It appears that cubegen writes everything (including error messages) to stdout, but it does return meaningful exit codes.
                 stdout = subprocess.PIPE,
                 stderr = subprocess.STDOUT,
                 universal_newlines = True,
-                env = dict(
-                    os.environ,
-                    GAUSS_MEMDEF = str(self.memory),
-                    # Some versions of cubegen only respect this way of changing threads.
-                    OMP_NUM_THREADS = str(self.num_cpu)
-                )
+                env = self.env
             )
         except FileNotFoundError:
             raise File_maker_exception(self, "Could not locate cubegen executable '{}'".format(self.cubegen_executable))
