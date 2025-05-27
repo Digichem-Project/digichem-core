@@ -11,6 +11,7 @@ import yaml
 from PIL import Image
 import math
 import numpy
+import warnings
 import json
 
 import digichem.log
@@ -18,6 +19,7 @@ from digichem.exception.base import File_maker_exception
 from digichem.file.base import File_converter
 from digichem.image.base import Cropable_mixin
 from digichem.datas import get_resource
+
 
 class Render_maker(File_converter, Cropable_mixin):
     """
@@ -38,6 +40,7 @@ class Render_maker(File_converter, Cropable_mixin):
             resolution = 1024,
             also_make_png = True,
             isovalue = 0.2,
+            num_cpu = 1,
             **kwargs):
         """
         Constructor for Image_maker objects.
@@ -49,6 +52,7 @@ class Render_maker(File_converter, Cropable_mixin):
         :param resolution: The max width or height of the rendered images in pixels.
         :param also_make_png: If True, additional images will be rendered in PNG format. This option is useful to generate higher quality images alongside more portable formats.
         :param isovalue: The isovalue to use for rendering isosurfaces. Has no effect when rendering only atoms.
+        :param num_cpu: The number of CPUs for multithreading.
         :param blender_executable:
         """
         super().__init__(*args, input_file = cube_file, **kwargs)
@@ -64,6 +68,7 @@ class Render_maker(File_converter, Cropable_mixin):
         self.target_resolution = resolution
         self.also_make_png = also_make_png
         self.isovalue = isovalue
+        self.num_cpu = num_cpu
         
         # TODO: These.
         self.primary_colour = "red"
@@ -141,6 +146,7 @@ class Batoms_renderer(Render_maker):
             isovalue = 0.02,
             blender_executable = None,
             cpus = 1,
+            num_cpu = 1,
             perspective = "perspective",
             logging = False,
             **kwargs):
@@ -157,9 +163,16 @@ class Batoms_renderer(Render_maker):
         :param also_make_png: If True, additional images will be rendered in PNG format. This option is useful to generate higher quality images alongside more portable formats.
         :param isovalue: The isovalue to use for rendering isosurfaces. Has no effect when rendering only atoms.
         :param blender_executable: Bath to the blender executable (can be None to use a default).
-        :param cpus: Number of parallel threads to render with.
+        :param cpus: DEPREACTED: Number of parallel threads to render with (use num_cpu instead)
+        :param num_cpu: Number of parallel threads to render with.
         :param perspective: Perspective mode (orthographic or perspective)
         """
+        if cpus != 1:
+            warnings.warn("cpus is deprecated, use num_cpu instead", DeprecationWarning)
+        
+        if num_cpu == 1 and cpus != 1:
+            num_cpu = cpus
+        
         super().__init__(
             *args,
             cube_file = cube_file,
@@ -168,12 +181,12 @@ class Batoms_renderer(Render_maker):
             resolution = resolution,
             also_make_png = also_make_png,
             isovalue = math.fabs(isovalue),
+            num_cpu = num_cpu,
             **kwargs
         )
         
         # Blender specific options.
         self.render_samples = render_samples
-        self.cpus = cpus
         self.perspective = perspective
         self.stack = stack
 
@@ -188,7 +201,7 @@ class Batoms_renderer(Render_maker):
             self.blender_executable = get_resource('data/batoms/blender/blender')
             
     @classmethod
-    def from_options(self, output, *, cube_file = None, rotations = None, cpus = None, options, **kwargs):
+    def from_options(self, output, *, cube_file = None, rotations = None, cpus = None, num_cpu = 1, options, **kwargs):
         """
         Constructor that takes a dictionary of config like options.
         """        
@@ -204,7 +217,9 @@ class Batoms_renderer(Render_maker):
             use_existing = options['render']['use_existing'],
             dont_modify = not options['render']['enable_rendering'],
             blender_executable = options['render']['batoms']['blender'],
+            # Deprecated...
             cpus = cpus if cpus is not None else options['render']['batoms']['cpus'],
+            num_cpu = num_cpu,
             perspective = options['render']['batoms']['perspective'],
             logging = options['logging']['render_logging'],
             **kwargs
@@ -226,7 +241,7 @@ class Batoms_renderer(Render_maker):
             f"{self.input_file}",
             f"{output}",
             # Keywords.
-            "--cpus", f"{self.cpus}",
+            "--cpus", f"{self.num_cpu}",
             "--orientation", "{}".format(orientation[0]), "{}".format(orientation[1]), "{}".format(orientation[2]),
             "--resolution", f"{resolution}",
             "--render-samples", f"{samples}",

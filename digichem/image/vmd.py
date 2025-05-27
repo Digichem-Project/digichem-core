@@ -35,7 +35,7 @@ class VMD_image_maker(Render_maker):
     options_name = "orbital"
     
     def __init__(self, *args, cube_file = None, rotations = None, auto_crop = True, rendering_style = "pastel", resolution = 1024, also_make_png = True, isovalue = 0.2, 
-                 vmd_executable = "vmd", tachyon_executable = "tachyon", vmd_logging = False,
+                 vmd_executable = "vmd", tachyon_executable = "tachyon", vmd_logging = False, num_cpu = 1,
                  **kwargs):
         """
         Constructor for Image_maker objects.
@@ -48,6 +48,7 @@ class VMD_image_maker(Render_maker):
         :param resolution: The max width or height of the rendered images in pixels.
         :param also_make_png: If True, additional images will be rendered in PNG format. This option is useful to generate higher quality images alongside more portable formats. If 'output' is a .png file, then it is wise to set this option to False (otherwise two png files will be rendered, which is a waste).
         :param isovalue: The isovalue to use for rendering isosurfaces. Has no effect when rendering only atoms.
+        :param num_cpu: Number of CPUs to use for multithreading.
         :param vmd_executable: 'Path' to the vmd executable to use for image rendering. Defaults to relying on the command 'vmd'.
         :param tachyon_executable: 'Path' to the tachyon executable to use for image rendering. Defaults to relying on the command 'tachyon'.
         :param vmd_logging: Whether to print output from vmd.
@@ -60,6 +61,7 @@ class VMD_image_maker(Render_maker):
             resolution = resolution,
             also_make_png = also_make_png,
             isovalue = isovalue,
+            num_cpu = num_cpu,
             **kwargs
         )
         
@@ -95,7 +97,7 @@ class VMD_image_maker(Render_maker):
         return [(axis, math.degrees(-theta)) for axis, theta in self._rotations]
     
     @classmethod
-    def from_options(self, output, *, cube_file = None, rotations = None, options, **kwargs):
+    def from_options(self, output, *, cube_file = None, rotations = None, options, num_cpu = 1, **kwargs):
         """
         Constructor that takes a dictionary of config like options.
         """        
@@ -112,6 +114,7 @@ class VMD_image_maker(Render_maker):
             vmd_executable = options['render']['vmd']['executable'],
             tachyon_executable = options['render']['vmd']['tachyon'],
             vmd_logging = options['logging']['render_logging'],
+            num_cpu = num_cpu,
             **kwargs
         )
     
@@ -344,6 +347,7 @@ class VMD_image_maker(Render_maker):
                         "{}".format(self.tachyon_executable),
                         scene_file.relative_to(working_directory),
                         "-aasamples", "12",
+                        "-numthreads", "{}".format(self.num_cpu),
                         "-res", "{}".format(resolution), "{}".format(resolution),
                         "-o", tmpfile_name
                     ],
