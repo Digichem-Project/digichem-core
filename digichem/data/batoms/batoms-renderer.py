@@ -19,12 +19,12 @@ addon_utils.enable("batoms", handle_error = handle_error, default_set=True)
 
 import sys
 import argparse
-import itertools
 import bpy
 import yaml
 import math
 from pathlib import Path
 import logging
+import numpy
 
 import ase.io
 from batoms import Batoms
@@ -313,6 +313,9 @@ def main():
     parser.add_argument("--alpha", help = "Override the opacity value for all molecule objects (but not dipoles) to  1- this value, useful for showing dipole arrows more clearly", default = None, type = float)
     parser.add_argument("--perspective", help = "The perspective mode, either orthographic or perspective", default = "perspective", choices = ["perspective", "orthographic"])
     parser.add_argument("--padding", help = "Padding", type = float, default = 1.0)
+    parser.add_argument("--rotate", help = "Animate a rotation around a given axis", nargs = 3, type = float, default = [])
+    parser.add_argument("--fps", help = "The framerate of the animation", default = 24, type = float)
+    parser.add_argument("--duration", help = "How long should the animation last for (s)", default = 3, type = float)
     
     # Both blender and python share the same command line arguments.
     # They are separated by double dash ('--'), everything before is for blender,
@@ -329,6 +332,10 @@ def main():
     # This is surprising, so stop now before that happens.
     if Path(args.output).suffix.lower() != ".png":
         raise ValueError("Output location must have a .png extension")
+    
+    # We can't auto rotate and have a manual rotation.
+    if len(args.rotate) != 0 and args.orientation != [0, 0, 0]:
+        raise ValueError("You cannot set both --rotate and --orientation")
     
     if args.rotations is not None:
         rotations = [yaml.safe_load(rotation) for rotation in args.rotations]
@@ -454,15 +461,67 @@ def main():
     # 2) rotate the molecule.
     #
     # We use option 2, because this gives us more control.
-    mol.obj.delta_rotation_euler = args.orientation
+    if args.rotate == []:
+        # A single image.
+        mol.obj.delta_rotation_euler = args.orientation
+        
+        if mol2 is not None:
+            mol2.obj.delta_rotation_euler = args.orientation
+
+        for arrow in arrows:
+            arrow.delta_rotation_euler = args.orientation
+
+        mol.get_image(viewport = [0,0,1], output = args.output, padding = args.padding)
     
-    if mol2 is not None:
-        mol2.obj.delta_rotation_euler = args.orientation
+    else:
+        # We're making a movie.
+        # Decide how many frames.
+        # FPS.
+        # Seconds.
+        frames = round(args.fps * args.duration)
 
-    for arrow in arrows:
-        arrow.delta_rotation_euler = args.orientation
+        # Decide on our angles.
+        end = [
+            # X
+            args.rotate[0] * 2* math.pi,
+            # Y
+            args.rotate[1] * 2* math.pi,
+            #Z
+            args.rotate[2] * 2* math.pi,
+        ]
 
-    mol.get_image(viewport = [0,0,1], output = args.output, padding = args.padding)
+        # Decide on our steps.
+        steps = [
+            # X
+            numpy.linspace(0, end[0], frames),
+            # Y
+            numpy.linspace(0, end[1], frames),
+            # Z
+            numpy.linspace(0, end[2], frames)
+        ]
+
+        # Now go.
+        for i, (x,y,z) in enumerate(zip(steps[0], steps[1], steps[2])):
+            # Rotate.
+            mol.obj.delta_rotation_euler = (x,y,z)
+        
+            if mol2 is not None:
+                mol2.obj.delta_rotation_euler = (x,y,z)
+
+            for arrow in arrows:
+                arrow.delta_rotation_euler = (x,y,z)
+
+            # And render.
+            mol.get_image(
+                viewport = [0,0,1],
+                output = Path(args.output).with_stem(
+                    "{}{}".format(
+                        Path(args.output).stem,
+                        i
+                    )
+                ),
+                padding = args.padding
+            )
     
     return 0
     
