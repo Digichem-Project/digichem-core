@@ -313,7 +313,7 @@ def main():
     parser.add_argument("--alpha", help = "Override the opacity value for all molecule objects (but not dipoles) to  1- this value, useful for showing dipole arrows more clearly", default = None, type = float)
     parser.add_argument("--perspective", help = "The perspective mode, either orthographic or perspective", default = "perspective", choices = ["perspective", "orthographic"])
     parser.add_argument("--padding", help = "Padding", type = float, default = 1.0)
-    parser.add_argument("--multi", help = "Render multiple images, each of a different angle of the scene. Each argument should consist of 4 parts, the x y z position followed by the filename (which is appended to 'output')", nargs = 4, default =[], action="append")
+    parser.add_argument("--multi", help = "Render multiple images, each of a different angle of the scene. Each argument should consist of 5 parts, the x y z position, the resolution, and the filename (which is appended to 'output')", nargs = 5, default =[], action="append")
     # Both blender and python share the same command line arguments.
     # They are separated by double dash ('--'), everything before is for blender,
     # everything afterwards is for python (except for the first argument, wich is
@@ -335,6 +335,9 @@ def main():
 
     if args.multi != [] and args.orientation != [0, 0, 0]:
         raise ValueError("You cannot set both --orientation and --multi!")
+
+    if args.mutli != [] and args.resolution != 1024:
+        raise ValueError("You cannot set both --resolution and --multi!")
     
     # Remove the starting cube object.
     bpy.ops.object.select_all(action='SELECT')
@@ -394,7 +397,6 @@ def main():
 #     mol.render.engine = 'workbench'
 #     mol.render.engine = 'eevee'
     mol.render.engine = 'cycles'
-    mol.render.resolution = [args.resolution, args.resolution]
     # Set up cycles for good quality rendering.
     # Prevents early end to rendering (forces us to use the actual number of samples).
     bpy.context.scene.cycles.use_adaptive_sampling = False
@@ -461,17 +463,18 @@ def main():
     # Work out how many angles we're rendering from.
     if args.multi == []:
         # Just one.
-        targets = [[args.orientation[0], args.orientation[1], args.orientation[2], ""]]
+        targets = [[args.orientation[0], args.orientation[1], args.orientation[2], args.resolution, ""]]
     
     else:
         # More than one.
         targets = args.multi
 
-    for x, y, z, mini_file_name in targets:
+    for x, y, z, resolution, mini_file_name in targets:
         # Add args.output and mini_file_name together (useful for --multi).
         full_file_name = Path(args.output).with_stem(Path(args.output).stem + mini_file_name)
         orientation = (float(x), float(y), float(z))
 
+        mol.render.resolution = [resolution, resolution]
         mol.obj.delta_rotation_euler = orientation
         
         if mol2 is not None:
