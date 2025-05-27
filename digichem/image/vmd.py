@@ -347,6 +347,7 @@ class VMD_image_maker(Render_maker):
                         "{}".format(self.tachyon_executable),
                         scene_file.relative_to(working_directory),
                         "-aasamples", "12",
+                        # Note: this can get capped in a SLURM context...
                         "-numthreads", "{}".format(self.num_cpu),
                         "-res", "{}".format(resolution), "{}".format(resolution),
                         "-o", tmpfile_name
