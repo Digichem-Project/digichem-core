@@ -11,6 +11,7 @@ import yaml
 from PIL import Image
 import math
 import numpy
+import warnings
 import json
 
 import digichem.log
@@ -18,6 +19,7 @@ from digichem.exception.base import File_maker_exception
 from digichem.file.base import File_converter
 from digichem.image.base import Cropable_mixin
 from digichem.datas import get_resource
+
 
 class Render_maker(File_converter, Cropable_mixin):
     """
@@ -38,6 +40,7 @@ class Render_maker(File_converter, Cropable_mixin):
             resolution = 1024,
             also_make_png = True,
             isovalue = 0.2,
+            num_cpu = 1,
             **kwargs):
         """
         Constructor for Image_maker objects.
@@ -49,6 +52,7 @@ class Render_maker(File_converter, Cropable_mixin):
         :param resolution: The max width or height of the rendered images in pixels.
         :param also_make_png: If True, additional images will be rendered in PNG format. This option is useful to generate higher quality images alongside more portable formats.
         :param isovalue: The isovalue to use for rendering isosurfaces. Has no effect when rendering only atoms.
+        :param num_cpu: The number of CPUs for multithreading.
         :param blender_executable:
         """
         super().__init__(*args, input_file = cube_file, **kwargs)
@@ -64,6 +68,7 @@ class Render_maker(File_converter, Cropable_mixin):
         self.target_resolution = resolution
         self.also_make_png = also_make_png
         self.isovalue = isovalue
+        self.num_cpu = num_cpu
         
         # TODO: These.
         self.primary_colour = "red"
@@ -141,6 +146,7 @@ class Batoms_renderer(Render_maker):
             isovalue = 0.02,
             blender_executable = None,
             cpus = 1,
+            num_cpu = 1,
             perspective = "perspective",
             logging = False,
             **kwargs):
@@ -157,9 +163,16 @@ class Batoms_renderer(Render_maker):
         :param also_make_png: If True, additional images will be rendered in PNG format. This option is useful to generate higher quality images alongside more portable formats.
         :param isovalue: The isovalue to use for rendering isosurfaces. Has no effect when rendering only atoms.
         :param blender_executable: Bath to the blender executable (can be None to use a default).
-        :param cpus: Number of parallel threads to render with.
+        :param cpus: DEPREACTED: Number of parallel threads to render with (use num_cpu instead)
+        :param num_cpu: Number of parallel threads to render with.
         :param perspective: Perspective mode (orthographic or perspective)
         """
+        if cpus != 1:
+            warnings.warn("cpus is deprecated, use num_cpu instead", DeprecationWarning)
+        
+        if num_cpu == 1 and cpus != 1:
+            num_cpu = cpus
+        
         super().__init__(
             *args,
             cube_file = cube_file,
@@ -168,12 +181,12 @@ class Batoms_renderer(Render_maker):
             resolution = resolution,
             also_make_png = also_make_png,
             isovalue = math.fabs(isovalue),
+            num_cpu = num_cpu,
             **kwargs
         )
         
         # Blender specific options.
         self.render_samples = render_samples
-        self.cpus = cpus
         self.perspective = perspective
         self.stack = stack
 
@@ -188,7 +201,7 @@ class Batoms_renderer(Render_maker):
             self.blender_executable = get_resource('data/batoms/blender/blender')
             
     @classmethod
-    def from_options(self, output, *, cube_file = None, rotations = None, cpus = None, options, **kwargs):
+    def from_options(self, output, *, cube_file = None, rotations = None, cpus = None, num_cpu = 1, options, **kwargs):
         """
         Constructor that takes a dictionary of config like options.
         """        
@@ -204,13 +217,15 @@ class Batoms_renderer(Render_maker):
             use_existing = options['render']['use_existing'],
             dont_modify = not options['render']['enable_rendering'],
             blender_executable = options['render']['batoms']['blender'],
+            # Deprecated...
             cpus = cpus if cpus is not None else options['render']['batoms']['cpus'],
+            num_cpu = num_cpu,
             perspective = options['render']['batoms']['perspective'],
             logging = options['logging']['render_logging'],
             **kwargs
         )
         
-    def blender_signature(self, output, resolution, samples, orientation, padding = 1.0):
+    def blender_signature(self, *targets, padding = 1.0):
         """
         The signature passed to subprocess.run used to call Blender. Inheriting classes should write their own implementation.
         """
@@ -224,23 +239,40 @@ class Batoms_renderer(Render_maker):
             "--",
             # Script specific args.
             f"{self.input_file}",
-            f"{output}",
+            # f"{output}",
             # Keywords.
-            "--cpus", f"{self.cpus}",
-            "--orientation", "{}".format(orientation[0]), "{}".format(orientation[1]), "{}".format(orientation[2]),
-            "--resolution", f"{resolution}",
-            "--render-samples", f"{samples}",
+            "--cpus", f"{self.num_cpu}",
+            # "--orientation", "{}".format(orientation[0]), "{}".format(orientation[1]), "{}".format(orientation[2]),
+            # "--resolution", f"{resolution}",
+            # "--render-samples", f"{samples}",
             "--perspective", f"{self.perspective}",
             "--padding", f"{padding}",
             "--rotations",
         ]
+        for orientation, resolution, samples, mini_file_name in targets:
+            args.extend([
+                "--multi",
+                "{}".format(orientation[0]), "{}".format(orientation[1]), "{}".format(orientation[2]),
+                f"{resolution}",
+                f"{samples}",
+                mini_file_name
+            ])
+
         # Add rotations.
         for rotation in self.rotations:
             args.append(json.dumps(rotation))
         
         return args
     
-    def run_blender(self, output, resolution, samples, orientation):
+    #def run_blender(self, output, resolution, samples, orientation):
+
+    def run_blender(self, *targets):
+        """
+        Render a (number of) images with blender.
+
+        :param samples: How many render samples to use.
+        :param *targets: Images to render, each is a tuple if (orientation, resolution, samples, path).
+        """
         # Render with batoms.
         env = dict(os.environ)
         
@@ -252,7 +284,7 @@ class Batoms_renderer(Render_maker):
         # Run Blender, which renders our image for us.
         try:
             blender_process = subprocess.run(
-                self.blender_signature(output, resolution, samples, orientation),
+                self.blender_signature(*targets),
                 stdin = subprocess.DEVNULL,
                 stdout = subprocess.PIPE if not self.logging else None,
                 stderr = subprocess.STDOUT,
@@ -261,8 +293,9 @@ class Batoms_renderer(Render_maker):
                 env = env,
             )
             
-            if not output.exists():
-                raise File_maker_exception(self, "Could not find render file")
+            for target in targets:
+                if not target[3].exists():
+                    raise File_maker_exception(self, "Could not find render file '{}'".format(target[3]))
 
         except FileNotFoundError:
             raise File_maker_exception(self, "Could not locate blender executable '{}'".format(self.blender_executable))
@@ -285,23 +318,42 @@ class Batoms_renderer(Render_maker):
         The new image will be written to file.
         """
         # TODO: This mechanism is clunky and inefficient if only one image is needed because its based off the old VMD renderer. With batoms we can do much better.
-        for image_name, orientation in [
-                ('x0y0z0', (0,0,0)),
-                ('x90y0z0', (1.5708, 0, 0)),
-                ('x0y90z0', (0, 1.5708, 0)),
-                ('x45y45z45',(0.785398, 0.785398, 0.785398))
-            ]:
-            image_path = self.file_path[image_name]
-            try:
-                # First we'll render a test image at a lower resolution. We'll then crop it, and use the decrease in final resolution to know how much bigger we need to render in our final image to hit our target resolution.
-                # Unless of course auto_crop is False, in which case we use our target resolution immediately.
-                resolution = self.test_resolution if self.auto_crop else self.target_resolution
-                samples = self.test_samples if self.auto_crop else self.render_samples
-                self.run_blender(image_path.with_suffix(".tmp.png"), resolution, samples, orientation)
-                
-                if self.auto_crop:
-                    # Load the test image and autocrop it.
-                    with Image.open(image_path.with_suffix(".tmp.png"), "r") as test_im:
+        angles = {
+            "x0y0z0": [
+                (0,0,0),
+                self.test_resolution if self.auto_crop else self.target_resolution,
+                self.test_samples if self.auto_crop else self.render_samples,
+                self.file_path['x0y0z0'].with_suffix(".tmp.png")
+            ],
+            "x90y0z0": [
+                (1.5708, 0, 0),
+                self.test_resolution if self.auto_crop else self.target_resolution,
+                self.test_samples if self.auto_crop else self.render_samples,
+                self.file_path['x90y0z0'].with_suffix(".tmp.png")
+            ],
+            "x0y90z0": [
+                (0, 1.5708, 0),
+                self.test_resolution if self.auto_crop else self.target_resolution,
+                self.test_samples if self.auto_crop else self.render_samples,
+                self.file_path['x0y90z0'].with_suffix(".tmp.png")
+            ],
+            "x45y45z45": [
+                (0.785398, 0.785398, 0.785398),
+                self.test_resolution if self.auto_crop else self.target_resolution,
+                self.test_samples if self.auto_crop else self.render_samples,
+                self.file_path['x45y45z45'].with_suffix(".tmp.png")
+            ],
+        }
+        
+        try:
+            # First we'll render a test image at a lower resolution. We'll then crop it, and use the decrease in final resolution to know how much bigger we need to render in our final image to hit our target resolution.
+            # Unless of course auto_crop is False, in which case we use our target resolution immediately.
+            self.run_blender(*list(angles.values()))
+            
+            if self.auto_crop:
+                # Load the test image and autocrop it.
+                for angle, target in angles.items():
+                    with Image.open(target[3], "r") as test_im:
                         small_test_im = self.auto_crop_image(test_im)
                         
                     # Get the cropped size. We're interested in the largest dimension, as this is what we'll output as.
@@ -309,15 +361,28 @@ class Batoms_renderer(Render_maker):
                     
                     # From this we can work out the ratio between our true resolution and the resolution we've been asked for.
                     resolution_ratio = cropped_resolution / self.test_resolution
+
+                    # Update the target properties.
+                    angles[angle] = [
+                        # Orientation is the same.
+                        angles[angle][0],
+                        # New resolution.
+                        int(self.target_resolution / resolution_ratio),
+                        # New samples.
+                        self.render_samples,
+                        # New filename,
+                        angles[angle][3]
+                    ]
                     
-                    self.run_blender(image_path.with_suffix(".tmp.png"), int(self.target_resolution / resolution_ratio), self.render_samples, orientation)
-                
-            except Exception:
-                raise File_maker_exception(self, "Error in blender rendering")
+                self.run_blender(*list(angles.values()))
             
-            # Convert to a better set of formats.
-            # Open the file we just rendered.
-            with Image.open(image_path.with_suffix(".tmp.png"), "r") as im:
+        except Exception:
+            raise File_maker_exception(self, "Error in blender rendering")
+        
+        # Convert to a better set of formats.
+        # Open the files we just rendered.
+        for angle, target in angles.items():
+            with Image.open(target[3], "r") as im:
                 
                 # If we've been asked to autocrop, do so.
                 if self.auto_crop:
@@ -341,7 +406,7 @@ class Batoms_renderer(Render_maker):
                 
                 # Save as a higher quality png if we've been asked to.
                 if self.also_make_png:
-                    cropped_image.save(self.file_path[image_name + "_big"])
+                    cropped_image.save(self.file_path[angle + "_big"])
                     
                 # Remove transparency, which isn't supported by JPEG (which is essentially the only format we write here).
                 # TODO: Check if the output format can support transparency or not.
@@ -350,10 +415,10 @@ class Batoms_renderer(Render_maker):
                 cropped_image = new_image.convert('RGB')
                 
                 # Now save in our main output format.
-                cropped_image.save(image_path)
+                cropped_image.save(self.file_path[angle])
                 
                 # And delete the old .png.
-                os.remove(image_path.with_suffix(".tmp.png"))
+                os.remove(target[3])
 
 
 class Structure_image_maker(Batoms_renderer):

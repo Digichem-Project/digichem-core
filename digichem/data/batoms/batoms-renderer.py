@@ -295,7 +295,7 @@ def main():
         description='Render images with BAtoms')
     
     parser.add_argument("cube_file", help = "Path to the cube file to read")
-    parser.add_argument("output", help = "File to write to")
+    parser.add_argument("output", help = "File to write to", nargs="?", default = None)
     parser.add_argument("--second_cube", help = "Optional second cube file to read additional isosurface data from", default = None)
     parser.add_argument("--isovalues", help = "List of isovalues to render", nargs = "*", type = float, default = [])
     parser.add_argument("--isotype", help = "Whether to render positive, negative or both isosurfaces for each isovalue", choices = ["positive", "negative", "both"], default = "both")
@@ -313,7 +313,7 @@ def main():
     parser.add_argument("--alpha", help = "Override the opacity value for all molecule objects (but not dipoles) to  1- this value, useful for showing dipole arrows more clearly", default = None, type = float)
     parser.add_argument("--perspective", help = "The perspective mode, either orthographic or perspective", default = "perspective", choices = ["perspective", "orthographic"])
     parser.add_argument("--padding", help = "Padding", type = float, default = 1.0)
-    
+    parser.add_argument("--multi", help = "Render multiple images, each of a different angle of the scene. Each argument should consist of 6 parts, the x y z position, the resolution, the samples, and the filename (which is appended to 'output')", nargs = 6, default =[], action="append")
     # Both blender and python share the same command line arguments.
     # They are separated by double dash ('--'), everything before is for blender,
     # everything afterwards is for python (except for the first argument, wich is
@@ -327,11 +327,21 @@ def main():
     
     # Batoms or blender will silently set the extension to png if it's not already.
     # This is surprising, so stop now before that happens.
-    if Path(args.output).suffix.lower() != ".png":
+    if args.output is not None and Path(args.output).suffix.lower() != ".png":
         raise ValueError("Output location must have a .png extension")
     
     if args.rotations is not None:
         rotations = [yaml.safe_load(rotation) for rotation in args.rotations]
+
+    if args.multi != []:
+        if args.orientation != [0, 0, 0]:
+            raise ValueError("You cannot set both --orientation and --multi!")
+
+        if args.resolution != 1024:
+            raise ValueError("You cannot set both --resolution and --multi!")
+        
+        if args.output is not None:
+            raise ValueError("You cannot set both 'output' and --multi!")
     
     # Remove the starting cube object.
     bpy.ops.object.select_all(action='SELECT')
@@ -391,12 +401,9 @@ def main():
 #     mol.render.engine = 'workbench'
 #     mol.render.engine = 'eevee'
     mol.render.engine = 'cycles'
-    mol.render.resolution = [args.resolution, args.resolution]
     # Set up cycles for good quality rendering.
     # Prevents early end to rendering (forces us to use the actual number of samples).
     bpy.context.scene.cycles.use_adaptive_sampling = False
-    # Quality control, more = better and slower.
-    bpy.context.scene.cycles.samples = args.render_samples
     # Post-processing to remove noise, works well for coloured backgrounds, useless for transparency.
     bpy.context.scene.cycles.use_denoising = True
     # Ray-tracing options
@@ -454,15 +461,32 @@ def main():
     # 2) rotate the molecule.
     #
     # We use option 2, because this gives us more control.
-    mol.obj.delta_rotation_euler = args.orientation
+
+    # Work out how many angles we're rendering from.
+    if args.multi == []:
+        # Just one.
+        targets = [[args.orientation[0], args.orientation[1], args.orientation[2], args.resolution, args.render_samples, args.output]]
     
-    if mol2 is not None:
-        mol2.obj.delta_rotation_euler = args.orientation
+    else:
+        # More than one.
+        targets = args.multi
 
-    for arrow in arrows:
-        arrow.delta_rotation_euler = args.orientation
+    for x, y, z, resolution, samples, full_file_name in targets:
+        # Add args.output and mini_file_name together (useful for --multi).
+        orientation = (float(x), float(y), float(z))
 
-    mol.get_image(viewport = [0,0,1], output = args.output, padding = args.padding)
+        mol.render.resolution = [resolution, resolution]
+        # Quality control, more = better and slower.
+        bpy.context.scene.cycles.samples = int(samples)
+        mol.obj.delta_rotation_euler = orientation
+        
+        if mol2 is not None:
+            mol2.obj.delta_rotation_euler = orientation
+
+        for arrow in arrows:
+            arrow.delta_rotation_euler = orientation
+
+        mol.get_image(viewport = [0,0,1], output = full_file_name, padding = args.padding)
     
     return 0
     
