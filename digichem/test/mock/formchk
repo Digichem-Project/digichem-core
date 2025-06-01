@@ -24,9 +24,10 @@ def main():
     parser.add_argument("-i8 ", help = "Formatting option, see https://gaussian.com/formchk/", action = "store_true")
 
     args = parser.parse_args()
-
-    with open(args.fchk if args.fchk is not None else args.chk.with_suffix(".fchk"), "wt") as fchk_file:
-        fchk_file.write(FCHK_DATA)
+    # We don't actually need to read anything, but it's useful to simulate the behaviour and error characteristics of the real thing.
+    with open(args.chk, "rb") as chk_file:
+        with open(args.fchk if args.fchk is not None else args.chk.with_suffix(".fchk"), "wt") as fchk_file:
+            fchk_file.write(FCHK_DATA)
 
 FCHK_DATA = \
 """Benzene_Optimisation_Frequencies_PBE0__GD3BJ__Gas_Phase_Pople_Basis_Sets
