@@ -56,7 +56,7 @@ jobs:
     - name: Download blender
       run: |
         cd ~/
-        wget https://github.com/Digichem-Project/build-boy/releases/download/6.8.2-CentOS-Stream-8/blender.4.4.batoms.CentOS-Stream-8.tar.gz blender.tar.gz
+        wget https://github.com/Digichem-Project/build-boy/releases/download/6.8.2-CentOS-Stream-8/blender.4.4.batoms.CentOS-Stream-8.tar.gz -O blender.tar.gz
         tar -xzf blender.tar.gz
         cd blender
         ln -s blender blender-batoms
