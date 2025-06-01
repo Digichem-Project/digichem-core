@@ -11,7 +11,7 @@ permissions:
   contents: read
 
 jobs:
-  build:
+  Test:
 
     defaults:
         run:
