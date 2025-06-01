@@ -62,6 +62,7 @@ jobs:
         export PYTHONPATH="./:$PYTHONPATH"
         pytest
     - name: Commit changes
+      continue-on-error: true
       run: |
         git config --global user.email "osl@st-andrews.ac.uk"
         git config --global user.name "Oliver Lee"
