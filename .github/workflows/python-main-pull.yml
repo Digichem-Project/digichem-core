@@ -53,6 +53,14 @@ jobs:
         flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
         # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+    - name: Download blender
+      run: |
+        cd ~/
+        wget https://github.com/Digichem-Project/build-boy/releases/download/6.8.2-CentOS-Stream-8/blender.4.4.batoms.CentOS-Stream-8.tar.gz blender.tar.gz
+        tar -xzf blender.tar.gz
+        cd blender
+        ln -s blender blender-batoms
+        echo "PATH=$PATH:$HOME/blender" >> $GITHUB_ENV
     - name: Test with pytest
       run: |
         export PYTHONPATH="./:$PYTHONPATH"
