@@ -59,8 +59,8 @@ jobs:
         wget https://github.com/Digichem-Project/build-boy/releases/download/6.8.2-CentOS-Stream-8/blender.4.4.batoms.CentOS-Stream-8.tar.gz -O blender.tar.gz --quiet
         tar -xzf blender.tar.gz
         cd blender
-        ln -s blender blender-batoms
-        echo "PATH=$PATH:$HOME/blender" >> $GITHUB_ENV
+        ln -s blender batoms-blender
+        echo "$HOME/blender" >> $GITHUB_PATH
     - name: Test with pytest
       run: |
         export PYTHONPATH="./:$PYTHONPATH"
