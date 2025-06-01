@@ -227,8 +227,8 @@ def test_density_image(cube_file, maker_cls, tmp_path, digichem_options):
     Path(data_directory(), "Cubes/Benzene.anion.spin.cube")
 ], ids = ["Gaussian"])
 @pytest.mark.parametrize("maker_cls", [
-    pytest.param(digichem.image.vmd.Density_image_maker, marks = pytest.mark.skipif(not HAS_VMD, reason = "VMD is not available")),
-    pytest.param(digichem.image.render.Density_image_maker, marks = pytest.mark.skipif(not HAS_BLENDER, reason = "Blender is not available")),
+    pytest.param(digichem.image.vmd.Spin_density_image_maker, marks = pytest.mark.skipif(not HAS_VMD, reason = "VMD is not available")),
+    pytest.param(digichem.image.render.Spin_density_image_maker, marks = pytest.mark.skipif(not HAS_BLENDER, reason = "Blender is not available")),
 ], ids = ["vmd", "batoms"])
 def test_spin_density_image(cube_file, maker_cls, tmp_path, digichem_options):
     """Can we make a 3D structure image?"""
@@ -246,8 +246,8 @@ def test_spin_density_image(cube_file, maker_cls, tmp_path, digichem_options):
     [Path(data_directory(), "Cubes/Pyridine.HOMO.cube"), Path(data_directory(), "Cubes/Pyridine.LUMO.cube")]
 ], ids = ["Gaussian"])
 @pytest.mark.parametrize("maker_cls", [
-    pytest.param(digichem.image.vmd.Density_image_maker, marks = pytest.mark.skipif(not HAS_VMD, reason = "VMD is not available")),
-    pytest.param(digichem.image.render.Density_image_maker, marks = pytest.mark.skipif(not HAS_BLENDER, reason = "Blender is not available")),
+    pytest.param(digichem.image.vmd.Combined_orbital_image_maker, marks = pytest.mark.skipif(not HAS_VMD, reason = "VMD is not available")),
+    pytest.param(digichem.image.render.Combined_orbital_image_maker, marks = pytest.mark.skipif(not HAS_BLENDER, reason = "Blender is not available")),
 ], ids = ["vmd", "batoms"])
 def test_combined_orbital_image(homo_cube, maker_cls, lumo_cube, tmp_path, digichem_options):
     """Can we make a 3D structure image?"""
@@ -266,8 +266,8 @@ def test_combined_orbital_image(homo_cube, maker_cls, lumo_cube, tmp_path, digic
     Path(data_directory(), "Cubes/Benzene.anion.AHOMO.cube")
 ], ids = ["Gaussian"])
 @pytest.mark.parametrize("maker_cls", [
-    pytest.param(digichem.image.vmd.Density_image_maker, marks = pytest.mark.skipif(not HAS_VMD, reason = "VMD is not available")),
-    pytest.param(digichem.image.render.Density_image_maker, marks = pytest.mark.skipif(not HAS_BLENDER, reason = "Blender is not available")),
+    pytest.param(digichem.image.vmd.Alpha_orbital_image_maker, marks = pytest.mark.skipif(not HAS_VMD, reason = "VMD is not available")),
+    pytest.param(digichem.image.render.Alpha_orbital_image_maker, marks = pytest.mark.skipif(not HAS_BLENDER, reason = "Blender is not available")),
 ], ids = ["vmd", "batoms"])
 def test_unrestricted_orbital_image(cube_file, maker_cls, tmp_path, digichem_options):
     """Can we make a 3D structure image?"""
@@ -288,8 +288,8 @@ def test_unrestricted_orbital_image(cube_file, maker_cls, tmp_path, digichem_opt
     ]
 ])
 @pytest.mark.parametrize("maker_cls", [
-    pytest.param(digichem.image.vmd.Density_image_maker, marks = pytest.mark.skipif(not HAS_VMD, reason = "VMD is not available")),
-    pytest.param(digichem.image.render.Density_image_maker, marks = pytest.mark.skipif(not HAS_BLENDER, reason = "Blender is not available")),
+    pytest.param(digichem.image.vmd.Permanent_dipole_image_maker, marks = pytest.mark.skipif(not HAS_VMD, reason = "VMD is not available")),
+    pytest.param(digichem.image.render.Permanent_dipole_image_maker, marks = pytest.mark.skipif(not HAS_BLENDER, reason = "Blender is not available")),
 ], ids = ["vmd", "batoms"])
 def test_pdm_image(result_path, cube_file, maker_cls, tmp_path, digichem_options):
     """Can we make a 3D structure image?"""
@@ -313,8 +313,8 @@ def test_pdm_image(result_path, cube_file, maker_cls, tmp_path, digichem_options
     ]
 ])
 @pytest.mark.parametrize("maker_cls", [
-    pytest.param(digichem.image.vmd.Density_image_maker, marks = pytest.mark.skipif(not HAS_VMD, reason = "VMD is not available")),
-    pytest.param(digichem.image.render.Density_image_maker, marks = pytest.mark.skipif(not HAS_BLENDER, reason = "Blender is not available")),
+    pytest.param(digichem.image.vmd.Transition_dipole_image_maker, marks = pytest.mark.skipif(not HAS_VMD, reason = "VMD is not available")),
+    pytest.param(digichem.image.render.Transition_dipole_image_maker, marks = pytest.mark.skipif(not HAS_BLENDER, reason = "Blender is not available")),
 ], ids = ["vmd", "batoms"])
 def test_tdm_image(result_path, cube_file, maker_cls, tmp_path, digichem_options):
     """Can we make a 3D structure image?"""
@@ -336,8 +336,8 @@ def test_tdm_image(result_path, cube_file, maker_cls, tmp_path, digichem_options
     Path(data_directory(), "Cubes/Pyridine.HOMO.cube"),
 ])
 @pytest.mark.parametrize("maker_cls", [
-    pytest.param(digichem.image.vmd.Density_image_maker, marks = pytest.mark.skipif(not HAS_VMD, reason = "VMD is not available")),
-    pytest.param(digichem.image.render.Density_image_maker, marks = pytest.mark.skipif(not HAS_BLENDER, reason = "Blender is not available")),
+    pytest.param(digichem.image.vmd.Orbital_image_maker, marks = pytest.mark.skipif(not HAS_VMD, reason = "VMD is not available")),
+    pytest.param(digichem.image.render.Orbital_image_maker, marks = pytest.mark.skipif(not HAS_BLENDER, reason = "Blender is not available")),
 ], ids = ["vmd", "batoms"])
 def test_nto_image(cube_file, maker_cls, tmp_path, digichem_options):
     """Can we make a 3D structure image?"""
