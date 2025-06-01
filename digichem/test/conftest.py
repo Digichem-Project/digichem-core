@@ -6,4 +6,4 @@ from pathlib import Path
 numpy.seterr(invalid = 'raise', divide = 'raise')
 
 # Expand path to include mocks.
-os.environ["PATH"] = str(Path(__file__, "../mock")) + os.pathsep + os.environ["PATH"]
+os.environ["PATH"] = str(Path(__file__).parent / "mock") + os.pathsep + os.environ["PATH"]
