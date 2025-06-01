@@ -180,8 +180,6 @@ def test_2d_diagram(result_set, tmp_path, digichem_options):
     assert Path(tmp_path, "tmp.png").exists()
 
 
-@pytest.mark.skipif(not HAS_VMD,
-                    reason="No VMD available")
 @pytest.mark.parametrize("cube_file", [
     Path(data_directory(), "Cubes/Pyridine.HOMO.cube")
 ], ids = ["Gaussian"])
