@@ -28,8 +28,8 @@ def main():
     with open(args.fchk if args.fchk is not None else args.chk.with_suffix(".fchk"), "wt") as fchk_file:
         fchk_file.write(FCHK_DATA)
 
-FCHK_DATA = """
-Benzene_Optimisation_Frequencies_PBE0__GD3BJ__Gas_Phase_Pople_Basis_Sets
+FCHK_DATA = \
+"""Benzene_Optimisation_Frequencies_PBE0__GD3BJ__Gas_Phase_Pople_Basis_Sets
 Freq      RPBE1PBE                                                    6-31G(d,p)          
 Number of atoms                            I               12
 Info1-9                                    I   N=           9
