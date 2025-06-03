@@ -6,6 +6,7 @@ import os
 import shutil
 import sys
 import warnings
+import itertools
 from uuid import uuid4
 import hashlib
 
@@ -320,3 +321,13 @@ class Safe_path():
         """
         # Close our file.
         self.close()
+
+def dir_size(target):
+    """
+    Calculate the total used file space of a directory and all contents.
+    """
+    bytes = 0
+    for path in itertools.chain(Path(target).rglob("*"), [Path(target)]):
+        bytes += path.stat().st_size
+    
+    return bytes
