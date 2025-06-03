@@ -837,7 +837,7 @@ class Performance(Result_object):
         )
 
     
-    def dump(self, digichem_options):
+    def _dump_(self, digichem_options, all):
         """
         Get a representation of this result object in primitive format.
         """
