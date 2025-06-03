@@ -33,6 +33,7 @@ class Digichem_options(Configurable):
         help = "Options specifying paths to various external programs that digichem may use. If no path is given, then these programs will simply be executed by name (so relying on OS path resolution to find the necessary executables, which is normally fine.)",
         formchk = Option(help = "Gaussian's formchk utility https://gaussian.com/formchk/", default = "formchk"),
         cubegen = Option(help = "Gaussian's cubegen utility https://gaussian.com/cubegen/", default = "cubegen"),
+        cubegen_parallel = Option(help = "What type of parallelism to use with cubegen, multithreaded runs a single instance of cubegen across multiple CPUs, pool runs multiple instances of cubegen", choices = [None, "multithreaded", "pool"], default = "pool")
     )
 
     parse = Options(
@@ -75,10 +76,11 @@ Possible options are:
             ),
         ),
         batoms = Options(help = "Beautiful Atoms/Blender specific options (only applies if engine == 'batoms'",
-            blender = Option(help = "Path to the blender executable, in which beautiful atoms should be installed", default = None),
-            cpus = Option(help = "The number of CPUs/threads to use. This option is overridden if running in a calculation environemnt (where it uses the same number of CPUs as the calculation did)", type = int, default = 1),
-            render_samples = Option(help = "The number of render samples (or passes) to use. Higher values result in higher image quality and greater render times", type = int, default = 64),
-            perspective = Option(help = "The perspective mode", choices = ["orthographic", "perspective"], default = "orthographic")
+            blender = Option(help = "Path to the blender executable, in which beautiful atoms should be installed", default = "batoms-blender"),
+            cpus = Option(help = "The number of CPUs/threads to use. This option is overridden if running in a calculation environment (where it uses the same number of CPUs as the calculation did)", type = int, default = 1),
+            render_samples = Option(help = "The number of render samples (or passes) to use. Higher values result in higher image quality and greater render times", type = int, default = 32),
+            perspective = Option(help = "The perspective mode", choices = ["orthographic", "perspective"], default = "perspective"),
+            stacking = Option(help = "The number of image copies to composite together to avoid transparency artifacts", type = int, default = 10)
             # TODO: Colour options.
         ),
         safe_cubes = Option(help = "Whether to sanitize cubes so older software can parse them (VMD < 1.9.2 etc)", type = bool, default = False),

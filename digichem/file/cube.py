@@ -3,7 +3,7 @@
 from pathlib import Path
 import subprocess
 import tempfile
-import shutil
+import asyncio
 import os
 
 try:
@@ -87,6 +87,7 @@ class Fchk_to_cube(File_converter):
             memory = None,
             cubegen_executable = "cubegen",
             sanitize = False,
+            multithreading = None,
             **kwargs):
         """
         Constructor for Fchk_to_cube objects.
@@ -110,12 +111,18 @@ class Fchk_to_cube(File_converter):
         memory = memory if memory is not None else "3 GB"
         self.memory = Memory(memory)
         # Default to number of CPUs of the system.
-        self.num_cpu = int(num_cpu) if num_cpu is not None else os.cpu_count()
+        # If we've not been asked to run multithreaded, use 1 CPU.
+        if multithreading is None or multithreading == "pool":
+            self.num_cpu = 1
+        
+        else:
+            self.num_cpu = int(num_cpu) if num_cpu is not None else os.cpu_count()
+        
         self.cubegen_executable = expand_path(cubegen_executable)
         self.sanitize = sanitize
         
     @classmethod
-    def from_options(self, output, *, fchk_file = None, cubegen_type = "MO", orbital = "HOMO", options, **kwargs):
+    def from_options(self, output, *, fchk_file = None, cubegen_type = "MO", orbital = "HOMO", num_cpu = None, options, **kwargs):
         """
         Constructor that takes a dictionary of config like options.
         """        
@@ -128,34 +135,115 @@ class Fchk_to_cube(File_converter):
             dont_modify = not options['render']['enable_rendering'],
             cubegen_executable = options['external']['cubegen'],
             sanitize = options['render']['safe_cubes'],
+            num_cpu = num_cpu,
+            multithreading = options['external']['cubegen_parallel'],
             **kwargs
         )
+    
+    def get_parallel(self, name = 'file', cpus = 1):
+        """
+        Generate the file represented by this object in a parallel context.
+
+        get_parallel() will be called by a higher level function as an argument to ThreadPoolExecutor.map() or similar,
+        to generate many files simultaneously. This is useful for slow operations (such as cube generation) that are
+        difficult to parallelise individually, but easy to parallelise across multiple files.
+
+        :param name: The file to generate.
+        :param cpus: The number of CPUs this operation should use, nearly always 1.
+        """
+        # Temporarily set CPUs to 1 (in-case it got changed somewhere else.)
+        old_cpus = self.num_cpu
+        self.num_cpu = cpus
+        try:
+            self.get_file(name = name)
             
-    def make_files(self):
+        finally:
+            self.num_cpu = old_cpus
+
+    @property
+    def signature(self):
         """
-        Make the files referenced by this object.
+        Get the call signature to run cubegen (as can be passed to Popen etc)
         """
-        # The signature we'll use to call cubegen.
-        signature = [
+        return [
             "{}".format(self.cubegen_executable),
-            #"{}".format(self.num_cpu),
-            "0", # Disable CPUs for now, cubegen does not respond well to >1.
+            # Some versions of cubegen respect this num_threads arg, some don't.
+            "{}".format(self.num_cpu),
             "{}={}".format(self.cubegen_type, self.orbital),
             str(self.input_file),
             str(self.output),
             str(self.npts)
         ]
+
+    @property
+    def env(self):
+        """
+        Get the environmental variables require to run cubegen (as can be passed to Popen etc).
+        """
+        return dict(
+            os.environ,
+            GAUSS_MEMDEF = str(self.memory),
+            # Some versions of cubegen only respect this way of changing threads.
+            OMP_NUM_THREADS = str(self.num_cpu)
+        )
+
+    async def make_files_async(self):
+        """
+        Make the files referenced by this object.
+        """        
+        try:
+            cubegen_proc =  await asyncio.create_subprocess_exec(
+                # Unless subprocess.run(), create_subprocess_exec() takes and expanded list as first arg...
+                *self.signature,
+                # Capture both stdout and stderr.
+                # It appears that cubegen writes everything (including error messages) to stdout, but it does return meaningful exit codes.
+                stdout = subprocess.PIPE,
+                stderr = subprocess.STDOUT,
+                env = self.env
+            )
+        except FileNotFoundError:
+            raise File_maker_exception(self, "Could not locate cubegen executable '{}'".format(self.cubegen_executable))
         
+        stdout = ""
+        stderr = ""
+        # Wait for completion.
+        while cubegen_proc.returncode is None:
+            retval = await cubegen_proc.communicate()
+            stdout += retval[0].decode()
+            stderr += retval[1].decode()
+
+        # If something went wrong, dump output.
+        if cubegen_proc.returncode != 0:
+            # An error occured.
+            # Check if the input file exists, if not this is probably what went wrong.
+            message = "Cubegen did not exit successfully"
+            if not Path(str(self.input_file)).exists():
+                message += " (probably because the input file '{}' could not be found)".format(self.input_file)
+            message += ":\n{}".format(stdout)
+            raise File_maker_exception(self, message)
+        else:
+            # Everything appeared to go ok.
+            # Dump cubegen output if we're in debug.
+            digichem.log.get_logger().debug(stdout)
+        
+        if self.sanitize:
+            sanitize_modern_cubes(self.output)
+
+            
+    def make_files(self):
+        """
+        Make the files referenced by this object.
+        """
         try:
             cubegen_proc =  subprocess.run(
-                signature,
+                self.signature,
                 # Capture both stdout and stderr.
                 # It appears that cubegen writes everything (including error messages) to stdout, but it does return meaningful exit codes.
                 stdout = subprocess.PIPE,
                 stderr = subprocess.STDOUT,
                 universal_newlines = True,
-                env = dict(os.environ, GAUSS_MEMDEF = str(self.memory))
-                )
+                env = self.env
+            )
         except FileNotFoundError:
             raise File_maker_exception(self, "Could not locate cubegen executable '{}'".format(self.cubegen_executable))
         
@@ -199,7 +287,7 @@ class Fchk_to_spin_cube(Fchk_to_cube):
         return super().__init__(*args, cubegen_type = "Spin", orbital = spin_density, **kwargs)
     
     @classmethod
-    def from_options(self, output, *, fchk_file = None, spin_density = "SCF", options, **kwargs):
+    def from_options(self, output, *, fchk_file = None, spin_density = "SCF", num_cpu = None, options, **kwargs):
         """
         Constructor that takes a dictionary of config like options.
         """        
@@ -211,6 +299,8 @@ class Fchk_to_spin_cube(Fchk_to_cube):
             dont_modify = not options['render']['enable_rendering'],
             cubegen_executable = options['external']['cubegen'],
             sanitize = options['render']['safe_cubes'],
+            num_cpu = num_cpu,
+            multithreading = options['external']['cubegen_parallel'],
             **kwargs
         )
 
@@ -237,7 +327,7 @@ class Fchk_to_density_cube(Fchk_to_cube):
         self.type = density_type
     
     @classmethod
-    def from_options(self, output, *, fchk_file = None, density_type = "SCF", options, **kwargs):
+    def from_options(self, output, *, fchk_file = None, density_type = "SCF", num_cpu = None, options, **kwargs):
         """
         Constructor that takes a dictionary of config like options.
         """        
@@ -249,6 +339,8 @@ class Fchk_to_density_cube(Fchk_to_cube):
             dont_modify = not options['render']['enable_rendering'],
             cubegen_executable = options['external']['cubegen'],
             sanitize = options['render']['safe_cubes'],
+            num_cpu = num_cpu,
+            multithreading = options['external']['cubegen_parallel'],
             **kwargs
         )
 
@@ -274,7 +366,7 @@ class Fchk_to_nto_cube(Fchk_to_cube):
         super().__init__(*args, cubegen_type = "MO", orbital = orbital, **kwargs)
     
     @classmethod
-    def from_options(self, output, *, fchk_file = None, orbital = "HOMO", options, **kwargs):
+    def from_options(self, output, *, fchk_file = None, orbital = "HOMO", num_cpu = None, options, **kwargs):
         """
         Constructor that takes a dictionary of config like options.
         """        
@@ -286,6 +378,8 @@ class Fchk_to_nto_cube(Fchk_to_cube):
             dont_modify = not options['render']['enable_rendering'],
             cubegen_executable = options['external']['cubegen'],
             sanitize = options['render']['safe_cubes'],
+            num_cpu = num_cpu,
+            multithreading = options['external']['cubegen_parallel'],
             **kwargs
         )
 
