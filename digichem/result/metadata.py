@@ -679,8 +679,9 @@ class Performance(Result_object):
         memory_available = [],
         memory_available_percent = [],
         cpu_used = [],
-        output_space = [],
-        scratch_space = [],
+        output_available = [],
+        scratch_used = [],
+        scratch_available = [],
         memory_allocated = None,
         cpu_allocated = None,
     ):
@@ -690,11 +691,22 @@ class Performance(Result_object):
         self.memory_available = memory_available
         self.memory_available_percent = memory_available_percent
         self.cpu_used = cpu_used
-        self.output_space = output_space
-        self.scratch_space = scratch_space
+        self.output_available = output_available
+        self.scratch_used = scratch_used
+        self.scratch_available = scratch_available
 
         self.memory_allocated = memory_allocated if memory_allocated is not None else self.max_mem
         self.cpu_allocated = cpu_allocated if cpu_allocated is not None else math.ceil(max(cpu_used) / 100)
+
+    @property
+    def output_space(self):
+        warnings.warn("output_space is deprecated, use output_available instead", DeprecationWarning)
+        return self.output_available
+
+    @property
+    def scratch_space(self):
+        warnings.warn("scratch_space is deprecated, use scratch_available instead", DeprecationWarning)
+        return self.scratch_available
     
 
     @classmethod
@@ -705,6 +717,21 @@ class Performance(Result_object):
         :param parser: Output data parser.
         :return: A populated Performance object.
         """
+        return self(
+            duration = parser.data.metadata['performance']['duration'].tolist(),
+            memory_used = parser.data.metadata['performance']['memory_used'].tolist(),
+            memory_allocated = Memory(parser.data.metadata['memory_available']) if "memory_available" in parser.data.metadata else None,
+            memory_used_percent = parser.data.metadata['performance']['memory_used_percent'].tolist(),
+            memory_available = parser.data.metadata['performance']['memory_available'].tolist(),
+            memory_available_percent = parser.data.metadata['performance']['memory_available_percent'].tolist(),
+            cpu_used = parser.data.metadata['performance']['cpu_used'].tolist(),
+            cpu_allocated = parser.data.metadata.get('num_cpu', None),
+            output_available = parser.data.metadata['performance']['output_available'].tolist(),
+            scratch_used = parser.data.metadata['performance']['scratch_used'].tolist() if 'scratch_used' in parser.data.metadata['performance'] else [0] * len(parser.data.metadata['performance']['duration']),
+            scratch_available = parser.data.metadata['performance']['scratch_available'].tolist()
+        )
+    
+
         return self(
             duration = parser.data.metadata['performance'][:, 0].tolist(),
             memory_used = parser.data.metadata['performance'][:, 1].tolist(),
@@ -788,8 +815,9 @@ class Performance(Result_object):
         memory_available_percent = [0.0] * len(data['values'])
         cpu_used = [0.0] * len(data['values'])
         cpu_allocated = data['cpu_allocated']
-        output_space = [0.0] * len(data['values'])
-        scratch_space = [0.0] * len(data['values'])
+        output_available = [0.0] * len(data['values'])
+        scratch_used = [0.0] * len(data['values'])
+        scratch_available = [0.0] * len(data['values'])
 
         for i, value in enumerate(data['values']):
             duration[i] = value['duration']['value']
@@ -798,8 +826,10 @@ class Performance(Result_object):
             memory_available[i] = value['memory_available']['value']
             memory_available_percent[i] = value['memory_available_percent']['value']
             cpu_used[i] = value['cpu_used']['value']
-            output_space[i] = value['output_space']['value']
-            scratch_space[i] = value['scratch_space']['value']
+            output_available[i] = value['output_space']['value']
+            if 'scratch_used' in value:
+                scratch_used[i] = value['scratch_used']['value']
+            scratch_available[i] = value['scratch_space']['value']
         
         return self(
             duration = duration,
@@ -810,8 +840,9 @@ class Performance(Result_object):
             memory_available_percent = memory_available_percent,
             cpu_used = cpu_used,
             cpu_allocated = cpu_allocated,
-            output_space = output_space,
-            scratch_space = scratch_space
+            output_available = output_available,
+            scratch_used = scratch_used,
+            scratch_available = scratch_available
         )
 
     
@@ -870,6 +901,10 @@ class Performance(Result_object):
                     'output_space': {
                         "units": "bytes",
                         "value": self.output_space[i]
+                    },
+                    'scratch_used': {
+                        "units": "bytes",
+                        "value": self.scratch_used[i]
                     },
                     'scratch_space': {
                         "units": "bytes",
