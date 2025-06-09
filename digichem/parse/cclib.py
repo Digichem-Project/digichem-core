@@ -156,15 +156,49 @@ class Cclib_parser(File_parser_abc):
             headers = next(reader)
 
             # Check headers match.
-            if (headers[0] != "Duration / s" or 
-               headers[1] != "Memory Used (Real) / bytes" or
-               headers[2] != "Memory Used (Real) / %" or
-               headers[3] != "Memory Available  (Real) / bytes" or
-               headers[4] != "Memory Available (Real) / %" or
-               headers[9] != "CPU Usage / %" or
-               headers[15] != "Output Directory Available / bytes" or
-               headers[17] != "Scratch Directory Available / bytes"
+            if (headers[0] == "Duration / s" and 
+               headers[1] == "Memory Used (Real) / bytes" and
+               headers[2] == "Memory Used (Real) / %" and
+               headers[3] == "Memory Available  (Real) / bytes" and
+               headers[4] == "Memory Available (Real) / %" and
+               headers[9] == "CPU Usage / %" and
+               headers[15] == "Output Directory Available / bytes" and
+               headers[17] == "Scratch Directory Used / bytes" and
+               headers[18] == "Scratch Directory Available / bytes"
             ):
+                column_map = {
+                    "duration": 0,
+                    "memory_used": 1,
+                    "memory_used_percent": 2,
+                    "memory_available": 3,
+                    "memory_available_percent": 4,
+                    "cpu_used": 9,
+                    "output_available": 15,
+                    "scratch_used": 17,
+                    "scratch_available": 18
+                }
+            
+            elif (headers[0] == "Duration / s" and 
+               headers[1] == "Memory Used (Real) / bytes" and
+               headers[2] == "Memory Used (Real) / %" and
+               headers[3] == "Memory Available  (Real) / bytes" and
+               headers[4] == "Memory Available (Real) / %" and
+               headers[9] == "CPU Usage / %" and
+               headers[15] == "Output Directory Available / bytes" and
+               headers[17] == "Scratch Directory Available / bytes"
+            ):
+                column_map = {
+                    "duration": 0,
+                    "memory_used": 1,
+                    "memory_used_percent": 2,
+                    "memory_available": 3,
+                    "memory_available_percent": 4,
+                    "cpu_used": 9,
+                    "output_available": 15,
+                    "scratch_available": 17
+                }
+            
+            else:
                 raise Digichem_exception("wrong headers found in profile.csv file")
             
             # Then the body.
@@ -185,17 +219,19 @@ class Cclib_parser(File_parser_abc):
         # - cpu used
         # - output space
         # - scratch space
-        new_data = numpy.zeros((math.ceil(lines / factor), 8))
+        new_data = numpy.zeros((math.ceil(lines / factor), len(column_map)))
 
         # Now decimate.
-        for i, k in enumerate([0,1,2,3,4,9,15,17]):
+        for i, k in enumerate(column_map.values()):
             if factor > 1:
                 new_data[:, i] = signal.decimate(data[:, k], factor)
             else:
                 new_data[:, i] = data[:, k]
         
         
-        self.data.metadata['performance'] = new_data
+        self.data.metadata['performance'] = {
+            key: new_data[:, index] for index, key in enumerate(column_map)
+        }
         
         
     def parse_output_line(self, log_file, line):
