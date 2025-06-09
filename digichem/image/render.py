@@ -247,7 +247,6 @@ class Batoms_renderer(Render_maker):
             # "--render-samples", f"{samples}",
             "--perspective", f"{self.perspective}",
             "--padding", f"{padding}",
-            "--rotations",
         ]
         for orientation, resolution, samples, mini_file_name in targets:
             args.extend([
@@ -258,9 +257,12 @@ class Batoms_renderer(Render_maker):
                 mini_file_name
             ])
 
-        # Add rotations.
-        for rotation in self.rotations:
-            args.append(json.dumps(rotation))
+        if len(self.rotations) > 0:
+            args.append("--rotations")
+
+            # Add rotations.
+            for rotation in self.rotations:
+                args.append(json.dumps(rotation))
         
         return args
     
