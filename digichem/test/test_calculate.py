@@ -6,7 +6,7 @@ import shutil
 
 from digichem.test.util import data_directory, digichem_options
 from digichem.parse.util import parse_calculation
-
+from digichem.test.test_result import gaussian_opt_result, gaussian_opt_ES_result
 
 @pytest.fixture(scope="module")
 def formaldehyde_SOC_result(digichem_options):
@@ -28,3 +28,8 @@ def test_soc(result_set, singlet, triplet, SOC):
     
     # Check some SOC values.
     assert result_set.soc.between(singlet, triplet).wavenumbers == pytest.approx(SOC, abs=1e-0)
+
+
+def test_rmsd(gaussian_opt_result, gaussian_opt_ES_result):
+    """Test the RMSD between two structures"""
+    assert gaussian_opt_result.atoms.rmsd(gaussian_opt_ES_result.atoms) == pytest.approx(0.0198, abs=1e-2)
