@@ -3,6 +3,7 @@ import math
 import periodictable
 from itertools import zip_longest
 import re
+import statistics
 
 import digichem.log
 from digichem.misc.base import dict_list_index
@@ -254,6 +255,20 @@ class Atom_list(Result_container, Unmergeable_container_mixin, Molecule_mixin):
             self.assign_groups()
             
         return self._groups
+    
+    def rmsd(self, other):
+        """
+        Find the RMSD (root-mean square difference) in geometry between this molecule and another.
+        """
+        try:
+            return statistics.mean([self[i].distance(other[i]) **2 for i, _ in enumerate(self)]) ** 0.5
+
+        except IndexError:
+            if len(other) < len(self):
+                raise Digichem_exception("Cannot compare structures; there are too few atoms in the source structure") from None
+
+            else:
+                raise
     
     def find(self, criteria = None, *, label = None, index = None):
         """
