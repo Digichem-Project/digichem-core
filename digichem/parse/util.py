@@ -60,7 +60,7 @@ def find_log_files_from_hint(hint):
         # Remove any 'digichem.log' files as we know these are not calc log files.
         # We don't actually write 'digichem.log' files anymore either (we use digichem.out instead),
         # but older versions did...
-        log_files = [log_file for log_file in log_files if log_file.name not in ["digichem.log", "digichem.out", "silico.log", "silico.out"]]
+        log_files = [log_file for log_file in log_files if log_file.name not in ["digichem.log", "digichem.out", "silico.log", "silico.out", ".digichem.yaml"]]
     else:
         parent = hint.parent
         log_files = [hint]
