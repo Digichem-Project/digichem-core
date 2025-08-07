@@ -416,6 +416,38 @@ def si_from_yaml(yaml_dict, file_name = None, **kwargs):
     return cls.from_yaml(yaml_dict, file_name, **kwargs)
 
 
+def si_from_data(data, file_type, *, gen3D = None, file_name = None, **kwargs):
+    """
+    """
+    if file_type in ["com", "gau", "gjc", "gjf"]:
+        # Gaussian input format.
+        return Digichem_coords.from_com(data, file_name = file_name, **kwargs)
+
+    elif file_type == "si":
+        # Digichem input format.
+        return si_from_yaml(yaml.safe_load(data), file_name = file_name, **kwargs)
+        
+    elif file_type == "pickle":
+        # A digichem resume file.
+        # The resume file (should be) a pickled destination object.
+        try:
+            destination = dill.loads(data)
+        
+        except Exception as e:
+            raise Digichem_exception("Failed to parse digichem resume file") from e
+        
+        return destination.program.calculation.input_coords
+    
+    else:
+        # Generic input format, use obabel.
+        
+        # We convert all formats to gaussian input formats (because this format contains charge and multiplicity, which we can extract).
+        com_file = Openprattle_converter(input_file_buffer = data, input_file_type = file_type).convert("com", gen3D = gen3D)
+    
+        # Continue with other constructors.
+        return Digichem_coords.from_com(com_file, file_name = file_name, **kwargs)
+
+
 def si_from_file(file_name, file_type = None, *, gen3D = None, **kwargs):
         """
         Create a Digichem_coords object from a file in arbitrary format.
@@ -436,32 +468,10 @@ def si_from_file(file_name, file_type = None, *, gen3D = None, **kwargs):
                 auto_file_type = True
                 file_type = Openprattle_converter.type_from_file_name(file_name, allow_none = True)
                     
-            # Certain formats we support natively; others we convert to an intermediate format.
-            if file_type in ["com", "gau", "gjc", "gjf"]:
-                # Gaussian input format.
-                with open(file_name, "rt") as com_file:
-                    return Digichem_coords.from_com(com_file.read(), file_name = file_name, **kwargs)
-    
-            elif file_type == "si":
-                # Digichem input format.
-                with open(file_name, "rt") as si_file:
-                    return si_from_yaml(yaml.safe_load(si_file.read()), file_name = file_name, **kwargs)
-                
-            elif file_type == "pickle":
-                # A digichem resume file.
-                # The resume file (should be) a pickled destination object.
-                with open(file_name, "rb") as pickle_file:
-                    try:
-                        destination = dill.load(pickle_file)
-                    
-                    except Exception as e:
-                        raise Digichem_exception("Failed to parse digichem resume file") from e
-                    
-                    return destination.program.calculation.input_coords
-                
+            # Certain formats we support natively; others we convert to an intermediate format.                
             # NOTE: Here we assume files without an extension are log files.
             # This works fine for directories, but might change in future.
-            elif file_type in ["dat", "log", "out", "output", None] \
+            if file_type in ["dat", "log", "out", "output", None] \
                 or (auto_file_type and "".join(file_name.suffixes) in open_for_parsing.get_archive_formats()):
                 # Generic log-file (output) format.
                 # Most formats (.log, .dat etc) we can parse with either Obabel or Digichem.
@@ -487,13 +497,8 @@ def si_from_file(file_name, file_type = None, *, gen3D = None, **kwargs):
                     return Digichem_coords.from_com(com_file, file_name = file_name, **kwargs)
                 
             else:
-                # Generic input format, use obabel.
-                
-                # We convert all formats to gaussian input formats (because this format contains charge and multiplicity, which we can extract).
-                com_file = Openprattle_converter.from_file(file_name, file_type).convert("com", gen3D = gen3D)         
-            
-                # Continue with other constructors.
-                return Digichem_coords.from_com(com_file, file_name = file_name, **kwargs)
+                with open(file_name, "rb" if file_type == "pickle" else "r") as input_file:
+                    return si_from_data(input_file.read(), file_name = file_name, gen3D = gen3D, file_type = file_type, **kwargs)
             
         except:
             raise ValueError("Could not parse coordinates from '{}'".format(file_name))
