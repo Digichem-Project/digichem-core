@@ -4,14 +4,14 @@ import pytest
 from pathlib import Path
 
 from digichem.test.util import pyridine_si_v2, pyridine_si_v1, pyridine_cml,\
-    result_files
+    result_files, ethane_xyz, benzene_cdx, cyclopentane_com
 from digichem.input.digichem_input import si_from_file
 
 @pytest.mark.parametrize("file_path", [
         pyridine_si_v2,
         pyridine_si_v1
      ])
-def test_input_reading(file_path):
+def test_si_reading(file_path):
     """
     Test whether we can correctly read from an existing si file.
     """
@@ -51,7 +51,7 @@ def test_si_writing(tmp_path):
         [result_files['turbomole'][0], "60a8ebd9e701b849cfccd9cbb41684519a7fdf0b"],
         [result_files['orca'][0], "e48e7f653f4e67c1bd4c5c4bb76405fad2d441d0"],
      ])
-def test_input_history(file_path, sha):
+def test_si_history(file_path, sha):
     """
     Test whether the history attribute is set properly.
     """
@@ -62,3 +62,17 @@ def test_input_history(file_path, sha):
     dump = si_file.dict
     
     assert dump['history'] == sha
+
+
+@pytest.mark.parametrize("file_path, format", [
+    (cyclopentane_com, "mol"),
+    (ethane_xyz, "cml"),
+    (benzene_cdx, "xyz"),
+    (result_files['gaussian'][0], "com")
+])
+def test_si_file_convert(file_path, format, tmp_path):
+    """
+    Test whether we can convert from arbitrary formats to another format.
+    """
+    si_file = si_from_file(file_path)
+    si_file.to_format(format, (tmp_path / "file").with_suffix("." + format))

@@ -522,7 +522,7 @@ class Atom_list(Result_container, Unmergeable_container_mixin, Molecule_mixin):
         """
         Convert this list of atoms to mol format (useful for reading with rdkit).
         """
-        return Openprattle_converter.get_cls("xyz")(input_file = self.to_xyz(), input_file_path = "internal atoms object", input_file_type = "xyz").convert("mol", charge = self.charge)
+        return Openprattle_converter(input_file_buffer = self.to_xyz(), input_file_path = "internal atoms object", input_file_type = "xyz").convert("mol", charge = self.charge)
     
     def to_rdkit_molecule(self):
         """
