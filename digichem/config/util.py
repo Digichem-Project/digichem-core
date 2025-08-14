@@ -40,8 +40,9 @@ def get_config(
         :param sources: An iterable of file locations to read from.
         :return: A Digichem_options object (a fancy dict).
         """
+        global _options
         if clear_cache:
-            globals()['_options'] = None
+            _options = None
 
         if _options is not None and extra_config_files is None and extra_config_strings is None:
             # Config has already been loaded (and we have nothing new to add).
@@ -63,7 +64,7 @@ def get_config(
                 #  config.merge(Config_file_parser(source).load(True))
             
             # No need to validate here, we're going to do it later anyway.
-            globals()['_options'] = cls(validate_now = False, **config)
+            _options = cls(validate_now = False, **config)
         
         if extra_config_files is None:
             extra_config_files = []

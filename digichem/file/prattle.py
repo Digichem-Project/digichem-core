@@ -152,7 +152,11 @@ class Openprattle_converter():
             sig.extend(['-O', output_file])
         
         # Give our input_file as stdin if we're not reading from file.
-        inputs = self.input_file_buffer        
+        inputs = self.input_file_buffer
+
+        # Encode strings.
+        if isinstance(inputs, str):
+            inputs = inputs.encode()
         
         # GO.
         done_process = subprocess.run(
@@ -160,18 +164,16 @@ class Openprattle_converter():
             input = inputs,
             stdout = subprocess.PIPE,
             stderr = subprocess.PIPE,
-            # TODO: Using universal newlines is probably not safe here; some formats are binary (.cdx etc...)
-            universal_newlines = True,
         )
 
         # This can throw exceptions.
-        self.handle_logging(done_process.stderr)
+        self.handle_logging(done_process.stderr.decode())
 
         if done_process.returncode != 0:
             raise Digichem_exception("prattle subprocess returned code {}".format(done_process.returncode))
         
         # Return our output.
-        return done_process.stdout if output_file is None else None
+        return done_process.stdout.decode() if output_file is None else None
     
     def handle_logging(self, raw_output):
         """

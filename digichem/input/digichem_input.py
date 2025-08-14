@@ -211,7 +211,7 @@ class Digichem_coords_ABC(Input_file, Molecule_mixin):
             # Convert.
             charge = self.charge if self.charge is not None else None
             multiplicity = self.multiplicity if self.multiplicity is not None else None
-            return Openprattle_converter(input_file = self.xyz, input_file_path = self.implicit_name, input_file_type = "xyz").convert(file_type, file, charge = charge, multiplicity = multiplicity)
+            return Openprattle_converter(input_file_buffer = self.xyz, input_file_path = self.implicit_name, input_file_type = "xyz").convert(file_type, file, charge = charge, multiplicity = multiplicity)
 
     @classmethod
     def input_formats(self):
@@ -486,18 +486,18 @@ def si_from_file(file_name, file_type = None, *, gen3D = None, **kwargs):
                 except Exception as e:
                     # No good, see if we can use obabel.
                     try:
-                        com_file = Openprattle_converter.from_file(file_name, file_type).convert("com", gen3D = gen3D)
+                        com_file = Openprattle_converter(file_name, file_type).convert("com", gen3D = gen3D)
                     
                     except Exception:
                         # Also no good, re-raise original exception.
-                        raise
+                        raise e
                     
                     # Worked with fallback, log a message.
                     digichem.log.get_logger().warning(f"Failed to parse calculation output file '{file_name}'; using Obabel fallback mechanism")
                     return Digichem_coords.from_com(com_file, file_name = file_name, **kwargs)
                 
             else:
-                with open(file_name, "rb" if file_type == "pickle" else "r") as input_file:
+                with open(file_name, "rb" if file_type in ["pickle", "cdx"] else "r") as input_file:
                     return si_from_data(input_file.read(), file_name = file_name, gen3D = gen3D, file_type = file_type, **kwargs)
             
         except:
