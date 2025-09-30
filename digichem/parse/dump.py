@@ -25,19 +25,19 @@ class Dump_multi_parser_abc(File_parser_abc):
     ABC for classes that can read multiple result sets from dumped data.
     """
     
-    def __init__(self, input_file, *other_log_files, raw_data = None, **auxiliary_files):
+    def __init__(self, input_file, *other_log_files, raw_data = None, options , **auxiliary_files):
         """
         Top level constructor for calculation parsers.
         
         :param input_file: The path to read from.
         """
         # Neither other_log_files nor auxiliary_files are currently used...
-        super().__init__(input_file, raw_data = raw_data)
+        super().__init__(input_file, raw_data = raw_data, options = options)
         self.all_results = []
         
     @classmethod
-    def from_data(self, input_file, data):
-        return self(input_file, raw_data = data)
+    def from_data(self, input_file, data, options):
+        return self(input_file, raw_data = data, options = options)
             
     @property
     def results(self):
@@ -63,26 +63,24 @@ class Dump_multi_parser_abc(File_parser_abc):
     def get_sub_parser(self):
         raise NotImplementedError("Implement in subclass")
             
-    def process_all(self, options):
+    def process_all(self):
         """
         Get all the Result set objects produced by this parser.
         
-        :param options: A Digichem options nested dictionary containing options to control parsing.
         :return: A list of the populated result sets.
         """
         # Unlike most other parsers, our data can actually contain lots of results.
-        self.all_results = [self.get_sub_parser()(self.log_file_path, raw_data = data).process(options) for data in self.data]
+        self.all_results = [self.get_sub_parser()(self.log_file_path, raw_data = data, options = self.options).process() for data in self.data]
         
         return self.all_results
     
-    def process(self, options):
+    def process(self):
         """
         Get a Result set object from this parser.
         
-        :param options: A Digichem options nested dictionary containing options to control parsing.
         :return: The populated result set.
         """
-        self.process_all(options)
+        self.process_all()
         return self.results
     
     
@@ -127,65 +125,63 @@ class Dump_parser_abc(File_parser_abc):
     ABC for parsers that read dumped data.
     """
     
-    def __init__(self, input_file, *other_log_files, raw_data = None, **auxiliary_files):
+    def __init__(self, input_file, *other_log_files, raw_data = None, options, **auxiliary_files):
         """
         Top level constructor for calculation parsers.
         
         :param input_file: The path to the input file to read.
         """
         # Neither other_log_files nor auxiliary_files are currently used...
-        super().__init__(input_file, raw_data = raw_data)
+        super().__init__(input_file, raw_data = raw_data, options = options)
         
     @classmethod
-    def from_data(self, input_file, data):
-        return self(input_file, raw_data = data)
+    def from_data(self, input_file, data, options):
+        return self(input_file, raw_data = data, options = options)
     
-    def process_all(self, options):
+    def process_all(self):
         """
         Get all the Result set objects produced by this parser.
         
-        :param options: A Digichem options nested dictionary containing options to control parsing.
         :return: A list of the populated result sets.
         """
-        self.process(options)
+        self.process()
         return [self.results]
             
-    def process(self, options):
+    def process(self):
         """
         Get a Result set object from this parser.
         
-        :param options: A Digichem options nested dictionary containing options to control parsing.
         :return: The populated result set.
         """
         
         # Get our result set.
         self.results = Result_set(
             _id = self.data.get("_id"),
-            metadata = Metadata.from_dump(self.data['metadata'], self.results, options)
+            metadata = Metadata.from_dump(self.data['metadata'], self.results, self.options)
         )
         
         # First get our list of MOs (because we need them for excited states too.)
-        self.results.orbitals = Molecular_orbital_list.from_dump(self.data['orbitals'], self.results, options)
-        self.results.beta_orbitals = Molecular_orbital_list.from_dump(self.data['beta_orbitals'], self.results, options)
+        self.results.orbitals = Molecular_orbital_list.from_dump(self.data['orbitals'], self.results, self.options)
+        self.results.beta_orbitals = Molecular_orbital_list.from_dump(self.data['beta_orbitals'], self.results, self.options)
         
-        alignment_class = Alignment.from_class_handle(options['alignment']) if options['alignment'] is not None else Minimal
+        alignment_class = Alignment.from_class_handle(self.options['alignment']) if self.options['alignment'] is not None else Minimal
         
         # Our alignment orientation data.
         # The constructor for each alignment class automatically performs realignment.
-        self.results.atoms = alignment_class.from_dump(self.data['atoms'], self.results, options)
-        self.results.raw_atoms = Atom_list.from_dump(self.data['raw_atoms'], self.results, options)
+        self.results.atoms = alignment_class.from_dump(self.data['atoms'], self.results, self.options)
+        self.results.raw_atoms = Atom_list.from_dump(self.data['raw_atoms'], self.results, self.options)
         
         # TEDM and TMDM.
-        self.results.transition_dipole_moments = Transition_dipole_moment.list_from_dump(self.data['excited_states']['values'], self.results, options)
+        self.results.transition_dipole_moments = Transition_dipole_moment.list_from_dump(self.data['excited_states']['values'], self.results, self.options)
         
         # Excited states.
-        self.results.excited_states = Excited_state_list.from_dump(self.data['excited_states'], self.results, options)
+        self.results.excited_states = Excited_state_list.from_dump(self.data['excited_states'], self.results, self.options)
         
         # Energies.
-        self.results.energies = Energies.from_dump(self.data['energies'], self.results, options)
+        self.results.energies = Energies.from_dump(self.data['energies'], self.results, self.options)
         
         # Our ground state.
-        self.results.ground_state = Ground_state.from_dump(self.data['ground_state'], self.results, options)
+        self.results.ground_state = Ground_state.from_dump(self.data['ground_state'], self.results, self.options)
         
         # And a similar list but also including the ground.
         self.results.energy_states = Excited_state_list()
@@ -193,24 +189,24 @@ class Dump_parser_abc(File_parser_abc):
         self.results.energy_states.extend(self.results.excited_states)
         
         # SOC.
-        self.results.soc = SOC_list.from_dump(self.data['soc'], self.results, options)
+        self.results.soc = SOC_list.from_dump(self.data['soc'], self.results, self.options)
         
         # PDM
-        self.results.pdm = Dipole_moment.from_dump(self.data['pdm'], self.results, options)
+        self.results.pdm = Dipole_moment.from_dump(self.data['pdm'], self.results, self.options)
         
         # Frequencies.
-        self.results.vibrations = Vibrations_list.from_dump(self.data['vibrations'], self.results, options)
+        self.results.vibrations = Vibrations_list.from_dump(self.data['vibrations'], self.results, self.options)
         
         # NMR.
         if "nmr" in self.data:
-            self.results.nmr = NMR_list.from_dump(self.data['nmr'], self.results, options)
+            self.results.nmr = NMR_list.from_dump(self.data['nmr'], self.results, self.options)
         
         else:
-            self.results.nmr = NMR_list(atoms = self.results.atoms, options = options)
+            self.results.nmr = NMR_list(atoms = self.results.atoms, options = self.options)
             
         # Finally, try and set emission.
         try:
-            self.results.emission = self.results.emission.from_dump(self.data['emission'], self.results, options)
+            self.results.emission = self.results.emission.from_dump(self.data['emission'], self.results, self.options)
         
         except Exception:
             digichem.log.get_logger().warning("Failed to parse emission data", exc_info = True)

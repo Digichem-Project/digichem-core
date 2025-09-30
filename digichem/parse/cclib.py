@@ -22,7 +22,7 @@ class Cclib_parser(File_parser_abc):
     # A dictionary of recognised auxiliary file types.
     INPUT_FILE_TYPES = {}
     
-    def __init__(self, *log_files, **auxiliary_files):
+    def __init__(self, *log_files, options, **auxiliary_files):
         """
         Top level constructor for calculation parsers.
         
@@ -36,10 +36,10 @@ class Cclib_parser(File_parser_abc):
         # Also have a look for a profile.csv file that we can us for performance metrics.
         self.profile_file = Path(log_files[0].parent, "../Logs/profile.csv")
         
-        super().__init__(*log_files)
+        super().__init__(*log_files, options = options)
         
     @classmethod
-    def from_logs(self, *log_files, hints = None, **kwargs):
+    def from_logs(self, *log_files, hints = None, options, **kwargs):
         """
         Intelligent constructor that will attempt to guess the location of files from a given log file(s).
         
@@ -56,7 +56,7 @@ class Cclib_parser(File_parser_abc):
         # Finally, update our auxiliary_files with kwargs, so any user specified aux files take precedence.
         auxiliary_files.update(kwargs)
         
-        return self(*log_files, **auxiliary_files)
+        return self(*log_files, options = options, **auxiliary_files)
     
     @classmethod
     def find_auxiliary_files(self, hint, basename):
@@ -127,7 +127,11 @@ class Cclib_parser(File_parser_abc):
             self.parse_profile_file()
         
         except Exception:
-            digichem.log.get_logger().warning("Could not parse profile.csv file; profiling data will be unavailable", exc_info=True)
+            if self.profile_file.exists():
+                digichem.log.get_logger().warning("Could not parse profile.csv file; profiling data will be unavailable", exc_info=True)
+            
+            else:
+                pass
 
     def parse_profile_file(self):
         """
@@ -146,7 +150,7 @@ class Cclib_parser(File_parser_abc):
         if lines < 2:
             return
 
-        max_lines  = 1000
+        max_lines  = self.options.parse['profiling_rows']
         factor = math.ceil(lines / max_lines)
         
         with open(self.profile_file) as profile_file:

@@ -37,7 +37,7 @@ class Openprattle_converter():
         :param executable: Path or command name to the oprattle executable.
         """
         self.input_file = input_file
-        self.input_file_buffer = input_file_buffer
+        self.input_file_buffer = input_file_buffer if input_file is None else input_file.read()
         self.input_file_path = input_file_path
         self.input_file_type = input_file_type
         self.executable = executable
@@ -128,7 +128,7 @@ class Openprattle_converter():
         ]
         
         # Add the input path if we're reading from file.
-        if self.input_file is None:
+        if self.input_file_buffer is None:
             sig.append(str(self.input_file_path))
             
         # Now add the input and output switches.
@@ -152,7 +152,11 @@ class Openprattle_converter():
             sig.extend(['-O', output_file])
         
         # Give our input_file as stdin if we're not reading from file.
-        inputs = self.input_file        
+        inputs = self.input_file_buffer
+
+        # Encode strings.
+        if isinstance(inputs, str):
+            inputs = inputs.encode()
         
         # GO.
         done_process = subprocess.run(
@@ -160,18 +164,16 @@ class Openprattle_converter():
             input = inputs,
             stdout = subprocess.PIPE,
             stderr = subprocess.PIPE,
-            # TODO: Using universal newlines is probably not safe here; some formats are binary (.cdx etc...)
-            universal_newlines = True,
         )
 
         # This can throw exceptions.
-        self.handle_logging(done_process.stderr)
+        self.handle_logging(done_process.stderr.decode())
 
         if done_process.returncode != 0:
             raise Digichem_exception("prattle subprocess returned code {}".format(done_process.returncode))
         
         # Return our output.
-        return done_process.stdout if output_file is None else None
+        return done_process.stdout.decode() if output_file is None else None
     
     def handle_logging(self, raw_output):
         """

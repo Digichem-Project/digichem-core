@@ -453,7 +453,7 @@ class Atom_list(Result_container, Unmergeable_container_mixin, Molecule_mixin):
         """
         return self(Atom.list_from_coords(coords), charge = coords.charge)
     
-    def dump(self, Digichem_options):
+    def _dump_(self, digichem_options, all):
         """
         Get a representation of this result object in primitive format.
         """
@@ -490,7 +490,7 @@ class Atom_list(Result_container, Unmergeable_container_mixin, Molecule_mixin):
             },
             "linearity_ratio": float(self.get_linear_ratio()),
             "planarity_ratio": float(self.get_planar_ratio()),
-            "values": super().dump(Digichem_options),
+            "values": super()._dump_(digichem_options, all),
         }
         return dump_dict
     
@@ -522,7 +522,7 @@ class Atom_list(Result_container, Unmergeable_container_mixin, Molecule_mixin):
         """
         Convert this list of atoms to mol format (useful for reading with rdkit).
         """
-        return Openprattle_converter.get_cls("xyz")(input_file = self.to_xyz(), input_file_path = "internal atoms object", input_file_type = "xyz").convert("mol", charge = self.charge)
+        return Openprattle_converter(input_file_buffer = self.to_xyz(), input_file_path = "internal atoms object", input_file_type = "xyz").convert("mol", charge = self.charge)
     
     def to_rdkit_molecule(self):
         """
@@ -673,7 +673,7 @@ class Atom(Atom_ABC):
         """
         return math.sqrt( (self.coords[0] - foreign_atom.coords[0])**2 + (self.coords[1] - foreign_atom.coords[1])**2 + (self.coords[2] - foreign_atom.coords[2])**2)
     
-    def dump(self, Digichem_options):
+    def _dump_(self, digichem_options, all):
         """
         Get a representation of this result object in primitive format.
         """
