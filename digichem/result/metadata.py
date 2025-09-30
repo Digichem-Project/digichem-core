@@ -46,10 +46,10 @@ class Solvent(Result_object):
     @classmethod
     def from_parser(self, parser):
         """
-        Construct a Metadata object from an output file parser.
+        Construct a Solvent object from an output file parser.
         
         :param parser: Output data parser.
-        :return: A populated Metadata object.
+        :return: A populated Solvent object.
         """
         return self(
             name = parser.data.metadata.get('solvent_name', None),
@@ -78,7 +78,7 @@ class Solvent(Result_object):
         else:
             return "Unknown"
         
-    def dump(self, digichem_options):
+    def _dump_(self, digichem_options, all):
         return {
             "model": self.model,
             "name": self.name,
@@ -142,6 +142,7 @@ class Metadata(Result_object):
     
     def __init__(
             self,
+            jobId = None,
             name = None,
             user = None,
             log_files = None,
@@ -177,6 +178,7 @@ class Metadata(Result_object):
         """
         Constructor for result Metadata objects.
         
+        :param jobId: If this result was generated from a digichem calculation, the relevant jobID.
         :param name: Optional name of this calculation result.
         :param user: The username of the user who parsed this result.
         :param log_files: An optional list of text-based calculation log files from which this result was parsed.
@@ -203,6 +205,7 @@ class Metadata(Result_object):
         :param memory_available: The maximum amount of memory available to this calculation (the amount requested by the user).
         :param memory_used: The maximum amount of memory used by the calculation (the amount requested by the user).
         """
+        self.jobId = jobId
         self.num_calculations = 1
         self.name = name
         self.user = user
@@ -453,6 +456,7 @@ class Metadata(Result_object):
             
             # TODO: This doesn't seem to make sense; the parser already contains a metadata object...
             return self(
+                jobId = parser.data.metadata.get('jobId', None),
                 name = parser.data.metadata.get('name', None),
                 user = parser.data.metadata.get('user', None),
                 log_files = parser.data.metadata.get('log_files', None),
@@ -485,7 +489,7 @@ class Metadata(Result_object):
             # There is no metadata available, give up.
             raise Result_unavailable_error("Metadata", "no metadata is available")
         
-    def dump(self, digichem_options):
+    def _dump_(self, digichem_options, all):
         """
         Get a representation of this result object in primitive format.
         """
@@ -497,6 +501,7 @@ class Metadata(Result_object):
         }
         
         attrs = [
+            "jobId",
             "history",
             "charge",
             "multiplicity",
@@ -538,7 +543,7 @@ class Metadata(Result_object):
             "value": self.pressure,
             "units": "atm"
         }
-        attr_dict["solvent"] = self.solvent.dump(digichem_options)
+        attr_dict["solvent"] = self.solvent.dump(digichem_options, all)
         
         attr_dict['num_cpu'] = self.num_cpu
         for attr_name in ("memory_used", "memory_available"):
@@ -554,7 +559,7 @@ class Metadata(Result_object):
                     "units": None
                 }
         
-        attr_dict['performance'] = self.performance.dump(digichem_options) if self.performance else None
+        attr_dict['performance'] = self.performance.dump(digichem_options, all) if self.performance else None
 
         return attr_dict
     
@@ -731,20 +736,6 @@ class Performance(Result_object):
             scratch_available = parser.data.metadata['performance']['scratch_available'].tolist()
         )
     
-
-        return self(
-            duration = parser.data.metadata['performance'][:, 0].tolist(),
-            memory_used = parser.data.metadata['performance'][:, 1].tolist(),
-            memory_allocated = Memory(parser.data.metadata['memory_available']) if "memory_available" in parser.data.metadata else None,
-            memory_used_percent = parser.data.metadata['performance'][:, 2].tolist(),
-            memory_available = parser.data.metadata['performance'][:, 3].tolist(),
-            memory_available_percent = parser.data.metadata['performance'][:, 4].tolist(),
-            cpu_used = parser.data.metadata['performance'][:, 5].tolist(),
-            cpu_allocated = parser.data.metadata.get('num_cpu', None),
-            output_space = parser.data.metadata['performance'][:, 6].tolist(),
-            scratch_space = parser.data.metadata['performance'][:, 7].tolist()
-        )
-    
     @property
     def max_mem(self):
         """
@@ -846,7 +837,7 @@ class Performance(Result_object):
         )
 
     
-    def dump(self, digichem_options):
+    def _dump_(self, digichem_options, all):
         """
         Get a representation of this result object in primitive format.
         """

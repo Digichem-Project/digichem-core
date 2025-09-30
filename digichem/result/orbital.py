@@ -238,7 +238,7 @@ class Molecular_orbital_list(Result_container):
         
         return self(cls.list_from_dump(data['values'], result_set, options))
     
-    def dump(self, digichem_options):
+    def _dump_(self, digichem_options, all):
         """
         Get a representation of this result object in primitive format.
         """
@@ -249,7 +249,7 @@ class Molecular_orbital_list(Result_container):
             },
             "num_occupied": len(self.occupied),
             "num_virtual": len(self.virtual),
-            "values": super().dump(digichem_options),
+            "values": super()._dump_(digichem_options, all),
             "spin_type": self.safe_get("spin_type")
         }
 #         # Add HOMO and LUMO
@@ -498,7 +498,7 @@ class Molecular_orbital(Result_object, Floatable_mixin):
     # The index used to access data from cclib (which always has two lists, one for alpha one for beta).
     ccdata_index = 0
     
-    def dump(self, digichem_options):
+    def _dump_(self, digichem_options, all):
         """
         Get a representation of this result object in primitive format.
         """

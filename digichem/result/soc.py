@@ -104,7 +104,7 @@ class Spin_orbit_coupling(Result_object, Floatable_mixin):
         self.zero = zero
         self.negative_one = negative_one
         
-    def dump(self, digichem_options):
+    def _dump_(self, digichem_options, all):
         """
         Get a representation of this result object in primitive format.
         """
@@ -235,11 +235,11 @@ class Total_spin_orbit_coupling(Spin_orbit_coupling):
         """
         return "<{}|Hso|{}> (cm-1): {:10.5f}".format(self.singlet_state.state_symbol, self.triplet_state.state_symbol, self.root_sum_square)
     
-    def dump(self, digichem_options):
+    def _dump_(self, digichem_options, all):
         """
         Get a representation of this result object in primitive format.
         """
-        dump_dic = super().dump(digichem_options)
+        dump_dic = super()._dump_(digichem_options, all)
         # Remove elements.
         del(dump_dic['soc'])
         return dump_dic

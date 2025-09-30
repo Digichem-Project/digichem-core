@@ -144,3 +144,12 @@ def test_turbomole_archives(result_files, num_archives, digichem_options):
 
     finally:
         archive.cleanup()
+
+def test_profile_parsing(digichem_options):
+    """Can we parse profile data from profile.csv?"""
+    src = Path(data_directory(), 'Pyridine/Gaussian 16 Excited States TDA Optimised S(1) PBE1PBE (GD3BJ) Toluene 6-31G(d,p).tar.gz')
+
+    res = parse_calculation(src, options = digichem_options)
+
+    assert res.metadata.performance is not None
+

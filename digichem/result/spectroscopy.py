@@ -112,7 +112,7 @@ class Spectroscopy_graph(Spectroscopy_graph_abc):
     For generating pictures of these graphs, see digichem.image.spectroscopy
     """
     
-    def __init__(self, coordinates, fwhm, resolution = 1, cutoff = 0.01, adjust_zero = False):
+    def __init__(self, coordinates, fwhm, resolution = 1, cutoff = 0.01, filter = 1e-6, adjust_zero = False):
         """
         Constructor for Spectroscopy_graph objects
         
@@ -137,6 +137,7 @@ class Spectroscopy_graph(Spectroscopy_graph_abc):
         self.fwhm = fwhm
         self.resolution = resolution
         self.cutoff = cutoff
+        self.filter = filter
         
         # Caches
         self._gaussians = []
@@ -187,7 +188,7 @@ class Spectroscopy_graph(Spectroscopy_graph_abc):
         # Next, determine the limits in which we'll plot.
         limits = self.gaussian_limits()
         
-        # Apply rounding to nearest resolution step cover up floating-point errors.
+        # Apply rounding to nearest resolution step to cover up floating-point errors.
         points = [self.resolution *round(point / self.resolution) for point in numpy.linspace(*limits)]
         
         # Plot and return.
@@ -202,7 +203,7 @@ class Spectroscopy_graph(Spectroscopy_graph_abc):
             )
         )
         gaussians = [
-            [(x, self.gaussian(a, b, c, x)) for x in points]
+            [(x, y) for x in points if (y  := self.gaussian(a, b, c, x)) >= self.filter]
             for b, a in self.base_coordinates
         ]
         
@@ -232,7 +233,7 @@ class Spectroscopy_graph(Spectroscopy_graph_abc):
         # Plot and return.
         digichem.log.get_logger().debug("Plotting cumulative gaussian peaks from {:0.2f} to {:0.2f} with a step size of {} ({} total points) for {} peaks ({} total iterations)".format(limits[0], limits[1], self.resolution, limits[2], len(self.base_coordinates), len(self.base_coordinates) * limits[2]))
         gaussian = [
-            (x, sum((self.gaussian(a, b, c, x) for b, a in self.base_coordinates))) for x in points
+            (x, y) for x in points if ( y := sum((self.gaussian(a, b, c, x) for b, a in self.base_coordinates))) > self.filter
         ]
         
         return gaussian

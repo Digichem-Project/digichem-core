@@ -221,7 +221,7 @@ class Result_set(Result_object):
             # No S1 available.
             return None
         
-    def dump(self, digichem_options):
+    def _dump_(self, digichem_options, all):
         "Dump the data contained in this result set, serialising it to a hierarchy of dicts that can be saved in various formats."
         # Start with our DB ID if we have one.
         dump_dic = {}
@@ -229,19 +229,19 @@ class Result_set(Result_object):
             dump_dic['_id'] = self._id
             
         dump_dic.update({
-            "metadata": self.metadata.dump(digichem_options),
-            "ground_state": self.ground_state.dump(digichem_options) if self.ground_state is not None else None,
-            "energies": self.energies.dump(digichem_options),
-            "atoms": self.atoms.dump(digichem_options),
-            "raw_atoms": self.raw_atoms.dump(digichem_options),
-            "orbitals": self.orbitals.dump(digichem_options),
-            "beta_orbitals": self.beta_orbitals.dump(digichem_options),
-            "pdm": self.pdm.dump(digichem_options) if self.pdm is not None else None,
-            "excited_states": self.excited_states.dump(digichem_options),
-            "soc": self.soc.dump(digichem_options),
-            "vibrations": self.vibrations.dump(digichem_options),
-            "nmr": self.nmr.dump(digichem_options),
-            "emission": self.emission.dump(digichem_options)
+            "metadata": self.metadata.dump(digichem_options, all),
+            "ground_state": self.ground_state.dump(digichem_options, all) if self.ground_state is not None else None,
+            "energies": self.energies.dump(digichem_options, all),
+            "atoms": self.atoms.dump(digichem_options, all),
+            "raw_atoms": self.raw_atoms.dump(digichem_options, all),
+            "orbitals": self.orbitals.dump(digichem_options, all),
+            "beta_orbitals": self.beta_orbitals.dump(digichem_options, all),
+            "pdm": self.pdm.dump(digichem_options, all) if self.pdm is not None else None,
+            "excited_states": self.excited_states.dump(digichem_options, all),
+            "soc": self.soc.dump(digichem_options, all),
+            "vibrations": self.vibrations.dump(digichem_options, all),
+            "nmr": self.nmr.dump(digichem_options, all),
+            "emission": self.emission.dump(digichem_options, all)
         })
         
         return dump_dic

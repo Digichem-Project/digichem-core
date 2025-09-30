@@ -182,7 +182,7 @@ class Dipole_moment_ABC(Result_object):
         except (FloatingPointError, ZeroDivisionError):
             return 0
         
-    def dump(self, digichem_options):
+    def _dump_(self, digichem_options, all):
         """
         Get a representation of this result object in primitive format.
         """
