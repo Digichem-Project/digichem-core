@@ -323,7 +323,7 @@ To disable the maximum width, set to null.""", type = int, default = 1500),
         path = Path(path)
         
         try:
-            path.parent.mkdir(exist_ok = True)
+            path.parent.mkdir(exist_ok = True, parents = True)
             atomic_write(path, data)
         
         except FileNotFoundError as e:
