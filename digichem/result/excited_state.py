@@ -382,17 +382,16 @@ class Excited_state_transition(Result_object):
                 "label": self.ending_mo.label
             },
             "coefficient": float(self.coefficient),
-            "probability": float(self.probability **2)
+            "probability": float(self.probability)
         }
         
     @classmethod
-    def list_from_parser(self, parser):
+    def list_from_parser(self, parser, threshold = 1e-4):
         """
         Create a list of excited state transitions from an output file parser.
         
         :param parser: An output file parser.
-        :param alpha_mo_list: A Molecular_orbital_list object of the MOs of this system.
-        :param beta_mo_list: A Molecular_orbital_list object of the beta MOs of this system. This can be left as null for restricted calcs.
+        :param threshold: The threshold below which transitions will be discarded.
         :return: A list of Excited_state_transition objects.
         """
         try:
@@ -409,6 +408,10 @@ class Excited_state_transition(Result_object):
 
                 for (starting_mo_index, starting_mo_AB), (ending_mo_index, ending_mo_AB), coefficient in excited_state_transitions:
                     try:
+                        if coefficient **2 < threshold:
+                            # Skip tiny contributions.
+                            continue
+
                         data_list.append({
                             'starting_mo': MOs[starting_mo_AB][starting_mo_index],
                             'ending_mo': MOs[ending_mo_AB][ending_mo_index],
