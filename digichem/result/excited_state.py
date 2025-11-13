@@ -391,8 +391,7 @@ class Excited_state_transition(Result_object):
         Create a list of excited state transitions from an output file parser.
         
         :param parser: An output file parser.
-        :param alpha_mo_list: A Molecular_orbital_list object of the MOs of this system.
-        :param beta_mo_list: A Molecular_orbital_list object of the beta MOs of this system. This can be left as null for restricted calcs.
+        :param threshold: The threshold below which transitions will be discarded.
         :return: A list of Excited_state_transition objects.
         """
         try:
