@@ -382,7 +382,7 @@ class Excited_state_transition(Result_object):
                 "label": self.ending_mo.label
             },
             "coefficient": float(self.coefficient),
-            "probability": float(self.probability **2)
+            "probability": float(self.probability)
         }
         
     @classmethod
