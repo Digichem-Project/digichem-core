@@ -386,7 +386,7 @@ class Excited_state_transition(Result_object):
         }
         
     @classmethod
-    def list_from_parser(self, parser):
+    def list_from_parser(self, parser, threshold = 1e-4):
         """
         Create a list of excited state transitions from an output file parser.
         
@@ -409,6 +409,10 @@ class Excited_state_transition(Result_object):
 
                 for (starting_mo_index, starting_mo_AB), (ending_mo_index, ending_mo_AB), coefficient in excited_state_transitions:
                     try:
+                        if coefficient **2 < threshold:
+                            # Skip tiny contributions.
+                            continue
+
                         data_list.append({
                             'starting_mo': MOs[starting_mo_AB][starting_mo_index],
                             'ending_mo': MOs[ending_mo_AB][ending_mo_index],
