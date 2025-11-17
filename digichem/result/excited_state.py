@@ -386,12 +386,12 @@ class Excited_state_transition(Result_object):
         }
         
     @classmethod
-    def list_from_parser(self, parser, threshold = 1e-4):
+    def list_from_parser(self, parser, threshold = 1e-3):
         """
         Create a list of excited state transitions from an output file parser.
         
         :param parser: An output file parser.
-        :param threshold: The threshold below which transitions will be discarded.
+        :param threshold: The probability threshold below which transitions will be discarded.
         :return: A list of Excited_state_transition objects.
         """
         try:
