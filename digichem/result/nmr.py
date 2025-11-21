@@ -845,11 +845,11 @@ class NMR_tensor_ABC(Result_object):
     tensor_names = ()
     units = ""
     
-    def __init__(self, tensors):
+    def __init__(self, tensors, total_isotropic = None):
         self.tensors = tensors
         
         # This is unused.
-        #self.total_isotropic = total_isotropic
+        self.total_isotropic = total_isotropic
     
     def eigenvalues(self, tensor = "total", real_only = True):
         """
@@ -873,8 +873,14 @@ class NMR_tensor_ABC(Result_object):
         
         :param tensor: The name of a tensor to calculate for (see tensor_names). Use 'total' for the total tensor.
         """
-        eigenvalues = self.eigenvalues(tensor)
-        return sum(eigenvalues) / len(eigenvalues)
+        try:
+            eigenvalues = self.eigenvalues(tensor)
+            return sum(eigenvalues) / len(eigenvalues)
+
+        except ValueError:
+            if tensor == "total" and self.total_isotropic:
+                # Use the fallback.
+                return self.total_isotropic
     
     def _dump_(self, digichem_options, all):
         """
@@ -895,12 +901,12 @@ class NMR_shielding(NMR_tensor_ABC):
     tensor_names = ("paramagnetic", "diamagnetic", "total")
     units = "ppm"
     
-    def __init__(self, tensors, reference = None):
+    def __init__(self, tensors, reference = None, total_isotropic = None):
         """
         :param tensors: A dictionary of tensors.
         :param reference: An optional reference isotropic value to correct this shielding by.
         """
-        super().__init__(tensors)
+        super().__init__(tensors, total_isotropic)
         self.reference = reference
         
     def isotropic(self, tensor = "total", correct = True):
@@ -932,7 +938,8 @@ class NMR_shielding(NMR_tensor_ABC):
                 total_isotropic = tensors.pop("isotropic")
                 shieldings[parser.results.atoms[atom_index]] = self(
                     tensors,
-                    reference = parser.options['nmr']['standards'].get(parser.results.atoms[atom_index].element.symbol, None)
+                    reference = parser.options['nmr']['standards'].get(parser.results.atoms[atom_index].element.symbol, None),
+                    total_isotropic = total_isotropic
                 )
         
         except AttributeError:
@@ -1036,13 +1043,13 @@ class NMR_spin_coupling(NMR_tensor_ABC):
     tensor_names = ("paramagnetic", "diamagnetic", "fermi", "spin-dipolar", "spin-dipolar-fermi", "total")
     units = "Hz"
     
-    def __init__(self, atoms, isotopes, tensors):
+    def __init__(self, atoms, isotopes, tensors, total_isotropic = None):
         """
         :param atoms: Tuple of atoms that this coupling is between.
         :param isotopes: Tuple of the specific isotopes of atoms.
         :param tensors: A dictionary of tensors.
         """
-        super().__init__(tensors)
+        super().__init__(tensors, total_isotropic = total_isotropic)
         self.atoms = atoms
         self.isotopes = isotopes
         
@@ -1059,7 +1066,14 @@ class NMR_spin_coupling(NMR_tensor_ABC):
             for atom_tuple, isotopes in parser.data.nmrcouplingtensors.items():
                 for isotope_tuple, tensors in isotopes.items():
                     total_isotropic = tensors.pop("isotropic")
-                    couplings.append(self((parser.results.atoms[atom_tuple[0]], parser.results.atoms[atom_tuple[1]]), isotope_tuple, tensors))
+                    couplings.append(
+                        self(
+                            (parser.results.atoms[atom_tuple[0]], parser.results.atoms[atom_tuple[1]]),
+                            isotope_tuple,
+                            tensors,
+                            total_isotropic = total_isotropic
+                        )
+                    )
         
         except AttributeError:
             return []
