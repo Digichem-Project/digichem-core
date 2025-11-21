@@ -136,5 +136,14 @@ class Gaussian_input_parser():
         """
         Get the geometry of this gaussian input file in XYZ format.
         """
-        return "{}\n\n{}".format(len(self.geometry.split("\n")), self.geometry)
+        lines = []
+        for line in self.geometry.split("\n"):
+            split_line = line.split()
+            atom = split_line[0]
+            if "(" in atom and ")" in atom:
+                atom = atom[atom.find("("):]
+            lines.append("    ".join(
+                [atom, *split_line[1:]]
+            ))
+        return "{}\n\n{}".format(len(self.geometry.split("\n")), "\n".join(lines))
 

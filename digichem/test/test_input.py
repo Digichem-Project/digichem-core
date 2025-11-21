@@ -4,7 +4,7 @@ import pytest
 from pathlib import Path
 
 from digichem.test.util import pyridine_si_v2, pyridine_si_v1, pyridine_cml,\
-    result_files, ethane_xyz, benzene_cdx, cyclopentane_com
+    result_files, ethane_xyz, benzene_cdx, cyclopentane_com, cyclopentane_iso_com
 from digichem.input.digichem_input import si_from_file
 
 @pytest.mark.parametrize("file_path", [
@@ -66,6 +66,7 @@ def test_si_history(file_path, sha):
 
 @pytest.mark.parametrize("file_path, format", [
     (cyclopentane_com, "mol"),
+    (cyclopentane_iso_com, "mol"),
     (ethane_xyz, "cml"),
     (benzene_cdx, "xyz"),
     (result_files['gaussian'][0], "com")
