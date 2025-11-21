@@ -18,6 +18,7 @@ def data_directory():
 benzene_cdx = Path(data_directory(), "Input", "Benzene.cdx")
 pyridine_cml = Path(data_directory(), "Input", "Pyridine.cml")
 cyclopentane_com = Path(data_directory(), "Input", "Cyclopentane.com")
+cyclopentane_iso_com = Path(data_directory(), "Input", "Cyclopentane_iso.com")
 water_xyz = Path(data_directory(), "Input", "Water.xyz")
 ethane_xyz = Path(data_directory(), "Input", "Ethane.xyz")
 pyridine_si_v2 = Path(data_directory(), "Input/Pyridine.v2.si")
