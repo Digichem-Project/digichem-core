@@ -862,10 +862,10 @@ class NMR_tensor_ABC(Result_object):
         
         except KeyError:
             if tensor not in self.tensor_names:
-                raise ValueError("The tensor '{}' is not recognised") from None
+                raise ValueError("The tensor '{}' is not recognised".format(tensor)) from None
             
             elif tensor not in self.tensors:
-                raise ValueError("The tensor '{}' is not available") from None
+                raise ValueError("The tensor '{}' is not available".format(tensor)) from None
         
     def isotropic(self, tensor = "total"):
         """
