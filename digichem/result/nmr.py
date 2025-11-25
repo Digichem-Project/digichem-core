@@ -565,12 +565,27 @@ class NMR_list(Result_container):
         # We need to do this after initial group assembly in order to discard self coupling.
         # Get unique couplings (so we don't consider any twice).
         group_couplings = {}
-        unique_couplings = {(coupling.atoms, coupling.isotopes): coupling for group in nmr_groups.values() for coupling in group['couplings']}.values()        
+        unique_couplings = list({(coupling.atoms, coupling.isotopes): coupling for group in nmr_groups.values() for coupling in group['couplings']}.values())
         for coupling in unique_couplings:
             # Find the group numbers that correspond to the two atoms in the coupling.
-            coupling_groups = tuple([atom_group.id for atom_group in atom_groups.values() if atom in atom_group.atoms][0] for atom in coupling.atoms)
-            
-            isotopes = coupling.isotopes
+            coupling_groups = tuple(
+                [atom_group.id for atom_group in atom_groups.values() if atom in atom_group.atoms][0] for atom in coupling.atoms
+            )
+
+            # We need to ensure that coupling_groups is a unique representation of the coupling,
+            # the ordering should be fixed.
+            indices = [
+                int(coupling_groups[0] >= coupling_groups[1]),
+                int(coupling_groups[0] < coupling_groups[1])
+            ]
+            coupling_groups = (
+                coupling_groups[indices[0]],
+                coupling_groups[indices[1]]
+            )
+            isotopes = (
+                coupling.isotopes[indices[0]],
+                coupling.isotopes[indices[1]]
+            )
             
             # Append the isotropic coupling constant to the group.
             if coupling_groups not in group_couplings:
