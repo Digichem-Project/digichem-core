@@ -9,6 +9,7 @@ import math
 from digichem.misc.base import regular_range, powerset
 from digichem.exception.base import Result_unavailable_error
 from digichem.result.base import Result_object, Result_container, Floatable_mixin
+from digichem.misc.base import round_sig
 import digichem.log
 
 # Hidden.
@@ -592,7 +593,7 @@ class NMR_list(Result_container):
                 coupling_groups[1],
                 # Round to 2 sig figs.
                 # TODO: Is this the best way of doing this?
-                round(coupling.isotropic(), 2-int(math.floor(math.log10(abs(coupling.isotropic()))))-1)
+                round_sig(coupling.isotropic(), 2)
             )
             
             # Append the isotropic coupling constant to the group.
@@ -908,9 +909,12 @@ class NMR_tensor_ABC(Result_object):
             return sum(eigenvalues) / len(eigenvalues)
 
         except ValueError:
-            if tensor == "total" and self.total_isotropic:
+            if tensor == "total" and self.total_isotropic is not None:
                 # Use the fallback.
                 return self.total_isotropic
+
+            else:
+                raise
     
     def _dump_(self, digichem_options, all):
         """
@@ -946,8 +950,18 @@ class NMR_shielding(NMR_tensor_ABC):
         :param tensor: The name of a tensor to calculate for (see tensor_names). Use 'total' for the total tensor.
         :param correct: Whether to correct this shielding value by the reference.
         """
-        eigenvalues = self.eigenvalues(tensor)
-        absolute = sum(eigenvalues) / len(eigenvalues)
+        try:
+            eigenvalues = self.eigenvalues(tensor)
+            absolute = sum(eigenvalues) / len(eigenvalues)
+        
+        except ValueError:
+            if tensor == "total" and self.total_isotropic is not None:
+                # Use the fallback.
+                absolute = self.total_isotropic
+            
+            else:
+                raise None
+
         if correct and self.reference is not None:
             return self.reference - absolute
         else:
