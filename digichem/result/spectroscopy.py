@@ -456,7 +456,7 @@ class NMR_graph(Spectroscopy_graph):
         # For atoms in which the majority of the abundance is already accounted for (1H, for example),
         # exclude the residual peak.
         residual_isotope_peaks = set(
-            [atom_group for atom_group, isotopes in coupling.items() if sum((atom_group.element[isotope].abundance for isotope in isotopes.keys())) / 100 > satellite_threshold]
+            [a_group for a_group, isotopes in coupling.items() if sum((a_group.element[isotope].abundance for isotope in isotopes.keys())) / 100 > satellite_threshold]
         )
         
         # We will keep requesting more splitting until we are able to account for all the peaks we can see.
