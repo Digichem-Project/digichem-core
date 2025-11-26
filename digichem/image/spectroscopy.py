@@ -572,9 +572,13 @@ class NMR_graph_maker(NMR_graph_maker_abc):
         # We always want to make sure that zero is shown however.
         #
         # NMR is also typically shown on a reversed scale.
+
+        # First, work out how wide our graph will be.
+        min_x = min(min(visible_x_values), 0)
+        max_x = max(max(visible_x_values), 0)
               
         x_padding = (
-            max(visible_x_values) - min(visible_x_values)
+            max_x - min_x
         ) * self.x_padding_percent
         
         # If we have no negative shifts, set zero as the end of one scale.
