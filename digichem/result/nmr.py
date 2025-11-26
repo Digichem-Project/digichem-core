@@ -586,6 +586,14 @@ class NMR_list(Result_container):
                 coupling.isotopes[indices[0]],
                 coupling.isotopes[indices[1]]
             )
+
+            coupling_groups = (
+                coupling_groups[0],
+                coupling_groups[1],
+                # Round to 2 sig figs.
+                # TODO: Is this the best way of doing this?
+                round(coupling.isotropic(), 2-int(math.floor(math.log10(abs(coupling.isotropic()))))-1)
+            )
             
             # Append the isotropic coupling constant to the group.
             if coupling_groups not in group_couplings:
@@ -600,7 +608,7 @@ class NMR_list(Result_container):
         group_couplings = {
             group_key: {
                 isotope_key: NMR_group_spin_coupling(
-                    groups = [atom_groups[group_sub_key] for group_sub_key in group_key],
+                    groups = [atom_groups[group_sub_key] for group_sub_key in group_key[:2]],
                     isotopes = isotope_key,
                     couplings = isotope_couplings
                 ) for isotope_key, isotope_couplings in  isotopes.items()}
@@ -612,13 +620,17 @@ class NMR_list(Result_container):
         for group_id, raw_group in nmr_groups.items():
             # Get appropriate couplings.
             
-            coupling = [
-                isotope_coupling
-                for group_key, group_coupling in group_couplings.items()
-                    for isotope_coupling in group_coupling.values()
-                        if group_id in group_key
-            ]
-            nmr_object_groups[raw_group['group']] = (NMR_group(raw_group['group'], raw_group['shieldings'], coupling))
+            try:
+                coupling = [
+                    isotope_coupling
+                    for group_key, group_coupling in group_couplings.items()
+                        for isotope_coupling in group_coupling.values()
+                            if group_id in group_key[:2]
+                ]
+            except ValueError:
+                raise
+            nmr_object_groups[raw_group['group']] = NMR_group(raw_group['group'], raw_group['shieldings'], coupling)
+            #nmr_object_groups[label] = NMR_group(raw_group['group'], raw_group['shieldings'], coupling)
         
         return nmr_object_groups
     
@@ -665,7 +677,10 @@ class NMR_group(Result_object, Floatable_mixin):
     def __init__(self, group, shieldings, couplings):
         self.group = group
         self.shieldings = shieldings
-        self.couplings = couplings
+        self.couplings = sorted(
+            couplings,
+            key = lambda coupling: coupling.total
+        )
         
         # Calculate average shieldings and couplings.
         self.shielding = float(sum([shielding.isotropic("total") for shielding in shieldings]) / len(shieldings))
