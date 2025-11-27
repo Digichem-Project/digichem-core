@@ -420,7 +420,7 @@ class NMR_graph(Spectroscopy_graph):
     For plotting an entire spectrum, use a Combined_graph of NMR_graph objects.
     """
     
-    def multiplicity(self, atom_group, coupling, satellite_threshold = 0.02):
+    def multiplicity(self, atom_group, coupling, satellite_threshold = 0.05):
         """
         Determine the multiplicity of this peak.
         
