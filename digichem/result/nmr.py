@@ -621,15 +621,12 @@ class NMR_list(Result_container):
         for group_id, raw_group in nmr_groups.items():
             # Get appropriate couplings.
             
-            try:
-                coupling = [
-                    isotope_coupling
-                    for group_key, group_coupling in group_couplings.items()
-                        for isotope_coupling in group_coupling.values()
-                            if group_id in group_key[:2]
-                ]
-            except ValueError:
-                raise
+            coupling = [
+                isotope_coupling
+                for group_key, group_coupling in group_couplings.items()
+                    for isotope_coupling in group_coupling.values()
+                        if group_id in group_key[:2]
+            ]
             nmr_object_groups[raw_group['group']] = NMR_group(raw_group['group'], raw_group['shieldings'], coupling)
             #nmr_object_groups[label] = NMR_group(raw_group['group'], raw_group['shieldings'], coupling)
         
