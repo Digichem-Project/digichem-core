@@ -672,10 +672,11 @@ class NMR_graph_zoom_maker(NMR_graph_maker_abc):
         
         # We need to get a list of all peaks that are above our cutoff point.
         # First determine our highest point.
-        highest_point = max(self.transpose(graph.coordinates)[1])
+        coords = graph.plot_cumulative_gaussian()
+        highest_point = max(self.transpose(coords)[1])
         
         # Now filter by a fraction of that amount.
-        visible_x_values = [x for x, y in graph.plot_cumulative_gaussian() if y >= (highest_point * self.peak_cutoff)]
+        visible_x_values = [x for x, y in coords if y >= (highest_point * self.peak_cutoff)]
         
         x_padding = (
             max(visible_x_values) -min(visible_x_values)
@@ -725,9 +726,11 @@ class NMR_graph_zoom_maker(NMR_graph_maker_abc):
         
         
         highest_point = max(spectrum[1])
+
+        height = highest_point * 1.3
         
         # Clamp to 0 -> pos.
-        self.axes.set_ylim(0, highest_point * 1.3)
+        self.axes.set_ylim(0 - height * 0.025, height)
         
     def plot_lines(self):
         """
