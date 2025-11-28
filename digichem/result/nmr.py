@@ -708,7 +708,7 @@ class NMR_group(Result_object, Floatable_mixin):
         self.shieldings = shieldings
         self.couplings = sorted(
             couplings,
-            key = lambda coupling: coupling.total
+            key = lambda coupling: abs(coupling.total)
         )
         
         # Calculate average shieldings and couplings.
