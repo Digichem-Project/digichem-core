@@ -8,8 +8,7 @@ import math
 
 from digichem.misc.base import regular_range, powerset
 from digichem.exception.base import Result_unavailable_error
-from digichem.result.base import Result_object, Result_container, Floatable_mixin
-from digichem.misc.base import round_sig
+from digichem.result.base import Result_object, Result_container, Floatable_mixins
 import digichem.log
 
 # Hidden.
@@ -591,9 +590,6 @@ class NMR_list(Result_container):
             coupling_groups = (
                 coupling_groups[0],
                 coupling_groups[1],
-                # Round to 2 sig figs.
-                # TODO: Is this the best way of doing this?
-                round_sig(coupling.isotropic(), 2)
             )
             
             # Append the isotropic coupling constant to the group.
@@ -604,17 +600,51 @@ class NMR_list(Result_container):
                 group_couplings[coupling_groups][isotopes] = []
                 
             group_couplings[coupling_groups][isotopes].append(coupling)
+
+        average_couplings = {}
+        for groups, isotopes in group_couplings.items():
+            if groups not in average_couplings.items():
+                average_couplings[groups] = {}
+
+            for isotope, coupling_list in isotopes.items():
+                #if isotope not in average_couplings[groups]:
+                #    average_couplings[groups][isotope] = []
+                
+                # Look through all available couplings for this atom group, and decide which
+                # are equivalent (and thus we can safely average together).
+                c = [[coupling_list[0]]]
+                for coupling in coupling_list[1:]:
+                    found = False
+                    for index, other_couplings in enumerate(c):
+                        for other_coupling in other_couplings:
+                            if abs(abs(coupling.isotropic()) - abs(other_coupling.isotropic())) < (abs(coupling.isotropic()) * 0.1):
+                                c[index].append(coupling)
+                                found = True
+                                break
+                        
+                        if found:
+                            break
+                    
+                    if not found:
+                        c.append([coupling])
+                
+                average_couplings[groups][isotope] = [NMR_group_spin_coupling(
+                    [atom_groups[group_sub_key] for group_sub_key in groups[:2]],
+                    isotope,
+                    coupling
+                ) for coupling in c]
+
             
         # Average each 'equivalent' coupling.
-        group_couplings = {
-            group_key: {
-                isotope_key: NMR_group_spin_coupling(
-                    groups = [atom_groups[group_sub_key] for group_sub_key in group_key[:2]],
-                    isotopes = isotope_key,
-                    couplings = isotope_couplings
-                ) for isotope_key, isotope_couplings in  isotopes.items()}
-            for group_key, isotopes in group_couplings.items()
-        }
+        # group_couplings = {
+        #     group_key: {
+        #         isotope_key: NMR_group_spin_coupling(
+        #             groups = [atom_groups[group_sub_key] for group_sub_key in group_key[:2]],
+        #             isotopes = isotope_key,
+        #             couplings = isotope_couplings
+        #         ) for isotope_key, isotope_couplings in  isotopes.items()}
+        #     for group_key, isotopes in group_couplings.items()
+        # }
         
         # Assemble the final group objects.
         nmr_object_groups = {}
@@ -622,10 +652,11 @@ class NMR_list(Result_container):
             # Get appropriate couplings.
             
             coupling = [
-                isotope_coupling
-                for group_key, group_coupling in group_couplings.items()
+                coupling_list
+                for group_key, group_coupling in average_couplings.items()
                     for isotope_coupling in group_coupling.values()
-                        if group_id in group_key[:2]
+                        for coupling_list in isotope_coupling
+                            if group_id in group_key[:2]
             ]
             nmr_object_groups[raw_group['group']] = NMR_group(raw_group['group'], raw_group['shieldings'], coupling)
             #nmr_object_groups[label] = NMR_group(raw_group['group'], raw_group['shieldings'], coupling)
