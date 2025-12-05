@@ -22,7 +22,7 @@ class Cclib_parser(File_parser_abc):
     # A dictionary of recognised auxiliary file types.
     INPUT_FILE_TYPES = {}
     
-    def __init__(self, *log_files, options, **auxiliary_files):
+    def __init__(self, *log_files, options, metadata_defaults = None, **auxiliary_files):
         """
         Top level constructor for calculation parsers.
         
@@ -36,7 +36,7 @@ class Cclib_parser(File_parser_abc):
         # Also have a look for a profile.csv file that we can us for performance metrics.
         self.profile_file = Path(log_files[0].parent, "../Logs/profile.csv")
         
-        super().__init__(*log_files, options = options)
+        super().__init__(*log_files, options = options, metadata_defaults = metadata_defaults)
         
     @classmethod
     def from_logs(self, *log_files, hints = None, options, **kwargs):
