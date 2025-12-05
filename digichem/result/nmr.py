@@ -8,7 +8,7 @@ import math
 
 from digichem.misc.base import regular_range, powerset
 from digichem.exception.base import Result_unavailable_error
-from digichem.result.base import Result_object, Result_container, Floatable_mixins
+from digichem.result.base import Result_object, Result_container, Floatable_mixin
 import digichem.log
 
 # Hidden.
