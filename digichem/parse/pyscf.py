@@ -18,11 +18,23 @@ class Pyscf_parser(Parser_abc):
         super().__init__(**kwargs)
 
     def _parse(self):
+        """
+        Extract results from our output files.
+        """
         self.data = cclibfrommethods(**self.methods)
-        
+    
+    def post_parse(self):
+        """
+        Perform any required operations after line-by-line parsing.
+        """ 
+        super().post_parse()
+        # Set some metadata objects.
+        self.data.metadata['name'] = self.mol_name
+        self.data._aux = {'methods': self.methods}
+
         try:
             # Try to generate a checksum from metadata.
-            self.data._id = hashlib.sha1(json.dumps(self.data.metadata, sort_keys = True).encode('utf-8')).hexdigest()
+            self.data._id = hashlib.sha1(json.dumps(self.data.metadata, sort_keys = True, default = str).encode('utf-8')).hexdigest()
 
         except Exception:
             # No luck, something in metadata must be unhashable.
@@ -30,6 +42,4 @@ class Pyscf_parser(Parser_abc):
             # TODO: Think of a better way to do this.
             self.data._id = hashlib.sha1(uuid4().hex.encode('utf-8')).hexdigest()
         
-        self.data.metadata['name'] = self.mol_name
-        self.data._aux = {'methods': self.methods}
             

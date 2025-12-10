@@ -29,9 +29,9 @@ class Gaussian_parser(Cclib_parser):
     CPU_TIME_HEADER = "Job cpu time:"
     CPU_HEADER = "Will use up to"
 
-    def __init__(self, *log_files, rwfdump = "rwfdump", options, **auxiliary_files):
+    def __init__(self, *log_files, rwfdump = "rwfdump", options, metadata_defaults = None, **auxiliary_files):
         self.rwfdump = rwfdump
-        super().__init__(*log_files, options = options, **auxiliary_files)
+        super().__init__(*log_files, options = options, metadata_defaults = metadata_defaults, **auxiliary_files)
     
     def parse_metadata(self):
         """

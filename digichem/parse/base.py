@@ -32,7 +32,7 @@ custom_parsing_formats = [
 class Parser_abc():
     """ABC for all parsers."""
 
-    def __init__(self, *, raw_data = None, options, **kwargs):
+    def __init__(self, *, raw_data = None, options, metadata_defaults = None, **kwargs):
         """
         Top level constructor for calculation parsers.
         """
@@ -44,6 +44,9 @@ class Parser_abc():
 
         # Config options.
         self.options = options
+
+        # Manually provided overrides.
+        self.metadata_defaults = metadata_defaults if metadata_defaults is not None else {}
         
         # Parse (if we haven't already).
         try:
@@ -102,6 +105,11 @@ class Parser_abc():
         # Add current username.
         # TODO: It would probably be better if we used the name of the user who owns the output file, rather than the current user...
         self.data.metadata['user'] = self.get_current_username()
+
+        # Add any user supplied defaults.
+        metadata = self.metadata_defaults.copy()
+        metadata.update(self.data.metadata)
+        self.data.metadata = metadata
             
     def process_all(self):
         """
@@ -181,7 +189,7 @@ class Parser_abc():
 class File_parser_abc(Parser_abc):
     """ABC for all parsers."""
     
-    def __init__(self, *log_files, raw_data = None, **kwargs):
+    def __init__(self, *log_files, raw_data = None, metadata_defaults = None, **kwargs):
         """
         Top level constructor for calculation parsers.
         
@@ -194,7 +202,7 @@ class File_parser_abc(Parser_abc):
         if len(self.log_file_paths) == 0:
             raise Digichem_exception("Cannot parse calculation output; no available log files. Are you sure the given path is a log file or directory containing log files?")
         
-        super().__init__(raw_data=raw_data, **kwargs)
+        super().__init__(raw_data=raw_data, metadata_defaults = metadata_defaults, **kwargs)
 
     @classmethod
     def from_logs(self, *log_files, **kwargs):
