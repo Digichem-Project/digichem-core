@@ -5,6 +5,7 @@ from fractions import Fraction
 import re
 import statistics
 import math
+from configurables.misc import is_int
 
 from digichem.misc.base import regular_range, powerset
 from digichem.exception.base import Result_unavailable_error
@@ -594,7 +595,7 @@ class NMR_list(Result_container):
             coupling_groups = (
                 coupling_groups[0],
                 coupling_groups[1],
-                bond_matrix[coupling.atoms[0].index -1][coupling.atoms[1].index -1]
+                float(bond_matrix[coupling.atoms[0].index -1][coupling.atoms[1].index -1])
             )
             
             # Append the isotropic coupling constant to the group.
@@ -613,7 +614,8 @@ class NMR_list(Result_container):
                     # TODO: Add in bond distance.
                     groups = [atom_groups[group_sub_key] for group_sub_key in group_key[:2]],
                     isotopes = isotope_key,
-                    couplings = isotope_couplings
+                    couplings = isotope_couplings,
+                    distance = group_key[2]
                 ) for isotope_key, isotope_couplings in  isotopes.items()}
             for group_key, isotopes in group_couplings.items()
         }
@@ -707,15 +709,17 @@ class NMR_group_spin_coupling(Result_object):
     A result object containing the average coupling between two different groups of nuclei.
     """
     
-    def __init__(self, groups, isotopes, couplings):
+    def __init__(self, groups, isotopes, couplings, distance = None):
         """
         :param groups: The two atom groups that this coupling is between.
         :param isotopes: The isotopes of the two groups (the order should match that of groups).
         :param couplings: A list of individual coupling constants between the atoms of these two groups.
+        :param distance: The bond distance between the two atoms.
         """
         self.groups = groups
         self.isotopes = isotopes
         self.couplings = couplings
+        self.distance = int(distance) if distance is not None and is_int(distance) else distance
         
     @property
     def total(self):
@@ -734,6 +738,10 @@ class NMR_group_spin_coupling(Result_object):
             "total": {
                 "units": "Hz",
                 "value": float(self.total),
+            },
+            "distance": {
+                "units": "bonds",
+                "value": self.distance
             }
             #"couplings": [coupling.dump(digichem_options, all) for coupling in self.couplings]
         }
