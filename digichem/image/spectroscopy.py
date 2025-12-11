@@ -803,8 +803,8 @@ class NMR_graph_zoom_maker(NMR_graph_maker_abc):
         if len(couplings) > 0 and mult[0]["number"] != 1:
             # Only show couplings for peaks we can actually distinguish.
             for (coupling_group, coupling_isotope), coupling in list(couplings.items())[:len(mult)]:
-            #for (coupling_group, coupling_isotope), coupling in [isotope_coupling for atom_dict in couplings.values() for isotope_coupling in atom_dict.items()][:len(mult)]:
-                label += "\n" + r"J = {:.2f} Hz ($\mathdefault{{^{{{}}}{}_{{{}}}}}$, {}{})".format(
+                label += "\n" + r"$\mathdefault{{^{{{}}}}}$J = {:.2f} Hz ($\mathdefault{{^{{{}}}{}_{{{}}}}}$, {}{})".format(
+                    coupling.distance if coupling.distance is not None else "",
                     coupling.total,
                     coupling_isotope,
                     coupling_group.element,
