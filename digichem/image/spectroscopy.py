@@ -435,7 +435,7 @@ class NMR_graph_maker_abc(Spectroscopy_graph_maker):
             label = r"$\mathdefault{{{{{}}}_{{{}}}}}$ ({})".format(atom_group.element, atom_group.index, mult_string)
             #label += "\n" + r"$\int$ = {}{}".format(len(atom_group.atoms), atom_group.element.symbol)
             #label += "\n{:.2f} ppm".format(x_coord) + r", $\int$ = {}{}".format(len(atom_group.atoms), atom_group.element.symbol)
-            label += "\n{:.2f} ppm".format(x_coord) + r", {}{}".format(len(atom_group.atoms), atom_group.element.symbol)
+            label += "\n{:.2f} ppm".format(x_coord) + r", ∫ = {}{}".format(len(atom_group.atoms), atom_group.element.symbol)
         
         else:
             label = r"$\mathdefault{{{{{}}}_{{{}}}}}$".format(atom_group.element, atom_group.index)
@@ -638,7 +638,7 @@ class NMR_graph_zoom_maker(NMR_graph_maker_abc):
         self.focus = focus
         
         self.x_padding = None
-        self.x_padding_percent = 1.0
+        self.x_padding_percent = 0.5
         
         self.target_width = 3.5
         
