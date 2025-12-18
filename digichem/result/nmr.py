@@ -5,6 +5,7 @@ from fractions import Fraction
 import re
 import statistics
 import math
+from configurables.misc import is_int
 
 from digichem.misc.base import regular_range, powerset
 from digichem.exception.base import Result_unavailable_error
@@ -545,6 +546,9 @@ class NMR_list(Result_container):
         # First, decide which atoms are actually equivalent.
         # We can do this by comparing canonical SMILES groupings.
         atom_groups = self.atoms.groups
+
+        # Also get the bond distance matrix for the molecule, so we can work out which couplings are actually equivalent.
+        bond_matrix = self.atoms.bond_matrix
         
         nmr_groups = {}
         # Next, assemble group objects.
@@ -565,12 +569,34 @@ class NMR_list(Result_container):
         # We need to do this after initial group assembly in order to discard self coupling.
         # Get unique couplings (so we don't consider any twice).
         group_couplings = {}
-        unique_couplings = {(coupling.atoms, coupling.isotopes): coupling for group in nmr_groups.values() for coupling in group['couplings']}.values()        
+        unique_couplings = list({(coupling.atoms, coupling.isotopes): coupling for group in nmr_groups.values() for coupling in group['couplings']}.values())
         for coupling in unique_couplings:
             # Find the group numbers that correspond to the two atoms in the coupling.
-            coupling_groups = tuple([atom_group.id for atom_group in atom_groups.values() if atom in atom_group.atoms][0] for atom in coupling.atoms)
-            
-            isotopes = coupling.isotopes
+            coupling_groups = tuple(
+                [atom_group.id for atom_group in atom_groups.values() if atom in atom_group.atoms][0] for atom in coupling.atoms
+            )
+
+            # We need to ensure that coupling_groups is a unique representation of the coupling,
+            # the ordering should be fixed.
+            indices = [
+                int(coupling_groups[0] >= coupling_groups[1]),
+                int(coupling_groups[0] < coupling_groups[1])
+            ]
+            coupling_groups = (
+                coupling_groups[indices[0]],
+                coupling_groups[indices[1]]
+            )
+            isotopes = (
+                coupling.isotopes[indices[0]],
+                coupling.isotopes[indices[1]]
+            )
+
+            # The group key contains the two atom groups, and the distance between them.
+            coupling_groups = (
+                coupling_groups[0],
+                coupling_groups[1],
+                float(bond_matrix[coupling.atoms[0].index -1][coupling.atoms[1].index -1])
+            )
             
             # Append the isotropic coupling constant to the group.
             if coupling_groups not in group_couplings:
@@ -582,12 +608,14 @@ class NMR_list(Result_container):
             group_couplings[coupling_groups][isotopes].append(coupling)
             
         # Average each 'equivalent' coupling.
-        group_couplings = {
+        average_couplings = {
             group_key: {
                 isotope_key: NMR_group_spin_coupling(
-                    groups = [atom_groups[group_sub_key] for group_sub_key in group_key],
+                    # TODO: Add in bond distance.
+                    groups = [atom_groups[group_sub_key] for group_sub_key in group_key[:2]],
                     isotopes = isotope_key,
-                    couplings = isotope_couplings
+                    couplings = isotope_couplings,
+                    distance = group_key[2]
                 ) for isotope_key, isotope_couplings in  isotopes.items()}
             for group_key, isotopes in group_couplings.items()
         }
@@ -599,11 +627,11 @@ class NMR_list(Result_container):
             
             coupling = [
                 isotope_coupling
-                for group_key, group_coupling in group_couplings.items()
+                for group_key, group_coupling in average_couplings.items()
                     for isotope_coupling in group_coupling.values()
-                        if group_id in group_key
+                        if group_id in group_key[:2]
             ]
-            nmr_object_groups[raw_group['group']] = (NMR_group(raw_group['group'], raw_group['shieldings'], coupling))
+            nmr_object_groups[raw_group['group']] = NMR_group(raw_group['group'], raw_group['shieldings'], coupling)
         
         return nmr_object_groups
     
@@ -650,7 +678,10 @@ class NMR_group(Result_object, Floatable_mixin):
     def __init__(self, group, shieldings, couplings):
         self.group = group
         self.shieldings = shieldings
-        self.couplings = couplings
+        self.couplings = sorted(
+            couplings,
+            key = lambda coupling: abs(coupling.total)
+        )
         
         # Calculate average shieldings and couplings.
         self.shielding = float(sum([shielding.isotropic("total") for shielding in shieldings]) / len(shieldings))
@@ -678,15 +709,17 @@ class NMR_group_spin_coupling(Result_object):
     A result object containing the average coupling between two different groups of nuclei.
     """
     
-    def __init__(self, groups, isotopes, couplings):
+    def __init__(self, groups, isotopes, couplings, distance = None):
         """
         :param groups: The two atom groups that this coupling is between.
         :param isotopes: The isotopes of the two groups (the order should match that of groups).
         :param couplings: A list of individual coupling constants between the atoms of these two groups.
+        :param distance: The bond distance between the two atoms.
         """
         self.groups = groups
         self.isotopes = isotopes
         self.couplings = couplings
+        self.distance = int(distance) if distance is not None and is_int(distance) else distance
         
     @property
     def total(self):
@@ -705,6 +738,10 @@ class NMR_group_spin_coupling(Result_object):
             "total": {
                 "units": "Hz",
                 "value": float(self.total),
+            },
+            "distance": {
+                "units": "bonds",
+                "value": self.distance
             }
             #"couplings": [coupling.dump(digichem_options, all) for coupling in self.couplings]
         }
@@ -721,7 +758,19 @@ class NMR_group_spin_coupling(Result_object):
         """
         Calculate the number of atoms one of the atom groups is coupled to.
         """
-        second_index = self.other(atom_group)
+        # second_index = self.other(atom_group)
+
+        # if [group.label for group in self.groups] == ["H9", "H10"] or [group.label for group in self.groups] == ["H10", "H9"]:
+        #     print()
+
+        # atoms = []
+        # for coupling in self.couplings:
+        #     for atom in coupling.atoms:
+        #         if atom not in atom_group.atoms:
+        #             atoms.append(atom)
+        
+        # return len(list(set(atoms)))
+
         return int(len(self.couplings) / len(atom_group.atoms))
         
     def multiplicity(self, atom_group):
@@ -845,11 +894,11 @@ class NMR_tensor_ABC(Result_object):
     tensor_names = ()
     units = ""
     
-    def __init__(self, tensors):
+    def __init__(self, tensors, total_isotropic = None):
         self.tensors = tensors
         
         # This is unused.
-        #self.total_isotropic = total_isotropic
+        self.total_isotropic = total_isotropic
     
     def eigenvalues(self, tensor = "total", real_only = True):
         """
@@ -862,10 +911,10 @@ class NMR_tensor_ABC(Result_object):
         
         except KeyError:
             if tensor not in self.tensor_names:
-                raise ValueError("The tensor '{}' is not recognised") from None
+                raise ValueError("The tensor '{}' is not recognised".format(tensor)) from None
             
             elif tensor not in self.tensors:
-                raise ValueError("The tensor '{}' is not available") from None
+                raise ValueError("The tensor '{}' is not available".format(tensor)) from None
         
     def isotropic(self, tensor = "total"):
         """
@@ -873,8 +922,17 @@ class NMR_tensor_ABC(Result_object):
         
         :param tensor: The name of a tensor to calculate for (see tensor_names). Use 'total' for the total tensor.
         """
-        eigenvalues = self.eigenvalues(tensor)
-        return sum(eigenvalues) / len(eigenvalues)
+        try:
+            eigenvalues = self.eigenvalues(tensor)
+            return sum(eigenvalues) / len(eigenvalues)
+
+        except ValueError:
+            if tensor == "total" and self.total_isotropic is not None:
+                # Use the fallback.
+                return self.total_isotropic
+
+            else:
+                raise
     
     def _dump_(self, digichem_options, all):
         """
@@ -895,12 +953,12 @@ class NMR_shielding(NMR_tensor_ABC):
     tensor_names = ("paramagnetic", "diamagnetic", "total")
     units = "ppm"
     
-    def __init__(self, tensors, reference = None):
+    def __init__(self, tensors, reference = None, total_isotropic = None):
         """
         :param tensors: A dictionary of tensors.
         :param reference: An optional reference isotropic value to correct this shielding by.
         """
-        super().__init__(tensors)
+        super().__init__(tensors, total_isotropic)
         self.reference = reference
         
     def isotropic(self, tensor = "total", correct = True):
@@ -910,8 +968,18 @@ class NMR_shielding(NMR_tensor_ABC):
         :param tensor: The name of a tensor to calculate for (see tensor_names). Use 'total' for the total tensor.
         :param correct: Whether to correct this shielding value by the reference.
         """
-        eigenvalues = self.eigenvalues(tensor)
-        absolute = sum(eigenvalues) / len(eigenvalues)
+        try:
+            eigenvalues = self.eigenvalues(tensor)
+            absolute = sum(eigenvalues) / len(eigenvalues)
+        
+        except ValueError:
+            if tensor == "total" and self.total_isotropic is not None:
+                # Use the fallback.
+                absolute = self.total_isotropic
+            
+            else:
+                raise None
+
         if correct and self.reference is not None:
             return self.reference - absolute
         else:
@@ -932,7 +1000,8 @@ class NMR_shielding(NMR_tensor_ABC):
                 total_isotropic = tensors.pop("isotropic")
                 shieldings[parser.results.atoms[atom_index]] = self(
                     tensors,
-                    reference = parser.options['nmr']['standards'].get(parser.results.atoms[atom_index].element.symbol, None)
+                    reference = parser.options['nmr']['standards'].get(parser.results.atoms[atom_index].element.symbol, None),
+                    total_isotropic = total_isotropic
                 )
         
         except AttributeError:
@@ -1036,13 +1105,13 @@ class NMR_spin_coupling(NMR_tensor_ABC):
     tensor_names = ("paramagnetic", "diamagnetic", "fermi", "spin-dipolar", "spin-dipolar-fermi", "total")
     units = "Hz"
     
-    def __init__(self, atoms, isotopes, tensors):
+    def __init__(self, atoms, isotopes, tensors, total_isotropic = None):
         """
         :param atoms: Tuple of atoms that this coupling is between.
         :param isotopes: Tuple of the specific isotopes of atoms.
         :param tensors: A dictionary of tensors.
         """
-        super().__init__(tensors)
+        super().__init__(tensors, total_isotropic = total_isotropic)
         self.atoms = atoms
         self.isotopes = isotopes
         
@@ -1059,7 +1128,14 @@ class NMR_spin_coupling(NMR_tensor_ABC):
             for atom_tuple, isotopes in parser.data.nmrcouplingtensors.items():
                 for isotope_tuple, tensors in isotopes.items():
                     total_isotropic = tensors.pop("isotropic")
-                    couplings.append(self((parser.results.atoms[atom_tuple[0]], parser.results.atoms[atom_tuple[1]]), isotope_tuple, tensors))
+                    couplings.append(
+                        self(
+                            (parser.results.atoms[atom_tuple[0]], parser.results.atoms[atom_tuple[1]]),
+                            isotope_tuple,
+                            tensors,
+                            total_isotropic = total_isotropic
+                        )
+                    )
         
         except AttributeError:
             return []

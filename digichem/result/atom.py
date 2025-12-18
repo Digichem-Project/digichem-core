@@ -255,6 +255,14 @@ class Atom_list(Result_container, Unmergeable_container_mixin, Molecule_mixin):
             
         return self._groups
     
+    @property
+    def bond_matrix(self):
+        """
+        Get the bond distance matrix for this molecule, which indicates how many bonds separate each atom in the molecule.
+        """
+        from rdkit import Chem
+        return Chem.rdmolops.GetDistanceMatrix(self.to_rdkit_molecule())
+    
     def find(self, criteria = None, *, label = None, index = None):
         """
         Find an atom that matches a given criteria

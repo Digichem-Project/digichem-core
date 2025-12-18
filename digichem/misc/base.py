@@ -1,4 +1,5 @@
 from itertools import chain, combinations
+import math
 
 def powerset(iterable):
     "powerset([1,2,3]) --> () (1,) (2,) (3,) (1,2) (1,3) (2,3) (1,2,3)"
@@ -26,6 +27,17 @@ def regular_range(median, number, spacing):
             peaks.append(median - magnitude * spacing)
         
     return sorted(peaks)
+
+def round_sig(number, sig_figs):
+    """Round a number to a given number of significant figures."""
+    try:
+        return round(number, sig_figs-int(math.floor(math.log10(abs(number))))-1)
+
+    except ValueError:
+        if number == 0:
+            return 0
+        else:
+            raise
     
 
 def dict_list_index(dictionary, item):

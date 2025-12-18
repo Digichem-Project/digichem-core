@@ -435,7 +435,7 @@ class NMR_graph_maker_abc(Spectroscopy_graph_maker):
             label = r"$\mathdefault{{{{{}}}_{{{}}}}}$ ({})".format(atom_group.element, atom_group.index, mult_string)
             #label += "\n" + r"$\int$ = {}{}".format(len(atom_group.atoms), atom_group.element.symbol)
             #label += "\n{:.2f} ppm".format(x_coord) + r", $\int$ = {}{}".format(len(atom_group.atoms), atom_group.element.symbol)
-            label += "\n{:.2f} ppm".format(x_coord) + r", {}{}".format(len(atom_group.atoms), atom_group.element.symbol)
+            label += "\n{:.2f} ppm".format(x_coord) + r", ∫ = {}{}".format(len(atom_group.atoms), atom_group.element.symbol)
         
         else:
             label = r"$\mathdefault{{{{{}}}_{{{}}}}}$".format(atom_group.element, atom_group.index)
@@ -572,9 +572,13 @@ class NMR_graph_maker(NMR_graph_maker_abc):
         # We always want to make sure that zero is shown however.
         #
         # NMR is also typically shown on a reversed scale.
+
+        # First, work out how wide our graph will be.
+        min_x = min(min(visible_x_values), 0)
+        max_x = max(max(visible_x_values), 0)
               
         x_padding = (
-            max(visible_x_values) - min(visible_x_values)
+            max_x - min_x
         ) * self.x_padding_percent
         
         # If we have no negative shifts, set zero as the end of one scale.
@@ -634,7 +638,7 @@ class NMR_graph_zoom_maker(NMR_graph_maker_abc):
         self.focus = focus
         
         self.x_padding = None
-        self.x_padding_percent = 1.0
+        self.x_padding_percent = 0.5
         
         self.target_width = 3.5
         
@@ -668,10 +672,11 @@ class NMR_graph_zoom_maker(NMR_graph_maker_abc):
         
         # We need to get a list of all peaks that are above our cutoff point.
         # First determine our highest point.
-        highest_point = max(self.transpose(graph.coordinates)[1])
+        coords = graph.plot_cumulative_gaussian()
+        highest_point = max(self.transpose(coords)[1])
         
         # Now filter by a fraction of that amount.
-        visible_x_values = [x for x, y in graph.plot_cumulative_gaussian() if y >= (highest_point * self.peak_cutoff)]
+        visible_x_values = [x for x, y in coords if y >= (highest_point * self.peak_cutoff)]
         
         x_padding = (
             max(visible_x_values) -min(visible_x_values)
@@ -721,9 +726,11 @@ class NMR_graph_zoom_maker(NMR_graph_maker_abc):
         
         
         highest_point = max(spectrum[1])
+
+        height = highest_point * 1.3
         
         # Clamp to 0 -> pos.
-        self.axes.set_ylim(0, highest_point * 1.3)
+        self.axes.set_ylim(0 - height * 0.025, height)
         
     def plot_lines(self):
         """
@@ -796,8 +803,8 @@ class NMR_graph_zoom_maker(NMR_graph_maker_abc):
         if len(couplings) > 0 and mult[0]["number"] != 1:
             # Only show couplings for peaks we can actually distinguish.
             for (coupling_group, coupling_isotope), coupling in list(couplings.items())[:len(mult)]:
-            #for (coupling_group, coupling_isotope), coupling in [isotope_coupling for atom_dict in couplings.values() for isotope_coupling in atom_dict.items()][:len(mult)]:
-                label += "\n" + r"J = {:.2f} Hz ($\mathdefault{{^{{{}}}{}_{{{}}}}}$, {}{})".format(
+                label += "\n" + r"$\mathdefault{{^{{{}}}}}$J = {:.2f} Hz ($\mathdefault{{^{{{}}}{}_{{{}}}}}$, {}{})".format(
+                    coupling.distance if coupling.distance is not None else "",
                     coupling.total,
                     coupling_isotope,
                     coupling_group.element,

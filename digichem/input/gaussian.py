@@ -130,11 +130,51 @@ class Gaussian_input_parser():
         
         # And anything else.
         self.additional_sections = sections[3:]
+    
+    def geometry_with_iso(self, isotopes = {}):
+        """
+        Get the geometry of this gaussian input file with specific isotopes.
+
+        :param isotopes: Isotope information. Each key should be an atomic index, or an element symbol, and each value the corresponding isotope (as an integer).
+        """
+        lines = []
+        for index, line in enumerate(self.geometry.split("\n")):
+            split_line = line.split()
+            atom = split_line[0]
+            if "(" in atom and ")" in atom:
+                atom = atom[atom.find("("):]
+
+            iso = None
+            if index in isotopes:
+                iso = isotopes[index]
+            
+            elif atom in isotopes:
+                iso = isotopes[atom]
+            
+            if iso is not None:
+                atom = "{}(iso={})".format(atom, iso)
+            
+
+            lines.append("    ".join(
+                [atom, *split_line[1:]]
+            ))
+        
+        return "\n".join(lines)
+
         
     @property
     def xyz(self):
         """
         Get the geometry of this gaussian input file in XYZ format.
         """
-        return "{}\n\n{}".format(len(self.geometry.split("\n")), self.geometry)
+        lines = []
+        for line in self.geometry.split("\n"):
+            split_line = line.split()
+            atom = split_line[0]
+            if "(" in atom and ")" in atom:
+                atom = atom[atom.find("("):]
+            lines.append("    ".join(
+                [atom, *split_line[1:]]
+            ))
+        return "{}\n\n{}".format(len(self.geometry.split("\n")), "\n".join(lines))
 

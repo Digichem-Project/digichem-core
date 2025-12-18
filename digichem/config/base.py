@@ -249,7 +249,7 @@ To disable the maximum width, set to null.""", type = int, default = 1500),
     
     nmr = Options(help = "Options for controlling simulated NMR spectra",
         enable_rendering = Option(help = "Set to False to disable image rendering.", type = bool, default = True),
-        coupling_filter = Option(help = "Discard J coupling that is below this threshold (in Hz)", type = float, default = 1),
+        coupling_filter = Option(help = "Discard J coupling that is below this threshold (in Hz)", type = float, default = 0.1),
         fwhm = Option(help = "The full-width at half-maximum; changes how wide the drawn peaks are. Note that the choice of peak width is essentially arbitrary; only the peak height is given by calculation. Units are ppm.", type = float, default = 0.01),
         y_filter = Option(help = "The minimum y value to simulate using the Gaussian function (y values below this are discarded)", type = float, default = 1e-6),
         gaussian_cutoff = Option(help = "The minimum y value to plot using the Gaussian function (controls how close to the x axis we draw the gaussian) as a fraction of the max peak height.", type = float, default = 0.001),
@@ -271,7 +271,7 @@ To disable the maximum width, set to null.""", type = int, default = 1500),
         isotopes = Option(help = "Isotope specific options. Each key should consist of a tuple of (proton_number, isotope).", type = Nested_dict_type, default = Nested_dict_type({
             # Resonance frequencies calculated at 9.3947 T.
             # 1H, increase fidelity to see more detail.
-            "1H": {"frequency": 400, "fwhm": 0.005, "gaussian_resolution": 0.0005, "coupling_filter": 0.001, "pre_merge": 0.0005},
+            "1H": {"frequency": 400, "fwhm": 0.0015, "gaussian_resolution": 0.0001, "coupling_filter": 0.001, "pre_merge": 0.0005},
             # 11B.
             "11B": {"frequency": 128.3},
             # 13C.
