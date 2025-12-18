@@ -465,8 +465,8 @@ def test_nmr_h_isotope_options(orca_nmr_result):
     # Check we have the right options set for H.
     options = orca_nmr_result.nmr.spectrometer.isotope_options(1, 1)
     assert options['frequency'] == 400
-    assert options['fwhm'] == 0.005
-    assert options['gaussian_resolution'] == 0.0005
+    assert options['fwhm'] == 0.0015
+    assert options['gaussian_resolution'] == 0.0001
     assert options['coupling_filter'] == 0.001
     assert options['pre_merge'] == 0.0005
 
