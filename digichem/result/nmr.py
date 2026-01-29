@@ -136,7 +136,7 @@ class NMR_spectrometer(Result_object):
         isotope = int(match_groups[0]) if match_groups[0] != "*" else 0
         element = getattr(periodictable, match_groups[1]).number
         
-        decoupling = [tuple(re.search("(\d+)([A-z][A-z]?)", decouple).groups()) for decouple in match_groups[2].split(",") if re.search("(\d+)([A-z][A-z]?)", decouple) is not None]
+        decoupling = [tuple(re.search(r"(\d+)([A-z][A-z]?)", decouple).groups()) for decouple in match_groups[2].split(",") if re.search(r"(\d+)([A-z][A-z]?)", decouple) is not None]
         decoupling = sorted([(getattr(periodictable, ele).number, int(iso)) for iso, ele in decoupling])
         
         return element, isotope, decoupling
