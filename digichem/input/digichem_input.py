@@ -517,7 +517,6 @@ def si_iter_from_xyz(file_name, **kwargs):
         data = []
 
         for line in file:
-            print(line, end="")
             if doc_length is None:
                 # New document, how big is it?
                 doc_length = int(line.strip()) +2
