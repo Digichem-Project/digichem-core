@@ -5,8 +5,6 @@ import periodictable
 from uuid import uuid4
 import types
 
-from cclib.bridge.cclib2pyscf import cclibfrommethods
-
 from digichem.parse.base import Parser_abc
 import digichem.log
 from digichem.input.digichem_input import si_from_file
