@@ -94,22 +94,10 @@ class Censo_parser(Parser_abc):
             "memory_available": self.program.calculation.performance['memory'],
         }
 
-        # Censo calculations are normally used for conformer ranking, so we should expect multiple structures as output.
-        # We'll use the lowest energy conformer as our 'main' structure.
-        # Use the highest level calc we have available.
-        if (self.program.working_directory / "3_REFINEMENT.xyz").exists():
-            coord_file = self.program.working_directory / "3_REFINEMENT.xyz"
+        try:
+            coord_file = self.program.next_coords
         
-        elif (self.program.working_directory / "2_OPTIMIZATION.xyz").exists():
-            coord_file = self.program.working_directory / "2_OPTIMIZATION.xyz"
-        
-        elif (self.program.working_directory / "1_SCREENING.xyz").exists():
-            coord_file = self.program.working_directory / "1_SCREENING.xyz"
-        
-        elif (self.program.working_directory / "0_PRESCREENING.xyz").exists():
-            coord_file = self.program.working_directory / "0_PRESCREENING.xyz"
-
-        else :
+        except Exception:
             coord_file = None
         
         if coord_file:
