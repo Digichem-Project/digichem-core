@@ -87,7 +87,7 @@ class Censo_parser(Parser_abc):
             #"temperature": None,
             #"pressure": None,
             "orbital_spin_type": "restricted" if self.program.calculation.multiplicity == 1 else "unrestricted",
-            "solvent_name": self.program.calculation.solution['solvent'] if self.program.calculation.solution['calc'] else None,
+            "solvent_name": str(self.program.calculation.solution['solvent']) if self.program.calculation.solution['calc'] else None,
             "solvent_model": self.program.calculation.solution['model'] if self.program.calculation.solution['calc'] else None,
             "num_cpu": self.program.calculation.performance['num_cpu'],
             #"memory_used": None,

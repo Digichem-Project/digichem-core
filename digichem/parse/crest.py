@@ -46,7 +46,7 @@ class Crest_parser(Parser_abc):
             #"pressure": None,
             # TODO: CREST doesn't actually use orbitals...
             "orbital_spin_type": "restricted",
-            "solvent_name": self.program.calculation.solution['solvent'] if self.program.calculation.solution['calc'] else None,
+            "solvent_name": str(self.program.calculation.solution['solvent']) if self.program.calculation.solution['calc'] else None,
             "solvent_model": self.program.calculation.solution['model'] if self.program.calculation.solution['calc'] else None,
             "num_cpu": self.program.calculation.performance['num_cpu'],
             #"memory_used": None,
