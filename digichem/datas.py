@@ -1,8 +1,12 @@
 import atexit
 from contextlib import ExitStack
 
-# TODO: Can switch to non-backport importlib.resources once >= 3.9
-import importlib_resources
+try:
+    import importlib.resources
+    importlib_resources = importlib.resources
+
+except ImportError:
+    import importlib_resources
 
 def get_resource(name):
     """
