@@ -354,6 +354,9 @@ class Metadata(Result_object):
         calculations = []
         if "Single Point" in self.calculations:
             calculations.append("single point energy")
+
+        if "Screening" in self.calculations:
+            calculations.append("conformer screening")
         
         if "Optimisation" in self.calculations:
             calculations.append("optimised structure")

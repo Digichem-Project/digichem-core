@@ -503,3 +503,35 @@ def si_from_file(file_name, file_type = None, *, gen3D = None, **kwargs):
         except:
             raise ValueError("Could not parse coordinates from '{}'".format(file_name))
     
+
+def si_iter_from_xyz(file_name, **kwargs):
+    """
+    Return a generator that yields Digichem_coords objects from the molecules in an xyz file.
+    
+    :param file_name: The XYZ file to read from. If the file contains multiple structures, they will be read in sequence.
+    """
+    with open(file_name, "rt") as file:
+        # How many lines are we expecting in the current molecule.
+        doc_length = None
+        doc_line_no = 0
+        data = []
+
+        for line in file:
+            if doc_length is None:
+                # New document, how big is it?
+                doc_length = int(line.strip()) +2
+
+            # What line of the document are we on right now?
+            doc_line_no += 1
+            data.append(line)
+
+            # Are we still reading the same document?
+            if doc_line_no >= doc_length:
+                # End of the document, we got a molecule!
+                yield Digichem_coords_v2.from_xyz("".join(data), **kwargs)
+
+                # Time for a new document, reset.
+                doc_length = None
+                doc_line_no = 0
+                data = []
+            

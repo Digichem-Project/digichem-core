@@ -322,12 +322,17 @@ class Safe_path():
         # Close our file.
         self.close()
 
-def dir_size(target):
+def dir_size(target, apparent = False):
     """
     Calculate the total used file space of a directory and all contents.
     """
     bytes = 0
-    for path in itertools.chain(Path(target).rglob("*"), [Path(target)]):
-        bytes += path.stat().st_size
+    for path in itertools.chain(Path(target).glob('**/*'), [Path(target)]):
+        stat = path.stat()
+        if not apparent and hasattr(stat, "st_blocks"):
+            bytes += stat.st_blocks * 512
+        
+        else:
+            bytes += stat.st_size
     
     return bytes

@@ -68,7 +68,8 @@ class Render_maker(File_converter, Cropable_mixin):
         self.target_resolution = resolution
         self.also_make_png = also_make_png
         self.isovalue = isovalue
-        self.num_cpu = num_cpu
+        # TODO: Should we not guess the number of CPUs required?
+        self.num_cpu = num_cpu if num_cpu is not None else num_cpu
         
         # TODO: These.
         self.primary_colour = "red"

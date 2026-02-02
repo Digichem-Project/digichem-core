@@ -11,7 +11,7 @@ from digichem.datas import get_resource
 ####################
 
 
-__version__ = "7.2.0"
+__version__ = "7.3.0"
 _v_parts = __version__.split("-")[0].split(".")
 major_version = int(_v_parts[0])
 minor_version = int(_v_parts[1])
@@ -30,7 +30,7 @@ __author__ = [
 ]
 
 # Program date (when we were last updated). This is changed automatically.
-_last_updated_string = "05/01/2026"
+_last_updated_string = "02/02/2026"
 last_updated = datetime.strptime(_last_updated_string, "%d/%m/%Y")
 
 # The sys attribute 'frozen' is our flag, '_MEIPASS' is the dir location.

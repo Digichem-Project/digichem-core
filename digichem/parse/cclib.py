@@ -1,9 +1,5 @@
 from pathlib import Path
 import itertools
-import csv
-import numpy
-import math
-from scipy import signal
 
 import digichem.log
 from digichem.parse.base import File_parser_abc
@@ -31,12 +27,8 @@ class Cclib_parser(File_parser_abc):
         """
         # Also save our aux files, stripping None.
         self.auxiliary_files = {name: aux_file for name,aux_file in auxiliary_files.items() if aux_file is not None}
-
-        # TODO: Does this belong here?
-        # Also have a look for a profile.csv file that we can us for performance metrics.
-        self.profile_file = Path(log_files[0].parent, "../Logs/profile.csv")
         
-        super().__init__(*log_files, options = options, metadata_defaults = metadata_defaults)
+        super().__init__(*log_files, options = options, metadata_defaults = metadata_defaults, profile_file = Path(log_files[0].parent, "../Logs/profile.csv"))
         
     @classmethod
     def from_logs(self, *log_files, hints = None, options, **kwargs):
@@ -132,111 +124,6 @@ class Cclib_parser(File_parser_abc):
             
             else:
                 pass
-
-    def parse_profile_file(self):
-        """
-        """
-        # Real calculations can end up with millions of rows, which is far too much data to handle.
-        # We will need to downsample if we have too many data points.
-        # First work out how many rows there are.
-        try:
-            with open(self.profile_file, "rb") as profile_file:
-                lines = sum(1 for _ in profile_file) -1 # Remove 1 line for the header.
-        
-        except FileNotFoundError:
-            # This is ok
-            return
-
-        if lines < 2:
-            return
-
-        max_lines  = self.options.parse['profiling_rows']
-        factor = math.ceil(lines / max_lines)
-        
-        with open(self.profile_file) as profile_file:
-            reader = csv.reader(profile_file)
-
-            # Get the header.
-            headers = next(reader)
-
-            # Check headers match.
-            if (headers[0] == "Duration / s" and 
-               headers[1] == "Memory Used (Real) / bytes" and
-               headers[2] == "Memory Used (Real) / %" and
-               headers[3] == "Memory Available  (Real) / bytes" and
-               headers[4] == "Memory Available (Real) / %" and
-               headers[9] == "CPU Usage / %" and
-               headers[15] == "Output Directory Available / bytes" and
-               headers[17] == "Scratch Directory Used / bytes" and
-               headers[18] == "Scratch Directory Available / bytes"
-            ):
-                column_map = {
-                    "duration": 0,
-                    "memory_used": 1,
-                    "memory_used_percent": 2,
-                    "memory_available": 3,
-                    "memory_available_percent": 4,
-                    "cpu_used": 9,
-                    "output_available": 15,
-                    "scratch_used": 17,
-                    "scratch_available": 18
-                }
-            
-            elif (headers[0] == "Duration / s" and 
-               headers[1] == "Memory Used (Real) / bytes" and
-               headers[2] == "Memory Used (Real) / %" and
-               headers[3] == "Memory Available  (Real) / bytes" and
-               headers[4] == "Memory Available (Real) / %" and
-               headers[9] == "CPU Usage / %" and
-               headers[15] == "Output Directory Available / bytes" and
-               headers[17] == "Scratch Directory Available / bytes"
-            ):
-                column_map = {
-                    "duration": 0,
-                    "memory_used": 1,
-                    "memory_used_percent": 2,
-                    "memory_available": 3,
-                    "memory_available_percent": 4,
-                    "cpu_used": 9,
-                    "output_available": 15,
-                    "scratch_available": 17
-                }
-            
-            else:
-                raise Digichem_exception("wrong headers found in profile.csv file")
-            
-            # Then the body.
-            # TODO: Reading the entire file is not ideal...
-            data = numpy.genfromtxt(
-                profile_file,
-                delimiter=',',
-                # TODO: use something better.
-                filling_values = "0"
-            )
-
-        # We'll keep:
-        # - duration
-        # - memory used
-        # - memory used %
-        # - memory available
-        # - memory available %
-        # - cpu used
-        # - output space
-        # - scratch space
-        new_data = numpy.zeros((math.ceil(lines / factor), len(column_map)))
-
-        # Now decimate.
-        for i, k in enumerate(column_map.values()):
-            if factor > 1:
-                new_data[:, i] = signal.decimate(data[:, k], factor)
-            else:
-                new_data[:, i] = data[:, k]
-        
-        
-        self.data.metadata['performance'] = {
-            key: new_data[:, index] for index, key in enumerate(column_map)
-        }
-        
         
     def parse_output_line(self, log_file, line):
         """

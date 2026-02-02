@@ -7,6 +7,7 @@ from cclib.bridge.cclib2pyscf import cclibfrommethods
 from digichem.parse.base import Parser_abc
 import digichem.log
 
+
 class Pyscf_parser(Parser_abc):
     """
     Top level class for parsing output from pyscf data.

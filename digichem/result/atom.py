@@ -318,28 +318,30 @@ class Atom_list(Result_container, Unmergeable_container_mixin, Molecule_mixin):
             return self._smiles
         
         except AttributeError:
-            # Cache miss, go do some work.
+            pass
+        
+        # Cache miss, go do some work.
 
-            from rdkit.Chem import MolToSmiles
-            from rdkit.Chem.rdmolops import RemoveHs
+        from rdkit.Chem import MolToSmiles
+        from rdkit.Chem.rdmolops import RemoveHs
+        
+        # TODO: Find some other way of generating SMILES.
+
+        mol = self.to_rdkit_molecule()
+        try:
+            # TODO: rdkit is unreliable, this method can fail for lots of reasons...
+            mol = RemoveHs(mol)
+        except Exception:
+            pass
             
-            # TODO: Find some other way of generating SMILES.
+        self._smiles = MolToSmiles(mol)
+        return self._smiles
 
-            mol = self.to_rdkit_molecule()
-            try:
-                # TODO: rdkit is unreliable, this method can fail for lots of reasons...
-                mol = RemoveHs(mol)
-            except Exception:
-                pass
-                
-            self._smiles = MolToSmiles(mol)
-            return self._smiles
-
-            # # TODO: Handle cases where obabel isn't available
-            # conv = Openprattle_converter.get_cls("xyz")(input_file = self.to_xyz(), input_file_type = "xyz")
-            # # Cache the result in case we need it again.
-            # self._smiles = conv.convert("can").strip()
-            # return self._smiles
+        # # TODO: Handle cases where obabel isn't available
+        # conv = Openprattle_converter.get_cls("xyz")(input_file = self.to_xyz(), input_file_type = "xyz")
+        # # Cache the result in case we need it again.
+        # self._smiles = conv.convert("can").strip()
+        # return self._smiles
         
     @property
     def X_length(self):
@@ -567,9 +569,16 @@ class Atom_list(Result_container, Unmergeable_container_mixin, Molecule_mixin):
             rdDetermineBonds.DetermineBonds(mol, charge = self.charge)
         
         except Exception:
+            #formula_string may also not be implemented...
+            try:
+                formula_string = self.formula_string
+
+            except Exception:
+                formula_string = None
+            
             # This function is not implemented for some atoms (eg, Se).
             digichem.log.get_logger().warning(
-                "Unable to determine bond ordering for molecule; all bonds will be represented as single bonds only".format(self.formula_string)
+                "Unable to determine bond ordering for '{}'; all bonds will be represented as single bonds only".format(formula_string)
                 , exc_info = True
             )
         
