@@ -9,6 +9,7 @@ import warnings
 import itertools
 from uuid import uuid4
 import hashlib
+import asyncio
 
 from digichem.datas import get_resource
 import digichem.log
