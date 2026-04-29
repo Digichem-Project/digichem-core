@@ -9,6 +9,7 @@ import warnings
 import itertools
 from uuid import uuid4
 import hashlib
+import asyncio
 
 from digichem.datas import get_resource
 import digichem.log
@@ -334,5 +335,23 @@ def dir_size(target, apparent = False):
         
         else:
             bytes += stat.st_size
+    
+    return bytes
+
+
+async def async_dir_size(target, apparent = False):
+    """
+    Calculate the total used file space of a directory and all contents.
+    """
+    bytes = 0
+    for path in itertools.chain(Path(target).glob('**/*'), [Path(target)]):
+        stat = path.stat()
+        if not apparent and hasattr(stat, "st_blocks"):
+            bytes += stat.st_blocks * 512
+        
+        else:
+            bytes += stat.st_size
+        
+        await asyncio.sleep(0)
     
     return bytes
