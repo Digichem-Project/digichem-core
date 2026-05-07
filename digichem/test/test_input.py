@@ -4,7 +4,7 @@ import pytest
 from pathlib import Path
 
 from digichem.test.util import pyridine_si_v2, pyridine_si_v1, pyridine_cml,\
-    result_files, ethane_xyz, benzene_cdx, cyclopentane_com, cyclopentane_iso_com
+    result_files, ethane_xyz, benzene_cdx, cyclopentane_com, cyclopentane_iso_com, pyridinium_si
 from digichem.input.digichem_input import si_from_file
 
 @pytest.mark.parametrize("file_path", [
@@ -77,3 +77,33 @@ def test_si_file_convert(file_path, format, tmp_path):
     """
     si_file = si_from_file(file_path)
     si_file.to_format(format, (tmp_path / "file").with_suffix("." + format))
+
+
+def test_si_charge_preserved():
+    """
+    Can we preserve charge and multiplicity when converting?
+    """
+    si_file = si_from_file(pyridinium_si)
+
+    # Check charge and mult.
+    assert si_file.charge == 1
+    assert si_file.multiplicity == 1
+
+    # Convert, using the in-built charge.
+    com = si_file.to_format('com')
+    assert com.splitlines()[5] == "1  1"
+
+
+def test_si_charge_override():
+    """
+    Can we preserve charge and multiplicity when converting?
+    """
+    si_file = si_from_file(pyridinium_si, charge = 0, multiplicity = 2)
+
+    # Check charge and mult.
+    assert si_file.charge == 0
+    assert si_file.multiplicity == 2
+
+    # Convert, using the in-built charge.
+    com = si_file.to_format('com')
+    assert com.splitlines()[5] == "0  2"
