@@ -223,7 +223,7 @@ def draw_primitive(start, end, radius, mesh_type, color, collection = None):
     obj = bpy.context.active_object
     
     phi = math.atan2(dy, dx)
-    theta = math.acos(dz/dist) 
+    theta = math.acos(dz/dist)
     
     bpy.context.object.rotation_euler[1] = theta 
     bpy.context.object.rotation_euler[2] = phi
@@ -267,7 +267,6 @@ def draw_arrow(start, end, radius, color, split = 0.9, collection = None):
     dx = end[0] - start[0]
     dy = end[1] - start[1]
     dz = end[2] - start[2]
-    dist = math.sqrt(dx**2 + dy**2 + dz**2)
     
     join = (dx * split + start[0], dy * split + start[1], dz * split + start[2])
     cylinder = draw_primitive(start, join, radius, "cylinder", color, collection = collection)
@@ -394,7 +393,12 @@ def main():
         
         dipoles = [yaml.safe_load(dipole) for dipole in args.dipoles]
         for start_coord, end_coord, rgba in dipoles:
-            arrows.append(draw_arrow(start_coord, end_coord, 0.1, rgba, collection = mol.coll))
+            try:
+                arrows.append(draw_arrow(start_coord, end_coord, 0.1, rgba, collection = mol.coll))
+            
+            except ZeroDivisionError:
+                # Length was zero, move on.
+                pass
         
     
     # Setup rendering settings.
