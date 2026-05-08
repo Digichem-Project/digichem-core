@@ -81,8 +81,8 @@ def add_molecule(
         visible = True,
         isovalues = None,
         isotype = "both",
-        primary_color = [1, 0.058, 0.0, 0.55],
-        secondary_color = [0.1, 0.1, 0.9, 0.55],
+        primary_color = [0.1, 0.1, 0.9, 0.55],
+        secondary_color = [1, 0.058, 0.0, 0.55],
         style = "default"
         ):
     """
