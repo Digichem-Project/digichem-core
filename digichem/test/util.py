@@ -23,6 +23,7 @@ water_xyz = Path(data_directory(), "Input", "Water.xyz")
 ethane_xyz = Path(data_directory(), "Input", "Ethane.xyz")
 pyridine_si_v2 = Path(data_directory(), "Input/Pyridine.v2.si")
 pyridine_si_v1 = Path(data_directory(), "Input/Pyridine.v1.si")
+pyridinium_si = Path(data_directory(), "Input/Pyridinium.si")
 
 
 # Result files for testing parsing.

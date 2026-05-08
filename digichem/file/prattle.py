@@ -146,6 +146,13 @@ class Openprattle_converter():
             sig.extend(["--gen3D", "True"])
         elif gen3D is False:
             sig.extend(["--gen3D", "False"])
+
+        # Add charge and mult.
+        if charge is not None:
+            sig.extend(["--charge", str(charge)])
+        
+        if multiplicity is not None:
+            sig.extend(["--multiplicity", str(multiplicity)])
             
         # If a file to write to has been given, set it.
         if output_file is not None:
