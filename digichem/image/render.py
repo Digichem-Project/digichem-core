@@ -72,8 +72,8 @@ class Render_maker(File_converter, Cropable_mixin):
         self.num_cpu = num_cpu if num_cpu is not None else num_cpu
         
         # TODO: These.
-        self.primary_colour = "red"
-        self.secondary_colour = "blue"
+        self.primary_colour = "blue"
+        self.secondary_colour = "red"
                 
         # These 4 attributes are file paths to the four images we create.
         # We'll keep the same file extension as the was given to us.

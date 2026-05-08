@@ -11,7 +11,7 @@ from digichem.datas import get_resource
 ####################
 
 
-__version__ = "7.4.1"
+__version__ = "7.4.2"
 _v_parts = __version__.split("-")[0].split(".")
 major_version = int(_v_parts[0])
 minor_version = int(_v_parts[1])
