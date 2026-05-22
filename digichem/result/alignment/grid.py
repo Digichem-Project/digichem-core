@@ -2,9 +2,16 @@
 import math
 import numpy
 from statistics import  mean
-from bayes_opt import BayesianOptimization, UtilityFunction
+try:
+    from bayes_opt import BayesianOptimization, UtilityFunction
+
+except ImportError:
+    BayesianOptimization = None
+    UtilityFunction = None
 
 from digichem.result.alignment import Alignment, Axis_swapper_mix
+from digichem.exception import Digichem_exception
+
 
 class Grid_search(Alignment, Axis_swapper_mix):
     """
@@ -237,6 +244,9 @@ class Bayesian_grid(Grid_search, Axis_swapper_mix):
         
         :return: Nothing. The atoms are rearranged in place.
         """
+        if BayesianOptimization is None or UtilityFunction is None:
+            raise Digichem_exception("Cannot perform Bayesian optimisation; the bayes_opt package is not available")
+
         # Begin by translating to centre of coordinates.
         coords = self.get_coordinate_list()
         self.translate((-mean(coords[0]) , -mean(coords[1]), -mean(coords[2])))
