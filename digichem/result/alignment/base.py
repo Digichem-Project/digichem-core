@@ -291,13 +291,14 @@ class Axis_swapper_mix():
         if self.X_length < self.Y_length and self.Y_length > self.Z_length:
             # Swap X and Y.
             self.rotate_XY(-math.pi/2)
+
         elif self.X_length < self.Z_length:
             # Swap X and Z.
             self.rotate_XZ(-math.pi/2)
             
         if self.Y_length < self.Z_length:
             # Swap. Y and Z.
-            self.rotate_YZ(-math.pi/2)
+            self.rotate_YZ(math.pi/2)
 
             
 class Minimal(Alignment, Axis_swapper_mix):
