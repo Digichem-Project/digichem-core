@@ -342,7 +342,7 @@ class Batoms_renderer(Render_maker):
                 self.file_path['x0y90z0'].with_suffix(".tmp.png")
             ],
             "x45y45z45": [
-                (-0.785398, 0.785398, 0.785398),
+                (0.785398, 0.785398, 0.785398),
                 self.test_resolution if self.auto_crop else self.target_resolution,
                 self.test_samples if self.auto_crop else self.render_samples,
                 self.file_path['x45y45z45'].with_suffix(".tmp.png")
