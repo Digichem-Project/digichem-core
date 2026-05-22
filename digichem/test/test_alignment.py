@@ -7,7 +7,7 @@ from digichem.test.util import data_directory, result_files, digichem_options
 
 @pytest.mark.parametrize(
     "method",
-    ["MIN", "FAP", "AA", "AAA", "GRID", "NEST"]
+    ["MIN", "FAP", "AA", "AAA", "GRID", "NEST", "BAY"]
 )
 def test_alignment_method(method, digichem_options):
     result = parse_calculation(Path(data_directory(), "Naphthalene/Gaussian 16 Single Point (Singlet) PBE1PBE (GD3BJ) Toluene 6-31G(d,p).tar.gz"), options = digichem_options, ornt = method)
