@@ -8,7 +8,7 @@ proc reset_rotation {rotations} {
     rotate x to 0
 
     # rotations is a string, we want a list to iterate through.
-    set rot_list [split "$rotations" " "]
+    set rot_list [split "$rotations" ":"]
 
     # Iterate through.
     foreach rotation_str $rot_list {
