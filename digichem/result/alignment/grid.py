@@ -3,11 +3,14 @@ import math
 import numpy
 from statistics import  mean
 try:
-    from bayes_opt import BayesianOptimization, UtilityFunction
+    from bayes_opt import BayesianOptimization
+    from bayes_opt.acquisition import UpperConfidenceBound
+    from bayes_opt.exception import NotUniqueError
 
 except ImportError:
     BayesianOptimization = None
-    UtilityFunction = None
+    UpperConfidenceBound = None
+    NotUniqueError = None
 
 from digichem.result.alignment import Alignment, Axis_swapper_mix
 from digichem.exception import Digichem_exception
@@ -224,7 +227,7 @@ class Bayesian_grid(Grid_search, Axis_swapper_mix):
     The bayesian grid search algorithm for determining molecule alignment. 
     """
 
-    def __init__(self, atoms, initial_steps = 10, opt_steps = 50, *args, charge = None, **kwargs):
+    def __init__(self, atoms, initial_steps = 1, opt_steps = 50, *args, charge = None, **kwargs):
         """
         Constructor for Bayesian_grid.
 
@@ -244,7 +247,7 @@ class Bayesian_grid(Grid_search, Axis_swapper_mix):
         
         :return: Nothing. The atoms are rearranged in place.
         """
-        if BayesianOptimization is None or UtilityFunction is None:
+        if BayesianOptimization is None:
             raise Digichem_exception("Cannot perform Bayesian optimisation; the bayes_opt package is not available")
 
         # Begin by translating to centre of coordinates.
@@ -254,45 +257,48 @@ class Bayesian_grid(Grid_search, Axis_swapper_mix):
         # Then create a copy of our coordinates to experiment with.
         points = [(atom.coords[0], atom.coords[1], atom.coords[2]) for atom in self]
 
+        acq = UpperConfidenceBound(
+                            kappa=2.576,
+                            exploration_decay=1,
+                            exploration_decay_delay=0)
+
         optimizer = BayesianOptimization(
-            f = None, 
+            f = None,
+            acquisition_function=acq,
             pbounds = {
                 "x_angle": [0, 0.5*math.pi], 
                 "y_angle": [0, 0.5*math.pi],
                 "z_angle": [0, 0.5*math.pi]
             },
-            verbose = 2,
+            verbose = 0,
             random_state = 2
         )
 
         # First do a coarse grid search.
         if self.steps > 0:
             memory = []
-            self.grid_search(10, memory = memory)
+            self.grid_search(self.steps, memory = memory)
             # Update the optimizer with the known values.
             for angles, volume in memory:
                 optimizer.register(params = angles, target = -volume)
             del memory
+        
+        try:
+            for i in range(self.opt_steps):
+                # Get optimizer to suggest new parameter values to try using the
+                # specified acquisition function
+                next_point = optimizer.suggest()
 
-        utility = UtilityFunction(kind='ucb',
-                                   kappa=2.576,
-                                   xi=0.0,
-                                   kappa_decay=1,
-                                   kappa_decay_delay=0)
+                # Evaluate the output of the black_box_function using 
+                # the new parameter values.
+                target = self.kernel(**next_point, points = points)
+                
+                # Update the optimizer with the evaluation results. 
+                optimizer.register(params = next_point, target = -target)
+        except NotUniqueError:
+            # We're already done.
+            pass
 
-        for i in range(self.opt_steps):
-            # Get optimizer to suggest new parameter values to try using the
-            # specified acquisition function.
-            next_point = optimizer.suggest(utility)
-
-            # Evaluate the output of the black_box_function using 
-            # the new parameter values.
-            target = self.kernel(**next_point, points = points)
-            
-            # Update the optimizer with the evaluation results. 
-            optimizer.register(params = next_point, target = -target)
-
-        print("Smallest: {}".format(optimizer.max["target"]))
         # Rotate by the requested amount.
         self.rotate_YZ(optimizer.max["params"]['x_angle'])
         self.rotate_XZ(optimizer.max["params"]['y_angle'])
