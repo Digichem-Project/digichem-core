@@ -7,7 +7,11 @@ import numpy
 import math
 from scipy import signal
 import itertools
+from typing import Union
+from cclib.parser.data import ccData
+import periodictable
 
+from digilib.config import Digilib_options
 from digilib.exception.base import Digichem_exception
 from digilib.result.orbital import Molecular_orbital_list,\
     Beta_orbital
@@ -41,33 +45,47 @@ class Parser_abc():
     # A dictionary of recognised auxiliary file types.
     INPUT_FILE_TYPES = {}
 
+    data: Union[ccData, None]
+    "A data object that we will populate with raw results."
+    results: Union[Result_set, None]
+    "A result set object that we'll populate with results."
+    options: Digilib_options
+    "Config options."
+    metadata_defaults: dict
+    "Manually provided overrides for metadata. These will only be applied if values cannot be parsed."
+    #atom_defaults: Union["Digichem_coords_ABC",None]
+    atom_defaults: object
+    "Manually provided overrides for atom data. These will only be applied if values cannot be parsed."
+    profile_file: Path
+    "Path to a profile.csv file to parse from."
+
+
     def __init__(
         self, *,
         raw_data = None,
-        options, ornt = None,
+        options,
+        ornt = None,
         ornt_args = (),
         metadata_defaults = None,
+        atom_defaults = None,
         profile_file = None,
+        mol_name = None,
         **auxiliary_files
     ):
         """
         Top level constructor for calculation parsers.
         """
-        # An object that we will populate with raw results.
         self.data = raw_data
-        
-        # A result set object that we'll populate with results.
         self.results = None
-
-        # Config options.
         self.options = options
+        self.mol_name = mol_name
 
         # The alignment method (if given explicitly).
         self.ornt = ornt
         self.ornt_args = ornt_args
-
-        # Manually provided overrides.
+        
         self.metadata_defaults = metadata_defaults if metadata_defaults is not None else {}
+        self.atom_defaults = atom_defaults
         
         # Save the profiling file.
         self.profile_file = profile_file
@@ -87,14 +105,14 @@ class Parser_abc():
         """
         Short name to describe this calculation result.
         """
-        return "Parser"
+        return self.name or "Parser"
     
     @property
     def description(self):
         """
         A name/path that describes the file(s) being parsed, used for error messages etc.
         """
-        return "Parser"
+        return self.name or "Parser"
 
     def parse(self):
         """
@@ -149,6 +167,19 @@ class Parser_abc():
             
             else:
                 pass
+
+        # If we're missing geometry info, and we have some defaults, apply those.
+        if self.atom_defaults is not None:
+            if self.data.atomnos is None or self.data.atomcoords is None or len(self.data.atomnos) != len(self.data.atomcoords):
+                digilib.log.get_logger().debug("Atom data is missing from parsed data, using supplied atom_defaults instead")
+                atomnos = []
+                atomcoords = []
+                for atom in self.atom_defaults.atoms:
+                    atomnos.append(periodictable.elements.symbol(atom['atom']).number)
+                    atomcoords.append([atom['x'], atom['y'], atom['z']])
+
+                self.data.atomnos = atomnos
+                self.data.atomcoords = [atomcoords]
     
     def parse_profile_file(self):
         """
@@ -276,7 +307,7 @@ class Parser_abc():
             _id = self.data._id,
             metadata = Metadata.from_parser(self),
             aux = self.data._aux if hasattr(self.data, '_aux') else None
-            )
+        )
         
         if self.ornt is not None:
             alignment_class = Alignment.from_class_handle(self.ornt)
@@ -430,7 +461,7 @@ class File_parser_abc(Parser_abc):
         """
         Short name to describe this calculation result.
         """
-        return self.log_file_path.with_suffix("").name
+        return self.mol_name or self.log_file_path.with_suffix("").name
     
     @property
     def description(self):
@@ -452,3 +483,4 @@ class File_parser_abc(Parser_abc):
         # Set our file paths.
         self.data.metadata['log_files'] = self.log_file_paths
         self.data.metadata['auxiliary_files'] = self.auxiliary_files
+
