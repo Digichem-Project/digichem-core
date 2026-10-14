@@ -146,7 +146,11 @@ def check_float_dict(test_dict, expected_dict, abs = 1e-4, _key = None):
             
     
     elif isinstance(test_dict, dict) or isinstance(expected_dict, dict):
-        assert len(test_dict) == len(expected_dict)
+        try:
+            assert len(test_dict) == len(expected_dict)
+
+        except AssertionError:
+            raise AssertionError("test_dict is of length {}, but expected_dict is of length {}".format(len(test_dict), len(expected_dict)))
 
         for key, value in test_dict.items():
             check_float_dict(value, expected_dict[key], _key = [*_key, key])
@@ -155,7 +159,7 @@ def check_float_dict(test_dict, expected_dict, abs = 1e-4, _key = None):
         try:
             assert test_dict == expected_dict
         except AssertionError:
-                    raise AssertionError("{} with value '{}' does not equal '{}'".format(".".join(_key), test_dict, expected_dict))
+            raise AssertionError("{} with value '{}' does not equal '{}'".format(".".join(_key), test_dict, expected_dict))
 
 
 def check_orbitals(orbitals, num_occ, num_unocc, homo, lumo):

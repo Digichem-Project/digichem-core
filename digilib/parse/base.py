@@ -69,6 +69,7 @@ class Parser_abc():
         metadata_defaults = None,
         atom_defaults = None,
         profile_file = None,
+        mol_name = None,
         **auxiliary_files
     ):
         """
@@ -77,6 +78,7 @@ class Parser_abc():
         self.data = raw_data
         self.results = None
         self.options = options
+        self.mol_name = mol_name
 
         # The alignment method (if given explicitly).
         self.ornt = ornt
@@ -103,14 +105,14 @@ class Parser_abc():
         """
         Short name to describe this calculation result.
         """
-        return "Parser"
+        return self.name or "Parser"
     
     @property
     def description(self):
         """
         A name/path that describes the file(s) being parsed, used for error messages etc.
         """
-        return "Parser"
+        return self.name or "Parser"
 
     def parse(self):
         """
@@ -459,7 +461,7 @@ class File_parser_abc(Parser_abc):
         """
         Short name to describe this calculation result.
         """
-        return self.log_file_path.with_suffix("").name
+        return self.mol_name or self.log_file_path.with_suffix("").name
     
     @property
     def description(self):
